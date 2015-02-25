@@ -167,7 +167,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
-        setNewFeedAdapter(new FeedAdapter(this.adapter.getQuery()));
+        FeedService.Query newQuery = this.adapter.getQuery().withContentType(contentTypes);
+        setNewFeedAdapter(new FeedAdapter(newQuery));
     }
 
     private void setNewFeedAdapter(FeedAdapter newAdapter) {
