@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.ContentType;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
     private boolean loading;
 
     public AbstractFeedAdapter(FeedService feedService, FeedType feedType,
-                               Set<ContentType> contentTypes, long start) {
+                               Set<ContentType> contentTypes, Optional<FeedItem> start) {
 
         this.feedService = feedService;
         this.feedType = feedType;
@@ -78,12 +79,11 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * Asynchronously loads the next page
      */
     public void loadNextPage() {
-        long oldest = items.isEmpty()
-                ? Integer.MAX_VALUE
-                : items.get(items.size() - 1).getId();
+        Optional<FeedItem> oldest = items.isEmpty()
+                ? Optional.absent()
+                : Optional.of(items.get(items.size() - 1));
 
         loadAfter(oldest);
-
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      *
      * @param start The post to start at.
      */
-    private void loadAfter(long start) {
+    private void loadAfter(Optional<FeedItem> start) {
         if (loading)
             return;
 
@@ -99,7 +99,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         onLoadStart();
 
         // do the loading.
-        bind(feedService.getFeedStartingAt(start, feedType, contentTypes))
+        bind(feedService.getFeedItems(feedType, contentTypes, start))
                 .finallyDo(this::onLoadFinished)
                 .finallyDo(() -> loading = false)
                 .subscribe(this::append, this::onError);
@@ -118,7 +118,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         notifyItemRangeRemoved(0, oldSize);
 
         // and start loading the first page
-        loadAfter(Integer.MAX_VALUE);
+        loadAfter(Optional.<FeedItem>absent());
     }
 
     public boolean isLoading() {

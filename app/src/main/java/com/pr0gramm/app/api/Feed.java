@@ -1,7 +1,5 @@
 package com.pr0gramm.app.api;
 
-import org.joda.time.Instant;
-
 import java.util.List;
 
 /**
@@ -27,53 +25,18 @@ public class Feed {
     }
 
     public static class Item {
-        private int id;
-        private int mark;
-        private String user;
-        private int flags;
-        private String source;
-        private int promoted;
-        private int up;
-        private int down;
-        private Instant created;
+        private long id;
+        private long promoted;
         private String image;
         private String thumb;
         private String fullsize;
 
-        public int getId() {
+        public long getId() {
             return id;
         }
 
-        public int getMark() {
-            return mark;
-        }
-
-        public String getUser() {
-            return user;
-        }
-
-        public int getFlags() {
-            return flags;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public int getPromoted() {
+        public long getPromoted() {
             return promoted;
-        }
-
-        public int getUp() {
-            return up;
-        }
-
-        public int getDown() {
-            return down;
-        }
-
-        public Instant getCreated() {
-            return created;
         }
 
         public String getImage() {

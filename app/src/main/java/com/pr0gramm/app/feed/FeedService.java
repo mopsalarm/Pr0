@@ -1,5 +1,6 @@
 package com.pr0gramm.app.feed;
 
+import com.google.common.base.Optional;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.ContentType;
 import com.pr0gramm.app.api.Api;
@@ -12,7 +13,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  */
@@ -25,16 +25,21 @@ public class FeedService {
         this.api = api;
     }
 
-    public Observable<List<FeedItem>> getFeed(FeedType type, Set<ContentType> flags) {
-        return getFeedStartingAt(Integer.MAX_VALUE, type, flags);
-    }
+    public Observable<List<FeedItem>> getFeedItems(
+            FeedType type, Set<ContentType> flags, Optional<FeedItem> start) {
 
-    public Observable<List<FeedItem>> getFeedStartingAt(long id, FeedType type,
-                                                        Set<ContentType> flags) {
+        // value of the "older" field. depends on the feed-type.
+        long older = start
+                .transform(i -> (type == FeedType.PROMOTED)
+                        ? i.getItem().getPromoted()
+                        : i.getItem().getId())
+                .or((long) Integer.MAX_VALUE);
 
-        int promoted = type == FeedType.PROMOTED ? 1 : 0;
+        // value for the promoted field
+        int promoted = (type == FeedType.PROMOTED) ? 1 : 0;
+
         return api
-                .itemsGet(promoted, id, ContentType.combine(flags))
+                .itemsGet(promoted, older, ContentType.combine(flags))
                 .map(feed -> {
                     List<FeedItem> result = new ArrayList<>();
                     for (Feed.Item item : feed.getItems())

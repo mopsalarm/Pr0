@@ -1,11 +1,13 @@
 package com.pr0gramm.app;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
@@ -31,6 +36,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.singleton;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -45,7 +51,11 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
 
+    @Inject
+    private SharedPreferences sharedPreferences;
+
     private FeedAdapter adapter;
+
     private GridLayoutManager layoutManager;
 
     @Override
@@ -57,7 +67,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = new FeedAdapter(EnumSet.of(ContentType.SFW));
+        adapter = restoreFeedAdapter();
 
         // prepare the list of items
         int count = getThumbnailColumns();
@@ -65,7 +75,30 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        // load next page if we are near the end of the list.
+        setupInfiniteScroll();
+
+        //  tell the activity that we provide a menu
+        setHasOptionsMenu(true);
+    }
+
+    private FeedAdapter restoreFeedAdapter() {
+        ImmutableSet<ContentType> contentTypes = FluentIterable
+                .from(sharedPreferences.getStringSet(
+                        "FeedFragment.contentType",
+                        singleton(ContentType.SFW.toString())))
+                .transform(ContentType::valueOf)
+                .toSet();
+
+        FeedType feedType = FeedType.valueOf(sharedPreferences.getString(
+                "FeedFragment.feedType", FeedType.PROMOTED.toString()));
+
+        return new FeedAdapter(feedType, contentTypes);
+    }
+
+    /**
+     * Loads the next page when we are near the end of one page.
+     */
+    private void setupInfiniteScroll() {
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -77,9 +110,6 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
                 }
             }
         });
-
-        //  tell the activity that we provide a menu
-        setHasOptionsMenu(true);
     }
 
     /**
@@ -120,17 +150,40 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
-        adapter = new FeedAdapter(contentTypes);
+        FeedAdapter adapter = new FeedAdapter(this.adapter.getFeedType(), contentTypes);
+
+        setNewFeedAdapter(adapter);
+    }
+
+    private void setNewFeedAdapter(FeedAdapter newAdapter) {
+        // set and store adapter
+        this.adapter = newAdapter;
         recyclerView.setAdapter(adapter);
 
+        // remember settings
+        storeAdapterConfiguration();
+
+        // we must update menu items
         getActivity().supportInvalidateOptionsMenu();
+    }
+
+    private void storeAdapterConfiguration() {
+        Log.i("FeedFragment", "storing adapter configuration");
+
+        sharedPreferences.edit()
+                .putString("FeedFragment.feedType", adapter.getFeedType().toString())
+                .putStringSet("FeedFragment.contentType", FluentIterable
+                        .from(adapter.getContentTypes())
+                        .transform(ContentType::toString)
+                        .toSet())
+                .apply();
     }
 
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
         private LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        FeedAdapter(Set<ContentType> contentTypes) {
-            super(feedService, FeedType.PROMOTED, contentTypes, Integer.MAX_VALUE);
+        FeedAdapter(FeedType type, Set<ContentType> contentTypes) {
+            super(feedService, type, contentTypes, Optional.<FeedItem>absent());
         }
 
         @SuppressLint("InflateParams")
