@@ -4,12 +4,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.common.base.Optional;
-import com.pr0gramm.app.ContentType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import rx.Observable;
 
@@ -19,20 +17,17 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
     private final List<FeedItem> items = new ArrayList<>();
 
     private final FeedService feedService;
-    private final FeedType feedType;
-    private final Set<ContentType> contentTypes;
+    private final FeedService.Query query;
 
     private boolean loading;
 
-    public AbstractFeedAdapter(FeedService feedService, FeedType feedType,
-                               Set<ContentType> contentTypes, Optional<FeedItem> start) {
+    public AbstractFeedAdapter(FeedService feedService, FeedService.Query query) {
 
         this.feedService = feedService;
-        this.feedType = feedType;
-        this.contentTypes = contentTypes;
+        this.query = query;
 
         setHasStableIds(true);
-        loadAfter(start);
+        loadAfter(query.getStart());
     }
 
     /**
@@ -67,12 +62,8 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         return items.get(idx);
     }
 
-    public Set<ContentType> getContentTypes() {
-        return contentTypes;
-    }
-
-    public FeedType getFeedType() {
-        return feedType;
+    public FeedService.Query getQuery() {
+        return query;
     }
 
     /**
@@ -99,7 +90,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         onLoadStart();
 
         // do the loading.
-        bind(feedService.getFeedItems(feedType, contentTypes, start))
+        bind(feedService.getFeedItems(query.withStart(start)))
                 .finallyDo(this::onLoadFinished)
                 .finallyDo(() -> loading = false)
                 .subscribe(this::append, this::onError);

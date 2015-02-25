@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
@@ -27,7 +26,6 @@ import com.pr0gramm.app.feed.FeedType;
 import com.squareup.picasso.Picasso;
 
 import java.util.EnumSet;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -42,6 +40,9 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class FeedFragment extends RoboFragment implements ChangeContentTypeDialog.ContentTypeChangeListener {
+    public static final String PREF_CONTENT_TYPE = "FeedFragment.contentType";
+    public static final String PREF_FEED_TYPE = "FeedFragment.feedType";
+
     @Inject
     private FeedService feedService;
 
@@ -82,17 +83,33 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     }
 
     private FeedAdapter restoreFeedAdapter() {
-        ImmutableSet<ContentType> contentTypes = FluentIterable
-                .from(sharedPreferences.getStringSet(
-                        "FeedFragment.contentType",
-                        singleton(ContentType.SFW.toString())))
-                .transform(ContentType::valueOf)
-                .toSet();
+        FeedService.Query query = new FeedService.Query();
 
-        FeedType feedType = FeedType.valueOf(sharedPreferences.getString(
-                "FeedFragment.feedType", FeedType.PROMOTED.toString()));
+        try {
+            ImmutableSet<ContentType> contentTypes = FluentIterable
+                    .from(sharedPreferences.getStringSet(PREF_CONTENT_TYPE, singleton(ContentType.SFW.toString())))
+                    .transform(ContentType::valueOf)
+                    .toSet();
 
-        return new FeedAdapter(feedType, contentTypes);
+            // update query
+            query = query.withContentType(contentTypes);
+
+        } catch (Exception ignored) {
+            // could not deserialize value
+        }
+
+        try {
+            FeedType feedType = FeedType.valueOf(sharedPreferences.getString(
+                    PREF_FEED_TYPE, FeedType.PROMOTED.toString()));
+
+            // update query
+            query = query.withFeedType(feedType);
+
+        } catch (Exception ignored) {
+            // could not deserialize value
+        }
+
+        return new FeedAdapter(query);
     }
 
     /**
@@ -131,7 +148,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         inflater.inflate(R.menu.menu_feed, menu);
 
         MenuItem item = menu.findItem(R.id.action_change_content_type);
-        item.setTitle(ContentType.toString(getActivity(), adapter.getContentTypes()));
+        item.setTitle(ContentType.toString(getActivity(), adapter.getQuery().getContentTypes()));
     }
 
     @Override
@@ -150,9 +167,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
-        FeedAdapter adapter = new FeedAdapter(this.adapter.getFeedType(), contentTypes);
-
-        setNewFeedAdapter(adapter);
+        setNewFeedAdapter(new FeedAdapter(this.adapter.getQuery()));
     }
 
     private void setNewFeedAdapter(FeedAdapter newAdapter) {
@@ -167,13 +182,17 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         getActivity().supportInvalidateOptionsMenu();
     }
 
+    /**
+     * Stores the current config of the feed to view it later again.
+     */
     private void storeAdapterConfiguration() {
         Log.i("FeedFragment", "storing adapter configuration");
 
+        FeedService.Query query = adapter.getQuery();
         sharedPreferences.edit()
-                .putString("FeedFragment.feedType", adapter.getFeedType().toString())
-                .putStringSet("FeedFragment.contentType", FluentIterable
-                        .from(adapter.getContentTypes())
+                .putString(PREF_FEED_TYPE, query.getFeedType().toString())
+                .putStringSet(PREF_CONTENT_TYPE, FluentIterable
+                        .from(query.getContentTypes())
                         .transform(ContentType::toString)
                         .toSet())
                 .apply();
@@ -182,8 +201,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
         private LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        FeedAdapter(FeedType type, Set<ContentType> contentTypes) {
-            super(feedService, type, contentTypes, Optional.<FeedItem>absent());
+        FeedAdapter(FeedService.Query query) {
+            super(feedService, query);
         }
 
         @SuppressLint("InflateParams")
