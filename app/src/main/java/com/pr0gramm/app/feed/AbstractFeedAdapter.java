@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import rx.Observable;
-import rx.functions.Action1;
 
 /**
  */
@@ -65,6 +64,14 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      */
     public FeedItem getItem(int idx) {
         return items.get(idx);
+    }
+
+    public Set<ContentType> getContentTypes() {
+        return contentTypes;
+    }
+
+    public FeedType getFeedType() {
+        return feedType;
     }
 
     /**

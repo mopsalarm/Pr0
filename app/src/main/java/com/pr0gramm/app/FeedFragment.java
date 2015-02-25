@@ -6,6 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,30 +19,32 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.functions.Action0;
-import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
-public class FeedFragment extends RoboFragment {
+public class FeedFragment extends RoboFragment implements ChangeContentTypeDialog.ContentTypeChangeListener {
     @Inject
     private FeedService feedService;
 
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
     private FeedAdapter adapter;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,7 +55,7 @@ public class FeedFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = new FeedAdapter();
+        adapter = new FeedAdapter(EnumSet.of(ContentType.SFW));
 
         // prepare the list of items
         final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
@@ -69,14 +74,46 @@ public class FeedFragment extends RoboFragment {
                 }
             }
         });
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_feed, menu);
+
+        MenuItem item = menu.findItem(R.id.action_change_content_type);
+        item.setTitle(ContentType.toString(getActivity(), adapter.getContentTypes()));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_change_content_type) {
+            showChangeContentTypesDialog();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showChangeContentTypesDialog() {
+        ChangeContentTypeDialog
+                .newInstance(adapter.getContentTypes())
+                .show(getChildFragmentManager(), null);
+    }
+
+    @Override
+    public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
+        adapter = new FeedAdapter(contentTypes);
+        recyclerView.setAdapter(adapter);
     }
 
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
         private LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        FeedAdapter() {
-            super(feedService, FeedType.PROMOTED,
-                    EnumSet.allOf(ContentType.class), Integer.MAX_VALUE);
+        FeedAdapter(Set<ContentType> contentTypes) {
+            super(feedService, FeedType.PROMOTED, contentTypes, Integer.MAX_VALUE);
         }
 
         @SuppressLint("InflateParams")
