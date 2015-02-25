@@ -9,8 +9,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.pro0gramm.app.R;
-
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -40,6 +38,17 @@ public class MainActivity extends RoboActionBarActivity {
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
+
+        // load feed-fragment into view
+        gotoFeedFragment();
+    }
+
+    private void gotoFeedFragment() {
+        FeedFragment fragment = new FeedFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content, fragment)
+                .commit();
     }
 
     @Override

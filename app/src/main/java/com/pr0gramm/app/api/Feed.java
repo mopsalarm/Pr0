@@ -5,43 +5,14 @@ import org.joda.time.Instant;
 import java.util.List;
 
 /**
- * Feed maps the response of /api/items/get calls to java.
+ * Feed class maps the json returned for a call to the
+ * api endpoint <code>/api/items/get</code>.
  */
 public class Feed {
-    private int qc;
-    private int rt;
-
-    private String cache;
-    private Instant ts;
     boolean atStart;
     boolean atEnd;
 
     private List<Item> items;
-
-    /**
-     * Returns the value of the 'qc' property. I dont know yet, what that is.
-     */
-    public int getQc() {
-        return qc;
-    }
-
-    /**
-     * Returns the value of the 'rt' property. I dont know yet, what that is.
-     */
-    public int getRt() {
-        return rt;
-    }
-
-    public String getCache() {
-        return cache;
-    }
-
-    /**
-     * This might be the current timestamp.
-     */
-    public Instant getTs() {
-        return ts;
-    }
 
     public boolean isAtStart() {
         return atStart;
