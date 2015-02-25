@@ -2,16 +2,14 @@
 <resources>
 
     <string name="app_name">pr0gramm</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
 
     <string name="type_sfw">sfw</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_nsfl">nsfl</string>
-    <string name="dummy_content_type">swf</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_logout">Logout</string>
-    <string name="okay">Ok</string>
+    <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
 
+    <string name="dummy_content_type">swf</string>
 </resources>

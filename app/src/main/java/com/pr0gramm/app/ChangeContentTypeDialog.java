@@ -11,49 +11,27 @@ import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Iterables.toArray;
-import static java.util.Arrays.asList;
 
 /**
  */
 public class ChangeContentTypeDialog extends DialogFragment {
-    private static final String ARG_PRE_SELECTED = "preSelected";
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //noinspection unchecked
-        EnumSet<ContentType> preSelected = (EnumSet<ContentType>)
-                getArguments().getSerializable(ARG_PRE_SELECTED);
+        // convert combinations into strings
+        CharSequence[] items = FluentIterable.from(COMBINATIONS)
+                .transform(item -> ContentType.toString(getActivity(), item))
+                .<CharSequence>transform(str -> str)
+                .toArray(CharSequence.class);
 
-        List<ContentType> types = asList(ContentType.values());
-        List<String> typeStrings = FluentIterable.from(types)
-                .transform(ContentType::getTitle)
-                .transform(this::getString)
-                .toList();
-
-        List<Integer> selected = new ArrayList<>();
-        for (int idx = 0; idx < types.size(); idx++) {
-            if (preSelected.contains(types.get(idx)))
-                selected.add(idx);
-        }
-
+        // and show dialog
         return new MaterialDialog.Builder(getActivity())
-                .items(toArray(typeStrings, CharSequence.class))
-                .itemsCallbackMultiChoice(toArray(selected, Integer.class), (dialog, indices, items) -> {
-                    // convert selected items to enum set and publish
-                    publish(EnumSet.copyOf(FluentIterable
-                            .of(indices)
-                            .transform(types::get)
-                            .toList()));
-                })
-                .positiveText(R.string.okay)
+                .items(items)
+                .itemsCallback((dialog, view, idx, str) -> publish(COMBINATIONS.get(idx)))
                 .negativeText(R.string.cancel)
                 .build();
     }
@@ -72,21 +50,6 @@ public class ChangeContentTypeDialog extends DialogFragment {
             ((ContentTypeChangeListener) parent).onContentTypeChanged(contentTypes);
     }
 
-    /**
-     * Creates a new dialog with the given values pre-selected
-     *
-     * @param preSelected The pre selected values.
-     * @return The new dialog instance.
-     */
-    public static ChangeContentTypeDialog newInstance(Set<ContentType> preSelected) {
-        Bundle arguments = new Bundle();
-        arguments.putSerializable(ARG_PRE_SELECTED, EnumSet.copyOf(preSelected));
-
-        ChangeContentTypeDialog dialog = new ChangeContentTypeDialog();
-        dialog.setArguments(arguments);
-        return dialog;
-    }
-
     public interface ContentTypeChangeListener {
         /**
          * Called if the user selected a new set of content types.
@@ -97,4 +60,13 @@ public class ChangeContentTypeDialog extends DialogFragment {
          */
         void onContentTypeChanged(EnumSet<ContentType> contentTypes);
     }
+
+    private static final List<EnumSet<ContentType>> COMBINATIONS = ImmutableList.of(
+            EnumSet.of(ContentType.SFW),
+            EnumSet.of(ContentType.NSFW),
+            EnumSet.of(ContentType.NSFL),
+            EnumSet.of(ContentType.SFW, ContentType.NSFW),
+            EnumSet.of(ContentType.SFW, ContentType.NSFL),
+            EnumSet.of(ContentType.NSFW, ContentType.NSFL),
+            EnumSet.of(ContentType.SFW, ContentType.NSFW, ContentType.NSFL));
 }

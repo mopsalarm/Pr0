@@ -98,15 +98,15 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     }
 
     private void showChangeContentTypesDialog() {
-        ChangeContentTypeDialog
-                .newInstance(adapter.getContentTypes())
-                .show(getChildFragmentManager(), null);
+        new ChangeContentTypeDialog().show(getChildFragmentManager(), null);
     }
 
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
         adapter = new FeedAdapter(contentTypes);
         recyclerView.setAdapter(adapter);
+
+        getActivity().supportInvalidateOptionsMenu();
     }
 
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
