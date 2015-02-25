@@ -1,10 +1,12 @@
 package com.pr0gramm.app;
 
 import android.annotation.SuppressLint;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,14 +39,14 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     @Inject
     private FeedService feedService;
 
+    @Inject
+    private Picasso picasso;
+
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
-    private FeedAdapter adapter;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private FeedAdapter adapter;
+    private GridLayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,7 +60,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         adapter = new FeedAdapter(EnumSet.of(ContentType.SFW));
 
         // prepare the list of items
-        final GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
+        int count = getThumbnailColumns();
+        layoutManager = new GridLayoutManager(getActivity(), count);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
@@ -75,7 +78,21 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             }
         });
 
+        //  tell the activity that we provide a menu
         setHasOptionsMenu(true);
+    }
+
+    /**
+     * Depending on whether the screen is landscape or portrait,
+     * we show a different number of items per row.
+     */
+    private int getThumbnailColumns() {
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+
+        Point point = new Point();
+        display.getSize(point);
+
+        return point.x > point.y ? 5 : 3;
     }
 
     @Override
@@ -127,8 +144,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
             FeedItem item = getItem(position);
 
-            Picasso.with(getActivity())
-                    .load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
+            picasso.load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
                     .into(view.image);
         }
 
