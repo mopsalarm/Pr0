@@ -283,4 +283,8 @@
     <color name="primary_dark">@color/red_700</color>
     <color name="accent">@color/yellow_500</color>
 
+    <color name="white">@color/grey_white_1000</color>
+    <color name="black">@color/grey_black_1000</color>
+    <color name="drawer_background">#111</color>
+
 </resources>
