@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.pr0gramm.app.feed.AbstractFeedAdapter;
+import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.FeedType;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -54,8 +57,7 @@ public class FeedFragment extends RoboFragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        adapter.loadFirstPage();
-
+        // load next page if we are near the end of the list.
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -69,24 +71,24 @@ public class FeedFragment extends RoboFragment {
         });
     }
 
-    private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> {
-        private List<FeedItem> items = new ArrayList<>();
+    private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
         private LayoutInflater inflater = LayoutInflater.from(getActivity());
-        private boolean loading;
 
-        private FeedAdapter() {
-            setHasStableIds(true);
+        FeedAdapter() {
+            super(feedService, FeedType.PROMOTED,
+                    EnumSet.allOf(ContentType.class), Integer.MAX_VALUE);
         }
 
+        @SuppressLint("InflateParams")
         @Override
         public FeedItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.feed_item_view, null);
+            View view = inflater.inflate(R.layout.feed_item_view, null);
             return new FeedItemViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
-            FeedItem item = items.get(position);
+            FeedItem item = getItem(position);
 
             Picasso.with(getActivity())
                     .load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
@@ -94,68 +96,8 @@ public class FeedFragment extends RoboFragment {
         }
 
         @Override
-        public int getItemCount() {
-            return items.size();
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return items.get(position).getId();
-        }
-
-        /**
-         * Appends the new items to the items that are currently stored
-         * in this adapter instance.
-         *
-         * @param newItems The new items to append to the adapter.
-         */
-        public void append(List<FeedItem> newItems) {
-            int oldCount = items.size();
-            items.addAll(newItems);
-            notifyItemRangeInserted(oldCount, newItems.size());
-        }
-
-        public void loadNextPage() {
-            if(loading)
-                return;
-
-            if (items.isEmpty()) {
-                loadFirstPage();
-                return;
-            }
-
-            execute(feedService.getFeedStartingAt(
-                    items.get(items.size() - 1).getItem().getPromoted(),
-                    FeedService.FeedType.PROMOTED,
-                    EnumSet.of(FeedService.ContentType.SFW)));
-        }
-
-        public void loadFirstPage() {
-            if(loading)
-                return;
-
-            // start loading the first page
-            execute(feedService.getFeed(
-                    FeedService.FeedType.PROMOTED,
-                    EnumSet.of(FeedService.ContentType.SFW)));
-        }
-
-        private void execute(Observable<List<FeedItem>> query) {
-            loading = true;
-
-            bindFragment(FeedFragment.this, query)
-                    .finallyDo(new Action0() {
-                        @Override
-                        public void call() {
-                            loading = false;
-                        }
-                    })
-                    .subscribe(new Action1<List<FeedItem>>() {
-                        @Override
-                        public void call(List<FeedItem> feedItems) {
-                            adapter.append(feedItems);
-                        }
-                    });
+        protected <E> Observable<E> bind(Observable<E> observable) {
+            return bindFragment(FeedFragment.this, observable);
         }
     }
 

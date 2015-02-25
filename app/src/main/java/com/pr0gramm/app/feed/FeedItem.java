@@ -1,4 +1,4 @@
-package com.pr0gramm.app;
+package com.pr0gramm.app.feed;
 
 import com.pr0gramm.app.api.Feed;
 
