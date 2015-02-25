@@ -10,6 +10,6 @@ public interface Api {
     @GET("/api/items/get")
     Observable<Feed> itemsGet(
             @Query("promoted") int promoted,
-            @Query("older") int older,
+            @Query("older") long older,
             @Query("flags") int flags);
 }

@@ -28,7 +28,7 @@ public class FeedService {
         return getFeedStartingAt(Integer.MAX_VALUE, type, flags);
     }
 
-    public Observable<List<FeedItem>> getFeedStartingAt(int id, FeedType type,
+    public Observable<List<FeedItem>> getFeedStartingAt(long id, FeedType type,
                                                         Set<ContentType> flags) {
 
         int promoted = type == FeedType.PROMOTED ? 1 : 0;
