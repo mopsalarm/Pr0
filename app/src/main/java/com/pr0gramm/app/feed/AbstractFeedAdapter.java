@@ -20,6 +20,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
     private final FeedService.Query query;
 
     private boolean loading;
+    private boolean finished;
 
     public AbstractFeedAdapter(FeedService feedService, FeedService.Query query) {
 
@@ -70,6 +71,9 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * Asynchronously loads the next page
      */
     public void loadNextPage() {
+        if (isFinished())
+            return;
+
         Optional<FeedItem> oldest = items.isEmpty()
                 ? Optional.absent()
                 : Optional.of(items.get(items.size() - 1));
@@ -109,6 +113,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         notifyItemRangeRemoved(0, oldSize);
 
         // and start loading the first page
+        finished = false;
         loadAfter(Optional.<FeedItem>absent());
     }
 
@@ -116,7 +121,14 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         return loading;
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
+
     private void append(List<FeedItem> newItems) {
+        if (newItems.isEmpty())
+            finished = true;
+
         int oldCount = items.size();
         items.addAll(newItems);
         notifyItemRangeInserted(oldCount, newItems.size());

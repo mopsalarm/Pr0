@@ -175,11 +175,13 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             @Override
             public boolean onQueryTextSubmit(String term) {
                 setSearchTerm(term);
+                searchView.clearFocus();
+
                 return true;
             }
 
             @Override
-            public boolean onQueryTextChange(String s) {
+            public boolean onQueryTextChange(String term) {
                 return false;
             }
         });
