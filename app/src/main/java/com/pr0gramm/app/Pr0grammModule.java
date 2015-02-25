@@ -53,8 +53,8 @@ public class Pr0grammModule extends AbstractModule {
 
         return new Picasso.Builder(context)
                 .downloader(new OkHttpDownloader(cache))
-                .loggingEnabled(true)
-                .indicatorsEnabled(true)
+                        // .loggingEnabled(true)
+                        // .indicatorsEnabled(true)
                 .build();
     }
 
