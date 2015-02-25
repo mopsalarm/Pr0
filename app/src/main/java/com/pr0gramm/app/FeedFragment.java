@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -60,7 +62,9 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private GridLayoutManager layoutManager;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_feed, container, false);
     }
 
@@ -147,8 +151,75 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_feed, menu);
 
+        MenuItem item = menu.findItem(R.id.action_search);
+        initializeSearchView(item);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
         MenuItem item = menu.findItem(R.id.action_change_content_type);
         item.setTitle(ContentType.toString(getActivity(), adapter.getQuery().getContentTypes()));
+    }
+
+    /**
+     * Registers the listeners for the search view.
+     *
+     * @param item The item containing the search view.
+     */
+    private void initializeSearchView(MenuItem item) {
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String term) {
+                setSearchTerm(term);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                clearSearchTerm();
+                return true;
+            }
+        });
+    }
+
+    private void setSearchTerm(String term) {
+        FeedService.Query query = adapter.getQuery();
+        if (term.equalsIgnoreCase(query.getTags().orNull()))
+            return;
+
+        FeedService.Query newQuery = query.withTags(term);
+        setNewQuery(newQuery);
+    }
+
+    private void clearSearchTerm() {
+        FeedService.Query query = adapter.getQuery();
+        if (query.getTags().isPresent())
+            setNewQuery(query.withNoTags());
+    }
+
+    private void setNewQuery(FeedService.Query newQuery) {
+        // set and store adapter
+        this.adapter = new FeedAdapter(newQuery);
+        recyclerView.setAdapter(adapter);
+
+        // remember settings
+        storeAdapterConfiguration();
     }
 
     @Override
@@ -168,19 +239,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
         FeedService.Query newQuery = this.adapter.getQuery().withContentType(contentTypes);
-        setNewFeedAdapter(new FeedAdapter(newQuery));
-    }
-
-    private void setNewFeedAdapter(FeedAdapter newAdapter) {
-        // set and store adapter
-        this.adapter = newAdapter;
-        recyclerView.setAdapter(adapter);
-
-        // remember settings
-        storeAdapterConfiguration();
-
-        // we must update menu items
-        getActivity().supportInvalidateOptionsMenu();
+        setNewQuery(newQuery);
     }
 
     /**

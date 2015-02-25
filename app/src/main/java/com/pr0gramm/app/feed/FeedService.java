@@ -1,5 +1,7 @@
 package com.pr0gramm.app.feed;
 
+import android.support.annotation.Nullable;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
@@ -39,8 +41,11 @@ public class FeedService {
         // value for the promoted field
         int promoted = (query.getFeedType() == FeedType.PROMOTED) ? 1 : 0;
 
+        int flags = ContentType.combine(query.getContentTypes());
+        String tags = query.getTags().or("");
+
         return api
-                .itemsGet(promoted, older, ContentType.combine(query.getContentTypes()))
+                .itemsGet(promoted, older, flags, tags)
                 .map(feed -> {
                     List<FeedItem> result = new ArrayList<>();
                     for (Feed.Item item : feed.getItems())
@@ -98,7 +103,11 @@ public class FeedService {
             return query;
         }
 
-        public Query withTags(String tags) {
+        public Query withNoTags() {
+            return withTags(null);
+        }
+
+        public Query withTags(@Nullable String tags) {
             Query query = new Query(this);
 
             if (tags != null)
