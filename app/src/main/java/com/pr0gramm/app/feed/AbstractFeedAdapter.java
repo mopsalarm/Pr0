@@ -143,7 +143,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
         // and start loading the first page
         atEnd = false;
-        atStart = false;
+        atStart = true;
         loadAfter(Optional.absent());
     }
 

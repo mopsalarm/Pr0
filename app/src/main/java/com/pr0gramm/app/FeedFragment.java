@@ -6,9 +6,11 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
@@ -63,6 +66,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private FeedAdapter adapter;
 
     private GridLayoutManager layoutManager;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     /**
      * Initialize a new feed fragment.
@@ -76,7 +80,18 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        swipeRefreshLayout = new SwipeRefreshLayout(getActivity()) {
+            @Override
+            public boolean canChildScrollUp() {
+                return !adapter.isAtStart() || super.canChildScrollUp();
+            }
+        };
+
+        swipeRefreshLayout.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        return inflater.inflate(R.layout.fragment_feed, swipeRefreshLayout);
     }
 
     @Override
@@ -93,6 +108,15 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         layoutManager = new GridLayoutManager(getActivity(), count);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (adapter.isAtStart() && !adapter.isLoading()) {
+                adapter.restart();
+            } else {
+                // do not refresh
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         setupInfiniteScroll();
     }
@@ -304,6 +328,12 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
             picasso.load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
                     .into(view.image);
+        }
+
+        @Override
+        protected void onLoadFinished() {
+            super.onLoadFinished();
+            swipeRefreshLayout.setRefreshing(false);
         }
 
         @Override
