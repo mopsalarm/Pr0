@@ -7,6 +7,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 
+import com.pr0gramm.app.feed.AbstractFeedAdapter;
+import com.pr0gramm.app.feed.FeedItem;
+
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -80,5 +83,14 @@ public class MainActivity extends RoboActionBarActivity {
         }
 
         super.onBackPressed();
+    }
+
+    public void onPostClicked(AbstractFeedAdapter<?> feed, int idx) {
+        PostFragment fragment = PostFragment.newInstance(feed, idx);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

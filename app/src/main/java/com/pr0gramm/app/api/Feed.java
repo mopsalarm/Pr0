@@ -30,6 +30,8 @@ public class Feed {
         private String image;
         private String thumb;
         private String fullsize;
+        private String user;
+        private int up;
 
         public long getId() {
             return id;
@@ -49,6 +51,14 @@ public class Feed {
 
         public String getFullsize() {
             return fullsize;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public int getUp() {
+            return up;
         }
     }
 }

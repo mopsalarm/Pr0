@@ -293,6 +293,10 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         setNewQuery(newQuery);
     }
 
+    private void onItemClicked(FeedItem item, int idx) {
+        ((MainActivity) getActivity()).onPostClicked(adapter, idx);
+    }
+
     /**
      * Stores the current config of the feed to view it later again.
      */
@@ -328,6 +332,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
             picasso.load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
                     .into(view.image);
+
+            view.itemView.setOnClickListener(v -> onItemClicked(item, position));
         }
 
         @Override

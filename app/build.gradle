@@ -16,7 +16,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.pro0gramm.app"
+        applicationId "com.pr0gramm.app"
         minSdkVersion 15
         targetSdkVersion 21
         versionCode 1

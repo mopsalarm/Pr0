@@ -284,6 +284,7 @@
     <color name="accent">@color/blue_grey_500</color>
 
     <color name="feed_background">#161618</color>
+    <color name="tag_background">#2A2E31</color>
 
     <color name="white">@color/grey_white_1000</color>
     <color name="black">@color/grey_black_1000</color>
