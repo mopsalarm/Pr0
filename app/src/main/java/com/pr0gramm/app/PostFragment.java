@@ -90,6 +90,8 @@ public class PostFragment extends RoboFragment {
     }
 
     private void onPostReceived(Post post) {
+        // TODO check if we are still showing exactly this post!
+
         // remove previous tags
         for (int i = viewTagContainer.getChildCount() - 1; i >= 1; i--)
             viewTagContainer.removeViewAt(i);
