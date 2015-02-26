@@ -12,8 +12,9 @@
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:minHeight="150dp"
-            android:maxHeight="550dp"
+            android:maxHeight="500dp"
             android:scaleType="fitCenter"/>
 
         <LinearLayout
@@ -81,13 +82,15 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp">
+            android:layout_marginRight="16dp"
+            android:scrollbars="none">
 
             <LinearLayout
+                android:id="@+id/tag_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -95,10 +98,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:textColor="@color/primary"
-                    android:layout_marginRight="16dp"
+                    android:padding="8dp"
                     android:text="@string/action_add_tag"/>
 
-                <include layout="@layout/tag"/>
+                <!-- <include layout="@layout/tag"/> -->
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>

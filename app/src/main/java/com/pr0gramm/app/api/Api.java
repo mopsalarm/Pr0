@@ -21,5 +21,6 @@ public interface Api {
             @Query("flags") int flags,
             @Query("tags") String tags);
 
-
+    @GET("/api/items/info")
+    Observable<Post> info(@Query("itemId") long itemId);
 }

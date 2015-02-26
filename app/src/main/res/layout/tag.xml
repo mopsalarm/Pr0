@@ -7,7 +7,7 @@
 
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginRight="16dp"
+    android:layout_marginRight="8dp"
     android:padding="4dp"
     android:background="@color/tag_background"
     android:text="@string/dummy_tag"

@@ -5,9 +5,7 @@ import com.google.inject.Singleton;
 import com.pr0gramm.app.ContentType;
 import com.pr0gramm.app.api.Api;
 import com.pr0gramm.app.api.Feed;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.pr0gramm.app.api.Post;
 
 import javax.inject.Inject;
 
@@ -47,5 +45,7 @@ public class FeedService {
         return function.call(promoted, older, flags, tags);
     }
 
-
+    public Observable<Post> loadPostDetails(long id) {
+        return api.info(id);
+    }
 }

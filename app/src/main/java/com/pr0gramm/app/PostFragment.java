@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
@@ -19,6 +20,8 @@ import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  * This fragment shows the content of one post.
@@ -38,6 +41,9 @@ public class PostFragment extends RoboFragment {
 
     @InjectView(R.id.rating)
     private TextView viewRating;
+
+    @InjectView(R.id.tag_container)
+    private ViewGroup viewTagContainer;
 
     private AbstractFeedAdapter<?> feed;
     private int idx;
@@ -78,6 +84,23 @@ public class PostFragment extends RoboFragment {
                 .centerInside()
                 .onlyScaleDown()
                 .into(viewImage);
+
+        long id = item.getItem().getId();
+        bindFragment(this, feedService.loadPostDetails(id)).subscribe(this::onPostReceived);
+    }
+
+    private void onPostReceived(Post post) {
+        // remove previous tags
+        for (int i = viewTagContainer.getChildCount() - 1; i >= 1; i--)
+            viewTagContainer.removeViewAt(i);
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        for (Post.Tag tag : post.getTags()) {
+            TextView view = (TextView) inflater.inflate(R.layout.tag, viewTagContainer, false);
+            view.setText(tag.getTag());
+
+            viewTagContainer.addView(view);
+        }
     }
 
     public static PostFragment newInstance(AbstractFeedAdapter<?> feed, int idx) {
