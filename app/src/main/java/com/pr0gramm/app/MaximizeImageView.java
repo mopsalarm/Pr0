@@ -8,9 +8,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
 
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  */
-public class MaximizeImageView extends ImageView {
+public class MaximizeImageView extends GifImageView {
     public MaximizeImageView(Context context) {
         super(context);
     }
@@ -52,10 +54,5 @@ public class MaximizeImageView extends ImageView {
 
         Log.i("Image", "Size is now " + width + "x" + height);
         setMeasuredDimension(width, height);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
     }
 }

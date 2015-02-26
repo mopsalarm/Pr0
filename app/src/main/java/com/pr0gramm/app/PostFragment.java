@@ -16,16 +16,23 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.common.io.Resources;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.squareup.picasso.Picasso;
 
+import java.net.URL;
+
 import javax.inject.Inject;
 
+import pl.droidsonroids.gif.GifDrawable;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import rx.Observable;
+import rx.schedulers.Schedulers;
+import rx.util.async.Async;
 
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -86,7 +93,7 @@ public class PostFragment extends RoboFragment {
         viewRating.setText(String.valueOf(item.getItem().getUp()));
 
         // load the image
-        String image = item.getItem().getImage();
+        String image = "http://img.pr0gramm.com/" + item.getItem().getImage();
         if (image.endsWith(".webm")) {
             // hide the image view
             viewImage.setVisibility(View.GONE);
@@ -97,7 +104,7 @@ public class PostFragment extends RoboFragment {
             ctrl.setVisibility(View.GONE);
             viewVideo.setMediaController(ctrl);
 
-            viewVideo.setVideoURI(Uri.parse("http://img.pr0gramm.com/" + image));
+            viewVideo.setVideoURI(Uri.parse(image));
             viewVideo.start();
             viewVideo.setOnCompletionListener(mp -> {
                 // start from the beginning
@@ -131,15 +138,25 @@ public class PostFragment extends RoboFragment {
                     return true;
                 }
             });
+        }
+        if (image.endsWith(".gif")) {
+            // hide the video player
+            viewVideo.stopPlayback();
+            viewVideo.setVisibility(View.GONE);
+            viewImage.setVisibility(View.VISIBLE);
+
+            bindFragment(this, Async.fromCallable(() -> {
+                // TODO Check if we are still at the same post after loading
+                byte[] bytes = Resources.toByteArray(new URL(image));
+                return new GifDrawable(bytes);
+            }, Schedulers.io())).subscribe(viewImage::setImageDrawable);
 
         } else {
             // hide the video player
             viewVideo.stopPlayback();
             viewVideo.setVisibility(View.GONE);
-
             viewImage.setVisibility(View.VISIBLE);
 
-            image = "http://img.pr0gramm.com/" + image;
             picasso.load(image)
                     .resize(1024, 1024)
                     .centerInside()
