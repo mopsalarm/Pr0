@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="?android:windowBackground"
+              android:clickable="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="?android:windowBackground"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+        <ImageView
+            android:id="@+id/flavor"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/user_type_fliesentisch"/>
+
+        <TextView
+            style="@style/Base.TextAppearance.AppCompat.Headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/flavor"
+            android:text="@string/dummy_user_name"/>
+
+    </RelativeLayout>
+
+    <TextView
+        style="@style/AppStyle.DrawerItem"
+        android:text="@string/feed_type_promoted"/>
+
+    <TextView
+        style="@style/AppStyle.DrawerItem"
+        android:text="@string/feed_type_new"/>
+
+    <TextView
+        style="@style/AppStyle.DrawerItem"
+        android:text="@string/action_upload"/>
+
+    <TextView
+        style="@style/AppStyle.DrawerItem"
+        android:text="@string/action_messages"/>
+
+    <TextView
+        style="@style/AppStyle.DrawerItem"
+        android:text="@string/action_favorites"/>
+
+</LinearLayout>

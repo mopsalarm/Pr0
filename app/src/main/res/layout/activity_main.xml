@@ -5,7 +5,6 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/feed_background"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -20,7 +19,7 @@
             android:minHeight="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:elevation="8dp"
-            app:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
         <FrameLayout
@@ -35,8 +34,6 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/drawer_background"
-        android:clickable="true"
         android:elevation="8dp"/>
 
 </android.support.v4.widget.DrawerLayout>

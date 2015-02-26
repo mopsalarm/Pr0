@@ -38,8 +38,18 @@ public class MainActivity extends RoboActionBarActivity {
         drawerLayout.setDrawerListener(drawerToggle);
 
         // load feed-fragment into view
-        if (savedInstanceState == null)
+        if (savedInstanceState == null) {
             gotoFeedFragment();
+            createDrawerFragment();
+        }
+    }
+
+    private void createDrawerFragment() {
+        DrawerFragment fragment = new DrawerFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.left_drawer, fragment)
+                .commit();
     }
 
     private void gotoFeedFragment() {
