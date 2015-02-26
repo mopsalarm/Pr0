@@ -138,8 +138,7 @@ public class PostFragment extends RoboFragment {
                     return true;
                 }
             });
-        }
-        if (image.endsWith(".gif")) {
+        } else if (image.endsWith(".gif")) {
             // hide the video player
             viewVideo.stopPlayback();
             viewVideo.setVisibility(View.GONE);
