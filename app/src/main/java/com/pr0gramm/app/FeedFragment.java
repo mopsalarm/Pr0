@@ -30,6 +30,7 @@ import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -63,6 +64,14 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     private GridLayoutManager layoutManager;
 
+    /**
+     * Initialize a new feed fragment.
+     */
+    public FeedFragment() {
+        setHasOptionsMenu(true);
+        setRetainInstance(true);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -74,7 +83,10 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = restoreFeedAdapter(Optional.absent());
+        if (adapter == null) {
+            // create a new adapter if necessary
+            adapter = restoreFeedAdapter(Optional.absent());
+        }
 
         // prepare the list of items
         int count = getThumbnailColumns();
@@ -83,12 +95,10 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         recyclerView.setAdapter(adapter);
 
         setupInfiniteScroll();
-
-        //  tell the activity that we provide a menu
-        setHasOptionsMenu(true);
     }
 
     private FeedAdapter restoreFeedAdapter(Optional<Long> start) {
+        Log.i("Feed", "Restore adapter now");
         Query query = new Query();
 
         try {
@@ -276,8 +286,6 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     }
 
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
-        private LayoutInflater inflater = LayoutInflater.from(getActivity());
-
         FeedAdapter(Query query, Optional<Long> start) {
             super(feedService, query, start);
         }
@@ -285,6 +293,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         @SuppressLint("InflateParams")
         @Override
         public FeedItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
             View view = inflater.inflate(R.layout.feed_item_view, null);
             return new FeedItemViewHolder(view);
         }

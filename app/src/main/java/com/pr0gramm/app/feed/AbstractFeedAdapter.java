@@ -29,6 +29,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
         this.feedService = feedService;
         this.query = query;
+        this.atStart = !start.isPresent();
 
         setHasStableIds(true);
         loadAfter(start);
@@ -88,7 +89,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         long newest = items.get(0).getId(query.getFeedType());
         bind(feedService.getFeedItemsNewer(query, newest))
                 .map(this::enhance)
-                .subscribe(this::append, this::onError);
+                .subscribe(this::store, this::onError);
     }
 
     private EnhancedFeed enhance(Feed feed) {
@@ -125,7 +126,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         // do the loading.
         bind(feedService.getFeedItems(query, start))
                 .map(this::enhance)
-                .subscribe(this::append, this::onError);
+                .subscribe(this::store, this::onError);
     }
 
     /**
@@ -158,7 +159,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         return atEnd;
     }
 
-    private void append(EnhancedFeed feed) {
+    private void store(EnhancedFeed feed) {
         if (feed.getFeed().isAtEnd())
             atEnd = true;
 
