@@ -1,14 +1,20 @@
 package com.pr0gramm.app;
 
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
@@ -45,6 +51,9 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.tag_container)
     private ViewGroup viewTagContainer;
 
+    @InjectView(R.id.video)
+    private VideoView viewVideo;
+
     private AbstractFeedAdapter<?> feed;
     private int idx;
 
@@ -78,12 +87,65 @@ public class PostFragment extends RoboFragment {
 
         // load the image
         String image = item.getItem().getImage();
-        image = "http://img.pr0gramm.com/" + image;
-        picasso.load(image)
-                .resize(1024, 1024)
-                .centerInside()
-                .onlyScaleDown()
-                .into(viewImage);
+        if (image.endsWith(".webm")) {
+            // hide the image view
+            viewImage.setVisibility(View.GONE);
+            viewVideo.setVisibility(View.VISIBLE);
+
+            // hide video controls
+            MediaController ctrl = new MediaController(getActivity());
+            ctrl.setVisibility(View.GONE);
+            viewVideo.setMediaController(ctrl);
+
+            viewVideo.setVideoURI(Uri.parse("http://img.pr0gramm.com/" + image));
+            viewVideo.start();
+            viewVideo.setOnCompletionListener(mp -> {
+                // start from the beginning
+                viewVideo.seekTo(0);
+                viewVideo.start();
+            });
+
+            viewVideo.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                int lastWidth = 0;
+
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    int width = mp.getVideoWidth();
+                    int height = mp.getVideoHeight();
+
+                    // check if size is okay
+                    if (width <= 0 || width == lastWidth)
+                        return true;
+
+                    // remember!
+                    lastWidth = width;
+
+                    ViewParent parent = viewVideo.getParent();
+                    if (parent instanceof View) {
+                        int parentWidth = ((View) parent).getWidth();
+                        float aspect = width / (float) height;
+                        viewVideo.getLayoutParams().height = (int) (parentWidth / aspect);
+                        viewVideo.getParent().requestLayout();
+                    }
+
+                    return true;
+                }
+            });
+
+        } else {
+            // hide the video player
+            viewVideo.stopPlayback();
+            viewVideo.setVisibility(View.GONE);
+
+            viewImage.setVisibility(View.VISIBLE);
+
+            image = "http://img.pr0gramm.com/" + image;
+            picasso.load(image)
+                    .resize(1024, 1024)
+                    .centerInside()
+                    .onlyScaleDown()
+                    .into(viewImage);
+        }
 
         long id = item.getItem().getId();
         bindFragment(this, feedService.loadPostDetails(id)).subscribe(this::onPostReceived);

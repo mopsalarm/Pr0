@@ -42,7 +42,7 @@ public class Pr0grammModule extends AbstractModule {
         return new RestAdapter.Builder()
                 .setEndpoint("http://pr0gramm.com")
                 .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.HEADERS_AND_ARGS)
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build();
     }
 
