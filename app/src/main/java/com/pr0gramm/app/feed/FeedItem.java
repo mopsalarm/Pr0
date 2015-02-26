@@ -11,6 +11,7 @@ public class FeedItem {
     private final Feed.Item item;
     private final boolean seen;
 
+
     public FeedItem(Feed.Item item, boolean seen) {
         this.item = item;
         this.seen = seen;
@@ -24,7 +25,12 @@ public class FeedItem {
         return seen;
     }
 
-    public long getId() {
-        return item.getId();
+    /**
+     * Gets the id of this feed item depending on the type of the feed..
+     *
+     * @param type The type of feed.
+     */
+    public long getId(FeedType type) {
+        return type == FeedType.NEW ? item.getId() : item.getPromoted();
     }
 }

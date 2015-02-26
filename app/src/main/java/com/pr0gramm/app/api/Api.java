@@ -8,9 +8,18 @@ import rx.Observable;
  */
 public interface Api {
     @GET("/api/items/get")
-    Observable<Feed> itemsGet(
+    Observable<Feed> itemsGetOlder(
             @Query("promoted") int promoted,
             @Query("older") long older,
             @Query("flags") int flags,
             @Query("tags") String tags);
+
+    @GET("/api/items/get")
+    Observable<Feed> itemsGetNewer(
+            @Query("promoted") int promoted,
+            @Query("newer") long newer,
+            @Query("flags") int flags,
+            @Query("tags") String tags);
+
+
 }

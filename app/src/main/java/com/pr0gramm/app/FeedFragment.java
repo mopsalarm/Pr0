@@ -19,12 +19,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
 
 import java.util.EnumSet;
@@ -72,7 +74,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = restoreFeedAdapter();
+        adapter = restoreFeedAdapter(Optional.absent());
 
         // prepare the list of items
         int count = getThumbnailColumns();
@@ -86,8 +88,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         setHasOptionsMenu(true);
     }
 
-    private FeedAdapter restoreFeedAdapter() {
-        FeedService.Query query = new FeedService.Query();
+    private FeedAdapter restoreFeedAdapter(Optional<Long> start) {
+        Query query = new Query();
 
         try {
             ImmutableSet<ContentType> contentTypes = FluentIterable
@@ -113,7 +115,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             // could not deserialize value
         }
 
-        return new FeedAdapter(query);
+        return new FeedAdapter(query, start);
     }
 
     /**
@@ -124,10 +126,23 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int totalItemCount = layoutManager.getItemCount();
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if (adapter.isLoading())
+                    return;
 
-                if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                    adapter.loadNextPage();
+                if (dy > 0 && !adapter.isAtEnd()) {
+                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                    if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
+                        Log.i("FeedScroll", "Request next page now");
+                        adapter.loadNextPage();
+                    }
+                }
+
+                if (dy < 0 && !adapter.isAtStart()) {
+                    int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                    if (totalItemCount > 12 && firstVisibleItem < 12) {
+                        Log.i("FeedScroll", "Request previous page now");
+                        adapter.loadPreviousPage();
+                    }
                 }
             }
         });
@@ -201,23 +216,23 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     }
 
     private void setSearchTerm(String term) {
-        FeedService.Query query = adapter.getQuery();
+        Query query = adapter.getQuery();
         if (term.equalsIgnoreCase(query.getTags().orNull()))
             return;
 
-        FeedService.Query newQuery = query.withTags(term);
+        Query newQuery = query.withTags(term);
         setNewQuery(newQuery);
     }
 
     private void clearSearchTerm() {
-        FeedService.Query query = adapter.getQuery();
+        Query query = adapter.getQuery();
         if (query.getTags().isPresent())
             setNewQuery(query.withNoTags());
     }
 
-    private void setNewQuery(FeedService.Query newQuery) {
+    private void setNewQuery(Query newQuery) {
         // set and store adapter
-        this.adapter = new FeedAdapter(newQuery);
+        this.adapter = new FeedAdapter(newQuery, Optional.absent());
         recyclerView.setAdapter(adapter);
 
         // remember settings
@@ -240,7 +255,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     @Override
     public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
-        FeedService.Query newQuery = this.adapter.getQuery().withContentType(contentTypes);
+        Query newQuery = this.adapter.getQuery().withContentType(contentTypes);
         setNewQuery(newQuery);
     }
 
@@ -250,7 +265,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private void storeAdapterConfiguration() {
         Log.i("FeedFragment", "storing adapter configuration");
 
-        FeedService.Query query = adapter.getQuery();
+        Query query = adapter.getQuery();
         sharedPreferences.edit()
                 .putString(PREF_FEED_TYPE, query.getFeedType().toString())
                 .putStringSet(PREF_CONTENT_TYPE, FluentIterable
@@ -263,8 +278,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
         private LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        FeedAdapter(FeedService.Query query) {
-            super(feedService, query);
+        FeedAdapter(Query query, Optional<Long> start) {
+            super(feedService, query, start);
         }
 
         @SuppressLint("InflateParams")
@@ -284,7 +299,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
         @Override
         protected <E> Observable<E> bind(Observable<E> observable) {
-            return bindFragment(FeedFragment.this, observable);
+            return super.bind(bindFragment(FeedFragment.this, observable));
         }
     }
 

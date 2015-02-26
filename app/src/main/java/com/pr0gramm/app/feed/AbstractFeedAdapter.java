@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.api.Feed;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,18 +18,20 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
     private final List<FeedItem> items = new ArrayList<>();
 
     private final FeedService feedService;
-    private final FeedService.Query query;
+    private final Query query;
 
     private boolean loading;
-    private boolean finished;
+    private boolean atEnd;
+    private boolean atStart;
 
-    public AbstractFeedAdapter(FeedService feedService, FeedService.Query query) {
+    public AbstractFeedAdapter(FeedService feedService, Query query,
+                               Optional<Long> start) {
 
         this.feedService = feedService;
         this.query = query;
 
         setHasStableIds(true);
-        loadAfter(query.getStart());
+        loadAfter(start);
     }
 
     /**
@@ -40,7 +43,11 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * @param observable The observable to bind.
      * @return The bound observable.
      */
-    protected abstract <E> Observable<E> bind(Observable<E> observable);
+    protected <E> Observable<E> bind(Observable<E> observable) {
+        return observable
+                .finallyDo(this::onLoadFinished)
+                .finallyDo(() -> loading = false);
+    }
 
     @Override
     public int getItemCount() {
@@ -49,7 +56,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
     @Override
     public long getItemId(int position) {
-        return items.get(position).getId();
+        return items.get(position).getId(query.getFeedType());
     }
 
     public List<FeedItem> getItems() {
@@ -63,22 +70,44 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         return items.get(idx);
     }
 
-    public FeedService.Query getQuery() {
+    public Query getQuery() {
         return query;
+    }
+
+    /**
+     * Asynchronously loads the before-page before
+     */
+    public void loadPreviousPage() {
+        if (loading || items.isEmpty() || isAtStart())
+            return;
+
+        loading = true;
+        onLoadStart();
+
+        // do the loading.
+        long newest = items.get(0).getId(query.getFeedType());
+        bind(feedService.getFeedItemsNewer(query, newest))
+                .map(this::enhance)
+                .subscribe(this::append, this::onError);
+    }
+
+    private EnhancedFeed enhance(Feed feed) {
+        List<FeedItem> items = new ArrayList<>();
+        for (Feed.Item item : feed.getItems())
+            items.add(new FeedItem(item, false));
+
+        return new EnhancedFeed(feed, items);
     }
 
     /**
      * Asynchronously loads the next page
      */
     public void loadNextPage() {
-        if (isFinished())
+        if (loading || isAtEnd() || items.isEmpty())
             return;
 
-        Optional<FeedItem> oldest = items.isEmpty()
-                ? Optional.absent()
-                : Optional.of(items.get(items.size() - 1));
-
-        loadAfter(oldest);
+        long oldest = items.get(items.size() - 1).getId(query.getFeedType());
+        loadAfter(Optional.of(oldest));
     }
 
     /**
@@ -86,7 +115,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      *
      * @param start The post to start at.
      */
-    private void loadAfter(Optional<FeedItem> start) {
+    private void loadAfter(Optional<Long> start) {
         if (loading)
             return;
 
@@ -94,9 +123,8 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         onLoadStart();
 
         // do the loading.
-        bind(feedService.getFeedItems(query.withStart(start)))
-                .finallyDo(this::onLoadFinished)
-                .finallyDo(() -> loading = false)
+        bind(feedService.getFeedItems(query, start))
+                .map(this::enhance)
                 .subscribe(this::append, this::onError);
     }
 
@@ -113,27 +141,42 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         notifyItemRangeRemoved(0, oldSize);
 
         // and start loading the first page
-        finished = false;
-        loadAfter(Optional.<FeedItem>absent());
+        atEnd = false;
+        atStart = false;
+        loadAfter(Optional.absent());
     }
 
     public boolean isLoading() {
         return loading;
     }
 
-    public boolean isFinished() {
-        return finished;
+    public boolean isAtStart() {
+        return atStart;
     }
 
-    private void append(List<FeedItem> newItems) {
-        if (newItems.isEmpty())
-            finished = true;
-
-        int oldCount = items.size();
-        items.addAll(newItems);
-        notifyItemRangeInserted(oldCount, newItems.size());
+    public boolean isAtEnd() {
+        return atEnd;
     }
 
+    private void append(EnhancedFeed feed) {
+        if (feed.getFeed().isAtEnd())
+            atEnd = true;
+
+        if (feed.getFeed().isAtStart())
+            atStart = true;
+
+        List<Feed.Item> newItems = feed.getFeed().getItems();
+        if (newItems.size() > 0) {
+            // calculate where to insert
+            int index = 0;
+            if (!items.isEmpty() && newItems.get(0).getId() < items.get(0).getItem().getId())
+                index = items.size();
+
+            // insert and notify observers about changes
+            items.addAll(index, feed.getFeedItems());
+            notifyItemRangeInserted(index, newItems.size());
+        }
+    }
 
     protected void onError(Throwable error) {
         Log.e("Feed", "Error loading feed", error);
@@ -145,5 +188,26 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
     protected void onLoadFinished() {
         Log.i("Feed", "loading finished, item count: " + items.size());
+    }
+
+    /**
+     * Feed enhanced by {@link com.pr0gramm.app.feed.FeedItem}s.
+     */
+    private static class EnhancedFeed {
+        private final Feed feed;
+        private final List<FeedItem> feedItems;
+
+        private EnhancedFeed(Feed feed, List<FeedItem> feedItems) {
+            this.feed = feed;
+            this.feedItems = feedItems;
+        }
+
+        public Feed getFeed() {
+            return feed;
+        }
+
+        public List<FeedItem> getFeedItems() {
+            return feedItems;
+        }
     }
 }
