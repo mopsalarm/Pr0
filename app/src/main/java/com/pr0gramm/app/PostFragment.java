@@ -146,7 +146,7 @@ public class PostFragment extends RoboFragment {
             viewImage.setVisibility(View.VISIBLE);
 
             bindFragment(this, Async.fromCallable(() -> {
-                // TODO Check if we are still at the same post after loading
+                // TODO Check if we are still at the same post cd after loading
                 byte[] bytes = Resources.toByteArray(new URL(image));
                 return new GifDrawable(bytes);
             }, Schedulers.io())).subscribe(viewImage::setImageDrawable);
