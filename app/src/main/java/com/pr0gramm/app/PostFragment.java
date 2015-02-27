@@ -215,8 +215,8 @@ public class PostFragment extends RoboFragment {
             viewTagContainer.addView(view);
         }
 
-        // the comments
-        viewComments.setAdapter(new CommentAdapter(post.getComments()));
+        // TODO the comments
+        // viewComments.setAdapter(new CommentAdapter(post.getComments()));
     }
 
     public static PostFragment newInstance(AbstractFeedAdapter<?> feed, int idx) {

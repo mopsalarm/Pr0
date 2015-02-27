@@ -2,6 +2,7 @@ package com.pr0gramm.app;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
@@ -89,7 +90,7 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     public void onPostClicked(AbstractFeedAdapter<?> feed, int idx) {
-        PostFragment fragment = PostFragment.newInstance(feed, idx);
+        Fragment fragment = new PostPagerFragment(feed, idx);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
