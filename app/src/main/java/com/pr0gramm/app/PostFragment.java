@@ -4,6 +4,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -65,6 +68,10 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.comments)
     private RecyclerView viewComments;
 
+    @Nullable
+    @InjectView(R.id.scroll)
+    private VerticalScrollView outerScrollView;
+
     private AbstractFeedAdapter<?> feed;
     private int idx;
 
@@ -99,6 +106,15 @@ public class PostFragment extends RoboFragment {
         FeedItem item = feed.getItem(idx);
         viewUsername.setText(item.getItem().getUser());
         viewRating.setText(String.valueOf(item.getItem().getUp()));
+
+
+        if (outerScrollView != null && getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.onScrollHideToolbarListener.reset();
+
+            outerScrollView.setOnScrollListener((oldTop, top) ->
+                    activity.onScrollHideToolbarListener.onScrolled(top - oldTop));
+        }
 
         // load the image
         String image = "http://img.pr0gramm.com/" + item.getItem().getImage();

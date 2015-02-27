@@ -10,7 +10,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
 
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -118,6 +116,13 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             }
         });
 
+        // use height of the toolbar to configure swipe refresh layout.
+        int abHeight = AndroidUtility.getActionBarSize(getActivity());
+        swipeRefreshLayout.setProgressViewOffset(true, abHeight, 2 * abHeight);
+
+        if (getActivity() instanceof MainActivity)
+            ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+
         setupInfiniteScroll();
     }
 
@@ -159,6 +164,11 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (getActivity() instanceof MainActivity) {
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.onScrollHideToolbarListener.onScrolled(dy);
+                }
+
                 int totalItemCount = layoutManager.getItemCount();
                 if (adapter.isLoading())
                     return;
@@ -334,6 +344,9 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
                     .into(view.image);
 
             view.itemView.setOnClickListener(v -> onItemClicked(item, position));
+
+            int row = position / layoutManager.getSpanCount();
+            view.itemView.setPadding(0, row == 0 ? AndroidUtility.getActionBarSize(getActivity()) : 0, 0, 0);
         }
 
         @Override
