@@ -4,8 +4,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.MediaController;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -24,6 +21,7 @@ import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.Vote;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -68,6 +66,12 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.comments)
     private RecyclerView viewComments;
 
+    @InjectView(R.id.action_rate_plus)
+    private TextView viewActionRatePlus;
+
+    @InjectView(R.id.action_rate_minus)
+    private TextView viewActionRateMinus;
+
     @Nullable
     @InjectView(R.id.scroll)
     private VerticalScrollView outerScrollView;
@@ -106,7 +110,6 @@ public class PostFragment extends RoboFragment {
         FeedItem item = feed.getItem(idx);
         viewUsername.setText(item.getItem().getUser());
         viewRating.setText(String.valueOf(item.getItem().getUp()));
-
 
         if (outerScrollView != null && getActivity() instanceof MainActivity) {
             MainActivity activity = (MainActivity) getActivity();

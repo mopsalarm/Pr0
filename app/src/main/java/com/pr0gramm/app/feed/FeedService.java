@@ -48,4 +48,14 @@ public class FeedService {
     public Observable<Post> loadPostDetails(long id) {
         return api.info(id);
     }
+
+    /**
+     * Votes the post with the given id..
+     *
+     * @param id     The id of the post to vote
+     * @param voting The voting to set on that post.
+     */
+    public Observable<Nothing> vote(long id, Vote voting) {
+        return api.vote(id, voting.ordinal() - 1);
+    }
 }

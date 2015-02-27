@@ -1,6 +1,9 @@
 package com.pr0gramm.app.api;
 
+import com.pr0gramm.app.feed.Nothing;
+
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Query;
 import rx.Observable;
 
@@ -23,4 +26,7 @@ public interface Api {
 
     @GET("/api/items/info")
     Observable<Post> info(@Query("itemId") long itemId);
+
+    @POST("/api/items/vote")
+    Observable<Nothing> vote(long id, int state);
 }
