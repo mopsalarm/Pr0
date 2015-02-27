@@ -2,6 +2,7 @@ package com.pr0gramm.app;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -139,32 +140,35 @@ public class PostFragment extends RoboFragment {
                 viewVideo.start();
             });
 
-            viewVideo.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-                int lastWidth = 0;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                // full size for videos.
+                viewVideo.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                    int lastWidth = 0;
 
-                @Override
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    int width = mp.getVideoWidth();
-                    int height = mp.getVideoHeight();
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        int width = mp.getVideoWidth();
+                        int height = mp.getVideoHeight();
 
-                    // check if size is okay
-                    if (width <= 0 || width == lastWidth)
+                        // check if size is okay
+                        if (width <= 0 || width == lastWidth)
+                            return true;
+
+                        // remember!
+                        lastWidth = width;
+
+                        ViewParent parent = viewVideo.getParent();
+                        if (parent instanceof View) {
+                            int parentWidth = ((View) parent).getWidth();
+                            float aspect = width / (float) height;
+                            viewVideo.getLayoutParams().height = (int) (parentWidth / aspect);
+                            viewVideo.getParent().requestLayout();
+                        }
+
                         return true;
-
-                    // remember!
-                    lastWidth = width;
-
-                    ViewParent parent = viewVideo.getParent();
-                    if (parent instanceof View) {
-                        int parentWidth = ((View) parent).getWidth();
-                        float aspect = width / (float) height;
-                        viewVideo.getLayoutParams().height = (int) (parentWidth / aspect);
-                        viewVideo.getParent().requestLayout();
                     }
-
-                    return true;
-                }
-            });
+                });
+            }
         } else if (image.endsWith(".gif")) {
             // hide the video player
             viewVideo.stopPlayback();
@@ -172,7 +176,6 @@ public class PostFragment extends RoboFragment {
             viewImage.setVisibility(View.VISIBLE);
 
             bindFragment(this, Async.fromCallable(() -> {
-                // TODO Check if we are still at the same post cd after loading
                 byte[] bytes = Resources.toByteArray(new URL(image));
                 return new GifDrawable(bytes);
             }, Schedulers.io())).subscribe(viewImage::setImageDrawable);
@@ -195,7 +198,6 @@ public class PostFragment extends RoboFragment {
     }
 
     private void onPostReceived(Post post) {
-        // TODO check if we are still showing exactly this post!
         // TODO use recyclerView for tags
 
         List<Post.Tag> tags = Ordering.natural()
