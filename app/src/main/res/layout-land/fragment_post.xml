@@ -37,6 +37,8 @@
             android:orientation="vertical">
 
             <include layout="@layout/post_info_line"/>
+
+            <include layout="@layout/comments_list"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

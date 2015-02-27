@@ -4,9 +4,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,7 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
@@ -24,13 +24,14 @@ import com.pr0gramm.app.feed.FeedService;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import pl.droidsonroids.gif.GifDrawable;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
@@ -61,6 +62,9 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.video)
     private VideoView viewVideo;
 
+    @InjectView(R.id.comments)
+    private RecyclerView viewComments;
+
     private AbstractFeedAdapter<?> feed;
     private int idx;
 
@@ -87,6 +91,10 @@ public class PostFragment extends RoboFragment {
 
         if (feed == null)
             return;
+
+        viewComments.setAdapter(new CommentAdapter(Collections.<Post.Comment>emptyList()));
+        viewComments.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false));
 
         FeedItem item = feed.getItem(idx);
         viewUsername.setText(item.getItem().getUser());
@@ -169,18 +177,27 @@ public class PostFragment extends RoboFragment {
 
     private void onPostReceived(Post post) {
         // TODO check if we are still showing exactly this post!
+        // TODO use recyclerView for tags
+
+        List<Post.Tag> tags = Ordering.natural()
+                .reverse()
+                .onResultOf(Post.Tag::getConfidence)
+                .sortedCopy(post.getTags());
 
         // remove previous tags
         for (int i = viewTagContainer.getChildCount() - 1; i >= 1; i--)
             viewTagContainer.removeViewAt(i);
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        for (Post.Tag tag : post.getTags()) {
+        for (Post.Tag tag : tags) {
             TextView view = (TextView) inflater.inflate(R.layout.tag, viewTagContainer, false);
             view.setText(tag.getTag());
 
             viewTagContainer.addView(view);
         }
+
+        // the comments
+        viewComments.setAdapter(new CommentAdapter(post.getComments()));
     }
 
     public static PostFragment newInstance(AbstractFeedAdapter<?> feed, int idx) {
