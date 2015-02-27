@@ -9,6 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.Api;
 import com.pr0gramm.app.api.InstantDeserializer;
+import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
@@ -48,11 +49,16 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Picasso picasso(Context context) {
+    public Downloader downloader(Context context) {
         File cache = new File(context.getCacheDir(), "imgCache");
+        return new OkHttpDownloader(cache);
+    }
 
+    @Provides
+    @Singleton
+    public Picasso picasso(Context context, Downloader downloader) {
         return new Picasso.Builder(context)
-                .downloader(new OkHttpDownloader(cache))
+                .downloader(downloader)
                         // .loggingEnabled(true)
                         // .indicatorsEnabled(true)
                 .build();

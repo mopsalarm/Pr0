@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="?attr/actionBarSize">
 
-        <com.pr0gramm.app.MaximizeImageView
+            <com.pr0gramm.app.MaximizeImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -30,6 +30,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_gravity="center"/>
+
+            <ProgressBar
+                style="?attr/progressBarStyle"
+                android:id="@+id/progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
         </FrameLayout>
 
         <include layout="@layout/post_info_line"/>

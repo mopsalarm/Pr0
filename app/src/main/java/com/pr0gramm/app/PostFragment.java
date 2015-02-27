@@ -1,5 +1,6 @@
 package com.pr0gramm.app;
 
+import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -17,19 +18,23 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.google.common.collect.Ordering;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
+import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +83,12 @@ public class PostFragment extends RoboFragment {
 
     @InjectView(R.id.action_rate_minus)
     private TextView viewActionRateMinus;
+
+    @InjectView(R.id.progress)
+    private ProgressBar viewProgress;
+
+    @Inject
+    private Downloader downloader;
 
     @Nullable
     @InjectView(R.id.scroll)
@@ -171,15 +182,25 @@ public class PostFragment extends RoboFragment {
      *
      * @param image The gif file to load.
      */
+    @SuppressLint("NewApi")
     private void displayTypeGif(String image) {
         Observable<GifDrawable> loader = Async.fromCallable(() -> {
-            // load and decode imgage in background thread
-            byte[] bytes = Resources.toByteArray(new URL(image));
-            return new GifDrawable(bytes);
+            // load the gif file
+            Downloader.Response response = downloader.load(Uri.parse(image), 0);
+            try (InputStream stream = response.getInputStream()) {
+                // and decode it
+                return new GifDrawable(ByteStreams.toByteArray(stream));
+            }
         }, Schedulers.io());
 
-        // and set gif on ui thread as drawable
-        bindFragment(this, loader).subscribe(viewImage::setImageDrawable);
+        // show progress bar while loading
+        viewProgress.setVisibility(View.VISIBLE);
+
+        bindFragment(this, loader).subscribe(gif -> {
+            // and set gif on ui thread as drawable
+            viewImage.setImageDrawable(gif);
+            viewProgress.setVisibility(View.GONE);
+        });
     }
 
     private void displayTypeVideo(String image) {
