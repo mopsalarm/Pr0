@@ -30,17 +30,14 @@
         android:layout_alignParentRight="true"
         android:text="@string/dummy_comment"/>
 
-    <TextView
+    <com.pr0gramm.app.UsernameView
         style="@style/Base.TextAppearance.AppCompat.Caption"
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/comment"
         android:layout_below="@id/comment"
-        android:layout_marginTop="2dp"
-        android:text="@string/dummy_user_name"
-        android:drawablePadding="4dp"
-        android:drawableRight="@drawable/user_type_fliesentisch_small"/>
+        android:layout_marginTop="2dp"/>
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Caption"

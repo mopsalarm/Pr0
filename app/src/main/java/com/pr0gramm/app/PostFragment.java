@@ -60,7 +60,7 @@ public class PostFragment extends RoboFragment {
     private ImageView viewImage;
 
     @InjectView(R.id.username)
-    private TextView viewUsername;
+    private UsernameView viewUsername;
 
     @InjectView(R.id.rating)
     private TextView viewRating;
@@ -118,7 +118,7 @@ public class PostFragment extends RoboFragment {
         viewComments.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
 
-        viewUsername.setText(feedItem.getUser());
+        viewUsername.setUsername(feedItem.getUser(), feedItem.getMark());
         viewRating.setText(String.valueOf(feedItem.getUp() - feedItem.getDown()));
 
         if (outerScrollView != null && getActivity() instanceof MainActivity) {

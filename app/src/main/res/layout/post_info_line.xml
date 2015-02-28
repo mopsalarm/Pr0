@@ -50,13 +50,10 @@
                 android:text="@string/dummy_post_date"
                 />
 
-            <TextView
+            <com.pr0gramm.app.UsernameView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dummy_user_name"
-                android:drawablePadding="4dp"
-                android:drawableRight="@drawable/user_type_fliesentisch_small"/>
+                android:layout_height="wrap_content"/>
         </LinearLayout>
     </LinearLayout>
 

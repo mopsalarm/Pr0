@@ -55,7 +55,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         holder.setCommentDepth(getCommentDepth(comment));
         holder.comment.setText(comment.getContent());
-        holder.name.setText(comment.getName());
+        holder.name.setUsername(comment.getName(), comment.getMark());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
-        final TextView name;
+        final UsernameView name;
         final TextView comment;
         private final int baseLeftMargin;
 
@@ -80,7 +80,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             baseLeftMargin = params.leftMargin;
 
             // get the subviews
-            name = (TextView) itemView.findViewById(R.id.username);
+            name = (UsernameView) itemView.findViewById(R.id.username);
             comment = (TextView) itemView.findViewById(R.id.comment);
         }
 

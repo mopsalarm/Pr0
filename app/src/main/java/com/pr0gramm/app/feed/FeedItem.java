@@ -19,6 +19,7 @@ public class FeedItem implements Parcelable {
     private final String user;
     private final int up;
     private final int down;
+    private final int mark;
     private final boolean seen;
 
     public FeedItem(Feed.Item item, boolean seen) {
@@ -30,6 +31,7 @@ public class FeedItem implements Parcelable {
         user = item.getUser();
         up = item.getUp();
         down = item.getDown();
+        mark = item.getMark();
 
         this.seen = seen;
     }
@@ -70,6 +72,10 @@ public class FeedItem implements Parcelable {
         return down;
     }
 
+    public int getMark() {
+        return mark;
+    }
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *
@@ -87,27 +93,34 @@ public class FeedItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
-        dest.writeLong(this.promotedId);
+        // combine up/down as rating.
+        int rating = ((up << 16) & 0xffff0000) | (down & 0xffff);
+
+        dest.writeInt((int) this.id);
+        dest.writeInt((int) this.promotedId);
         dest.writeString(this.thumb);
         dest.writeString(this.image);
         dest.writeString(this.fullsize);
         dest.writeString(this.user);
-        dest.writeInt(this.up);
-        dest.writeInt(this.down);
+        dest.writeInt(rating);
+        dest.writeByte((byte) mark);
         dest.writeByte(seen ? (byte) 1 : (byte) 0);
     }
 
     private FeedItem(Parcel in) {
-        this.id = in.readLong();
-        this.promotedId = in.readLong();
+        this.id = in.readInt();
+        this.promotedId = in.readInt();
         this.thumb = in.readString();
         this.image = in.readString();
         this.fullsize = in.readString();
         this.user = in.readString();
-        this.up = in.readInt();
-        this.down = in.readInt();
+        int rating = in.readInt();
+        this.mark = in.readByte();
         this.seen = in.readByte() != 0;
+
+        // extract up/down from rating
+        this.up = (rating >> 16) & 0xffff;
+        this.down = rating & 0xffff;
     }
 
     public static final Parcelable.Creator<FeedItem> CREATOR = new Parcelable.Creator<FeedItem>() {

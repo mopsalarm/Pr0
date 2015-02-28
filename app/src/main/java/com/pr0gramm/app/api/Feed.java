@@ -32,6 +32,7 @@ public class Feed {
         private String fullsize;
         private String user;
         private int up, down;
+        private int mark;
 
         public long getId() {
             return id;
@@ -63,6 +64,10 @@ public class Feed {
 
         public int getDown() {
             return down;
+        }
+
+        public int getMark() {
+            return mark;
         }
     }
 }
