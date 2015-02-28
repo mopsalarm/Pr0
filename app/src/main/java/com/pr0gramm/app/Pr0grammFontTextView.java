@@ -17,10 +17,25 @@ public class Pr0grammFontTextView extends TextView {
         super(context, attrs);
 
         if (!isInEditMode()) {
-            Typeface customTypeface = Typeface.createFromAsset(
-                    context.getAssets(), "fonts/pict0gramm-v3.ttf");
-
-            setTypeface(customTypeface);
+            Typeface font = getFontfaceInstance(context);
+            setTypeface(font);
         }
     }
+
+    /**
+     * Loads a the pr0gramm typeface. The font is only loaded once. This method
+     * will then return the same instance on every further call.
+     *
+     * @param context The context to use for loading.
+     */
+    private static Typeface getFontfaceInstance(Context context) {
+        if (INSTANCE == null) {
+            INSTANCE = Typeface.createFromAsset(
+                    context.getAssets(), "fonts/pict0gramm-v3.ttf");
+        }
+
+        return INSTANCE;
+    }
+
+    private static Typeface INSTANCE;
 }
