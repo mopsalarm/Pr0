@@ -155,7 +155,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             // could not deserialize value
         }
 
-        return new FeedAdapter(query, start);
+        return new FeedAdapter(query);
     }
 
     /**
@@ -278,7 +278,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
     private void setNewQuery(Query newQuery) {
         // set and store adapter
-        this.adapter = new FeedAdapter(newQuery, Optional.absent());
+        this.adapter = new FeedAdapter(newQuery);
         recyclerView.setAdapter(adapter);
 
         // remember settings
@@ -328,8 +328,8 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
 
-        FeedAdapter(Query query, Optional<Long> start) {
-            this(new FeedProxy(query, start));
+        FeedAdapter(Query query) {
+            this(new FeedProxy(query));
         }
 
         public FeedAdapter(FeedProxy feedProxy) {

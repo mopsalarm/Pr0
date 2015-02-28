@@ -26,10 +26,6 @@ public class FeedProxy {
     private final List<FeedItem> items = new ArrayList<>();
 
     private final Query query;
-
-    @Nullable
-    private final Long start;
-
     private boolean loading;
     private boolean atEnd;
     private boolean atStart;
@@ -40,10 +36,13 @@ public class FeedProxy {
     @Nullable
     private transient Loader loader;
 
-    public FeedProxy(Query query, Optional<Long> start) {
+    public FeedProxy(Query query) {
         this.query = query;
-        this.atStart = !start.isPresent();
-        this.start = start.orNull();
+    }
+
+    private FeedProxy(Query query, List<FeedItem> items) {
+        this.query = query;
+        this.items.addAll(items);
     }
 
     /**
@@ -169,7 +168,7 @@ public class FeedProxy {
         // and start loading the first page
         atEnd = false;
         atStart = true;
-        loadAfter(Optional.fromNullable(start));
+        loadAfter(Optional.<Long>absent());
     }
 
     public boolean isLoading() {
@@ -247,12 +246,9 @@ public class FeedProxy {
         Bundle bundle = new Bundle();
         bundle.putParcelable("query", query);
 
-        if (start != null)
-            bundle.putLong("start", start);
-
         // add a subset of the items
-        int start = Math.max(0, idx - 16);
-        int stop = Math.min(items.size(), idx + 16);
+        int start = Math.max(0, idx - 32);
+        int stop = Math.min(items.size(), idx + 32);
         List<FeedItem> items = this.items.subList(start, stop);
         bundle.putParcelableArray("items", toArray(items, FeedItem.class));
 
@@ -263,15 +259,13 @@ public class FeedProxy {
     public static FeedProxy fromBundle(Bundle bundle) {
         Query query = bundle.getParcelable("query");
         List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
-
-        long start = bundle.getLong("start", -1);
-
-        FeedProxy proxy = new FeedProxy(query, Optional.fromNullable(start < 0 ? null : start));
-        proxy.items.addAll(items);
-        return proxy;
+        return new FeedProxy(query, items);
     }
 
-    public Optional<Integer> getPosition(FeedItem start) {
+    public Optional<Integer> getPosition(@Nullable FeedItem start) {
+        if (start == null)
+            return Optional.absent();
+
         for (int idx = 0; idx < items.size(); idx++) {
             if (start.getId() == items.get(idx).getId())
                 return Optional.of(idx);
