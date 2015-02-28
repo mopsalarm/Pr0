@@ -34,6 +34,7 @@ public class PostPagerFragment extends RoboFragment {
     private ViewPager viewPager;
 
     private FeedProxy proxy;
+    private PostAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,58 +59,77 @@ public class PostPagerFragment extends RoboFragment {
 
         // set the adapter and show the correct post.
         FeedItem start = arguments.getParcelable(ARG_START_ITEM);
-        PostAdapter adapter = new PostAdapter();
+        adapter = new PostAdapter();
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(proxy.getPosition(start).or(0));
-
-        proxy.setOnChangeListener(new FeedProxy.OnChangeListener() {
-            @Override
-            public void onItemRangeInserted(int start, int count) {
-                adapter.notifyDataSetChanged();
-
-                // check if we need to change the position of the view
-                int current = viewPager.getCurrentItem();
-                if (start < current) {
-                    viewPager.setCurrentItem(current + count, false);
-                }
-            }
-
-            @Override
-            public void onItemRangeRemoved(int start, int count) {
-                // shouldn't happen anyways
-                adapter.notifyDataSetChanged();
-            }
-        });
+        viewPager.setCurrentItem(adapter.getOffsetPosition(proxy.getPosition(start).or(0)));
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        int idx = viewPager.getCurrentItem();
+        int idx = viewPager.getCurrentItem() - adapter.getOffset();
         outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
         outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
     }
 
-    private class PostAdapter extends FragmentStatePagerAdapter {
+    private class PostAdapter extends FragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
+        // we start with the the proxys 0 at this offset
+        private int offset = 100_000;
+
         public PostAdapter() {
             super(getChildFragmentManager());
+            proxy.setOnChangeListener(this);
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (position > proxy.getItemCount() - 12)
-                proxy.loadNextPage();
+            position -= offset;
 
-            if (position < 12)
-                proxy.loadPreviousPage();
+            if (!proxy.isLoading()) {
+                if (position > proxy.getItemCount() - 5) {
+                    Log.i("PostPager", "requested pos=" + position + ", load next page");
+                    proxy.loadNextPage();
+                }
+
+                if (position < 5) {
+                    Log.i("PostPager", "requested pos=" + position + ", load prev page");
+                    proxy.loadPreviousPage();
+                }
+            }
 
             return PostFragment.newInstance(proxy.getItemAt(position));
         }
 
         @Override
         public int getCount() {
-            return proxy.getItemCount();
+            return offset + proxy.getItemCount();
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public int getOffsetPosition(int pos) {
+            return offset + pos;
+        }
+
+        @Override
+        public void onItemRangeInserted(int start, int count) {
+            Log.i("PostPager", "Insert new posts at " + start);
+
+            // modify offset if we inserted new items
+            // before the existing items
+            if (start == 0)
+                offset -= count;
+
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int start, int count) {
+            // should not happen
+            throw new UnsupportedOperationException();
         }
     }
 

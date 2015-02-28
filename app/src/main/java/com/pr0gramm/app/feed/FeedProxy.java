@@ -1,10 +1,8 @@
 package com.pr0gramm.app.feed;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.common.base.Optional;
@@ -194,7 +192,9 @@ public class FeedProxy {
         if (newItems.size() > 0) {
             // calculate where to insert
             int index = 0;
-            if (!items.isEmpty() && newItems.get(0).getId() < items.get(0).getId())
+
+            long newId = feedTypeId(newItems.get(0));
+            if (!items.isEmpty() && newId < items.get(0).getId(query.getFeedType()))
                 index = items.size();
 
             // insert and notify observers about changes
@@ -203,6 +203,12 @@ public class FeedProxy {
             if (onChangeListener != null)
                 onChangeListener.onItemRangeInserted(index, newItems.size());
         }
+    }
+
+    private long feedTypeId(Feed.Item item) {
+        return query.getFeedType() == FeedType.PROMOTED
+                ? item.getPromoted()
+                : item.getId();
     }
 
     protected void onError(Throwable error) {
@@ -247,8 +253,8 @@ public class FeedProxy {
         bundle.putParcelable("query", query);
 
         // add a subset of the items
-        int start = Math.max(0, idx - 32);
-        int stop = Math.min(items.size(), idx + 32);
+        int start = Math.max(0, idx - 8);
+        int stop = Math.min(items.size(), idx + 8);
         List<FeedItem> items = this.items.subList(start, stop);
         bundle.putParcelableArray("items", toArray(items, FeedItem.class));
 
