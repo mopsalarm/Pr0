@@ -54,7 +54,7 @@ public class PostPagerFragment extends RoboFragment {
 
         @Override
         public Fragment getItem(int position) {
-            return PostFragment.newInstance(proxy, position);
+            return PostFragment.newInstance(proxy.getItemAt(position));
         }
 
         @Override

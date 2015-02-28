@@ -31,7 +31,7 @@ public class Feed {
         private String thumb;
         private String fullsize;
         private String user;
-        private int up;
+        private int up, down;
 
         public long getId() {
             return id;
@@ -59,6 +59,10 @@ public class Feed {
 
         public int getUp() {
             return up;
+        }
+
+        public int getDown() {
+            return down;
         }
     }
 }

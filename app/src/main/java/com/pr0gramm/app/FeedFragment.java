@@ -366,7 +366,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
             FeedItem item = feedProxy.getItemAt(position);
 
-            picasso.load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
+            picasso.load("http://thumb.pr0gramm.com/" + item.getThumb())
                     .into(view.image);
 
             view.itemView.setOnClickListener(v -> onItemClicked(item, position));
@@ -382,7 +382,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
         @Override
         public long getItemId(int position) {
-            return feedProxy.getItemAt(position).getItem().getId();
+            return feedProxy.getItemAt(position).getId();
         }
 
         @Override

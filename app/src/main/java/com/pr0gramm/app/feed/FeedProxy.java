@@ -1,5 +1,7 @@
 package com.pr0gramm.app.feed;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +16,8 @@ import java.util.List;
 
 import rx.Observable;
 
+import static com.google.common.collect.Iterables.toArray;
+import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -191,7 +195,7 @@ public class FeedProxy {
         if (newItems.size() > 0) {
             // calculate where to insert
             int index = 0;
-            if (!items.isEmpty() && newItems.get(0).getId() < items.get(0).getItem().getId())
+            if (!items.isEmpty() && newItems.get(0).getId() < items.get(0).getId())
                 index = items.size();
 
             // insert and notify observers about changes
@@ -237,6 +241,31 @@ public class FeedProxy {
 
     public int getItemCount() {
         return items.size();
+    }
+
+    public Bundle toBundle(int idx) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("query", query);
+
+        if (start != null)
+            bundle.putLong("start", start);
+
+        // add a subset of the items
+        int start = Math.max(0, idx - 16);
+        int stop = Math.min(items.size(), idx + 16);
+        List<FeedItem> items = this.items.subList(start, stop);
+        bundle.putParcelableArray("items", toArray(items, FeedItem.class));
+
+        return bundle;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static FeedProxy fromBundle(Bundle bundle) {
+        Query query = bundle.getParcelable("query");
+        List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
+
+        long start = bundle.getLong("start", -1);
+        return new FeedProxy(query, Optional.fromNullable(start < 0 ? null : start));
     }
 
     /**

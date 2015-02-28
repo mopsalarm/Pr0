@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +45,10 @@ import static rx.android.observables.AndroidObservable.bindFragment;
  * This fragment shows the content of one post.
  */
 public class PostFragment extends RoboFragment {
+    private static final String ARG_FEED_ITEM = "PostFragment.Post";
+
+    private FeedItem feedItem;
+
     @Inject
     private Picasso picasso;
 
@@ -84,11 +89,11 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.scroll)
     private VerticalScrollView outerScrollView;
 
-    private FeedProxy proxy;
-    private int idx;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    public PostFragment() {
-        setRetainInstance(true);
+        feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
     }
 
     @Override
@@ -108,16 +113,12 @@ public class PostFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (proxy == null)
-            return;
-
         viewComments.setAdapter(new CommentAdapter(Collections.<Post.Comment>emptyList()));
         viewComments.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
 
-        FeedItem item = proxy.getItemAt(idx);
-        viewUsername.setText(item.getItem().getUser());
-        viewRating.setText(String.valueOf(item.getItem().getUp()));
+        viewUsername.setText(feedItem.getUser());
+        viewRating.setText(String.valueOf(feedItem.getUp() - feedItem.getDown()));
 
         if (outerScrollView != null && getActivity() instanceof MainActivity) {
             MainActivity activity = (MainActivity) getActivity();
@@ -128,7 +129,7 @@ public class PostFragment extends RoboFragment {
         }
 
         // get the url of the posts content (image or video)
-        String url = "http://img.pr0gramm.com/" + item.getItem().getImage();
+        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
         if (url.toLowerCase().endsWith(".webm")) {
             // hide the image view
             viewImage.setVisibility(View.GONE);
@@ -149,7 +150,7 @@ public class PostFragment extends RoboFragment {
         }
 
         // load post info (comments and tags)
-        long id = item.getItem().getId();
+        long id = feedItem.getId();
         bindFragment(this, feedService.loadPostDetails(id)).subscribe(this::onPostReceived);
     }
 
@@ -251,15 +252,13 @@ public class PostFragment extends RoboFragment {
         // viewComments.setAdapter(new CommentAdapter(post.getComments()));
     }
 
-    public static PostFragment newInstance(FeedProxy feed, int idx) {
+    public static PostFragment newInstance(FeedItem item) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(ARG_FEED_ITEM, item);
+
         PostFragment fragment = new PostFragment();
-        fragment.initialize(feed, idx);
+        fragment.setArguments(arguments);
 
         return fragment;
-    }
-
-    private void initialize(FeedProxy feed, int idx) {
-        this.proxy = feed;
-        this.idx = idx;
     }
 }
