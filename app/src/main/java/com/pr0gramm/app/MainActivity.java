@@ -3,10 +3,12 @@ package com.pr0gramm.app;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.ViewPropertyAnimator;
 
 import com.pr0gramm.app.feed.FeedProxy;
@@ -36,17 +38,27 @@ public class MainActivity extends RoboActionBarActivity {
 
         // use toolbar as action bar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setShowHideAnimationEnabled(true);
 
         // prepare drawer layout
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
+
+        //
+        getSupportActionBar().setHomeButtonEnabled(true);
+        drawerToggle.syncState();
 
         // load feed-fragment into view
         if (savedInstanceState == null) {
             gotoFeedFragment();
             createDrawerFragment();
         }
+
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            FragmentManager fm = getSupportFragmentManager();
+            drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(fm.getBackStackEntryCount() > 0);
+            drawerToggle.syncState();
+        });
     }
 
     private void createDrawerFragment() {
@@ -75,6 +87,21 @@ public class MainActivity extends RoboActionBarActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (!drawerToggle.isDrawerIndicatorEnabled()) {
+            if (item.getItemId() == android.R.id.home) {
+                getSupportFragmentManager().popBackStack();
+                return true;
+            }
+        }
+
+        if (drawerToggle.onOptionsItemSelected(item))
+            return true;
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
