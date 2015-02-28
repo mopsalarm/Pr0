@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.ViewGroup;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.feed.FeedProxy;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -88,7 +89,7 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     public void onPostClicked(FeedProxy feed, int idx) {
-        Fragment fragment = new PostPagerFragment(feed, idx);
+        Fragment fragment = PostPagerFragment.newInstance(feed, idx);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)

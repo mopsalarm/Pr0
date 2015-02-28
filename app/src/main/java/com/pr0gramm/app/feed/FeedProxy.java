@@ -265,7 +265,19 @@ public class FeedProxy {
         List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
 
         long start = bundle.getLong("start", -1);
-        return new FeedProxy(query, Optional.fromNullable(start < 0 ? null : start));
+
+        FeedProxy proxy = new FeedProxy(query, Optional.fromNullable(start < 0 ? null : start));
+        proxy.items.addAll(items);
+        return proxy;
+    }
+
+    public Optional<Integer> getPosition(FeedItem start) {
+        for (int idx = 0; idx < items.size(); idx++) {
+            if (start.getId() == items.get(idx).getId())
+                return Optional.of(idx);
+        }
+
+        return Optional.absent();
     }
 
     /**
