@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,9 +90,15 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.scroll)
     private VerticalScrollView outerScrollView;
 
+    private Runnable onStart, onStop;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // do nothing on start/stop per default
+        onStart = onStop = () -> {
+        };
 
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
     }
@@ -189,8 +196,13 @@ public class PostFragment extends RoboFragment {
 
         bindFragment(this, loader).subscribe(gif -> {
             // and set gif on ui thread as drawable
-            viewImage.setImageDrawable(gif);
             viewProgress.setVisibility(View.GONE);
+
+            onStart = () -> viewImage.setImageDrawable(gif);
+            onStop = () -> viewImage.setImageDrawable(null);
+
+            // and do it once now.
+            onStart.run();
         });
     }
 
@@ -202,12 +214,10 @@ public class PostFragment extends RoboFragment {
 
         // set video on view
         viewVideo.setVideoURI(Uri.parse(image));
-        viewVideo.start();
 
         // start on play
         viewVideo.setOnClickListener(v -> {
-            if (!viewVideo.isPlaying())
-                viewVideo.start();
+            viewVideo.seekTo(0);
         });
 
         viewVideo.setOnPreparedListener(mp -> {
@@ -226,6 +236,25 @@ public class PostFragment extends RoboFragment {
                 viewVideo.setLayoutParams(params);
             }
         });
+
+        onStart = () -> {
+            viewVideo.seekTo(0);
+            viewVideo.start();
+        };
+
+        onStop = viewVideo::pause;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        onStart.run();
+    }
+
+    @Override
+    public void onPause() {
+        onStop.run();
+        super.onPause();
     }
 
     private void onPostReceived(Post post) {
