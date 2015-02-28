@@ -9,12 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -174,27 +179,7 @@ public class PostFragment extends RoboFragment {
     }
 
     private void onPostReceived(Post post) {
-        // TODO use recyclerView for tags
-
-//        List<Post.Tag> tags = Ordering.natural()
-//                .reverse()
-//                .onResultOf(Post.Tag::getConfidence)
-//                .sortedCopy(post.getTags());
-//
-//        // remove previous tags
-//        for (int i = viewTagContainer.getChildCount() - 1; i >= 1; i--)
-//            viewTagContainer.removeViewAt(i);
-//
-//        LayoutInflater inflater = LayoutInflater.from(getActivity());
-//        for (Post.Tag tag : tags) {
-//            TextView view = (TextView) inflater.inflate(R.layout.tag, viewTagContainer, false);
-//            view.setText(tag.getTag());
-//
-//            viewTagContainer.addView(view);
-//        }
-
-        // TODO the comments
-        List<Post.Comment> comments = post.getComments();
+        List<Post.Comment> comments = sort(post.getComments());
         adapter.addAll(new CommentViewType(comments), comments);
 
         // update tags from post
@@ -237,4 +222,31 @@ public class PostFragment extends RoboFragment {
 
         return fragment;
     }
+
+    /**
+     * "Flattens" a list of hierarchical comments to a sorted list of comments.
+     *
+     * @param comments The comments to sort
+     */
+    public static List<Post.Comment> sort(List<Post.Comment> comments) {
+        ImmutableListMultimap<Integer, Post.Comment> byParent =
+                Multimaps.index(comments, Post.Comment::getParent);
+
+        ArrayList<Post.Comment> result = new ArrayList<>();
+        appendChildComments(result, byParent, 0);
+        return result;
+    }
+
+    private static void appendChildComments(List<Post.Comment> target,
+                                            ListMultimap<Integer, Post.Comment> byParent, int id) {
+
+        List<Post.Comment> children = COMMENT_BY_CONFIDENCE.sortedCopy(byParent.get(id));
+        for (Post.Comment child : children) {
+            target.add(child);
+            appendChildComments(target, byParent, child.getId());
+        }
+    }
+
+    private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =
+            Ordering.natural().reverse().onResultOf(Post.Comment::getConfidence);
 }

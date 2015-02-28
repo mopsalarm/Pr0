@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 
@@ -54,7 +54,11 @@ public class InfoLineView extends LinearLayout {
     }
 
     public void setTags(List<Post.Tag> tags) {
-        tagsView.setAdapter(new TagsAdapter(ImmutableList.copyOf(tags)));
+        List<Post.Tag> sorted = Ordering.natural().reverse()
+                .onResultOf(Post.Tag::getConfidence)
+                .sortedCopy(tags);
+
+        tagsView.setAdapter(new TagsAdapter(sorted));
     }
 
     public UsernameView getUsernameView() {
