@@ -9,6 +9,10 @@ import android.widget.TextView;
  * Text view with a custom font.
  */
 public class Pr0grammFontTextView extends TextView {
+    public Pr0grammFontTextView(Context context) {
+        this(context, null);
+    }
+
     public Pr0grammFontTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
 

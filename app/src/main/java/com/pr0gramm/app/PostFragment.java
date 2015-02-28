@@ -74,12 +74,6 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.comments)
     private RecyclerView viewComments;
 
-    @InjectView(R.id.action_rate_plus)
-    private TextView viewActionRatePlus;
-
-    @InjectView(R.id.action_rate_minus)
-    private TextView viewActionRateMinus;
-
     @InjectView(R.id.progress)
     private ProgressBar viewProgress;
 
