@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.pr0gramm.app.feed.AbstractFeedAdapter;
+import com.pr0gramm.app.feed.FeedProxy;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
@@ -19,16 +19,16 @@ import roboguice.inject.InjectView;
  */
 @SuppressLint("ValidFragment")
 public class PostPagerFragment extends RoboFragment {
-    private final AbstractFeedAdapter<?> adapter;
+    private final FeedProxy proxy;
     private final int idx;
 
     @InjectView(R.id.pager)
     private ViewPager viewPager;
 
-    public PostPagerFragment(AbstractFeedAdapter<?> adapter, int idx) {
+    public PostPagerFragment(FeedProxy proxy, int idx) {
         setRetainInstance(true);
 
-        this.adapter = adapter;
+        this.proxy = proxy;
         this.idx = idx;
     }
 
@@ -54,12 +54,12 @@ public class PostPagerFragment extends RoboFragment {
 
         @Override
         public Fragment getItem(int position) {
-            return PostFragment.newInstance(adapter, position);
+            return PostFragment.newInstance(proxy, position);
         }
 
         @Override
         public int getCount() {
-            return adapter.getItemCount();
+            return proxy.getItemCount();
         }
     }
 }

@@ -24,8 +24,8 @@ import android.widget.ImageView;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.pr0gramm.app.feed.AbstractFeedAdapter;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
@@ -81,7 +81,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         swipeRefreshLayout = new SwipeRefreshLayout(getActivity()) {
             @Override
             public boolean canChildScrollUp() {
-                return !adapter.isAtStart() || super.canChildScrollUp();
+                return !adapter.getFeedProxy().isAtStart() || super.canChildScrollUp();
             }
         };
 
@@ -108,8 +108,9 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         recyclerView.setAdapter(adapter);
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            if (adapter.isAtStart() && !adapter.isLoading()) {
-                adapter.restart();
+            FeedProxy proxy = adapter.getFeedProxy();
+            if (proxy.isAtStart() && !proxy.isLoading()) {
+                proxy.restart();
             } else {
                 // do not refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -170,22 +171,23 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
                 }
 
                 int totalItemCount = layoutManager.getItemCount();
-                if (adapter.isLoading())
+                FeedProxy proxy = adapter.getFeedProxy();
+                if (proxy.isLoading())
                     return;
 
-                if (dy > 0 && !adapter.isAtEnd()) {
+                if (dy > 0 && !proxy.isAtEnd()) {
                     int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
                         Log.i("FeedScroll", "Request next page now");
-                        adapter.loadNextPage();
+                        proxy.loadNextPage();
                     }
                 }
 
-                if (dy < 0 && !adapter.isAtStart()) {
+                if (dy < 0 && !proxy.isAtStart()) {
                     int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
                         Log.i("FeedScroll", "Request previous page now");
-                        adapter.loadPreviousPage();
+                        proxy.loadPreviousPage();
                     }
                 }
             }
@@ -304,7 +306,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     }
 
     private void onItemClicked(FeedItem item, int idx) {
-        ((MainActivity) getActivity()).onPostClicked(adapter, idx);
+        ((MainActivity) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
     }
 
     /**
@@ -323,9 +325,33 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
                 .apply();
     }
 
-    private class FeedAdapter extends AbstractFeedAdapter<FeedItemViewHolder> {
+    private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
+        private final FeedProxy feedProxy;
+
         FeedAdapter(Query query, Optional<Long> start) {
-            super(feedService, query, start);
+            this(new FeedProxy(query, start));
+        }
+
+        public FeedAdapter(FeedProxy feedProxy) {
+            this.feedProxy = feedProxy;
+            feedProxy.setOnChangeListener(this);
+            feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(FeedFragment.this, feedService) {
+                @Override
+                public void onLoadFinished() {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+
+            // start the feed
+            feedProxy.restart();
+        }
+
+        public Query getQuery() {
+            return feedProxy.getQuery();
+        }
+
+        public FeedProxy getFeedProxy() {
+            return feedProxy;
         }
 
         @SuppressLint("InflateParams")
@@ -338,7 +364,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
         @Override
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
-            FeedItem item = getItem(position);
+            FeedItem item = feedProxy.getItemAt(position);
 
             picasso.load("http://thumb.pr0gramm.com/" + item.getItem().getThumb())
                     .into(view.image);
@@ -350,14 +376,23 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         }
 
         @Override
-        protected void onLoadFinished() {
-            super.onLoadFinished();
-            swipeRefreshLayout.setRefreshing(false);
+        public int getItemCount() {
+            return feedProxy.getItemCount();
         }
 
         @Override
-        protected <E> Observable<E> bind(Observable<E> observable) {
-            return super.bind(bindFragment(FeedFragment.this, observable));
+        public long getItemId(int position) {
+            return feedProxy.getItemAt(position).getItem().getId();
+        }
+
+        @Override
+        public void onItemRangeInserted(int start, int count) {
+            notifyItemRangeInserted(start, count);
+        }
+
+        @Override
+        public void onItemRangeRemoved(int start, int count) {
+            notifyItemRangeRemoved(start, count);
         }
     }
 

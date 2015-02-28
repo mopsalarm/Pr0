@@ -1,5 +1,7 @@
 package com.pr0gramm.app.feed;
 
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
@@ -12,27 +14,32 @@ import java.util.List;
 
 import rx.Observable;
 
+import static rx.android.observables.AndroidObservable.bindFragment;
+
 /**
  */
-public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<T> {
+public class FeedProxy {
     private final List<FeedItem> items = new ArrayList<>();
 
-    private final FeedService feedService;
     private final Query query;
+
+    @Nullable
+    private final Long start;
 
     private boolean loading;
     private boolean atEnd;
     private boolean atStart;
 
-    public AbstractFeedAdapter(FeedService feedService, Query query,
-                               Optional<Long> start) {
+    @Nullable
+    private transient OnChangeListener onChangeListener;
 
-        this.feedService = feedService;
+    @Nullable
+    private transient Loader loader;
+
+    public FeedProxy(Query query, Optional<Long> start) {
         this.query = query;
         this.atStart = !start.isPresent();
-
-        setHasStableIds(true);
-        loadAfter(start);
+        this.start = start.orNull();
     }
 
     /**
@@ -44,22 +51,23 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * @param observable The observable to bind.
      * @return The bound observable.
      */
-    protected <E> Observable<E> bind(Observable<E> observable) {
+    private <E> Observable<E> bind(Observable<E> observable) {
+        if (loader == null) {
+            observable = Observable.empty();
+        } else {
+            observable = loader.bind(observable);
+        }
+
         return observable
                 .finallyDo(this::onLoadFinished)
                 .finallyDo(() -> loading = false);
     }
 
-    @Override
-    public int getItemCount() {
-        return items.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return items.get(position).getId(query.getFeedType());
-    }
-
+    /**
+     * Returns a list of all the items in this feed.
+     *
+     * @return A list of all items in the feed.
+     */
     public List<FeedItem> getItems() {
         return Collections.unmodifiableList(items);
     }
@@ -67,10 +75,15 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
     /**
      * Returns the feed item at the given index.
      */
-    public FeedItem getItem(int idx) {
+    public FeedItem getItemAt(int idx) {
         return items.get(idx);
     }
 
+    /**
+     * Returns the query that is used to build this feed.
+     *
+     * @return A query that is used to build the feed
+     */
     public Query getQuery() {
         return query;
     }
@@ -79,7 +92,7 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * Asynchronously loads the before-page before
      */
     public void loadPreviousPage() {
-        if (loading || items.isEmpty() || isAtStart())
+        if (loading || items.isEmpty() || isAtStart() || loader == null)
             return;
 
         loading = true;
@@ -87,13 +100,19 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
         // do the loading.
         long newest = items.get(0).getId(query.getFeedType());
-        bind(feedService.getFeedItemsNewer(query, newest))
+        bind(loader.getFeedService().getFeedItemsNewer(query, newest))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
 
+    /**
+     * Enhances the feed by additional data.
+     *
+     * @param feed The feed to enhance
+     * @return The enhanced feed to display
+     */
     private EnhancedFeed enhance(Feed feed) {
-        List<FeedItem> items = new ArrayList<>();
+        List<FeedItem> items = new ArrayList<FeedItem>();
         for (Feed.Item item : feed.getItems())
             items.add(new FeedItem(item, false));
 
@@ -117,14 +136,14 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
      * @param start The post to start at.
      */
     private void loadAfter(Optional<Long> start) {
-        if (loading)
+        if (loading || loader == null)
             return;
 
         loading = true;
         onLoadStart();
 
         // do the loading.
-        bind(feedService.getFeedItems(query, start))
+        bind(loader.getFeedService().getFeedItems(query, start))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
@@ -139,12 +158,14 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
         // remove all previous items from the adapter.
         int oldSize = items.size();
         items.clear();
-        notifyItemRangeRemoved(0, oldSize);
+
+        if (onChangeListener != null)
+            onChangeListener.onItemRangeRemoved(0, oldSize);
 
         // and start loading the first page
         atEnd = false;
         atStart = true;
-        loadAfter(Optional.absent());
+        loadAfter(Optional.fromNullable(start));
     }
 
     public boolean isLoading() {
@@ -175,20 +196,47 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
             // insert and notify observers about changes
             items.addAll(index, feed.getFeedItems());
-            notifyItemRangeInserted(index, newItems.size());
+
+            if (onChangeListener != null)
+                onChangeListener.onItemRangeInserted(index, newItems.size());
         }
     }
 
     protected void onError(Throwable error) {
-        Log.e("Feed", "Error loading feed", error);
+        if (loader != null)
+            loader.onError(error);
     }
 
     protected void onLoadStart() {
-        Log.i("Feed", "loading started, item count: " + items.size());
+        if (loader != null)
+            loader.onLoadStart();
     }
 
     protected void onLoadFinished() {
-        Log.i("Feed", "loading finished, item count: " + items.size());
+        if (loader != null)
+            loader.onLoadFinished();
+    }
+
+    public void setOnChangeListener(@Nullable OnChangeListener onChangeListener) {
+        this.onChangeListener = onChangeListener;
+    }
+
+    @Nullable
+    public OnChangeListener getOnChangeListener() {
+        return onChangeListener;
+    }
+
+    @Nullable
+    public Loader getLoader() {
+        return loader;
+    }
+
+    public void setLoader(@Nullable Loader loader) {
+        this.loader = loader;
+    }
+
+    public int getItemCount() {
+        return items.size();
     }
 
     /**
@@ -209,6 +257,59 @@ public abstract class AbstractFeedAdapter<T extends RecyclerView.ViewHolder> ext
 
         public List<FeedItem> getFeedItems() {
             return feedItems;
+        }
+    }
+
+    public interface OnChangeListener {
+        void onItemRangeInserted(int start, int count);
+
+        void onItemRangeRemoved(int start, int count);
+    }
+
+    public interface Loader {
+        <T> Observable<T> bind(Observable<T> observable);
+
+        void onLoadStart();
+
+        void onLoadFinished();
+
+        void onError(Throwable error);
+
+        FeedService getFeedService();
+    }
+
+    public static class FragmentFeedLoader implements Loader {
+        private final Fragment fragment;
+        private final FeedService feedService;
+
+        public FragmentFeedLoader(Fragment fragment, FeedService feedService) {
+            this.fragment = fragment;
+            this.feedService = feedService;
+        }
+
+        @Override
+        public <T> Observable<T> bind(Observable<T> observable) {
+            return bindFragment(fragment, observable);
+        }
+
+        @Override
+        public void onLoadStart() {
+
+        }
+
+        @Override
+        public void onLoadFinished() {
+
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            Log.e("Feed", "Could not load feed", error);
+        }
+
+        @Override
+        public FeedService getFeedService() {
+            return feedService;
         }
     }
 }

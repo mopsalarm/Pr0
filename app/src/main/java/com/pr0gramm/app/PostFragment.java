@@ -1,17 +1,11 @@
 package com.pr0gramm.app;
 
 import android.annotation.SuppressLint;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.net.rtp.AudioStream;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,18 +18,14 @@ import android.widget.VideoView;
 
 import com.google.common.collect.Ordering;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Resources;
 import com.pr0gramm.app.api.Post;
-import com.pr0gramm.app.feed.AbstractFeedAdapter;
+import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.Vote;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,7 +84,7 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.scroll)
     private VerticalScrollView outerScrollView;
 
-    private AbstractFeedAdapter<?> feed;
+    private FeedProxy proxy;
     private int idx;
 
     public PostFragment() {
@@ -118,14 +108,14 @@ public class PostFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (feed == null)
+        if (proxy == null)
             return;
 
         viewComments.setAdapter(new CommentAdapter(Collections.<Post.Comment>emptyList()));
         viewComments.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
 
-        FeedItem item = feed.getItem(idx);
+        FeedItem item = proxy.getItemAt(idx);
         viewUsername.setText(item.getItem().getUser());
         viewRating.setText(String.valueOf(item.getItem().getUp()));
 
@@ -261,15 +251,15 @@ public class PostFragment extends RoboFragment {
         // viewComments.setAdapter(new CommentAdapter(post.getComments()));
     }
 
-    public static PostFragment newInstance(AbstractFeedAdapter<?> feed, int idx) {
+    public static PostFragment newInstance(FeedProxy feed, int idx) {
         PostFragment fragment = new PostFragment();
         fragment.initialize(feed, idx);
 
         return fragment;
     }
 
-    private void initialize(AbstractFeedAdapter<?> feed, int idx) {
-        this.feed = feed;
+    private void initialize(FeedProxy feed, int idx) {
+        this.proxy = feed;
         this.idx = idx;
     }
 }

@@ -5,13 +5,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.ViewGroup;
 
-import com.pr0gramm.app.feed.AbstractFeedAdapter;
-import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.feed.FeedProxy;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
@@ -89,7 +87,7 @@ public class MainActivity extends RoboActionBarActivity {
         super.onBackPressed();
     }
 
-    public void onPostClicked(AbstractFeedAdapter<?> feed, int idx) {
+    public void onPostClicked(FeedProxy feed, int idx) {
         Fragment fragment = new PostPagerFragment(feed, idx);
 
         getSupportFragmentManager().beginTransaction()
