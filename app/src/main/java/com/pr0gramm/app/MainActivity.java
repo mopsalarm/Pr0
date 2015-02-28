@@ -7,9 +7,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
-import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.feed.FeedProxy;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -98,22 +97,34 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     public class ScrollHideToolbarListener {
-        int abHeight = -1;
-        int toolbarMarginOffset = 0;
+        private int toolbarMarginOffset = 0;
+        private ViewPropertyAnimator animation;
 
         private ScrollHideToolbarListener() {
             // only this activity can instantiate this listener
         }
 
-        private void applyToolbarPosition() {
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-            params.topMargin = -1 * toolbarMarginOffset;
-            toolbar.setLayoutParams(params);
+        private void applyToolbarPosition(boolean animated) {
+            // ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+            // params.topMargin = -1 * toolbarMarginOffset;
+            // toolbar.setLayoutParams(params);
+
+            int y = -toolbarMarginOffset;
+            if (animated) {
+                animation = toolbar.animate().translationY(y).setDuration(250);
+                animation.start();
+            } else {
+                if (animation != null) {
+                    animation.cancel();
+                    animation = null;
+                }
+
+                toolbar.setTranslationY(y);
+            }
         }
 
         public void onScrolled(int dy) {
-            if (abHeight == -1)
-                abHeight = AndroidUtility.getActionBarSize(MainActivity.this);
+            int abHeight = AndroidUtility.getActionBarSize(MainActivity.this);
 
             toolbarMarginOffset += dy;
             if (toolbarMarginOffset > abHeight)
@@ -122,12 +133,14 @@ public class MainActivity extends RoboActionBarActivity {
             if (toolbarMarginOffset < 0)
                 toolbarMarginOffset = 0;
 
-            applyToolbarPosition();
+            applyToolbarPosition(false);
         }
 
         public void reset() {
-            toolbarMarginOffset = 0;
-            applyToolbarPosition();
+            if (toolbarMarginOffset != 0) {
+                toolbarMarginOffset = 0;
+                applyToolbarPosition(true);
+            }
         }
     }
 

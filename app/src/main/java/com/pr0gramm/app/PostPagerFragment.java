@@ -1,10 +1,8 @@
 package com.pr0gramm.app;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -12,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
@@ -62,6 +59,17 @@ public class PostPagerFragment extends RoboFragment {
         adapter = new PostAdapter();
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(adapter.getOffsetPosition(proxy.getPosition(start).or(0)));
+
+        MainActivity mainActivity = (MainActivity) getActivity();
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                mainActivity.onScrollHideToolbarListener.reset();
+            }
+        });
+
+        // reset the scrollbar here too
+        mainActivity.onScrollHideToolbarListener.reset();
     }
 
     @Override
