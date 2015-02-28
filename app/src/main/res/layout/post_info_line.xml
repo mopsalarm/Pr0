@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:showIn="@layout/fragment_post">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,6 +11,7 @@
         android:orientation="horizontal">
 
         <com.pr0gramm.app.VoteView
+            android:id="@+id/voting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
@@ -57,30 +56,28 @@
         </LinearLayout>
     </LinearLayout>
 
-    <HorizontalScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginLeft="16dp"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="8dp"
         android:layout_marginRight="16dp"
-        android:scrollbars="none">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/tag_container"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/primary"
+            android:padding="8dp"
+            android:text="@string/action_add_tag"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textColor="@color/primary"
-                android:padding="8dp"
-                android:text="@string/action_add_tag"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/tags"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
-            <!-- <include layout="@layout/tag"/> -->
-        </LinearLayout>
-    </HorizontalScrollView>
+        <!-- <include layout="@layout/tag"/> -->
+    </LinearLayout>
 </merge>

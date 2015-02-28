@@ -1,8 +1,8 @@
 package com.pr0gramm.app;
 
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.v4.app.FragmentActivity;
-import android.test.ActivityUnitTestCase;
 
 /**
  */
@@ -18,6 +18,15 @@ public class AndroidUtility {
      * @return The height of the action bar in pixels.
      */
     public static int getActionBarSize(FragmentActivity activity) {
+        TypedArray arr = activity.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
+        try {
+            return arr.getDimensionPixelSize(0, -1);
+        } finally {
+            arr.recycle();
+        }
+    }
+
+    public static int getActionBarSize(Resources.Theme activity) {
         TypedArray arr = activity.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
         try {
             return arr.getDimensionPixelSize(0, -1);

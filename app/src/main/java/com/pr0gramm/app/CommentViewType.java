@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.api.Post;
@@ -17,18 +16,12 @@ import static android.view.ViewGroup.MarginLayoutParams;
 
 /**
  */
-public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentView> {
-    private final ImmutableList<Post.Comment> comments;
+public class CommentViewType implements GenericAdapter.ViewType {
     private final ImmutableMap<Integer, Post.Comment> byId;
 
-    public CommentAdapter(List<Post.Comment> comments) {
-        setHasStableIds(true);
-
-        // TODO we need to "flatten" the tree of comments here and order them by score.
-        this.comments = ImmutableList.copyOf(comments);
+    public CommentViewType(List<Post.Comment> comments) {
         this.byId = Maps.uniqueIndex(comments, Post.Comment::getId);
     }
-
 
     private int getCommentDepth(Post.Comment comment) {
         int depth = 0;
@@ -41,7 +34,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     @Override
-    public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
+    public long getId(Object object) {
+        return ((Post.Comment) object).getId();
+    }
+
+    @Override
+    public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.comment, parent, false);
@@ -50,22 +48,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     @Override
-    public void onBindViewHolder(CommentView holder, int position) {
-        Post.Comment comment = comments.get(position);
+    public void bind(RecyclerView.ViewHolder holder, Object object) {
+        Post.Comment comment = (Post.Comment) object;
 
-        holder.setCommentDepth(getCommentDepth(comment));
-        holder.comment.setText(comment.getContent());
-        holder.name.setUsername(comment.getName(), comment.getMark());
-    }
-
-    @Override
-    public int getItemCount() {
-        return comments.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return comments.get(position).getId();
+        CommentView view = (CommentView) holder;
+        view.setCommentDepth(getCommentDepth(comment));
+        view.comment.setText(comment.getContent());
+        view.name.setUsername(comment.getName(), comment.getMark());
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {

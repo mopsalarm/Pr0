@@ -63,11 +63,17 @@ public class VoteView extends LinearLayout {
         viewRateUp = new Pr0grammFontTextView(context);
         viewRateUp.setText("+");
         viewRateUp.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        viewRateUp.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // initialize vote down view.
         viewRateDown = new Pr0grammFontTextView(context);
         viewRateDown.setText("-");
         viewRateDown.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        viewRateDown.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // add views
         addView(viewRateUp);

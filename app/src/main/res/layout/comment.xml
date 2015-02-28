@@ -16,7 +16,7 @@
         app:orientation="vertical"
         app:spacing="4dp"
         app:textSize="24sp"
-        app:defaultColor="?android:textColorSecondary"
+        app:defaultColor="@color/grey_700"
         app:markedColor="?colorPrimary"
         />
 
