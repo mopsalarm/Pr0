@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.pr0gramm.app.api.Feed;
 
+import org.joda.time.Instant;
+
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by a {@link com.pr0gramm.app.api.Feed.Item} and enhanced with meta data,
@@ -20,6 +22,7 @@ public class FeedItem implements Parcelable {
     private final int up;
     private final int down;
     private final int mark;
+    private final Instant created;
     private final boolean seen;
 
     public FeedItem(Feed.Item item, boolean seen) {
@@ -32,6 +35,7 @@ public class FeedItem implements Parcelable {
         up = item.getUp();
         down = item.getDown();
         mark = item.getMark();
+        created = item.getCreated();
 
         this.seen = seen;
     }
@@ -76,6 +80,10 @@ public class FeedItem implements Parcelable {
         return mark;
     }
 
+    public Instant getCreated() {
+        return created;
+    }
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *
@@ -104,6 +112,7 @@ public class FeedItem implements Parcelable {
         dest.writeString(this.user);
         dest.writeInt(rating);
         dest.writeByte((byte) mark);
+        dest.writeInt((int) (created.getMillis() / 1000));
         dest.writeByte(seen ? (byte) 1 : (byte) 0);
     }
 
@@ -116,6 +125,7 @@ public class FeedItem implements Parcelable {
         this.user = in.readString();
         int rating = in.readInt();
         this.mark = in.readByte();
+        this.created = new Instant(1000L * in.readInt());
         this.seen = in.readByte() != 0;
 
         // extract up/down from rating

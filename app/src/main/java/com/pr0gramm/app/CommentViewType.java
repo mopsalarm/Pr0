@@ -1,5 +1,6 @@
 package com.pr0gramm.app;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.pr0gramm.app.api.Post;
 import java.util.List;
 
 import static android.view.ViewGroup.MarginLayoutParams;
+import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
  */
@@ -55,11 +57,23 @@ public class CommentViewType implements GenericAdapter.ViewType {
         view.setCommentDepth(getCommentDepth(comment));
         view.comment.setText(comment.getContent());
         view.name.setUsername(comment.getName(), comment.getMark());
+
+        // show the points
+        Context context = view.itemView.getContext();
+        int points = comment.getUp() - comment.getDown();
+        view.points.setText(context.getString(R.string.points, points));
+
+        // and the date of the post
+        CharSequence date = getRelativeTimeSpanString(context, comment.getCreated());
+        view.date.setText(date);
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
         final UsernameView name;
         final TextView comment;
+        final TextView points;
+        final TextView date;
+
         private final int baseLeftMargin;
 
         public CommentView(View itemView) {
@@ -71,6 +85,8 @@ public class CommentViewType implements GenericAdapter.ViewType {
             // get the subviews
             name = (UsernameView) itemView.findViewById(R.id.username);
             comment = (TextView) itemView.findViewById(R.id.comment);
+            points = (TextView) itemView.findViewById(R.id.points);
+            date = (TextView) itemView.findViewById(R.id.date);
         }
 
         public void setCommentDepth(int depth) {

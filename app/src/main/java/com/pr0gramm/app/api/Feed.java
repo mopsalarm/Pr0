@@ -1,5 +1,7 @@
 package com.pr0gramm.app.api;
 
+import org.joda.time.Instant;
+
 import java.util.List;
 
 /**
@@ -33,6 +35,7 @@ public class Feed {
         private String user;
         private int up, down;
         private int mark;
+        private Instant created;
 
         public long getId() {
             return id;
@@ -68,6 +71,10 @@ public class Feed {
 
         public int getMark() {
             return mark;
+        }
+
+        public Instant getCreated() {
+            return created;
         }
     }
 }

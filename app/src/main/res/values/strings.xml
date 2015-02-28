@@ -25,4 +25,5 @@
     <string name="action_add_tag">Add</string>
     <string name="dummy_comment">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
     <string name="dummy_points">4 points</string>
+    <string name="points">%d points</string>
 </resources>

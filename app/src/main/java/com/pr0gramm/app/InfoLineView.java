@@ -16,12 +16,15 @@ import com.pr0gramm.app.feed.FeedItem;
 
 import java.util.List;
 
+import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
+
 /**
  */
 @SuppressLint("ViewConstructor")
 public class InfoLineView extends LinearLayout {
     private final VoteView voteView;
     private final TextView ratingView;
+    private final TextView dateView;
     private final UsernameView usernameView;
     private final RecyclerView tagsView;
 
@@ -35,6 +38,7 @@ public class InfoLineView extends LinearLayout {
         voteView = (VoteView) findViewById(R.id.voting);
         ratingView = (TextView) findViewById(R.id.rating);
         usernameView = (UsernameView) findViewById(R.id.username);
+        dateView = (TextView) findViewById(R.id.date);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
         tagsView.setLayoutManager(new LinearLayoutManager(context,
@@ -48,6 +52,7 @@ public class InfoLineView extends LinearLayout {
 
         usernameView.setUsername(item.getUser(), item.getMark());
         ratingView.setText(String.valueOf(item.getUp() - item.getDown()));
+        dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
 
         // TODO we need the voting from the database here.
         // voteView.setVote(item.getVote());
