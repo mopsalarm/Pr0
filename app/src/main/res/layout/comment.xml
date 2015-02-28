@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
@@ -7,22 +8,17 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp">
 
-    <com.pr0gramm.app.Pr0grammFontTextView
-        android:id="@+id/action_rate_plus"
+    <com.pr0gramm.app.VoteView
+        android:id="@+id/voting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:layout_marginTop="4dp"
-        android:text="+"/>
-
-    <com.pr0gramm.app.Pr0grammFontTextView
-        android:id="@+id/action_rate_minus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/action_rate_plus"
-        android:textSize="20sp"
-        android:layout_marginTop="4dp"
-        android:text="-"/>
+        app:orientation="vertical"
+        app:spacing="4dp"
+        app:textSize="24sp"
+        app:defaultColor="?android:textColorSecondary"
+        app:markedColor="?colorPrimary"
+        />
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Body1"
@@ -30,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
-        android:layout_toRightOf="@id/action_rate_plus"
+        android:layout_toRightOf="@id/voting"
         android:layout_alignParentRight="true"
         android:text="@string/dummy_comment"/>
 
