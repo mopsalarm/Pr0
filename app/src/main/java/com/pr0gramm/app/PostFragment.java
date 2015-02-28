@@ -75,6 +75,7 @@ public class PostFragment extends RoboFragment {
 
     private GenericAdapter adapter;
     private InfoLineView infoLineView;
+    private PlayerView player;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -136,6 +137,18 @@ public class PostFragment extends RoboFragment {
         bindFragment(this, feedService.loadPostDetails(id)).subscribe(this::onPostReceived);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        player.onStart();
+    }
+
+    @Override
+    public void onPause() {
+        player.onPause();
+        super.onPause();
+    }
+
     private void addInfoLineView() {
         ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -148,7 +161,7 @@ public class PostFragment extends RoboFragment {
 
     private void addPlayerView() {
         // get the url of the posts content (image or video)
-        PlayerView player = new PlayerView(getActivity(), picasso, downloader) {
+        player = new PlayerView(getActivity(), picasso, downloader) {
             @Override
             protected <T> Observable<T> bind(Observable<T> observable) {
                 return bindFragment(PostFragment.this, observable);
@@ -163,17 +176,16 @@ public class PostFragment extends RoboFragment {
         params.topMargin = AndroidUtility.getActionBarSize(getActivity());
         player.setLayoutParams(params);
 
+        // initialize the player
+        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
+        player.play(url);
+
         adapter.add(new StaticViewType(PLAYER_VIEW_ID, player) {
-            boolean bound = false;
-
             @Override
-            public void bind(RecyclerView.ViewHolder holder, Object object) {
-                if (bound)
-                    return;
-
-                String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-                player.play(url);
-                bound = true;
+            public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
+                RecyclerView.ViewHolder holder = super.newViewHolder(parent);
+                holder.setIsRecyclable(false);
+                return holder;
             }
         }, null);
     }

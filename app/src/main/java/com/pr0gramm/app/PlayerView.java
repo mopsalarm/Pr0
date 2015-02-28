@@ -2,20 +2,25 @@ package com.pr0gramm.app;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.util.Log;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.VideoView;
 
+import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import pl.droidsonroids.gif.GifDrawable;
@@ -30,8 +35,17 @@ public abstract class PlayerView extends FrameLayout {
     private final Downloader downloader;
 
     private final ImageView imageView;
-    private final VideoView videoView;
+    private final TextureView videoView;
     private final ProgressBar progress;
+
+    private Runnable onAttach = () -> {
+    };
+
+    private Runnable onPause = () -> {
+    };
+
+    private Runnable onStart = () -> {
+    };
 
     public PlayerView(Context context, Picasso picasso, Downloader downloader) {
         super(context);
@@ -40,7 +54,7 @@ public abstract class PlayerView extends FrameLayout {
 
         inflate(context, R.layout.player, this);
         imageView = (ImageView) findViewById(R.id.image);
-        videoView = (VideoView) findViewById(R.id.video);
+        videoView = (TextureView) findViewById(R.id.video);
         progress = (ProgressBar) findViewById(R.id.progress);
     }
 
@@ -66,6 +80,12 @@ public abstract class PlayerView extends FrameLayout {
             }
         }
 
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        onAttach.run();
     }
 
     /**
@@ -105,55 +125,126 @@ public abstract class PlayerView extends FrameLayout {
             // and set gif on ui thread as drawable
             progress.setVisibility(View.GONE);
             imageView.setImageDrawable(gif);
-
-            //onStart = () -> viewImage.setImageDrawable(gif);
-            // onStop = () -> viewImage.setImageDrawable(null);
-
-            // and do it once now.
-            //onStart.run();
         });
     }
 
     protected abstract <T> Observable<T> bind(Observable<T> observable);
 
-    private void displayTypeVideo(String image) {
-        // hide video controls
-        MediaController ctrl = new MediaController(getContext());
-        ctrl.setVisibility(View.GONE);
-        videoView.setMediaController(ctrl);
+    /**
+     * Must be called from outside on start of the fragment
+     */
+    public void onStart() {
+        onStart.run();
+    }
 
-        // set video on view
-        videoView.setVideoURI(Uri.parse(image));
+    /**
+     * Must be called from outside on pause of the fragment/activity
+     */
+    public void onPause() {
+        onPause.run();
+    }
 
-        // start on play
-        videoView.setOnClickListener(v -> {
-            videoView.seekTo(0);
-        });
+    private void displayTypeVideo(String url) {
+        onStart = () -> {
+            Log.i("Player", "on start called");
 
-        videoView.setOnPreparedListener(mp -> {
-            mp.setLooping(true);
+            MediaPlayer player = new MediaPlayer();
 
-            int width = mp.getVideoWidth();
-            int height = mp.getVideoHeight();
-
-            ViewParent parent = videoView.getParent();
-            if (parent instanceof View) {
-                int parentWidth = ((View) parent).getWidth();
-                float aspect = width / (float) height;
-
-                ViewGroup.LayoutParams params = videoView.getLayoutParams();
-                params.height = (int) (parentWidth / aspect);
-                videoView.setLayoutParams(params);
+            try {
+                player.setDataSource(getContext(), Uri.parse(url));
+            } catch (IOException err) {
+                Throwables.propagate(err);
             }
-        });
 
-        videoView.start();
+            player.setOnPreparedListener(mp -> {
+                Log.i("Player", "Player prepared");
 
-//        onStart = () -> {
-//            viewVideo.seekTo(0);
-//            viewVideo.start();
-//        };
-//
-//        onStop = viewVideo::pause;
+                // loop 10/10
+                mp.setLooping(true);
+
+                // size of the video
+                int width = mp.getVideoWidth();
+                int height = mp.getVideoHeight();
+
+                // the moment we are attached to the window, we perform a resize operation
+                onAttach = () -> resizeVideoView(width, height);
+
+                // perform initial resizing of the view
+                if (getWindowToken() != null)
+                    onAttach.run();
+
+                TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
+                    @Override
+                    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                        Log.i("Player", "surface texture is available, starting playback");
+                        mp.setSurface(new Surface(surface));
+                        mp.start();
+                    }
+
+                    @Override
+                    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                        try {
+                            if (mp.isPlaying())
+                                mp.pause();
+
+                        } catch (IllegalStateException ignored) {
+                            // maybe we were already destroyed?
+                        }
+
+                        return true;
+                    }
+
+                    @Override
+                    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+                    }
+
+                    @Override
+                    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+                    }
+                };
+
+                videoView.setSurfaceTextureListener(textureListener);
+
+                // maybe there already is a surface. We'll use it then.
+                SurfaceTexture surface = videoView.getSurfaceTexture();
+                if (surface != null) {
+                    mp.setSurface(new Surface(surface));
+                    mp.start();
+                }
+            });
+
+            onPause = () -> {
+                Log.i("Player", "on pause called");
+                player.reset();
+                player.release();
+
+                videoView.setSurfaceTextureListener(null);
+            };
+
+            // lets go!
+            player.prepareAsync();
+        };
+    }
+
+    /**
+     * Resizes the video view while keeping the aspect-ratio
+     *
+     * @param width  The width of the video
+     * @param height The height of the video
+     */
+    private void resizeVideoView(int width, float height) {
+        ViewParent parent = videoView.getParent();
+        if (parent instanceof View) {
+            int parentWidth = ((View) parent).getWidth();
+            float aspect = width / height;
+
+            int newHeight = (int) (parentWidth / aspect);
+            if (videoView.getHeight() == newHeight)
+                return;
+
+            ViewGroup.LayoutParams params = videoView.getLayoutParams();
+            params.height = newHeight;
+            videoView.setLayoutParams(params);
+        }
     }
 }

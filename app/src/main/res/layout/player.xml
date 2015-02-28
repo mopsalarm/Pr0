@@ -10,10 +10,18 @@
         android:maxHeight="500dp"
         android:scaleType="fitCenter"/>
 
+    <!--
     <VideoView
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="300dp"
+        android:layout_gravity="center"/>
+    -->
+
+    <TextureView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
         android:layout_gravity="center"/>
 
     <ProgressBar
