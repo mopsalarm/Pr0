@@ -101,14 +101,9 @@ public class MainActivity extends RoboActionBarActivity {
         private ViewPropertyAnimator animation;
 
         private ScrollHideToolbarListener() {
-            // only this activity can instantiate this listener
         }
 
         private void applyToolbarPosition(boolean animated) {
-            // ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-            // params.topMargin = -1 * toolbarMarginOffset;
-            // toolbar.setLayoutParams(params);
-
             int y = -toolbarMarginOffset;
             if (animated) {
                 animation = toolbar.animate().translationY(y).setDuration(250);
