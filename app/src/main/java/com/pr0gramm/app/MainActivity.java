@@ -37,7 +37,7 @@ public class MainActivity extends RoboActionBarActivity implements
     private Toolbar toolbar;
 
     @Inject
-    private LoginService loginService;
+    private UserService userService;
 
     private ActionBarDrawerToggle drawerToggle;
 
@@ -125,7 +125,7 @@ public class MainActivity extends RoboActionBarActivity implements
         }
 
         if (item.getItemId() == R.id.action_logout) {
-            loginService.logout();
+            userService.logout();
             return true;
         }
 
@@ -136,11 +136,11 @@ public class MainActivity extends RoboActionBarActivity implements
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem logout = menu.findItem(R.id.action_logout);
         if (logout != null)
-            logout.setVisible(loginService.isAuthorized());
+            logout.setVisible(userService.isAuthorized());
 
         MenuItem login = menu.findItem(R.id.action_login);
         if (login != null)
-            login.setVisible(!loginService.isAuthorized());
+            login.setVisible(!userService.isAuthorized());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -182,12 +182,15 @@ public class MainActivity extends RoboActionBarActivity implements
 
         if (action == R.id.action_favorites) {
             LoginDialogFragment.doIfAuthorized(this, () -> {
+                String name = userService.getName().orNull();
+                if (name == null)
+                    return;
+
                 clearBackStack();
-                gotoFeedFragment(Query.likes("Mopsalarm"));
-                drawerLayout.closeDrawers();
-                return;
+                gotoFeedFragment(Query.likes(name));
             });
 
+            drawerLayout.closeDrawers();
             return;
         }
     }

@@ -15,6 +15,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import static com.google.common.base.Objects.equal;
+
 /**
  */
 @Singleton
@@ -23,7 +25,9 @@ public class LoginCookieHandler extends CookieHandler {
 
     private final Object lock = new Object();
     private final SharedPreferences preferences;
+
     private HttpCookie loginCookie;
+    private OnCookieChangedListener onCookieChangedListener;
 
     @Inject
     public LoginCookieHandler(SharedPreferences preferences) {
@@ -93,6 +97,10 @@ public class LoginCookieHandler extends CookieHandler {
 
     private void setLoginCookie(HttpCookie cookie) {
         synchronized (lock) {
+            boolean notChanged = loginCookie != null && equal(cookie.getValue(), loginCookie.getValue());
+            if (notChanged)
+                return;
+
             loginCookie = cookie;
 
             // store cookie for next time
@@ -100,6 +108,9 @@ public class LoginCookieHandler extends CookieHandler {
                     .putString(PREF_LOGIN_COOKIE, cookie.getValue())
                     .apply();
         }
+
+        if (onCookieChangedListener != null)
+            onCookieChangedListener.onCookieChanged();
     }
 
     public Optional<String> getLoginCookie() {
@@ -119,6 +130,14 @@ public class LoginCookieHandler extends CookieHandler {
             loginCookie = null;
             preferences.edit().remove(PREF_LOGIN_COOKIE).apply();
         }
+    }
+
+    public OnCookieChangedListener getOnCookieChangedListener() {
+        return onCookieChangedListener;
+    }
+
+    public void setOnCookieChangedListener(OnCookieChangedListener onCookieChangedListener) {
+        this.onCookieChangedListener = onCookieChangedListener;
     }
 
     /**
@@ -150,5 +169,12 @@ public class LoginCookieHandler extends CookieHandler {
         }
 
         return Collections.singletonMap("Cookie", Collections.singletonList(result.toString()));
+    }
+
+    public interface OnCookieChangedListener {
+        /**
+         * Called if the cookie has changed.
+         */
+        void onCookieChanged();
     }
 }

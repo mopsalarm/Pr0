@@ -12,15 +12,28 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import roboguice.fragment.RoboFragment;
+import roboguice.inject.InjectView;
+import rx.Subscription;
+
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
 public class DrawerFragment extends RoboFragment {
     private Map<Integer, TextView> itemViews;
 
+    @Inject
+    private UserService userService;
+
+    @InjectView(R.id.username)
+    private TextView usernameView;
+
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
+    private Subscription subscription;
 
     private int selected;
 
@@ -51,6 +64,22 @@ public class DrawerFragment extends RoboFragment {
         select(selected);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        subscription = bindFragment(this, userService.getLoginStateObservable())
+                .subscribe(this::onLoginStateChanged);
+    }
+
+    @Override
+    public void onPause() {
+        if (subscription != null)
+            subscription.unsubscribe();
+
+        super.onPause();
+    }
+
     private void deselect() {
         for (TextView view : itemViews.values())
             view.setTextColor(defaultColor);
@@ -75,6 +104,17 @@ public class DrawerFragment extends RoboFragment {
 
         if (getActivity() instanceof OnDrawerActionListener)
             ((OnDrawerActionListener) getActivity()).onActionClicked(id);
+    }
+
+    private void onLoginStateChanged(UserService.LoginState state) {
+        if (state == UserService.LoginState.NOT_AUTHORIZED) {
+            usernameView.setText(R.string.pr0gramm);
+        }
+
+        if (state == UserService.LoginState.AUTHORIZED) {
+            String name = userService.getName().or("");
+            usernameView.setText(name);
+        }
     }
 
     public interface OnDrawerActionListener {

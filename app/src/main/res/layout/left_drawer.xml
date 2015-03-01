@@ -18,15 +18,16 @@
             android:id="@+id/flavor"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/user_type_fliesentisch_small"/>
+            android:src="@drawable/ic_launcher"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Headline"
+            android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_below="@id/flavor"
-            android:text="@string/dummy_user_name"/>
+            android:text="@string/app_name"/>
 
     </RelativeLayout>
 
@@ -47,12 +48,14 @@
         android:id="@+id/action_upload"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_upload"
+        android:enabled="false"
         android:text="@string/action_upload"/>
 
     <TextView
         android:id="@+id/action_messages"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_mail"
+        android:enabled="false"
         android:text="@string/action_messages"/>
 
     <TextView

@@ -2,7 +2,14 @@ package com.pr0gramm.app;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+
+import com.google.common.base.Throwables;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 /**
  */
@@ -33,5 +40,19 @@ public class AndroidUtility {
         } finally {
             arr.recycle();
         }
+    }
+
+    public static String urlDecode(String value, Charset charset) {
+        try {
+            return URLDecoder.decode(value, charset.name());
+
+        } catch (UnsupportedEncodingException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public static void checkMainThread() {
+        if (Looper.getMainLooper().getThread() != Thread.currentThread())
+            throw new IllegalStateException("Must be called from the main thread.");
     }
 }

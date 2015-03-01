@@ -17,12 +17,15 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
 import com.google.common.base.Strings;
+import com.pr0gramm.app.api.LoginResponse;
 
 import javax.inject.Inject;
 
 import roboguice.RoboGuice;
 import roboguice.fragment.RoboDialogFragment;
+import rx.functions.Action1;
 
+import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -34,7 +37,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
     private SharedPreferences prefs;
 
     @Inject
-    private LoginService loginService;
+    private UserService userService;
 
     @NonNull
     @Override
@@ -86,15 +89,21 @@ public class LoginDialogFragment extends RoboDialogFragment {
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply();
 
-        bindFragment(this, loginService.login(username, password)).subscribe(response -> {
-            if (response.isSuccess()) {
-                dismiss();
+        bindFragment(this, userService.login(username, password))
+                .lift(busyDialog(this))
+                .subscribe(
+                        response -> onLoginSuccess(response, usernameView::setError),
+                        this::onLoginError);
+    }
 
-            } else {
-                String msg = getString(R.string.login_not_successful);
-                usernameView.setError(msg);
-            }
-        }, this::onLoginError);
+    private void onLoginSuccess(LoginResponse response, Action1<String> showError) {
+        if (response.isSuccess()) {
+            dismiss();
+
+        } else {
+            String msg = getString(R.string.login_not_successful);
+            showError.call(msg);
+        }
     }
 
     private void onLoginError(Throwable throwable) {
@@ -102,13 +111,13 @@ public class LoginDialogFragment extends RoboDialogFragment {
     }
 
     private static boolean doIfAuthorized(Context context, FragmentManager fm, Runnable runnable) {
-        LoginService loginService = RoboGuice
+        UserService userService = RoboGuice
                 .getInjector(context)
-                .getInstance(LoginService.class);
+                .getInstance(UserService.class);
 
-        Log.i("LoginDialog", "Using login service " + loginService);
+        Log.i("LoginDialog", "Using login service " + userService);
 
-        if (loginService.isAuthorized()) {
+        if (userService.isAuthorized()) {
             Log.i("LoginDialog", "is authorized");
             runnable.run();
             return true;
