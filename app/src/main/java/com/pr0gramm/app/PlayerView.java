@@ -20,6 +20,8 @@ import com.google.common.io.ByteStreams;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -112,9 +114,34 @@ public abstract class PlayerView extends FrameLayout {
         Observable<GifDrawable> loader = Async.fromCallable(() -> {
             // load the gif file
             Downloader.Response response = downloader.load(Uri.parse(image), 0);
-            try (InputStream stream = response.getInputStream()) {
-                // and decode it
-                return new GifDrawable(ByteStreams.toByteArray(stream));
+
+            if (isLowMemoryJvm()) {
+                File gifTemp = new File(getContext().getCacheDir(),
+                        "tmp" + System.identityHashCode(this));
+
+                try {
+                    try (FileOutputStream ra = new FileOutputStream(gifTemp)) {
+                        try (InputStream stream = response.getInputStream()) {
+                            byte[] buffer = new byte[1024 * 16];
+
+                            int length;
+                            while ((length = stream.read(buffer)) >= 0)
+                                ra.write(buffer, 0, length);
+                        }
+                    }
+
+                    Log.i("Gif", "loading gif from file");
+                    return new GifDrawable(gifTemp);
+                } finally {
+                    // delete the temp file
+                    if (!gifTemp.delete())
+                        Log.w("Gif", "Could not clean up");
+                }
+            } else {
+                try (InputStream stream = response.getInputStream()) {
+                    // and decode it
+                    return new GifDrawable(ByteStreams.toByteArray(stream));
+                }
             }
         }, Schedulers.io());
 
@@ -126,6 +153,10 @@ public abstract class PlayerView extends FrameLayout {
             progress.setVisibility(View.GONE);
             imageView.setImageDrawable(gif);
         });
+    }
+
+    private boolean isLowMemoryJvm() {
+        return Runtime.getRuntime().maxMemory() < 32 * 1024 * 1024;
     }
 
     protected abstract <T> Observable<T> bind(Observable<T> observable);
