@@ -82,7 +82,7 @@ public class InfoLineView extends LinearLayout {
         return feedItem;
     }
 
-    private static class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
+    private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
         private final List<Post.Tag> tags;
 
         private TagsAdapter(List<Post.Tag> tags) {
@@ -99,13 +99,21 @@ public class InfoLineView extends LinearLayout {
 
         @Override
         public void onBindViewHolder(TagViewHolder holder, int position) {
-            holder.tag.setText(tags.get(position).getTag());
+            Post.Tag tag = tags.get(position);
+            holder.tag.setText(tag.getTag());
+            holder.tag.setOnClickListener(v -> {
+                onTagClicked(tag);
+            });
         }
 
         @Override
         public int getItemCount() {
             return tags.size();
         }
+    }
+
+    protected void onTagClicked(Post.Tag tag) {
+
     }
 
     private static class TagViewHolder extends RecyclerView.ViewHolder {

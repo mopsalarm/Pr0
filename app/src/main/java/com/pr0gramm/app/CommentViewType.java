@@ -2,6 +2,7 @@ package com.pr0gramm.app;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,8 +56,11 @@ public class CommentViewType implements GenericAdapter.ViewType {
 
         CommentView view = (CommentView) holder;
         view.setCommentDepth(getCommentDepth(comment));
-        view.comment.setText(comment.getContent());
         view.name.setUsername(comment.getName(), comment.getMark());
+
+        // set the comment and add links
+        view.comment.setText(comment.getContent());
+        Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
         Context context = view.itemView.getContext();

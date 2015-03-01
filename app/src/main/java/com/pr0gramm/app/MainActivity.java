@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewPropertyAnimator;
 
+import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
@@ -87,16 +89,22 @@ public class MainActivity extends RoboActionBarActivity implements
                 .commit();
     }
 
-    private void gotoFeedFragment(Query query) {
+    private void gotoFeedFragment(Query query, boolean addToBackStack) {
         FeedFragment fragment = FeedFragment.newInstance(query);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, fragment)
-                .commit();
+        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        try {
+            tr.replace(R.id.content, fragment);
+            if (addToBackStack)
+                tr.addToBackStack(null);
+
+        } finally {
+            tr.commit();
+        }
     }
 
     private void gotoFeedFragment(FeedType feedType) {
-        gotoFeedFragment(new Query().withFeedType(feedType));
+        gotoFeedFragment(new Query().withFeedType(feedType), false);
     }
 
     @Override
@@ -240,7 +248,7 @@ public class MainActivity extends RoboActionBarActivity implements
                 return;
 
             clearBackStack();
-            gotoFeedFragment(Query.likes(name));
+            gotoFeedFragment(Query.likes(name), false);
             getDrawerFragment().select(R.id.action_favorites);
         });
 
@@ -250,6 +258,11 @@ public class MainActivity extends RoboActionBarActivity implements
     private void clearBackStack() {
         getSupportFragmentManager().popBackStackImmediate(
                 null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+
+    public void onTabClicked(Post.Tag tag) {
+        Query query = new Query().withTags(tag.getTag());
+        gotoFeedFragment(query, true);
     }
 
     public class ScrollHideToolbarListener {

@@ -17,6 +17,7 @@ import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -141,7 +142,13 @@ public class PostFragment extends RoboFragment {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        infoLineView = new InfoLineView(getActivity(), feedItem);
+        infoLineView = new InfoLineView(getActivity(), feedItem) {
+            @Override
+            protected void onTagClicked(Post.Tag tag) {
+                ((MainActivity)getActivity()).onTabClicked(tag);
+            }
+        };
+
         infoLineView.setLayoutParams(params);
         adapter.add(new StaticViewType(INFO_LINE_VIEW_ID, infoLineView), null);
 
