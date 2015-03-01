@@ -1,14 +1,11 @@
 package com.pr0gramm.app;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.ImageView;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -32,7 +29,7 @@ public class MaximizeImageView extends GifImageView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int width = getMeasuredWidth();
-        int height = ViewCompat.getMinimumHeight(this);
+        int height = Math.max(1, ViewCompat.getMinimumHeight(this));
         Drawable drawable = getDrawable();
         if (drawable != null) {
             int orgWidth = drawable.getIntrinsicWidth();
