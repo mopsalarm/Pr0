@@ -31,4 +31,5 @@
     <string name="login">Login</string>
     <string name="must_not_be_empty">Must not be empty</string>
     <string name="login_not_successful">Login not successful</string>
+    <string name="menu_login">Login</string>
 </resources>

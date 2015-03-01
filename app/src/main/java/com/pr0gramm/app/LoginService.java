@@ -28,4 +28,8 @@ public class LoginService {
     public boolean isAuthorized() {
         return cookieHandler.getLoginCookie().isPresent();
     }
+
+    public void logout() {
+        cookieHandler.clearLoginCookie();
+    }
 }

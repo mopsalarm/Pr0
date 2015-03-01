@@ -8,11 +8,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewPropertyAnimator;
 
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
+
+import javax.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
@@ -31,6 +34,9 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @InjectView(R.id.toolbar)
     private Toolbar toolbar;
+
+    @Inject
+    private LoginService loginService;
 
     private ActionBarDrawerToggle drawerToggle;
 
@@ -107,7 +113,31 @@ public class MainActivity extends RoboActionBarActivity implements
         if (drawerToggle.onOptionsItemSelected(item))
             return true;
 
+        if (item.getItemId() == R.id.action_login) {
+            LoginDialogFragment dialog = new LoginDialogFragment();
+            dialog.show(getSupportFragmentManager(), null);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_logout) {
+            loginService.logout();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem logout = menu.findItem(R.id.action_logout);
+        if (logout != null)
+            logout.setVisible(loginService.isAuthorized());
+
+        MenuItem login = menu.findItem(R.id.action_login);
+        if (login != null)
+            login.setVisible(!loginService.isAuthorized());
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
