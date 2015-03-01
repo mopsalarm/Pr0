@@ -1,5 +1,7 @@
 # progr0am Android App
 
+_INFO_: Mopsalarm ist gebannt wegen Tags.
+
 Snapshot der ersten Version meiner (Mopsalarm) pr0gramm-App ist als installierbare APK im Repository zu finden.
 
 ## Features
