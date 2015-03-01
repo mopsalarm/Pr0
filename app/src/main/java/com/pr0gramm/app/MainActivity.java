@@ -14,6 +14,7 @@ import android.view.ViewPropertyAnimator;
 
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.feed.Query;
 
 import javax.inject.Inject;
 
@@ -82,7 +83,11 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedType feedType) {
-        FeedFragment fragment = FeedFragment.newInstance(feedType);
+        gotoFeedFragment(new Query().withFeedType(feedType));
+    }
+
+    private void gotoFeedFragment(Query query) {
+        FeedFragment fragment = FeedFragment.newInstance(query);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
@@ -178,7 +183,9 @@ public class MainActivity extends RoboActionBarActivity implements
         if (action == R.id.action_favorites) {
             LoginDialogFragment.doIfAuthorized(this, () -> {
                 clearBackStack();
-
+                gotoFeedFragment(Query.likes("Mopsalarm"));
+                drawerLayout.closeDrawers();
+                return;
             });
 
             return;

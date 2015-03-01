@@ -30,8 +30,8 @@ public class LoginCookieHandler extends CookieHandler {
         this.preferences = preferences;
 
         String restored = preferences.getString(PREF_LOGIN_COOKIE, null);
-        if (restored != null) {
-            Log.i("LoginCookieHandler", "restoring cookie value from prefs");
+        if (restored != null && !"null".equals(restored)) {
+            Log.i("LoginCookieHandler", "restoring cookie value from prefs: " + restored);
             setLoginCookie(restored);
         }
     }
@@ -41,10 +41,10 @@ public class LoginCookieHandler extends CookieHandler {
         if (!isApiRequest(uri))
             return requestHeaders;
 
-        if (loginCookie == null)
+        if (loginCookie == null || loginCookie.getValue() == null)
             return Collections.emptyMap();
 
-        Log.i("LoginCookieHandler", "Add login cookie to request");
+        Log.d("LoginCookieHandler", "Add login cookie to request: " + loginCookie.getValue());
         return cookiesToHeaders(Collections.singletonList(loginCookie));
     }
 
@@ -77,13 +77,21 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     private void handleCookie(HttpCookie cookie) {
-        if ("me".equals(cookie.getName())) {
-            Log.i("LoginCookieHandler", "Got login cookie");
-            storeLoginCookie(cookie);
+        if (isLoginCookie(cookie)) {
+            Log.d("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
+            setLoginCookie(cookie);
         }
     }
 
-    private void storeLoginCookie(HttpCookie cookie) {
+    private boolean isLoginCookie(HttpCookie cookie) {
+        if (!"me".equals(cookie.getName()))
+            return false;
+
+        String value = String.valueOf(cookie.getValue());
+        return !"null".equals(value);
+    }
+
+    private void setLoginCookie(HttpCookie cookie) {
         synchronized (lock) {
             loginCookie = cookie;
 
@@ -99,7 +107,11 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     public void setLoginCookie(String value) {
-        storeLoginCookie(new HttpCookie("me", value));
+        Log.i("LoginCookieHandler", "Set login cookie called: " + value);
+
+        HttpCookie cookie = new HttpCookie("me", value);
+        cookie.setVersion(0);
+        setLoginCookie(cookie);
     }
 
     public void clearLoginCookie() {

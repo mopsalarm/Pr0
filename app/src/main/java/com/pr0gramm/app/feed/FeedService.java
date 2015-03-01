@@ -1,6 +1,7 @@
 package com.pr0gramm.app.feed;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.ContentType;
 import com.pr0gramm.app.api.Api;
@@ -10,7 +11,6 @@ import com.pr0gramm.app.api.Post;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Func4;
 
 /**
  */
@@ -26,23 +26,28 @@ public class FeedService {
     public Observable<Feed> getFeedItems(Query query, Optional<Long> start) {
         // value of the "older" field. depends on the feed-type.
         long older = start.or((long) Integer.MAX_VALUE);
-        return performRequest(api::itemsGetOlder, query, older);
+        return performRequest(false, query, older);
     }
 
     public Observable<Feed> getFeedItemsNewer(Query query, long start) {
-        return performRequest(api::itemsGetNewer, query, start);
+        return performRequest(true, query, start);
     }
 
-    private Observable<Feed> performRequest(
-            Func4<Integer, Long, Integer, String, Observable<Feed>> function, Query query, long older) {
+    private Observable<Feed> performRequest(boolean newer, Query query, long start) {
 
         // value for the promoted field
         int promoted = (query.getFeedType() == FeedType.PROMOTED) ? 1 : 0;
 
         int flags = ContentType.combine(query.getContentTypes());
         String tags = query.getTags().or("");
+        String likes = query.getLikes().or("");
+        String self = Strings.isNullOrEmpty(likes) ? "" : "true";
 
-        return function.call(promoted, older, flags, tags);
+        if (newer) {
+            return api.itemsGetNewer(promoted, start, flags, tags, likes, self);
+        } else {
+            return api.itemsGetOlder(promoted, start, flags, tags, likes, self);
+        }
     }
 
     public Observable<Post> loadPostDetails(long id) {

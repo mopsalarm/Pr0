@@ -26,7 +26,6 @@ import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
 
@@ -44,8 +43,8 @@ import static java.util.Collections.singleton;
 /**
  */
 public class FeedFragment extends RoboFragment implements ChangeContentTypeDialog.ContentTypeChangeListener {
-    public static final String PREF_CONTENT_TYPE = "FeedFragment.contentType";
-    public static final String ARG_FEED_TYPE = "FeedFragment.feedType";
+    private static final String PREF_CONTENT_TYPE = "FeedFragment.contentType";
+    private static final String ARG_FEED_QUERY = "FeedFragment.query";
 
     @Inject
     private FeedService feedService;
@@ -96,7 +95,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
         if (adapter == null) {
             // create a new adapter if necessary
-            adapter = restoreFeedAdapter(Optional.absent());
+            adapter = newFeedAdapter();
         }
 
         // prepare the list of items
@@ -125,13 +124,14 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         setupInfiniteScroll();
     }
 
-    private FeedAdapter restoreFeedAdapter(Optional<Long> start) {
+    private FeedAdapter newFeedAdapter() {
         Log.i("Feed", "Restore adapter now");
-        Query query = new Query();
+        Query query = getArguments().getParcelable(ARG_FEED_QUERY);
 
         try {
             Set<ContentType> contentTypes = FluentIterable
-                    .from(sharedPreferences.getStringSet(PREF_CONTENT_TYPE, singleton(ContentType.SFW.toString())))
+                    .from(sharedPreferences.getStringSet(PREF_CONTENT_TYPE,
+                            singleton(ContentType.SFW.toString())))
                     .transform(ContentType::valueOf)
                     .toSet();
 
@@ -141,11 +141,6 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         } catch (Exception ignored) {
             // could not deserialize value
         }
-
-        // restore the feed type from arguments
-        int typeInt = getArguments().getInt(ARG_FEED_TYPE);
-        FeedType feedType = FeedType.values()[typeInt];
-        query = query.withFeedType(feedType);
 
         return new FeedAdapter(query);
     }
@@ -327,12 +322,12 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
      * Creates a new {@link com.pr0gramm.app.FeedFragment} for the given
      * feed type.
      *
-     * @param feedType The type of feed to display.
+     * @param query A query to use for getting data
      * @return The type new fragment that can be shown now.
      */
-    public static FeedFragment newInstance(FeedType feedType) {
+    public static FeedFragment newInstance(Query query) {
         Bundle arguments = new Bundle();
-        arguments.putInt(ARG_FEED_TYPE, feedType.ordinal());
+        arguments.putParcelable(ARG_FEED_QUERY, query);
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);

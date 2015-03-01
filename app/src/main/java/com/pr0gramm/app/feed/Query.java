@@ -21,18 +21,19 @@ import static java.util.Arrays.asList;
 public final class Query implements Parcelable {
     private FeedType feedType;
     private Set<ContentType> contentTypes;
-    private Optional<String> tags;
+    private String tags;
+    private String likes;
 
     public Query() {
         feedType = FeedType.PROMOTED;
         contentTypes = EnumSet.of(ContentType.SFW);
-        tags = Optional.absent();
     }
 
     Query(Query other) {
         feedType = other.feedType;
         contentTypes = EnumSet.copyOf(other.contentTypes);
         tags = other.tags;
+        likes = other.likes;
     }
 
     public FeedType getFeedType() {
@@ -44,7 +45,7 @@ public final class Query implements Parcelable {
     }
 
     public Optional<String> getTags() {
-        return tags;
+        return Optional.fromNullable(tags);
     }
 
     public Query withFeedType(FeedType type) {
@@ -69,10 +70,19 @@ public final class Query implements Parcelable {
         if (tags != null)
             tags = tags.trim();
 
-        query.tags = Optional.fromNullable(Strings.emptyToNull(tags));
+        query.tags = Strings.emptyToNull(tags);
         return query;
     }
 
+    public Optional<String> getLikes() {
+        return Optional.fromNullable(likes);
+    }
+
+    public static Query likes(String user) {
+        Query query = new Query().withFeedType(FeedType.NEW);
+        query.likes = user;
+        return query;
+    }
 
     @Override
     public int describeContents() {
@@ -83,7 +93,8 @@ public final class Query implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.feedType == null ? -1 : this.feedType.ordinal());
         dest.writeParcelableArray(toArray(contentTypes, ContentType.class), flags);
-        dest.writeString(tags.orNull());
+        dest.writeString(tags);
+        dest.writeString(likes);
     }
 
     @SuppressWarnings("unchecked")
@@ -93,7 +104,8 @@ public final class Query implements Parcelable {
         this.contentTypes = EnumSet.copyOf((List) asList(
                 in.readParcelableArray(ContentType.class.getClassLoader())));
 
-        this.tags = Optional.fromNullable(in.readString());
+        this.tags = in.readString();
+        this.likes = in.readString();
     }
 
     public static final Parcelable.Creator<Query> CREATOR = new Parcelable.Creator<Query>() {
