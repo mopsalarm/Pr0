@@ -22,8 +22,6 @@ public class DrawerFragment extends RoboFragment {
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
 
-    private OnDrawerActionListener onDrawerActionListener;
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.left_drawer, container, false);
@@ -67,16 +65,8 @@ public class DrawerFragment extends RoboFragment {
     private void onActionClicked(int id) {
         select(id);
 
-        if (onDrawerActionListener != null)
-            onDrawerActionListener.onActionClicked(id);
-    }
-
-    public OnDrawerActionListener getOnDrawerActionListener() {
-        return onDrawerActionListener;
-    }
-
-    public void setOnDrawerActionListener(OnDrawerActionListener onDrawerActionListener) {
-        this.onDrawerActionListener = onDrawerActionListener;
+        if (getActivity() instanceof OnDrawerActionListener)
+            ((OnDrawerActionListener) getActivity()).onActionClicked(id);
     }
 
     public interface OnDrawerActionListener {
