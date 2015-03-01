@@ -54,7 +54,7 @@ import static com.google.common.collect.Iterables.toArray;
  * complete}
  */
 public abstract class MyFragmentStatePagerAdapter extends PagerAdapter {
-    private static final String TAG = "FragmentStatePagerAdapter";
+    private static final String TAG = "MyFrgmntStatePgrAdapter";
     private static final boolean DEBUG = false;
 
     private final FragmentManager mFragmentManager;
