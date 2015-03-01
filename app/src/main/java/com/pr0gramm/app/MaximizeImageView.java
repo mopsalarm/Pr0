@@ -29,7 +29,7 @@ public class MaximizeImageView extends GifImageView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int width = getMeasuredWidth();
-        int height = Math.max(1, ViewCompat.getMinimumHeight(this));
+        int height = Math.max(50, ViewCompat.getMinimumHeight(this));
         Drawable drawable = getDrawable();
         if (drawable != null) {
             int orgWidth = drawable.getIntrinsicWidth();

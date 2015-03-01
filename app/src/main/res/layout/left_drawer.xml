@@ -35,14 +35,14 @@
         android:id="@+id/action_feed_promoted"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_home"
-        android:text="@string/feed_type_promoted"
+        android:text="@string/action_feed_type_promoted"
         android:layout_marginTop="8dp"/>
 
     <TextView
         android:id="@+id/action_feed_new"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_line_chart"
-        android:text="@string/feed_type_new"/>
+        android:text="@string/action_feed_type_new"/>
 
     <TextView
         android:id="@+id/action_upload"

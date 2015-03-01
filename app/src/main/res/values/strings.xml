@@ -14,11 +14,11 @@
     <string name="dummy_content_type">swf</string>
     <string name="action_search">Search</string>
     <string name="dummy_user_name">Mopsalarm</string>
-    <string name="feed_type_promoted">Top</string>
-    <string name="feed_type_new">New</string>
-    <string name="action_upload">Upload</string>
-    <string name="action_favorites">Favorites</string>
-    <string name="action_messages">Messages</string>
+    <string name="action_feed_type_promoted">TOP</string>
+    <string name="action_feed_type_new">NEW</string>
+    <string name="action_upload">UPLOAD</string>
+    <string name="action_favorites">FAVORITES</string>
+    <string name="action_messages">MESSAGES</string>
     <string name="dummy_rating">952</string>
     <string name="dummy_post_date">3 hours ago</string>
     <string name="dummy_tag">Kreiselficker</string>
