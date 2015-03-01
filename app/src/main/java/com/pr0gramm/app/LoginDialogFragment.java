@@ -39,6 +39,8 @@ public class LoginDialogFragment extends RoboDialogFragment {
     @Inject
     private UserService userService;
 
+    private Runnable doOnLogin;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -98,6 +100,9 @@ public class LoginDialogFragment extends RoboDialogFragment {
 
     private void onLoginSuccess(LoginResponse response, Action1<String> showError) {
         if (response.isSuccess()) {
+            if (doOnLogin != null)
+                doOnLogin.run();
+
             dismiss();
 
         } else {
@@ -126,6 +131,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
             Log.i("LoginDialog", "not authorized, showing login dialog");
 
             LoginDialogFragment dialog = new LoginDialogFragment();
+            dialog.doOnLogin = runnable;
             dialog.show(fm, null);
 
             return false;

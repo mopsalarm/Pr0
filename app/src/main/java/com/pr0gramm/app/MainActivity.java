@@ -21,6 +21,10 @@ import javax.inject.Inject;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
+import rx.Observable;
+import rx.Subscription;
+
+import static rx.android.observables.AndroidObservable.bindActivity;
 
 
 /**
@@ -40,6 +44,7 @@ public class MainActivity extends RoboActionBarActivity implements
     private UserService userService;
 
     private ActionBarDrawerToggle drawerToggle;
+    private Subscription subscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,16 +87,16 @@ public class MainActivity extends RoboActionBarActivity implements
                 .commit();
     }
 
-    private void gotoFeedFragment(FeedType feedType) {
-        gotoFeedFragment(new Query().withFeedType(feedType));
-    }
-
     private void gotoFeedFragment(Query query) {
         FeedFragment fragment = FeedFragment.newInstance(query);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
                 .commit();
+    }
+
+    private void gotoFeedFragment(FeedType feedType) {
+        gotoFeedFragment(new Query().withFeedType(feedType));
     }
 
     @Override
@@ -155,6 +160,31 @@ public class MainActivity extends RoboActionBarActivity implements
         super.onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Observable<UserService.LoginState> state = userService.getLoginStateObservable();
+        subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged);
+    }
+
+    @Override
+    protected void onPause() {
+        if (subscription != null)
+            subscription.unsubscribe();
+
+        super.onPause();
+    }
+
+    private void onLoginStateChanged(UserService.LoginState state) {
+        if (state == UserService.LoginState.NOT_AUTHORIZED) {
+            // TODO we need to check here, what kind of fragment is visible
+            // TODO and then show the promoted feed, if neither new nor promoted
+            // TODO is currently visible.
+            // gotoFeedFragment(FeedType.PROMOTED);
+        }
+    }
+
     public void onPostClicked(FeedProxy feed, int idx) {
         Fragment fragment = PostPagerFragment.newInstance(feed, idx);
 
@@ -167,32 +197,54 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onActionClicked(int action) {
         if (action == R.id.action_feed_new) {
-            clearBackStack();
-            gotoFeedFragment(FeedType.NEW);
-            drawerLayout.closeDrawers();
+            moveToFeedNew();
             return;
         }
 
         if (action == R.id.action_feed_promoted) {
-            clearBackStack();
-            gotoFeedFragment(FeedType.PROMOTED);
-            drawerLayout.closeDrawers();
+            moveToFeedPromoted();
             return;
         }
 
         if (action == R.id.action_favorites) {
-            LoginDialogFragment.doIfAuthorized(this, () -> {
-                String name = userService.getName().orNull();
-                if (name == null)
-                    return;
-
-                clearBackStack();
-                gotoFeedFragment(Query.likes(name));
-            });
-
-            drawerLayout.closeDrawers();
+            moveToFeedFavorites();
             return;
         }
+    }
+
+    private DrawerFragment getDrawerFragment() {
+        return (DrawerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.left_drawer);
+    }
+
+    private void moveToFeedPromoted() {
+        clearBackStack();
+        gotoFeedFragment(FeedType.PROMOTED);
+        drawerLayout.closeDrawers();
+
+        getDrawerFragment().select(R.id.action_feed_promoted);
+    }
+
+    private void moveToFeedNew() {
+        clearBackStack();
+        gotoFeedFragment(FeedType.NEW);
+        drawerLayout.closeDrawers();
+
+        getDrawerFragment().select(R.id.action_feed_new);
+    }
+
+    private void moveToFeedFavorites() {
+        LoginDialogFragment.doIfAuthorized(this, () -> {
+            String name = userService.getName().orNull();
+            if (name == null)
+                return;
+
+            clearBackStack();
+            gotoFeedFragment(Query.likes(name));
+            getDrawerFragment().select(R.id.action_favorites);
+        });
+
+        drawerLayout.closeDrawers();
     }
 
     private void clearBackStack() {
