@@ -1,9 +1,11 @@
 package com.pr0gramm.app;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +41,8 @@ public class DrawerFragment extends RoboFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
+        inflater = LayoutInflater.from(context);
         return inflater.inflate(R.layout.left_drawer, container, false);
     }
 

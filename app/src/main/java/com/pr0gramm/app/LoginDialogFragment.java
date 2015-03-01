@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -44,7 +45,10 @@ public class LoginDialogFragment extends RoboDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        Context context = getActivity();
+        context = new ContextThemeWrapper(context, R.style.Theme_AppCompat_Light);
+
+        LayoutInflater inflater = LayoutInflater.from(context);
         View layout = inflater.inflate(R.layout.login, null);
 
         // reset last username in the dialog.
@@ -54,7 +58,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
             usernameView.setText(defaultUsername);
         }
 
-        return new MaterialDialog.Builder(getActivity())
+        return new MaterialDialog.Builder(context)
                 .title(R.string.login)
                 .customView(layout, true)
                 .callback(new MaterialDialog.ButtonCallback() {
