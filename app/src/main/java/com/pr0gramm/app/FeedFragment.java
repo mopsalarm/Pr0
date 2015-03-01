@@ -224,6 +224,13 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private void initializeSearchView(MenuItem item) {
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 
+        Optional<String> term = adapter.getQuery().getTags();
+        if (term.isPresent()) {
+            item.expandActionView();
+            searchView.setQuery(term.get(), false);
+            searchView.clearFocus();
+        }
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String term) {

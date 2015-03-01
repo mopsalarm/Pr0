@@ -55,12 +55,15 @@ public class MainActivity extends RoboActionBarActivity implements
             createDrawerFragment();
         }
 
-        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
-            FragmentManager fm = getSupportFragmentManager();
-            drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(fm.getBackStackEntryCount() > 0);
-            drawerToggle.syncState();
-        });
+        updateToolbarBackButton();
+        getSupportFragmentManager().addOnBackStackChangedListener(this::updateToolbarBackButton);
+    }
+
+    private void updateToolbarBackButton() {
+        FragmentManager fm = getSupportFragmentManager();
+        drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(fm.getBackStackEntryCount() > 0);
+        drawerToggle.syncState();
     }
 
     private void createDrawerFragment() {
