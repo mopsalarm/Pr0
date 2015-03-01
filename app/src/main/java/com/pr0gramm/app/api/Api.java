@@ -13,18 +13,10 @@ import rx.Observable;
  */
 public interface Api {
     @GET("/api/items/get")
-    Observable<Feed> itemsGetOlder(
+    Observable<Feed> itemsGet(
             @Query("promoted") int promoted,
-            @Query("older") long older,
-            @Query("flags") int flags,
-            @Query("tags") String tags,
-            @Query("likes") String likes,
-            @Query("self") String self);
-
-    @GET("/api/items/get")
-    Observable<Feed> itemsGetNewer(
-            @Query("promoted") int promoted,
-            @Query("newer") long newer,
+            @Query("older") Long older,
+            @Query("newer") Long newer,
             @Query("flags") int flags,
             @Query("tags") String tags,
             @Query("likes") String likes,

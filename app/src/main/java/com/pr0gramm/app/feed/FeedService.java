@@ -25,29 +25,25 @@ public class FeedService {
 
     public Observable<Feed> getFeedItems(Query query, Optional<Long> start) {
         // value of the "older" field. depends on the feed-type.
-        long older = start.or((long) Integer.MAX_VALUE);
-        return performRequest(false, query, older);
+        return performRequest(query, start, Optional.<Long>absent());
     }
 
     public Observable<Feed> getFeedItemsNewer(Query query, long start) {
-        return performRequest(true, query, start);
+        return performRequest(query, Optional.<Long>absent(), Optional.of(start));
     }
 
-    private Observable<Feed> performRequest(boolean newer, Query query, long start) {
+    private Observable<Feed> performRequest(Query query, Optional<Long> older, Optional<Long> newer) {
 
         // value for the promoted field
         int promoted = (query.getFeedType() == FeedType.PROMOTED) ? 1 : 0;
 
         int flags = ContentType.combine(query.getContentTypes());
-        String tags = query.getTags().or("");
-        String likes = query.getLikes().or("");
-        String self = Strings.isNullOrEmpty(likes) ? "" : "true";
+        String tags = query.getTags().orNull();
+        String likes = query.getLikes().orNull();
+        String self = Strings.isNullOrEmpty(likes) ? null : "true";
 
-        if (newer) {
-            return api.itemsGetNewer(promoted, start, flags, tags, likes, self);
-        } else {
-            return api.itemsGetOlder(promoted, start, flags, tags, likes, self);
-        }
+        return api.itemsGet(promoted, older.orNull(), newer.orNull(), flags, tags, likes, self);
+
     }
 
     public Observable<Post> loadPostDetails(long id) {
