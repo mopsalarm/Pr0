@@ -33,8 +33,9 @@ public interface Api {
     @GET("/api/items/info")
     Observable<Post> info(@Query("itemId") long itemId);
 
+    @FormUrlEncoded
     @POST("/api/items/vote")
-    Observable<Nothing> vote(long id, int state);
+    Observable<Nothing> vote(@Field("id") long id, @Field("state") int state);
 
     @FormUrlEncoded
     @POST("/api/user/login")

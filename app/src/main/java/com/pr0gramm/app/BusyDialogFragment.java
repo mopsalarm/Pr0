@@ -7,7 +7,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -68,11 +67,7 @@ public class BusyDialogFragment extends DialogFragment {
                     } catch (Throwable ignored) {
                     }
 
-                    try {
-                        subscriber.onError(e);
-                    } catch (Throwable thr) {
-                        Log.i("BusyDialog", "Unhandled observable error", e);
-                    }
+                    subscriber.onError(e);
                 }
 
                 @Override

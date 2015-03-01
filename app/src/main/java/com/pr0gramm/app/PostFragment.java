@@ -28,6 +28,8 @@ import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
 
+import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.LoginDialogFragment.doIfAuthorized;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -45,6 +47,9 @@ public class PostFragment extends RoboFragment {
 
     @Inject
     private FeedService feedService;
+
+    @Inject
+    private VoteService voteService;
 
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
@@ -94,7 +99,9 @@ public class PostFragment extends RoboFragment {
 
         // load post info (comments and tags)
         long id = feedItem.getId();
-        bindFragment(this, feedService.loadPostDetails(id)).subscribe(this::onPostReceived);
+        bindFragment(this, feedService.loadPostDetails(id))
+                .lift(errorDialog(this))
+                .subscribe(this::onPostReceived);
     }
 
     @Override
@@ -117,6 +124,14 @@ public class PostFragment extends RoboFragment {
         infoLineView = new InfoLineView(getActivity(), feedItem);
         infoLineView.setLayoutParams(params);
         adapter.add(new StaticViewType(INFO_LINE_VIEW_ID, infoLineView), null);
+
+        // register the vote listener
+        VoteView voteView = infoLineView.getVoteView();
+        voteView.setOnVoteListener(vote -> doIfAuthorized(PostFragment.this, () -> {
+            bindFragment(this, voteService.vote(feedItem, vote))
+                    .lift(errorDialog(this))
+                    .subscribe();
+        }));
     }
 
     private void addPlayerView() {
@@ -124,7 +139,8 @@ public class PostFragment extends RoboFragment {
         player = new PlayerView(getActivity(), picasso, downloader) {
             @Override
             protected <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostFragment.this, observable);
+                return bindFragment(PostFragment.this, observable)
+                        .lift(errorDialog(PostFragment.this));
             }
         };
 

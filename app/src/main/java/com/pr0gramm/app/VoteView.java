@@ -127,6 +127,10 @@ public class VoteView extends LinearLayout {
         if (state == vote)
             return;
 
+        // check with listener, if we really want to do the vote.
+        if (onVoteListener != null && !onVoteListener.onVoteClicked(vote))
+            return;
+
         final int duration = 500;
 
         if (vote == Vote.NEUTRAL) {
@@ -152,16 +156,12 @@ public class VoteView extends LinearLayout {
 
         // set new voting state
         state = vote;
-
-        // inform listener on change
-        if (onVoteListener != null)
-            onVoteListener.onVoteChanged(vote);
     }
 
     /**
      * A listener that reacts to changes in the vote on this view.
      */
     public interface OnVoteListener {
-        void onVoteChanged(Vote newVote);
+        boolean onVoteClicked(Vote newVote);
     }
 }
