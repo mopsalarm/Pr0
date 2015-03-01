@@ -28,6 +28,11 @@ class GenericAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyItemRangeInserted(content.size() - objects.size(), objects.size());
     }
 
+    public void removeItems(int start, int count) {
+        content.subList(start, start + count).clear();
+        notifyItemRangeRemoved(start, count);
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewType type = viewTypeIds.inverse().get(viewType);

@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -54,6 +55,9 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
 
+    @InjectView(R.id.refresh)
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     @Inject
     private Downloader downloader;
 
@@ -89,6 +93,15 @@ public class PostFragment extends RoboFragment {
             });
         }
 
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            adapter.removeItems(2, adapter.getItemCount() - 2);
+            startLoadingInfo();
+        });
+
+        // use height of the toolbar to configure swipe refresh layout.
+        int abHeight = AndroidUtility.getActionBarSize(getActivity());
+        swipeRefreshLayout.setProgressViewOffset(true, abHeight, 2 * abHeight);
+
         // initialize adapter for views
         adapter = new GenericAdapter();
         recyclerView.setAdapter(adapter);
@@ -97,9 +110,16 @@ public class PostFragment extends RoboFragment {
         addPlayerView();
         addInfoLineView();
 
-        // load post info (comments and tags)
-        long id = feedItem.getId();
-        bindFragment(this, feedService.loadPostDetails(id))
+        startLoadingInfo();
+    }
+
+    /**
+     * Loads the information about the post. This includes the
+     * tags and the comments.
+     */
+    private void startLoadingInfo() {
+        Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
+        bindFragment(this, details)
                 .lift(errorDialog(this))
                 .subscribe(this::onPostReceived);
     }
@@ -166,7 +186,14 @@ public class PostFragment extends RoboFragment {
         }, null);
     }
 
+    /**
+     * Called with the downloaded post information.
+     *
+     * @param post The post information that was downloaded.
+     */
     private void onPostReceived(Post post) {
+        swipeRefreshLayout.setRefreshing(false);
+
         List<Post.Comment> comments = sort(post.getComments());
         adapter.addAll(new CommentViewType(comments), comments);
 
