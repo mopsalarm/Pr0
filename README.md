@@ -1,6 +1,18 @@
 # progr0am Android App
 
-Snapshot der ersten Version meiner pr0gramm-App ist als installierbare APK im Repository zu finden.
+Snapshot der ersten Version meiner (Mopsalarm) pr0gramm-App ist als installierbare APK im Repository zu finden.
+
+## Features
+* Anschauen des Feeds und einzelner Posts
+* Wechseln zwischen SFW/NSWF und NSWL
+* Tags und Kommentare angucken
+* Mit eigenem Account anmelden + Favoriten anschauen
+* Posts voten
+* Suche nach Posts, auch in den Favoriten
+* Neuladen des Feeds durch weiter herunterziehen
+
+## Bekannte Probleme
+* Es wird nicht angezeigt, ob "+" oder "-" gedrückt wurde. Dies ist eine Limitation der pr0gramm-Api.
 
 ## Geplante Features
 * Kommentare up- und down-voten können
