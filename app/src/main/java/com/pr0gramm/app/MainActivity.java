@@ -51,8 +51,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
         // load feed-fragment into view
         if (savedInstanceState == null) {
-            gotoFeedFragment(FeedType.PROMOTED);
             createDrawerFragment();
+            gotoFeedFragment(FeedType.PROMOTED);
         }
 
         updateToolbarBackButton();
@@ -68,6 +68,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
     private void createDrawerFragment() {
         DrawerFragment fragment = new DrawerFragment();
+        fragment.select(R.id.action_feed_promoted);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.left_drawer, fragment)
@@ -141,6 +142,15 @@ public class MainActivity extends RoboActionBarActivity implements
             clearBackStack();
             gotoFeedFragment(FeedType.PROMOTED);
             drawerLayout.closeDrawers();
+            return;
+        }
+
+        if (action == R.id.action_favorites) {
+            LoginDialogFragment.doIfAuthorized(this, () -> {
+                clearBackStack();
+
+            });
+
             return;
         }
     }

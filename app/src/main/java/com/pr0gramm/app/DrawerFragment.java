@@ -22,6 +22,8 @@ public class DrawerFragment extends RoboFragment {
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
 
+    private int selected;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.left_drawer, container, false);
@@ -46,7 +48,7 @@ public class DrawerFragment extends RoboFragment {
             itemView.setOnClickListener(v -> onActionClicked(action));
         }
 
-        deselect();
+        select(selected);
     }
 
     private void deselect() {
@@ -55,6 +57,12 @@ public class DrawerFragment extends RoboFragment {
     }
 
     public void select(int action) {
+        selected = action;
+
+        // stop if not yet initialized
+        if (itemViews == null)
+            return;
+
         deselect();
 
         TextView view = itemViews.get(action);

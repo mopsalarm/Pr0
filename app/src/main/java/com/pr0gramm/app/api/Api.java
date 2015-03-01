@@ -2,6 +2,8 @@ package com.pr0gramm.app.api;
 
 import com.pr0gramm.app.feed.Nothing;
 
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Query;
@@ -29,4 +31,10 @@ public interface Api {
 
     @POST("/api/items/vote")
     Observable<Nothing> vote(long id, int state);
+
+    @FormUrlEncoded
+    @POST("/api/user/login")
+    Observable<LoginResponse> login(
+            @Field("name") String username,
+            @Field("password") String password);
 }
