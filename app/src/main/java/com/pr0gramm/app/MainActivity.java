@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.ViewPropertyAnimator;
 
 import com.pr0gramm.app.feed.FeedProxy;
+import com.pr0gramm.app.feed.FeedType;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
@@ -22,7 +23,8 @@ import roboguice.inject.InjectView;
  * This is the main class of our pr0gramm app.
  */
 @ContentView(R.layout.activity_main)
-public class MainActivity extends RoboActionBarActivity {
+public class MainActivity extends RoboActionBarActivity implements
+        DrawerFragment.OnDrawerActionListener {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -49,7 +51,7 @@ public class MainActivity extends RoboActionBarActivity {
 
         // load feed-fragment into view
         if (savedInstanceState == null) {
-            gotoFeedFragment();
+            gotoFeedFragment(FeedType.PROMOTED);
             createDrawerFragment();
         }
 
@@ -69,8 +71,8 @@ public class MainActivity extends RoboActionBarActivity {
                 .commit();
     }
 
-    private void gotoFeedFragment() {
-        FeedFragment fragment = new FeedFragment();
+    private void gotoFeedFragment(FeedType feedType) {
+        FeedFragment fragment = FeedFragment.newInstance(feedType);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
@@ -121,6 +123,28 @@ public class MainActivity extends RoboActionBarActivity {
                 .replace(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void onActionClicked(int action) {
+        if (action == R.id.action_feed_new) {
+            clearBackStack();
+            gotoFeedFragment(FeedType.NEW);
+            drawerLayout.closeDrawers();
+            return;
+        }
+
+        if (action == R.id.action_feed_promoted) {
+            clearBackStack();
+            gotoFeedFragment(FeedType.PROMOTED);
+            drawerLayout.closeDrawers();
+            return;
+        }
+    }
+
+    private void clearBackStack() {
+        getSupportFragmentManager().popBackStackImmediate(
+                null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     public class ScrollHideToolbarListener {

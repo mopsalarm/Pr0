@@ -23,7 +23,6 @@ import android.widget.ImageView;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
@@ -32,22 +31,21 @@ import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singleton;
-import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
 public class FeedFragment extends RoboFragment implements ChangeContentTypeDialog.ContentTypeChangeListener {
     public static final String PREF_CONTENT_TYPE = "FeedFragment.contentType";
-    public static final String PREF_FEED_TYPE = "FeedFragment.feedType";
+    public static final String ARG_FEED_TYPE = "FeedFragment.feedType";
 
     @Inject
     private FeedService feedService;
@@ -132,7 +130,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         Query query = new Query();
 
         try {
-            ImmutableSet<ContentType> contentTypes = FluentIterable
+            Set<ContentType> contentTypes = FluentIterable
                     .from(sharedPreferences.getStringSet(PREF_CONTENT_TYPE, singleton(ContentType.SFW.toString())))
                     .transform(ContentType::valueOf)
                     .toSet();
@@ -144,16 +142,10 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
             // could not deserialize value
         }
 
-        try {
-            FeedType feedType = FeedType.valueOf(sharedPreferences.getString(
-                    PREF_FEED_TYPE, FeedType.PROMOTED.toString()));
-
-            // update query
-            query = query.withFeedType(feedType);
-
-        } catch (Exception ignored) {
-            // could not deserialize value
-        }
+        // restore the feed type from arguments
+        int typeInt = getArguments().getInt(ARG_FEED_TYPE);
+        FeedType feedType = FeedType.values()[typeInt];
+        query = query.withFeedType(feedType);
 
         return new FeedAdapter(query);
     }
@@ -317,12 +309,27 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
         Query query = adapter.getQuery();
         sharedPreferences.edit()
-                .putString(PREF_FEED_TYPE, query.getFeedType().toString())
                 .putStringSet(PREF_CONTENT_TYPE, FluentIterable
                         .from(query.getContentTypes())
                         .transform(ContentType::toString)
                         .toSet())
                 .apply();
+    }
+
+    /**
+     * Creates a new {@link com.pr0gramm.app.FeedFragment} for the given
+     * feed type.
+     *
+     * @param feedType The type of feed to display.
+     * @return The type new fragment that can be shown now.
+     */
+    public static FeedFragment newInstance(FeedType feedType) {
+        Bundle arguments = new Bundle();
+        arguments.putInt(ARG_FEED_TYPE, feedType.ordinal());
+
+        FeedFragment fragment = new FeedFragment();
+        fragment.setArguments(arguments);
+        return fragment;
     }
 
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
