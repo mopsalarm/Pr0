@@ -18,7 +18,7 @@
             android:id="@+id/flavor"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/user_type_fliesentisch"/>
+            android:src="@drawable/user_type_fliesentisch_small"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Headline"
@@ -31,28 +31,33 @@
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/action_feed_promoted"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_home"
-        android:text="@string/feed_type_promoted"/>
+        android:text="@string/feed_type_promoted"
+        android:layout_marginTop="8dp"/>
 
     <TextView
+        android:id="@+id/action_feed_new"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_line_chart"
         android:text="@string/feed_type_new"/>
 
     <TextView
+        android:id="@+id/action_upload"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_upload"
         android:text="@string/action_upload"/>
 
     <TextView
+        android:id="@+id/action_messages"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_mail"
         android:text="@string/action_messages"/>
 
     <TextView
+        android:id="@+id/action_favorites"
         style="@style/AppStyle.DrawerItem"
         android:drawableLeft="@drawable/ic_black_action_favorite"
         android:text="@string/action_favorites"/>
-
 </LinearLayout>
