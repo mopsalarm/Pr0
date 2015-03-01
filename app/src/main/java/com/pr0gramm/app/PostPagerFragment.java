@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,47 +45,50 @@ public class PostPagerFragment extends RoboFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // use instance state if available.
-        Bundle arguments = savedInstanceState != null ? savedInstanceState : getArguments();
+        Bundle state = savedInstanceState != null
+                ? savedInstanceState
+                : getArguments();
 
-        // re-use proxy if available
-        Log.i("PostPager", "create new proxy for feed");
-        proxy = FeedProxy.fromBundle(arguments.getBundle(ARG_FEED_PROXY));
+        // re-create the proxy for the stream
+        proxy = FeedProxy.fromBundle(state.getBundle(ARG_FEED_PROXY));
 
         // bind the loader to this fragment.
         proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
 
-        // set the adapter and show the correct post.
-        FeedItem start = arguments.getParcelable(ARG_START_ITEM);
+        // set the adapter
         adapter = new PostAdapter();
         viewPager.setAdapter(adapter);
+
+        // calculate index of the first item to show and show that one.
+        FeedItem start = state.getParcelable(ARG_START_ITEM);
         viewPager.setCurrentItem(adapter.getOffsetPosition(proxy.getPosition(start).or(0)));
 
-        MainActivity mainActivity = (MainActivity) getActivity();
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                mainActivity.onScrollHideToolbarListener.reset();
-            }
-        });
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    mainActivity.onScrollHideToolbarListener.reset();
+                }
+            });
 
-        // reset the scrollbar here too
-        mainActivity.onScrollHideToolbarListener.reset();
-
-        ActionBar actionbar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
+            // reset the scrollbar here too
+            mainActivity.onScrollHideToolbarListener.reset();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        Log.i("PostPager", "Saving state before stopping");
         int idx = viewPager.getCurrentItem() - adapter.getOffset();
         outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
         outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
     }
 
     private class PostAdapter extends FragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
-        // we start with the the proxys 0 at this offset
+        // we start with the the proxys current zero at this offset
         private int offset = 100_000;
 
         public PostAdapter() {
@@ -100,12 +101,12 @@ public class PostPagerFragment extends RoboFragment {
             position -= offset;
 
             if (!proxy.isLoading()) {
-                if (position > proxy.getItemCount() - 5) {
+                if (position > proxy.getItemCount() - 8) {
                     Log.i("PostPager", "requested pos=" + position + ", load next page");
                     proxy.loadNextPage();
                 }
 
-                if (position < 5) {
+                if (position < 8) {
                     Log.i("PostPager", "requested pos=" + position + ", load prev page");
                     proxy.loadPreviousPage();
                 }

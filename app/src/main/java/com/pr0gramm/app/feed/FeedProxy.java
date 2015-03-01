@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Feed;
 
 import java.util.ArrayList;
@@ -14,7 +15,10 @@ import java.util.List;
 
 import rx.Observable;
 
+import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.toArray;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -41,6 +45,8 @@ public class FeedProxy {
     private FeedProxy(Query query, List<FeedItem> items) {
         this.query = query;
         this.items.addAll(items);
+
+        checkFeedOrder();
     }
 
     /**
@@ -188,20 +194,61 @@ public class FeedProxy {
         if (feed.getFeed().isAtStart())
             atStart = true;
 
-        List<Feed.Item> newItems = feed.getFeed().getItems();
+        Ordering<Feed.Item> ordering = Ordering.natural().reverse().onResultOf(this::feedTypeId);
+        List<Feed.Item> newItems = ordering.sortedCopy(feed.getFeed().getItems());
+
         if (newItems.size() > 0) {
             // calculate where to insert
             int index = 0;
 
-            long newId = feedTypeId(newItems.get(0));
-            if (!items.isEmpty() && newId < items.get(0).getId(query.getFeedType()))
-                index = items.size();
+            // get the maximum and the minimum id
+            long newMaxId = feedTypeId(newItems.get(0));
+            long newMinId = feedTypeId(getLast(newItems));
+
+            if (!items.isEmpty()) {
+                long oldMaxId = items.get(0).getId(query.getFeedType());
+                long oldMinId = items.get(items.size() - 1).getId(query.getFeedType());
+
+                if (newMinId > oldMaxId) {
+                    Log.i("Feed", "Okay, prepending new data to stored feed");
+                    index = 0;
+
+                } else if (newMaxId < oldMinId) {
+                    Log.i("Feed", "Okay, appending new data to stored feed");
+                    index = items.size();
+
+                } else if (newMinId < oldMinId) {
+                    // mixed!
+                    Log.w("Feed", "New data is overlapping with old data! Appending new data.");
+                    index = items.size();
+
+                } else if (newMaxId > oldMaxId) {
+                    Log.w("Feed", "New data is overlapping with old data! Prepending new data.");
+                    index = items.size();
+                }
+            }
 
             // insert and notify observers about changes
             items.addAll(index, feed.getFeedItems());
 
             if (onChangeListener != null)
                 onChangeListener.onItemRangeInserted(index, newItems.size());
+        }
+
+        checkFeedOrder();
+    }
+
+    private void checkFeedOrder() {
+        // lets validate
+        long prev = Integer.MAX_VALUE;
+        for (FeedItem item : items) {
+            long id = item.getId(query.getFeedType());
+            if (prev <= id) {
+                Log.w("Feed", "feed not in order!!");
+                break;
+            }
+
+            prev = id;
         }
     }
 
@@ -253,8 +300,8 @@ public class FeedProxy {
         bundle.putParcelable("query", query);
 
         // add a subset of the items
-        int start = Math.max(0, idx - 8);
-        int stop = Math.min(items.size(), idx + 8);
+        int start = min(items.size(), max(0, idx - 32));
+        int stop = min(items.size(), max(0, idx + 32));
         List<FeedItem> items = this.items.subList(start, stop);
         bundle.putParcelableArray("items", toArray(items, FeedItem.class));
 
