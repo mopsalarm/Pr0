@@ -3,7 +3,7 @@ package com.pr0gramm.app;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +61,9 @@ public class PostPagerFragment extends RoboFragment {
 
         // calculate index of the first item to show and show that one.
         FeedItem start = state.getParcelable(ARG_START_ITEM);
-        viewPager.setCurrentItem(adapter.getOffsetPosition(proxy.getPosition(start).or(0)));
+        int index = proxy.getPosition(start).or(0);
+        viewPager.setCurrentItem(index);
+        Log.i("PostPager", "Starting at index: " + index);
 
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -82,15 +84,12 @@ public class PostPagerFragment extends RoboFragment {
         super.onSaveInstanceState(outState);
 
         Log.i("PostPager", "Saving state before stopping");
-        int idx = viewPager.getCurrentItem() - adapter.getOffset();
+        int idx = viewPager.getCurrentItem();
         outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
         outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
     }
 
-    private class PostAdapter extends FragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
-        // we start with the the proxys current zero at this offset
-        private int offset = 100_000;
-
+    private class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
         public PostAdapter() {
             super(getChildFragmentManager());
             proxy.setOnChangeListener(this);
@@ -98,8 +97,6 @@ public class PostPagerFragment extends RoboFragment {
 
         @Override
         public Fragment getItem(int position) {
-            position -= offset;
-
             if (!proxy.isLoading()) {
                 if (position > proxy.getItemCount() - 8) {
                     Log.i("PostPager", "requested pos=" + position + ", load next page");
@@ -117,27 +114,24 @@ public class PostPagerFragment extends RoboFragment {
 
         @Override
         public int getCount() {
-            return offset + proxy.getItemCount();
-        }
-
-        public int getOffset() {
-            return offset;
-        }
-
-        public int getOffsetPosition(int pos) {
-            return offset + pos;
+            return proxy.getItemCount();
         }
 
         @Override
         public void onItemRangeInserted(int start, int count) {
             Log.i("PostPager", "Insert new posts at " + start);
-
-            // modify offset if we inserted new items
-            // before the existing items
-            if (start == 0)
-                offset -= count;
-
             notifyDataSetChanged();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            FeedItem item = ((PostFragment) object).getFeedItem();
+            return proxy.getPosition(item).or(PagerAdapter.POSITION_NONE);
+        }
+
+        @Override
+        protected long getItemId(int position) {
+            return proxy.getItemAt(position).getId();
         }
 
         @Override

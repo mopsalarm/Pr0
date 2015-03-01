@@ -44,7 +44,7 @@ public abstract class PlayerView extends FrameLayout {
     private Runnable onPause = () -> {
     };
 
-    private Runnable onStart = () -> {
+    private Runnable onResume = () -> {
     };
 
     public PlayerView(Context context, Picasso picasso, Downloader downloader) {
@@ -133,8 +133,8 @@ public abstract class PlayerView extends FrameLayout {
     /**
      * Must be called from outside on start of the fragment
      */
-    public void onStart() {
-        onStart.run();
+    public void onResume() {
+        onResume.run();
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class PlayerView extends FrameLayout {
     }
 
     private void displayTypeVideo(String url) {
-        onStart = () -> {
+        onResume = () -> {
             Log.i("Player", "on start called");
 
             MediaPlayer player = new MediaPlayer();

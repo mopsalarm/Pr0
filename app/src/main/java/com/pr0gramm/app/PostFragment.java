@@ -49,27 +49,6 @@ public class PostFragment extends RoboFragment {
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
 
-//    @InjectView(R.id.image)
-//    private ImageView viewImage;
-//
-//    @InjectView(R.id.username)
-//    private UsernameView viewUsername;
-//
-//    @InjectView(R.id.rating)
-//    private TextView viewRating;
-//
-//    @InjectView(R.id.tag_container)
-//    private ViewGroup viewTagContainer;
-//
-//    @InjectView(R.id.video)
-//    private VideoView viewVideo;
-//
-//    @InjectView(R.id.comments)
-//    private RecyclerView viewComments;
-//
-//    @InjectView(R.id.progress)
-//    private ProgressBar viewProgress;
-
     @Inject
     private Downloader downloader;
 
@@ -87,12 +66,6 @@ public class PostFragment extends RoboFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        // TODO We want to do something like that later, but we need to handle
-        // the click in the main activity.
-        // ActionBarActivity activity = (ActionBarActivity) getActivity();
-        // ActionBar actionBar = activity.getSupportActionBar();
-        // actionBar.setDisplayHomeAsUpEnabled(true);
-
         return inflater.inflate(R.layout.fragment_post, container, false);
     }
 
@@ -100,31 +73,18 @@ public class PostFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        viewComments.setAdapter(new CommentAdapter(Collections.<Post.Comment>emptyList()));
-//        viewComments.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
-//                LinearLayoutManager.VERTICAL, false));
-//
-//        viewUsername.setUsername(feedItem.getUser(), feedItem.getMark());
-//        viewRating.setText(String.valueOf(feedItem.getUp() - feedItem.getDown()));
-//
-//        if (outerScrollView != null && getActivity() instanceof MainActivity) {
-//            MainActivity activity = (MainActivity) getActivity();
-//            activity.onScrollHideToolbarListener.reset();
-//
-//            outerScrollView.setOnScrollListener((oldTop, top) ->
-//                    activity.onScrollHideToolbarListener.onScrolled(top - oldTop));
-//        }
-
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                // forward scrolling events
-                FragmentActivity activity = getActivity();
-                if (activity instanceof MainActivity)
+        FragmentActivity activity = getActivity();
+        if (activity instanceof MainActivity) {
+            recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    // forward scrolling events
                     ((MainActivity) activity).onScrollHideToolbarListener.onScrolled(dy);
-            }
-        });
+                }
+            });
+        }
 
+        // initialize adapter for views
         adapter = new GenericAdapter();
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -138,9 +98,9 @@ public class PostFragment extends RoboFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        player.onStart();
+    public void onResume() {
+        super.onResume();
+        player.onResume();
     }
 
     @Override
@@ -196,6 +156,10 @@ public class PostFragment extends RoboFragment {
 
         // update tags from post
         infoLineView.setTags(post.getTags());
+    }
+
+    public FeedItem getFeedItem() {
+        return feedItem;
     }
 
     private static class StaticViewType implements GenericAdapter.ViewType {
