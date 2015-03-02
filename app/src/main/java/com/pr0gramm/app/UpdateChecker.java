@@ -11,6 +11,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Throwables;
@@ -19,6 +20,8 @@ import retrofit.RestAdapter;
 import retrofit.http.GET;
 import rx.Observable;
 import rx.util.async.Async;
+
+import static java.lang.String.format;
 
 /**
  */
@@ -49,7 +52,13 @@ public class UpdateChecker {
                     .create(UpdateApi.class);
 
             return api.get();
-        }).filter(update -> update.getVersion() > getVersionCode());
+        }).filter(update -> {
+            int current = getVersionCode();
+            Log.i("Update", format("Installed v%d, current v%d", current, update.getVersion()));
+
+            // filter out if up to date
+            return update.getVersion() > current;
+        });
     }
 
     private static interface UpdateApi {
