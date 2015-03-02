@@ -20,13 +20,22 @@ import com.afollestad.materialdialogs.Theme;
 import com.google.common.base.Strings;
 import com.pr0gramm.app.api.LoginResponse;
 
+import net.danlew.android.joda.DateUtils;
+
+import org.joda.time.DateTimeZone;
+import org.joda.time.Weeks;
+
 import javax.inject.Inject;
 
+import retrofit.RetrofitError;
 import roboguice.RoboGuice;
 import roboguice.fragment.RoboDialogFragment;
-import rx.functions.Action1;
+import rx.Observable;
+import rx.Subscriber;
 
 import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ErrorDialogFragment.showErrorString;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -97,12 +106,45 @@ public class LoginDialogFragment extends RoboDialogFragment {
 
         bindFragment(this, userService.login(username, password))
                 .lift(busyDialog(this))
-                .subscribe(
-                        response -> onLoginSuccess(response, usernameView::setError),
-                        this::onLoginError);
+                .lift(loginErrorIntercept())
+                .lift(errorDialog(this))
+                .subscribe(this::onLoginResponse);
     }
 
-    private void onLoginSuccess(LoginResponse response, Action1<String> showError) {
+    private Observable.Operator<LoginResponse, LoginResponse> loginErrorIntercept() {
+        return subscriber -> new Subscriber<LoginResponse>() {
+            @Override
+            public void onCompleted() {
+                subscriber.onCompleted();
+            }
+
+            @Override
+            public void onError(Throwable err_) {
+                if (err_ instanceof RetrofitError) {
+                    RetrofitError err = (RetrofitError) err_;
+                    if (err.getResponse().getStatus() == 403) {
+                        try {
+                            subscriber.onNext(new LoginResponse(false));
+                            subscriber.onCompleted();
+
+                        } catch (Throwable forward) {
+                            subscriber.onError(forward);
+                        }
+
+                        return;
+                    }
+                }
+                subscriber.onError(err_);
+            }
+
+            @Override
+            public void onNext(LoginResponse value) {
+                subscriber.onNext(value);
+            }
+        };
+    }
+
+    private void onLoginResponse(LoginResponse response) {
         if (response.isSuccess()) {
             if (doOnLogin != null)
                 doOnLogin.run();
@@ -110,13 +152,23 @@ public class LoginDialogFragment extends RoboDialogFragment {
             dismiss();
 
         } else {
-            String msg = getString(R.string.login_not_successful);
-            showError.call(msg);
-        }
-    }
+            LoginResponse.BanInfo ban = response.getBan();
+            if (ban != null && ban.isBanned()) {
+                CharSequence date = DateUtils.getRelativeDateTimeString(getActivity(),
+                        ban.getTill().toDateTime(DateTimeZone.getDefault()),
+                        Weeks.ONE,
+                        DateUtils.FORMAT_SHOW_DATE);
 
-    private void onLoginError(Throwable throwable) {
-        Log.e("LoginDialog", "Login error", throwable);
+                String reason = ban.getReason();
+                showErrorString(getFragmentManager(), getString(R.string.banned, date, reason));
+                dismiss();
+
+            } else {
+                String msg = getString(R.string.login_not_successful);
+                showErrorString(getFragmentManager(), msg);
+                dismiss();
+            }
+        }
     }
 
     private static boolean doIfAuthorized(Context context, FragmentManager fm, Runnable runnable) {

@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -43,7 +44,13 @@ public class ErrorDialogFragment extends DialogFragment {
 
                 @Override
                 public void onError(Throwable err) {
-                    show(fragmentManager, err);
+                    try {
+                        show(fragmentManager, err);
+                    } catch (Throwable thr) {
+                        Crashlytics.logException(err);
+                    }
+
+                    onCompleted();
                 }
 
                 @Override
@@ -59,6 +66,11 @@ public class ErrorDialogFragment extends DialogFragment {
         if (message == null)
             message = err.toString();
 
+        Crashlytics.logException(err);
+        showErrorString(fragmentManager, message);
+    }
+
+    public static void showErrorString(FragmentManager fragmentManager, String message) {
         Bundle arguments = new Bundle();
         arguments.putString("content", message);
 

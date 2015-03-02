@@ -30,8 +30,9 @@
     <string name="hint_password">Password</string>
     <string name="login">Login</string>
     <string name="must_not_be_empty">Must not be empty</string>
-    <string name="login_not_successful">Login not successful</string>
+    <string name="login_not_successful">Login not successful. Did you check your password? You might be temporarily banned if you failed to login too often.</string>
     <string name="menu_login">Login</string>
     <string name="pr0gramm">pr0gramm</string>
     <string name="please_wait">please wait…</string>
+    <string name="banned">You are banned until %1$s. Reason: %2$s</string>
 </resources>

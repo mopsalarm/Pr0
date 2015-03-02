@@ -2,8 +2,11 @@ package com.pr0gramm.app;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
+
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import io.fabric.sdk.android.Fabric;
 import roboguice.RoboGuice;
 
 /**
@@ -13,6 +16,7 @@ public class Pr0grammApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         JodaTimeAndroid.init(this);
     }
 
