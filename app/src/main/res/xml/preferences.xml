@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="prefcat_feed_types"
+        android:title="@string/pref_feed_types">
+
+        <CheckBoxPreference
+            android:key="pref_feed_type_sfw"
+            android:title="@string/type_sfw"
+            android:summaryOn="@string/pref_feed_type_sfw_on"
+            android:summaryOff="@string/pref_feed_type_sfw_off"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
+            android:key="pref_feed_type_nsfw"
+            android:title="@string/type_nsfw"
+            android:summaryOn="@string/pref_feed_type_nsfw_on"
+            android:summaryOff="@string/pref_feed_type_nsfw_off"
+            android:defaultValue="false"/>
+
+        <CheckBoxPreference
+            android:key="pref_feed_type_nsfl"
+            android:title="@string/type_nsfl"
+            android:summaryOn="@string/pref_feed_type_nsfl_on"
+            android:summaryOff="@string/pref_feed_type_nsfl_off"
+            android:defaultValue="false"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="prefcat_compatibility"
+        android:title="@string/pref_compatibility">
+
+        <CheckBoxPreference
+            android:key="pref_load_gif_in_memory"
+            android:title="@string/pref_load_gif_in_memory"
+            android:summaryOn="@string/pref_load_gif_in_memory_on"
+            android:summaryOff="@string/pref_load_gif_in_memory_off"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>
