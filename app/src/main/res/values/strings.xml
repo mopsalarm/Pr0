@@ -45,7 +45,7 @@
     <string name="pref_feed_types">What to display</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_load_gif_in_memory">In-memory gif decoding</string>
-    <string name="pref_load_gif_in_memory_on">Loads gif in memory</string>
+    <string name="pref_load_gif_in_memory_on">Loads gif in memory. Might produce memory errors on old devices.</string>
     <string name="pref_load_gif_in_memory_off">Stores gif into a temporary file</string>
     <string name="settings">Settings</string>
     <string name="pref_privacy">Privacy</string>

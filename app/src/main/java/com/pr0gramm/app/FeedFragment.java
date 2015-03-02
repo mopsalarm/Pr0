@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
+import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -56,6 +57,9 @@ public class FeedFragment extends RoboFragment {
 
     private GridLayoutManager layoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    @Inject
+    private Settings settings;
 
     /**
      * Initialize a new feed fragment.
@@ -120,8 +124,24 @@ public class FeedFragment extends RoboFragment {
 
     private FeedAdapter newFeedAdapter() {
         Log.i("Feed", "Restore adapter now");
-        Query query = getArguments().getParcelable(ARG_FEED_QUERY);
+        Query query = getArguments()
+                .<Query>getParcelable(ARG_FEED_QUERY)
+                .withContentType(settings.getContentType());
+
         return new FeedAdapter(query);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // check if content type has changed, and reload if necessary
+        Query query = adapter.getQuery();
+        boolean changed = !equal(query.getContentTypes(), settings.getContentType());
+        if (changed) {
+            Query newQuery = query.withContentType(settings.getContentType());
+            setNewQuery(newQuery);
+        }
     }
 
     /**
@@ -165,6 +185,8 @@ public class FeedFragment extends RoboFragment {
      * we show a different number of items per row.
      */
     private int getThumbnailColumns() {
+        checkNotNull(getActivity(), "must be attached to call this method");
+
         Display display = getActivity().getWindowManager().getDefaultDisplay();
 
         Point point = new Point();

@@ -16,8 +16,11 @@ public class Pr0grammApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
         JodaTimeAndroid.init(this);
+
+        Settings settings = Settings.of(this);
+        if (settings.isCrashlyticsEnabled())
+            Fabric.with(this, new Crashlytics());
     }
 
     static {
