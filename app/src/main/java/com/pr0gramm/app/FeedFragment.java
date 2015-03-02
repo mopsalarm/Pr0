@@ -22,15 +22,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Picasso;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -38,12 +34,10 @@ import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.singleton;
 
 /**
  */
-public class FeedFragment extends RoboFragment implements ChangeContentTypeDialog.ContentTypeChangeListener {
-    private static final String PREF_CONTENT_TYPE = "FeedFragment.contentType";
+public class FeedFragment extends RoboFragment {
     private static final String ARG_FEED_QUERY = "FeedFragment.query";
 
     @Inject
@@ -127,21 +121,6 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
     private FeedAdapter newFeedAdapter() {
         Log.i("Feed", "Restore adapter now");
         Query query = getArguments().getParcelable(ARG_FEED_QUERY);
-
-        try {
-            Set<ContentType> contentTypes = FluentIterable
-                    .from(sharedPreferences.getStringSet(PREF_CONTENT_TYPE,
-                            singleton(ContentType.SFW.toString())))
-                    .transform(ContentType::valueOf)
-                    .toSet();
-
-            // update query
-            query = query.withContentType(contentTypes);
-
-        } catch (Exception ignored) {
-            // could not deserialize value
-        }
-
         return new FeedAdapter(query);
     }
 
@@ -203,14 +182,6 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         initializeSearchView(item);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        MenuItem item = menu.findItem(R.id.action_change_content_type);
-        item.setTitle(ContentType.toString(getActivity(), adapter.getQuery().getContentTypes()));
-    }
-
     /**
      * Registers the listeners for the search view.
      *
@@ -253,7 +224,7 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                if(term.isPresent()) {
+                if (term.isPresent()) {
                     getFragmentManager().popBackStack();
                     return true;
                 }
@@ -283,48 +254,10 @@ public class FeedFragment extends RoboFragment implements ChangeContentTypeDialo
         // set and store adapter
         this.adapter = new FeedAdapter(newQuery);
         recyclerView.setAdapter(adapter);
-
-        // remember settings
-        storeAdapterConfiguration();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_change_content_type) {
-            showChangeContentTypesDialog();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void showChangeContentTypesDialog() {
-        new ChangeContentTypeDialog().show(getChildFragmentManager(), null);
-    }
-
-    @Override
-    public void onContentTypeChanged(EnumSet<ContentType> contentTypes) {
-        Query newQuery = this.adapter.getQuery().withContentType(contentTypes);
-        setNewQuery(newQuery);
     }
 
     private void onItemClicked(FeedItem item, int idx) {
         ((MainActivity) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
-    }
-
-    /**
-     * Stores the current config of the feed to view it later again.
-     */
-    private void storeAdapterConfiguration() {
-        Log.i("FeedFragment", "storing adapter configuration");
-
-        Query query = adapter.getQuery();
-        sharedPreferences.edit()
-                .putStringSet(PREF_CONTENT_TYPE, FluentIterable
-                        .from(query.getContentTypes())
-                        .transform(ContentType::toString)
-                        .toSet())
-                .apply();
     }
 
     /**

@@ -11,11 +11,6 @@
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 
     <item
-        android:id="@+id/action_change_content_type"
-        android:title="@string/dummy_content_type"
-        app:showAsAction="never"/>
-
-    <item
         android:id="@+id/action_settings"
         android:title="@string/menu_settings"
         app:showAsAction="never"/>
