@@ -46,7 +46,7 @@ public class UpdateChecker {
     public Observable<Update> check() {
         return Async.start(() -> {
             UpdateApi api = new RestAdapter.Builder()
-                    .setEndpoint("https://github.com/Graphicscore/Pr0/raw/master/update.json")
+                    .setEndpoint("https://github.com/Graphicscore/Pr0/raw/master")
                     .setLogLevel(RestAdapter.LogLevel.BASIC)
                     .build()
                     .create(UpdateApi.class);
