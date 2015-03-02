@@ -39,6 +39,7 @@ public abstract class PlayerView extends FrameLayout {
     private final ImageView imageView;
     private final TextureView videoView;
     private final ProgressBar progress;
+    private final Settings settings;
 
     private Runnable onAttach = () -> {
     };
@@ -51,6 +52,7 @@ public abstract class PlayerView extends FrameLayout {
 
     public PlayerView(Context context, Picasso picasso, Downloader downloader) {
         super(context);
+        this.settings = Settings.of(context);
         this.picasso = picasso;
         this.downloader = downloader;
 
@@ -112,36 +114,14 @@ public abstract class PlayerView extends FrameLayout {
     @SuppressLint("NewApi")
     private void displayTypeGif(String image) {
         Observable<GifDrawable> loader = Async.fromCallable(() -> {
-            // load the gif file
+            // request the gif file
             Downloader.Response response = downloader.load(Uri.parse(image), 0);
 
-            if (isLowMemoryJvm()) {
-                File gifTemp = new File(getContext().getCacheDir(),
-                        "tmp" + System.identityHashCode(this));
-
-                try {
-                    try (FileOutputStream ra = new FileOutputStream(gifTemp)) {
-                        try (InputStream stream = response.getInputStream()) {
-                            byte[] buffer = new byte[1024 * 16];
-
-                            int length;
-                            while ((length = stream.read(buffer)) >= 0)
-                                ra.write(buffer, 0, length);
-                        }
-                    }
-
-                    Log.i("Gif", "loading gif from file");
-                    return new GifDrawable(gifTemp);
-                } finally {
-                    // delete the temp file
-                    if (!gifTemp.delete())
-                        Log.w("Gif", "Could not clean up");
-                }
+            // and load + parse it
+            if (settings.isLoadGifInMemoryEnabled()) {
+                return loadGifInMemory(response);
             } else {
-                try (InputStream stream = response.getInputStream()) {
-                    // and decode it
-                    return new GifDrawable(ByteStreams.toByteArray(stream));
-                }
+                return loadGifUsingTempFile(response);
             }
         }, Schedulers.io());
 
@@ -153,10 +133,6 @@ public abstract class PlayerView extends FrameLayout {
             progress.setVisibility(View.GONE);
             imageView.setImageDrawable(gif);
         });
-    }
-
-    private boolean isLowMemoryJvm() {
-        return Runtime.getRuntime().maxMemory() < 32 * 1024 * 1024;
     }
 
     protected abstract <T> Observable<T> bind(Observable<T> observable);
@@ -278,4 +254,46 @@ public abstract class PlayerView extends FrameLayout {
             videoView.setLayoutParams(params);
         }
     }
+
+    /**
+     * Loads the data of the gif into memory and then decodes it.
+     */
+    private GifDrawable loadGifInMemory(Downloader.Response response) throws IOException {
+        try (InputStream stream = response.getInputStream()) {
+            // and decode it
+            return new GifDrawable(ByteStreams.toByteArray(stream));
+        }
+    }
+
+    /**
+     * Loads the data of the gif into a temporary file. The method then
+     * loads the gif from this temporary file. The temporary file is removed
+     * after loading the gif (or on failure).
+     */
+    private GifDrawable loadGifUsingTempFile(Downloader.Response response) throws IOException {
+        File cacheDir = getContext().getCacheDir();
+        File temporary = new File(cacheDir, "tmp" + System.identityHashCode(this) + ".gif");
+
+        try {
+            Log.i("Gif", "storing data into temporary file");
+            try (FileOutputStream ra = new FileOutputStream(temporary)) {
+                try (InputStream stream = response.getInputStream()) {
+                    byte[] buffer = new byte[1024 * 16];
+
+                    int length;
+                    while ((length = stream.read(buffer)) >= 0)
+                        ra.write(buffer, 0, length);
+                }
+            }
+
+            Log.i("Gif", "loading gif from file");
+            return new GifDrawable(temporary);
+
+        } finally {
+            // delete the temp file
+            if (!temporary.delete())
+                Log.w("Gif", "Could not clean up");
+        }
+    }
+
 }

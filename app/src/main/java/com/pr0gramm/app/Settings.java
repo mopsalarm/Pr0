@@ -70,7 +70,7 @@ public class Settings {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
     }
 
-    public boolean isLoadGifToMemoryEnabled() {
+    public boolean isLoadGifInMemoryEnabled() {
         return preferences.getBoolean("pref_load_gif_in_memory", true);
     }
 
