@@ -1,7 +1,9 @@
 package com.pr0gramm.app;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -51,6 +53,9 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // initialize preferences!
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // use toolbar as action bar
         setSupportActionBar(toolbar);
@@ -130,6 +135,12 @@ public class MainActivity extends RoboActionBarActivity implements
 
         if (drawerToggle.onOptionsItemSelected(item))
             return true;
+
+        if (item.getItemId() == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
 
         if (item.getItemId() == R.id.action_login) {
             LoginDialogFragment dialog = new LoginDialogFragment();

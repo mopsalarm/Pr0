@@ -39,4 +39,18 @@
             android:defaultValue="true"/>
 
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="prefcat_privacy"
+        android:title="@string/pref_privacy">
+
+        <CheckBoxPreference
+            android:key="pref_crashlytics_enabled"
+            android:title="@string/pref_crashlytics_enabled"
+            android:summaryOn="@string/pref_crashlytics_enabled_on"
+            android:summaryOff="@string/pref_crashlytics_enabled_off"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
