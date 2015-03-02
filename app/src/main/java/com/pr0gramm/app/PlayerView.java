@@ -2,9 +2,11 @@ package com.pr0gramm.app;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -99,8 +101,9 @@ public abstract class PlayerView extends FrameLayout {
      * @param image The image to load and display.
      */
     private void displayTypeImage(String image) {
+        int size = getMaxImageSize();
         picasso.load(image)
-                .resize(1024, 1024)
+                .resize(size, size)
                 .centerInside()
                 .onlyScaleDown()
                 .into(imageView);
@@ -296,4 +299,16 @@ public abstract class PlayerView extends FrameLayout {
         }
     }
 
+    private int getMaxImageSize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Point size = new Point();
+            getDisplay().getSize(size);
+            return Math.max(256, Math.min(1024, Math.max(size.x, size.y)));
+
+        } else {
+            // if we are on a device without jelly bean, it is
+            // pro older, so we can just return a lower value here.
+            return 768;
+        }
+    }
 }
