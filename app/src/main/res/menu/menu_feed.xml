@@ -10,19 +10,4 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/menu_settings"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_login"
-        android:title="@string/menu_login"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_logout"
-        android:title="@string/menu_logout"
-        app:showAsAction="never"/>
-
 </menu>
