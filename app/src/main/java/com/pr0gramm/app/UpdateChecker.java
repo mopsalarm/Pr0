@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Throwables;
 
 import retrofit.RestAdapter;
 import retrofit.http.GET;
@@ -28,10 +29,15 @@ public class UpdateChecker {
         this.context = context;
     }
 
-    private int getVersionCode() throws PackageManager.NameNotFoundException {
+    private int getVersionCode() {
         PackageManager packageManager = context.getPackageManager();
-        PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-        return packageInfo.versionCode;
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+
+        } catch (PackageManager.NameNotFoundException err) {
+            throw Throwables.propagate(err);
+        }
     }
 
     public Observable<Update> check() {
@@ -43,7 +49,7 @@ public class UpdateChecker {
                     .create(UpdateApi.class);
 
             return api.get();
-        });
+        }).filter(update -> update.getVersion() > getVersionCode());
     }
 
     private static interface UpdateApi {
