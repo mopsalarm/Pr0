@@ -74,6 +74,10 @@ public class Settings {
         return preferences.getBoolean("pref_load_gif_in_memory", true);
     }
 
+    public boolean isUpdateCheckEnabled() {
+        return preferences.getBoolean("pref_check_for_updates", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

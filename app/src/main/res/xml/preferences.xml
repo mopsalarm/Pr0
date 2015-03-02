@@ -45,6 +45,13 @@
         android:title="@string/pref_privacy">
 
         <CheckBoxPreference
+            android:key="pref_check_for_updates"
+            android:title="@string/pref_check_for_updates"
+            android:summaryOn="@string/pref_check_for_updates_on"
+            android:summaryOff="@string/pref_check_for_updates_off"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
             android:key="pref_crashlytics_enabled"
             android:title="@string/pref_crashlytics_enabled"
             android:summaryOn="@string/pref_crashlytics_enabled_on"

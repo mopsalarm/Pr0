@@ -22,6 +22,7 @@ import java.net.CookieHandler;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
+import roboguice.inject.SharedPreferencesName;
 
 /**
  */
@@ -75,5 +76,11 @@ public class Pr0grammModule extends AbstractModule {
     @Singleton
     public Api api(RestAdapter restAdapter) {
         return restAdapter.create(Api.class);
+    }
+
+    @Provides
+    @SharedPreferencesName
+    public String sharedPreferencesName() {
+        return "pr0gramm";
     }
 }

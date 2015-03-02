@@ -1,6 +1,7 @@
 package com.pr0gramm.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,8 @@ import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
 
+import org.joda.time.Instant;
+
 import javax.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -27,6 +30,8 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
+import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
+import static org.joda.time.Duration.standardDays;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
 
@@ -45,6 +50,12 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private Settings settings;
+
+    @Inject
+    private SharedPreferences shared;
 
     private ActionBarDrawerToggle drawerToggle;
     private Subscription subscription;
@@ -72,6 +83,27 @@ public class MainActivity extends RoboActionBarActivity implements
 
         updateToolbarBackButton();
         getSupportFragmentManager().addOnBackStackChangedListener(this::updateToolbarBackButton);
+
+        checkForUpdates();
+    }
+
+    private void checkForUpdates() {
+        if (!settings.isUpdateCheckEnabled())
+            return;
+
+        final String key = "MainActivity.lastUpdateCheck";
+        Instant last = new Instant(shared.getLong(key, 0));
+        if (last.isAfter(Instant.now().minus(standardDays(1))))
+            return;
+
+        // update the check-time
+        shared.edit().putLong(key, Instant.now().getMillis()).apply();
+
+        // do the check
+        bindActivity(this, new UpdateChecker(this).check())
+                .lift(errorDialog(this))
+                .map(UpdateChecker.UpdateDialogFragment::newInstance)
+                .subscribe(dialog -> dialog.show(getSupportFragmentManager(), null));
     }
 
     private void updateToolbarBackButton() {

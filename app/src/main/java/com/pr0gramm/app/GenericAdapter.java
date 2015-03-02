@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  */
-class GenericAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class GenericAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ViewTypedObject> content = new ArrayList<>();
     private final BiMap<ViewType, Integer> viewTypeIds = HashBiMap.create();
 

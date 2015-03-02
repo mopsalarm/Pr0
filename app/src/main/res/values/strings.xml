@@ -52,4 +52,10 @@
     <string name="pref_crashlytics_enabled">Send anonymous crash reports</string>
     <string name="pref_crashlytics_enabled_on">Sends anonymous crash reports on errors</string>
     <string name="pref_crashlytics_enabled_off">Deactivating this will make the life of the developer harder!</string>
+    <string name="new_update_available">New update available: %s</string>
+    <string name="download">Download</string>
+    <string name="pref_check_for_updates">Check for updates</string>
+    <string name="pref_check_for_updates_on">Automatically checks for updates</string>
+    <string name="pref_check_for_updates_off">Do not check for updates</string>
+    <string name="ignore">Ignore</string>
 </resources>
