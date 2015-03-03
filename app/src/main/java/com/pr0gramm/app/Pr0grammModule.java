@@ -8,6 +8,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.Api;
+import com.pr0gramm.app.api.GifToWebmApi;
 import com.pr0gramm.app.api.InstantDeserializer;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Downloader;
@@ -43,7 +44,7 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public RestAdapter restAdapter(Gson gson, CookieHandler cookieHandler) {
+    public Api restAdapter(Gson gson, CookieHandler cookieHandler) {
         OkHttpClient client = new OkHttpClient();
         client.setCookieHandler(cookieHandler);
 
@@ -52,7 +53,16 @@ public class Pr0grammModule extends AbstractModule {
                 .setConverter(new GsonConverter(gson))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setClient(new OkClient(client))
-                .build();
+                .build().create(Api.class);
+    }
+
+    @Provides
+    @Singleton
+    public GifToWebmApi restAdapter(Gson gson) {
+        return new RestAdapter.Builder()
+                .setEndpoint(GifToWebmApi.ENDPOINT)
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .build().create(GifToWebmApi.class);
     }
 
     @Provides
@@ -70,12 +80,6 @@ public class Pr0grammModule extends AbstractModule {
                         // .loggingEnabled(true)
                         // .indicatorsEnabled(true)
                 .build();
-    }
-
-    @Provides
-    @Singleton
-    public Api api(RestAdapter restAdapter) {
-        return restAdapter.create(Api.class);
     }
 
     @Provides
