@@ -17,7 +17,6 @@ import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.Query;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -145,7 +144,7 @@ public class PostFragment extends RoboFragment {
         infoLineView = new InfoLineView(getActivity(), feedItem) {
             @Override
             protected void onTagClicked(Post.Tag tag) {
-                ((MainActivity)getActivity()).onTabClicked(tag);
+                ((MainActivity) getActivity()).onTabClicked(tag);
             }
         };
 
@@ -163,7 +162,7 @@ public class PostFragment extends RoboFragment {
 
     private void addPlayerView() {
         // get the url of the posts content (image or video)
-        player = new PlayerView(getActivity(), picasso, downloader) {
+        player = new PlayerView(getActivity()) {
             @Override
             protected <T> Observable<T> bind(Observable<T> observable) {
                 return bindFragment(PostFragment.this, observable)

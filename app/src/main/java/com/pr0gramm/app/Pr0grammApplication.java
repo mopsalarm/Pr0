@@ -19,7 +19,7 @@ public class Pr0grammApplication extends Application {
         JodaTimeAndroid.init(this);
 
         Settings settings = Settings.of(this);
-        if (settings.isCrashlyticsEnabled())
+        if (settings.crashlyticsEnabled())
             Fabric.with(this, new Crashlytics());
     }
 

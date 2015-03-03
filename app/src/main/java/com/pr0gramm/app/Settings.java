@@ -66,16 +66,20 @@ public class Settings {
         return result;
     }
 
-    public boolean isCrashlyticsEnabled() {
+    public boolean crashlyticsEnabled() {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
     }
 
-    public boolean isLoadGifInMemoryEnabled() {
+    public boolean loadGifInMemory() {
         return preferences.getBoolean("pref_load_gif_in_memory", true);
     }
 
-    public boolean isUpdateCheckEnabled() {
+    public boolean updateCheckEnabled() {
         return preferences.getBoolean("pref_check_for_updates", true);
+    }
+
+    public boolean convertGifToWebm() {
+        return preferences.getBoolean("pref_convert_gif_to_webm", true);
     }
 
     public static Settings of(Context context) {

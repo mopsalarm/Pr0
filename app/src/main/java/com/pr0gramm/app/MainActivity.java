@@ -88,7 +88,7 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void checkForUpdates() {
-        if (!settings.isUpdateCheckEnabled())
+        if (!settings.updateCheckEnabled())
             return;
 
         final String key = "MainActivity.lastUpdateCheck";

@@ -1,6 +1,5 @@
 package com.pr0gramm.app;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
@@ -24,22 +23,34 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
 
 import pl.droidsonroids.gif.GifDrawable;
+import roboguice.RoboGuice;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+
 /**
  */
 public abstract class PlayerView extends FrameLayout {
-    private final Picasso picasso;
-    private final Downloader downloader;
-
     private final ImageView imageView;
     private final TextureView videoView;
     private final ProgressBar progress;
     private final Settings settings;
+
+    @Inject
+    private Picasso picasso;
+
+    @Inject
+    private Downloader downloader;
+
+    @Inject
+    private GifToWebmService gifToWebmService;
 
     private Runnable onAttach = () -> {
     };
@@ -50,11 +61,11 @@ public abstract class PlayerView extends FrameLayout {
     private Runnable onResume = () -> {
     };
 
-    public PlayerView(Context context, Picasso picasso, Downloader downloader) {
+    public PlayerView(Context context) {
         super(context);
         this.settings = Settings.of(context);
-        this.picasso = picasso;
-        this.downloader = downloader;
+
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
 
         inflate(context, R.layout.player, this);
         imageView = (ImageView) findViewById(R.id.image);
@@ -62,28 +73,62 @@ public abstract class PlayerView extends FrameLayout {
         progress = (ProgressBar) findViewById(R.id.progress);
     }
 
-    public <T> void play(String url) {
+    public void play(String url) {
         // get the url of the posts content (image or video)
 
         if (url.toLowerCase().endsWith(".webm")) {
-            // hide the image view
-            imageView.setVisibility(View.GONE);
-            videoView.setVisibility(View.VISIBLE);
-
             displayTypeVideo(url);
 
         } else {
-            // hide the video view
-            videoView.setVisibility(View.GONE);
-            imageView.setVisibility(View.VISIBLE);
-
             if (url.toLowerCase().endsWith(".gif")) {
+                if (settings.convertGifToWebm()) {
+                    displayTypeGifToWebm(url);
+                    return;
+                }
+
                 displayTypeGif(url);
             } else {
                 displayTypeImage(url);
             }
         }
 
+    }
+
+    /**
+     * Converts the gif to a webm on the server.
+     *
+     * @param url The url of the gif file to convert.
+     */
+    private void displayTypeGifToWebm(String url) {
+        showBusyIndicator();
+
+        // remember state to call those functions so we can call
+        // the onResume function, if necessary.
+        AtomicBoolean resumed = new AtomicBoolean();
+        AtomicBoolean paused = new AtomicBoolean();
+        onPause = () -> paused.set(true);
+        onResume = () -> {
+            paused.set(false);
+            resumed.set(true);
+        };
+
+        Log.i("Gif2Webm", "Start converting gif to webm");
+        bind(gifToWebmService.convertToWebm(url)).subscribe(result -> {
+            checkMainThread();
+
+            // dispatch the result
+            if (result.isWebm()) {
+                Log.i("Gif2Webm", "Converted successfully");
+                displayTypeVideo(result.getUrl());
+            } else {
+                Log.i("Gif2Webm", "Conversion did not work, showing gif");
+                displayTypeGif(result.getUrl());
+            }
+
+            // if we are between resume and pause, we run the resume-function
+            if (resumed.get() && !paused.get())
+                onResume.run();
+        });
     }
 
     @Override
@@ -99,6 +144,10 @@ public abstract class PlayerView extends FrameLayout {
      * @param image The image to load and display.
      */
     private void displayTypeImage(String image) {
+        // hide the video view
+        videoView.setVisibility(View.GONE);
+        imageView.setVisibility(View.VISIBLE);
+
         int size = getMaxImageSize();
         picasso.load(image)
                 .resize(size, size)
@@ -112,26 +161,27 @@ public abstract class PlayerView extends FrameLayout {
      *
      * @param image The gif file to load.
      */
-    @SuppressLint("NewApi")
     private void displayTypeGif(String image) {
+        // hide the video view
+        videoView.setVisibility(View.GONE);
+        imageView.setVisibility(View.VISIBLE);
+
         Observable<GifDrawable> loader = Async.fromCallable(() -> {
             // request the gif file
             Downloader.Response response = downloader.load(Uri.parse(image), 0);
 
             // and load + parse it
-            if (settings.isLoadGifInMemoryEnabled()) {
+            if (settings.loadGifInMemory()) {
                 return loadGifInMemory(response);
             } else {
                 return loadGifUsingTempFile(response);
             }
         }, Schedulers.io());
 
-        // show progress bar while loading
-        progress.setVisibility(View.VISIBLE);
-
+        showBusyIndicator();
         bind(loader).subscribe(gif -> {
             // and set gif on ui thread as drawable
-            progress.setVisibility(View.GONE);
+            hideBusyIndicator();
             imageView.setImageDrawable(gif);
         });
     }
@@ -153,6 +203,10 @@ public abstract class PlayerView extends FrameLayout {
     }
 
     private void displayTypeVideo(String url) {
+        // hide the image view
+        imageView.setVisibility(View.GONE);
+        videoView.setVisibility(View.VISIBLE);
+
         onResume = () -> {
             Log.i("Player", "on start called");
 
@@ -187,6 +241,8 @@ public abstract class PlayerView extends FrameLayout {
                         Log.i("Player", "surface texture is available, starting playback");
                         mp.setSurface(new Surface(surface));
                         mp.start();
+
+                        hideBusyIndicator();
                     }
 
                     @Override
@@ -218,6 +274,8 @@ public abstract class PlayerView extends FrameLayout {
                 if (surface != null) {
                     mp.setSurface(new Surface(surface));
                     mp.start();
+
+                    hideBusyIndicator();
                 }
             });
 
@@ -232,6 +290,14 @@ public abstract class PlayerView extends FrameLayout {
             // lets go!
             player.prepareAsync();
         };
+    }
+
+    private void showBusyIndicator() {
+        progress.setVisibility(VISIBLE);
+    }
+
+    private void hideBusyIndicator() {
+        progress.setVisibility(GONE);
     }
 
     /**

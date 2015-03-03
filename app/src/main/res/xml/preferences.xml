@@ -38,6 +38,13 @@
             android:summaryOff="@string/pref_load_gif_in_memory_off"
             android:defaultValue="true"/>
 
+        <CheckBoxPreference
+            android:key="pref_convert_gif_to_webm"
+            android:title="@string/pref_convert_gif_to_webm"
+            android:summaryOn="@string/pref_convert_gif_to_webm_on"
+            android:summaryOff="@string/pref_convert_gif_to_webm_off"
+            android:defaultValue="false"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
