@@ -27,7 +27,7 @@ android {
         applicationId "com.pr0gramm.app"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 2
+        versionCode 3
         versionName "1.0"
     }
     compileOptions {
