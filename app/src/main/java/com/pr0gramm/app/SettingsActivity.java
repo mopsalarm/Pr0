@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -63,6 +64,16 @@ public class SettingsActivity extends ActionBarActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
             updateContentTypeBoxes(preferences);
+
+            if ("pref_convert_gif_to_webm".equals(key)) {
+                if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
+                    new MaterialDialog.Builder(getActivity())
+                            .content(R.string.gif_as_webm_might_be_buggy)
+                            .positiveText(R.string.okay)
+                            .show();
+                }
+            }
+
         }
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {

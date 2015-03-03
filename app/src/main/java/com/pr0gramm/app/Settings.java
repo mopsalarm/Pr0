@@ -79,7 +79,7 @@ public class Settings {
     }
 
     public boolean convertGifToWebm() {
-        return preferences.getBoolean("pref_convert_gif_to_webm", true);
+        return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }
 
     public static Settings of(Context context) {
