@@ -100,7 +100,8 @@ public class PostFragment extends RoboFragment {
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
-        swipeRefreshLayout.setProgressViewOffset(true, abHeight, 2 * abHeight);
+        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         // initialize adapter for views
         adapter = new GenericAdapter();

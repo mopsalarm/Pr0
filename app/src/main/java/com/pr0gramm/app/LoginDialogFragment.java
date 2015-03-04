@@ -122,7 +122,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
             public void onError(Throwable err_) {
                 if (err_ instanceof RetrofitError) {
                     RetrofitError err = (RetrofitError) err_;
-                    if (err.getResponse().getStatus() == 403) {
+                    if (err.getResponse() != null && err.getResponse().getStatus() == 403) {
                         try {
                             subscriber.onNext(new LoginResponse(false));
                             subscriber.onCompleted();

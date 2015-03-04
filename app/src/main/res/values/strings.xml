@@ -52,7 +52,7 @@
     <string name="pref_crashlytics_enabled">Send anonymous crash reports</string>
     <string name="pref_crashlytics_enabled_on">Sends anonymous crash reports on errors</string>
     <string name="pref_crashlytics_enabled_off">Deactivating this will make the life of the developer harder!</string>
-    <string name="new_update_available">New update available: %s</string>
+    <string name="new_update_available">New update available. You can disable automatic checking in the settings. New in this version: %s</string>
     <string name="download">Download</string>
     <string name="pref_check_for_updates">Check for updates</string>
     <string name="pref_check_for_updates_on">Automatically checks for updates</string>
@@ -62,4 +62,14 @@
     <string name="pref_convert_gif_to_webm_on">Reduces traffic on gifs by up to 90%!</string>
     <string name="pref_convert_gif_to_webm_off">Download full gif files</string>
     <string name="gif_as_webm_might_be_buggy">You are saving a lot of traffic, but loading of an yet unconverted gif might take a moment longer. If conversion did not work, the app will fall back to loading the gif.</string>
+
+    <string name="error_nullpointer">A programming error occurred. I am very sorry.</string>
+    <string name="error_not_authorized">Looks like you are not signed in (or banned)</string>
+    <string name="error_not_found">The request returned not found (404)</string>
+    <string name="error_host_not_found">A hostname could not be resolved. Please check your connectivty.</string>
+    <string name="error_exception_of_type">No message provided, type of error was %s</string>
+    <string name="error_connect_exception">Could not connect to host %s</string>
+    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Go and diss cha0os</string>
+    <string name="error_conversion">An error occurred while decoding the api response</string>
+    <string name="error_oom">The app ran of memory. I am working on that.</string>
 </resources>

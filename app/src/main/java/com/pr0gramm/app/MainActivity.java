@@ -31,7 +31,7 @@ import rx.Observable;
 import rx.Subscription;
 
 import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
-import static org.joda.time.Duration.standardDays;
+import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
 
@@ -93,7 +93,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
         final String key = "MainActivity.lastUpdateCheck";
         Instant last = new Instant(shared.getLong(key, 0));
-        if (last.isAfter(Instant.now().minus(standardDays(1))))
+        if (last.isAfter(Instant.now().minus(standardHours(1))))
             return;
 
         // update the check-time

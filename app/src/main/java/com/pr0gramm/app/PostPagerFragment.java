@@ -83,10 +83,12 @@ public class PostPagerFragment extends RoboFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Log.i("PostPager", "Saving state before stopping");
-        int idx = viewPager.getCurrentItem();
-        outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
-        outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
+        if (viewPager != null) {
+            Log.i("PostPager", "Saving state before stopping");
+            int idx = viewPager.getCurrentItem();
+            outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
+            outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
+        }
     }
 
     private class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {

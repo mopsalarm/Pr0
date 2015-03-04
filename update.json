@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 4,
     "apk": "https://github.com/Graphicscore/Pr0/raw/master/pr0gramm.apk",
-    "changelog": "Neue Einstellung: Serverseitige Konvertierung von gif nach webm. Spart bis zu 90% Traffic bei GIFs!"
+    "changelog": "Fehlermeldungen sind hoffentlich besser und die Updateprüfung passiert nun häufiger."
 }

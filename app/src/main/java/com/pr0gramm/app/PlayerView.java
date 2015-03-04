@@ -207,6 +207,8 @@ public abstract class PlayerView extends FrameLayout {
         imageView.setVisibility(View.GONE);
         videoView.setVisibility(View.VISIBLE);
 
+        showBusyIndicator();
+
         onResume = () -> {
             Log.i("Player", "on start called");
 
