@@ -18,6 +18,8 @@ import com.pr0gramm.app.feed.FeedService;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  */
 public class PostPagerFragment extends RoboFragment {
@@ -31,7 +33,6 @@ public class PostPagerFragment extends RoboFragment {
     private ViewPager viewPager;
 
     private FeedProxy proxy;
-    private PostAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -41,26 +42,20 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // use instance state if available.
-        Bundle state = savedInstanceState != null
-                ? savedInstanceState
-                : getArguments();
-
         // re-create the proxy for the stream
-        proxy = FeedProxy.fromBundle(state.getBundle(ARG_FEED_PROXY));
+        proxy = getArgumentFeedProxy(savedInstanceState);
 
         // bind the loader to this fragment.
         proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
 
         // set the adapter
-        adapter = new PostAdapter();
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(new PostAdapter());
 
         // calculate index of the first item to show and show that one.
-        FeedItem start = state.getParcelable(ARG_START_ITEM);
+        FeedItem start = getArgumentStartItem(savedInstanceState);
         int index = proxy.getPosition(start).or(0);
         viewPager.setCurrentItem(index);
         Log.i("PostPager", "Starting at index: " + index);
@@ -77,6 +72,39 @@ public class PostPagerFragment extends RoboFragment {
             // reset the scrollbar here too
             mainActivity.onScrollHideToolbarListener.reset();
         }
+    }
+
+    /**
+     * Gets the feed proxy from the saved state. If there is no state
+     * or it does not contain the feed proxy, the feed proxy is extracted
+     * from {@link #getArguments()}
+     *
+     * @param savedState An optional saved state.
+     */
+    private FeedProxy getArgumentFeedProxy(@Nullable Bundle savedState) {
+        Bundle encoded = null;
+        if (savedState != null)
+            encoded = savedState.getBundle(ARG_FEED_PROXY);
+
+        if (encoded == null)
+            encoded = getArguments().getBundle(ARG_FEED_PROXY);
+
+        return FeedProxy.fromBundle(checkNotNull(encoded, "No feed-proxy found"));
+    }
+
+    /**
+     * @see #getArgumentFeedProxy(android.os.Bundle)
+     */
+    private FeedItem getArgumentStartItem(@Nullable Bundle saveState) {
+        FeedItem result = null;
+
+        if (saveState != null)
+            result = saveState.getParcelable(ARG_START_ITEM);
+
+        if (result == null)
+            result = getArguments().getParcelable(ARG_START_ITEM);
+
+        return checkNotNull(result, "No start-item found");
     }
 
     @Override

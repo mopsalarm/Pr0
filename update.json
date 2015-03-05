@@ -1,5 +1,5 @@
 {
-    "version": 4,
+    "version": 5,
     "apk": "https://github.com/Graphicscore/Pr0/raw/master/pr0gramm.apk",
-    "changelog": "Fehlermeldungen sind hoffentlich besser und die Updateprüfung passiert nun häufiger."
+    "changelog": "Fehlermeldungen sind hoffentlich besser und die Updateprüfung passiert nun häufiger, außerdem viele Bugfixes!"
 }

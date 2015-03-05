@@ -1,12 +1,9 @@
 package com.pr0gramm.app;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -15,27 +12,18 @@ import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import org.joda.time.Instant;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import retrofit.RetrofitError;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Func2;
-
-import static com.google.common.primitives.Ints.asList;
 
 /**
  * This dialog fragment shows and error to the user.
@@ -55,24 +43,97 @@ public class ErrorDialogFragment extends DialogFragment {
                 .build();
     }
 
-    @SuppressLint("ValidFragment")
-    public static class ErrorDialogOperator<T> extends Fragment implements Observable.Operator<T, T> {
+    /**
+     * This is a bit tricky. If we start a background task and rotate the
+     * activity, the activity (and many of its fragments) will be rebuild and all references
+     * to those fragments will be invalid. The other way around, all references to the
+     * background task will be destroyed too.
+     * <p>
+     * Because of this, we add a {@link com.pr0gramm.app.ErrorDialogFragment.HelperFragment}
+     * with a unique tag. This fragment will be recreated on orientation change.
+     * The fragment put its name into some static cache, so that the background task
+     * can get a reference to the fragment knowing its tag. This reference can then be used
+     * to get a fragment manager to show the error dialog.
+     */
+    public static class HelperFragment extends Fragment {
+        public String getName() {
+            return getArguments().getString("name");
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            CACHE.put(getName(), this);
+        }
+
+        @Override
+        public void onPause() {
+            CACHE.invalidate(getName());
+            super.onPause();
+        }
+
+        public static HelperFragment newInstance() {
+            Bundle bundle = new Bundle();
+            bundle.putString("name", UUID.randomUUID().toString());
+
+            HelperFragment fragment = new HelperFragment();
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        private static final Cache<String, HelperFragment> CACHE
+                = CacheBuilder.newBuilder().weakValues().build();
+    }
+
+    private static class ErrorDialogOperator<T> implements Observable.Operator<T, T> {
+        private final AtomicBoolean called = new AtomicBoolean();
+        private final String fragmentTag;
+
         private ErrorDialogOperator(FragmentManager parentFragmentManager) {
-            setRetainInstance(true);
+            HelperFragment fragment = HelperFragment.newInstance();
+            fragmentTag = fragment.getName();
 
             parentFragmentManager.beginTransaction()
-                    .add(this, null)
+                    .add(fragment, fragmentTag)
                     .commitAllowingStateLoss();
         }
 
-        private void removeThisFragment() {
-            getFragmentManager().beginTransaction()
-                    .remove(this)
+        private void removeHelperFragment() {
+            HelperFragment fragment = HelperFragment.CACHE.getIfPresent(fragmentTag);
+            if (fragment == null || fragment.isDetached()) {
+                HelperFragment.CACHE.invalidate(fragmentTag);
+                return;
+            }
+
+            // remove fragment now.
+            fragment.getFragmentManager().beginTransaction()
+                    .remove(fragment)
                     .commitAllowingStateLoss();
+        }
+
+        /**
+         * Gets the {@link com.pr0gramm.app.ErrorDialogFragment.HelperFragment} and uses
+         * its fragment manager to show the dialog.
+         *
+         * @param error The error that is to be displayed.
+         */
+        private void showErrorDialogFragment(Throwable error) {
+            HelperFragment fragment = HelperFragment.CACHE.getIfPresent(fragmentTag);
+            if (fragment == null || fragment.isDetached()) {
+                HelperFragment.CACHE.invalidate(fragmentTag);
+                return;
+            }
+
+            Context context = fragment.getActivity();
+            FragmentManager fm = fragment.getFragmentManager();
+            handle(context, fm, error);
         }
 
         @Override
         public Subscriber<? super T> call(Subscriber<? super T> subscriber) {
+            if (!called.compareAndSet(false, true))
+                throw new UnsupportedOperationException("You can use this operator only once!");
+
             return new Subscriber<T>() {
                 @Override
                 public void onCompleted() {
@@ -81,21 +142,21 @@ public class ErrorDialogFragment extends DialogFragment {
 
                     } catch (Throwable thr) {
                         try {
-                            handle(getActivity(), getFragmentManager(), thr);
+                            showErrorDialogFragment(thr);
 
                         } catch (Throwable err) {
                             // there was an error handling the error. oops.
                             Crashlytics.logException(err);
                         }
                     } finally {
-                        removeThisFragment();
+                        removeHelperFragment();
                     }
                 }
 
                 @Override
                 public void onError(Throwable err) {
                     try {
-                        handle(getActivity(), getActivity().getSupportFragmentManager(), err);
+                        showErrorDialogFragment(err);
 
                     } catch (Throwable thr) {
                         // there was an error handling the error. oops.
@@ -107,7 +168,7 @@ public class ErrorDialogFragment extends DialogFragment {
                     } catch (Throwable thr) {
                         Crashlytics.logException(err);
                     } finally {
-                        removeThisFragment();
+                        removeHelperFragment();
                     }
                 }
 
@@ -123,11 +184,13 @@ public class ErrorDialogFragment extends DialogFragment {
         }
     }
 
+    private static Map<Throwable, Instant> PREVIOUS_ERRORS_QUEUE = new HashMap<>();
+
     public static void handle(Context context, Throwable error) {
         handle(context, null, error);
     }
 
-    private static void handle(Context context, FragmentManager fragmentManager, Throwable error) {
+    public static void handle(Context context, FragmentManager fragmentManager, Throwable error) {
         Log.e("Error", "An error occurred", error);
 
         // we cant do much formatting without a context
@@ -144,86 +207,13 @@ public class ErrorDialogFragment extends DialogFragment {
             PREVIOUS_ERRORS_QUEUE.put(error, Instant.now());
         }
 
-        for (Formatter<?> formatter : FORMATTERS) {
-            if (formatter.handles(error)) {
-                String message = formatter.getMessage(context, error);
-                if (sendToCrashlytics && formatter.shouldSendToCrashlytics())
-                    Crashlytics.logException(error);
+        ErrorFormatting.Formatter<?> formatter = ErrorFormatting.getFormatter(error);
+        if (sendToCrashlytics && formatter.shouldSendToCrashlytics())
+            Crashlytics.logException(error);
 
-                if (fragmentManager != null)
-                    showErrorString(fragmentManager, message);
-
-                break;
-            }
-        }
-    }
-
-    private static Map<Throwable, Instant> PREVIOUS_ERRORS_QUEUE = new HashMap<>();
-
-    private static class Formatter<T extends Throwable> {
-        private final Class<T> errorType;
-        private final Predicate<T> check;
-        private final Func2<T, Context, String> message;
-        private boolean log = true;
-
-        public Formatter(Class<T> errorType, Func2<T, Context, String> message) {
-            this(errorType, Predicates.alwaysTrue(), message);
-        }
-
-        public Formatter(Class<T> errorType, @StringRes int message) {
-            this(errorType, Predicates.alwaysTrue(), (err, ctx) -> ctx.getString(message));
-        }
-
-        public Formatter(Class<T> errorType, Predicate<T> check, @StringRes int message) {
-            this(errorType, check, (err, ctx) -> ctx.getString(message));
-        }
-
-        public Formatter(Class<T> errorType, Predicate<T> check, Func2<T, Context, String> message) {
-            this.errorType = errorType;
-            this.check = check;
-            this.message = message;
-        }
-
-        /**
-         * Tests if this formatter handles the given exception.
-         */
-        public boolean handles(Throwable thr) {
-            //noinspection unchecked
-            return errorType.isInstance(thr) && check.apply((T) thr);
-        }
-
-        /**
-         * Gets the message for the given exception. You must only call this,
-         * if {@link #handles(Throwable)} returned true before.
-         */
-        public String getMessage(Context context, Throwable thr) {
-            //noinspection unchecked
-            return message.call((T) thr, context);
-        }
-
-        /**
-         * Deactivates logging of this kind of error.
-         *
-         * @return this instance.
-         */
-        public Formatter<T> quiet() {
-            log = false;
-            return this;
-        }
-
-        /**
-         * Returns true, if this exception should be logged
-         */
-        public boolean shouldSendToCrashlytics() {
-            return log;
-        }
-    }
-
-    private static class RetrofitStatusFormatter extends Formatter<RetrofitError> {
-        public RetrofitStatusFormatter(Predicate<RetrofitError> check, @StringRes int message) {
-            super(RetrofitError.class,
-                    err -> err.getResponse() != null && check.apply(err),
-                    message);
+        if (fragmentManager != null) {
+            String message = formatter.getMessage(context, error);
+            showErrorString(fragmentManager, message);
         }
     }
 
@@ -238,76 +228,11 @@ public class ErrorDialogFragment extends DialogFragment {
         dialog.show(fragmentManager, (String) null);
     }
 
-    public static <T> ErrorDialogOperator<T> errorDialog(Fragment fragment) {
+    public static <T> Observable.Operator<T, T> errorDialog(Fragment fragment) {
         return new ErrorDialogOperator<>(fragment.getChildFragmentManager());
     }
 
-    public static <T> ErrorDialogOperator<T> errorDialog(FragmentActivity activity) {
+    public static <T> Observable.Operator<T, T> errorDialog(FragmentActivity activity) {
         return new ErrorDialogOperator<>(activity.getSupportFragmentManager());
     }
-
-    /**
-     * Returns a list containing multiple error formatters in the order they should
-     * be applied.
-     *
-     * @return The error formatters.
-     */
-    private static List<Formatter<?>> makeErrorFormatters() {
-        final List<Formatter<?>> formatters = new ArrayList<>();
-
-        Func2<Throwable, Context, String> guessMessage = (err, context) -> {
-            String message = err.getLocalizedMessage();
-            if (Strings.isNullOrEmpty(message))
-                message = err.getMessage();
-
-            if (Strings.isNullOrEmpty(message))
-                message = context.getString(R.string.error_exception_of_type, err.getClass().getSimpleName());
-
-            return message;
-        };
-
-        formatters.add(new RetrofitStatusFormatter(
-                err -> asList(401, 403).contains(err.getResponse().getStatus()),
-                R.string.error_not_authorized).quiet());
-
-        formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() == 404,
-                R.string.error_not_found).quiet());
-
-        formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() == 503,
-                R.string.error_service_unavailable).quiet());
-
-        // could not deserialize. this one i am interested in.
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getKind() == RetrofitError.Kind.CONVERSION,
-                R.string.error_conversion));
-
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof UnknownHostException,
-                R.string.error_host_not_found).quiet());
-
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof ConnectException,
-                (err, context) -> {
-                    String host = Uri.parse(err.getUrl()).getHost();
-                    return context.getString(R.string.error_connect_exception, host);
-                }).quiet());
-
-        // add a default formatter for io exceptions, but do not log them
-        formatters.add(new Formatter<>(IOException.class, guessMessage::call).quiet());
-
-        // oops
-        formatters.add(new Formatter<>(NullPointerException.class, R.string.error_nullpointer));
-
-        // no memory, this is bad!
-        formatters.add(new Formatter<>(OutOfMemoryError.class, R.string.error_oom));
-
-        // add a default formatter.
-        formatters.add(new Formatter<>(Throwable.class, guessMessage::call));
-
-        return formatters;
-    }
-
-    private static final List<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());
 }
