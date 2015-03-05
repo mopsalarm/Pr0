@@ -46,8 +46,8 @@
     <string name="pref_compatibility">Kompalibilität</string>
     <string name="pref_load_gif_in_memory">In Speicher GIF decoding</string>
     <string name="pref_load_gif_in_memory_on">Lädt GIF in Speicher. Kamm RAM-Fehler auf alten Geräten verursachen</string>
-    <string name="pref_load_gif_in_memory_off">Speicher GIF in temporäres File</string>
-    <string name="settings">Einstellung</string>
+    <string name="pref_load_gif_in_memory_off">Speichere GIF in temporäres File</string>
+    <string name="settings">Einstellungen</string>
     <string name="pref_privacy">Privatsphäre</string>
     <string name="pref_crashlytics_enabled">Sende anonyme Bug reports</string>
     <string name="pref_crashlytics_enabled_on">Sende anonyme Bug reports</string>
@@ -58,8 +58,8 @@
     <string name="pref_check_for_updates_on">Automatisch auf Updates prüfen</string>
     <string name="pref_check_for_updates_off">Nicht auf Updates prüfen</string>
     <string name="ignore">Ignorieren</string>
-    <string name="pref_convert_gif_to_webm">Convertiere gif to webm</string>
-    <string name="pref_convert_gif_to_webm_on">Reduziert traffic auf bis zu 90%</string>
+    <string name="pref_convert_gif_to_webm">Konvertiere gif zu webm</string>
+    <string name="pref_convert_gif_to_webm_on">Reduziert Traffic auf bis zu 90%</string>
     <string name="pref_convert_gif_to_webm_off">Gifs runterladen</string>
     <string name="gif_as_webm_might_be_buggy">Achtung: Du sparst sehr viel traffic, aber es könnte etwas länger dauern.</string>
 
@@ -70,6 +70,6 @@
     <string name="error_exception_of_type">Allgemeiner Fehler: %s</string>
     <string name="error_connect_exception">Kann nicht zu Host %s verbinden</string>
     <string name="error_service_unavailable">Pr0gramm ist nicht verfügbar. (ERROR 500) diss cha0s</string>
-    <string name="error_conversion">Ein fehler ist bei der Decodierund der API passiert.</string>
+    <string name="error_conversion">Ein fehler ist bei der Decodierung der API passiert.</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Wir Arbeiten daran</string>
 </resources>
