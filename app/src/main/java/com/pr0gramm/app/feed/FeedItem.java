@@ -37,6 +37,7 @@ public class FeedItem implements Parcelable {
         mark = item.getMark();
         created = item.getCreated();
 
+
         this.seen = seen;
     }
 
