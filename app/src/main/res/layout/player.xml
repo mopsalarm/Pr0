@@ -10,26 +10,16 @@
         android:maxHeight="500dp"
         android:scaleType="fitCenter"/>
 
-    <!--
-    <VideoView
-        android:id="@+id/video"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_gravity="center"/>
-    -->
-
     <TextureView
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_gravity="center"/>
 
-    <ProgressBar
-        style="?attr/progressBarStyle"
+    <com.pr0gramm.app.BusyCircleView
         android:id="@+id/progress"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="center"
         android:visibility="gone"/>
 </merge>

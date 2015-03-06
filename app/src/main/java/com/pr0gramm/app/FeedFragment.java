@@ -6,7 +6,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -18,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
@@ -53,10 +51,15 @@ public class FeedFragment extends RoboFragment {
     @Inject
     private SharedPreferences sharedPreferences;
 
+    @InjectView(R.id.progress)
+    private View progressView;
+
+    @InjectView(R.id.refresh)
+    private CustomSwipeRefreshLayout swipeRefreshLayout;
+
     private FeedAdapter adapter;
 
     private GridLayoutManager layoutManager;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
     private Settings settings;
@@ -73,18 +76,7 @@ public class FeedFragment extends RoboFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        swipeRefreshLayout = new SwipeRefreshLayout(getActivity()) {
-            @Override
-            public boolean canChildScrollUp() {
-                return !adapter.getFeedProxy().isAtStart() || super.canChildScrollUp();
-            }
-        };
-
-        swipeRefreshLayout.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        return inflater.inflate(R.layout.fragment_feed, swipeRefreshLayout);
+        return inflater.inflate(R.layout.fragment_feed, container, false);
     }
 
     @Override
@@ -94,6 +86,7 @@ public class FeedFragment extends RoboFragment {
         if (adapter == null) {
             // create a new adapter if necessary
             adapter = newFeedAdapter();
+            progressView.setVisibility(View.VISIBLE);
         }
 
         // prepare the list of items
@@ -101,6 +94,9 @@ public class FeedFragment extends RoboFragment {
         layoutManager = new GridLayoutManager(getActivity(), count);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+
+        // we can still swipe up if we are not at the start of the feed.
+        swipeRefreshLayout.setCanSwipeUpPredicate(() -> !adapter.getFeedProxy().isAtStart());
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             FeedProxy proxy = adapter.getFeedProxy();
@@ -302,22 +298,24 @@ public class FeedFragment extends RoboFragment {
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
 
-        FeedAdapter(Query query) {
+        public FeedAdapter(Query query) {
             this(new FeedProxy(query));
         }
 
         public FeedAdapter(FeedProxy feedProxy) {
             this.feedProxy = feedProxy;
-            feedProxy.setOnChangeListener(this);
-            feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(FeedFragment.this, feedService) {
+
+            this.feedProxy.setOnChangeListener(this);
+            this.feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(FeedFragment.this, feedService) {
                 @Override
                 public void onLoadFinished() {
+                    progressView.setVisibility(View.GONE);
                     swipeRefreshLayout.setRefreshing(false);
                 }
             });
 
             // start the feed
-            feedProxy.restart();
+            this.feedProxy.restart();
         }
 
         public Query getQuery() {

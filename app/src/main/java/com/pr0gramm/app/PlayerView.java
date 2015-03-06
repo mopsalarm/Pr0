@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -40,7 +41,7 @@ import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 public abstract class PlayerView extends FrameLayout {
     private final ImageView imageView;
     private final TextureView videoView;
-    private final ProgressBar progress;
+    private final View progress;
     private final Settings settings;
 
     @Inject
@@ -70,11 +71,12 @@ public abstract class PlayerView extends FrameLayout {
         inflate(context, R.layout.player, this);
         imageView = (ImageView) findViewById(R.id.image);
         videoView = (TextureView) findViewById(R.id.video);
-        progress = (ProgressBar) findViewById(R.id.progress);
+        progress = findViewById(R.id.progress);
     }
 
     public void play(String url) {
         // get the url of the posts content (image or video)
+        showBusyIndicator();
 
         if (url.toLowerCase().endsWith(".webm")) {
             displayTypeVideo(url);
@@ -100,8 +102,6 @@ public abstract class PlayerView extends FrameLayout {
      * @param url The url of the gif file to convert.
      */
     private void displayTypeGifToWebm(String url) {
-        showBusyIndicator();
-
         // remember state to call those functions so we can call
         // the onResume function, if necessary.
         AtomicBoolean resumed = new AtomicBoolean();
@@ -153,7 +153,28 @@ public abstract class PlayerView extends FrameLayout {
                 .resize(size, size)
                 .centerInside()
                 .onlyScaleDown()
-                .into(imageView);
+                .into(imageView, new HideBusyIndicator(this));
+    }
+
+    private static class HideBusyIndicator implements Callback {
+        private WeakReference<PlayerView> playerView;
+
+        public HideBusyIndicator(PlayerView playerView) {
+            this.playerView = new WeakReference<>(playerView);
+        }
+
+        @Override
+        public void onSuccess() {
+            PlayerView view = playerView.get();
+            if (view != null)
+                view.hideBusyIndicator();
+        }
+
+        @Override
+        public void onError() {
+            //  just hide the view right now
+            onSuccess();
+        }
     }
 
     /**
@@ -178,7 +199,6 @@ public abstract class PlayerView extends FrameLayout {
             }
         }, Schedulers.io());
 
-        showBusyIndicator();
         bind(loader).subscribe(gif -> {
             // and set gif on ui thread as drawable
             hideBusyIndicator();
@@ -206,8 +226,6 @@ public abstract class PlayerView extends FrameLayout {
         // hide the image view
         imageView.setVisibility(View.GONE);
         videoView.setVisibility(View.VISIBLE);
-
-        showBusyIndicator();
 
         onResume = () -> {
             Log.i("Player", "on start called");

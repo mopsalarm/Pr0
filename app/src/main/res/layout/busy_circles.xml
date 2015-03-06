@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+
+    <View
+        android:id="@+id/first"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:transformPivotX="16dp"
+        android:transformPivotY="16dp"
+        android:background="@drawable/busy_circle"/>
+
+    <View
+        android:id="@+id/second"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:transformPivotX="16dp"
+        android:transformPivotY="16dp"
+        android:background="@drawable/busy_circle"/>
+
+    <View
+        android:id="@+id/third"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:transformPivotX="16dp"
+        android:transformPivotY="16dp"
+        android:background="@drawable/busy_circle"/>
+
+</LinearLayout>
