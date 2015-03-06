@@ -43,8 +43,8 @@ public class InfoLineView extends LinearLayout {
         tagsView = (RecyclerView) findViewById(R.id.tags);
         tagsView.setLayoutManager(new LinearLayoutManager(context,
                 LinearLayoutManager.HORIZONTAL, false));
-
         setFeedItem(feedItem);
+        voteView.setInfoLineView(this);
     }
 
     public void setFeedItem(FeedItem item) {
@@ -56,6 +56,14 @@ public class InfoLineView extends LinearLayout {
 
         // TODO we need the voting from the database here.
         // voteView.setVote(item.getVote());
+    }
+    public void VoteUP(){
+
+        ratingView.setText(String.valueOf((feedItem.getUp() - feedItem.getDown())+1));
+    }
+    public void VoteDown(){
+
+        ratingView.setText(String.valueOf((feedItem.getUp() - feedItem.getDown())-1));
     }
 
     public void setTags(List<Post.Tag> tags) {
@@ -112,6 +120,8 @@ public class InfoLineView extends LinearLayout {
         }
     }
 
+
+
     protected void onTagClicked(Post.Tag tag) {
 
     }
@@ -124,4 +134,5 @@ public class InfoLineView extends LinearLayout {
             tag = (TextView) itemView;
         }
     }
+
 }

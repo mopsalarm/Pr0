@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
 
 /**
@@ -23,9 +24,17 @@ public class VoteView extends LinearLayout {
 
     private OnVoteListener onVoteListener;
     private Vote state;
+    InfoLineView infoLineView;
+
+    private FeedItem feedItem;
 
     public VoteView(Context context) {
         this(context, null);
+
+    }
+    public void setInfoLineView(InfoLineView iv)
+    {
+        infoLineView=iv;
     }
 
     public VoteView(Context context, AttributeSet attrs) {
@@ -145,6 +154,7 @@ public class VoteView extends LinearLayout {
             viewRateDown.setTextColor(defaultColor);
             viewRateUp.animate().rotation(360).alpha(1f).setDuration(duration).start();
             viewRateDown.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
+            infoLineView.VoteUP();
         }
 
         if (vote == Vote.DOWN) {
@@ -152,6 +162,7 @@ public class VoteView extends LinearLayout {
             viewRateDown.setTextColor(markedColor);
             viewRateUp.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
             viewRateDown.animate().rotation(360).alpha(1f).setDuration(duration).start();
+            infoLineView.VoteDown();
         }
 
         // set new voting state
