@@ -12,6 +12,7 @@ Snapshot der ersten Version meiner (Mopsalarm) pr0gramm-App ist als installierba
 * Neuladen des Feeds durch weiter herunterziehen
 * Tags anklicken können um mit diesen eine Suche zu starten
 * *gif*s auf einem Server in kleinere *webm*s umwandeln und diese in der App anzeigen
+* Neue Ladeanimation ähnlich zu der auf pr0gramm.
 
 ## Bekannte Probleme
 * Es wird nicht angezeigt, ob "+" oder "-" gedrückt wurde. Dies ist eine Limitation der pr0gramm-Api.
