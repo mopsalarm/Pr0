@@ -19,6 +19,7 @@
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
 
+
         <activity
             android:name="com.pr0gramm.app.MainActivity"
             android:label="@string/app_name">

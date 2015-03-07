@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -15,14 +16,13 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  */
-public class PostPagerFragment extends RoboFragment {
+public class PostPagerFragment extends NestingFragment {
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";
 
@@ -33,6 +33,7 @@ public class PostPagerFragment extends RoboFragment {
     private ViewPager viewPager;
 
     private FeedProxy proxy;
+    private PostAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -46,19 +47,26 @@ public class PostPagerFragment extends RoboFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // re-create the proxy for the stream
-        proxy = getArgumentFeedProxy(savedInstanceState);
+        if (proxy == null) {
+            // create the proxy and use it as the source for the view pager.
+            proxy = getArgumentFeedProxy(savedInstanceState);
+            proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
 
-        // bind the loader to this fragment.
-        proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
+            // create the adapter on the view
+            adapter = new PostAdapter(getChildFragmentManager(), proxy);
+        }
 
-        // set the adapter
-        viewPager.setAdapter(new PostAdapter());
+        viewPager.setAdapter(adapter);
+        Log.i("PostPager", "state is " + savedInstanceState);
 
-        // calculate index of the first item to show and show that one.
+        // calculate index of the first item to show if this is the first
+        // time we show this fragment.
         FeedItem start = getArgumentStartItem(savedInstanceState);
         int index = proxy.getPosition(start).or(0);
-        viewPager.setCurrentItem(index);
+
         Log.i("PostPager", "Starting at index: " + index);
+        viewPager.setCurrentItem(index);
+
 
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -112,17 +120,22 @@ public class PostPagerFragment extends RoboFragment {
         super.onSaveInstanceState(outState);
 
         if (viewPager != null) {
-            Log.i("PostPager", "Saving state before stopping");
+            Log.i("PostPager", "Saving state before pausing");
+
             int idx = viewPager.getCurrentItem();
             outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
             outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
         }
     }
 
-    private class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
-        public PostAdapter() {
-            super(getChildFragmentManager());
-            proxy.setOnChangeListener(this);
+    private static class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
+        private final FeedProxy proxy;
+
+        public PostAdapter(FragmentManager fragmentManager, FeedProxy proxy) {
+            super(fragmentManager);
+
+            this.proxy = proxy;
+            this.proxy.setOnChangeListener(this);
         }
 
         @Override

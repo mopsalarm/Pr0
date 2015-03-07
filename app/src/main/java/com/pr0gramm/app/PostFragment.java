@@ -2,7 +2,7 @@ package com.pr0gramm.app;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,15 +17,12 @@ import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
-import com.squareup.picasso.Downloader;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
 
@@ -36,15 +33,10 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends RoboFragment {
+public class PostFragment extends NestingFragment {
     private static final String ARG_FEED_ITEM = "PostFragment.Post";
-    private static final long INFO_LINE_VIEW_ID = -1;
-    private static final long PLAYER_VIEW_ID = -2;
 
     private FeedItem feedItem;
-
-    @Inject
-    private Picasso picasso;
 
     @Inject
     private FeedService feedService;
@@ -52,22 +44,20 @@ public class PostFragment extends RoboFragment {
     @Inject
     private VoteService voteService;
 
-    @InjectView(R.id.list)
-    private RecyclerView recyclerView;
+    @InjectView(R.id.comments)
+    private RecyclerView commentsView;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    @Inject
-    private Downloader downloader;
-
-    private GenericAdapter adapter;
+    @InjectView(R.id.info_line)
     private InfoLineView infoLineView;
-    private PlayerView player;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // get the item that is to be displayed.
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
     }
 
@@ -82,34 +72,31 @@ public class PostFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FragmentActivity activity = getActivity();
-        if (activity instanceof MainActivity) {
-            recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    // forward scrolling events
-                    ((MainActivity) activity).onScrollHideToolbarListener.onScrolled(dy);
-                }
-            });
-        }
+//        FragmentActivity activity = getActivity();
+//        if (activity instanceof MainActivity) {
+//            commentsView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+//                @Override
+//                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                    // forward scrolling events
+//                    ((MainActivity) activity).onScrollHideToolbarListener.onScrolled(dy);
+//                }
+//            });
+//        }
 
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            adapter.removeItems(2, adapter.getItemCount() - 2);
-            startLoadingInfo();
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::startLoadingInfo);
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
-        // initialize adapter for views
-        adapter = new GenericAdapter();
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        // FIXME initialize adapter for views
+        // adapter = new GenericAdapter();
+        // commentsView.setAdapter(adapter);
+        commentsView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        addPlayerView();
-        addInfoLineView();
+        initializePlayerFragment();
+        initializeInfoLine();
 
         startLoadingInfo();
     }
@@ -125,32 +112,9 @@ public class PostFragment extends RoboFragment {
                 .subscribe(this::onPostReceived);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        player.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        player.onPause();
-        super.onPause();
-    }
-
-    private void addInfoLineView() {
-        ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        infoLineView = new InfoLineView(getActivity(), feedItem) {
-            @Override
-            protected void onTagClicked(Post.Tag tag) {
-                ((MainActivity) getActivity()).onTabClicked(tag);
-            }
-        };
-
-        infoLineView.setLayoutParams(params);
-        adapter.add(new StaticViewType(INFO_LINE_VIEW_ID, infoLineView), null);
+    private void initializeInfoLine() {
+        // display the feed item in the view
+        infoLineView.setFeedItem(feedItem);
 
         // register the vote listener
         VoteView voteView = infoLineView.getVoteView();
@@ -161,36 +125,22 @@ public class PostFragment extends RoboFragment {
         }));
     }
 
-    private void addPlayerView() {
-        // get the url of the posts content (image or video)
-        player = new PlayerView(getActivity()) {
-            @Override
-            protected <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostFragment.this, observable)
-                        .lift(errorDialog(PostFragment.this));
-            }
-        };
-
-        // set correct the margin for the post fragment.
-        ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        params.topMargin = AndroidUtility.getActionBarSize(getActivity());
-        player.setLayoutParams(params);
+    private void initializePlayerFragment() {
+        // check if the fragment already exists.
+        Fragment fragment = getChildFragmentManager().findFragmentById(R.id.player_container);
+        if (fragment != null)
+            return;
 
         // initialize the player
-        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        player.play(url);
+        Bundle arguments = new Bundle();
+        arguments.putString("mediaUrl", "http://img.pr0gramm.com/" + feedItem.getImage());
+        PlayerFragment player = new PlayerFragment();
+        player.setArguments(arguments);
 
-        adapter.add(new StaticViewType(PLAYER_VIEW_ID, player) {
-            @Override
-            public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
-                RecyclerView.ViewHolder holder = super.newViewHolder(parent);
-                holder.setIsRecyclable(false);
-                return holder;
-            }
-        }, null);
+        // and add the player to the view.
+        getChildFragmentManager().beginTransaction()
+                .add(R.id.player_container, player)
+                .commit();
     }
 
     /**
@@ -201,43 +151,44 @@ public class PostFragment extends RoboFragment {
     private void onPostReceived(Post post) {
         swipeRefreshLayout.setRefreshing(false);
 
-        List<Post.Comment> comments = sort(post.getComments());
-        adapter.addAll(new CommentViewType(comments), comments);
-
         // update tags from post
         infoLineView.setTags(post.getTags());
+
+        List<Post.Comment> comments = sort(post.getComments());
+        // FIXME adapter.addAll(new CommentViewType(comments), comments);
+
     }
 
     public FeedItem getFeedItem() {
         return feedItem;
     }
 
-    private static class StaticViewType implements GenericAdapter.ViewType {
-        private final long id;
-        private final View view;
-
-        private StaticViewType(long id, View view) {
-            this.id = id;
-            this.view = view;
-        }
-
-        @Override
-        public long getId(Object object) {
-            return id;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
-            // just return the view as is.
-            return new RecyclerView.ViewHolder(view) {
-            };
-        }
-
-        @Override
-        public void bind(RecyclerView.ViewHolder holder, Object object) {
-            // do nothing on bind.
-        }
-    }
+//    private static class StaticViewType implements GenericAdapter.ViewType {
+//        private final long id;
+//        private final View view;
+//
+//        private StaticViewType(long id, View view) {
+//            this.id = id;
+//            this.view = view;
+//        }
+//
+//        @Override
+//        public long getId(Object object) {
+//            return id;
+//        }
+//
+//        @Override
+//        public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
+//            // just return the view as is.
+//            return new RecyclerView.ViewHolder(view) {
+//            };
+//        }
+//
+//        @Override
+//        public void bind(RecyclerView.ViewHolder holder, Object object) {
+//            // do nothing on bind.
+//        }
+//    }
 
     public static PostFragment newInstance(FeedItem item) {
         Bundle arguments = new Bundle();
