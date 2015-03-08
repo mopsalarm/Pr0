@@ -67,19 +67,16 @@ public class PostPagerFragment extends NestingFragment {
         Log.i("PostPager", "Starting at index: " + index);
         viewPager.setCurrentItem(index);
 
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+                getArguments().putParcelable(ARG_START_ITEM, proxy.getItemAt(position));
+            }
+        });
 
-        if (getActivity() instanceof MainActivity) {
-            MainActivity mainActivity = (MainActivity) getActivity();
-            viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                @Override
-                public void onPageSelected(int position) {
-                    mainActivity.onScrollHideToolbarListener.reset();
-                }
-            });
-
-            // reset the scrollbar here too
-            mainActivity.onScrollHideToolbarListener.reset();
-        }
+        // reset the scrollbar here too
+        ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
     }
 
     /**
@@ -113,19 +110,6 @@ public class PostPagerFragment extends NestingFragment {
             result = getArguments().getParcelable(ARG_START_ITEM);
 
         return checkNotNull(result, "No start-item found");
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        if (viewPager != null) {
-            Log.i("PostPager", "Saving state before pausing");
-
-            int idx = viewPager.getCurrentItem();
-            outState.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
-            outState.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
-        }
     }
 
     private static class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
@@ -182,6 +166,7 @@ public class PostPagerFragment extends NestingFragment {
             // should not happen
             throw new UnsupportedOperationException();
         }
+
     }
 
     public static PostPagerFragment newInstance(FeedProxy proxy, int idx) {

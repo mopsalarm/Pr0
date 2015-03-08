@@ -2,10 +2,13 @@ package com.pr0gramm.app;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import roboguice.fragment.RoboFragment;
 
@@ -29,13 +32,30 @@ public class NestingFragment extends RoboFragment {
             //restore the last retained child fragment manager to the new
             //created fragment
             Log.i(getClass().getSimpleName(), "restoring child fragment manager");
-            try {
-                Field childFmField = Fragment.class.getDeclaredField("mChildFragmentManager");
-                childFmField.setAccessible(true);
-                childFmField.set(this, retainedChildFragmentManager);
-            } catch (Exception e) {
-                e.printStackTrace();
+            setFieldByName(this, "mChildFragmentManager", retainedChildFragmentManager);
+
+            if (activity instanceof FragmentActivity) {
+                // Support library wont set the correct activity on nested fragments.
+                // thanks google.
+                List<Fragment> fragments = new ArrayList<>(retainedChildFragmentManager.getFragments());
+                for (Fragment fragment : fragments) {
+                    if (fragment == null)
+                        continue;
+
+                    setFieldByName(fragment, "mActivity", activity);
+                    fragment.onAttach(activity);
+                }
             }
+        }
+    }
+
+    private void setFieldByName(Fragment instance, String name, Object value) {
+        try {
+            Field childFmField = Fragment.class.getDeclaredField(name);
+            childFmField.setAccessible(true);
+            childFmField.set(instance, value);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

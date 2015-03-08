@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ import static rx.android.observables.AndroidObservable.bindActivity;
  */
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActionBarActivity implements
-        DrawerFragment.OnDrawerActionListener {
+        DrawerFragment.OnDrawerActionListener, FragmentManager.OnBackStackChangedListener {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -82,9 +83,15 @@ public class MainActivity extends RoboActionBarActivity implements
         }
 
         updateToolbarBackButton();
-        getSupportFragmentManager().addOnBackStackChangedListener(this::updateToolbarBackButton);
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         checkForUpdates();
+    }
+
+    @Override
+    protected void onDestroy() {
+        getSupportFragmentManager().removeOnBackStackChangedListener(this);
+        super.onDestroy();
     }
 
     private void checkForUpdates() {
@@ -104,6 +111,12 @@ public class MainActivity extends RoboActionBarActivity implements
                 .lift(errorDialog(this))
                 .map(UpdateChecker.UpdateDialogFragment::newInstance)
                 .subscribe(dialog -> dialog.show(getSupportFragmentManager(), null));
+    }
+
+
+    @Override
+    public void onBackStackChanged() {
+        updateToolbarBackButton();
     }
 
     private void updateToolbarBackButton() {
@@ -334,6 +347,7 @@ public class MainActivity extends RoboActionBarActivity implements
                     animation = null;
                 }
 
+                Log.i("MainActivity", "Toolbar is " + toolbar);
                 toolbar.setTranslationY(y);
             }
         }

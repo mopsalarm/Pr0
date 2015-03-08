@@ -54,6 +54,9 @@ public class PostFragment extends NestingFragment {
     @InjectView(R.id.info_line)
     private InfoLineView infoLineView;
 
+    @InjectView(R.id.scroll)
+    private VerticalScrollView scrollView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,16 +76,11 @@ public class PostFragment extends NestingFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        FragmentActivity activity = getActivity();
-//        if (activity instanceof MainActivity) {
-//            commentsView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-//                @Override
-//                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                    // forward scrolling events
-//                    ((MainActivity) activity).onScrollHideToolbarListener.onScrolled(dy);
-//                }
-//            });
-//        }
+        scrollView.setOnScrollListener((oldTop, top) -> {
+            int dy = top - oldTop;
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.onScrollHideToolbarListener.onScrolled(dy);
+        });
 
         swipeRefreshLayout.setOnRefreshListener(this::startLoadingInfo);
 
