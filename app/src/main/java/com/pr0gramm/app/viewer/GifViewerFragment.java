@@ -89,7 +89,7 @@ public class GifViewerFragment extends ViewerFragment {
             // dispatch the result
             if (result.isWebm()) {
                 Log.i("Gif2Webm", "Converted successfully, replace with webm fragment");
-                ViewerFragment webmFragment = VideoViewerFragment.newInstance(result.getUrl());
+                ViewerFragment webmFragment = VideoViewerFragment.newInstance(settings, result.getUrl());
                 getFragmentManager().beginTransaction()
                         .replace(getId(), webmFragment)
                         .commit();

@@ -31,9 +31,8 @@ public class ImageViewerFragment extends ViewerFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        int size = getMaxImageSize();
         picasso.load(getUrlArgument())
-                .resize(size, size)
+                .resize(1024, 2048)
                 .centerInside()
                 .onlyScaleDown()
                 .into(imageView, new HideBusyIndicator(this));
@@ -62,10 +61,5 @@ public class ImageViewerFragment extends ViewerFragment {
             //  just indicate that we are finished.
             onSuccess();
         }
-    }
-
-    private int getMaxImageSize() {
-        // TODO figure something cool out here.
-        return 1024;
     }
 }

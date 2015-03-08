@@ -45,6 +45,9 @@ public class PostFragment extends NestingFragment {
     @Inject
     private VoteService voteService;
 
+    @Inject
+    private Settings settings;
+
     @InjectView(R.id.comments)
     private RecyclerView commentsView;
 
@@ -136,7 +139,7 @@ public class PostFragment extends NestingFragment {
 
         // initialize the viewer
         String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        ViewerFragment viewer = ViewerFragment.newInstance(url);
+        ViewerFragment viewer = ViewerFragment.newInstance(settings, url);
 
         // and add the player to the view.
         getChildFragmentManager().beginTransaction()

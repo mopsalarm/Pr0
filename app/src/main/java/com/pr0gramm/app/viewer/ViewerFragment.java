@@ -1,20 +1,32 @@
 package com.pr0gramm.app.viewer;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.pr0gramm.app.NestingFragment;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 
 import roboguice.inject.InjectView;
+
+import static java.lang.System.identityHashCode;
 
 /**
  */
 public abstract class ViewerFragment extends NestingFragment {
+    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
+
+    protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
+            identityHashCode(this), Character.MAX_RADIX);
+
     @Nullable
     @InjectView(R.id.progress)
     private View progress;
@@ -70,12 +82,16 @@ public abstract class ViewerFragment extends NestingFragment {
      * @param url The url that should be displayed.
      * @return A new {@link ViewerFragment} instance.
      */
-    public static ViewerFragment newInstance(String url) {
+    public static ViewerFragment newInstance(Settings settings, String url) {
         ViewerFragment result;
         if (url.toLowerCase().endsWith(".webm")) {
-            result = new VideoViewerFragment();
+            result = settings.useCompatVideoPlayer()
+                    ? new VideoCompatViewerFragment()
+                    : new VideoViewerFragment();
+
         } else if (url.toLowerCase().endsWith(".gif")) {
             result = new GifViewerFragment();
+
         } else {
             result = new ImageViewerFragment();
         }
@@ -86,4 +102,44 @@ public abstract class ViewerFragment extends NestingFragment {
         result.setArguments(arguments);
         return result;
     }
+
+
+    /**
+     * Resizes the video view while keeping the given aspect ratio.
+     */
+    protected void resizeViewerView(View view, float aspect, int retries) {
+        Log.i(TAG, "Setting aspect of viewer View to " + aspect);
+
+        if (view.getWindowToken() == null)
+            return;
+
+        ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            int parentWidth = ((View) parent).getWidth();
+            if (parentWidth == 0) {
+                // relayout again in a short moment
+                if (retries > 0) {
+                    Log.i(TAG, "Delay resizing of View for 100ms");
+                    HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+                }
+
+                return;
+            }
+
+            int newHeight = (int) (parentWidth / aspect);
+            if (view.getHeight() == newHeight) {
+                Log.i(TAG, "View already correctly sized at " + parentWidth + "x" + newHeight);
+                return;
+            }
+
+            Log.i(TAG, "Setting size of View to " + parentWidth + "x" + newHeight);
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            params.height = newHeight;
+            view.setLayoutParams(params);
+
+        } else {
+            Log.w(TAG, "View has no parent, can not set size.");
+        }
+    }
+
 }

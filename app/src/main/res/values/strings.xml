@@ -72,4 +72,7 @@
     <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Go and diss cha0os</string>
     <string name="error_conversion">An error occurred while decoding the api response</string>
     <string name="error_oom">The app ran of memory. I am working on that.</string>
+    <string name="pref_webm_use_compat_viewer">Compatibility mode for webm</string>
+    <string name="pref_webm_use_compat_viewer_on">More stable, but restarts video on rotation</string>
+    <string name="pref_webm_use_compat_viewer_off">Might be less stable, but less restarts</string>
 </resources>

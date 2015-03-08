@@ -32,6 +32,13 @@
         android:title="@string/pref_compatibility">
 
         <CheckBoxPreference
+            android:key="pref_webm_use_compat_viewer"
+            android:title="@string/pref_webm_use_compat_viewer"
+            android:summaryOn="@string/pref_webm_use_compat_viewer_on"
+            android:summaryOff="@string/pref_webm_use_compat_viewer_off"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
             android:key="pref_load_gif_in_memory"
             android:title="@string/pref_load_gif_in_memory"
             android:summaryOn="@string/pref_load_gif_in_memory_on"

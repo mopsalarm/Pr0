@@ -1,17 +1,15 @@
 package com.pr0gramm.app.viewer;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
 import com.pr0gramm.app.MediaPlayerService;
 import com.pr0gramm.app.R;
@@ -22,11 +20,10 @@ import static java.lang.System.identityHashCode;
 
 /**
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class VideoViewerFragment extends ViewerFragment {
     private final String TAG = "Pr0Player " + Integer.toString(
             identityHashCode(this), Character.MAX_RADIX);
-
-    private static final Handler handler = new Handler(Looper.getMainLooper());
 
     @InjectView(R.id.video)
     private TextureView videoView;
@@ -71,9 +68,10 @@ public class VideoViewerFragment extends ViewerFragment {
 
             // loop 10/10
             mp.setLooping(true);
+            mp.setVolume(0, 0);
 
             // size of the video
-            resizeVideoView(mp.getVideoWidth() / (float) mp.getVideoHeight(), 10);
+            resizeViewerView(videoView, mp.getVideoWidth() / (float) mp.getVideoHeight(), 10);
 
             // start playback.
             holder.getPlayer().start();
@@ -112,41 +110,6 @@ public class VideoViewerFragment extends ViewerFragment {
         textureListener.destroy();
 
         super.onDestroy();
-    }
-
-    /**
-     * Resizes the video view while keeping the given aspect ratio.
-     */
-    private void resizeVideoView(float aspect, int retries) {
-        Log.i(TAG, "Setting aspect of the TextureView to " + aspect);
-
-        ViewParent parent = videoView.getParent();
-        if (parent instanceof View) {
-            int parentWidth = ((View) parent).getWidth();
-            if (parentWidth == 0) {
-                // relayout again in a short moment
-                if (retries > 0) {
-                    Log.i(TAG, "Delay resizing of TextureView for 100ms");
-                    handler.postDelayed(() -> resizeVideoView(aspect, retries - 1), 100);
-                }
-
-                return;
-            }
-
-            int newHeight = (int) (parentWidth / aspect);
-            if (videoView.getHeight() == newHeight) {
-                Log.i(TAG, "View already correctly sized at " + parentWidth + "x" + newHeight);
-                return;
-            }
-
-            Log.i(TAG, "Setting size of TextureView to " + parentWidth + "x" + newHeight);
-            ViewGroup.LayoutParams params = videoView.getLayoutParams();
-            params.height = newHeight;
-            videoView.setLayoutParams(params);
-
-        } else {
-            Log.w(TAG, "TextureView has no parent, can not set size.");
-        }
     }
 
     private class VideoSurfaceTextureListener implements TextureView.SurfaceTextureListener {
