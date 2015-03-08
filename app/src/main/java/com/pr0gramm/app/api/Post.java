@@ -39,7 +39,7 @@ public class Post {
     }
 
     public static class Comment {
-        private int id;
+        private long id;
         private float confidence;
         private String name;
         private String content;
@@ -48,7 +48,7 @@ public class Post {
         private int up, down;
         private int mark;
 
-        public int getId() {
+        public long getId() {
             return id;
         }
 

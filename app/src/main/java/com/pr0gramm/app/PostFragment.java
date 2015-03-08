@@ -161,19 +161,29 @@ public class PostFragment extends NestingFragment {
         // update tags from post
         infoLineView.setTags(post.getTags());
 
-        // TODO Think of something nicer for the comments
-        // remove previous comments
-        for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
-            list.removeViewAt(idx);
+        bindFragment(this, voteService.getVotes(post.getComments())).subscribe(votes -> {
+            // TODO Think of something nicer for the comments :/
+            // remove previous comments
+            for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
+                list.removeViewAt(idx);
 
-        // and display the comments
-        CommentsAdapter adapter = new CommentsAdapter(post.getComments());
-        for (int idx = 0; idx < adapter.getItemCount(); idx++) {
-            CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
-            adapter.onBindViewHolder(view, idx);
+            // and display the comments
+            CommentsAdapter adapter = new CommentsAdapter(post.getComments());
+            adapter.setVoteCache(votes);
 
-            list.addView(view.itemView);
-        }
+            for (int idx = 0; idx < adapter.getItemCount(); idx++) {
+                CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
+                adapter.onBindViewHolder(view, idx);
+
+                list.addView(view.itemView);
+            }
+
+            adapter.setOnCommentVoteClickedListener((comment, vote) -> doIfAuthorized(this, () -> {
+                bindFragment(this, voteService.vote(comment, vote))
+                        .lift(errorDialog(this))
+                        .subscribe();
+            }));
+        });
     }
 
     public FeedItem getFeedItem() {

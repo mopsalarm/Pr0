@@ -5,21 +5,25 @@ import android.util.Log;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.Api;
+import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -46,6 +50,11 @@ public class VoteService {
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
         return api.vote(item.getId(), vote.getVoteValue());
+    }
+
+    public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
+        AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
+        return api.vote(comment.getId(), vote.getVoteValue());
     }
 
     /**
@@ -124,6 +133,19 @@ public class VoteService {
     public void clear() {
         Log.i(TAG, "Removing all items from vote cache");
         SugarRecord.deleteAll(CachedVote.class);
+    }
+
+    public Observable<Map<Long, Vote>> getVotes(List<Post.Comment> comments) {
+        return Async.start(() -> {
+            List<Long> ids = Lists.transform(comments, Post.Comment::getId);
+            List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);
+
+            Map<Long, Vote> result = new HashMap<>();
+            for (CachedVote cachedVote : cachedVotes)
+                result.put(cachedVote.itemId, cachedVote.vote);
+
+            return result;
+        }, Schedulers.io());
     }
 
     private static class VoteAction {
