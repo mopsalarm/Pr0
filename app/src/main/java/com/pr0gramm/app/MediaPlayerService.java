@@ -114,7 +114,6 @@ public class MediaPlayerService {
 
         public void destroy() {
             player.release();
-            // previous = null;
         }
     }
 }

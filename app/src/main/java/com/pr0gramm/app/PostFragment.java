@@ -17,6 +17,7 @@ import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.viewer.ViewerFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,15 +132,13 @@ public class PostFragment extends NestingFragment {
         if (fragment != null)
             return;
 
-        // initialize the player
-        Bundle arguments = new Bundle();
-        arguments.putString("mediaUrl", "http://img.pr0gramm.com/" + feedItem.getImage());
-        PlayerFragment player = new PlayerFragment();
-        player.setArguments(arguments);
+        // initialize the viewer
+        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
+        ViewerFragment viewer = ViewerFragment.newInstance(url);
 
         // and add the player to the view.
         getChildFragmentManager().beginTransaction()
-                .add(R.id.player_container, player)
+                .add(R.id.player_container, viewer)
                 .commit();
     }
 
