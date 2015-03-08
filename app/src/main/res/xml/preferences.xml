@@ -28,6 +28,21 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="prefcat_style"
+        android:title="@string/prefcat_style">
+
+        <ListPreference
+            android:key="pref_seen_indicator_style"
+            android:title="@string/pref_seen_indicator_style"
+            android:entries="@array/pref_seen_indicator_style_human"
+            android:entryValues="@array/pref_seen_indicator_style_values"
+            android:defaultValue="@string/pref_seen_indicator_style_default"
+            android:summary="@string/pref_seen_indicator_style_summary"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="prefcat_compatibility"
         android:title="@string/pref_compatibility">
 

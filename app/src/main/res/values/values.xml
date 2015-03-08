@@ -15,4 +15,19 @@
     </string-array>
 
     <string name="pref_max_image_size_default" translatable="false">2048</string>
+
+    <string-array name="pref_seen_indicator_style_human">
+        <item>@string/indicator_none</item>
+        <item>@string/indicator_icon</item>
+        <!-- <item>@string/indicator_alpha</item> -->
+    </string-array>
+
+    <!-- keep in sync with IndicatorStyle enum -->
+    <string-array name="pref_seen_indicator_style_values">
+        <item>NONE</item>
+        <item>ICON</item>
+        <!-- <item>ALPHA</item> -->
+    </string-array>
+
+    <string name="pref_seen_indicator_style_default" translatable="false">NONE</string>
 </resources>

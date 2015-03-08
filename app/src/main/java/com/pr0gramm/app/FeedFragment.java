@@ -45,11 +45,17 @@ public class FeedFragment extends RoboFragment {
     @Inject
     private Picasso picasso;
 
-    @InjectView(R.id.list)
-    private RecyclerView recyclerView;
-
     @Inject
     private SharedPreferences sharedPreferences;
+
+    @Inject
+    private SeenService seenService;
+
+    @Inject
+    private Settings settings;
+
+    @InjectView(R.id.list)
+    private RecyclerView recyclerView;
 
     @InjectView(R.id.progress)
     private View progressView;
@@ -58,14 +64,9 @@ public class FeedFragment extends RoboFragment {
     private CustomSwipeRefreshLayout swipeRefreshLayout;
 
     private FeedAdapter adapter;
-
     private GridLayoutManager layoutManager;
+    private IndicatorStyle seenIndicatorStyle;
 
-    @Inject
-    private SeenService seenService;
-
-    @Inject
-    private Settings settings;
 
     /**
      * Initialize a new feed fragment.
@@ -91,6 +92,8 @@ public class FeedFragment extends RoboFragment {
             adapter = newFeedAdapter();
             progressView.setVisibility(View.VISIBLE);
         }
+
+        seenIndicatorStyle = settings.seenIndicatorStyle();
 
         // prepare the list of items
         int count = getThumbnailColumns();
@@ -141,6 +144,12 @@ public class FeedFragment extends RoboFragment {
         if (changed) {
             Query newQuery = query.withContentType(settings.getContentType());
             setNewQuery(newQuery);
+        }
+
+        // set new indicator style
+        if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
+            seenIndicatorStyle = settings.seenIndicatorStyle();
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -350,7 +359,11 @@ public class FeedFragment extends RoboFragment {
             view.itemView.setPadding(0, row == 0 ? AndroidUtility.getActionBarSize(getActivity()) : 0, 0, 0);
 
             // check if this item was already seen.
-            view.seen.setVisibility(seenService.isSeen(item) ? View.VISIBLE : View.GONE);
+            if (seenIndicatorStyle == IndicatorStyle.ICON) {
+                view.seen.setVisibility(seenService.isSeen(item) ? View.VISIBLE : View.GONE);
+            } else {
+                view.seen.setVisibility(View.GONE);
+            }
         }
 
         @Override

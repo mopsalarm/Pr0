@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.common.base.Enums;
 import com.google.inject.Singleton;
 
 import java.util.EnumSet;
@@ -88,6 +89,11 @@ public class Settings {
 
     public int maxImageSize() {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
+    }
+
+    public IndicatorStyle seenIndicatorStyle() {
+        String value = preferences.getString("pref_seen_indicator_style", IndicatorStyle.NONE.toString());
+        return Enums.getIfPresent(IndicatorStyle.class, value).or(IndicatorStyle.NONE);
     }
 
     public static Settings of(Context context) {
