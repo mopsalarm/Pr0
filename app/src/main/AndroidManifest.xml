@@ -19,6 +19,19 @@
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
 
+        <!-- Sugar ORM configuration -->
+        <meta-data
+            android:name="DATABASE"
+            android:value="pr0gramm.db"/>
+        <meta-data
+            android:name="VERSION"
+            android:value="2"/>
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true"/>
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="com.pr0gramm.app.orm"/>
 
         <activity
             android:name="com.pr0gramm.app.MainActivity"

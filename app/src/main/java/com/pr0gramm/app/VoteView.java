@@ -24,17 +24,12 @@ public class VoteView extends LinearLayout {
 
     private OnVoteListener onVoteListener;
     private Vote state;
-    InfoLineView infoLineView;
 
     private FeedItem feedItem;
 
     public VoteView(Context context) {
         this(context, null);
 
-    }
-    public void setInfoLineView(InfoLineView iv)
-    {
-        infoLineView=iv;
     }
 
     public VoteView(Context context, AttributeSet attrs) {
@@ -96,11 +91,11 @@ public class VoteView extends LinearLayout {
         }
 
         // set initial voting state
-        setVote(Vote.NEUTRAL);
+        setVote(Vote.NEUTRAL, true);
 
         // register listeners
         viewRateUp.setOnClickListener(v -> {
-            setVote(state == Vote.UP ? Vote.NEUTRAL : Vote.UP);
+            setVote((state == Vote.UP || state == Vote.FAVORITE) ? Vote.NEUTRAL : Vote.UP);
         });
 
         viewRateDown.setOnClickListener(v -> {
@@ -133,40 +128,51 @@ public class VoteView extends LinearLayout {
     }
 
     public void setVote(Vote vote) {
+        setVote(vote, false);
+    }
+
+    public void setVote(Vote vote, boolean force) {
         if (state == vote)
             return;
 
         // check with listener, if we really want to do the vote.
-        if (onVoteListener != null && !onVoteListener.onVoteClicked(vote))
+        if (!force && onVoteListener != null && !onVoteListener.onVoteClicked(vote))
             return;
 
-        final int duration = 500;
+        // set new voting state
+        state = vote;
 
-        if (vote == Vote.NEUTRAL) {
+        boolean animated = !force && isAnimated();
+        updateVoteViewState(animated);
+    }
+
+    private void updateVoteViewState(boolean animated) {
+        final int duration = animated ? 500 : 0;
+
+        if (state == Vote.NEUTRAL) {
             viewRateUp.setTextColor(defaultColor);
             viewRateDown.setTextColor(defaultColor);
             viewRateUp.animate().rotation(0).alpha(1f).setDuration(duration).start();
             viewRateDown.animate().rotation(0).alpha(1f).setDuration(duration).start();
         }
 
-        if (vote == Vote.UP) {
+        if (state == Vote.UP || state == Vote.FAVORITE) {
             viewRateUp.setTextColor(markedColor);
             viewRateDown.setTextColor(defaultColor);
             viewRateUp.animate().rotation(360).alpha(1f).setDuration(duration).start();
             viewRateDown.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
-            infoLineView.VoteUP();
         }
 
-        if (vote == Vote.DOWN) {
+        if (state == Vote.DOWN) {
             viewRateUp.setTextColor(defaultColor);
             viewRateDown.setTextColor(markedColor);
             viewRateUp.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
             viewRateDown.animate().rotation(360).alpha(1f).setDuration(duration).start();
-            infoLineView.VoteDown();
         }
+    }
 
-        // set new voting state
-        state = vote;
+    private boolean isAnimated() {
+        return true;
     }
 
     /**

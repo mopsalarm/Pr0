@@ -3,7 +3,7 @@ package com.pr0gramm.app.feed;
 /**
  */
 public enum Vote {
-    DOWN(-1), NEUTRAL(0), UP(1);
+    DOWN(-1), NEUTRAL(0), UP(1), FAVORITE(1);
     private final int voteValue;
 
     Vote(int voteValue) {

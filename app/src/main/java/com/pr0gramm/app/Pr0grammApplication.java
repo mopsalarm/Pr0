@@ -1,8 +1,7 @@
 package com.pr0gramm.app;
 
-import android.app.Application;
-
 import com.crashlytics.android.Crashlytics;
+import com.orm.SugarApp;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -14,7 +13,7 @@ import rx.plugins.RxJavaPlugins;
 /**
  * Global application class for pr0gramm app.
  */
-public class Pr0grammApplication extends Application {
+public class Pr0grammApplication extends SugarApp {
     public Pr0grammApplication() {
 
         // handle exceptions!

@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.viewer.ViewerFragment;
 
 import javax.inject.Inject;
@@ -110,16 +111,18 @@ public class PostFragment extends NestingFragment {
     }
 
     private void initializeInfoLine() {
+        // get the vote from the service
+        Observable<Vote> cachedVote = voteService.getVote(feedItem);
+
         // display the feed item in the view
-        infoLineView.setFeedItem(feedItem);
+        infoLineView.setFeedItem(feedItem, bindFragment(this, cachedVote));
 
         infoLineView.setOnTagClickedListener(tag -> {
             ((MainActivity) getActivity()).onTagClicked(tag);
         });
 
         // register the vote listener
-        VoteView voteView = infoLineView.getVoteView();
-        voteView.setOnVoteListener(vote -> doIfAuthorized(PostFragment.this, () -> {
+        infoLineView.setOnVoteListener(vote -> doIfAuthorized(PostFragment.this, () -> {
             bindFragment(this, voteService.vote(feedItem, vote))
                     .lift(errorDialog(this))
                     .subscribe();

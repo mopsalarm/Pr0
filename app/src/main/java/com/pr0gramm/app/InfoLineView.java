@@ -13,9 +13,13 @@ import android.widget.TextView;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.feed.Vote;
 
 import java.util.List;
 
+import rx.Observable;
+
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
@@ -28,6 +32,7 @@ public class InfoLineView extends LinearLayout {
     private final RecyclerView tagsView;
 
     private OnTagClickedListener onTagClickedListener;
+    private VoteView.OnVoteListener onVoteListener;
 
     private FeedItem feedItem;
 
@@ -54,27 +59,33 @@ public class InfoLineView extends LinearLayout {
         tagsView = (RecyclerView) findViewById(R.id.tags);
         tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
 
-        voteView.setInfoLineView(this);
+        voteView.setOnVoteListener(newVote -> {
+            boolean changed = onVoteListener != null && onVoteListener.onVoteClicked(newVote);
+            if (changed)
+                updateRatingView(newVote);
+
+            return changed;
+        });
     }
 
-    public void setFeedItem(FeedItem item) {
+    public void setFeedItem(FeedItem item, Observable<Vote> vote) {
         this.feedItem = item;
 
         // update the views!
         usernameView.setUsername(item.getUser(), item.getMark());
-        ratingView.setText(String.valueOf(item.getUp() - item.getDown()));
         dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
+        updateRatingView(Vote.NEUTRAL);
 
-        // TODO we need the voting from the database here.
-        // voteView.setVote(item.getVote());
+        vote.subscribe(v -> {
+            checkMainThread();
+            voteView.setVote(v, true);
+            updateRatingView(v);
+        });
     }
 
-    public void VoteUP() {
-        ratingView.setText(String.valueOf((feedItem.getUp() - feedItem.getDown()) + 1));
-    }
-
-    public void VoteDown() {
-        ratingView.setText(String.valueOf((feedItem.getUp() - feedItem.getDown()) - 1));
+    private void updateRatingView(Vote vote) {
+        int rating = feedItem.getUp() - feedItem.getDown() + vote.getVoteValue();
+        ratingView.setText(String.valueOf(rating));
     }
 
     public void setTags(List<Post.Tag> tags) {
@@ -85,28 +96,20 @@ public class InfoLineView extends LinearLayout {
         tagsView.setAdapter(new TagsAdapter(sorted));
     }
 
-    public UsernameView getUsernameView() {
-        return usernameView;
-    }
-
-    public TextView getRatingView() {
-        return ratingView;
-    }
-
-    public VoteView getVoteView() {
-        return voteView;
-    }
-
-    public FeedItem getFeedItem() {
-        return feedItem;
-    }
-
     public OnTagClickedListener getOnTagClickedListener() {
         return onTagClickedListener;
     }
 
     public void setOnTagClickedListener(OnTagClickedListener onTagClickedListener) {
         this.onTagClickedListener = onTagClickedListener;
+    }
+
+    public VoteView.OnVoteListener getOnVoteListener() {
+        return onVoteListener;
+    }
+
+    public void setOnVoteListener(VoteView.OnVoteListener onVoteListener) {
+        this.onVoteListener = onVoteListener;
     }
 
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
