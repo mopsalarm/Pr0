@@ -10,17 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.viewer.ViewerFragment;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -95,7 +88,8 @@ public class PostFragment extends NestingFragment {
         // FIXME initialize adapter for views
         // adapter = new GenericAdapter();
         // commentsView.setAdapter(adapter);
-        commentsView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        commentsView.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false));
 
         initializePlayerFragment();
         initializeInfoLine();
@@ -158,9 +152,9 @@ public class PostFragment extends NestingFragment {
         // update tags from post
         infoLineView.setTags(post.getTags());
 
-        List<Post.Comment> comments = sort(post.getComments());
-        // FIXME adapter.addAll(new CommentViewType(comments), comments);
-
+        // and display the comments
+        CommentsAdapter adapter = new CommentsAdapter(post.getComments());
+        commentsView.setAdapter(adapter);
     }
 
     public FeedItem getFeedItem() {
@@ -203,31 +197,4 @@ public class PostFragment extends NestingFragment {
 
         return fragment;
     }
-
-    /**
-     * "Flattens" a list of hierarchical comments to a sorted list of comments.
-     *
-     * @param comments The comments to sort
-     */
-    public static List<Post.Comment> sort(List<Post.Comment> comments) {
-        ImmutableListMultimap<Integer, Post.Comment> byParent =
-                Multimaps.index(comments, Post.Comment::getParent);
-
-        ArrayList<Post.Comment> result = new ArrayList<>();
-        appendChildComments(result, byParent, 0);
-        return result;
-    }
-
-    private static void appendChildComments(List<Post.Comment> target,
-                                            ListMultimap<Integer, Post.Comment> byParent, int id) {
-
-        List<Post.Comment> children = COMMENT_BY_CONFIDENCE.sortedCopy(byParent.get(id));
-        for (Post.Comment child : children) {
-            target.add(child);
-            appendChildComments(target, byParent, child.getId());
-        }
-    }
-
-    private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =
-            Ordering.natural().reverse().onResultOf(Post.Comment::getConfidence);
 }

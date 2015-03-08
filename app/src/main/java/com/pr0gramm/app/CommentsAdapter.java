@@ -8,10 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.Post;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static android.view.ViewGroup.MarginLayoutParams;
@@ -19,11 +26,14 @@ import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
  */
-public class CommentViewType implements GenericAdapter.ViewType {
+public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final ImmutableMap<Integer, Post.Comment> byId;
+    private final ImmutableList<Post.Comment> comments;
 
-    public CommentViewType(List<Post.Comment> comments) {
-        this.byId = Maps.uniqueIndex(comments, Post.Comment::getId);
+    public CommentsAdapter(Collection<Post.Comment> comments) {
+        setHasStableIds(true);
+        this.comments = ImmutableList.copyOf(sort(comments));
+        this.byId = Maps.uniqueIndex(this.comments, Post.Comment::getId);
     }
 
     private int getCommentDepth(Post.Comment comment) {
@@ -37,12 +47,7 @@ public class CommentViewType implements GenericAdapter.ViewType {
     }
 
     @Override
-    public long getId(Object object) {
-        return ((Post.Comment) object).getId();
-    }
-
-    @Override
-    public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
+    public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.comment, parent, false);
@@ -51,8 +56,8 @@ public class CommentViewType implements GenericAdapter.ViewType {
     }
 
     @Override
-    public void bind(RecyclerView.ViewHolder holder, Object object) {
-        Post.Comment comment = (Post.Comment) object;
+    public void onBindViewHolder(CommentView holder, int position) {
+        Post.Comment comment = comments.get(position);
 
         CommentView view = (CommentView) holder;
         view.setCommentDepth(getCommentDepth(comment));
@@ -70,6 +75,16 @@ public class CommentViewType implements GenericAdapter.ViewType {
         // and the date of the post
         CharSequence date = getRelativeTimeSpanString(context, comment.getCreated());
         view.date.setText(date);
+    }
+
+    @Override
+    public int getItemCount() {
+        return comments.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return comments.get(position).getId();
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
@@ -98,4 +113,32 @@ public class CommentViewType implements GenericAdapter.ViewType {
             params.leftMargin = baseLeftMargin * depth;
         }
     }
+
+
+    /**
+     * "Flattens" a list of hierarchical comments to a sorted list of comments.
+     *
+     * @param comments The comments to sort
+     */
+    private static List<Post.Comment> sort(Collection<Post.Comment> comments) {
+        ImmutableListMultimap<Integer, Post.Comment> byParent =
+                Multimaps.index(comments, Post.Comment::getParent);
+
+        ArrayList<Post.Comment> result = new ArrayList<>();
+        appendChildComments(result, byParent, 0);
+        return result;
+    }
+
+    private static void appendChildComments(List<Post.Comment> target,
+                                            ListMultimap<Integer, Post.Comment> byParent, int id) {
+
+        List<Post.Comment> children = COMMENT_BY_CONFIDENCE.sortedCopy(byParent.get(id));
+        for (Post.Comment child : children) {
+            target.add(child);
+            appendChildComments(target, byParent, child.getId());
+        }
+    }
+
+    private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =
+            Ordering.natural().reverse().onResultOf(Post.Comment::getConfidence);
 }
