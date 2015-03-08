@@ -1,5 +1,6 @@
 package com.pr0gramm.app.viewer;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -85,7 +86,14 @@ public abstract class ViewerFragment extends NestingFragment {
     public static ViewerFragment newInstance(Settings settings, String url) {
         ViewerFragment result;
         if (url.toLowerCase().endsWith(".webm")) {
-            result = settings.useCompatVideoPlayer()
+            boolean useCompatVideoPlayer = settings.useCompatVideoPlayer();
+
+            // we use a api that is not available in ICS, so we need to
+            // fallback to the compat player before jelly bean.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+                useCompatVideoPlayer = true;
+
+            result = useCompatVideoPlayer
                     ? new VideoCompatViewerFragment()
                     : new VideoViewerFragment();
 
