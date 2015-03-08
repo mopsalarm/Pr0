@@ -30,11 +30,11 @@
     <string name="hint_password">Passwort</string>
     <string name="login">Login</string>
     <string name="must_not_be_empty">Darf nicht leer sein</string>
-    <string name="login_not_successful">Login nicht erfolgreich. Passwort/Benutzer falsch. Bist du Gebannt?</string>
+    <string name="login_not_successful">Login nicht erfolgreich. Passwort/Benutzer falsch. Bist du gebannt?</string>
     <string name="menu_login">Login</string>
     <string name="pr0gramm">pr0gramm</string>
     <string name="please_wait">Bitte warten</string>
-    <string name="banned">Du bist gebannt bis %1$s. Grund: %2$s</string>
+    <string name="banned">Du bist bis %1$s gebannt. Grund: %2$s</string>
 
     <string name="pref_feed_type_sfw_on">Zeige <i>safe for work</i> posts</string>
     <string name="pref_feed_type_sfw_off">Zeige keine <i>safe for work</i> posts</string>
@@ -44,15 +44,15 @@
     <string name="pref_feed_type_nsfl_off">Zeige keine <i>not safe for life</i> posts</string>
     <string name="pref_feed_types">Filter</string>
     <string name="pref_compatibility">Kompalibilität</string>
-    <string name="pref_load_gif_in_memory">In Speicher GIF decodierung</string>
-    <string name="pref_load_gif_in_memory_on">Lädt GIF in Speicher. Kann Speicher-Fehler auf alten Geräten verursachen</string>
-    <string name="pref_load_gif_in_memory_off">Speichere GIF in ein temporäres File</string>
+    <string name="pref_load_gif_in_memory">GIF im Speicher dekodieren</string>
+    <string name="pref_load_gif_in_memory_on">Lädt GIF in Speicher. Kann Speicherfehler auf alten Geräten verursachen</string>
+    <string name="pref_load_gif_in_memory_off">Speichere GIF in eine temporäre Datei</string>
     <string name="settings">Einstellungen</string>
     <string name="pref_privacy">Privatsphäre</string>
-    <string name="pref_crashlytics_enabled">Sende anonyme Bug reports</string>
-    <string name="pref_crashlytics_enabled_on">Sende anonyme Bug reports</string>
+    <string name="pref_crashlytics_enabled">Anonyme Bugreports</string>
+    <string name="pref_crashlytics_enabled_on">Sende anonyme Bugreports wenn ein Fehler auftritt</string>
     <string name="pref_crashlytics_enabled_off">Deaktivieren macht das Leben für die Entwickler schwerer</string>
-    <string name="new_update_available">Neues Update verfügbar du kannst die Checks in den Einstellungen deaktivieren. %s</string>
+    <string name="new_update_available">Neues Update verfügbar du kannst die Überprüfung in den Einstellungen deaktivieren. Neu: %s</string>
     <string name="download">Download</string>
     <string name="pref_check_for_updates">Auf Update prüfen</string>
     <string name="pref_check_for_updates_on">Automatisch auf Updates prüfen</string>
@@ -67,9 +67,18 @@
     <string name="error_not_authorized">Schaut so aus als wärst du nicht angemeldet oder gebannt.</string>
     <string name="error_not_found">Das konnte ich leider nicht finden (Error 404)</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
-    <string name="error_exception_of_type">Allgemeiner Fehler: %s</string>
+    <string name="error_exception_of_type">Es ist ein Fehler ohne weitere Nachricht aufgetreten: %s</string>
     <string name="error_connect_exception">Kann nicht zu Host %s verbinden</string>
     <string name="error_service_unavailable">Pr0gramm ist nicht verfügbar. (ERROR 500). Diss cha0s</string>
     <string name="error_conversion">Ein fehler ist bei der Decodierung der API passiert.</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Wir Arbeiten daran</string>
+    <string name="pref_max_image_size">Bildgröße</string>
+    <string name="pref_max_image_size_summary">Wähle einen höheren Wert für bessere Darstellung bei 'musste scrollen' Bildern</string>
+    <string name="pref_webm_use_compat_viewer">Webm Kompatibilitätsmodus</string>
+    <string name="pref_webm_use_compat_viewer_off">Instabiler, aber keine Neustarts bei Rotation</string>
+    <string name="pref_webm_use_compat_viewer_on">Stabiler, aber Neustart bei Rotation</string>
+    <string name="size_huge">Riesig</string>
+    <string name="size_large">Groß</string>
+    <string name="size_normal">Mittel</string>
+    <string name="size_small">Klein</string>
 </resources>
