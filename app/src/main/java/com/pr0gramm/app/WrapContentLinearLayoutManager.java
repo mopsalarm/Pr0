@@ -42,25 +42,20 @@ public class WrapContentLinearLayoutManager extends LinearLayoutManager {
                 }
             }
         }
-        switch (widthMode) {
-            case View.MeasureSpec.EXACTLY:
-                width = widthSize;
-            case View.MeasureSpec.AT_MOST:
-            case View.MeasureSpec.UNSPECIFIED:
-        }
 
-        switch (heightMode) {
-            case View.MeasureSpec.EXACTLY:
-                height = heightSize;
-            case View.MeasureSpec.AT_MOST:
-            case View.MeasureSpec.UNSPECIFIED:
-        }
+        if (widthMode == View.MeasureSpec.EXACTLY)
+            width = widthSize;
+
+        if (heightMode == View.MeasureSpec.EXACTLY)
+            height = heightSize;
+
 
         setMeasuredDimension(width, height);
     }
 
     private void measureScrapChild(RecyclerView.Recycler recycler, int position, int widthSpec,
                                    int heightSpec, int[] measuredDimension) {
+
         View view = recycler.getViewForPosition(position);
         if (view != null) {
             RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();

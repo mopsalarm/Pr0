@@ -12,6 +12,7 @@
         android:overScrollMode="never">
 
         <LinearLayout
+            android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -27,11 +28,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
+            <!-- RecyclerView inside of scroll view is not a good idea.
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/comments"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="500dp"
                 android:overScrollMode="never"/>
+            -->
         </LinearLayout>
     </com.pr0gramm.app.VerticalScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

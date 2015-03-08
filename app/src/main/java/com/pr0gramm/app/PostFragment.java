@@ -4,11 +4,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
@@ -41,8 +40,8 @@ public class PostFragment extends NestingFragment {
     @Inject
     private Settings settings;
 
-    @InjectView(R.id.comments)
-    private RecyclerView commentsView;
+    @InjectView(R.id.list)
+    private LinearLayout list;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -85,11 +84,9 @@ public class PostFragment extends NestingFragment {
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
-        // FIXME initialize adapter for views
-        // adapter = new GenericAdapter();
-        // commentsView.setAdapter(adapter);
-        commentsView.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+        // TODO Think of something nicer for the comments
+        // commentsView.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
+        //         LinearLayoutManager.VERTICAL, false));
 
         initializePlayerFragment();
         initializeInfoLine();
@@ -152,41 +149,20 @@ public class PostFragment extends NestingFragment {
         // update tags from post
         infoLineView.setTags(post.getTags());
 
+        // TODO Think of something nicer for the comments
         // and display the comments
         CommentsAdapter adapter = new CommentsAdapter(post.getComments());
-        commentsView.setAdapter(adapter);
+        for (int idx = 0; idx < adapter.getItemCount(); idx++) {
+            CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
+            adapter.onBindViewHolder(view, idx);
+
+            list.addView(view.itemView);
+        }
     }
 
     public FeedItem getFeedItem() {
         return feedItem;
     }
-
-//    private static class StaticViewType implements GenericAdapter.ViewType {
-//        private final long id;
-//        private final View view;
-//
-//        private StaticViewType(long id, View view) {
-//            this.id = id;
-//            this.view = view;
-//        }
-//
-//        @Override
-//        public long getId(Object object) {
-//            return id;
-//        }
-//
-//        @Override
-//        public RecyclerView.ViewHolder newViewHolder(ViewGroup parent) {
-//            // just return the view as is.
-//            return new RecyclerView.ViewHolder(view) {
-//            };
-//        }
-//
-//        @Override
-//        public void bind(RecyclerView.ViewHolder holder, Object object) {
-//            // do nothing on bind.
-//        }
-//    }
 
     public static PostFragment newInstance(FeedItem item) {
         Bundle arguments = new Bundle();

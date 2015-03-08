@@ -56,10 +56,14 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     @Override
-    public void onBindViewHolder(CommentView holder, int position) {
+    public void onViewRecycled(CommentView holder) {
+        super.onViewRecycled(holder);
+    }
+
+    @Override
+    public void onBindViewHolder(CommentView view, int position) {
         Post.Comment comment = comments.get(position);
 
-        CommentView view = (CommentView) holder;
         view.setCommentDepth(getCommentDepth(comment));
         view.name.setUsername(comment.getName(), comment.getMark());
 

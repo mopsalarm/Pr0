@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -347,7 +346,6 @@ public class MainActivity extends RoboActionBarActivity implements
                     animation = null;
                 }
 
-                Log.i("MainActivity", "Toolbar is " + toolbar);
                 toolbar.setTranslationY(y);
             }
         }
