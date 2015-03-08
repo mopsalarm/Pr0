@@ -30,6 +30,7 @@
             android:text="@string/dummy_rating"/>
 
         <com.pr0gramm.app.Pr0grammFontTextView
+            android:id="@+id/favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"

@@ -146,6 +146,10 @@ public class VoteView extends LinearLayout {
         updateVoteViewState(animated);
     }
 
+    public Vote getVote() {
+        return state;
+    }
+
     private void updateVoteViewState(boolean animated) {
         final int duration = animated ? 500 : 0;
 

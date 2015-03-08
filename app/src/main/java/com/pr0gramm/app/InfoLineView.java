@@ -20,6 +20,7 @@ import java.util.List;
 import rx.Observable;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static java.lang.Math.min;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
@@ -30,6 +31,7 @@ public class InfoLineView extends LinearLayout {
     private final TextView dateView;
     private final UsernameView usernameView;
     private final RecyclerView tagsView;
+    private final TextView voteFavoriteView;
 
     private OnTagClickedListener onTagClickedListener;
     private VoteView.OnVoteListener onVoteListener;
@@ -51,10 +53,11 @@ public class InfoLineView extends LinearLayout {
         setOrientation(VERTICAL);
 
         // get the views from the hierarchy
-        voteView = (VoteView) findViewById(R.id.voting);
         ratingView = (TextView) findViewById(R.id.rating);
         usernameView = (UsernameView) findViewById(R.id.username);
         dateView = (TextView) findViewById(R.id.date);
+        voteView = (VoteView) findViewById(R.id.voting);
+        voteFavoriteView = (TextView) findViewById(R.id.favorite);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
         tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -62,30 +65,59 @@ public class InfoLineView extends LinearLayout {
         voteView.setOnVoteListener(newVote -> {
             boolean changed = onVoteListener != null && onVoteListener.onVoteClicked(newVote);
             if (changed)
-                updateRatingView(newVote);
+                updateViewState(newVote);
 
             return changed;
         });
+
+        voteFavoriteView.setOnClickListener(v -> {
+            Vote currentVote = voteView.getVote();
+            if (currentVote == Vote.FAVORITE) {
+                voteView.setVote(Vote.UP);
+            } else {
+                voteView.setVote(Vote.FAVORITE);
+            }
+        });
     }
 
+    /**
+     * Displays the given {@link com.pr0gramm.app.feed.FeedItem} along with
+     * the given vote.
+     *
+     * @param item The item to display
+     * @param vote The vote that belongs to the given item.
+     */
     public void setFeedItem(FeedItem item, Observable<Vote> vote) {
         this.feedItem = item;
 
         // update the views!
         usernameView.setUsername(item.getUser(), item.getMark());
         dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
-        updateRatingView(Vote.NEUTRAL);
+        updateViewState(Vote.NEUTRAL);
 
         vote.subscribe(v -> {
             checkMainThread();
             voteView.setVote(v, true);
-            updateRatingView(v);
+
+            updateViewState(v);
         });
     }
 
-    private void updateRatingView(Vote vote) {
-        int rating = feedItem.getUp() - feedItem.getDown() + vote.getVoteValue();
+    /**
+     * Updates the rating using the currently set feed item and the given vote.
+     *
+     * @param vote The vote that is currently selected.
+     */
+    private void updateViewState(Vote vote) {
+        if (feedItem == null)
+            return;
+
+        int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
         ratingView.setText(String.valueOf(rating));
+
+        voteFavoriteView.setTextColor(vote == Vote.FAVORITE
+                ? voteView.getMarkedColor()
+                : voteView.getDefaultColor());
     }
 
     public void setTags(List<Post.Tag> tags) {

@@ -1,5 +1,6 @@
 package com.pr0gramm.app;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.common.cache.Cache;
@@ -15,7 +16,6 @@ import com.pr0gramm.app.orm.PostMetaData;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.orm.PostMetaData.findByItemId;
@@ -42,19 +42,7 @@ public class VoteService {
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
         voteCache.put(item.getId(), vote);
-        Async.start(() -> {
-            SugarTransactionHelper.doInTansaction(() -> {
-                // check for a previous item
-                PostMetaData metaData = findByItemId(item.getId());
-                if (metaData == null)
-                    metaData = new PostMetaData(item.getId());
-
-                // and store an item in the database
-                metaData.vote = vote;
-                metaData.save();
-            });
-            return null;
-        }, Schedulers.io()).subscribe();
+        AsyncTask.execute(() -> storeVoteValueInTx(item.getId(), vote));
 
         return api.vote(item.getId(), vote.getVoteValue());
     }
@@ -72,5 +60,37 @@ public class VoteService {
                     Log.i("VoteService", "Meta is " + meta);
                     return meta != null ? meta.vote : Vote.NEUTRAL;
                 });
+    }
+
+    /**
+     * Stores the vote value. This creates a transaction to prevent lost updates.
+     *
+     * @param itemId The id of the item to vote
+     * @param vote   The vote to store for that item
+     */
+    public void storeVoteValueInTx(long itemId, Vote vote) {
+        SugarTransactionHelper.doInTansaction(() -> {
+            storeVoteValue(itemId, vote);
+
+        });
+    }
+
+    /**
+     * Stores a vote value for an item with the given id.
+     * This method must be called inside of an transaction to guarantee
+     * consistency.
+     *
+     * @param itemId The id of the item to vote
+     * @param vote   The vote to store for that item
+     */
+    public void storeVoteValue(long itemId, Vote vote) {
+        // check for a previous item
+        PostMetaData metaData = findByItemId(itemId);
+        if (metaData == null)
+            metaData = new PostMetaData(itemId);
+
+        // and store an item in the database
+        metaData.vote = vote;
+        metaData.save();
     }
 }
