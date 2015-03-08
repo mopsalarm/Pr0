@@ -118,7 +118,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-
     /**
      * "Flattens" a list of hierarchical comments to a sorted list of comments.
      *

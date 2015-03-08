@@ -171,7 +171,9 @@ public class LoginDialogFragment extends RoboDialogFragment {
         }
     }
 
-    private static boolean doIfAuthorized(Context context, FragmentManager fm, Runnable runnable) {
+    private static boolean doIfAuthorized(Context context, FragmentManager fm, Runnable runnable,
+                                          Runnable retry) {
+
         UserService userService = RoboGuice
                 .getInjector(context)
                 .getInstance(UserService.class);
@@ -187,7 +189,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
             Log.i("LoginDialog", "not authorized, showing login dialog");
 
             LoginDialogFragment dialog = new LoginDialogFragment();
-            dialog.doOnLogin = runnable;
+            dialog.doOnLogin = retry;
             dialog.show(fm, null);
 
             return false;
@@ -195,10 +197,18 @@ public class LoginDialogFragment extends RoboDialogFragment {
     }
 
     public static boolean doIfAuthorized(Fragment fragment, Runnable runnable) {
-        return doIfAuthorized(fragment.getActivity(), fragment.getChildFragmentManager(), runnable);
+        return doIfAuthorized(fragment, runnable, null);
+    }
+
+    public static boolean doIfAuthorized(Fragment fragment, Runnable runnable, Runnable retry) {
+        return doIfAuthorized(fragment.getActivity(), fragment.getChildFragmentManager(), runnable, retry);
     }
 
     public static boolean doIfAuthorized(FragmentActivity fragment, Runnable runnable) {
-        return doIfAuthorized(fragment, fragment.getSupportFragmentManager(), runnable);
+        return doIfAuthorized(fragment, runnable, null);
+    }
+
+    public static boolean doIfAuthorized(FragmentActivity fragment, Runnable runnable, Runnable retry) {
+        return doIfAuthorized(fragment, fragment.getSupportFragmentManager(), runnable, retry);
     }
 }

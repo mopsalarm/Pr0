@@ -122,11 +122,16 @@ public class PostFragment extends NestingFragment {
         });
 
         // register the vote listener
-        infoLineView.setOnVoteListener(vote -> doIfAuthorized(PostFragment.this, () -> {
-            bindFragment(this, voteService.vote(feedItem, vote))
-                    .lift(errorDialog(this))
-                    .subscribe();
-        }));
+        infoLineView.setOnVoteListener(vote -> {
+            Runnable action = () -> {
+                bindFragment(this, voteService.vote(feedItem, vote))
+                        .lift(errorDialog(this))
+                        .subscribe();
+            };
+
+            Runnable retry = () -> infoLineView.getVoteView().setVote(vote);
+            return doIfAuthorized(PostFragment.this, action, retry);
+        });
     }
 
     private void initializePlayerFragment() {

@@ -30,6 +30,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
+import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
 import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -195,7 +196,11 @@ public class MainActivity extends RoboActionBarActivity implements
         }
 
         if (item.getItemId() == R.id.action_logout) {
-            userService.logout();
+            bindActivity(this, userService.logout())
+                    .lift(busyDialog(this))
+                    .lift(errorDialog(this))
+                    .subscribe();
+
             return true;
         }
 

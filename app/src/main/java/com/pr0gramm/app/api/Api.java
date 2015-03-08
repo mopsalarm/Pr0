@@ -27,12 +27,16 @@ public interface Api {
 
     @FormUrlEncoded
     @POST("/api/items/vote")
-    Observable<Nothing> vote(@Field("id") long id, @Field("state") int state);
+    Observable<Nothing> vote(@Field("id") long id, @Field("vote") int voteValue);
 
     @FormUrlEncoded
     @POST("/api/user/login")
     Observable<LoginResponse> login(
             @Field("name") String username,
             @Field("password") String password);
+
+    @GET("/api/user/sync")
+    Observable<SyncResponse> sync(@Query("lastId") long lastId);
+
 
 }

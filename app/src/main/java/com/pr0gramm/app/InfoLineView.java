@@ -120,6 +120,10 @@ public class InfoLineView extends LinearLayout {
                 : voteView.getDefaultColor());
     }
 
+    public VoteView getVoteView() {
+        return voteView;
+    }
+
     public void setTags(List<Post.Tag> tags) {
         List<Post.Tag> sorted = Ordering.natural().reverse()
                 .onResultOf(Post.Tag::getConfidence)
