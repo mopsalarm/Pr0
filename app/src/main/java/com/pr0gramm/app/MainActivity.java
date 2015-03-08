@@ -305,7 +305,13 @@ public class MainActivity extends RoboActionBarActivity implements
                 null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
-    public void onTabClicked(Post.Tag tag) {
+    /**
+     * Called if the user clicked on a task in a post. This should display
+     * a new search with the tag as query.
+     *
+     * @param tag The tag to search for.
+     */
+    public void onTagClicked(Post.Tag tag) {
         Query query = new Query().withTags(tag.getTag());
         gotoFeedFragment(query, true);
     }

@@ -117,6 +117,10 @@ public class PostFragment extends NestingFragment {
         // display the feed item in the view
         infoLineView.setFeedItem(feedItem);
 
+        infoLineView.setOnTagClickedListener(tag -> {
+            ((MainActivity) getActivity()).onTagClicked(tag);
+        });
+
         // register the vote listener
         VoteView voteView = infoLineView.getVoteView();
         voteView.setOnVoteListener(vote -> doIfAuthorized(PostFragment.this, () -> {
