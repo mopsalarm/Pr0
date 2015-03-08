@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -21,6 +22,9 @@ public class ImageViewerFragment extends ViewerFragment {
     private ImageView imageView;
 
     @Inject
+    private Settings settings;
+
+    @Inject
     private Picasso picasso;
 
     public ImageViewerFragment() {
@@ -32,7 +36,7 @@ public class ImageViewerFragment extends ViewerFragment {
         super.onViewCreated(view, savedInstanceState);
 
         picasso.load(getUrlArgument())
-                .resize(1024, 2048)
+                .resize(1024, settings.maxImageSize())
                 .centerInside()
                 .onlyScaleDown()
                 .into(imageView, new HideBusyIndicator(this));

@@ -38,6 +38,14 @@
             android:summaryOff="@string/pref_webm_use_compat_viewer_off"
             android:defaultValue="true"/>
 
+        <ListPreference
+            android:key="pref_max_image_size"
+            android:title="@string/pref_max_image_size"
+            android:entries="@array/pref_max_image_size_human"
+            android:entryValues="@array/pref_max_image_size_values"
+            android:defaultValue="@string/pref_max_image_size_default"
+            android:summary="@string/pref_max_image_size_summary"/>
+
         <CheckBoxPreference
             android:key="pref_load_gif_in_memory"
             android:title="@string/pref_load_gif_in_memory"

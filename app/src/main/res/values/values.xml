@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_max_image_size_human">
+        <item>@string/size_small</item>
+        <item>@string/size_normal</item>
+        <item>@string/size_large</item>
+        <item>@string/size_huge</item>
+    </string-array>
+
+    <string-array name="pref_max_image_size_values">
+        <item>1024</item>
+        <item>2048</item>
+        <item>3072</item>
+        <item>4096</item>
+    </string-array>
+
+    <string name="pref_max_image_size_default" translatable="false">2048</string>
+</resources>
