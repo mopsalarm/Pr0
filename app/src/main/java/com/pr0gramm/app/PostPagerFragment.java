@@ -35,6 +35,8 @@ public class PostPagerFragment extends NestingFragment {
     private FeedProxy proxy;
     private PostAdapter adapter;
 
+    private PostFragment activePostFragment;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -46,6 +48,14 @@ public class PostPagerFragment extends NestingFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+                updateActiveItem(position);
+            }
+        });
+
         // re-create the proxy for the stream
         if (proxy == null) {
             // create the proxy and use it as the source for the view pager.
@@ -53,7 +63,13 @@ public class PostPagerFragment extends NestingFragment {
             proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
 
             // create the adapter on the view
-            adapter = new PostAdapter(getChildFragmentManager(), proxy);
+            adapter = new PostAdapter(getChildFragmentManager(), proxy) {
+                @Override
+                public void finishUpdate(ViewGroup container) {
+                    super.finishUpdate(container);
+                    updateActiveItem(viewPager.getCurrentItem());
+                }
+            };
         }
 
         viewPager.setAdapter(adapter);
@@ -67,16 +83,29 @@ public class PostPagerFragment extends NestingFragment {
         Log.i("PostPager", "Starting at index: " + index);
         viewPager.setCurrentItem(index);
 
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
-                getArguments().putParcelable(ARG_START_ITEM, proxy.getItemAt(position));
-            }
-        });
-
         // reset the scrollbar here too
         ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+    }
+
+    private void updateActiveItem(int position) {
+        PostFragment newActiveFragment = (PostFragment) adapter.getFragment(position).orNull();
+        if (activePostFragment == newActiveFragment)
+            return;
+
+        Log.i("PostPager", "Setting feed item activate at " + position);
+
+        // store the position for the next call to {@link #onViewCreated}
+        FeedItem item = proxy.getItemAt(position);
+        getArguments().putParcelable(ARG_START_ITEM, item);
+
+        // deactivate previous item
+        if (activePostFragment != null)
+            activePostFragment.setActive(false);
+
+        // and activate the next one
+        activePostFragment = newActiveFragment;
+        if (activePostFragment != null)
+            activePostFragment.setActive(true);
     }
 
     /**

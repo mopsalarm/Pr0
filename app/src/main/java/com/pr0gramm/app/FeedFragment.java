@@ -62,6 +62,9 @@ public class FeedFragment extends RoboFragment {
     private GridLayoutManager layoutManager;
 
     @Inject
+    private SeenService seenService;
+
+    @Inject
     private Settings settings;
 
     /**
@@ -345,6 +348,9 @@ public class FeedFragment extends RoboFragment {
 
             int row = position / layoutManager.getSpanCount();
             view.itemView.setPadding(0, row == 0 ? AndroidUtility.getActionBarSize(getActivity()) : 0, 0, 0);
+
+            // check if this item was already seen.
+            view.seen.setVisibility(seenService.isSeen(item) ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -370,11 +376,13 @@ public class FeedFragment extends RoboFragment {
 
     private static class FeedItemViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;
+        private final ImageView seen;
 
         public FeedItemViewHolder(View itemView) {
             super(itemView);
 
             image = (ImageView) checkNotNull(itemView.findViewById(R.id.image));
+            seen = (ImageView) checkNotNull(itemView.findViewById(R.id.seen));
         }
     }
 }

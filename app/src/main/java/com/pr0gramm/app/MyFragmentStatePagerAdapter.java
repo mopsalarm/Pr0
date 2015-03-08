@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.base.Optional;
 import com.google.common.primitives.Longs;
 
 import java.util.HashMap;
@@ -45,6 +46,15 @@ public abstract class MyFragmentStatePagerAdapter extends PagerAdapter {
 
     @Override
     public void startUpdate(ViewGroup container) {
+    }
+
+    /**
+     * Gets the fragment for the given position, if one already exists.
+     *
+     * @param position The position of the fragment to get
+     */
+    public Optional<Fragment> getFragment(int position) {
+        return Optional.fromNullable(mFragments.get(getItemId(position)));
     }
 
     @Override

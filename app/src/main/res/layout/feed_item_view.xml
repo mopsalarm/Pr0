@@ -10,4 +10,12 @@
         android:layout_margin="2dp"
         android:background="#333"
         android:scaleType="centerCrop"/>
+
+    <ImageView
+        android:id="@+id/seen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:src="@drawable/ic_black_action_read"
+        android:tint="@color/primary"/>
 </FrameLayout>

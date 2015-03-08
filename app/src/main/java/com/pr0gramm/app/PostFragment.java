@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,9 @@ public class PostFragment extends NestingFragment {
 
     @Inject
     private Settings settings;
+
+    @Inject
+    private SeenService seenService;
 
     @InjectView(R.id.list)
     private LinearLayout list;
@@ -166,6 +170,24 @@ public class PostFragment extends NestingFragment {
 
     public FeedItem getFeedItem() {
         return feedItem;
+    }
+
+    /**
+     * Called from the {@link com.pr0gramm.app.PostPagerFragment} if this fragment
+     * is currently the active/selected fragment - or if it is not the active fragment anymore.
+     *
+     * @param active The new active status.
+     */
+    public void setActive(boolean active) {
+        if (seenService == null) {
+            Log.i("PostFragment", "Marked fragment as active too early");
+            return;
+        }
+
+        if (active) {
+            Log.i("PostFragment", "Marked fragment as active " + this);
+            seenService.markAsSeen(feedItem);
+        }
     }
 
     public static PostFragment newInstance(FeedItem item) {
