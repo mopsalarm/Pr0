@@ -18,6 +18,7 @@ import com.pr0gramm.app.feed.Vote;
 public class VoteView extends LinearLayout {
     private final Pr0grammFontTextView viewRateUp;
     private final Pr0grammFontTextView viewRateDown;
+    private final Settings settings;
 
     private ColorStateList markedColor;
     private ColorStateList defaultColor;
@@ -29,7 +30,6 @@ public class VoteView extends LinearLayout {
 
     public VoteView(Context context) {
         this(context, null);
-
     }
 
     public VoteView(Context context, AttributeSet attrs) {
@@ -38,6 +38,7 @@ public class VoteView extends LinearLayout {
 
     public VoteView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        settings = Settings.of(context);
 
         int orientation = 0, spacing = 0, textSize = 24;
         markedColor = ColorStateList.valueOf(context.getResources().getColor(R.color.primary));
@@ -176,7 +177,7 @@ public class VoteView extends LinearLayout {
     }
 
     private boolean isAnimated() {
-        return true;
+        return settings.animateVoteView();
     }
 
     /**

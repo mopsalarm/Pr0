@@ -83,4 +83,7 @@
     <string name="indicator_icon">Icon</string>
     <string name="indicator_alpha">Translucent</string>
     <string name="pref_seen_indicator_style_summary">Specifies the style how already viewed items are marked in the feed</string>
+    <string name="pref_animate_vote_view">Animate vote buttons</string>
+    <string name="pref_animate_vote_view_on">Plays a small animation if you vote something</string>
+    <string name="pref_animate_vote_view_off">Plays no animation if you vote something</string>
 </resources>

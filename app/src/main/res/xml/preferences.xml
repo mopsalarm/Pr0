@@ -37,8 +37,14 @@
             android:entries="@array/pref_seen_indicator_style_human"
             android:entryValues="@array/pref_seen_indicator_style_values"
             android:defaultValue="@string/pref_seen_indicator_style_default"
-            android:summary="@string/pref_seen_indicator_style_summary"
-            />
+            android:summary="@string/pref_seen_indicator_style_summary"/>
+
+        <CheckBoxPreference
+            android:key="pref_animate_vote_view"
+            android:title="@string/pref_animate_vote_view"
+            android:summaryOn="@string/pref_animate_vote_view_on"
+            android:summaryOff="@string/pref_animate_vote_view_off"
+            android:defaultValue="true"/>
 
     </PreferenceCategory>
 

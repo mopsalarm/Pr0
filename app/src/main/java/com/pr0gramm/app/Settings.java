@@ -96,6 +96,10 @@ public class Settings {
         return Enums.getIfPresent(IndicatorStyle.class, value).or(IndicatorStyle.NONE);
     }
 
+    public boolean animateVoteView() {
+        return preferences.getBoolean("pref_animate_vote_view", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }
