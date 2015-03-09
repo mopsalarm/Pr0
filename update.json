@@ -1,5 +1,5 @@
 {
-    "version": 5,
-    "apk": "https://github.com/Graphicscore/Pr0/raw/master/pr0gramm.apk",
-    "changelog": "Fehlermeldungen sind hoffentlich besser und die Updateprüfung passiert nun häufiger, außerdem viele Bugfixes!"
+    "version": 6,
+    "apk": "https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master/pr0gramm-v1.06.apk",
+    "changelog": "Votes werden nun synchronisiert und korrekt angezeigt, Kommentare können gevotet werden, viele Verbesserungen und deutsche Übersetzung."
 }

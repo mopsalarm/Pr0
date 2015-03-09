@@ -113,7 +113,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
         // do the check
         bindActivity(this, new UpdateChecker(this).check())
-                .lift(errorDialog(this))
+                .onErrorResumeNext(Observable.<UpdateChecker.Update>empty())
                 .map(UpdateChecker.UpdateDialogFragment::newInstance)
                 .subscribe(dialog -> dialog.show(getSupportFragmentManager(), null));
     }

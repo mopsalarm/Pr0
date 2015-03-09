@@ -27,8 +27,9 @@ android {
         applicationId "com.pr0gramm.app"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 10
-        versionName "1.dev"
+
+        versionCode 6
+        versionName "1.06"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
