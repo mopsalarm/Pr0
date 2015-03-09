@@ -3,8 +3,6 @@ package com.pr0gramm.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -14,7 +12,6 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.base.Throwables;
 
 import retrofit.RestAdapter;
 import retrofit.http.GET;
@@ -32,17 +29,6 @@ public class UpdateChecker {
         this.context = context;
     }
 
-    private int getVersionCode() {
-        PackageManager packageManager = context.getPackageManager();
-        try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-
-        } catch (PackageManager.NameNotFoundException err) {
-            throw Throwables.propagate(err);
-        }
-    }
-
     public Observable<Update> check() {
         return Async.start(() -> {
             UpdateApi api = new RestAdapter.Builder()
@@ -53,7 +39,7 @@ public class UpdateChecker {
 
             return api.get();
         }).filter(update -> {
-            int current = getVersionCode();
+            int current = Pr0grammApplication.getPackageInfo(context).versionCode;
             Log.i("Update", format("Installed v%d, current v%d", current, update.getVersion()));
 
             // filter out if up to date
