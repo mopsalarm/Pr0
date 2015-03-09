@@ -1,5 +1,7 @@
 package com.pr0gramm.app;
 
+import android.content.SharedPreferences;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
@@ -19,23 +21,30 @@ import rx.util.async.Async;
  */
 @Singleton
 public class UserService {
+    private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
+
     private final Api api;
     private final VoteService voteService;
     private final LoginCookieHandler cookieHandler;
     private final Gson gson;
+    private final SharedPreferences preferences;
 
     private final BehaviorSubject<LoginState> loginStateObservable
             = BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
 
-    private long lastSyncId;
-
     @Inject
-    public UserService(Api api, VoteService voteService, LoginCookieHandler cookieHandler, Gson gson) {
+    public UserService(Api api,
+                       VoteService voteService,
+                       LoginCookieHandler cookieHandler,
+                       Gson gson,
+                       SharedPreferences preferences) {
+
         this.api = api;
         this.gson = gson;
         this.voteService = voteService;
-
         this.cookieHandler = cookieHandler;
+        this.preferences = preferences;
+
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
     }
 
@@ -65,8 +74,15 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
-            voteService.clear();
+            // removing cookie from requests
             cookieHandler.clearLoginCookie();
+
+            // remove sync id
+            preferences.edit().remove(KEY_LAST_SYNC_ID).apply();
+
+            // clear all the vote cache
+            voteService.clear();
+
             return null;
         }, Schedulers.io()).ignoreElements();
     }
@@ -76,16 +92,23 @@ public class UserService {
     }
 
     /**
-     * Performs a sync. Someone needs to subscribe to the returned observable
+     * Performs a sync. This updates the vote cache with all the votes that
+     * where performed since the last call to sync.
+     * <p>
+     * Someone needs to subscribe to the returned observable.
      */
     public Observable<SyncResponse> sync() {
         if (!isAuthorized())
             return Observable.empty();
 
+        long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
         return api.sync(lastSyncId).map(response -> {
-            // FIXME not threadsafe
-            lastSyncId = response.getLastId();
+            if (response.getLastId() > lastSyncId) {
+                // store syncId for next time.
+                preferences.edit().putLong(KEY_LAST_SYNC_ID, response.getLastId()).apply();
+            }
 
+            // and apply votes now
             voteService.applyVoteActions(response.getLog());
             return response;
         });
@@ -110,6 +133,6 @@ public class UserService {
     }
 
     public enum LoginState {
-        AUTHORIZED, NOT_AUTHORIZED;
+        AUTHORIZED, NOT_AUTHORIZED
     }
 }

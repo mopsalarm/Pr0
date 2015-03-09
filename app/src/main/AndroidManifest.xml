@@ -3,6 +3,7 @@
           package="com.pr0gramm.app">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -23,15 +24,26 @@
         <meta-data
             android:name="DATABASE"
             android:value="pr0gramm.db"/>
+
         <meta-data
             android:name="VERSION"
             android:value="3"/>
+
         <meta-data
             android:name="QUERY_LOG"
             android:value="true"/>
+
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="com.pr0gramm.app.orm"/>
+
+        <receiver
+            android:name=".SyncBroadcastReceiver"
+            android:exported="false"/>
+
+        <service
+            android:name=".SyncIntentService"
+            android:exported="false"/>
 
         <activity
             android:name="com.pr0gramm.app.MainActivity"

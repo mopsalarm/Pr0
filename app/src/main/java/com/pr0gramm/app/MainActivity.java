@@ -86,6 +86,11 @@ public class MainActivity extends RoboActionBarActivity implements
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         checkForUpdates();
+
+        // we trigger the update here manually now. this will be done using
+        // the alarm manager later on.
+        Intent intent = new Intent(this, SyncBroadcastReceiver.class);
+        sendBroadcast(intent);
     }
 
     @Override
