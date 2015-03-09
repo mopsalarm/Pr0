@@ -11,9 +11,11 @@ import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import retrofit.RetrofitError;
 import rx.functions.Func2;
@@ -142,11 +144,19 @@ public class ErrorFormatting {
                 R.string.error_host_not_found).quiet());
 
         formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof TimeoutException,
+                R.string.error_timeout).quiet());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof ConnectException,
                 (err, context) -> {
                     String host = Uri.parse(err.getUrl()).getHost();
                     return context.getString(R.string.error_connect_exception, host);
                 }).quiet());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof SocketException,
+                R.string.error_socket).quiet());
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).quiet());

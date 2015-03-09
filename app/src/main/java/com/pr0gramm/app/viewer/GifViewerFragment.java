@@ -132,9 +132,17 @@ public class GifViewerFragment extends ViewerFragment {
      */
     @SuppressLint("NewApi")
     private GifDrawable loadGifInMemory(Downloader.Response response) throws IOException {
-        try (InputStream stream = response.getInputStream()) {
-            // and decode it
-            return new GifDrawable(ByteStreams.toByteArray(stream));
+        try {
+            try (InputStream stream = response.getInputStream()) {
+                // and decode it
+                return new GifDrawable(ByteStreams.toByteArray(stream));
+            }
+        } catch (OutOfMemoryError oom) {
+            ErrorDialogFragment.showErrorString(getChildFragmentManager(),
+                    getString(R.string.error_out_of_memory_while_decoding_gif));
+
+            // fall back to using a temp-file
+            return loadGifUsingTempFile(response);
         }
     }
 

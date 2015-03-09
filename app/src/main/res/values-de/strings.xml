@@ -85,4 +85,7 @@
     <string name="pref_seen_indicator_style">Bilder als gesehen markieren</string>
     <string name="pref_seen_indicator_style_summary">Legt die Art fest, wie Bilder als gesehen markiert werden sollen </string>
     <string name="prefcat_style">Aussehen</string>
+    <string name="error_timeout">Zeitüberschreitung bei einer Anfrage.</string>
+    <string name="error_out_of_memory_while_decoding_gif">Das gif-Bild konnte nicht in den Speicher geladen werden. Überprüfe deine Einstellung und deaktivere das Dekodieren von gifs im Speicher.</string>
+    <string name="error_socket">Ein Netzwerkfehler ist aufgetreten.</string>
 </resources>
