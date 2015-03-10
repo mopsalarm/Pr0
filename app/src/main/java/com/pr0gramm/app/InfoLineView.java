@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.collect.Ordering;
-import com.pr0gramm.app.api.Post;
+import com.pr0gramm.app.api.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
 
@@ -32,6 +32,7 @@ public class InfoLineView extends LinearLayout {
     private final UsernameView usernameView;
     private final RecyclerView tagsView;
     private final TextView voteFavoriteView;
+    private final TextView addTagView;
 
     private OnTagClickedListener onTagClickedListener;
     private VoteView.OnVoteListener onVoteListener;
@@ -58,6 +59,7 @@ public class InfoLineView extends LinearLayout {
         dateView = (TextView) findViewById(R.id.date);
         voteView = (VoteView) findViewById(R.id.voting);
         voteFavoriteView = (TextView) findViewById(R.id.favorite);
+        addTagView = (TextView) findViewById(R.id.add_tag);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
         tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -124,9 +126,9 @@ public class InfoLineView extends LinearLayout {
         return voteView;
     }
 
-    public void setTags(List<Post.Tag> tags) {
-        List<Post.Tag> sorted = Ordering.natural().reverse()
-                .onResultOf(Post.Tag::getConfidence)
+    public void setTags(List<Tag> tags) {
+        List<Tag> sorted = Ordering.natural().reverse()
+                .onResultOf(Tag::getConfidence)
                 .sortedCopy(tags);
 
         tagsView.setAdapter(new TagsAdapter(sorted));
@@ -148,10 +150,14 @@ public class InfoLineView extends LinearLayout {
         this.onVoteListener = onVoteListener;
     }
 
-    private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
-        private final List<Post.Tag> tags;
+    public TextView getAddTagView() {
+        return addTagView;
+    }
 
-        private TagsAdapter(List<Post.Tag> tags) {
+    private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
+        private final List<Tag> tags;
+
+        private TagsAdapter(List<Tag> tags) {
             this.tags = tags;
         }
 
@@ -165,7 +171,7 @@ public class InfoLineView extends LinearLayout {
 
         @Override
         public void onBindViewHolder(TagViewHolder holder, int position) {
-            Post.Tag tag = tags.get(position);
+            Tag tag = tags.get(position);
             holder.tag.setText(tag.getTag());
             holder.tag.setOnClickListener(v -> {
                 if (onTagClickedListener != null)
@@ -194,7 +200,7 @@ public class InfoLineView extends LinearLayout {
          *
          * @param tag The tag that was clicked.
          */
-        void onTagClicked(Post.Tag tag);
+        void onTagClicked(Tag tag);
     }
 
 }

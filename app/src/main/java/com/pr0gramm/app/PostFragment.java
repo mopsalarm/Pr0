@@ -16,11 +16,14 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.viewer.ViewerFragment;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
 
+import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.LoginDialogFragment.doIfAuthorized;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -28,7 +31,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends NestingFragment {
+public class PostFragment extends NestingFragment implements NewTagDialogFragment.OnNewTagListener {
     private static final String ARG_FEED_ITEM = "PostFragment.Post";
 
     private FeedItem feedItem;
@@ -135,6 +138,11 @@ public class PostFragment extends NestingFragment {
             Runnable retry = () -> infoLineView.getVoteView().setVote(vote);
             return doIfAuthorized(PostFragment.this, action, retry);
         });
+
+        infoLineView.getAddTagView().setOnClickListener(v -> {
+            NewTagDialogFragment dialog = NewTagDialogFragment.newInstance(feedItem);
+            dialog.show(getChildFragmentManager(), null);
+        });
     }
 
     private void initializePlayerFragment() {
@@ -230,6 +238,14 @@ public class PostFragment extends NestingFragment {
 
         if (active)
             onMarkedActive();
+    }
+
+    @Override
+    public void onNewTags(List<String> tags) {
+        bindFragment(this, voteService.tag(feedItem, tags))
+                .lift(errorDialog(this))
+                .lift(busyDialog(this))
+                .subscribe(infoLineView::setTags);
     }
 
     public static PostFragment newInstance(FeedItem item) {

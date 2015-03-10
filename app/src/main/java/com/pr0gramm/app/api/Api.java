@@ -30,6 +30,14 @@ public interface Api {
     Observable<Nothing> vote(@Field("id") long id, @Field("vote") int voteValue);
 
     @FormUrlEncoded
+    @POST("/api/tags/vote")
+    Observable<Nothing> voteTag(@Field("id") long id, @Field("vote") int voteValue);
+
+    @FormUrlEncoded
+    @POST("/api/comments/vote")
+    Observable<Nothing> voteComment(@Field("id") long id, @Field("vote") int voteValue);
+
+    @FormUrlEncoded
     @POST("/api/user/login")
     Observable<LoginResponse> login(
             @Field("name") String username,
@@ -38,5 +46,9 @@ public interface Api {
     @GET("/api/user/sync")
     Observable<SyncResponse> sync(@Query("lastId") long lastId);
 
-
+    @FormUrlEncoded
+    @POST("/api/tags/add")
+    Observable<NewTagResponse> addTags(
+            @Field("itemId") long lastId,
+            @Field("tags") String tags);
 }

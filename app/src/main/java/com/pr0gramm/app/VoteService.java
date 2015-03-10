@@ -3,14 +3,15 @@ package com.pr0gramm.app;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.Api;
 import com.pr0gramm.app.api.Post;
+import com.pr0gramm.app.api.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
@@ -27,6 +28,7 @@ import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.transform;
 
 /**
  */
@@ -54,7 +56,12 @@ public class VoteService {
 
     public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
-        return api.vote(comment.getId(), vote.getVoteValue());
+        return api.voteComment(comment.getId(), vote.getVoteValue());
+    }
+
+    public Observable<Nothing> vote(Tag tag, Vote vote) {
+        AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
+        return api.voteTag(tag.getId(), vote.getVoteValue());
     }
 
     /**
@@ -130,6 +137,26 @@ public class VoteService {
         Log.i(TAG, "Applying vote actions took " + watch);
     }
 
+    /**
+     * Tags the given post. This methods adds the tags to the given post
+     * and returns a list of tags.
+     */
+    public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
+        String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
+        return api.addTags(feedItem.getId(), tagString).map(response -> {
+            SugarTransactionHelper.doInTansaction(() -> {
+                // auto-apply up-vote to newly created tags
+                for (long tagId : response.getTagIds())
+                    storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP);
+            });
+
+            return response.getTags();
+        });
+    }
+
+    /**
+     * Removes all votes from the vote cache.
+     */
     public void clear() {
         Log.i(TAG, "Removing all items from vote cache");
         SugarRecord.deleteAll(CachedVote.class);
@@ -137,7 +164,7 @@ public class VoteService {
 
     public Observable<Map<Long, Vote>> getVotes(List<Post.Comment> comments) {
         return Async.start(() -> {
-            List<Long> ids = Lists.transform(comments, Post.Comment::getId);
+            List<Long> ids = transform(comments, Post.Comment::getId);
             List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);
 
             Map<Long, Vote> result = new HashMap<>();

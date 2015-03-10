@@ -15,7 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewPropertyAnimator;
 
-import com.pr0gramm.app.api.Post;
+import com.pr0gramm.app.api.Tag;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
@@ -333,7 +333,7 @@ public class MainActivity extends RoboActionBarActivity implements
      *
      * @param tag The tag to search for.
      */
-    public void onTagClicked(Post.Tag tag) {
+    public void onTagClicked(Tag tag) {
         Query query = new Query().withTags(tag.getTag());
         gotoFeedFragment(query, true);
     }
