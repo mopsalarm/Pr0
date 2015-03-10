@@ -64,6 +64,13 @@ public class PostPagerFragment extends NestingFragment {
             };
         }
 
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+            }
+        });
+
         viewPager.setAdapter(adapter);
         Log.i("PostPager", "state is " + savedInstanceState);
 
