@@ -1,6 +1,6 @@
-# progr0am Android App
+# pr0gramm Android App
 
-Snapshot der ersten Version meiner (Mopsalarm) pr0gramm-App ist als installierbare APK im Repository zu finden.
+Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https://github.com/mopsalarm/pr0gramm-updates
 
 ## Features
 * Anschauen des Feeds und einzelner Posts
@@ -12,17 +12,15 @@ Snapshot der ersten Version meiner (Mopsalarm) pr0gramm-App ist als installierba
 * Neuladen des Feeds durch weiter herunterziehen
 * Tags anklicken können um mit diesen eine Suche zu starten
 * *gif*s auf einem Server in kleinere *webm*s umwandeln und diese in der App anzeigen
-* Neue Ladeanimation ähnlich zu der auf pr0gramm.
-
-## Bekannte Probleme
-* Es wird nicht angezeigt, ob "+" oder "-" gedrückt wurde. Dies ist eine Limitation der pr0gramm-Api.
+* Neue Ladeanimation ähnlich zu der auf pr0gramm
+* Übertragen der Votings vom WebClient auf die pr0gramm App
+* Kommentare up- und down-voten
+* Bilder als Favorit markieren
 
 ## Geplante Features
-* Kommentare up- und down-voten können
 * Auf Kommentare antworten können bzw. einen neuen Kommentar verfassen können
 * Nachrichten lesen und schreiben können
 * Tags hinzufügen können
-* Bilder als Favorit markieren können
 * Hochladen neuer Bilder direkt vom Handy
 * Cleanups + Kommentare.
 
