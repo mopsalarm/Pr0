@@ -16,15 +16,10 @@ import com.pr0gramm.app.R;
 
 import roboguice.inject.InjectView;
 
-import static java.lang.System.identityHashCode;
-
 /**
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class VideoViewerFragment extends ViewerFragment {
-    private final String TAG = "Pr0Player " + Integer.toString(
-            identityHashCode(this), Character.MAX_RADIX);
-
     @InjectView(R.id.video)
     private TextureView videoView;
 

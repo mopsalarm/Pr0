@@ -94,7 +94,7 @@ public abstract class ViewerFragment extends NestingFragment {
                 useCompatVideoPlayer = true;
 
             result = useCompatVideoPlayer
-                    ? new VideoCompatViewerFragment()
+                    ? new SimpleVideoViewerFragment()
                     : new VideoViewerFragment();
 
         } else if (url.toLowerCase().endsWith(".gif")) {
@@ -118,8 +118,14 @@ public abstract class ViewerFragment extends NestingFragment {
     protected void resizeViewerView(View view, float aspect, int retries) {
         Log.i(TAG, "Setting aspect of viewer View to " + aspect);
 
-        if (view.getWindowToken() == null)
+        if (view.getWindowToken() == null) {
+            if (retries > 0) {
+                Log.i(TAG, "Delay resizing of View for 100ms");
+                HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+            }
+
             return;
+        }
 
         ViewParent parent = view.getParent();
         if (parent instanceof View) {
@@ -150,4 +156,11 @@ public abstract class ViewerFragment extends NestingFragment {
         }
     }
 
+    public void playMedia() {
+        Log.i(TAG, "Should start playing media");
+    }
+
+    public void stopMedia() {
+        Log.i(TAG, "Should stop playing media");
+    }
 }

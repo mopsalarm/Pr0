@@ -56,6 +56,8 @@ public class PostFragment extends NestingFragment {
 
     @InjectView(R.id.scroll)
     private VerticalScrollView scrollView;
+    private ViewerFragment viewer;
+    private boolean active;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,6 +99,7 @@ public class PostFragment extends NestingFragment {
         initializeInfoLine();
 
         startLoadingInfo();
+        Log.i("PostFragment", "OnCreateView called " + this);
     }
 
     /**
@@ -135,14 +138,17 @@ public class PostFragment extends NestingFragment {
     }
 
     private void initializePlayerFragment() {
-        // check if the fragment already exists.
+        //check if the fragment already exists.
         Fragment fragment = getChildFragmentManager().findFragmentById(R.id.player_container);
-        if (fragment != null)
+        if (fragment != null) {
+            Log.i("PostFragment", "Player fragment found");
+            viewer = (ViewerFragment) fragment;
             return;
+        }
 
         // initialize the viewer
         String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        ViewerFragment viewer = ViewerFragment.newInstance(settings, url);
+        viewer = ViewerFragment.newInstance(settings, url);
 
         // and add the player to the view.
         getChildFragmentManager().beginTransaction()
@@ -197,15 +203,33 @@ public class PostFragment extends NestingFragment {
      * @param active The new active status.
      */
     public void setActive(boolean active) {
-        if (seenService == null) {
-            Log.i("PostFragment", "Marked fragment as active too early");
+        this.active = active;
+
+        if (viewer == null)
             return;
-        }
 
         if (active) {
-            Log.i("PostFragment", "Marked fragment as active " + this);
-            seenService.markAsSeen(feedItem);
+            onMarkedActive();
+        } else {
+            onMarkedInactive();
         }
+    }
+
+    private void onMarkedInactive() {
+        viewer.stopMedia();
+    }
+
+    private void onMarkedActive() {
+        seenService.markAsSeen(feedItem);
+        viewer.playMedia();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (active)
+            onMarkedActive();
     }
 
     public static PostFragment newInstance(FeedItem item) {

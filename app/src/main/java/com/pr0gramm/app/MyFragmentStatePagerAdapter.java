@@ -54,7 +54,8 @@ public abstract class MyFragmentStatePagerAdapter extends PagerAdapter {
      * @param position The position of the fragment to get
      */
     public Optional<Fragment> getFragment(int position) {
-        return Optional.fromNullable(mFragments.get(getItemId(position)));
+        long itemId = getItemId(position);
+        return Optional.fromNullable(mFragments.get(itemId));
     }
 
     @Override

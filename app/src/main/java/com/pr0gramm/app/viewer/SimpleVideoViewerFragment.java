@@ -13,11 +13,13 @@ import roboguice.inject.InjectView;
 /**
  * Plays videos in a not optimal but compatible way.
  */
-public class VideoCompatViewerFragment extends ViewerFragment {
+public class SimpleVideoViewerFragment extends ViewerFragment {
+    private boolean playing;
+
     @InjectView(R.id.video)
     private VideoView videoView;
 
-    public VideoCompatViewerFragment() {
+    public SimpleVideoViewerFragment() {
         super(R.layout.player_video_compat);
     }
 
@@ -37,13 +39,35 @@ public class VideoCompatViewerFragment extends ViewerFragment {
         });
 
         String url = getUrlArgument();
-        Log.i("CompatPr0Player", "Playing webm " + url);
+        Log.i(TAG, "Playing webm " + url);
         videoView.setVideoURI(Uri.parse(url));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        videoView.start();
+
+        // continue playing
+        if (playing)
+            videoView.start();
+    }
+
+    @Override
+    public void playMedia() {
+        super.playMedia();
+        Log.i(TAG, "Setting state to 'playing' now.");
+        playing = true;
+
+        if (videoView != null)
+            videoView.start();
+    }
+
+    @Override
+    public void stopMedia() {
+        super.stopMedia();
+        playing = false;
+
+        if (videoView != null)
+            videoView.pause();
     }
 }
