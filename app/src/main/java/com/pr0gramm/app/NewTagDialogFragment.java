@@ -7,7 +7,6 @@ import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Splitter;
-import com.pr0gramm.app.feed.FeedItem;
 
 import java.util.List;
 
@@ -46,23 +45,17 @@ public class NewTagDialogFragment extends RoboDialogFragment {
             return;
 
         // inform parent
-        ((OnNewTagListener) getParentFragment()).onNewTags(tags);
+        ((OnAddNewTagsListener) getParentFragment()).onAddNewTags(tags);
     }
 
     /**
      * The parent fragment must implement this interface.
      * It will be informed by this class if the user added tags.
      */
-    public interface OnNewTagListener {
-        void onNewTags(List<String> tags);
-    }
-
-    public static NewTagDialogFragment newInstance(FeedItem feedItem) {
-        Bundle arguments = new Bundle();
-        arguments.putParcelable("item", feedItem);
-
-        NewTagDialogFragment dialog = new NewTagDialogFragment();
-        dialog.setArguments(arguments);
-        return dialog;
+    public interface OnAddNewTagsListener {
+        /**
+         * Called when the dialog finishes with new tags.
+         */
+        void onAddNewTags(List<String> tags);
     }
 }

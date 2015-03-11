@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import roboguice.inject.InjectView;
 import rx.Observable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.LoginDialogFragment.doIfAuthorized;
@@ -32,10 +33,12 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends NestingFragment implements NewTagDialogFragment.OnNewTagListener {
-    private static final String ARG_FEED_ITEM = "PostFragment.Post";
+public class PostFragment extends NestingFragment implements NewTagDialogFragment.OnAddNewTagsListener {
+    private static final String ARG_FEED_ITEM = "PostFragment.post";
 
+    private boolean active;
     private FeedItem feedItem;
+    private ViewerFragment viewer;
 
     @Inject
     private FeedService feedService;
@@ -60,8 +63,6 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
 
     @InjectView(R.id.scroll)
     private VerticalScrollView scrollView;
-    private ViewerFragment viewer;
-    private boolean active;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,29 +93,35 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
             });
         }
 
-        swipeRefreshLayout.setOnRefreshListener(this::startLoadingInfo);
-
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
+        swipeRefreshLayout.setOnRefreshListener(this::loadPostDetails);
 
         // TODO Think of something nicer for the comments
         // commentsView.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
         //         LinearLayoutManager.VERTICAL, false));
 
-        initializePlayerFragment();
         initializeInfoLine();
+        initializePlayerFragment();
+        loadPostDetails();
+    }
 
-        startLoadingInfo();
-        Log.i("PostFragment", "OnCreateView called " + this);
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (active) {
+            onMarkedActive();
+        }
     }
 
     /**
      * Loads the information about the post. This includes the
      * tags and the comments.
      */
-    private void startLoadingInfo() {
+    private void loadPostDetails() {
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
         bindFragment(this, details)
                 .lift(errorDialog(this))
@@ -145,13 +152,13 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
         });
 
         infoLineView.getAddTagView().setOnClickListener(v -> {
-            NewTagDialogFragment dialog = NewTagDialogFragment.newInstance(feedItem);
+            NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
         });
     }
 
     private void initializePlayerFragment() {
-        //check if the fragment already exists.
+        //check if the fragment already exists
         Fragment fragment = getChildFragmentManager().findFragmentById(R.id.player_container);
         if (fragment != null) {
             Log.i("PostFragment", "Player fragment found");
@@ -159,9 +166,8 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
             return;
         }
 
-        // initialize the viewer
-        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        viewer = ViewerFragment.newInstance(settings, url);
+        // initialize a new viewer fragment
+        viewer = ViewerFragment.newInstance(settings, feedItem);
 
         // and add the player to the view.
         getChildFragmentManager().beginTransaction()
@@ -205,6 +211,9 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
         });
     }
 
+    /**
+     * Returns the feed item that is displayed in this {@link com.pr0gramm.app.PostFragment}.
+     */
     public FeedItem getFeedItem() {
         return feedItem;
     }
@@ -228,38 +237,43 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
         }
     }
 
-    private void onMarkedInactive() {
-        viewer.stopMedia();
-    }
-
-    private void onMarkedActive() {
+    /**
+     * Called if this fragment becomes the active post fragment.
+     */
+    protected void onMarkedActive() {
         seenService.markAsSeen(feedItem);
         viewer.playMedia();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (active)
-            onMarkedActive();
+    /**
+     * Called if this fragment is not the active post fragment anymore.
+     */
+    protected void onMarkedInactive() {
+        viewer.stopMedia();
     }
 
+    /**
+     */
     @Override
-    public void onNewTags(List<String> tags) {
+    public void onAddNewTags(List<String> tags) {
         bindFragment(this, voteService.tag(feedItem, tags))
                 .lift(errorDialog(this))
                 .lift(busyDialog(this))
                 .subscribe(infoLineView::setTags);
     }
 
+    /**
+     * Creates a new instance of a {@link com.pr0gramm.app.PostFragment} displaying the
+     * given {@link com.pr0gramm.app.feed.FeedItem}.
+     */
     public static PostFragment newInstance(FeedItem item) {
+        checkNotNull(item, "Item must not be null");
+
         Bundle arguments = new Bundle();
         arguments.putParcelable(ARG_FEED_ITEM, item);
 
         PostFragment fragment = new PostFragment();
         fragment.setArguments(arguments);
-
         return fragment;
     }
 }

@@ -15,6 +15,7 @@ import android.view.ViewParent;
 import com.pr0gramm.app.NestingFragment;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.feed.FeedItem;
 
 import roboguice.inject.InjectView;
 
@@ -111,6 +112,18 @@ public abstract class ViewerFragment extends NestingFragment {
         return result;
     }
 
+    /**
+     * Creates a new {@link com.pr0gramm.app.viewer.ViewerFragment} instance
+     * for the given feed item.
+     *
+     * @param settings The current settings instance
+     * @param feedItem The feed item that is to be displayed.
+     * @return A new {@link com.pr0gramm.app.viewer.ViewerFragment} instance.
+     */
+    public static ViewerFragment newInstance(Settings settings, FeedItem feedItem) {
+        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
+        return newInstance(settings, url);
+    }
 
     /**
      * Resizes the video view while keeping the given aspect ratio.
