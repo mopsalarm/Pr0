@@ -26,6 +26,7 @@ import rx.Observable;
 import static com.pr0gramm.app.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.LoginDialogFragment.doIfAuthorized;
+import static com.pr0gramm.app.ScrollHideToolbarListener.ToolbarActivity;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -81,11 +82,15 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        scrollView.setOnScrollListener((oldTop, top) -> {
-            int dy = top - oldTop;
-            MainActivity mainActivity = (MainActivity) getActivity();
-            mainActivity.onScrollHideToolbarListener.onScrolled(dy);
-        });
+        if (getActivity() instanceof ToolbarActivity) {
+            ToolbarActivity activity = (ToolbarActivity) getActivity();
+            activity.getScrollHideToolbarListener().reset();
+
+            scrollView.setOnScrollListener((oldTop, top) -> {
+                int dy = top - oldTop;
+                activity.getScrollHideToolbarListener().onScrolled(dy);
+            });
+        }
 
         swipeRefreshLayout.setOnRefreshListener(this::startLoadingInfo);
 

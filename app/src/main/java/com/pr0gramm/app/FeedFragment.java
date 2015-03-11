@@ -33,6 +33,7 @@ import roboguice.inject.InjectView;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
@@ -119,8 +120,10 @@ public class FeedFragment extends RoboFragment {
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
-        if (getActivity() instanceof MainActivity)
-            ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
+        if (getActivity() instanceof ToolbarActivity) {
+            ToolbarActivity activity = (ToolbarActivity) getActivity();
+            activity.getScrollHideToolbarListener().reset();
+        }
 
         setupInfiniteScroll();
     }
@@ -160,9 +163,9 @@ public class FeedFragment extends RoboFragment {
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (getActivity() instanceof MainActivity) {
-                    MainActivity activity = (MainActivity) getActivity();
-                    activity.onScrollHideToolbarListener.onScrolled(dy);
+                if (getActivity() instanceof ToolbarActivity) {
+                    ToolbarActivity activity = (ToolbarActivity) getActivity();
+                    activity.getScrollHideToolbarListener().onScrolled(dy);
                 }
 
                 int totalItemCount = layoutManager.getItemCount();

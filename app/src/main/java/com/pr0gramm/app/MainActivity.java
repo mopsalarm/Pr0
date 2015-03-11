@@ -13,7 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewPropertyAnimator;
 
 import com.pr0gramm.app.api.Tag;
 import com.pr0gramm.app.feed.FeedProxy;
@@ -41,7 +40,9 @@ import static rx.android.observables.AndroidObservable.bindActivity;
  */
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActionBarActivity implements
-        DrawerFragment.OnDrawerActionListener, FragmentManager.OnBackStackChangedListener {
+        DrawerFragment.OnDrawerActionListener,
+        FragmentManager.OnBackStackChangedListener,
+        ScrollHideToolbarListener.ToolbarActivity {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -58,8 +59,9 @@ public class MainActivity extends RoboActionBarActivity implements
     @Inject
     private SharedPreferences shared;
 
-    private ActionBarDrawerToggle drawerToggle;
     private Subscription subscription;
+    private ActionBarDrawerToggle drawerToggle;
+    private ScrollHideToolbarListener scrollHideToolbarListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
         // use toolbar as action bar
         setSupportActionBar(toolbar);
+
+        scrollHideToolbarListener = new ScrollHideToolbarListener(toolbar);
 
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
@@ -338,48 +342,8 @@ public class MainActivity extends RoboActionBarActivity implements
         gotoFeedFragment(query, true);
     }
 
-    public class ScrollHideToolbarListener {
-        private int toolbarMarginOffset = 0;
-        private ViewPropertyAnimator animation;
-
-        private ScrollHideToolbarListener() {
-        }
-
-        private void applyToolbarPosition(boolean animated) {
-            int y = -toolbarMarginOffset;
-            if (animated) {
-                animation = toolbar.animate().translationY(y).setDuration(250);
-                animation.start();
-            } else {
-                if (animation != null) {
-                    animation.cancel();
-                    animation = null;
-                }
-
-                toolbar.setTranslationY(y);
-            }
-        }
-
-        public void onScrolled(int dy) {
-            int abHeight = AndroidUtility.getActionBarSize(MainActivity.this);
-
-            toolbarMarginOffset += dy;
-            if (toolbarMarginOffset > abHeight)
-                toolbarMarginOffset = abHeight;
-
-            if (toolbarMarginOffset < 0)
-                toolbarMarginOffset = 0;
-
-            applyToolbarPosition(false);
-        }
-
-        public void reset() {
-            if (toolbarMarginOffset != 0) {
-                toolbarMarginOffset = 0;
-                applyToolbarPosition(true);
-            }
-        }
+    @Override
+    public ScrollHideToolbarListener getScrollHideToolbarListener() {
+        return scrollHideToolbarListener;
     }
-
-    public final ScrollHideToolbarListener onScrollHideToolbarListener = new ScrollHideToolbarListener();
 }

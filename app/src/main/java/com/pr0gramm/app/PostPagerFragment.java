@@ -19,6 +19,7 @@ import com.pr0gramm.app.feed.FeedService;
 import roboguice.inject.InjectView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
@@ -64,12 +65,17 @@ public class PostPagerFragment extends NestingFragment {
             };
         }
 
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
-            }
-        });
+        if (getActivity() instanceof ToolbarActivity) {
+            ToolbarActivity activity = (ToolbarActivity) getActivity();
+            activity.getScrollHideToolbarListener().reset();
+
+            viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    activity.getScrollHideToolbarListener().reset();
+                }
+            });
+        }
 
         viewPager.setAdapter(adapter);
         Log.i("PostPager", "state is " + savedInstanceState);
@@ -81,9 +87,6 @@ public class PostPagerFragment extends NestingFragment {
 
         Log.i("PostPager", "Starting at index: " + index);
         viewPager.setCurrentItem(index);
-
-        // reset the scrollbar here too
-        ((MainActivity) getActivity()).onScrollHideToolbarListener.reset();
     }
 
     private void updateActiveItem(PostFragment newActiveFragment) {
