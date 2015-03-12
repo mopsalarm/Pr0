@@ -1,5 +1,6 @@
 package com.pr0gramm.app.viewer;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -16,6 +17,7 @@ import roboguice.inject.InjectView;
 
 /**
  */
+@SuppressLint("ViewConstructor")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class VideoViewerFragment extends ViewerFragment {
     @InjectView(R.id.video)

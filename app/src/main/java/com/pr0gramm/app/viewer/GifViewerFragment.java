@@ -41,7 +41,10 @@ public class GifViewerFragment extends ViewerFragment {
 
     public GifViewerFragment(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_image, url);
+        loadGif();
+    }
 
+    private void loadGif() {
         Observable<GifDrawable> loader = Async.fromCallable(() -> {
             // request the gif file
             Downloader.Response response = downloader.load(Uri.parse(url), 0);

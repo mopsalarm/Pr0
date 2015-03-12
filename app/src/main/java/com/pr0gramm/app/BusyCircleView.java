@@ -46,8 +46,8 @@ public class BusyCircleView extends FrameLayout {
             float delta = idx / (float) circles.size();
 
             ObjectAnimator animator = ofPropertyValuesHolder(circles.get(idx),
-                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1.f, 0.5f),
-                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.f, 0.5f));
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 1.f, 0.0f),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.f, 0.0f));
 
             animator.setDuration(1000);
             animator.setInterpolator(buildInterpolator(delta / 2));
@@ -58,6 +58,9 @@ public class BusyCircleView extends FrameLayout {
     }
 
     private static TimeInterpolator buildInterpolator(float delta) {
-        return value -> cos((value - delta) * 2 * (float) Math.PI) / 2 + 0.5f;
+        return value -> {
+            float result = cos((value - delta) * 2 * (float) Math.PI) / 2 + 0.5f;
+            return result * result;
+        };
     }
 }

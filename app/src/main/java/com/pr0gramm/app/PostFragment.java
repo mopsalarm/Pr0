@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
 
@@ -32,7 +33,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends NestingFragment implements NewTagDialogFragment.OnAddNewTagsListener {
+public class PostFragment extends RoboFragment implements NewTagDialogFragment.OnAddNewTagsListener {
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
     private boolean active;

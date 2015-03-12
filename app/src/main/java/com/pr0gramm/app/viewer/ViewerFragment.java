@@ -112,9 +112,6 @@ public abstract class ViewerFragment extends FrameLayout {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
                 useCompatVideoPlayer = true;
 
-            // FIXME Right now we'll always use the simple player
-            useCompatVideoPlayer = true;
-
             result = useCompatVideoPlayer
                     ? new SimpleVideoViewerFragment(context, binder, url)
                     : new VideoViewerFragment(context, binder, url);
