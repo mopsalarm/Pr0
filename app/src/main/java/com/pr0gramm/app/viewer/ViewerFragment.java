@@ -137,7 +137,7 @@ public abstract class ViewerFragment extends FrameLayout {
      * Creates a new {@link com.pr0gramm.app.viewer.ViewerFragment} instance
      * for the given feed item.
      *
-     * @param context The current context
+     * @param context  The current context
      * @param feedItem The feed item that is to be displayed.
      * @return A new {@link com.pr0gramm.app.viewer.ViewerFragment} instance.
      */
@@ -199,10 +199,12 @@ public abstract class ViewerFragment extends FrameLayout {
     }
 
     public interface Binder {
-        public <T> Observable<T> bind(Observable<T> observable);
+        <T> Observable<T> bind(Observable<T> observable);
+
+        void onError(String text);
     }
 
-    public static final LayoutParams DEFAULT_PARAMS = new LayoutParams(
+    private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT);
 }

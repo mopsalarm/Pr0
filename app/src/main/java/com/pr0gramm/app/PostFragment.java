@@ -189,7 +189,12 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
         ViewerFragment.Binder binder = new ViewerFragment.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostFragment.this, observable);
+                return bindFragment(PostFragment.this, observable).lift(errorDialog(PostFragment.this));
+            }
+
+            @Override
+            public void onError(String text) {
+                ErrorDialogFragment.showErrorString(getChildFragmentManager(), text);
             }
         };
 

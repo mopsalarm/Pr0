@@ -73,9 +73,7 @@ public class GifViewerFragment extends ViewerFragment {
                 return new GifDrawable(ByteStreams.toByteArray(stream));
             }
         } catch (OutOfMemoryError oom) {
-            // FIXME show error dialog.
-            //ErrorDialogFragment.showErrorString(getChildFragmentManager(),
-            //        getString(R.string.error_out_of_memory_while_decoding_gif));
+            binder.onError(getContext().getString(R.string.error_out_of_memory_while_decoding_gif));
 
             // fall back to using a temp-file
             return loadGifUsingTempFile(response);
@@ -96,11 +94,7 @@ public class GifViewerFragment extends ViewerFragment {
             Log.i("Gif", "storing data into temporary file");
             try (FileOutputStream ra = new FileOutputStream(temporary)) {
                 try (InputStream stream = response.getInputStream()) {
-                    byte[] buffer = new byte[1024 * 16];
-
-                    int length;
-                    while ((length = stream.read(buffer)) >= 0)
-                        ra.write(buffer, 0, length);
+                    ByteStreams.copy(stream, ra);
                 }
             }
 
