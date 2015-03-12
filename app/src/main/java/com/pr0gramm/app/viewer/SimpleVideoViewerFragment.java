@@ -48,6 +48,12 @@ public class SimpleVideoViewerFragment extends ViewerFragment {
     }
 
     @Override
+    public void onPause() {
+        videoView.pause();
+        super.onPause();
+    }
+
+    @Override
     public void playMedia() {
         super.playMedia();
         Log.i(TAG, "Setting state to 'playing' now.");
