@@ -315,12 +315,12 @@ public class FeedProxy {
         return new FeedProxy(query, items);
     }
 
-    public Optional<Integer> getPosition(@Nullable FeedItem start) {
-        if (start == null)
+    public Optional<Integer> getPosition(@Nullable FeedItem item) {
+        if (item == null)
             return Optional.absent();
 
         for (int idx = 0; idx < items.size(); idx++) {
-            if (start.getId() == items.get(idx).getId())
+            if (item.getId() == items.get(idx).getId())
                 return Optional.of(idx);
         }
 

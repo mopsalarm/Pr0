@@ -16,6 +16,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,7 +24,7 @@ import static com.pr0gramm.app.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
-public class PostPagerFragment extends NestingFragment {
+public class PostPagerFragment extends RoboFragment {
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";
 
@@ -49,21 +50,19 @@ public class PostPagerFragment extends NestingFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // re-create the proxy for the stream
-        if (proxy == null) {
-            // create the proxy and use it as the source for the view pager.
-            proxy = getArgumentFeedProxy(savedInstanceState);
-            proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
+        // create the proxy and use it as the source for the view pager.
+        proxy = getArgumentFeedProxy(savedInstanceState);
+        proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
 
-            // create the adapter on the view
-            adapter = new PostAdapter(getChildFragmentManager(), proxy) {
-                @Override
-                public void setPrimaryItem(ViewGroup container, int position, Object object) {
-                    super.setPrimaryItem(container, position, object);
-                    updateActiveItem((PostFragment) object);
-                }
-            };
-        }
+        // create the adapter on the view
+        adapter = new PostAdapter(getChildFragmentManager(), proxy) {
+            @Override
+            public void setPrimaryItem(ViewGroup container, int position, Object object) {
+                super.setPrimaryItem(container, position, object);
+                updateActiveItem((PostFragment) object);
+                saveStateToBundle(getArguments());
+            }
+        };
 
         if (getActivity() instanceof ToolbarActivity) {
             ToolbarActivity activity = (ToolbarActivity) getActivity();
@@ -95,10 +94,6 @@ public class PostPagerFragment extends NestingFragment {
             return;
 
         Log.i("PostPager", "Setting feed item activate at " + position + " to " + newActiveFragment);
-
-        // store the position for the next call to {@link #onViewCreated}
-        FeedItem item = proxy.getItemAt(position);
-        getArguments().putParcelable(ARG_START_ITEM, item);
 
         // deactivate previous item
         if (activePostFragment != null)
@@ -141,6 +136,21 @@ public class PostPagerFragment extends NestingFragment {
             result = getArguments().getParcelable(ARG_START_ITEM);
 
         return checkNotNull(result, "No start-item found");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveStateToBundle(outState);
+    }
+
+    private void saveStateToBundle(Bundle outState) {
+        if (viewPager != null && proxy != null) {
+            int position = viewPager.getCurrentItem();
+            FeedItem item = proxy.getItemAt(position);
+            outState.putParcelable(ARG_START_ITEM, item);
+            outState.putParcelable(ARG_FEED_PROXY, proxy.toBundle(position));
+        }
     }
 
     private static class PostAdapter extends MyFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
