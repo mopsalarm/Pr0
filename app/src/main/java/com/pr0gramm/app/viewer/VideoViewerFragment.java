@@ -5,11 +5,9 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.View;
 
 import com.pr0gramm.app.MediaPlayerService;
 import com.pr0gramm.app.R;
@@ -26,13 +24,8 @@ public class VideoViewerFragment extends ViewerFragment {
     private MediaPlayerService.MediaPlayerHolder holder;
     private VideoSurfaceTextureListener textureListener;
 
-    public VideoViewerFragment() {
-        super(R.layout.player_video);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public VideoViewerFragment(Context context, Binder binder, String url) {
+        super(context, binder, R.layout.player_video, url);
 
         Log.i(TAG, "Want to play video at " + this);
         if (holder != null) {
@@ -45,7 +38,6 @@ public class VideoViewerFragment extends ViewerFragment {
 
         Log.i(TAG, "Create new MediaPlayer instance to play video");
 
-        Context context = getActivity().getApplicationContext();
         holder = new MediaPlayerService.MediaPlayerHolder(context, getUrlArgument());
         textureListener = new VideoSurfaceTextureListener(holder);
         videoView.setSurfaceTextureListener(textureListener);

@@ -1,9 +1,9 @@
 package com.pr0gramm.app.viewer;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.VideoView;
 
 import com.pr0gramm.app.R;
@@ -13,19 +13,15 @@ import roboguice.inject.InjectView;
 /**
  * Plays videos in a not optimal but compatible way.
  */
+@SuppressLint("ViewConstructor")
 public class SimpleVideoViewerFragment extends ViewerFragment {
     private boolean playing;
 
     @InjectView(R.id.video)
     private VideoView videoView;
 
-    public SimpleVideoViewerFragment() {
-        super(R.layout.player_video_compat);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public SimpleVideoViewerFragment(Context context, Binder binder, String url) {
+        super(context, binder, R.layout.player_video_compat, url);
 
         videoView.setOnPreparedListener(mp -> {
             mp.setLooping(true);
@@ -38,7 +34,6 @@ public class SimpleVideoViewerFragment extends ViewerFragment {
             hideBusyIndicator();
         });
 
-        String url = getUrlArgument();
         Log.i(TAG, "Playing webm " + url);
         videoView.setVideoURI(Uri.parse(url));
     }

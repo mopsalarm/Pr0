@@ -1,7 +1,7 @@
 package com.pr0gramm.app.viewer;
 
-import android.os.Bundle;
-import android.view.View;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.R;
@@ -17,6 +17,7 @@ import roboguice.inject.InjectView;
 
 /**
  */
+@SuppressLint("ViewConstructor")
 public class ImageViewerFragment extends ViewerFragment {
     @InjectView(R.id.image)
     private ImageView imageView;
@@ -27,13 +28,8 @@ public class ImageViewerFragment extends ViewerFragment {
     @Inject
     private Picasso picasso;
 
-    public ImageViewerFragment() {
-        super(R.layout.player_image);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public ImageViewerFragment(Context context, Binder binder, String url) {
+        super(context, binder, R.layout.player_image, url);
 
         picasso.load(getUrlArgument())
                 .resize(1024, settings.maxImageSize())

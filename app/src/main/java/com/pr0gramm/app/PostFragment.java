@@ -2,12 +2,11 @@ package com.pr0gramm.app;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.pr0gramm.app.api.Post;
@@ -64,6 +63,9 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
     @InjectView(R.id.scroll)
     private VerticalScrollView scrollView;
 
+    @InjectView(R.id.player_container)
+    private FrameLayout viewerContainer;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,10 +113,35 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
     @Override
     public void onStart() {
         super.onStart();
+        viewer.onStart();
 
         if (active) {
             onMarkedActive();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        viewer.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        viewer.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        viewer.onStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        viewer.onDestroy();
+        super.onDestroy();
     }
 
     /**
@@ -158,21 +185,17 @@ public class PostFragment extends NestingFragment implements NewTagDialogFragmen
     }
 
     private void initializePlayerFragment() {
-        //check if the fragment already exists
-        Fragment fragment = getChildFragmentManager().findFragmentById(R.id.player_container);
-        if (fragment != null) {
-            Log.i("PostFragment", "Player fragment found");
-            viewer = (ViewerFragment) fragment;
-            return;
-        }
+        //noinspection Convert2Lambda
+        ViewerFragment.Binder binder = new ViewerFragment.Binder() {
+            @Override
+            public <T> Observable<T> bind(Observable<T> observable) {
+                return bindFragment(PostFragment.this, observable);
+            }
+        };
 
         // initialize a new viewer fragment
-        viewer = ViewerFragment.newInstance(settings, feedItem);
-
-        // and add the player to the view.
-        getChildFragmentManager().beginTransaction()
-                .add(R.id.player_container, viewer)
-                .commit();
+        viewer = ViewerFragment.newInstance(getActivity(), binder, feedItem);
+        viewerContainer.addView(viewer);
     }
 
     /**

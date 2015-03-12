@@ -1,7 +1,7 @@
 package com.pr0gramm.app.viewer;
 
+import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
@@ -11,45 +11,46 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
 
-import com.pr0gramm.app.NestingFragment;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
 
+import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
+import roboguice.inject.RoboInjector;
+import rx.Observable;
 
 import static java.lang.System.identityHashCode;
 
 /**
  */
-public abstract class ViewerFragment extends NestingFragment {
+public abstract class ViewerFragment extends FrameLayout {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
             identityHashCode(this), Character.MAX_RADIX);
 
+    protected final Binder binder;
+    protected final String url;
+
     @Nullable
     @InjectView(R.id.progress)
     private View progress;
 
-    @LayoutRes
-    private final int layoutId;
+    public ViewerFragment(Context context, Binder binder, @LayoutRes int layoutId, String url) {
+        super(context);
+        this.binder = binder;
+        this.url = url;
 
-    public ViewerFragment(@LayoutRes int layoutId) {
-        this.layoutId = layoutId;
-    }
+        setLayoutParams(DEFAULT_PARAMS);
+        LayoutInflater.from(context).inflate(layoutId, this);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+        RoboInjector injector = RoboGuice.getInjector(context);
+        injector.injectMembersWithoutViews(this);
+        injector.injectViewMembers(this);
 
-        return inflater.inflate(layoutId, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         showBusyIndicator();
     }
 
@@ -70,11 +71,27 @@ public abstract class ViewerFragment extends NestingFragment {
             progress.setVisibility(View.GONE);
     }
 
+    public void onStart() {
+    }
+
+    public void onStop() {
+    }
+
+    public void onPause() {
+    }
+
+    public void onResume() {
+    }
+
+    public void onDestroy() {
+    }
+
+
     /**
      * Returns the url that this view should display.
      */
     protected String getUrlArgument() {
-        return getArguments().getString("url");
+        return url;
     }
 
     /**
@@ -84,8 +101,9 @@ public abstract class ViewerFragment extends NestingFragment {
      * @param url The url that should be displayed.
      * @return A new {@link ViewerFragment} instance.
      */
-    public static ViewerFragment newInstance(Settings settings, String url) {
+    public static ViewerFragment newInstance(Context context, Binder binder, String url) {
         ViewerFragment result;
+        Settings settings = Settings.of(context);
         if (url.toLowerCase().endsWith(".webm")) {
             boolean useCompatVideoPlayer = settings.useCompatVideoPlayer();
 
@@ -94,21 +112,24 @@ public abstract class ViewerFragment extends NestingFragment {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
                 useCompatVideoPlayer = true;
 
+            // FIXME Right now we'll always use the simple player
+            useCompatVideoPlayer = true;
+
             result = useCompatVideoPlayer
-                    ? new SimpleVideoViewerFragment()
-                    : new VideoViewerFragment();
+                    ? new SimpleVideoViewerFragment(context, binder, url)
+                    : new VideoViewerFragment(context, binder, url);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
-            result = new GifViewerFragment();
+            if (settings.convertGifToWebm()) {
+                result = new Gif2WebmViewerFragment(context, binder, url);
+            } else {
+                result = new GifViewerFragment(context, binder, url);
+            }
 
         } else {
-            result = new ImageViewerFragment();
+            result = new ImageViewerFragment(context, binder, url);
         }
 
-        // add url to fragment arguments
-        Bundle arguments = new Bundle();
-        arguments.putString("url", url);
-        result.setArguments(arguments);
         return result;
     }
 
@@ -116,13 +137,13 @@ public abstract class ViewerFragment extends NestingFragment {
      * Creates a new {@link com.pr0gramm.app.viewer.ViewerFragment} instance
      * for the given feed item.
      *
-     * @param settings The current settings instance
+     * @param context The current context
      * @param feedItem The feed item that is to be displayed.
      * @return A new {@link com.pr0gramm.app.viewer.ViewerFragment} instance.
      */
-    public static ViewerFragment newInstance(Settings settings, FeedItem feedItem) {
+    public static ViewerFragment newInstance(Context context, Binder binder, FeedItem feedItem) {
         String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        return newInstance(settings, url);
+        return newInstance(context, binder, url);
     }
 
     /**
@@ -176,4 +197,12 @@ public abstract class ViewerFragment extends NestingFragment {
     public void stopMedia() {
         Log.i(TAG, "Should stop playing media");
     }
+
+    public interface Binder {
+        public <T> Observable<T> bind(Observable<T> observable);
+    }
+
+    public static final LayoutParams DEFAULT_PARAMS = new LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT);
 }
