@@ -13,10 +13,6 @@ import rx.functions.Action1;
 public class ProxyMediaView extends MediaView {
     private MediaView child;
 
-    private boolean started;
-    private boolean resumed;
-    private boolean playing;
-
     public ProxyMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_proxy, url);
     }
@@ -40,64 +36,70 @@ public class ProxyMediaView extends MediaView {
 
     private void bootupChild() {
         if (child != null) {
-            if (started)
+            if (isStarted())
                 child.onStart();
 
-            if (resumed)
+            if (isResumed())
                 child.onResume();
 
-            if (playing)
+            if (isPlaying())
                 child.playMedia();
         }
     }
 
     private void teardownChild() {
         if (child != null) {
-            if (playing)
+            if (isPlaying())
                 child.stopMedia();
 
-            if (resumed)
+            if (isResumed())
                 child.onPause();
 
-            if (started)
+            if (isStarted())
                 child.onStop();
         }
     }
 
     @Override
     public void onStart() {
-        started = true;
+        super.onStart();
         propagate(MediaView::onStart);
     }
 
     @Override
     public void onResume() {
-        resumed = true;
+        super.onResume();
         propagate(MediaView::onResume);
     }
 
     @Override
     public void playMedia() {
-        playing = true;
+        super.playMedia();
         propagate(MediaView::playMedia);
     }
 
     @Override
     public void stopMedia() {
-        playing = false;
+        super.stopMedia();
         propagate(MediaView::stopMedia);
     }
 
     @Override
     public void onPause() {
-        resumed = false;
         propagate(MediaView::onPause);
+        super.onPause();
     }
 
     @Override
     public void onStop() {
-        started = false;
         propagate(MediaView::onStop);
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        propagate(MediaView::onDestroy);
+        super.onDestroy();
     }
 
     private void propagate(Action1<MediaView> action) {

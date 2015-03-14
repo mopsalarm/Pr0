@@ -35,6 +35,10 @@ public abstract class MediaView extends FrameLayout {
     protected final Binder binder;
     protected final String url;
 
+    private boolean started;
+    private boolean resumed;
+    private boolean playing;
+
     @Nullable
     @InjectView(R.id.progress)
     private View progress;
@@ -71,19 +75,43 @@ public abstract class MediaView extends FrameLayout {
             progress.setVisibility(View.GONE);
     }
 
+    public boolean isStarted() {
+        return started;
+    }
+
+    public boolean isResumed() {
+        return resumed;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
     public void onStart() {
+        started = true;
     }
 
     public void onStop() {
+        started = false;
     }
 
     public void onPause() {
+        resumed = false;
     }
 
     public void onResume() {
+        resumed = true;
     }
 
     public void onDestroy() {
+        if(playing)
+            stopMedia();
+
+        if(resumed)
+            onPause();
+
+        if(started)
+            onStop();
     }
 
 

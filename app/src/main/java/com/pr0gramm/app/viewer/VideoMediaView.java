@@ -47,6 +47,8 @@ public class VideoMediaView extends MediaView {
 
     public void onResume() {
         super.onResume();
+        if(isResumed())
+            return;
 
         Log.i(TAG, "onResume called");
 
@@ -62,8 +64,10 @@ public class VideoMediaView extends MediaView {
             // size of the video
             resizeViewerView(videoView, mp.getVideoWidth() / (float) mp.getVideoHeight(), 10);
 
-            // start playback.
-            holder.getPlayer().start();
+            // start playback if we are not paused
+            if(isResumed())
+                holder.getPlayer().start();
+
             hideBusyIndicator();
         });
     }
