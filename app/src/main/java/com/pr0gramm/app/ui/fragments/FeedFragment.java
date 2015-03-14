@@ -28,7 +28,7 @@ import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Query;
 import com.pr0gramm.app.services.SeenService;
-import com.pr0gramm.app.ui.MainActivity;
+import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
 
@@ -297,7 +297,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void onItemClicked(FeedItem item, int idx) {
-        ((MainActivity) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
+        ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
     }
 
     /**

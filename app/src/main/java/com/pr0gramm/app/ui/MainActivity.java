@@ -52,7 +52,8 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 public class MainActivity extends RoboActionBarActivity implements
         DrawerFragment.OnDrawerActionListener,
         FragmentManager.OnBackStackChangedListener,
-        ScrollHideToolbarListener.ToolbarActivity {
+        ScrollHideToolbarListener.ToolbarActivity,
+        MainActionHandler {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -274,6 +275,7 @@ public class MainActivity extends RoboActionBarActivity implements
         }
     }
 
+    @Override
     public void onPostClicked(FeedProxy feed, int idx) {
         Fragment fragment = PostPagerFragment.newInstance(feed, idx);
 
@@ -347,6 +349,7 @@ public class MainActivity extends RoboActionBarActivity implements
      *
      * @param tag The tag to search for.
      */
+    @Override
     public void onTagClicked(Tag tag) {
         Query query = new Query().withTags(tag.getTag());
         gotoFeedFragment(query, true);

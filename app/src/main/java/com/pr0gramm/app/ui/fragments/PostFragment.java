@@ -18,7 +18,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
-import com.pr0gramm.app.ui.MainActivity;
+import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
@@ -176,7 +176,7 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
         infoLineView.setFeedItem(feedItem, bindFragment(this, cachedVote));
 
         infoLineView.setOnTagClickedListener(tag -> {
-            ((MainActivity) getActivity()).onTagClicked(tag);
+            ((MainActionHandler) getActivity()).onTagClicked(tag);
         });
 
         // register the vote listener
