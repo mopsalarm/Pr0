@@ -152,6 +152,8 @@ public class GifMediaView extends MediaView {
         super.onDestroy();
 
         imageView.setImageDrawable(null);
-        gif.recycle();
+
+        if (gif != null)
+            gif.recycle();
     }
 }
