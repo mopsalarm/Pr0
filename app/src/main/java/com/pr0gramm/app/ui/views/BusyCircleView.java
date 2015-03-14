@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui.views;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,7 @@ import static android.util.FloatMath.cos;
  */
 public class BusyCircleView extends FrameLayout {
     private ImmutableList<View> circles;
+    private ImmutableList<Animator> animators;
 
     public BusyCircleView(Context context) {
         super(context);
@@ -43,6 +46,8 @@ public class BusyCircleView extends FrameLayout {
                 findViewById(R.id.second),
                 findViewById(R.id.third));
 
+
+        ImmutableList.Builder<Animator> animators = ImmutableList.builder();
         for (int idx = 0; idx < circles.size(); idx++) {
             float delta = idx / (float) circles.size();
 
@@ -54,7 +59,51 @@ public class BusyCircleView extends FrameLayout {
             animator.setInterpolator(buildInterpolator(delta / 4));
             animator.setRepeatMode(ObjectAnimator.RESTART);
             animator.setRepeatCount(ObjectAnimator.INFINITE);
+            animators.add(animator);
+        }
+
+        this.animators = animators.build();
+    }
+
+    private void startAnimation() {
+        if (animators == null)
+            return;
+
+        for (Animator animator : animators) {
+            if (animator.isRunning())
+                continue;
+
             animator.start();
+        }
+    }
+
+    private void stopAnimation() {
+        if (animators == null)
+            return;
+
+        for (Animator animator : animators)
+            animator.cancel();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        startAnimation();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        stopAnimation();
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == VISIBLE) {
+            startAnimation();
+        } else {
+            stopAnimation();
         }
     }
 

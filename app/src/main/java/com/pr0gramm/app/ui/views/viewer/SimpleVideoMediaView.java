@@ -16,8 +16,6 @@ import roboguice.inject.InjectView;
  */
 @SuppressLint("ViewConstructor")
 public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener {
-    private boolean playing;
-
     @InjectView(R.id.video)
     private VideoView videoView;
 
@@ -35,7 +33,7 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         super.onResume();
 
         // continue playing
-        if (playing)
+        if (isPlaying())
             videoView.start();
     }
 
@@ -49,7 +47,6 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     public void playMedia() {
         super.playMedia();
         Log.i(TAG, "Setting state to 'playing' now.");
-        playing = true;
 
         if (videoView != null)
             videoView.start();
@@ -58,7 +55,6 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     @Override
     public void stopMedia() {
         super.stopMedia();
-        playing = false;
 
         if (videoView != null)
             videoView.pause();

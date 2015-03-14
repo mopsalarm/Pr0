@@ -39,6 +39,9 @@ public class GifMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
 
+    // the gif that is shown
+    private GifDrawable gif;
+
     public GifMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_image, url);
         loadGif();
@@ -60,7 +63,12 @@ public class GifMediaView extends MediaView {
         binder.bind(loader).subscribe(gif -> {
             // and set gif on ui thread as drawable
             hideBusyIndicator();
+
+            this.gif = gif;
             imageView.setImageDrawable(gif);
+
+            if (!isPlaying())
+                gif.stop();
         });
     }
 
@@ -109,5 +117,41 @@ public class GifMediaView extends MediaView {
             if (!temporary.delete())
                 Log.w("Gif", "Could not clean up");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (gif != null && isPlaying())
+            gif.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (gif != null && isPlaying())
+            gif.pause();
+    }
+
+    @Override
+    public void playMedia() {
+        super.playMedia();
+        if (gif != null && isPlaying())
+            gif.start();
+    }
+
+    @Override
+    public void stopMedia() {
+        super.stopMedia();
+        if (gif != null)
+            gif.stop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        imageView.setImageDrawable(null);
+        gif.recycle();
     }
 }

@@ -217,10 +217,12 @@ public abstract class MediaView extends FrameLayout {
 
     public void playMedia() {
         Log.i(TAG, "Should start playing media");
+        playing = true;
     }
 
     public void stopMedia() {
         Log.i(TAG, "Should stop playing media");
+        playing = false;
     }
 
     public interface Binder {

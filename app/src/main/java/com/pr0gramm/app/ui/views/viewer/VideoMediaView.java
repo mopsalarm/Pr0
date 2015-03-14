@@ -46,9 +46,10 @@ public class VideoMediaView extends MediaView {
     }
 
     public void onResume() {
-        super.onResume();
         if (isResumed())
             return;
+
+        super.onResume();
 
         Log.i(TAG, "onResume called");
 
