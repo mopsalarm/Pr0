@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.pr0gramm.app">
+    package="com.pr0gramm.app">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -14,52 +14,52 @@
 
         <meta-data
             android:name="roboguice.modules"
-            android:value="com.pr0gramm.app.Pr0grammModule"/>
+            android:value="com.pr0gramm.app.Pr0grammModule" />
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
-            android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
+            android:value="3b0e9b35b11bde7bb671229dba63447351751401" />
 
         <!-- Sugar ORM configuration -->
         <meta-data
             android:name="DATABASE"
-            android:value="pr0gramm.db"/>
+            android:value="pr0gramm.db" />
 
         <meta-data
             android:name="VERSION"
-            android:value="3"/>
+            android:value="3" />
 
         <meta-data
             android:name="QUERY_LOG"
-            android:value="true"/>
+            android:value="true" />
 
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
-            android:value="com.pr0gramm.app.orm"/>
+            android:value="com.pr0gramm.app.orm" />
 
         <receiver
             android:name=".SyncBroadcastReceiver"
-            android:exported="false"/>
+            android:exported="false" />
 
         <service
             android:name=".SyncIntentService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
-            android:name="com.pr0gramm.app.MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:theme="@style/AppTheme.ActionBar"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".ui.MainActivity" />
 
     </application>
 

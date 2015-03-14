@@ -3,10 +3,9 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.ContentType;
-import com.pr0gramm.app.api.Api;
-import com.pr0gramm.app.api.Feed;
-import com.pr0gramm.app.api.Post;
+import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.response.Feed;
+import com.pr0gramm.app.api.pr0gramm.response.Post;
 
 import javax.inject.Inject;
 

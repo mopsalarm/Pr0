@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.pr0gramm.app.VerticalScrollView
+    <com.pr0gramm.app.ui.views.VerticalScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,12 +20,12 @@
                 android:id="@+id/player_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="?actionBarSize"/>
+                android:layout_marginTop="?actionBarSize" />
 
-            <com.pr0gramm.app.InfoLineView
+            <com.pr0gramm.app.ui.views.InfoLineView
                 android:id="@+id/info_line"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <!-- RecyclerView inside of scroll view is not a good idea.
             <android.support.v7.widget.RecyclerView
@@ -36,5 +35,5 @@
                 android:overScrollMode="never"/>
             -->
         </LinearLayout>
-    </com.pr0gramm.app.VerticalScrollView>
+    </com.pr0gramm.app.ui.views.VerticalScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

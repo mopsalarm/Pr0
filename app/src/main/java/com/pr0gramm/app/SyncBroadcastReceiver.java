@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import com.pr0gramm.app.services.UserService;
+
 import roboguice.RoboGuice;
 
 /**

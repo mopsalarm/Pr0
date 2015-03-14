@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.pr0gramm.app.ContentType;
 
 import java.util.EnumSet;
 import java.util.List;

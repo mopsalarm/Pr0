@@ -4,7 +4,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.api.SyncResponse;
+import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.services.UserService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +32,7 @@ public class SyncIntentService extends RoboIntentService {
             // perform a sync
             userService.sync()
                     .timeout(25, TimeUnit.SECONDS)
-                    .onErrorResumeNext(Observable.<SyncResponse>empty())
+                    .onErrorResumeNext(Observable.<Sync>empty())
                     .toBlocking()
                     .firstOrDefault(null);
 

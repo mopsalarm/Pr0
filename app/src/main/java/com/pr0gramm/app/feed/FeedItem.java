@@ -3,14 +3,13 @@ package com.pr0gramm.app.feed;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.pr0gramm.app.api.Feed;
+import com.pr0gramm.app.api.pr0gramm.response.Feed;
 
 import org.joda.time.Instant;
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
- * by a {@link com.pr0gramm.app.api.Feed.Item} and enhanced with meta data,
- * like "already seen".
+ * by the data of an {@link com.pr0gramm.app.api.pr0gramm.response.Feed.Item}.
  */
 public class FeedItem implements Parcelable {
     private final long id;
@@ -23,9 +22,8 @@ public class FeedItem implements Parcelable {
     private final int down;
     private final int mark;
     private final Instant created;
-    private final boolean seen;
 
-    public FeedItem(Feed.Item item, boolean seen) {
+    public FeedItem(Feed.Item item) {
         id = item.getId();
         promotedId = item.getPromoted();
         thumb = item.getThumb();
@@ -36,12 +34,6 @@ public class FeedItem implements Parcelable {
         down = item.getDown();
         mark = item.getMark();
         created = item.getCreated();
-
-        this.seen = seen;
-    }
-
-    public boolean isSeen() {
-        return seen;
     }
 
     public long getId() {
@@ -113,7 +105,6 @@ public class FeedItem implements Parcelable {
         dest.writeInt(rating);
         dest.writeByte((byte) mark);
         dest.writeInt((int) (created.getMillis() / 1000));
-        dest.writeByte(seen ? (byte) 1 : (byte) 0);
     }
 
     private FeedItem(Parcel in) {
@@ -126,7 +117,6 @@ public class FeedItem implements Parcelable {
         int rating = in.readInt();
         this.mark = in.readByte();
         this.created = new Instant(1000L * in.readInt());
-        this.seen = in.readByte() != 0;
 
         // extract up/down from rating
         this.up = (rating >> 16) & 0xffff;

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
-    <com.pr0gramm.app.VoteView
+    <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/voting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,8 +17,7 @@
         app:spacing="4dp"
         app:textSize="24sp"
         app:defaultColor="@color/grey_700"
-        app:markedColor="?colorPrimary"
-        />
+        app:markedColor="?colorPrimary" />
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Body1"
@@ -28,16 +27,16 @@
         android:layout_marginLeft="4dp"
         android:layout_toRightOf="@id/voting"
         android:layout_alignParentRight="true"
-        android:text="@string/dummy_comment"/>
+        android:text="@string/dummy_comment" />
 
-    <com.pr0gramm.app.UsernameView
+    <com.pr0gramm.app.ui.views.UsernameView
         style="@style/Base.TextAppearance.AppCompat.Caption"
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/comment"
         android:layout_below="@id/comment"
-        android:layout_marginTop="2dp"/>
+        android:layout_marginTop="2dp" />
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Caption"
@@ -48,7 +47,7 @@
         android:layout_alignBaseline="@id/username"
         android:layout_marginLeft="8dp"
         android:textSize="10sp"
-        android:text="@string/dummy_points"/>
+        android:text="@string/dummy_points" />
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat.Caption"
@@ -59,5 +58,5 @@
         android:layout_toRightOf="@id/points"
         android:layout_marginLeft="8dp"
         android:textSize="10sp"
-        android:text="@string/dummy_post_date"/>
+        android:text="@string/dummy_post_date" />
 </RelativeLayout>

@@ -7,9 +7,8 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.api.Api;
-import com.pr0gramm.app.api.GifToWebmApi;
 import com.pr0gramm.app.api.InstantDeserializer;
+import com.pr0gramm.app.api.gif2webm.Api;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
@@ -44,7 +43,7 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Api api(Settings settings, Gson gson, CookieHandler cookieHandler) {
+    public com.pr0gramm.app.api.pr0gramm.Api api(Settings settings, Gson gson, CookieHandler cookieHandler) {
         OkHttpClient client = new OkHttpClient();
 
 //        client.networkInterceptors().add(chain -> {
@@ -61,16 +60,16 @@ public class Pr0grammModule extends AbstractModule {
                 .setConverter(new GsonConverter(gson))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setClient(new OkClient(client))
-                .build().create(Api.class);
+                .build().create(com.pr0gramm.app.api.pr0gramm.Api.class);
     }
 
     @Provides
     @Singleton
-    public GifToWebmApi restAdapter(Gson gson) {
+    public Api restAdapter(Gson gson) {
         return new RestAdapter.Builder()
-                .setEndpoint(GifToWebmApi.ENDPOINT)
+                .setEndpoint(Api.DEFAULT_ENDPOINT)
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .build().create(GifToWebmApi.class);
+                .build().create(Api.class);
     }
 
     @Provides

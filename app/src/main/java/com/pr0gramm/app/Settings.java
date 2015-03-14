@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 
 import com.google.common.base.Enums;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.ui.fragments.IndicatorStyle;
 
 import java.util.EnumSet;
 

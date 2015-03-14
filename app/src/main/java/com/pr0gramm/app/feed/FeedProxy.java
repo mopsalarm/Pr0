@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
-import com.pr0gramm.app.api.Feed;
+import com.pr0gramm.app.api.pr0gramm.response.Feed;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -121,7 +121,7 @@ public class FeedProxy {
     private EnhancedFeed enhance(Feed feed) {
         List<FeedItem> items = new ArrayList<FeedItem>();
         for (Feed.Item item : feed.getItems())
-            items.add(new FeedItem(item, false));
+            items.add(new FeedItem(item));
 
         return new EnhancedFeed(feed, items);
     }
