@@ -167,7 +167,7 @@ public class VoteService {
      * Gets the votes for the given comments
      *
      * @param comments A list of comments to get the votes for.
-     * @return
+     * @return A map containing the vote from commentId to vote
      */
     public Observable<Map<Long, Vote>> getCommentVotes(List<Post.Comment> comments) {
         if (comments.isEmpty())
