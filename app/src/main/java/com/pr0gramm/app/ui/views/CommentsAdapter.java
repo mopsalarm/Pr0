@@ -96,8 +96,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
-        view.vote.setOnVoteListener(vote -> onCommentVoteClickedListener != null
-                && onCommentVoteClickedListener.onCommentVoteClicked(comment, vote));
+        view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
+    }
+
+    private boolean doVote(int position, Post.Comment comment, Vote vote) {
+        if (onCommentVoteClickedListener == null)
+            return false;
+
+        boolean performVote = onCommentVoteClickedListener.onCommentVoteClicked(comment, vote);
+        if (performVote) {
+            voteCache.put(comment.getId(), vote);
+            notifyItemChanged(position);
+        }
+
+        return performVote;
     }
 
     @Override

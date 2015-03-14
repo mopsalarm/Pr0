@@ -17,6 +17,7 @@ import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +163,16 @@ public class VoteService {
         SugarRecord.deleteAll(CachedVote.class);
     }
 
-    public Observable<Map<Long, Vote>> getVotes(List<Post.Comment> comments) {
+    /**
+     * Gets the votes for the given comments
+     *
+     * @param comments A list of comments to get the votes for.
+     * @return
+     */
+    public Observable<Map<Long, Vote>> getCommentVotes(List<Post.Comment> comments) {
+        if (comments.isEmpty())
+            return Observable.just(Collections.<Long, Vote>emptyMap());
+
         return Async.start(() -> {
             List<Long> ids = transform(comments, Post.Comment::getId);
             List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);

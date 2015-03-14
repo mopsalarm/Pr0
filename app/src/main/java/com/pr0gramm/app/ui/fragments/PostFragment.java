@@ -19,6 +19,7 @@ import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.MainActivity;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -26,6 +27,7 @@ import com.pr0gramm.app.ui.views.VerticalScrollView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -34,8 +36,8 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -225,29 +227,41 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
         // update tags from post
         infoLineView.setTags(post.getTags());
 
-        bindFragment(this, voteService.getVotes(post.getComments())).subscribe(votes -> {
-            // TODO Think of something nicer for the comments :/
-            // remove previous comments
-            for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
-                list.removeViewAt(idx);
-
-            // and display the comments
-            CommentsAdapter adapter = new CommentsAdapter(post.getComments());
-            adapter.setVoteCache(votes);
-
-            for (int idx = 0; idx < adapter.getItemCount(); idx++) {
-                CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
-                adapter.onBindViewHolder(view, idx);
-
-                list.addView(view.itemView);
-            }
-
-            adapter.setOnCommentVoteClickedListener((comment, vote) -> doIfAuthorized(this, () -> {
-                bindFragment(this, voteService.vote(comment, vote))
-                        .lift(errorDialog(this))
-                        .subscribe();
-            }));
+        List<Post.Comment> comments = post.getComments();
+        bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
+            displayComments(comments, votes);
         });
+    }
+
+    /**
+     * Displays the comments. Uses the map of votes to display the correct
+     * voting state on the comment view.
+     *
+     * @param comments The comments to display
+     * @param votes    The votes for those comments.
+     */
+    private void displayComments(List<Post.Comment> comments, Map<Long, Vote> votes) {
+        // TODO Think of something nicer for the comments :/
+        // remove previous comments
+        for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
+            list.removeViewAt(idx);
+
+        // and display the comments
+        CommentsAdapter adapter = new CommentsAdapter(comments);
+        adapter.setVoteCache(votes);
+
+        for (int idx = 0; idx < adapter.getItemCount(); idx++) {
+            CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
+            adapter.onBindViewHolder(view, idx);
+
+            list.addView(view.itemView);
+        }
+
+        adapter.setOnCommentVoteClickedListener((comment, vote) -> doIfAuthorized(this, () -> {
+            bindFragment(this, voteService.vote(comment, vote))
+                    .lift(errorDialog(this))
+                    .subscribe();
+        }));
     }
 
     /**

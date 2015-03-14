@@ -35,8 +35,8 @@ import roboguice.fragment.RoboDialogFragment;
 import rx.Observable;
 import rx.Subscriber;
 
-import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
-import static com.pr0gramm.app.ErrorDialogFragment.showErrorString;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindFragment;
 

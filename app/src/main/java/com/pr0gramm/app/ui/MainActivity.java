@@ -39,7 +39,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
-import static com.pr0gramm.app.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;

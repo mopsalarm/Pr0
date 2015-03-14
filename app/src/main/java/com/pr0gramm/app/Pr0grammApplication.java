@@ -8,6 +8,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
