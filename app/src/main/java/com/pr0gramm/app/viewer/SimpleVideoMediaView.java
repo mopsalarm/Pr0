@@ -15,13 +15,13 @@ import roboguice.inject.InjectView;
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-public class SimpleVideoViewerFragment extends ViewerFragment implements MediaPlayer.OnPreparedListener {
+public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener {
     private boolean playing;
 
     @InjectView(R.id.video)
     private VideoView videoView;
 
-    public SimpleVideoViewerFragment(Context context, Binder binder, String url) {
+    public SimpleVideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video_compat, url);
 
         videoView.setOnPreparedListener(this);

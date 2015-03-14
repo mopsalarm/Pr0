@@ -26,7 +26,7 @@ import static java.lang.System.identityHashCode;
 
 /**
  */
-public abstract class ViewerFragment extends FrameLayout {
+public abstract class MediaView extends FrameLayout {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
@@ -39,7 +39,7 @@ public abstract class ViewerFragment extends FrameLayout {
     @InjectView(R.id.progress)
     private View progress;
 
-    public ViewerFragment(Context context, Binder binder, @LayoutRes int layoutId, String url) {
+    public MediaView(Context context, Binder binder, @LayoutRes int layoutId, String url) {
         super(context);
         this.binder = binder;
         this.url = url;
@@ -99,10 +99,10 @@ public abstract class ViewerFragment extends FrameLayout {
      * on the provided url.
      *
      * @param url The url that should be displayed.
-     * @return A new {@link ViewerFragment} instance.
+     * @return A new {@link MediaView} instance.
      */
-    public static ViewerFragment newInstance(Context context, Binder binder, String url) {
-        ViewerFragment result;
+    public static MediaView newInstance(Context context, Binder binder, String url) {
+        MediaView result;
         Settings settings = Settings.of(context);
         if (url.toLowerCase().endsWith(".webm")) {
             boolean useCompatVideoPlayer = settings.useCompatVideoPlayer();
@@ -113,32 +113,32 @@ public abstract class ViewerFragment extends FrameLayout {
                 useCompatVideoPlayer = true;
 
             result = useCompatVideoPlayer
-                    ? new SimpleVideoViewerFragment(context, binder, url)
-                    : new VideoViewerFragment(context, binder, url);
+                    ? new SimpleVideoMediaView(context, binder, url)
+                    : new VideoMediaView(context, binder, url);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {
-                result = new Gif2WebmViewerFragment(context, binder, url);
+                result = new Gif2WebmMediaView(context, binder, url);
             } else {
-                result = new GifViewerFragment(context, binder, url);
+                result = new GifMediaView(context, binder, url);
             }
 
         } else {
-            result = new ImageViewerFragment(context, binder, url);
+            result = new ImageMediaView(context, binder, url);
         }
 
         return result;
     }
 
     /**
-     * Creates a new {@link com.pr0gramm.app.viewer.ViewerFragment} instance
+     * Creates a new {@link com.pr0gramm.app.viewer.MediaView} instance
      * for the given feed item.
      *
      * @param context  The current context
      * @param feedItem The feed item that is to be displayed.
-     * @return A new {@link com.pr0gramm.app.viewer.ViewerFragment} instance.
+     * @return A new {@link com.pr0gramm.app.viewer.MediaView} instance.
      */
-    public static ViewerFragment newInstance(Context context, Binder binder, FeedItem feedItem) {
+    public static MediaView newInstance(Context context, Binder binder, FeedItem feedItem) {
         String url = "http://img.pr0gramm.com/" + feedItem.getImage();
         return newInstance(context, binder, url);
     }

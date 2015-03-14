@@ -29,7 +29,7 @@ import static java.lang.System.identityHashCode;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class GifViewerFragment extends ViewerFragment {
+public class GifMediaView extends MediaView {
     @Inject
     private Downloader downloader;
 
@@ -39,7 +39,7 @@ public class GifViewerFragment extends ViewerFragment {
     @InjectView(R.id.image)
     private ImageView imageView;
 
-    public GifViewerFragment(Context context, Binder binder, String url) {
+    public GifMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_image, url);
         loadGif();
     }

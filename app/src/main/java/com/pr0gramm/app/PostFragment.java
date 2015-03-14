@@ -13,7 +13,7 @@ import com.pr0gramm.app.api.Post;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
-import com.pr0gramm.app.viewer.ViewerFragment;
+import com.pr0gramm.app.viewer.MediaView;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
 
     private boolean active;
     private FeedItem feedItem;
-    private ViewerFragment viewer;
+    private MediaView viewer;
 
     @Inject
     private FeedService feedService;
@@ -187,7 +187,7 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
 
     private void initializePlayerFragment() {
         //noinspection Convert2Lambda
-        ViewerFragment.Binder binder = new ViewerFragment.Binder() {
+        MediaView.Binder binder = new MediaView.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
                 return bindFragment(PostFragment.this, observable).lift(errorDialog(PostFragment.this));
@@ -200,7 +200,7 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
         };
 
         // initialize a new viewer fragment
-        viewer = ViewerFragment.newInstance(getActivity(), binder, feedItem);
+        viewer = MediaView.newInstance(getActivity(), binder, feedItem);
         viewerContainer.addView(viewer);
     }
 

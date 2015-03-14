@@ -19,14 +19,14 @@ import roboguice.inject.InjectView;
  */
 @SuppressLint("ViewConstructor")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class VideoViewerFragment extends ViewerFragment {
+public class VideoMediaView extends MediaView {
     @InjectView(R.id.video)
     private TextureView videoView;
 
     private MediaPlayerService.MediaPlayerHolder holder;
     private VideoSurfaceTextureListener textureListener;
 
-    public VideoViewerFragment(Context context, Binder binder, String url) {
+    public VideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video, url);
 
         Log.i(TAG, "Want to play video at " + this);

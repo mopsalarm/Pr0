@@ -18,7 +18,7 @@ import roboguice.inject.InjectView;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class ImageViewerFragment extends ViewerFragment {
+public class ImageMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
 
@@ -28,7 +28,7 @@ public class ImageViewerFragment extends ViewerFragment {
     @Inject
     private Picasso picasso;
 
-    public ImageViewerFragment(Context context, Binder binder, String url) {
+    public ImageMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_image, url);
 
         picasso.load(getUrlArgument())
@@ -43,15 +43,15 @@ public class ImageViewerFragment extends ViewerFragment {
      * will not create a memory leak.
      */
     private static class HideBusyIndicator implements Callback {
-        private final WeakReference<ImageViewerFragment> fragment;
+        private final WeakReference<ImageMediaView> fragment;
 
-        public HideBusyIndicator(ImageViewerFragment fragment) {
+        public HideBusyIndicator(ImageMediaView fragment) {
             this.fragment = new WeakReference<>(fragment);
         }
 
         @Override
         public void onSuccess() {
-            ImageViewerFragment player = fragment.get();
+            ImageMediaView player = fragment.get();
             if (player != null)
                 player.hideBusyIndicator();
         }

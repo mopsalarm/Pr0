@@ -10,18 +10,18 @@ import rx.functions.Action1;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class ProxyViewerFragment extends ViewerFragment {
-    private ViewerFragment child;
+public class ProxyMediaView extends MediaView {
+    private MediaView child;
 
     private boolean started;
     private boolean resumed;
     private boolean playing;
 
-    public ProxyViewerFragment(Context context, Binder binder, String url) {
+    public ProxyMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_proxy, url);
     }
 
-    public void setChild(ViewerFragment viewer) {
+    public void setChild(MediaView viewer) {
         unsetChild();
         hideBusyIndicator();
 
@@ -67,40 +67,40 @@ public class ProxyViewerFragment extends ViewerFragment {
     @Override
     public void onStart() {
         started = true;
-        propagate(ViewerFragment::onStart);
+        propagate(MediaView::onStart);
     }
 
     @Override
     public void onResume() {
         resumed = true;
-        propagate(ViewerFragment::onResume);
+        propagate(MediaView::onResume);
     }
 
     @Override
     public void playMedia() {
         playing = true;
-        propagate(ViewerFragment::playMedia);
+        propagate(MediaView::playMedia);
     }
 
     @Override
     public void stopMedia() {
         playing = false;
-        propagate(ViewerFragment::stopMedia);
+        propagate(MediaView::stopMedia);
     }
 
     @Override
     public void onPause() {
         resumed = false;
-        propagate(ViewerFragment::onPause);
+        propagate(MediaView::onPause);
     }
 
     @Override
     public void onStop() {
         started = false;
-        propagate(ViewerFragment::onStop);
+        propagate(MediaView::onStop);
     }
 
-    private void propagate(Action1<ViewerFragment> action) {
+    private void propagate(Action1<MediaView> action) {
         if (child != null)
             action.call(child);
     }
