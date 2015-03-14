@@ -58,5 +58,6 @@ public class UsernameView extends TextView {
             R.drawable.user_type_moderator_small,
             R.drawable.user_type_fliesentisch_small,
             R.drawable.user_type_legende_small,
-            R.drawable.user_type_wichtler_small);
+            R.drawable.user_type_wichtler_small,
+            R.drawable.user_type_pr0mium_small);
 }
