@@ -130,6 +130,9 @@ public class LoginCookieHandler extends CookieHandler {
             loginCookie = null;
             preferences.edit().remove(PREF_LOGIN_COOKIE).apply();
         }
+
+        if (onCookieChangedListener != null)
+            onCookieChangedListener.onCookieChanged();
     }
 
     public OnCookieChangedListener getOnCookieChangedListener() {

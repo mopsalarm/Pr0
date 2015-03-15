@@ -40,6 +40,9 @@ public class DrawerFragment extends RoboFragment {
     @InjectView(R.id.benis)
     private TextView benisView;
 
+    @InjectView(R.id.benis_container)
+    private View benisContainer;
+
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
     private Subscription subscription;
@@ -121,10 +124,12 @@ public class DrawerFragment extends RoboFragment {
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
-            benisView.setText(String.valueOf(user.getScore()));
 
+            benisView.setText(String.valueOf(user.getScore()));
+            benisContainer.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
+            benisContainer.setVisibility(View.GONE);
         }
     }
 
