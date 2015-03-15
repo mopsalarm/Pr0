@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -20,6 +21,7 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -27,7 +29,6 @@ import com.pr0gramm.app.ui.views.VerticalScrollView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -45,7 +46,11 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends RoboFragment implements NewTagDialogFragment.OnAddNewTagsListener {
+public class PostFragment extends RoboFragment implements
+        NewTagDialogFragment.OnAddNewTagsListener,
+        NewCommentDialogFragment.OnAddNewCommentListener,
+        CommentsAdapter.CommentActionListener {
+
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
     private boolean active;
@@ -78,6 +83,9 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
 
     @InjectView(R.id.player_container)
     private FrameLayout viewerContainer;
+
+    // start with an empty adapter here
+    private CommentsAdapter adapter = new CommentsAdapter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -227,41 +235,33 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
         // update tags from post
         infoLineView.setTags(post.getTags());
 
-        List<Post.Comment> comments = post.getComments();
-        bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
-            displayComments(comments, votes);
-        });
+        displayComments(post.getComments());
     }
 
     /**
-     * Displays the comments. Uses the map of votes to display the correct
-     * voting state on the comment view.
+     * Displays the given list of comments combined with the votings for those comments.
      *
-     * @param comments The comments to display
-     * @param votes    The votes for those comments.
+     * @param comments The list of comments to display.
      */
-    private void displayComments(List<Post.Comment> comments, Map<Long, Vote> votes) {
-        // TODO Think of something nicer for the comments :/
-        // remove previous comments
-        for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
-            list.removeViewAt(idx);
+    private void displayComments(List<Post.Comment> comments) {
+        bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
+            // and display the comments
+            adapter = new CommentsAdapter();
+            adapter.addVoteCache(votes);
+            adapter.addComments(comments);
 
-        // and display the comments
-        CommentsAdapter adapter = new CommentsAdapter(comments);
-        adapter.setVoteCache(votes);
+            // remove previous comments
+            for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
+                list.removeViewAt(idx);
 
-        for (int idx = 0; idx < adapter.getItemCount(); idx++) {
-            CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
-            adapter.onBindViewHolder(view, idx);
+            for (int idx = 0; idx < adapter.getItemCount(); idx++) {
+                CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
+                adapter.onBindViewHolder(view, idx);
+                list.addView(view.itemView);
+            }
 
-            list.addView(view.itemView);
-        }
-
-        adapter.setOnCommentVoteClickedListener((comment, vote) -> doIfAuthorized(this, () -> {
-            bindFragment(this, voteService.vote(comment, vote))
-                    .lift(errorDialog(this))
-                    .subscribe();
-        }));
+            adapter.setCommentActionListener(this);
+        });
     }
 
     /**
@@ -328,5 +328,34 @@ public class PostFragment extends RoboFragment implements NewTagDialogFragment.O
         PostFragment fragment = new PostFragment();
         fragment.setArguments(arguments);
         return fragment;
+    }
+
+    @Override
+    public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
+        return doIfAuthorized(this, () -> {
+            bindFragment(this, voteService.vote(comment, vote))
+                    .lift(errorDialog(this))
+                    .subscribe();
+        });
+    }
+
+    @Override
+    public void onAnswerClicked(Post.Comment comment) {
+        Runnable retry = () -> onAnswerClicked(comment);
+
+        doIfAuthorized(this, () -> {
+            NewCommentDialogFragment
+                    .newInstance(Optional.fromNullable(comment))
+                    .show(getChildFragmentManager(), null);
+
+        }, retry);
+    }
+
+    @Override
+    public void onAddNewCommment(long parentId, String text) {
+        bindFragment(this, voteService.postComment(feedItem, parentId, text))
+                .lift(errorDialog(this))
+                .lift(busyDialog(this))
+                .subscribe(this::displayComments);
     }
 }

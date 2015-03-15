@@ -10,14 +10,15 @@
         style="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_new_tag_summary"/>
+        android:text="@string/add_new_comment_summary"/>
 
     <EditText
-        android:id="@+id/tag"
+        android:id="@+id/comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/comment_hint"
         android:layout_marginTop="16dp"
-        android:hint="@string/dummy_tags"
-        android:singleLine="true"/>
+        android:maxLines="3"
+        android:gravity="top|start"/>
 
 </LinearLayout>

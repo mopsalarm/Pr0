@@ -2,6 +2,7 @@ package com.pr0gramm.app.api.pr0gramm;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
+import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.NewTag;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
@@ -56,4 +57,12 @@ public interface Api {
     Observable<NewTag> addTags(
             @Field("itemId") long lastId,
             @Field("tags") String tags);
+
+
+    @FormUrlEncoded
+    @POST("/api/comments/post")
+    Observable<NewComment> postComment(
+            @Field("itemId") long itemId,
+            @Field("parentId") long parentId,
+            @Field("comment") String comment);
 }

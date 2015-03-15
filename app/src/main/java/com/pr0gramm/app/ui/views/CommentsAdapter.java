@@ -8,9 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
@@ -27,25 +25,36 @@ import java.util.Map;
 
 import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singleton;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
-    private final ImmutableMap<Integer, Post.Comment> byId;
-    private final ImmutableList<Post.Comment> comments;
+    private final Map<Integer, Post.Comment> byId = new HashMap<>();
     private final Map<Long, Vote> voteCache = new HashMap<>();
+    private List<Post.Comment> comments = new ArrayList<>();
 
-    private OnCommentVoteClickedListener onCommentVoteClickedListener;
+    private CommentActionListener commentActionListener;
 
-    public CommentsAdapter(Collection<Post.Comment> comments) {
+    public CommentsAdapter() {
         setHasStableIds(true);
-        this.comments = ImmutableList.copyOf(sort(comments));
-        this.byId = Maps.uniqueIndex(this.comments, c -> (int) c.getId());
     }
 
-    public void setVoteCache(Map<Long, Vote> votes) {
-        voteCache.clear();
+    public void addComments(Collection<Post.Comment> comments) {
+        this.comments = sort(newArrayList(concat(this.comments, comments)));
+        this.byId.putAll(Maps.uniqueIndex(this.comments, c -> (int) c.getId()));
+        notifyDataSetChanged();
+    }
+
+    public void addComment(Post.Comment comment, Vote vote) {
+        voteCache.put(comment.getId(), vote);
+        addComments(singleton(comment));
+    }
+
+    public void addVoteCache(Map<Long, Vote> votes) {
         voteCache.putAll(votes);
         notifyDataSetChanged();
     }
@@ -97,13 +106,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
         view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
+
+        view.answer.setOnClickListener(v -> doAnswer(comment));
+    }
+
+    private void doAnswer(Post.Comment comment) {
+        if (commentActionListener != null)
+            commentActionListener.onAnswerClicked(comment);
     }
 
     private boolean doVote(int position, Post.Comment comment, Vote vote) {
-        if (onCommentVoteClickedListener == null)
+        if (commentActionListener == null)
             return false;
 
-        boolean performVote = onCommentVoteClickedListener.onCommentVoteClicked(comment, vote);
+        boolean performVote = commentActionListener.onCommentVoteClicked(comment, vote);
         if (performVote) {
             voteCache.put(comment.getId(), vote);
             notifyItemChanged(position);
@@ -122,12 +138,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return comments.get(position).getId();
     }
 
-    public void setOnCommentVoteClickedListener(OnCommentVoteClickedListener onCommentVoteClickedListener) {
-        this.onCommentVoteClickedListener = onCommentVoteClickedListener;
+    public void setCommentActionListener(CommentActionListener commentActionListener) {
+        this.commentActionListener = commentActionListener;
     }
 
-    public OnCommentVoteClickedListener getOnCommentVoteClickedListener() {
-        return onCommentVoteClickedListener;
+    public CommentActionListener getCommentActionListener() {
+        return commentActionListener;
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
@@ -135,8 +151,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView comment;
         final TextView points;
         final TextView date;
-        final VoteView vote;
+        final View answer;
 
+        final VoteView vote;
         private final int baseLeftMargin;
 
         public CommentView(View itemView) {
@@ -151,6 +168,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             points = (TextView) itemView.findViewById(R.id.points);
             date = (TextView) itemView.findViewById(R.id.date);
             vote = (VoteView) itemView.findViewById(R.id.voting);
+            answer = itemView.findViewById(R.id.answer);
         }
 
         public void setCommentDepth(int depth) {
@@ -159,8 +177,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-    public interface OnCommentVoteClickedListener {
+    public interface CommentActionListener {
         boolean onCommentVoteClicked(Post.Comment comment, Vote vote);
+
+        void onAnswerClicked(Post.Comment comment);
     }
 
     /**

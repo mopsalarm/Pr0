@@ -11,25 +11,24 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.base.Splitter;
+import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
-
-import java.util.List;
+import com.pr0gramm.app.api.pr0gramm.response.Post;
 
 /**
  */
-public class NewTagDialogFragment extends DialogFragment {
-    private EditText tagInput;
+public class NewCommentDialogFragment extends DialogFragment {
+    private EditText commentInput;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_tags, null);
-        tagInput = (EditText) view.findViewById(R.id.tag);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_comment, null);
+        commentInput = (EditText) view.findViewById(R.id.comment);
 
         return new MaterialDialog.Builder(getActivity())
-                .title(R.string.add_new_tag_title)
+                .title(R.string.add_new_comment_title)
                 .customView(view, true)
                 .negativeText(R.string.cancel)
                 .positiveText(R.string.action_add_tag)
@@ -43,28 +42,35 @@ public class NewTagDialogFragment extends DialogFragment {
     }
 
     private void onOkayClicked(MaterialDialog dialog) {
-        String text = tagInput.getText().toString();
+        String text = commentInput.getText().toString().trim();
 
-        // split text into tags.
-        Splitter splitter = Splitter.on(",").omitEmptyStrings().trimResults();
-        List<String> tags = splitter.splitToList(text);
-
-        // do nothing if the user had not typed any tags
-        if (tags.isEmpty())
+        // do nothing if the user had not typed a comment
+        if (text.isEmpty())
             return;
 
         // inform parent
-        ((OnAddNewTagsListener) getParentFragment()).onAddNewTags(tags);
+        long parentComment = getArguments().getLong("parentCommentId");
+        ((OnAddNewCommentListener) getParentFragment()).onAddNewCommment(parentComment, text);
+    }
+
+    public static NewCommentDialogFragment newInstance(Optional<Post.Comment> parent) {
+        long parentId = parent.transform(Post.Comment::getId).or(0L);
+        Bundle arguments = new Bundle();
+        arguments.putLong("parentCommentId", parentId);
+
+        NewCommentDialogFragment dialog = new NewCommentDialogFragment();
+        dialog.setArguments(arguments);
+        return dialog;
     }
 
     /**
      * The parent fragment must implement this interface.
      * It will be informed by this class if the user added tags.
      */
-    public interface OnAddNewTagsListener {
+    public interface OnAddNewCommentListener {
         /**
          * Called when the dialog finishes with new tags.
          */
-        void onAddNewTags(List<String> tags);
+        void onAddNewCommment(long parentId, String comment);
     }
 }

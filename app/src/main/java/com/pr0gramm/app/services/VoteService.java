@@ -156,6 +156,20 @@ public class VoteService {
     }
 
     /**
+     * Writes a comment to the given post.
+     */
+    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
+        return api.postComment(item.getId(), parentId, comment)
+                .filter(response -> response.getComments().size() >= 1)
+                .map(response -> {
+                    // store the implicit upvote for the comment.
+                    storeVoteValueInTx(CachedVote.Type.COMMENT, response.getCommentId(), Vote.UP);
+                    return response.getComments();
+                });
+    }
+
+
+    /**
      * Removes all votes from the vote cache.
      */
     public void clear() {
