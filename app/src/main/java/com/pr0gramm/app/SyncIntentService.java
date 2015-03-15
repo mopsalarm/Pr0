@@ -42,6 +42,9 @@ public class SyncIntentService extends RoboIntentService {
             // print info!
             Log.i("SyncIntentService", "finished without error after " + watch);
 
+        } catch (Throwable thr) {
+            Log.e(TAG, "Error while syncing", thr);
+
         } finally {
             SyncBroadcastReceiver.completeWakefulIntent(intent);
         }

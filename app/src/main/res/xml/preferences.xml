@@ -45,7 +45,6 @@
             android:summaryOn="@string/pref_animate_vote_view_on"
             android:summaryOff="@string/pref_animate_vote_view_off"
             android:defaultValue="true"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory

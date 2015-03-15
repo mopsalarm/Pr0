@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
 import com.google.common.base.Strings;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.services.UserService;
 
@@ -148,6 +150,8 @@ public class LoginDialogFragment extends RoboDialogFragment {
 
     private void onLoginResponse(Login response) {
         if (response.isSuccess()) {
+            SyncBroadcastReceiver.scheduleNextSync(getActivity());
+
             if (doOnLogin != null)
                 doOnLogin.run();
 
