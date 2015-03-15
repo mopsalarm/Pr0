@@ -15,7 +15,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:elevation="8dp">
 
-    <ImageView
+        <ImageView
             android:id="@+id/flavor"
             android:layout_width="64dp"
             android:layout_height="64dp"
