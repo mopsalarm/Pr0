@@ -47,7 +47,7 @@ public class GuavaPicassoCache implements Cache {
             cache.put(key, bitmap);
         }
 
-        Log.i("PicassoCache", "Stats: " + cache.stats());
+        // Log.i("PicassoCache", "Stats: " + cache.stats());
     }
 
     @Override

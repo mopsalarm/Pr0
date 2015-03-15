@@ -84,7 +84,7 @@ public class Pr0grammModule extends AbstractModule {
     @Singleton
     public Picasso picasso(Context context, Downloader downloader) {
         return new Picasso.Builder(context)
-                .memoryCache(Cache.NONE)
+                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(downloader)
                 .build();
     }
