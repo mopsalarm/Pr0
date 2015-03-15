@@ -97,4 +97,6 @@
     <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>
+    <string name="benis">Benis:</string>
+    <string name="dummy_benis">2048</string>
 </resources>

@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.UserService;
@@ -27,14 +28,19 @@ public class SyncIntentService extends RoboIntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "Performing a sync operation now");
+        if (!userService.isAuthorized())
+            return;
 
+        Stopwatch watch = Stopwatch.createStarted();
         try {
-            // perform a sync
-            userService.sync()
-                    .timeout(25, TimeUnit.SECONDS)
-                    .onErrorResumeNext(Observable.<Sync>empty())
-                    .toBlocking()
-                    .firstOrDefault(null);
+            Log.i("SyncIntentService", "performing sync");
+            userService.sync();
+
+            Log.i("SyncIntentService", "updating info");
+            userService.info();
+
+            // print info!
+            Log.i("SyncIntentService", "finished without error after " + watch);
 
         } finally {
             SyncBroadcastReceiver.completeWakefulIntent(intent);

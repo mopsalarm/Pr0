@@ -12,9 +12,10 @@
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:background="?android:windowBackground"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:elevation="8dp">
 
-        <ImageView
+    <ImageView
             android:id="@+id/flavor"
             android:layout_width="64dp"
             android:layout_height="64dp"
@@ -29,6 +30,29 @@
             android:layout_below="@id/flavor"
             android:text="@string/app_name"/>
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:background="@color/brighter_background">
+
+        <TextView
+            android:id="@+id/benis_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/benis"
+            android:layout_marginRight="4dp"/>
+
+        <TextView
+            android:id="@+id/benis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/benis_label"
+            android:layout_toRightOf="@id/benis_label"
+            android:text="@string/dummy_benis"/>
     </RelativeLayout>
 
     <TextView

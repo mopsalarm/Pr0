@@ -55,4 +55,9 @@ public class AndroidUtility {
         if (Looper.getMainLooper().getThread() != Thread.currentThread())
             throw new IllegalStateException("Must be called from the main thread.");
     }
+
+    public static void checkNotMainThread() {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread())
+            throw new IllegalStateException("Must not be called from the main thread.");
+    }
 }

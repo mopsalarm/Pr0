@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
 
 import java.util.HashMap;
@@ -35,6 +36,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.username)
     private TextView usernameView;
+
+    @InjectView(R.id.benis)
+    private TextView benisView;
 
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
@@ -114,13 +118,13 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void onLoginStateChanged(UserService.LoginState state) {
-        if (state == UserService.LoginState.NOT_AUTHORIZED) {
-            usernameView.setText(R.string.pr0gramm);
-        }
+        if (state.isAuthorized()) {
+            Info.User user = state.getInfo().getUser();
+            usernameView.setText(user.getName());
+            benisView.setText(String.valueOf(user.getScore()));
 
-        if (state == UserService.LoginState.AUTHORIZED) {
-            String name = userService.getName().or("");
-            usernameView.setText(name);
+        } else {
+            usernameView.setText(R.string.pr0gramm);
         }
     }
 

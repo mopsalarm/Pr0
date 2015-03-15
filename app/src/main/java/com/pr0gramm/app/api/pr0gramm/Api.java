@@ -50,7 +50,7 @@ public interface Api {
             @Field("password") String password);
 
     @GET("/api/user/sync")
-    Observable<Sync> sync(@Query("lastId") long lastId);
+    Sync sync(@Query("lastId") long lastId);
 
     @FormUrlEncoded
     @POST("/api/tags/add")
@@ -65,4 +65,7 @@ public interface Api {
             @Field("itemId") long itemId,
             @Field("parentId") long parentId,
             @Field("comment") String comment);
+
+    @GET("/api/profile/info")
+    Info info(@Query("name") String name);
 }
