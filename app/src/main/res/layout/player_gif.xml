@@ -17,8 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:indeterminate="false"
-        android:progress="20"
+        android:indeterminate="true"
+        android:progress="0"
         android:max="100"
         android:layout_marginRight="32dp"
         android:layout_marginLeft="32dp"/>

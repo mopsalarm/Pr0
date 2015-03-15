@@ -44,6 +44,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 
+import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -56,6 +57,7 @@ import rx.android.observables.ViewObservable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -196,6 +198,13 @@ public class PostFragment extends RoboFragment implements
     private void downloadPostMedia() {
         Uri url = Uri.parse("http://img.pr0gramm.com/" + feedItem.getImage());
 
+        File external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File targetDirectory = new File(external, "pr0gramm");
+        if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
+            showErrorString(getChildFragmentManager(), getString(R.string.error_could_not_create_download_directory));
+            return;
+        }
+
         DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss");
         String fileType = feedItem.getImage().toLowerCase().replaceFirst("^.*\\.([a-z]+)$", "$1");
         String prefix = Joiner.on("-").join(
@@ -209,8 +218,7 @@ public class PostFragment extends RoboFragment implements
         request.setVisibleInDownloadsUi(false);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setTitle(name);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                "pr0gramm/" + name);
+        request.setDestinationUri(Uri.fromFile(new File(targetDirectory, name)));
 
         request.allowScanningByMediaScanner();
 

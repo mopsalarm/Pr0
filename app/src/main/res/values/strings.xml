@@ -103,4 +103,5 @@
     <string name="action_logout">LOGOUT</string>
     <string name="action_login">LOGIN</string>
     <string name="action_download">Download</string>
+    <string name="error_could_not_create_download_directory">Could not create download directory.</string>
 </resources>

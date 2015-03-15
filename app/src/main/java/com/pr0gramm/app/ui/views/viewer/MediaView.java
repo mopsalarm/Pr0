@@ -71,8 +71,15 @@ public abstract class MediaView extends FrameLayout {
      * Hides the busy indicator that was shown in {@link #showBusyIndicator()}.
      */
     protected void hideBusyIndicator() {
-        if (progress != null)
+        if (progress != null) {
             progress.setVisibility(View.GONE);
+
+            ViewParent parent = progress.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(progress);
+                progress = null;
+            }
+        }
     }
 
     @Nullable

@@ -58,12 +58,6 @@ public class GifMediaView extends MediaView {
     public GifMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_gif, url);
 
-        downloadProgress.asObservable()
-                .sample(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnCompleted(() -> onDownloadProgress(1.f))
-                .subscribe(this::onDownloadProgress);
-
         loadGif();
     }
 
@@ -86,6 +80,12 @@ public class GifMediaView extends MediaView {
             if (!isPlaying())
                 gif.stop();
         });
+
+        downloadProgress.asObservable()
+                .sample(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnCompleted(() -> onDownloadProgress(1.f))
+                .subscribe(this::onDownloadProgress);
     }
 
     /**
@@ -133,6 +133,7 @@ public class GifMediaView extends MediaView {
             ProgressBar bar = (ProgressBar) progressView;
 
             bar.setMax(100);
+            bar.setIndeterminate(false);
             bar.setProgress((int) (100 * progress));
         }
     }
