@@ -206,6 +206,7 @@ public class PostFragment extends RoboFragment implements
         String name = prefix.replaceAll("[^A-Za-z0-9_-]+", "") + "." + fileType;
 
         DownloadManager.Request request = new DownloadManager.Request(url);
+        request.setVisibleInDownloadsUi(false);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setTitle(name);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
