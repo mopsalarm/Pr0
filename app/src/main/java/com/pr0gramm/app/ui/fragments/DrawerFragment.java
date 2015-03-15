@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +27,10 @@ import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Subscription;
 
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
+import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static rx.android.observables.AndroidObservable.bindActivity;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -42,6 +49,15 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.benis_container)
     private View benisContainer;
+
+    @InjectView(R.id.action_login)
+    private View loginView;
+
+    @InjectView(R.id.action_logout)
+    private View logoutView;
+
+    @InjectView(R.id.action_settings)
+    private View settingsView;
 
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
@@ -76,6 +92,23 @@ public class DrawerFragment extends RoboFragment {
         }
 
         select(selected);
+
+        settingsView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        loginView.setOnClickListener(v -> {
+            LoginDialogFragment dialog = new LoginDialogFragment();
+            dialog.show(getChildFragmentManager(), null);
+        });
+
+        logoutView.setOnClickListener(v -> {
+            bindFragment(this, userService.logout())
+                    .lift(busyDialog(this))
+                    .lift(errorDialog(this))
+                    .subscribe();
+        });
     }
 
     @Override
@@ -127,9 +160,15 @@ public class DrawerFragment extends RoboFragment {
 
             benisView.setText(String.valueOf(user.getScore()));
             benisContainer.setVisibility(View.VISIBLE);
+
+            loginView.setVisibility(View.GONE);
+            logoutView.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
             benisContainer.setVisibility(View.GONE);
+
+            loginView.setVisibility(View.VISIBLE);
+            logoutView.setVisibility(View.GONE);
         }
     }
 

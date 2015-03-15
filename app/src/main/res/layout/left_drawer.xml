@@ -32,60 +32,99 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/benis_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        android:background="@color/brighter_background">
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/benis_label"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/benis"
-            android:layout_marginRight="4dp"/>
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/benis"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/benis_label"
-            android:layout_toRightOf="@id/benis_label"
-            android:text="@string/dummy_benis"/>
-    </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/benis_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                android:background="@color/brighter_background">
 
-    <TextView
-        android:id="@+id/action_feed_promoted"
-        style="@style/AppStyle.DrawerItem"
-        android:drawableLeft="@drawable/ic_black_action_home"
-        android:text="@string/action_feed_type_promoted"
-        android:layout_marginTop="8dp"/>
+                <TextView
+                    android:id="@+id/benis_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/benis"
+                    android:layout_marginRight="4dp"/>
 
-    <TextView
-        android:id="@+id/action_feed_new"
-        style="@style/AppStyle.DrawerItem"
-        android:drawableLeft="@drawable/ic_black_action_line_chart"
-        android:text="@string/action_feed_type_new"/>
+                <TextView
+                    android:id="@+id/benis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/benis_label"
+                    android:layout_toRightOf="@id/benis_label"
+                    android:text="@string/dummy_benis"/>
+            </RelativeLayout>
 
-    <TextView
-        android:id="@+id/action_upload"
-        style="@style/AppStyle.DrawerItem"
-        android:drawableLeft="@drawable/ic_black_action_upload"
-        android:enabled="false"
-        android:text="@string/action_upload"/>
+            <TextView
+                android:id="@+id/action_feed_promoted"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_home"
+                android:text="@string/action_feed_type_promoted"
+                android:layout_marginTop="8dp"/>
 
-    <TextView
-        android:id="@+id/action_messages"
-        style="@style/AppStyle.DrawerItem"
-        android:drawableLeft="@drawable/ic_black_action_mail"
-        android:enabled="false"
-        android:text="@string/action_messages"/>
+            <TextView
+                android:id="@+id/action_feed_new"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_line_chart"
+                android:text="@string/action_feed_type_new"/>
 
-    <TextView
-        android:id="@+id/action_favorites"
-        style="@style/AppStyle.DrawerItem"
-        android:drawableLeft="@drawable/ic_black_action_favorite"
-        android:text="@string/action_favorites"/>
+            <TextView
+                android:id="@+id/action_upload"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_upload"
+                android:visibility="gone"
+                android:text="@string/action_upload"/>
+
+            <TextView
+                android:id="@+id/action_messages"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_mail"
+                android:visibility="gone"
+                android:text="@string/action_messages"/>
+
+            <TextView
+                android:id="@+id/action_favorites"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_favorite"
+                android:text="@string/action_favorites"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="#888"/>
+
+            <TextView
+                android:id="@+id/action_settings"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_settings"
+                android:text="@string/action_settings"/>
+
+            <TextView
+                android:id="@+id/action_logout"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_exit"
+                android:text="@string/action_logout"/>
+
+            <TextView
+                android:id="@+id/action_login"
+                style="@style/AppStyle.DrawerItem"
+                android:drawableLeft="@drawable/ic_black_action_user"
+                android:text="@string/action_login"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

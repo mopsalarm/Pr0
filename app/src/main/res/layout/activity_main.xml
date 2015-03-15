@@ -29,9 +29,8 @@
 
     <FrameLayout
         android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+        android:layout_width="260dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:elevation="8dp"/>
+        android:layout_gravity="start"/>
 
 </android.support.v4.widget.DrawerLayout>

@@ -11,7 +11,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import com.pr0gramm.app.R;
@@ -39,8 +38,6 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
-import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
@@ -86,7 +83,7 @@ public class MainActivity extends RoboActionBarActivity implements
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
-
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
         //
         getSupportActionBar().setHomeButtonEnabled(true);
         drawerToggle.syncState();
@@ -186,12 +183,6 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (!drawerToggle.isDrawerIndicatorEnabled()) {
             if (item.getItemId() == android.R.id.home) {
@@ -200,49 +191,13 @@ public class MainActivity extends RoboActionBarActivity implements
             }
         }
 
-        if (drawerToggle.onOptionsItemSelected(item))
-            return true;
+        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
 
-        if (item.getItemId() == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_login) {
-            LoginDialogFragment dialog = new LoginDialogFragment();
-            dialog.show(getSupportFragmentManager(), null);
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_logout) {
-            bindActivity(this, userService.logout())
-                    .lift(busyDialog(this))
-                    .lift(errorDialog(this))
-                    .subscribe();
-
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem logout = menu.findItem(R.id.action_logout);
-        if (logout != null)
-            logout.setVisible(userService.isAuthorized());
-
-        MenuItem login = menu.findItem(R.id.action_login);
-        if (login != null)
-            login.setVisible(!userService.isAuthorized());
-
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(Gravity.START | Gravity.LEFT)) {
+        if (drawerLayout.isDrawerOpen(Gravity.START)) {
             drawerLayout.closeDrawers();
             return;
         }

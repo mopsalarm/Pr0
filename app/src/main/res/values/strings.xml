@@ -99,4 +99,7 @@
     <string name="post_comment">Post</string>
     <string name="benis">Benis:</string>
     <string name="dummy_benis">2048</string>
+    <string name="action_settings">SETTINGS</string>
+    <string name="action_logout">LOGOUT</string>
+    <string name="action_login">LOGIN</string>
 </resources>
