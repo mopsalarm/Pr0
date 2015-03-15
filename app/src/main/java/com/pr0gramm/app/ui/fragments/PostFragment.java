@@ -1,16 +1,27 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.app.DownloadManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -28,6 +39,10 @@ import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.VerticalScrollView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
+
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 import java.util.List;
 
@@ -71,6 +86,9 @@ public class PostFragment extends RoboFragment implements
     @Inject
     private SeenService seenService;
 
+    @Inject
+    private DownloadManager downloadManager;
+
     @InjectView(R.id.list)
     private LinearLayout list;
 
@@ -98,6 +116,7 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         // get the item that is to be displayed.
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
@@ -155,6 +174,46 @@ public class PostFragment extends RoboFragment implements
             };
             doIfAuthorized(this, action, action);
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_post, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_download) {
+            Log.i("Post", "Request download of post #" + feedItem.getId());
+            downloadPostMedia();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void downloadPostMedia() {
+        Uri url = Uri.parse("http://img.pr0gramm.com/" + feedItem.getImage());
+
+        DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss");
+        String fileType = feedItem.getImage().toLowerCase().replaceFirst("^.*\\.([a-z]+)$", "$1");
+        String prefix = Joiner.on("-").join(
+                feedItem.getCreated().toString(format),
+                feedItem.getUser(),
+                "id" + feedItem.getId());
+
+        String name = prefix.replaceAll("[^A-Za-z0-9_-]+", "") + "." + fileType;
+
+        DownloadManager.Request request = new DownloadManager.Request(url);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setTitle(name);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+                "pr0gramm/" + name);
+
+        request.allowScanningByMediaScanner();
+
+        downloadManager.enqueue(request);
     }
 
     @Override
