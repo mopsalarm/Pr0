@@ -1,8 +1,12 @@
 package com.pr0gramm.app.ui.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -16,12 +20,18 @@ import roboguice.fragment.RoboDialogFragment;
 /**
  */
 public class NewTagDialogFragment extends RoboDialogFragment {
+    private EditText tagInput;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_tags, null);
+        tagInput = (EditText) view.findViewById(R.id.tag);
 
         return new MaterialDialog.Builder(getActivity())
-                .customView(R.layout.md_input_dialog, true)
+                .title(R.string.add_new_tag_title)
+                .customView(view, true)
                 .negativeText(R.string.cancel)
                 .positiveText(R.string.action_add_tag)
                 .callback(new MaterialDialog.ButtonCallback() {
@@ -34,8 +44,7 @@ public class NewTagDialogFragment extends RoboDialogFragment {
     }
 
     private void onOkayClicked(MaterialDialog dialog) {
-        EditText view = (EditText) dialog.getCustomView().findViewById(android.R.id.edit);
-        String text = view.getText().toString();
+        String text = tagInput.getText().toString();
 
         // split text into tags.
         Splitter splitter = Splitter.on(",").omitEmptyStrings().trimResults();

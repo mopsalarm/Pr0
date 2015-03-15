@@ -89,4 +89,7 @@
     <string name="pref_animate_vote_view_off">Plays no animation if you vote something</string>
     <string name="error_out_of_memory_while_decoding_gif">Your system ran out of memory while downloading the gif. You should activate downloading of gifs to a temporary file in the settings.</string>
     <string name="error_socket">A network error occurred.</string>
+    <string name="dummy_tags">würde, Kreiselficker</string>
+    <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
+    <string name="add_new_tag_title">Add new tag</string>
 </resources>
