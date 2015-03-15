@@ -96,4 +96,5 @@
     <string name="comment_hint">Your comment here</string>
     <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
+    <string name="post_comment">Post</string>
 </resources>

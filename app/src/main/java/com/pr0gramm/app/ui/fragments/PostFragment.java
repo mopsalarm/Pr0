@@ -6,6 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -35,6 +36,7 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.android.observables.ViewObservable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -84,6 +86,12 @@ public class PostFragment extends RoboFragment implements
     @InjectView(R.id.player_container)
     private FrameLayout viewerContainer;
 
+    @InjectView(R.id.comment_post)
+    private View commentPostView;
+
+    @InjectView(R.id.comment_text)
+    private EditText commentTextView;
+
     // start with an empty adapter here
     private CommentsAdapter adapter = new CommentsAdapter();
 
@@ -128,7 +136,25 @@ public class PostFragment extends RoboFragment implements
 
         initializeInfoLine();
         initializePlayerFragment();
+        initializeCommentPostLine();
         loadPostDetails();
+    }
+
+    private void initializeCommentPostLine() {
+        ViewObservable.text(commentTextView, true).subscribe(view -> {
+            String text = commentTextView.getText().toString().trim();
+            commentPostView.setEnabled(text.length() > 0);
+        });
+
+        ViewObservable.clicks(commentPostView, false).subscribe(view -> {
+            Runnable action = () -> {
+                String text = commentTextView.getText().toString().trim();
+                commentTextView.setText("");
+
+                onAddNewCommment(0, text);
+            };
+            doIfAuthorized(this, action, action);
+        });
     }
 
     @Override
@@ -251,7 +277,7 @@ public class PostFragment extends RoboFragment implements
             adapter.addComments(comments);
 
             // remove previous comments
-            for (int idx = list.getChildCount() - 1; idx >= 2; idx--)
+            for (int idx = list.getChildCount() - 1; idx >= 3; idx--)
                 list.removeViewAt(idx);
 
             for (int idx = 0; idx < adapter.getItemCount(); idx++) {
