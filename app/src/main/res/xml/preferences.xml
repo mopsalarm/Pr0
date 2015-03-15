@@ -67,13 +67,6 @@
             android:summary="@string/pref_max_image_size_summary"/>
 
         <CheckBoxPreference
-            android:key="pref_load_gif_in_memory"
-            android:title="@string/pref_load_gif_in_memory"
-            android:summaryOn="@string/pref_load_gif_in_memory_on"
-            android:summaryOff="@string/pref_load_gif_in_memory_off"
-            android:defaultValue="true"/>
-
-        <CheckBoxPreference
             android:key="pref_convert_gif_to_webm"
             android:title="@string/pref_convert_gif_to_webm"
             android:summaryOn="@string/pref_convert_gif_to_webm_on"

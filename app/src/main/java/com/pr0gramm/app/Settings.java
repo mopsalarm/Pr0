@@ -73,10 +73,6 @@ public class Settings {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
     }
 
-    public boolean loadGifInMemory() {
-        return preferences.getBoolean("pref_load_gif_in_memory", true);
-    }
-
     public boolean updateCheckEnabled() {
         return preferences.getBoolean("pref_check_for_updates", true);
     }
