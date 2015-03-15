@@ -75,6 +75,11 @@ public abstract class MediaView extends FrameLayout {
             progress.setVisibility(View.GONE);
     }
 
+    @Nullable
+    public View getProgressView() {
+        return progress;
+    }
+
     public boolean isStarted() {
         return started;
     }

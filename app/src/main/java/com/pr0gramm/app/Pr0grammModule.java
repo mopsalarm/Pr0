@@ -10,6 +10,7 @@ import com.google.inject.Singleton;
 import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.gif2webm.Api;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.Cache;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -83,9 +84,8 @@ public class Pr0grammModule extends AbstractModule {
     @Singleton
     public Picasso picasso(Context context, Downloader downloader) {
         return new Picasso.Builder(context)
+                .memoryCache(Cache.NONE)
                 .downloader(downloader)
-                        // .loggingEnabled(true)
-                        // .indicatorsEnabled(true)
                 .build();
     }
 

@@ -4,9 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.io.FileBackedOutputStream;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Downloader;
@@ -15,15 +19,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import pl.droidsonroids.gif.GifDrawable;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 import static java.lang.System.identityHashCode;
 
 /**
@@ -42,8 +52,18 @@ public class GifMediaView extends MediaView {
     // the gif that is shown
     private GifDrawable gif;
 
+    // subscribe to get information about the download progress.
+    private final BehaviorSubject<Float> downloadProgress = BehaviorSubject.create(0.f);
+
     public GifMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_image, url);
+        super(context, binder, R.layout.player_gif, url);
+
+        downloadProgress.asObservable()
+                .sample(100, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnCompleted(() -> onDownloadProgress(1.f))
+                .subscribe(this::onDownloadProgress);
+
         loadGif();
     }
 
@@ -53,11 +73,7 @@ public class GifMediaView extends MediaView {
             Downloader.Response response = downloader.load(Uri.parse(url), 0);
 
             // and load + parse it
-            if (settings.loadGifInMemory()) {
-                return loadGifInMemory(response);
-            } else {
-                return loadGifUsingTempFile(response);
-            }
+            return loadGifUsingTempFile(response);
         }, Schedulers.io());
 
         binder.bind(loader).subscribe(gif -> {
@@ -72,25 +88,6 @@ public class GifMediaView extends MediaView {
         });
     }
 
-
-    /**
-     * Loads the data of the gif into memory and then decodes it.
-     */
-    @SuppressLint("NewApi")
-    private GifDrawable loadGifInMemory(Downloader.Response response) throws IOException {
-        try {
-            try (InputStream stream = response.getInputStream()) {
-                // and decode it
-                return new GifDrawable(ByteStreams.toByteArray(stream));
-            }
-        } catch (OutOfMemoryError oom) {
-            binder.onError(getContext().getString(R.string.error_out_of_memory_while_decoding_gif));
-
-            // fall back to using a temp-file
-            return loadGifUsingTempFile(response);
-        }
-    }
-
     /**
      * Loads the data of the gif into a temporary file. The method then
      * loads the gif from this temporary file. The temporary file is removed
@@ -101,21 +98,42 @@ public class GifMediaView extends MediaView {
         File cacheDir = getContext().getCacheDir();
         File temporary = new File(cacheDir, "tmp" + identityHashCode(this) + ".gif");
 
-        try {
-            Log.i("Gif", "storing data into temporary file");
-            try (FileOutputStream ra = new FileOutputStream(temporary)) {
-                try (InputStream stream = response.getInputStream()) {
-                    ByteStreams.copy(stream, ra);
-                }
+        Log.i("Gif", "storing data into temporary file");
+        RandomAccessFile storage = new RandomAccessFile(temporary, "rw");
+
+        // remove entry from filesystem now - the system will remove the data
+        // when the stream closes.
+        //noinspection ResultOfMethodCallIgnored
+        temporary.delete();
+
+        // copy data to the file.
+        try (InputStream stream = response.getInputStream()) {
+            int length, count = 0;
+            byte[] buffer = new byte[16 * 1024];
+            while ((length = stream.read(buffer)) >= 0) {
+                storage.write(buffer, 0, length);
+                count += length;
+
+                // publish download progress
+                downloadProgress.onNext(count / (float) response.getContentLength());
             }
+        }
 
-            Log.i("Gif", "loading gif from file");
-            return new GifDrawable(temporary);
+        downloadProgress.onCompleted();
 
-        } finally {
-            // delete the temp file
-            if (!temporary.delete())
-                Log.w("Gif", "Could not clean up");
+        Log.i("Gif", "loading gif from file");
+        return new GifDrawable(storage.getFD());
+    }
+
+    private void onDownloadProgress(float progress) {
+        checkMainThread();
+
+        View progressView = getProgressView();
+        if (progressView instanceof ProgressBar) {
+            ProgressBar bar = (ProgressBar) progressView;
+
+            bar.setMax(100);
+            bar.setProgress((int) (100 * progress));
         }
     }
 

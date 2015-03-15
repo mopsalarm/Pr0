@@ -220,7 +220,8 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        viewer.onStart();
+        if (viewer != null)
+            viewer.onStart();
 
         if (active) {
             onMarkedActive();
@@ -230,24 +231,31 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        viewer.onResume();
+        if (viewer != null)
+            viewer.onResume();
     }
 
     @Override
     public void onPause() {
-        viewer.onPause();
+        if (viewer != null)
+            viewer.onPause();
+
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        viewer.onStop();
+        if (viewer != null)
+            viewer.onStop();
+
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        viewer.onDestroy();
+        if (viewer != null)
+            viewer.onDestroy();
+
         super.onDestroy();
     }
 
