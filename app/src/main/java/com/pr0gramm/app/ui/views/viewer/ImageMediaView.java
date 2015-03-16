@@ -2,10 +2,6 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.R;
@@ -45,17 +41,7 @@ public class ImageMediaView extends MediaView {
     @Override
     public void onDestroy() {
         picasso.cancelRequest(imageView);
-
-        Drawable drawable = imageView.getDrawable();
-        if (drawable instanceof BitmapDrawable) {
-            imageView.setImageDrawable(null);
-
-            Log.i(TAG, "Fast recycle of bitmap data.");
-            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            if (bitmap != null)
-                bitmap.recycle();
-        }
-
+        imageView.setImageDrawable(null);
         super.onDestroy();
     }
 
