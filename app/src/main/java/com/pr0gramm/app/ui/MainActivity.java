@@ -235,6 +235,9 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     public void onPostClicked(FeedProxy feed, int idx) {
+        if (idx < 0 || idx >= feed.getItemCount())
+            return;
+
         Fragment fragment = PostPagerFragment.newInstance(feed, idx);
 
         getSupportFragmentManager().beginTransaction()
