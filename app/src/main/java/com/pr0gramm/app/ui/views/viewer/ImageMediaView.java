@@ -2,8 +2,11 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Callback;
@@ -30,12 +33,20 @@ public class ImageMediaView extends MediaView {
 
     public ImageMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_image, url);
+    }
 
-        picasso.load(getUrlArgument())
-                .resize(1024, settings.maxImageSize())
-                .centerInside()
-                .onlyScaleDown()
-                .into(imageView, new HideBusyIndicator(this));
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (imageView.getDrawable() == null) {
+            picasso.load(getUrlArgument())
+                    .resize(1080, settings.maxImageSize())
+                    .centerInside()
+                    .onlyScaleDown()
+                    .noFade()
+                    .into(imageView, new HideBusyIndicator(this));
+        }
     }
 
     @Override

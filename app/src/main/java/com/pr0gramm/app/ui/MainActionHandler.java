@@ -9,4 +9,6 @@ public interface MainActionHandler {
     void onTagClicked(Tag tag);
 
     void onPostClicked(FeedProxy feed, int idx);
+
+    void onLogoutClicked();
 }

@@ -104,4 +104,6 @@
     <string name="action_login">LOGIN</string>
     <string name="action_download">Download</string>
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
+    <string name="logout">Logout</string>
+    <string name="are_you_sure_to_logout">Are you sure to logout? Your benis history will be deleted and can not be restored.</string>
 </resources>

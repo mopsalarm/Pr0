@@ -152,6 +152,9 @@ public abstract class MediaView extends FrameLayout {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
                 useCompatVideoPlayer = true;
 
+            // FIXME Always force compat player.
+            useCompatVideoPlayer = true;
+
             result = useCompatVideoPlayer
                     ? new SimpleVideoMediaView(context, binder, url)
                     : new VideoMediaView(context, binder, url);

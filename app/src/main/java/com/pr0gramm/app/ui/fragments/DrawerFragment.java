@@ -15,8 +15,10 @@ import android.widget.TextView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
+import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,14 +102,12 @@ public class DrawerFragment extends RoboFragment {
 
         loginView.setOnClickListener(v -> {
             LoginDialogFragment dialog = new LoginDialogFragment();
-            dialog.show(getChildFragmentManager(), null);
+            dialog.show(getFragmentManager(), null);
         });
 
         logoutView.setOnClickListener(v -> {
-            bindFragment(this, userService.logout())
-                    .lift(busyDialog(this))
-                    .lift(errorDialog(this))
-                    .subscribe();
+            LogoutDialogFragment fragment = new LogoutDialogFragment();
+            fragment.show(getFragmentManager(), null);
         });
     }
 

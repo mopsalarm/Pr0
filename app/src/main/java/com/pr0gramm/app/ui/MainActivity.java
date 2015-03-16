@@ -38,8 +38,11 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 
 /**
@@ -238,6 +241,14 @@ public class MainActivity extends RoboActionBarActivity implements
                 .replace(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void onLogoutClicked() {
+        bindActivity(this, userService.logout())
+                .lift(busyDialog(this))
+                .lift(errorDialog(this))
+                .subscribe();
     }
 
     @Override
