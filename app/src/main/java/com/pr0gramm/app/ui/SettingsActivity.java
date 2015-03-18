@@ -76,6 +76,12 @@ public class SettingsActivity extends ActionBarActivity {
                 }
             }
 
+            if ("pref_hardware_acceleration".equals(key)) {
+                new MaterialDialog.Builder(getActivity())
+                        .content(R.string.need_to_restart_app)
+                        .positiveText(R.string.okay)
+                        .show();
+            }
         }
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {

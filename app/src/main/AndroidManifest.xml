@@ -52,7 +52,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
-            android:hardwareAccelerated="true">
+            android:hardwareAccelerated="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

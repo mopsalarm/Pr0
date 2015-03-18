@@ -98,6 +98,10 @@ public class Settings {
         return preferences.getBoolean("pref_animate_vote_view", true);
     }
 
+    public boolean useHardwareAcceleration() {
+        return preferences.getBoolean("pref_hardware_acceleration", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

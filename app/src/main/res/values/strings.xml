@@ -106,4 +106,7 @@
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
     <string name="logout">Logout</string>
     <string name="are_you_sure_to_logout">Are you sure to logout? Your benis history will be deleted and can not be restored.</string>
+    <string name="pref_pref_hardware_acceleration">Hardware acceleration</string>
+    <string name="pref_pref_hardware_acceleration_summary">Hardware acceleration makes everything more smooth, but might produce \"out of memory\"-errors.</string>
+    <string name="need_to_restart_app">You need to restart the app for this setting to take effect.</string>
 </resources>

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.BuildConfig;
@@ -11,6 +12,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.lang.ref.WeakReference;
 
@@ -40,12 +42,16 @@ public class ImageMediaView extends MediaView {
         super.onStart();
 
         if (imageView.getDrawable() == null) {
-            picasso.load(getUrlArgument())
+            RequestCreator requestCreator = picasso.load(getUrlArgument())
                     .resize(1080, settings.maxImageSize())
                     .centerInside()
-                    .onlyScaleDown()
-                    .noFade()
-                    .into(imageView, new HideBusyIndicator(this));
+                    .onlyScaleDown();
+
+            // disable fading if we don't use hardware acceleration.
+            if (!settings.useHardwareAcceleration())
+                requestCreator.noFade();
+
+            requestCreator.into(imageView, new HideBusyIndicator(this));
         }
     }
 
@@ -53,6 +59,9 @@ public class ImageMediaView extends MediaView {
     public void onDestroy() {
         picasso.cancelRequest(imageView);
         imageView.setImageDrawable(null);
+
+        ((ViewGroup) imageView.getParent()).removeView(imageView);
+
         super.onDestroy();
     }
 

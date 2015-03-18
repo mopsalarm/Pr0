@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -48,7 +49,6 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  * This is the main class of our pr0gramm app.
  */
-@ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActionBarActivity implements
         DrawerFragment.OnDrawerActionListener,
         FragmentManager.OnBackStackChangedListener,
@@ -77,6 +77,13 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (settings.useHardwareAcceleration()) {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        }
+
+        setContentView(R.layout.activity_main);
 
         // use toolbar as action bar
         setSupportActionBar(toolbar);

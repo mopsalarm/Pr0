@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +34,7 @@ import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
@@ -162,12 +165,16 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void initializeCommentPostLine() {
-        ViewObservable.text(commentTextView, true).subscribe(view -> {
-            String text = commentTextView.getText().toString().trim();
-            commentPostView.setEnabled(text.length() > 0);
+        commentTextView.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text = commentTextView.getText().toString().trim();
+                commentPostView.setEnabled(text.length() > 0);
+            }
         });
 
-        ViewObservable.clicks(commentPostView, false).subscribe(view -> {
+        commentPostView.setEnabled(false);
+        commentPostView.setOnClickListener(view -> {
             Runnable action = () -> {
                 String text = commentTextView.getText().toString().trim();
                 commentTextView.setText("");
