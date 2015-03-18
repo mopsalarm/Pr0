@@ -109,4 +109,6 @@
     <string name="pref_pref_hardware_acceleration">Hardware acceleration</string>
     <string name="pref_pref_hardware_acceleration_summary">Hardware acceleration makes everything more smooth, but might produce \"out of memory\"-errors.</string>
     <string name="need_to_restart_app">You need to restart the app for this setting to take effect.</string>
+    <string name="benis_delta_up">(%d up s. yesterday)</string>
+    <string name="benis_delta_down">(%d down s. yesterday)</string>
 </resources>

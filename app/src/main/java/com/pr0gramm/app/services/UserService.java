@@ -15,6 +15,8 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.orm.BenisRecord;
 
+import org.joda.time.Days;
+import org.joda.time.Duration;
 import org.joda.time.Instant;
 
 import javax.inject.Inject;
@@ -76,7 +78,7 @@ public class UserService {
                 if (!info.isPresent())
                     throw new IllegalStateException("Login successful, but info could not be loaded");
 
-                loginStateObservable.onNext(new LoginState(info.get()));
+                loginStateObservable.onNext(createLoginState(info));
             }
 
             return response;
@@ -168,10 +170,19 @@ public class UserService {
             record.save();
 
             // updates the login state and ui
-            loginStateObservable.onNext(new LoginState(info.get()));
+            loginStateObservable.onNext(createLoginState(info));
         }
 
         return info;
+    }
+
+    private LoginState createLoginState(Optional<Info> info) {
+        checkNotMainThread();
+
+        Optional<Integer> yesterdaysBenis = getBenisValueBefore(
+                Instant.now().minus(Duration.standardDays(1)));
+
+        return new LoginState(info.get(), yesterdaysBenis);
     }
 
     /**
@@ -188,19 +199,33 @@ public class UserService {
         });
     }
 
+    /**
+     * Gets the benis of the current as it was before the given time
+     */
+    public Optional<Integer> getBenisValueBefore(Instant beforeTime) {
+        checkNotMainThread();
+
+        return BenisRecord
+                .getFirstBenisRecordBefore(beforeTime)
+                .transform(BenisRecord::getBenis);
+    }
+
+
     private static class Cookie {
         public String n;
     }
 
     public static class LoginState {
         private final Info info;
+        private final Optional<Integer> benisOneDayAgo;
 
         private LoginState() {
-            this(null);
+            this(null, null);
         }
 
-        private LoginState(Info info) {
+        private LoginState(Info info, Optional<Integer> benisOneDayAgo) {
             this.info = info;
+            this.benisOneDayAgo = benisOneDayAgo;
         }
 
         public boolean isAuthorized() {
@@ -209,6 +234,10 @@ public class UserService {
 
         public Info getInfo() {
             return info;
+        }
+
+        public Optional<Integer> getBenisOneDayAgo() {
+            return benisOneDayAgo;
         }
 
         public static final LoginState NOT_AUTHORIZED = new LoginState();

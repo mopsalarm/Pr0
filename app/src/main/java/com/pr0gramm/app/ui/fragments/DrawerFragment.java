@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -32,7 +31,6 @@ import rx.Subscription;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.observables.AndroidObservable.bindActivity;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -158,7 +156,19 @@ public class DrawerFragment extends RoboFragment {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
 
-            benisView.setText(String.valueOf(user.getScore()));
+            String benisValue = String.valueOf(user.getScore());
+            if (state.getBenisOneDayAgo().isPresent()) {
+                int delta = user.getScore() - state.getBenisOneDayAgo().get();
+                if (delta > 0) {
+                    benisValue += " " + getString(R.string.benis_delta_up, delta);
+                }
+
+                if (delta < 0) {
+                    benisValue += " " + getString(R.string.benis_delta_down, delta);
+                }
+            }
+
+            benisView.setText(benisValue);
             benisContainer.setVisibility(View.VISIBLE);
 
             loginView.setVisibility(View.GONE);

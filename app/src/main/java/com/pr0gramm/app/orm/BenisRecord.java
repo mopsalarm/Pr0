@@ -1,5 +1,6 @@
 package com.pr0gramm.app.orm;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.orm.SugarRecord;
 
@@ -35,10 +36,18 @@ public class BenisRecord extends SugarRecord<BenisRecord> {
         return benis;
     }
 
-    public List<BenisRecord> getBenisValuesAfter(ReadableInstant time) {
+    public static List<BenisRecord> getBenisValuesAfter(ReadableInstant time) {
         List<BenisRecord> records = find(BenisRecord.class, "time >= ?", String.valueOf(time.getMillis()));
         return Ordering.natural()
                 .onResultOf(BenisRecord::getTimeMillis)
                 .sortedCopy(records);
+    }
+
+    public static Optional<BenisRecord> getFirstBenisRecordBefore(ReadableInstant time) {
+        List<BenisRecord> result = find(BenisRecord.class,
+                "time < ?", new String[]{String.valueOf(time.getMillis())},
+                null, "time DESC", "1");
+
+        return result.isEmpty() ? Optional.<BenisRecord>absent() : Optional.of(result.get(0));
     }
 }
