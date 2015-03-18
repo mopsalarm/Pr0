@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,8 @@ import android.widget.FrameLayout;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
+
+import javax.annotation.Nullable;
 
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
@@ -43,13 +44,14 @@ public abstract class MediaView extends FrameLayout {
     @InjectView(R.id.progress)
     private View progress;
 
-    public MediaView(Context context, Binder binder, @LayoutRes int layoutId, String url) {
+    public MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
         super(context);
         this.binder = binder;
         this.url = url;
 
         setLayoutParams(DEFAULT_PARAMS);
-        LayoutInflater.from(context).inflate(layoutId, this);
+        if (layoutId != null)
+            LayoutInflater.from(context).inflate(layoutId, this);
 
         RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);

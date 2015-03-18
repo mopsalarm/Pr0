@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import pl.droidsonroids.gif.GifDrawable;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -54,6 +55,7 @@ public class GifMediaView extends MediaView {
 
     // subscribe to get information about the download progress.
     private final BehaviorSubject<Float> downloadProgress = BehaviorSubject.create(0.f);
+    private Subscription dlGifSubscription;
 
     public GifMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_gif, url);
@@ -70,7 +72,7 @@ public class GifMediaView extends MediaView {
             return loadGifUsingTempFile(response);
         }, Schedulers.io());
 
-        binder.bind(loader).subscribe(gif -> {
+        dlGifSubscription = binder.bind(loader).subscribe(gif -> {
             // and set gif on ui thread as drawable
             hideBusyIndicator();
 
@@ -94,7 +96,7 @@ public class GifMediaView extends MediaView {
      * after loading the gif (or on failure).
      */
     @SuppressLint("NewApi")
-    private GifDrawable loadGifUsingTempFile(Downloader.Response response) throws IOException {
+    private GifDrawable loadGifUsingTempFile(Downloader.Response response) throws IOException, InterruptedException {
         File cacheDir = getContext().getCacheDir();
         File temporary = new File(cacheDir, "tmp" + identityHashCode(this) + ".gif");
 
@@ -168,11 +170,17 @@ public class GifMediaView extends MediaView {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        // unsubscribe and destroy downloader
+        if (dlGifSubscription != null)
+            dlGifSubscription.unsubscribe();
 
         imageView.setImageDrawable(null);
 
         if (gif != null)
             gif.recycle();
+
+        super.onDestroy();
     }
+
+
 }

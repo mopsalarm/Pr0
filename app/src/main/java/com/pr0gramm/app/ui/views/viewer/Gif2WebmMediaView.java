@@ -8,20 +8,27 @@ import com.pr0gramm.app.services.GifToWebmService;
 
 import javax.inject.Inject;
 
+import rx.Subscription;
+
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 
 /**
  */
 @SuppressLint("ViewConstructor")
 public class Gif2WebmMediaView extends ProxyMediaView {
+    private Subscription conversion;
+
     @Inject
     private GifToWebmService gifToWebmService;
 
     public Gif2WebmMediaView(Context context, Binder binder, String url) {
         super(context, binder, url);
+        startWebmConversion(binder, url);
+    }
 
+    private void startWebmConversion(Binder binder, String url) {
         Log.i("Gif2Webm", "Start converting gif to webm");
-        binder.bind(gifToWebmService.convertToWebm(url)).subscribe(result -> {
+        conversion = binder.bind(gifToWebmService.convertToWebm(url)).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer
@@ -37,5 +44,13 @@ public class Gif2WebmMediaView extends ProxyMediaView {
 
             setChild(child);
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        if (conversion != null)
+            conversion.unsubscribe();
+
+        super.onDestroy();
     }
 }

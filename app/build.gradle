@@ -45,6 +45,7 @@ repositories {
 dependencies {
     // compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:recyclerview-v7:21.0.3'
     compile 'com.google.guava:guava:18.0'
