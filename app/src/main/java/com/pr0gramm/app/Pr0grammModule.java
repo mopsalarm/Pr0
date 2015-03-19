@@ -47,13 +47,6 @@ public class Pr0grammModule extends AbstractModule {
     public com.pr0gramm.app.api.pr0gramm.Api api(Settings settings, Gson gson, CookieHandler cookieHandler) {
         OkHttpClient client = new OkHttpClient();
 
-//        client.networkInterceptors().add(chain -> {
-//            Request request = chain.request();
-//
-//            Crashlytics.log("Api: " + request.urlString());
-//            return chain.proceed(request);
-//        });
-
         client.setCookieHandler(cookieHandler);
 
         return new RestAdapter.Builder()
@@ -66,7 +59,7 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Api restAdapter(Gson gson) {
+    public Api gifToWebmApi(Gson gson) {
         return new RestAdapter.Builder()
                 .setEndpoint(Api.DEFAULT_ENDPOINT)
                 .setLogLevel(RestAdapter.LogLevel.BASIC)

@@ -39,7 +39,7 @@ public class ErrorFormatting {
         private final Class<T> errorType;
         private final Predicate<T> check;
         private final Func2<T, Context, String> message;
-        private boolean log = true;
+        private boolean report = true;
 
         private Formatter(Class<T> errorType, Func2<T, Context, String> message) {
             this(errorType, Predicates.alwaysTrue(), message);
@@ -81,8 +81,8 @@ public class ErrorFormatting {
          *
          * @return this instance.
          */
-        Formatter<T> quiet() {
-            log = false;
+        Formatter<T> doNotReport() {
+            report = false;
             return this;
         }
 
@@ -90,7 +90,7 @@ public class ErrorFormatting {
          * Returns true, if this exception should be logged
          */
         public boolean shouldSendToCrashlytics() {
-            return log;
+            return report;
         }
     }
 
@@ -124,15 +124,15 @@ public class ErrorFormatting {
 
         formatters.add(new RetrofitStatusFormatter(
                 err -> asList(401, 403).contains(err.getResponse().getStatus()),
-                R.string.error_not_authorized).quiet());
+                R.string.error_not_authorized).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
                 err -> err.getResponse().getStatus() == 404,
-                R.string.error_not_found).quiet());
+                R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() == 503,
-                R.string.error_service_unavailable).quiet());
+                err -> err.getResponse().getStatus() / 100 == 500,
+                R.string.error_service_unavailable).doNotReport());
 
         // could not deserialize. this one i am interested in.
         formatters.add(new Formatter<>(RetrofitError.class,
@@ -141,25 +141,25 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof UnknownHostException,
-                R.string.error_host_not_found).quiet());
+                R.string.error_host_not_found).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof TimeoutException,
-                R.string.error_timeout).quiet());
+                R.string.error_timeout).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof ConnectException,
                 (err, context) -> {
                     String host = Uri.parse(err.getUrl()).getHost();
                     return context.getString(R.string.error_connect_exception, host);
-                }).quiet());
+                }).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof SocketException,
-                R.string.error_socket).quiet());
+                R.string.error_socket).doNotReport());
 
         // add a default formatter for io exceptions, but do not log them
-        formatters.add(new Formatter<>(IOException.class, guessMessage::call).quiet());
+        formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());
 
         // oops
         formatters.add(new Formatter<>(NullPointerException.class, R.string.error_nullpointer));
