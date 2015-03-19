@@ -20,7 +20,9 @@ import org.joda.time.Instant;
 import java.io.File;
 import java.net.CookieHandler;
 
+import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 import roboguice.inject.SharedPreferencesName;
