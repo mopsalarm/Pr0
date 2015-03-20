@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,6 @@ import static com.google.common.collect.Iterables.toArray;
 import static java.util.Arrays.asList;
 
 /**
- *
  */
 public final class Query implements Parcelable {
     private FeedType feedType;
@@ -59,7 +59,7 @@ public final class Query implements Parcelable {
         return query;
     }
 
-    public Query withNoTags() {
+    public Query withoutTags() {
         return withTags(null);
     }
 

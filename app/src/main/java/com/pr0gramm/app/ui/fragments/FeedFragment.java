@@ -287,7 +287,7 @@ public class FeedFragment extends RoboFragment {
     private void clearSearchTerm() {
         Query query = adapter.getQuery();
         if (query.getTags().isPresent())
-            setNewQuery(query.withNoTags());
+            setNewQuery(query.withoutTags());
     }
 
     private void setNewQuery(Query newQuery) {

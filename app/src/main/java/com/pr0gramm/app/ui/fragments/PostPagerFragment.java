@@ -81,13 +81,29 @@ public class PostPagerFragment extends RoboFragment {
         viewPager.setAdapter(adapter);
         Log.i("PostPager", "state is " + savedInstanceState);
 
+        if (savedInstanceState != null) {
+            // calculate index of the first item to show if this is the first
+            // time we show this fragment.
+            FeedItem start = getArgumentStartItem(savedInstanceState);
+            makeItemCurrent(start);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
         // calculate index of the first item to show if this is the first
         // time we show this fragment.
         FeedItem start = getArgumentStartItem(savedInstanceState);
-        int index = proxy.getPosition(start).or(0);
+        makeItemCurrent(start);
+    }
 
-        Log.i("PostPager", "Starting at index: " + index);
-        viewPager.setCurrentItem(index);
+    private void makeItemCurrent(FeedItem item) {
+        int index = proxy.getPosition(item).or(0);
+
+        Log.i("PostPager", "Moving to index: " + index);
+        viewPager.setCurrentItem(index, false);
     }
 
     private void updateActiveItem(PostFragment newActiveFragment) {
