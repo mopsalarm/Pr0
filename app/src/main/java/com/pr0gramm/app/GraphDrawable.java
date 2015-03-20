@@ -71,10 +71,15 @@ public class GraphDrawable extends Drawable {
         PointF previous = graph.first();
         for (PointF current : Iterables.skip(points, 1)) {
             float x1 = (previous.x - minX) / scaleX;
-            float y1 = bounds.height() - (previous.y - minY) / scaleY;
+            float y1 = scaleY > 0
+                    ? bounds.height() - (previous.y - minY) / scaleY
+                    : bounds.height() * 0.5f;
 
             float x2 = (current.x - minX) / scaleX;
-            float y2 = bounds.height() - (current.y - minY) / scaleY;
+            float y2 = scaleY > 0
+                    ? bounds.height() - (current.y - minY) / scaleY
+                    : bounds.height() * 0.5f;
+
 
             canvas.drawLine(x1, y1, x2, y2, paint);
             previous = current;

@@ -30,6 +30,7 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.transform;
+import static java.lang.String.format;
 
 /**
  */
@@ -188,6 +189,7 @@ public class VoteService {
             return Observable.just(Collections.<Long, Vote>emptyMap());
 
         return Async.start(() -> {
+            Stopwatch watch = Stopwatch.createStarted();
             List<Long> ids = transform(comments, Post.Comment::getId);
             List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);
 
@@ -195,6 +197,7 @@ public class VoteService {
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 
+            Log.i(TAG, format("Loading votes for %d comments took %s", comments.size(), watch));
             return result;
         }, Schedulers.io());
     }
