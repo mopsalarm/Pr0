@@ -46,7 +46,6 @@
                 android:id="@+id/benis_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
                 android:background="@color/brighter_background">
 
                 <TextView
@@ -55,6 +54,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/benis"
                     android:textColor="@color/grey_200"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginLeft="16dp"
                     android:layout_marginRight="4dp"/>
 
                 <TextView
@@ -65,6 +67,17 @@
                     android:layout_toRightOf="@id/benis_label"
                     android:textColor="@color/grey_200"
                     android:text="@string/dummy_benis"/>
+
+                <ImageView
+                    android:id="@+id/benis_graph"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/benis"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="8dp"/>
+
             </RelativeLayout>
 
             <TextView

@@ -10,8 +10,11 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
@@ -49,6 +52,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.benis_container)
     private View benisContainer;
+
+    @InjectView(R.id.benis_graph)
+    private ImageView benisGraph;
 
     @InjectView(R.id.action_login)
     private View loginView;
@@ -107,6 +113,15 @@ public class DrawerFragment extends RoboFragment {
             LogoutDialogFragment fragment = new LogoutDialogFragment();
             fragment.show(getFragmentManager(), null);
         });
+
+        benisGraph.setOnClickListener(this::onBenisGraphClicked);
+    }
+
+    private void onBenisGraphClicked(View view) {
+        new MaterialDialog.Builder(getActivity())
+                .content(R.string.benis_graph_explanation)
+                .positiveText(R.string.okay)
+                .show();
     }
 
     @Override
@@ -157,25 +172,17 @@ public class DrawerFragment extends RoboFragment {
             usernameView.setText(user.getName());
 
             String benisValue = String.valueOf(user.getScore());
-            if (state.getBenisOneDayAgo().isPresent()) {
-                int delta = user.getScore() - state.getBenisOneDayAgo().get();
-                if (delta > 0) {
-                    benisValue += " " + getString(R.string.benis_delta_up, delta);
-                }
-
-                if (delta < 0) {
-                    benisValue += " " + getString(R.string.benis_delta_down, delta);
-                }
-            }
 
             benisView.setText(benisValue);
             benisContainer.setVisibility(View.VISIBLE);
+            benisGraph.setImageDrawable(new GraphDrawable(state.getBenisHistory()));
 
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
             benisContainer.setVisibility(View.GONE);
+            benisGraph.setImageDrawable(null);
 
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);

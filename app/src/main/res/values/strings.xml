@@ -111,4 +111,5 @@
     <string name="need_to_restart_app">You need to restart the app for this setting to take effect.</string>
     <string name="benis_delta_up">(%d up s. yesterday)</string>
     <string name="benis_delta_down">(%d down s. yesterday)</string>
+    <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past 24h.</string>
 </resources>

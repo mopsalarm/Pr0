@@ -1,13 +1,16 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
-import android.text.method.DateTimeKeyListener;
+import android.graphics.PointF;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.orm.SugarRecord;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.Info;
@@ -15,9 +18,11 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.orm.BenisRecord;
 
-import org.joda.time.Days;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +34,8 @@ import rx.util.async.Async;
 
 import static com.orm.SugarRecord.deleteAll;
 import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
+import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
+import static org.joda.time.Duration.standardDays;
 
 /**
  */
@@ -179,10 +186,24 @@ public class UserService {
     private LoginState createLoginState(Optional<Info> info) {
         checkNotMainThread();
 
-        Optional<Integer> yesterdaysBenis = getBenisValueBefore(
-                Instant.now().minus(Duration.standardDays(1)));
+        Graph benisHistory = loadBenisHistory();
 
-        return new LoginState(info.get(), yesterdaysBenis);
+        return new LoginState(info.get(), benisHistory);
+    }
+
+    private Graph loadBenisHistory() {
+        Duration historyLength = standardDays(1);
+        Instant start = Instant.now().minus(historyLength);
+
+        // get the values and transform them
+        ImmutableList<PointF> points = FluentIterable
+                .from(getBenisValuesAfter(start))
+                .transform(record -> {
+                    float x = record.getTimeMillis() - start.getMillis();
+                    return new PointF(x, record.getBenis());
+                }).toList();
+
+        return new Graph(0, historyLength.getMillis(), points);
     }
 
     /**
@@ -199,17 +220,6 @@ public class UserService {
         });
     }
 
-    /**
-     * Gets the benis of the current as it was before the given time
-     */
-    public Optional<Integer> getBenisValueBefore(Instant beforeTime) {
-        checkNotMainThread();
-
-        return BenisRecord
-                .getFirstBenisRecordBefore(beforeTime)
-                .transform(BenisRecord::getBenis);
-    }
-
 
     private static class Cookie {
         public String n;
@@ -217,15 +227,15 @@ public class UserService {
 
     public static class LoginState {
         private final Info info;
-        private final Optional<Integer> benisOneDayAgo;
+        private final Graph benisHistory;
 
         private LoginState() {
             this(null, null);
         }
 
-        private LoginState(Info info, Optional<Integer> benisOneDayAgo) {
+        private LoginState(Info info, Graph benisHistory) {
             this.info = info;
-            this.benisOneDayAgo = benisOneDayAgo;
+            this.benisHistory = benisHistory;
         }
 
         public boolean isAuthorized() {
@@ -236,8 +246,8 @@ public class UserService {
             return info;
         }
 
-        public Optional<Integer> getBenisOneDayAgo() {
-            return benisOneDayAgo;
+        public Graph getBenisHistory() {
+            return benisHistory;
         }
 
         public static final LoginState NOT_AUTHORIZED = new LoginState();
