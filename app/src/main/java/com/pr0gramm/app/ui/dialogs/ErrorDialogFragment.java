@@ -64,23 +64,24 @@ public class ErrorDialogFragment extends DialogFragment {
         return GLOBAL_ERROR_DIALOG_HANDLER.get();
     }
 
-    public static void initRxErrorHandler() {
-        checkMainThread();
-
-        // we want to deliver the error to the main thread
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-
-        // handle exceptions!
-        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-            @Override
-            public void handleError(Throwable error) {
-                try {
-                    mainHandler.post(() -> processError(error, getGlobalErrorDialogHandler()));
-                } catch (Throwable ignored) {
-                }
-            }
-        });
-    }
+//    public static void initRxErrorHandler() {
+//        checkMainThread();
+//
+//        // we want to deliver the error to the main thread
+//        Handler mainHandler = new Handler(Looper.getMainLooper());
+//
+//        // handle exceptions!
+//        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+//            @Override
+//            public void handleError(Throwable error) {
+//                Log.i("Error", "The next error occurred somewhere in RxJava");
+//                try {
+//                    mainHandler.post(() -> processError(error, getGlobalErrorDialogHandler()));
+//                } catch (Throwable ignored) {
+//                }
+//            }
+//        });
+//    }
 
     private static class ErrorDialogOperator<T> implements Observable.Operator<T, T> {
         private final AtomicBoolean called = new AtomicBoolean();

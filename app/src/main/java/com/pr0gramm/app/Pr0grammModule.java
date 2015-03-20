@@ -2,6 +2,7 @@ package com.pr0gramm.app;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
@@ -9,7 +10,10 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.gif2webm.Api;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
@@ -18,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import org.joda.time.Instant;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.CookieHandler;
 
 import retrofit.ErrorHandler;

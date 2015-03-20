@@ -347,7 +347,7 @@ public class PostFragment extends RoboFragment implements
      * @param comments The list of comments to display.
      */
     private void displayComments(List<Post.Comment> comments) {
-        bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
+        bindFragment(this, voteService.getCommentVotes(comments)).lift(errorDialog()).subscribe(votes -> {
             // and display the comments
             adapter = new CommentsAdapter();
             adapter.addVoteCache(votes);

@@ -23,10 +23,6 @@ import rx.plugins.RxJavaPlugins;
  * Global application class for pr0gramm app.
  */
 public class Pr0grammApplication extends SugarApp {
-    public Pr0grammApplication() {
-        ErrorDialogFragment.initRxErrorHandler();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();

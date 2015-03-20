@@ -3,9 +3,15 @@
     <release
         version="1.12"
         versioncode="12">
-        <change>Neu: Changelog beim ersten Starten der App nach einem Update</change>
-        <change>Neu: Updates müssen nicht mehr per Hand installiert werden.</change>
+        <change>Neu: Benisgraph in der Navigation. Zeigt den Verlauf deines Benis über die letzten
+            24 Stunden an.
+        </change>
+        <change>Neu: Changelog beim ersten Starten der App nach einem Update.</change>
+        <change>Neu: Updates können nun einfacher installiert werden.</change>
         <change>Fix: Farben in der Navigation bei pre-Lollipop Geräten korrigiert.</change>
-        <change>Fix: VideoPlayer unsichtbar, solange er läd.</change>
+        <change>Fix: WebmPlayer unsichtbar, solange er lädt.</change>
+        <change>Fix: Probleme mit der Fehlerbehandlung behoben und alles (hoffentlich) stabiler
+            gemacht.
+        </change>
     </release>
 </changelog>
