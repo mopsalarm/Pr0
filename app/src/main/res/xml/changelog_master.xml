@@ -6,5 +6,6 @@
         <change>Neu: Changelog beim ersten Starten der App nach einem Update</change>
         <change>Neu: Updates müssen nicht mehr per Hand installiert werden.</change>
         <change>Fix: Farben in der Navigation bei pre-Lollipop Geräten korrigiert.</change>
+        <change>Fix: VideoPlayer unsichtbar, solange er läd.</change>
     </release>
 </changelog>

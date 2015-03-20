@@ -25,22 +25,32 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         videoView.setOnPreparedListener(this);
 
         Log.i(TAG, "Playing webm " + url);
+        videoView.setAlpha(0);
         videoView.setVideoURI(Uri.parse(url));
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        startVideoPlayback();
+    }
 
-        // continue playing
-        if (isPlaying())
+    private void startVideoPlayback() {
+        if (videoView != null && isPlaying())
             videoView.start();
     }
 
     @Override
     public void onPause() {
-        videoView.pause();
+        pauseVideoPlayback();
         super.onPause();
+    }
+
+    private void pauseVideoPlayback() {
+        if (videoView == null)
+            return;
+
+        videoView.pause();
     }
 
     @Override
@@ -48,16 +58,13 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         super.playMedia();
         Log.i(TAG, "Setting state to 'playing' now.");
 
-        if (videoView != null)
-            videoView.start();
+        startVideoPlayback();
     }
 
     @Override
     public void stopMedia() {
         super.stopMedia();
-
-        if (videoView != null)
-            videoView.pause();
+        pauseVideoPlayback();
     }
 
     @Override
@@ -70,5 +77,6 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         resizeViewerView(videoView, aspect, 10);
 
         hideBusyIndicator();
+        videoView.setAlpha(1);
     }
 }
