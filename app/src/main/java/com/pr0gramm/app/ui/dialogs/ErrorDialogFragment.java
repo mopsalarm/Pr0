@@ -1,136 +1,89 @@
 package com.pr0gramm.app.ui.dialogs;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.crashlytics.android.Crashlytics;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
 
-import org.joda.time.Instant;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.plugins.RxJavaErrorHandler;
+import rx.plugins.RxJavaPlugins;
+
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.AndroidUtility.logToCrashlytics;
 
 /**
  * This dialog fragment shows and error to the user.
  * It also provides an {@link rx.Observable.Operator} using
- * the methods {@link #errorDialog(android.support.v4.app.Fragment)}
- * and {@link #errorDialog(android.support.v4.app.FragmentActivity)}
+ * the methods {@link #errorDialog()}
+ * and {@link #errorDialog()}
  * that can be used with {@link rx.Observable} to catch errors.
  */
 public class ErrorDialogFragment extends DialogFragment {
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Bundle args = getArguments();
-        return new MaterialDialog.Builder(getActivity())
-                .content(args.getString("content"))
-                .positiveText(R.string.okay)
-                .build();
+    private static WeakReference<OnErrorDialogHandler> GLOBAL_ERROR_DIALOG_HANDLER;
+    private static WeakReference<Throwable> PREVIOUS_ERROR = new WeakReference<>(null);
+
+    public interface OnErrorDialogHandler {
+        /**
+         */
+        void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter);
     }
 
-    /**
-     * This is a bit tricky. If we start a background task and rotate the
-     * activity, the activity (and many of its fragments) will be rebuild and all references
-     * to those fragments will be invalid. The other way around, all references to the
-     * background task will be destroyed too.
-     * <p>
-     * Because of this, we add a {@link com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.HelperFragment}
-     * with a unique tag. This fragment will be recreated on orientation change.
-     * The fragment put its name into some static cache, so that the background task
-     * can get a reference to the fragment knowing its tag. This reference can then be used
-     * to get a fragment manager to show the error dialog.
-     */
-    public static class HelperFragment extends Fragment {
-        public String getName() {
-            return getArguments().getString("name");
+    public static void setGlobalErrorDialogHandler(OnErrorDialogHandler handler) {
+        checkMainThread();
+        GLOBAL_ERROR_DIALOG_HANDLER = new WeakReference<>(handler);
+    }
+
+    public static void unsetGlobalErrorDialogHandler(OnErrorDialogHandler handler) {
+        checkMainThread();
+
+        if (GLOBAL_ERROR_DIALOG_HANDLER != null) {
+            OnErrorDialogHandler oldHandler = GLOBAL_ERROR_DIALOG_HANDLER.get();
+            if (oldHandler == handler)
+                GLOBAL_ERROR_DIALOG_HANDLER = null;
         }
+    }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-            CACHE.put(getName(), this);
-        }
+    public static OnErrorDialogHandler getGlobalErrorDialogHandler() {
+        if (GLOBAL_ERROR_DIALOG_HANDLER == null)
+            return null;
 
-        @Override
-        public void onPause() {
-            CACHE.invalidate(getName());
-            super.onPause();
-        }
+        return GLOBAL_ERROR_DIALOG_HANDLER.get();
+    }
 
-        public static HelperFragment newInstance() {
-            Bundle bundle = new Bundle();
-            bundle.putString("name", UUID.randomUUID().toString());
+    public static void initRxErrorHandler() {
+        checkMainThread();
 
-            HelperFragment fragment = new HelperFragment();
-            fragment.setArguments(bundle);
-            return fragment;
-        }
+        // we want to deliver the error to the main thread
+        Handler mainHandler = new Handler(Looper.getMainLooper());
 
-        private static final Cache<String, HelperFragment> CACHE
-                = CacheBuilder.newBuilder().weakValues().build();
+        // handle exceptions!
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable error) {
+                try {
+                    mainHandler.post(() -> processError(error, getGlobalErrorDialogHandler()));
+                } catch (Throwable ignored) {
+                }
+            }
+        });
     }
 
     private static class ErrorDialogOperator<T> implements Observable.Operator<T, T> {
         private final AtomicBoolean called = new AtomicBoolean();
-        private final String fragmentTag;
-
-        private ErrorDialogOperator(FragmentManager parentFragmentManager) {
-            HelperFragment fragment = HelperFragment.newInstance();
-            fragmentTag = fragment.getName();
-
-            parentFragmentManager.beginTransaction()
-                    .add(fragment, fragmentTag)
-                    .commitAllowingStateLoss();
-        }
-
-        private void removeHelperFragment() {
-            HelperFragment fragment = HelperFragment.CACHE.getIfPresent(fragmentTag);
-            if (fragment == null || fragment.isDetached()) {
-                HelperFragment.CACHE.invalidate(fragmentTag);
-                return;
-            }
-
-            // remove fragment now.
-            fragment.getFragmentManager().beginTransaction()
-                    .remove(fragment)
-                    .commitAllowingStateLoss();
-        }
-
-        /**
-         * Gets the {@link com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.HelperFragment} and uses
-         * its fragment manager to show the dialog.
-         *
-         * @param error The error that is to be displayed.
-         */
-        private void showErrorDialogFragment(Throwable error) {
-            HelperFragment fragment = HelperFragment.CACHE.getIfPresent(fragmentTag);
-            if (fragment == null || fragment.isDetached()) {
-                HelperFragment.CACHE.invalidate(fragmentTag);
-                return;
-            }
-
-            Context context = fragment.getActivity();
-            FragmentManager fm = fragment.getFragmentManager();
-            handle(context, fm, error);
-        }
 
         @Override
         public Subscriber<? super T> call(Subscriber<? super T> subscriber) {
@@ -144,34 +97,18 @@ public class ErrorDialogFragment extends DialogFragment {
                         subscriber.onCompleted();
 
                     } catch (Throwable thr) {
-                        try {
-                            showErrorDialogFragment(thr);
-
-                        } catch (Throwable err) {
-                            // there was an error handling the error. oops.
-                            Crashlytics.logException(err);
-                        }
-                    } finally {
-                        removeHelperFragment();
+                        processError(thr, getGlobalErrorDialogHandler());
                     }
                 }
 
                 @Override
                 public void onError(Throwable err) {
-                    try {
-                        showErrorDialogFragment(err);
-
-                    } catch (Throwable thr) {
-                        // there was an error handling the error. oops.
-                        Crashlytics.logException(err);
-                    }
+                    processError(err, getGlobalErrorDialogHandler());
 
                     try {
                         subscriber.onCompleted();
                     } catch (Throwable thr) {
-                        Crashlytics.logException(err);
-                    } finally {
-                        removeHelperFragment();
+                        logToCrashlytics(err);
                     }
                 }
 
@@ -187,37 +124,38 @@ public class ErrorDialogFragment extends DialogFragment {
         }
     }
 
-    private static Map<Throwable, Instant> PREVIOUS_ERRORS_QUEUE = new HashMap<>();
-
-    public static void handle(Context context, Throwable error) {
-        handle(context, null, error);
-    }
-
-    public static void handle(Context context, FragmentManager fragmentManager, Throwable error) {
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+    private static void processError(Throwable error, OnErrorDialogHandler handler) {
         Log.e("Error", "An error occurred", error);
 
-        // we cant do much formatting without a context
-        if (context == null)
-            return;
+        try {
+            // do some checking so we don't log this exception twice
+            boolean sendToCrashlytics = PREVIOUS_ERROR.get() != error;
+            PREVIOUS_ERROR = new WeakReference<>(error);
 
-        // do some checking so we don't log this exception twice in one second
-        boolean sendToCrashlytics = Settings.of(context).crashlyticsEnabled();
-        if (sendToCrashlytics) {
-            Instant previousTime = PREVIOUS_ERRORS_QUEUE.get(error);
-            if (previousTime != null && Instant.now().minus(1000L).isBefore(previousTime))
-                sendToCrashlytics = false;
+            // format and log
+            ErrorFormatting.Formatter<?> formatter = ErrorFormatting.getFormatter(error);
+            if (sendToCrashlytics && formatter.shouldSendToCrashlytics())
+                logToCrashlytics(error);
 
-            PREVIOUS_ERRORS_QUEUE.put(error, Instant.now());
+            if (handler != null) {
+                handler.showErrorDialog(error, formatter);
+            }
+
+        } catch (Throwable thr) {
+            // there was an error handling the error. oops.
+            logToCrashlytics(thr);
         }
+    }
 
-        ErrorFormatting.Formatter<?> formatter = ErrorFormatting.getFormatter(error);
-        if (sendToCrashlytics && formatter.shouldSendToCrashlytics())
-            Crashlytics.logException(error);
-
-        if (fragmentManager != null) {
-            String message = formatter.getMessage(context, error);
-            showErrorString(fragmentManager, message);
-        }
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        return new MaterialDialog.Builder(getActivity())
+                .content(args.getString("content"))
+                .positiveText(R.string.okay)
+                .build();
     }
 
     public static void showErrorString(FragmentManager fragmentManager, String message) {
@@ -226,16 +164,34 @@ public class ErrorDialogFragment extends DialogFragment {
         Bundle arguments = new Bundle();
         arguments.putString("content", message);
 
+        // remove previous dialog, if any
+        dismissErrorDialog(fragmentManager);
+
         ErrorDialogFragment dialog = new ErrorDialogFragment();
         dialog.setArguments(arguments);
-        dialog.show(fragmentManager, (String) null);
+        dialog.show(fragmentManager, "ErrorDialog");
     }
 
-    public static <T> Observable.Operator<T, T> errorDialog(Fragment fragment) {
-        return new ErrorDialogOperator<>(fragment.getChildFragmentManager());
+    /**
+     * Dismisses any previously shown error dialog.
+     */
+    private static void dismissErrorDialog(FragmentManager fm) {
+        try {
+            Fragment previousFragment = fm.findFragmentByTag("ErrorDialog");
+            if (previousFragment instanceof DialogFragment) {
+                DialogFragment dialog = (DialogFragment) previousFragment;
+                dialog.dismissAllowingStateLoss();
+            }
+
+        } catch (Throwable error) {
+            Log.w("Error", "Error removing previous dialog", error);
+        }
     }
 
-    public static <T> Observable.Operator<T, T> errorDialog(FragmentActivity activity) {
-        return new ErrorDialogOperator<>(activity.getSupportFragmentManager());
+    /**
+     * Creates a new error dialog operator.
+     */
+    public static <T> Observable.Operator<T, T> errorDialog() {
+        return new ErrorDialogOperator<>();
     }
 }

@@ -3,6 +3,8 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -22,19 +24,7 @@ import rx.plugins.RxJavaPlugins;
  */
 public class Pr0grammApplication extends SugarApp {
     public Pr0grammApplication() {
-
-        // handle exceptions!
-        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-            @Override
-            public void handleError(Throwable error) {
-                try {
-                    // handle the error.
-                    ErrorDialogFragment.handle(Pr0grammApplication.this, error);
-                } catch (Throwable err) {
-                    err.printStackTrace();
-                }
-            }
-        });
+        ErrorDialogFragment.initRxErrorHandler();
     }
 
     @Override

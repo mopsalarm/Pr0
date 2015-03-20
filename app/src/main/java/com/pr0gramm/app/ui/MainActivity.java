@@ -1,52 +1,49 @@
 package com.pr0gramm.app.ui;
 
-import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import com.google.common.base.Throwables;
+import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
-import com.pr0gramm.app.UpdateChecker;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Query;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
-import org.joda.time.Instant;
-
 import javax.inject.Inject;
 
 import de.cketti.library.changelog.ChangeLog;
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static org.joda.time.Duration.standardHours;
 import static rx.android.observables.AndroidObservable.bindActivity;
-import static rx.android.observables.AndroidObservable.bindFragment;
 
 
 /**
@@ -56,7 +53,7 @@ public class MainActivity extends RoboActionBarActivity implements
         DrawerFragment.OnDrawerActionListener,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler {
+        MainActionHandler, ErrorDialogFragment.OnErrorDialogHandler {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -209,6 +206,7 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        ErrorDialogFragment.setGlobalErrorDialogHandler(this);
 
         Observable<UserService.LoginState> state = userService.getLoginStateObservable();
         subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged);
@@ -216,6 +214,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     protected void onPause() {
+        ErrorDialogFragment.unsetGlobalErrorDialogHandler(this);
+
         if (subscription != null)
             subscription.unsubscribe();
 
@@ -248,7 +248,7 @@ public class MainActivity extends RoboActionBarActivity implements
     public void onLogoutClicked() {
         bindActivity(this, userService.logout())
                 .lift(busyDialog(this))
-                .lift(errorDialog(this))
+                .lift(errorDialog())
                 .subscribe();
     }
 
@@ -325,5 +325,14 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public ScrollHideToolbarListener getScrollHideToolbarListener() {
         return scrollHideToolbarListener;
+    }
+
+    @Override
+    public void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter) {
+        String message = formatter.handles(error)
+                ? formatter.getMessage(this, error)
+                : Throwables.getStackTraceAsString(error);
+
+        ErrorDialogFragment.showErrorString(getSupportFragmentManager(), message);
     }
 }

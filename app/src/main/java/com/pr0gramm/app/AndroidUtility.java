@@ -4,12 +4,16 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+
+import io.fabric.sdk.android.services.common.Crash;
 
 /**
  */
@@ -59,5 +63,17 @@ public class AndroidUtility {
     public static void checkNotMainThread() {
         if (Looper.getMainLooper().getThread() == Thread.currentThread())
             throw new IllegalStateException("Must not be called from the main thread.");
+    }
+
+    public static void logToCrashlytics(Throwable error) {
+        try {
+            Crashlytics.logException(error);
+
+        } catch (IllegalStateException ignored) {
+            // most certainly crashlytics was not activated.
+
+        } catch (Exception err) {
+            Log.i("Crashlytics", "Could not send error to crashlytics", err);
+        }
     }
 }

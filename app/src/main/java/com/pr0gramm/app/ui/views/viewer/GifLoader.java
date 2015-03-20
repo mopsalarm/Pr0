@@ -66,7 +66,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             temporary.delete();
 
             // copy data to the file.
-            long lastStatusTime = 0;
+            long lastStatusTime = System.currentTimeMillis();
             try (InputStream stream = response.getInputStream()) {
                 int length, count = 0;
                 byte[] buffer = new byte[16 * 1024];
@@ -81,7 +81,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
                     // publish download progress every 100ms
                     long now = System.currentTimeMillis();
-                    if (now - lastStatusTime > 100) {
+                    if (now - lastStatusTime > 250) {
                         subscriber.onNext(new DownloadStatus(count / (float) response.getContentLength()));
                         lastStatusTime = now;
                     }

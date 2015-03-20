@@ -1,14 +1,12 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.app.DownloadManager;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,8 +20,6 @@ import android.widget.LinearLayout;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -45,7 +41,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaView;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 
 import java.io.File;
 import java.util.List;
@@ -55,7 +50,6 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.android.observables.ViewObservable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -281,7 +275,7 @@ public class PostFragment extends RoboFragment implements
     private void loadPostDetails() {
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
         bindFragment(this, details)
-                .lift(errorDialog(this))
+                .lift(errorDialog())
                 .subscribe(this::onPostReceived);
     }
 
@@ -300,7 +294,7 @@ public class PostFragment extends RoboFragment implements
         infoLineView.setOnVoteListener(vote -> {
             Runnable action = () -> {
                 bindFragment(this, voteService.vote(feedItem, vote))
-                        .lift(errorDialog(this))
+                        .lift(errorDialog())
                         .subscribe();
             };
 
@@ -319,7 +313,7 @@ public class PostFragment extends RoboFragment implements
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostFragment.this, observable).lift(errorDialog(PostFragment.this));
+                return bindFragment(PostFragment.this, observable).lift(errorDialog());
             }
 
             @Override
@@ -419,7 +413,7 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onAddNewTags(List<String> tags) {
         bindFragment(this, voteService.tag(feedItem, tags))
-                .lift(errorDialog(this))
+                .lift(errorDialog())
                 .lift(busyDialog(this))
                 .subscribe(infoLineView::setTags);
     }
@@ -443,7 +437,7 @@ public class PostFragment extends RoboFragment implements
     public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
         return doIfAuthorized(this, () -> {
             bindFragment(this, voteService.vote(comment, vote))
-                    .lift(errorDialog(this))
+                    .lift(errorDialog())
                     .subscribe();
         });
     }
@@ -463,7 +457,7 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onAddNewCommment(long parentId, String text) {
         bindFragment(this, voteService.postComment(feedItem, parentId, text))
-                .lift(errorDialog(this))
+                .lift(errorDialog())
                 .lift(busyDialog(this))
                 .subscribe(this::displayComments);
     }

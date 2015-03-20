@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -111,7 +110,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
         bindFragment(this, userService.login(username, password))
                 .lift(busyDialog(this))
                 .lift(loginErrorIntercept())
-                .lift(errorDialog(this))
+                .lift(errorDialog())
                 .subscribe(this::onLoginResponse);
     }
 

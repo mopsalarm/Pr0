@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.dialogs;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.inject.Inject;
@@ -14,7 +13,6 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import roboguice.fragment.RoboDialogFragment;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
-import static rx.android.observables.AndroidObservable.bindActivity;
 
 /**
  */
