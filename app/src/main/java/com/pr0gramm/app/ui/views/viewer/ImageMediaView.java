@@ -42,8 +42,9 @@ public class ImageMediaView extends MediaView {
         super.onStart();
 
         if (imageView.getDrawable() == null) {
-            RequestCreator requestCreator = picasso.load(getUrlArgument())
-                    .resize(1080, settings.maxImageSize())
+            RequestCreator requestCreator = picasso
+                    .load(getUrlArgument())
+                    .resize(1052, settings.maxImageSize())
                     .centerInside()
                     .onlyScaleDown();
 
