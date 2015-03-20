@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog>
+    <release
+        version="1.12"
+        versioncode="12">
+        <change>Neu: Changelog beim ersten Starten der App nach einem Update</change>
+        <change>Neu: Updates müssen nicht mehr per Hand installiert werden.</change>
+        <change>Fix: Farben in der Navigation bei pre-Lollipop Geräten korrigiert.</change>
+    </release>
+</changelog>

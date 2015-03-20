@@ -1,8 +1,10 @@
 package com.pr0gramm.app.ui;
 
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,6 +35,7 @@ import org.joda.time.Instant;
 
 import javax.inject.Inject;
 
+import de.cketti.library.changelog.ChangeLog;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -107,12 +110,20 @@ public class MainActivity extends RoboActionBarActivity implements
         updateToolbarBackButton();
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        checkForUpdates();
-
         // we trigger the update here manually now. this will be done using
         // the alarm manager later on.
         Intent intent = new Intent(this, SyncBroadcastReceiver.class);
         sendBroadcast(intent);
+
+        ChangeLog changelog = new ChangeLog(this);
+        if (changelog.isFirstRun()) {
+            ChangeLogDialog dialog = new ChangeLogDialog();
+            dialog.show(getSupportFragmentManager(), null);
+
+        } else {
+            // start the update check.
+            UpdateDialogFragment.checkForUpdates(this);
+        }
     }
 
     @Override
@@ -120,26 +131,6 @@ public class MainActivity extends RoboActionBarActivity implements
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
         super.onDestroy();
     }
-
-    private void checkForUpdates() {
-        if (!settings.updateCheckEnabled())
-            return;
-
-        final String key = "MainActivity.lastUpdateCheck";
-        Instant last = new Instant(shared.getLong(key, 0));
-        if (last.isAfter(Instant.now().minus(standardHours(1))))
-            return;
-
-        // update the check-time
-        shared.edit().putLong(key, Instant.now().getMillis()).apply();
-
-        // do the check
-        bindActivity(this, new UpdateChecker(this).check())
-                .onErrorResumeNext(Observable.<UpdateChecker.Update>empty())
-                .map(UpdateDialogFragment::newInstance)
-                .subscribe(dialog -> dialog.show(getSupportFragmentManager(), null));
-    }
-
 
     @Override
     public void onBackStackChanged() {
