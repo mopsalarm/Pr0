@@ -19,7 +19,7 @@
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Kann nicht zu Host %s verbinden</string>
-    <string name="error_conversion">Ein fehler ist bei der Decodierung der API passiert.</string>
+    <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden.</string>
     <string name="error_exception_of_type">Es ist ein Fehler ohne weitere Nachricht aufgetreten: %s</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
     <string name="error_not_authorized">Schaut so aus als wärst du nicht angemeldet oder gebannt.</string>
@@ -109,4 +109,7 @@
     <string name="post_comment">Absenden</string>
     <string name="pref_pref_hardware_acceleration">Hardwarebeschleunigung</string>
     <string name="pref_pref_hardware_acceleration_summary">Hardwarebeschleunigung macht alles flüssiger, kann aber unter Umständen zu Problemen führen. Einfach mal ausprobieren!</string>
+    <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten 24 Stunden.</string>
+    <string name="pref_double_tap_to_upvote">Doppeltklick für Upvote</string>
+    <string name="pref_double_tap_to_upvote_summary">Doppeltklick auf ein Bild oder Video führt einen Upvote aus</string>
 </resources>
