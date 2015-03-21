@@ -46,6 +46,12 @@
             android:summary="@string/pref_seen_indicator_style_summary"/>
 
         <CheckBoxPreference
+            android:key="pref_benis_graph_enabled"
+            android:title="@string/pref_benis_graph_enabled"
+            android:summary="@string/pref_benis_graph_enabled_summary"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
             android:key="pref_animate_vote_view"
             android:title="@string/pref_animate_vote_view"
             android:summaryOn="@string/pref_animate_vote_view_on"

@@ -110,6 +110,10 @@ public class Settings {
         return preferences.getBoolean("pref_comment_view_vote_buttons_small", false);
     }
 
+    public boolean benisGraphEnabled() {
+        return preferences.getBoolean("pref_benis_graph_enabled", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

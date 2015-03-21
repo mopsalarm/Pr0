@@ -40,6 +40,10 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
     }
 
     public static void scheduleNextSync(Context context) {
+        // we dont need to schedule, if benis graph is disabled.
+        if (!Settings.of(context).benisGraphEnabled())
+            return;
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // the intent to send to our app in one hour.

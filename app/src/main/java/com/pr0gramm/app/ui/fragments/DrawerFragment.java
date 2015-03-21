@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.SettingsActivity;
@@ -64,10 +65,13 @@ public class DrawerFragment extends RoboFragment {
     @InjectView(R.id.action_settings)
     private View settingsView;
 
+    @Inject
+    private Settings settings;
+
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.WHITE);
     private ColorStateList markedColor;
-    private Subscription subscription;
 
+    private Subscription subscription;
     private int selected;
 
     @Override
@@ -129,6 +133,8 @@ public class DrawerFragment extends RoboFragment {
 
         subscription = bindFragment(this, userService.getLoginStateObservable())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
+
+        benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
     }
 
     @Override

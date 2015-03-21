@@ -116,4 +116,6 @@
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
     <string name="pref_comment_view_vote_buttons_small">Smaller vote buttons</string>
     <string name="pref_comment_view_vote_buttons_small_summary">Activate this for smaller vote buttons on comments</string>
+    <string name="pref_benis_graph_enabled">Enable benis graph</string>
+    <string name="pref_benis_graph_enabled_summary">The benis graph shows changes to your benis in the last 24 hours.</string>
 </resources>
