@@ -4,14 +4,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -40,8 +38,10 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Actions;
 
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
@@ -209,7 +209,7 @@ public class MainActivity extends RoboActionBarActivity implements
         ErrorDialogFragment.setGlobalErrorDialogHandler(this);
 
         Observable<UserService.LoginState> state = userService.getLoginStateObservable();
-        subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged);
+        subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged, Actions.empty());
     }
 
     @Override
@@ -248,8 +248,7 @@ public class MainActivity extends RoboActionBarActivity implements
     public void onLogoutClicked() {
         bindActivity(this, userService.logout())
                 .lift(busyDialog(this))
-                .lift(errorDialog())
-                .subscribe();
+                .subscribe(Actions.empty(), defaultOnError());
     }
 
     @Override

@@ -29,6 +29,7 @@ import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
 import rx.functions.Action0;
+import rx.functions.Actions;
 
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Instant.now;
@@ -113,6 +114,6 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 .subscribe(update -> {
                     UpdateDialogFragment dialog = newInstance(update);
                     dialog.show(activity.getSupportFragmentManager(), null);
-                });
+                }, Actions.empty());
     }
 }

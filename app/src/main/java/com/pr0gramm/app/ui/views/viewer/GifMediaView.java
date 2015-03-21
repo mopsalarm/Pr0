@@ -33,6 +33,7 @@ import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static java.lang.System.identityHashCode;
 
 /**
@@ -76,7 +77,7 @@ public class GifMediaView extends MediaView {
                 if (!isPlaying())
                     gif.stop();
             }
-        });
+        }, defaultOnError());
     }
 
     private void onDownloadProgress(float progress) {

@@ -30,10 +30,9 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Actions;
 
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
-import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
-import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -129,7 +128,7 @@ public class DrawerFragment extends RoboFragment {
         super.onResume();
 
         subscription = bindFragment(this, userService.getLoginStateObservable())
-                .subscribe(this::onLoginStateChanged);
+                .subscribe(this::onLoginStateChanged, Actions.empty());
     }
 
     @Override

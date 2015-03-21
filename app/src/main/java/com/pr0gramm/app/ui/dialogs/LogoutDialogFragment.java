@@ -12,8 +12,6 @@ import com.pr0gramm.app.ui.MainActionHandler;
 
 import roboguice.fragment.RoboDialogFragment;
 
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
-
 /**
  */
 public class LogoutDialogFragment extends RoboDialogFragment {

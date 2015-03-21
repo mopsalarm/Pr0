@@ -3,21 +3,16 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import io.fabric.sdk.android.Fabric;
 import roboguice.RoboGuice;
-import rx.plugins.RxJavaErrorHandler;
-import rx.plugins.RxJavaPlugins;
 
 /**
  * Global application class for pr0gramm app.

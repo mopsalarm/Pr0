@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.app.DownloadManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -50,10 +51,11 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.functions.Actions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.errorDialog;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
@@ -274,9 +276,7 @@ public class PostFragment extends RoboFragment implements
      */
     private void loadPostDetails() {
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        bindFragment(this, details)
-                .lift(errorDialog())
-                .subscribe(this::onPostReceived);
+        bindFragment(this, details).subscribe(this::onPostReceived, defaultOnError());
     }
 
     private void initializeInfoLine() {
@@ -294,8 +294,7 @@ public class PostFragment extends RoboFragment implements
         infoLineView.setOnVoteListener(vote -> {
             Runnable action = () -> {
                 bindFragment(this, voteService.vote(feedItem, vote))
-                        .lift(errorDialog())
-                        .subscribe();
+                        .subscribe(Actions.empty(), defaultOnError());
             };
 
             Runnable retry = () -> infoLineView.getVoteView().setVote(vote);
@@ -313,12 +312,12 @@ public class PostFragment extends RoboFragment implements
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostFragment.this, observable).lift(errorDialog());
+                return bindFragment(PostFragment.this, observable);
             }
 
             @Override
             public void onError(String text) {
-                ErrorDialogFragment.showErrorString(getChildFragmentManager(), text);
+                ErrorDialogFragment.showErrorString(getFragmentManager(), text);
             }
         };
 
@@ -347,7 +346,7 @@ public class PostFragment extends RoboFragment implements
      * @param comments The list of comments to display.
      */
     private void displayComments(List<Post.Comment> comments) {
-        bindFragment(this, voteService.getCommentVotes(comments)).lift(errorDialog()).subscribe(votes -> {
+        bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
             // and display the comments
             adapter = new CommentsAdapter();
             adapter.addVoteCache(votes);
@@ -364,7 +363,7 @@ public class PostFragment extends RoboFragment implements
             }
 
             adapter.setCommentActionListener(this);
-        });
+        }, defaultOnError());
     }
 
     /**
@@ -397,7 +396,9 @@ public class PostFragment extends RoboFragment implements
      * Called if this fragment becomes the active post fragment.
      */
     protected void onMarkedActive() {
-        seenService.markAsSeen(feedItem);
+        //  mark this item seen. We do that in a background thread
+        AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
+
         viewer.playMedia();
     }
 
@@ -413,9 +414,8 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onAddNewTags(List<String> tags) {
         bindFragment(this, voteService.tag(feedItem, tags))
-                .lift(errorDialog())
                 .lift(busyDialog(this))
-                .subscribe(infoLineView::setTags);
+                .subscribe(infoLineView::setTags, defaultOnError());
     }
 
     /**
@@ -437,8 +437,7 @@ public class PostFragment extends RoboFragment implements
     public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
         return doIfAuthorized(this, () -> {
             bindFragment(this, voteService.vote(comment, vote))
-                    .lift(errorDialog())
-                    .subscribe();
+                    .subscribe(Actions.empty(), defaultOnError());
         });
     }
 
@@ -457,8 +456,7 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onAddNewCommment(long parentId, String text) {
         bindFragment(this, voteService.postComment(feedItem, parentId, text))
-                .lift(errorDialog())
                 .lift(busyDialog(this))
-                .subscribe(this::displayComments);
+                .subscribe(this::displayComments, defaultOnError());
     }
 }

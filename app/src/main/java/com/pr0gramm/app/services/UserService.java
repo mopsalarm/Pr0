@@ -45,6 +45,7 @@ public class UserService {
 
     private final Api api;
     private final VoteService voteService;
+    private final SeenService seenService;
     private final LoginCookieHandler cookieHandler;
     private final Gson gson;
     private final SharedPreferences preferences;
@@ -55,11 +56,12 @@ public class UserService {
     @Inject
     public UserService(Api api,
                        VoteService voteService,
-                       LoginCookieHandler cookieHandler,
+                       SeenService seenService, LoginCookieHandler cookieHandler,
                        Gson gson,
                        SharedPreferences preferences) {
 
         this.api = api;
+        this.seenService = seenService;
         this.gson = gson;
         this.voteService = voteService;
         this.cookieHandler = cookieHandler;
@@ -112,6 +114,9 @@ public class UserService {
 
             // clear all the vote cache
             voteService.clear();
+
+            // clear the seen items
+            seenService.clear();
 
             // remove all benis records
             deleteAll(BenisRecord.class);

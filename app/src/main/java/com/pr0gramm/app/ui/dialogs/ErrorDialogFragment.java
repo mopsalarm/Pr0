@@ -2,8 +2,6 @@ package com.pr0gramm.app.ui.dialogs;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -15,22 +13,14 @@ import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.plugins.RxJavaErrorHandler;
-import rx.plugins.RxJavaPlugins;
+import rx.functions.Action1;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.AndroidUtility.logToCrashlytics;
 
 /**
  * This dialog fragment shows and error to the user.
- * It also provides an {@link rx.Observable.Operator} using
- * the methods {@link #errorDialog()}
- * and {@link #errorDialog()}
- * that can be used with {@link rx.Observable} to catch errors.
  */
 public class ErrorDialogFragment extends DialogFragment {
     private static WeakReference<OnErrorDialogHandler> GLOBAL_ERROR_DIALOG_HANDLER;
@@ -74,56 +64,21 @@ public class ErrorDialogFragment extends DialogFragment {
 //        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
 //            @Override
 //            public void handleError(Throwable error) {
+//                // only handle errors that no one else handled
+//                if (!(error instanceof OnErrorNotImplementedException))
+//                    return;
+//
+//                // get the cause
+//                Throwable cause = error.getCause();
+//
 //                Log.i("Error", "The next error occurred somewhere in RxJava");
 //                try {
-//                    mainHandler.post(() -> processError(error, getGlobalErrorDialogHandler()));
+//                    mainHandler.post(() -> processError(cause, getGlobalErrorDialogHandler()));
 //                } catch (Throwable ignored) {
 //                }
 //            }
 //        });
 //    }
-
-    private static class ErrorDialogOperator<T> implements Observable.Operator<T, T> {
-        private final AtomicBoolean called = new AtomicBoolean();
-
-        @Override
-        public Subscriber<? super T> call(Subscriber<? super T> subscriber) {
-            if (!called.compareAndSet(false, true))
-                throw new UnsupportedOperationException("You can use this operator only once!");
-
-            return new Subscriber<T>() {
-                @Override
-                public void onCompleted() {
-                    try {
-                        subscriber.onCompleted();
-
-                    } catch (Throwable thr) {
-                        processError(thr, getGlobalErrorDialogHandler());
-                    }
-                }
-
-                @Override
-                public void onError(Throwable err) {
-                    processError(err, getGlobalErrorDialogHandler());
-
-                    try {
-                        subscriber.onCompleted();
-                    } catch (Throwable thr) {
-                        logToCrashlytics(err);
-                    }
-                }
-
-                @Override
-                public void onNext(T value) {
-                    try {
-                        subscriber.onNext(value);
-                    } catch (Throwable thr) {
-                        onError(thr);
-                    }
-                }
-            };
-        }
-    }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private static void processError(Throwable error, OnErrorDialogHandler handler) {
@@ -190,9 +145,9 @@ public class ErrorDialogFragment extends DialogFragment {
     }
 
     /**
-     * Creates a new error dialog operator.
+     * Creates the default error callback {@link rx.functions.Action1}
      */
-    public static <T> Observable.Operator<T, T> errorDialog() {
-        return new ErrorDialogOperator<>();
+    public static Action1<Throwable> defaultOnError() {
+        return error -> processError(error, getGlobalErrorDialogHandler());
     }
 }

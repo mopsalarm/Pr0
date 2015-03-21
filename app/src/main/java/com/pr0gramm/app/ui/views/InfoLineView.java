@@ -19,6 +19,7 @@ import com.pr0gramm.app.feed.Vote;
 import java.util.List;
 
 import rx.Observable;
+import rx.functions.Actions;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static java.lang.Math.min;
@@ -103,7 +104,7 @@ public class InfoLineView extends LinearLayout {
             voteView.setVote(v, true);
 
             updateViewState(v);
-        });
+        }, Actions.empty());
     }
 
     /**

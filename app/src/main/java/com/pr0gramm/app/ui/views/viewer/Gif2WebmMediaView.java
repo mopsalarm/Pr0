@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import rx.Subscription;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
  */
@@ -43,7 +44,7 @@ public class Gif2WebmMediaView extends ProxyMediaView {
             }
 
             setChild(child);
-        });
+        }, defaultOnError());
     }
 
     @Override

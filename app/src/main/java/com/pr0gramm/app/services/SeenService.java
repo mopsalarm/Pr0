@@ -2,8 +2,12 @@ package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedItem;
 
@@ -16,6 +20,8 @@ import java.nio.channels.FileChannel;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Actions;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
@@ -25,21 +31,28 @@ import rx.util.async.Async;
 @Singleton
 public class SeenService {
     private final Object lock = new Object();
-    private final Observable<ByteBuffer> buffer;
+    private final SettableFuture<ByteBuffer> buffer = SettableFuture.create();
 
     @Inject
     public SeenService(Context context) {
         File file = new File(context.getCacheDir(), "seen-posts.bits");
-        buffer = Async.fromCallable(() -> mapByteBuffer(file), Schedulers.io()).cache();
 
-        // subscribe once so that the value is cached for the next time.
-        buffer.subscribe();
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+            try {
+                buffer.set(mapByteBuffer(file));
+            } catch (IOException error) {
+                Log.w("SeenService", "Could not load the seen-Cache");
+            }
+        });
     }
 
     public boolean isSeen(FeedItem item) {
+        if (!this.buffer.isDone())
+            return false;
+
         int idx = (int) item.getId() / 8;
 
-        ByteBuffer buffer = this.buffer.toBlocking().first();
+        ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
             Log.w("SeenService", "Id is too large");
             return false;
@@ -50,11 +63,16 @@ public class SeenService {
     }
 
     public void markAsSeen(FeedItem item) {
+        if (!this.buffer.isDone())
+            return;
+
         int idx = (int) item.getId() / 8;
 
-        ByteBuffer buffer = this.buffer.toBlocking().first();
-        if (idx < 0 || idx >= buffer.limit())
+        ByteBuffer buffer = Futures.getUnchecked(this.buffer);
+        if (idx < 0 || idx >= buffer.limit()) {
             Log.w("SeenService", "Id is too large");
+            return;
+        }
 
         // only one thread can write the buffer at a time.
         synchronized (lock) {
@@ -68,15 +86,25 @@ public class SeenService {
      * Removes the "marked as seen" status from all items.
      */
     public void clear() {
+        if (!this.buffer.isDone())
+            return;
+
+        ByteBuffer buffer = Futures.getUnchecked(this.buffer);
+
         synchronized (lock) {
-            ByteBuffer buffer = this.buffer.toBlocking().first();
+            Log.i("SeenService", "Removing all the items");
             for (int idx = 0; idx < buffer.limit(); idx++) {
                 buffer.put(idx, (byte) 0);
             }
         }
     }
 
-
+    /**
+     * Maps the cache into a byte buffer. The buffer is backed by the file, so
+     * all changes to the buffer are written back to the file.
+     *
+     * @param file The file to map into memory
+     */
     @SuppressLint("NewApi")
     private static ByteBuffer mapByteBuffer(File file) throws IOException {
         // space for up to two million posts
