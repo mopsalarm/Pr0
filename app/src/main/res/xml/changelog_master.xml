@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.14"
+        versioncode="14">
+
+        <change>Neu: Vorschläge beim Hinzufügen von Tags</change>
+        <change>Neu: Einstellung für kleinere Votebuttons bei Kommentaren</change>
+        <change>Neu: Einstellung um den Benisgraphen zu deaktivieren</change>
+    </release>
+
+    <release
         version="1.13"
         versioncode="13">
 
@@ -13,7 +22,7 @@
         version="1.12"
         versioncode="12">
 
-    <change>Neu: Benisgraph in der Navigation. Zeigt den Verlauf deines Benis über die letzten
+        <change>Neu: Benisgraph in der Navigation. Zeigt den Verlauf deines Benis über die letzten
             24 Stunden an.
         </change>
         <change>Neu: Changelog beim ersten Starten der App nach einem Update.</change>
