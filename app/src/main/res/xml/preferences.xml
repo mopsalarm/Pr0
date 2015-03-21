@@ -51,6 +51,13 @@
             android:summaryOn="@string/pref_animate_vote_view_on"
             android:summaryOff="@string/pref_animate_vote_view_off"
             android:defaultValue="true"/>
+
+        <CheckBoxPreference
+            android:key="pref_comment_view_vote_buttons_small"
+            android:title="@string/pref_comment_view_vote_buttons_small"
+            android:summary="@string/pref_comment_view_vote_buttons_small_summary"
+            android:defaultValue="false"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

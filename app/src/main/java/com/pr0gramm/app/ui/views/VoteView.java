@@ -40,7 +40,12 @@ public class VoteView extends LinearLayout {
 
     public VoteView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        settings = Settings.of(context);
+
+        if (isInEditMode()) {
+            settings = null;
+        } else {
+            settings = Settings.of(context);
+        }
 
         int orientation = 0, spacing = 0, textSize = 24;
         markedColor = ColorStateList.valueOf(context.getResources().getColor(R.color.primary));
@@ -183,6 +188,14 @@ public class VoteView extends LinearLayout {
 
     private boolean isAnimated() {
         return settings.animateVoteView();
+    }
+
+    /**
+     * Sets the size of the views.
+     */
+    public void setSize(int size) {
+        viewRateUp.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+        viewRateDown.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
     }
 
     /**

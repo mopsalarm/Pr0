@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.feed.Vote;
 
@@ -71,10 +72,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.comment, parent, false);
+        Context context = parent.getContext();
+        Settings settings = Settings.of(context);
+        int layout = settings.smallerVoteViewsOnComments()
+                ? R.layout.comment_smaller_vote_buttons
+                : R.layout.comment_normal_vote_buttons;
 
+        View view = LayoutInflater.from(context).inflate(layout, parent, false);
         return new CommentView(view);
     }
 
