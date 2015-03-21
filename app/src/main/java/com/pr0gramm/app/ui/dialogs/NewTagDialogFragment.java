@@ -1,32 +1,60 @@
 package com.pr0gramm.app.ui.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.inject.Inject;
+import com.pr0gramm.app.Lazy;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
+
+import roboguice.fragment.RoboDialogFragment;
 
 /**
  */
-public class NewTagDialogFragment extends DialogFragment {
-    private EditText tagInput;
+public class NewTagDialogFragment extends RoboDialogFragment {
+    private MultiAutoCompleteTextView tagInput;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
+
+        // get the auto-suggestion list.
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_dropdown_item_1line,
+                TAGS.get());
+
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_tags, null);
-        tagInput = (EditText) view.findViewById(R.id.tag);
+        tagInput = (MultiAutoCompleteTextView) view.findViewById(R.id.tag);
+        tagInput.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        tagInput.setAdapter(adapter);
 
         return new MaterialDialog.Builder(getActivity())
                 .title(R.string.add_new_tag_title)
@@ -67,4 +95,23 @@ public class NewTagDialogFragment extends DialogFragment {
          */
         void onAddNewTags(List<String> tags);
     }
+
+    /**
+     * Parses the list of tags.
+     */
+    @SuppressLint("NewApi")
+    private static final Lazy<List<String>> TAGS = Lazy.of(() -> {
+        try (InputStream stream = Pr0grammApplication.GLOBAL_CONTEXT.getAssets().open("tags.json")) {
+            Type listType = new TypeToken<List<String>>() {
+            }.getType();
+
+            try (Reader reader = new InputStreamReader(stream, Charsets.UTF_8)) {
+                return new Gson().fromJson(reader, listType);
+            }
+
+        } catch (Exception error) {
+            Log.e("Tags", "Could not load list of tags", error);
+            return Collections.emptyList();
+        }
+    });
 }

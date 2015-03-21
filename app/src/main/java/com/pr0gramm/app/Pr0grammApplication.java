@@ -18,6 +18,10 @@ import roboguice.RoboGuice;
  * Global application class for pr0gramm app.
  */
 public class Pr0grammApplication extends SugarApp {
+    public Pr0grammApplication() {
+        GLOBAL_CONTEXT = this;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -47,4 +51,6 @@ public class Pr0grammApplication extends SugarApp {
     static {
         RoboGuice.setUseAnnotationDatabases(false);
     }
+
+    public static Context GLOBAL_CONTEXT;
 }

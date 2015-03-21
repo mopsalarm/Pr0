@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/add_new_tag_summary"/>
 
-    <EditText
+    <MultiAutoCompleteTextView
         android:id="@+id/tag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
