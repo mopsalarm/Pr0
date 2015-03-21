@@ -16,11 +16,11 @@ Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https
 * Übertragen der Votings vom WebClient auf die pr0gramm App
 * Kommentare up- und down-voten
 * Bilder als Favorit markieren
+* Auf Kommentare antworten können bzw. einen neuen Kommentar verfassen können
+* Tags hinzufügen können
 
 ## Geplante Features
-* Auf Kommentare antworten können bzw. einen neuen Kommentar verfassen können
 * Nachrichten lesen und schreiben können
-* Tags hinzufügen können
 * Hochladen neuer Bilder direkt vom Handy
 * Cleanups + Kommentare.
 
