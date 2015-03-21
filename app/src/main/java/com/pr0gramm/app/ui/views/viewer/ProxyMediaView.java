@@ -23,6 +23,13 @@ public class ProxyMediaView extends MediaView {
 
         addView(child = viewer);
         bootupChild();
+
+        // forward double clicks
+        child.setOnDoubleTapListener(() -> {
+            OnDoubleTapListener listener = getOnDoubleTapListener();
+            if (listener != null)
+                listener.onDoubleTap();
+        });
     }
 
     public void unsetChild() {
