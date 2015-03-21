@@ -5,8 +5,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -23,6 +26,7 @@ import roboguice.inject.InjectView;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
 
+import static android.view.GestureDetector.SimpleOnGestureListener;
 import static java.lang.System.identityHashCode;
 
 /**
@@ -33,9 +37,11 @@ public abstract class MediaView extends FrameLayout {
     protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
             identityHashCode(this), Character.MAX_RADIX);
 
+    private final GestureDetector gestureDetector;
     protected final Binder binder;
     protected final String url;
 
+    private OnDoubleTapListener onDoubleTapListener;
     private boolean started;
     private boolean resumed;
     private boolean playing;
@@ -57,8 +63,37 @@ public abstract class MediaView extends FrameLayout {
         injector.injectMembersWithoutViews(this);
         injector.injectViewMembers(this);
 
+        // register the detector to handle double taps
+        gestureDetector = new GestureDetector(context, gestureListener);
+
         showBusyIndicator();
     }
+
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
+    }
+
+    /**
+     * The listener that handles double tapping
+     */
+    @SuppressWarnings("FieldCanBeLocal")
+    private final SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            if (onDoubleTapListener != null) {
+                onDoubleTapListener.onDoubleTap();
+                return true;
+            }
+
+            return false;
+        }
+    };
 
     /**
      * Displays an indicator that something is loading. You need to pair
@@ -128,6 +163,13 @@ public abstract class MediaView extends FrameLayout {
             onStop();
     }
 
+    public OnDoubleTapListener getOnDoubleTapListener() {
+        return onDoubleTapListener;
+    }
+
+    public void setOnDoubleTapListener(OnDoubleTapListener onDoubleTapListener) {
+        this.onDoubleTapListener = onDoubleTapListener;
+    }
 
     /**
      * Returns the url that this view should display.
@@ -246,6 +288,10 @@ public abstract class MediaView extends FrameLayout {
         <T> Observable<T> bind(Observable<T> observable);
 
         void onError(String text);
+    }
+
+    public interface OnDoubleTapListener {
+        void onDoubleTap();
     }
 
     private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(

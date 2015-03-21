@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.13"
+        versioncode="13">
+
+        <change>Neu: Doppeltklick auf ein Bild führt einen Upvote aus</change>
+        <change>Fix: Hoffentlich mehr Probleme in der Fehlerbehandlung behoben</change>
+    </release>
+
+    <release
         version="1.12"
         versioncode="12">
-        <change>Neu: Benisgraph in der Navigation. Zeigt den Verlauf deines Benis über die letzten
+
+    <change>Neu: Benisgraph in der Navigation. Zeigt den Verlauf deines Benis über die letzten
             24 Stunden an.
         </change>
         <change>Neu: Changelog beim ersten Starten der App nach einem Update.</change>

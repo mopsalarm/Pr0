@@ -31,6 +31,12 @@
         android:key="prefcat_style"
         android:title="@string/prefcat_style">
 
+        <CheckBoxPreference
+            android:key="pref_double_tap_to_upvote"
+            android:title="@string/pref_double_tap_to_upvote"
+            android:summary="@string/pref_double_tap_to_upvote_summary"
+            android:defaultValue="true"/>
+
         <ListPreference
             android:key="pref_seen_indicator_style"
             android:title="@string/pref_seen_indicator_style"

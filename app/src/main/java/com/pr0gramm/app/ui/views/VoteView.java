@@ -97,13 +97,16 @@ public class VoteView extends LinearLayout {
         setVote(Vote.NEUTRAL, true);
 
         // register listeners
-        viewRateUp.setOnClickListener(v -> {
-            setVote((state == Vote.UP || state == Vote.FAVORITE) ? Vote.NEUTRAL : Vote.UP);
-        });
+        viewRateUp.setOnClickListener(v -> triggerUpVoteClicked());
+        viewRateDown.setOnClickListener(v -> triggerDownVoteClicked());
+    }
 
-        viewRateDown.setOnClickListener(v -> {
-            setVote(state == Vote.DOWN ? Vote.NEUTRAL : Vote.DOWN);
-        });
+    public void triggerDownVoteClicked() {
+        setVote(state == Vote.DOWN ? Vote.NEUTRAL : Vote.DOWN);
+    }
+
+    public void triggerUpVoteClicked() {
+        setVote((state == Vote.UP || state == Vote.FAVORITE) ? Vote.NEUTRAL : Vote.UP);
     }
 
     public OnVoteListener getOnVoteListener() {

@@ -323,7 +323,13 @@ public class PostFragment extends RoboFragment implements
 
         // initialize a new viewer fragment
         viewer = MediaView.newInstance(getActivity(), binder, feedItem);
+        viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
         viewerContainer.addView(viewer);
+    }
+
+    private void onMediaViewDoubleTapped() {
+        if (settings.doubleTapToUpvote())
+            infoLineView.getVoteView().triggerUpVoteClicked();
     }
 
     /**

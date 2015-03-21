@@ -102,6 +102,10 @@ public class Settings {
         return preferences.getBoolean("pref_hardware_acceleration", true);
     }
 
+    public boolean doubleTapToUpvote() {
+        return preferences.getBoolean("pref_double_tap_to_upvote", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }
