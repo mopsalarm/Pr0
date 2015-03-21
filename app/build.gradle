@@ -24,7 +24,7 @@ android {
         targetSdkVersion 21
 
         versionCode 13
-        versionName "1.13.dev"
+        versionName "1.13"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
