@@ -64,4 +64,6 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
         transitive = true;
     }
+
+    provided 'org.roboguice:roboblender:3.0.1'
 }

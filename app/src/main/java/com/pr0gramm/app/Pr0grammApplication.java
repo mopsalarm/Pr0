@@ -12,7 +12,6 @@ import com.orm.SugarApp;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import io.fabric.sdk.android.Fabric;
-import roboguice.RoboGuice;
 
 /**
  * Global application class for pr0gramm app.
@@ -49,7 +48,7 @@ public class Pr0grammApplication extends SugarApp {
     }
 
     static {
-        RoboGuice.setUseAnnotationDatabases(false);
+        // RoboGuice.setUseAnnotationDatabases(false);
     }
 
     public static Context GLOBAL_CONTEXT;
