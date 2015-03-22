@@ -14,7 +14,7 @@ public class ProxyMediaView extends MediaView {
     private MediaView child;
 
     public ProxyMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_proxy, url);
+        super(context, binder, R.layout.player_proxy, R.id.proxy_progress, url);
     }
 
     public void setChild(MediaView viewer) {

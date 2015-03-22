@@ -5,7 +5,7 @@
     android:minHeight="150dp">
 
     <com.pr0gramm.app.ui.views.BusyCircleView
-        android:id="@+id/progress"
+        android:id="@+id/proxy_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -47,17 +48,27 @@ public abstract class MediaView extends FrameLayout {
     private boolean playing;
 
     @Nullable
-    @InjectView(R.id.progress)
     private View progress;
 
-    public MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
+    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
+        this(context, binder, layoutId, R.id.progress, url);
+    }
+
+    protected MediaView(Context context, Binder binder,
+                        @LayoutRes Integer layoutId, @IdRes Integer progressId,
+                        String url) {
+
         super(context);
         this.binder = binder;
         this.url = url;
 
         setLayoutParams(DEFAULT_PARAMS);
-        if (layoutId != null)
+        if (layoutId != null) {
             LayoutInflater.from(context).inflate(layoutId, this);
+
+            if (progressId != null)
+                progress = findViewById(progressId);
+        }
 
         RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
