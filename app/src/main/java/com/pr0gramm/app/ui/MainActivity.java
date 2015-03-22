@@ -38,7 +38,6 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -119,7 +118,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
         } else {
             // start the update check.
-            UpdateDialogFragment.checkForUpdates(this);
+            UpdateDialogFragment.checkForUpdates(this, false);
         }
     }
 

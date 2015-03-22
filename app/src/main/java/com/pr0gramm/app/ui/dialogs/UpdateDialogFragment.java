@@ -1,36 +1,29 @@
 package com.pr0gramm.app.ui.dialogs;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.inject.Inject;
-import com.pr0gramm.app.DownloadCompleteReceiver;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UpdateChecker;
-import com.pr0gramm.app.ui.MainActionHandler;
-import com.pr0gramm.app.ui.MainActivity;
 
 import org.joda.time.Instant;
 
 import roboguice.RoboGuice;
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.activity.RoboFragmentActivity;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Actions;
 
+import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Instant.now;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -50,6 +43,12 @@ public class UpdateDialogFragment extends RoboDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         UpdateChecker.Update update = getArguments().getParcelable("update");
+        return update != null
+                ? updateAvailableDialog(update)
+                : noNewUpdateDialog();
+    }
+
+    private MaterialDialog updateAvailableDialog(final UpdateChecker.Update update) {
         return new MaterialDialog.Builder(getActivity())
                 .content(getString(R.string.new_update_available, update.getChangelog()))
                 .positiveText(R.string.download)
@@ -61,6 +60,13 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                     }
                 })
                 .build();
+    }
+
+    private Dialog noNewUpdateDialog() {
+        return new MaterialDialog.Builder(getActivity())
+                .content(R.string.no_new_update)
+                .positiveText(R.string.okay)
+                .show();
     }
 
     private void download(UpdateChecker.Update update) {
@@ -91,29 +97,41 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(RoboActionBarActivity activity) {
+    public static void checkForUpdates(RoboActionBarActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
         Settings settings = injector.getInstance(Settings.class);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 
-        if (!settings.updateCheckEnabled())
-            return;
+        if(!interactive) {
+            if (!settings.updateCheckEnabled())
+                return;
 
-        final String key = "UpdateDialogFragment.lastUpdateCheck";
-        Instant last = new Instant(shared.getLong(key, 0));
-        if (last.isAfter(now().minus(standardHours(1))))
-            return;
+            Instant last = new Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0));
+            if (last.isAfter(now().minus(standardHours(1))))
+                return;
+        }
 
         // Action to store the last check time
-        Action0 storeCheckTime = () -> shared.edit().putLong(key, now().getMillis()).apply();
+        Action0 storeCheckTime = () -> shared.edit()
+                .putLong(KEY_LAST_UPDATE_CHECK, now().getMillis())
+                .apply();
+
+        // show a busy-dialog or not?
+        Observable.Operator<UpdateChecker.Update, UpdateChecker.Update> busyOperator =
+                interactive ? busyDialog(activity) : NOOP;
 
         // do the check
         bindActivity(activity, new UpdateChecker(activity).check())
                 .onErrorResumeNext(Observable.empty())
+                .lift(busyOperator)
+                .defaultIfEmpty(null)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {
                     UpdateDialogFragment dialog = newInstance(update);
                     dialog.show(activity.getSupportFragmentManager(), null);
                 }, Actions.empty());
     }
+
+    private static final String KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck";
+    private static final Observable.Operator<UpdateChecker.Update, UpdateChecker.Update> NOOP = subscriber -> subscriber;
 }

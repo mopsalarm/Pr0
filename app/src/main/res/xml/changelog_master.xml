@@ -4,9 +4,12 @@
         version="1.14"
         versioncode="14">
 
+        <change>Neu: Ein Zoomfunktion bei der Anzeige von Bildern</change>
         <change>Neu: Vorschläge beim Hinzufügen von Tags</change>
         <change>Neu: Einstellung für kleinere Votebuttons bei Kommentaren</change>
         <change>Neu: Einstellung um den Benisgraphen zu deaktivieren</change>
+        <change>Neu: Changelog und Update in den Einstellungen</change>
+        <change>Bugfixes</change>
     </release>
 
     <release

@@ -4,7 +4,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.support.v7.app.ActionBarActivity;
+import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -12,12 +13,15 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
 
+import roboguice.activity.RoboActionBarActivity;
+
 /**
  */
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends RoboActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +65,24 @@ public class SettingsActivity extends ActionBarActivity {
                     .unregisterOnSharedPreferenceChangeListener(this);
 
             super.onPause();
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
+            if("pref_pseudo_update".equals(preference.getKey())) {
+                RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+                UpdateDialogFragment.checkForUpdates(activity, true);
+                return true;
+            }
+
+            if("pref_pseudo_changelog".equals(preference.getKey())) {
+                RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+                ChangeLogDialog dialog = new ChangeLogDialog();
+                dialog.show(activity.getSupportFragmentManager(), null);
+                return true;
+            }
+
+            return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
 
         @Override

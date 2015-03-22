@@ -125,4 +125,9 @@
     <string name="could_not_load_feed">Can not load the feed. Please try again.</string>
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
+    <string name="pref_pseudo_changelog">Changelog</string>
+    <string name="pref_pseudo_update">Check for updates</string>
+    <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
+    <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
+    <string name="no_new_update">This is the latest version. There is no new update.</string>
 </resources>

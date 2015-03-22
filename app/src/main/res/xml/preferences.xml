@@ -128,4 +128,19 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="prefcat_misc"
+        android:title="Miscellaneous">
+
+        <Preference
+            android:key="pref_pseudo_changelog"
+            android:title="@string/pref_pseudo_changelog"
+            android:summary="@string/pref_pseudo_changelog_summary"/>
+
+        <Preference
+            android:key="pref_pseudo_update"
+            android:title="@string/pref_pseudo_update"
+            android:summary="@string/pref_pseudo_update_summary"/>
+
+    </PreferenceCategory>
 </PreferenceScreen>
