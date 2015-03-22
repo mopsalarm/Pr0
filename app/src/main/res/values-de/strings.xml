@@ -102,7 +102,6 @@
     <string name="benis_delta_down">(-%d seit gestern)</string>
     <string name="benis_delta_up">(+%d seit gestern)</string>
     <string name="comment_hint">Hier einen Kommentar schreiben</string>
-    <string name="dummy_benis"></string>
     <string name="error_could_not_create_download_directory">Downloadordner konnte nicht angelegt werden.</string>
     <string name="logout">Abmelden</string>
     <string name="need_to_restart_app">Damit diese Änderung wirksam wird, musst du die App einmal komplett neustarten.</string>
@@ -112,4 +111,18 @@
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten 24 Stunden.</string>
     <string name="pref_double_tap_to_upvote">Doppeltklick für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltklick auf ein Bild oder Video führt einen Upvote aus</string>
+    <string name="could_not_load_feed">Kann den Feed nicht laden. Ist pr0gramm gerade nicht erreichbar?</string>
+    <string name="hello_world">Hallo Welt</string>
+    <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
+    <string name="pref_benis_graph_enabled">Benisgraph aktivieren</string>
+    <string name="pref_benis_graph_enabled_summary">Der Benisgraph zeigt die Änderungen in deinem Benis in den letzten 24 Stunden.</string>
+    <string name="pref_comment_view_vote_buttons_small">Kleinere Vote-Buttons</string>
+    <string name="pref_comment_view_vote_buttons_small_summary">Wenn du dies aktivierst, werden die Buttons zum Voten von Kommentaren kleiner dargestellt</string>
+    <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
+    <string name="pref_fullscreen_zoom_view_summary">Aktiviere diese Einstellung, um Status- und Navigationsleiste in der Zoomansicht zu verstecken.</string>
+    <string name="pref_pseudo_changelog">Changelog</string>
+    <string name="pref_pseudo_changelog_summary">Drücke hier um das Changelog anzuzeigen</string>
+    <string name="pref_pseudo_update">Auf Updates prüfen</string>
+    <string name="pref_pseudo_update_summary">Drücke hier um auf Updates für die App zu prüfen</string>
+    <string name="zoom">Zoomfunktion</string>
 </resources>
