@@ -249,7 +249,7 @@ public class MainActivity extends RoboActionBarActivity implements
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
                 .addToBackStack(null)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     @Override

@@ -9,7 +9,8 @@
         <change>Neu: Einstellung für kleinere Votebuttons bei Kommentaren</change>
         <change>Neu: Einstellung um den Benisgraphen zu deaktivieren</change>
         <change>Neu: Changelog und Update in den Einstellungen</change>
-        <change>Bugfixes</change>
+        <change>Fix: Icon-Farbe in der Navigation korrigiert</change>
+        <change>Fix: Bugs</change>
     </release>
 
     <release

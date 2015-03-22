@@ -24,7 +24,7 @@ public class SyncIntentService extends RoboIntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "Performing a sync operation now");
-        if (!userService.isAuthorized())
+        if (!userService.isAuthorized() || intent == null)
             return;
 
         Stopwatch watch = Stopwatch.createStarted();

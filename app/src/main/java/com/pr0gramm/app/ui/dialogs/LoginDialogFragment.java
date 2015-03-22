@@ -153,8 +153,6 @@ public class LoginDialogFragment extends RoboDialogFragment {
             if (doOnLogin != null)
                 doOnLogin.run();
 
-            dismiss();
-
         } else {
             Login.BanInfo ban = response.getBan();
             if (ban != null && ban.isBanned()) {
@@ -165,14 +163,14 @@ public class LoginDialogFragment extends RoboDialogFragment {
 
                 String reason = ban.getReason();
                 showErrorString(getFragmentManager(), getString(R.string.banned, date, reason));
-                dismiss();
 
             } else {
                 String msg = getString(R.string.login_not_successful);
                 showErrorString(getFragmentManager(), msg);
-                dismiss();
             }
         }
+
+        dismissAllowingStateLoss();
     }
 
     private static boolean doIfAuthorized(Context context, FragmentManager fm, Runnable runnable,
