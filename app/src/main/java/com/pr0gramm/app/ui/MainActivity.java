@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.google.common.base.Throwables;
@@ -31,6 +32,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import de.cketti.library.changelog.ChangeLog;
@@ -40,6 +42,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.functions.Actions;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -59,6 +62,10 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @InjectView(R.id.toolbar)
     private Toolbar toolbar;
+
+    @Nullable
+    @InjectView(R.id.toolbar_container)
+    private View toolbarContainer;
 
     @Inject
     private UserService userService;
@@ -87,7 +94,9 @@ public class MainActivity extends RoboActionBarActivity implements
         // use toolbar as action bar
         setSupportActionBar(toolbar);
 
-        scrollHideToolbarListener = new ScrollHideToolbarListener(toolbar);
+        // and hide it away on scrolling
+        scrollHideToolbarListener = new ScrollHideToolbarListener(
+                firstNonNull(toolbarContainer, toolbar));
 
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);

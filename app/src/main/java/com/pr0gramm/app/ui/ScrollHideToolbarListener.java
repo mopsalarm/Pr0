@@ -1,16 +1,16 @@
 package com.pr0gramm.app.ui;
 
-import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.view.ViewPropertyAnimator;
 
 /**
  */
 public class ScrollHideToolbarListener {
-    private final Toolbar toolbar;
+    private final View toolbar;
     private int toolbarMarginOffset;
     private ViewPropertyAnimator animation;
 
-    public ScrollHideToolbarListener(Toolbar toolbar) {
+    public ScrollHideToolbarListener(View toolbar) {
         this.toolbar = toolbar;
     }
 
