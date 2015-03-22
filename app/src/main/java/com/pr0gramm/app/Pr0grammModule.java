@@ -9,8 +9,8 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.services.GfycatGifToVideoService;
 import com.pr0gramm.app.services.GifToVideoService;
+import com.pr0gramm.app.services.MyGifToVideoService;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
@@ -59,7 +59,7 @@ public class Pr0grammModule extends AbstractModule {
     @Provides
     @Singleton
     public GifToVideoService gifToVideoService() {
-        return new GfycatGifToVideoService();
+        return new MyGifToVideoService();
     }
 
     @Provides
