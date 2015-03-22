@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.ContextThemeWrapper;
@@ -145,8 +147,10 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void deselect() {
-        for (TextView view : itemViews.values())
+        for (TextView view : itemViews.values()) {
             view.setTextColor(defaultColor);
+            changeCompoundDrawableColor(view, defaultColor);
+        }
     }
 
     public void select(int action) {
@@ -159,8 +163,29 @@ public class DrawerFragment extends RoboFragment {
         deselect();
 
         TextView view = itemViews.get(action);
-        if (view != null)
+        if (view != null) {
             view.setTextColor(markedColor);
+            changeCompoundDrawableColor(view, markedColor);
+        }
+    }
+
+    /**
+     * Fakes the drawable tint by applying a color filter on all compound
+     * drawables of this view.
+     *
+     * @param view  The view to "tint"
+     * @param color The color with which the drawables are to be tinted.
+     */
+    private void changeCompoundDrawableColor(TextView view, ColorStateList color) {
+        int defaultColor = color.getDefaultColor();
+        Drawable[] drawables = view.getCompoundDrawables();
+        for (Drawable drawable : drawables) {
+            if (drawable == null)
+                continue;
+
+            // fake the tint with a color filter.
+            drawable.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private void onActionClicked(int id) {
