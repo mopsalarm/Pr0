@@ -7,7 +7,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.Graph;
@@ -20,9 +19,6 @@ import com.pr0gramm.app.orm.BenisRecord;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

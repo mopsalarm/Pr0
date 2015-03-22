@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,29 +11,16 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Downloader;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
 import pl.droidsonroids.gif.GifDrawable;
 import roboguice.inject.InjectView;
-import roboguice.inject.RoboInjector;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
-import rx.util.async.Async;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static java.lang.System.identityHashCode;
 
 /**
  */

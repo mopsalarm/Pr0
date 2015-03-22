@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedItem;
 
@@ -18,12 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import javax.inject.Inject;
-
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Actions;
-import rx.schedulers.Schedulers;
-import rx.util.async.Async;
 
 /**
  * Very simple service to check if an item was already visited or not.

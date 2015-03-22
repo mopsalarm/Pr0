@@ -5,13 +5,9 @@ import android.util.Log;
 
 import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
-import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.UserService;
 
-import java.util.concurrent.TimeUnit;
-
 import roboguice.service.RoboIntentService;
-import rx.Observable;
 
 /**
  */

@@ -13,8 +13,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
-import io.fabric.sdk.android.services.common.Crash;
-
 /**
  */
 public class AndroidUtility {

@@ -2,12 +2,9 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Callback;

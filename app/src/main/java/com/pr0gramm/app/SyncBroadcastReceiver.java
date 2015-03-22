@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 

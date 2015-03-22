@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static rx.android.observables.AndroidObservable.bindFragment;

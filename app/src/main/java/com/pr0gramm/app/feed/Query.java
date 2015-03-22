@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;

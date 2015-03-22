@@ -7,7 +7,6 @@ import android.support.v4.app.DialogFragment;
 import android.webkit.WebView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.base.Charsets;
 import com.pr0gramm.app.R;
 
 import de.cketti.library.changelog.ChangeLog;

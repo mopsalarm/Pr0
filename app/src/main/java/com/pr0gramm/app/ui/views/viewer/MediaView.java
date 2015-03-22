@@ -23,7 +23,6 @@ import com.pr0gramm.app.feed.FeedItem;
 import javax.annotation.Nullable;
 
 import roboguice.RoboGuice;
-import roboguice.inject.InjectView;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
 
