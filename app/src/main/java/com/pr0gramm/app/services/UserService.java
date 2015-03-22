@@ -57,12 +57,11 @@ public class UserService {
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, LoginCookieHandler cookieHandler,
-                       Gson gson,
                        SharedPreferences preferences) {
 
         this.api = api;
+        this.gson = new Gson();
         this.seenService = seenService;
-        this.gson = gson;
         this.voteService = voteService;
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
