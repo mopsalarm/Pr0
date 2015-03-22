@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.app.DownloadManager;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
+import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
@@ -193,6 +195,11 @@ public class PostFragment extends RoboFragment implements
             Log.i("Post", "Request download of post #" + feedItem.getId());
             downloadPostMedia();
             return true;
+        }
+
+        if(item.getItemId() == R.id.action_zoom) {
+            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem.getImage());
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

@@ -17,6 +17,7 @@ import rx.Observable;
 
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.toArray;
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Arrays.asList;
@@ -392,6 +393,7 @@ public class FeedProxy {
 
         @Override
         public void onError(Throwable error) {
+            checkMainThread();
             Log.e("Feed", "Could not load feed", error);
         }
 

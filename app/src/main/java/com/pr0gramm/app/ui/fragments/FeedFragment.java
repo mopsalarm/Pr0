@@ -29,6 +29,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Query;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
 
@@ -332,6 +333,15 @@ public class FeedFragment extends RoboFragment {
                 public void onLoadFinished() {
                     progressView.setVisibility(View.GONE);
                     swipeRefreshLayout.setRefreshing(false);
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    if(getFeedProxy().getItemCount() == 0) {
+                        ErrorDialogFragment.showErrorString(
+                                getFragmentManager(),
+                                getString(R.string.could_not_load_feed));
+                    }
                 }
             });
 

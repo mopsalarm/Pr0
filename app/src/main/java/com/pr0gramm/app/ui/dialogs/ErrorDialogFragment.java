@@ -117,15 +117,20 @@ public class ErrorDialogFragment extends DialogFragment {
     public static void showErrorString(FragmentManager fragmentManager, String message) {
         Log.i("Error", message);
 
-        Bundle arguments = new Bundle();
-        arguments.putString("content", message);
+        try {
+            Bundle arguments = new Bundle();
+            arguments.putString("content", message);
 
-        // remove previous dialog, if any
-        dismissErrorDialog(fragmentManager);
+            // remove previous dialog, if any
+            dismissErrorDialog(fragmentManager);
 
-        ErrorDialogFragment dialog = new ErrorDialogFragment();
-        dialog.setArguments(arguments);
-        dialog.show(fragmentManager, "ErrorDialog");
+            ErrorDialogFragment dialog = new ErrorDialogFragment();
+            dialog.setArguments(arguments);
+            dialog.show(fragmentManager, "ErrorDialog");
+
+        } catch(Exception error) {
+            Log.e("ErrorDialog", "Could not show error dialog", error);
+        }
     }
 
     /**
