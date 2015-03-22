@@ -127,8 +127,10 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 .defaultIfEmpty(null)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {
-                    UpdateDialogFragment dialog = newInstance(update);
-                    dialog.show(activity.getSupportFragmentManager(), null);
+                    if(interactive || update != null) {
+                        UpdateDialogFragment dialog = newInstance(update);
+                        dialog.show(activity.getSupportFragmentManager(), null);
+                    }
                 }, Actions.empty());
     }
 
