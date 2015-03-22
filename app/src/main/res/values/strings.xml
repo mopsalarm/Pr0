@@ -123,4 +123,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed">Can not load the feed. Please try again.</string>
+    <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
+    <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
 </resources>

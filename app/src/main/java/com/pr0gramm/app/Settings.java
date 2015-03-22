@@ -49,7 +49,6 @@ public class Settings {
         preferences.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
-
     /**
      * Gets a set of all selected content types.
      */
@@ -112,6 +111,10 @@ public class Settings {
 
     public boolean benisGraphEnabled() {
         return preferences.getBoolean("pref_benis_graph_enabled", true);
+    }
+
+    public boolean fullscreenZoomView() {
+        return preferences.getBoolean("pref_fullscreen_zoom_view", true);
     }
 
     public static Settings of(Context context) {

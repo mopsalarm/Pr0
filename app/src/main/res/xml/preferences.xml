@@ -64,6 +64,12 @@
             android:summary="@string/pref_comment_view_vote_buttons_small_summary"
             android:defaultValue="false"/>
 
+        <CheckBoxPreference
+            android:key="pref_fullscreen_zoom_view"
+            android:title="@string/pref_fullscreen_zoom_view"
+            android:summary="@string/pref_fullscreen_zoom_view_summary"
+            android:defaultValue="true"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

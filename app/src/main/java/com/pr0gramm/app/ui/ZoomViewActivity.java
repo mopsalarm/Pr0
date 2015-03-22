@@ -49,7 +49,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        if (hasFocus) {
+        if (hasFocus && settings.fullscreenZoomView()) {
             View decorView = getWindow().getDecorView();
             int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
