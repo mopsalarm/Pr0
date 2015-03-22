@@ -190,6 +190,25 @@ public class PostFragment extends RoboFragment implements
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_zoom);
+        if (item != null) {
+            item.setVisible(isStaticImage(feedItem.getImage()));
+        }
+
+    }
+
+    /**
+     * Returns true, if the given url links to a static image.
+     * This does only a check on the filename and not on the data.
+     *
+     * @param image The url of the image to check
+     */
+    private boolean isStaticImage(String image) {
+        return image.toLowerCase().matches(".*\\.(jpg|jpeg|png)");
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_download) {
             Log.i("Post", "Request download of post #" + feedItem.getId());
@@ -197,7 +216,7 @@ public class PostFragment extends RoboFragment implements
             return true;
         }
 
-        if(item.getItemId() == R.id.action_zoom) {
+        if (item.getItemId() == R.id.action_zoom) {
             Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem.getImage());
             startActivity(intent);
         }
