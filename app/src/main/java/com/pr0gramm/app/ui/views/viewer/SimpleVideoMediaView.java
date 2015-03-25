@@ -5,7 +5,6 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.VideoView;
 
 import com.pr0gramm.app.R;
 
@@ -17,7 +16,7 @@ import roboguice.inject.InjectView;
 @SuppressLint("ViewConstructor")
 public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener {
     @InjectView(R.id.video)
-    private VideoView videoView;
+    private SimplifiedAndroidVideoView videoView;
 
     public SimpleVideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video_compat, url);
