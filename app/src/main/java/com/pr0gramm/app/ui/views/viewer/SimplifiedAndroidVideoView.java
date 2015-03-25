@@ -16,7 +16,6 @@
 
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -24,7 +23,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -81,17 +79,12 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
     }
 
     public SimplifiedAndroidVideoView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs, 0);
         initVideoView();
     }
 
     public SimplifiedAndroidVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SimplifiedAndroidVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
         initVideoView();
     }
 
