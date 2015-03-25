@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+
+    <release
+        version="1.17"
+        versioncode="17">
+
+        <change>TODO</change>
+    </release>
+
     <release
         version="1.15"
         versioncode="15">
