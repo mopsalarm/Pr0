@@ -5,6 +5,7 @@
         versioncode="15">
 
         <change>Fix: Musikwiedergabe wird nicht mehr unterbrochen, wenn Videos angezeigt werden</change>
+        <change>Fix: Übersetzung</change>
     </release>
 
     <release
