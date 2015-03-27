@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ScrollView;
@@ -45,7 +46,7 @@ public class VerticalScrollView extends ScrollView {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    public boolean onInterceptTouchEvent(@NonNull MotionEvent ev) {
         if (touchInterceptor == null || !touchInterceptor.shouldIntercept(ev))
             return super.onInterceptTouchEvent(ev);
 
@@ -77,7 +78,7 @@ public class VerticalScrollView extends ScrollView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
         super.onTouchEvent(ev);
         return true;
     }

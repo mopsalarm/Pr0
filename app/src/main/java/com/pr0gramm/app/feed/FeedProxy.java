@@ -120,7 +120,7 @@ public class FeedProxy {
      * @return The enhanced feed to display
      */
     private EnhancedFeed enhance(Feed feed) {
-        List<FeedItem> items = new ArrayList<FeedItem>();
+        List<FeedItem> items = new ArrayList<>();
         for (Feed.Item item : feed.getItems())
             items.add(new FeedItem(item));
 

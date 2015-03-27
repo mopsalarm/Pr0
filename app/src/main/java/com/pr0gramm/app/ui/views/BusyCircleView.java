@@ -14,13 +14,14 @@ import android.widget.FrameLayout;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 
+import java.util.List;
+
 import static android.animation.ObjectAnimator.ofPropertyValuesHolder;
 import static android.util.FloatMath.cos;
 
 /**
  */
 public class BusyCircleView extends FrameLayout {
-    private ImmutableList<View> circles;
     private ImmutableList<Animator> animators;
 
     public BusyCircleView(Context context) {
@@ -41,7 +42,7 @@ public class BusyCircleView extends FrameLayout {
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.busy_circles, this);
 
-        this.circles = ImmutableList.of(
+        List<View> circles = ImmutableList.of(
                 findViewById(R.id.first),
                 findViewById(R.id.second),
                 findViewById(R.id.third));
