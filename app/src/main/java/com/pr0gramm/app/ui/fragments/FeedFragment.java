@@ -23,10 +23,10 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.Query;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -137,11 +137,11 @@ public class FeedFragment extends RoboFragment {
 
     private FeedAdapter newFeedAdapter() {
         Log.i("Feed", "Restore adapter now");
-        Query query = getArguments()
-                .<Query>getParcelable(ARG_FEED_QUERY)
+        FeedFilter feedFilter = getArguments()
+                .<FeedFilter>getParcelable(ARG_FEED_QUERY)
                 .withContentType(settings.getContentType());
 
-        return new FeedAdapter(query);
+        return new FeedAdapter(feedFilter);
     }
 
     @Override
@@ -149,11 +149,11 @@ public class FeedFragment extends RoboFragment {
         super.onResume();
 
         // check if content type has changed, and reload if necessary
-        Query query = adapter.getQuery();
-        boolean changed = !equal(query.getContentTypes(), settings.getContentType());
+        FeedFilter feedFilter = adapter.getQuery();
+        boolean changed = !equal(feedFilter.getContentTypes(), settings.getContentType());
         if (changed) {
-            Query newQuery = query.withContentType(settings.getContentType());
-            setNewQuery(newQuery);
+            FeedFilter newFeedFilter = feedFilter.withContentType(settings.getContentType());
+            setNewQuery(newFeedFilter);
         }
 
         // set new indicator style
@@ -277,23 +277,23 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void setSearchTerm(String term) {
-        Query query = adapter.getQuery();
-        if (term.equalsIgnoreCase(query.getTags().orNull()))
+        FeedFilter feedFilter = adapter.getQuery();
+        if (term.equalsIgnoreCase(feedFilter.getTags().orNull()))
             return;
 
-        Query newQuery = query.withTags(term);
-        setNewQuery(newQuery);
+        FeedFilter newFeedFilter = feedFilter.withTags(term);
+        setNewQuery(newFeedFilter);
     }
 
     private void clearSearchTerm() {
-        Query query = adapter.getQuery();
-        if (query.getTags().isPresent())
-            setNewQuery(query.withoutTags());
+        FeedFilter feedFilter = adapter.getQuery();
+        if (feedFilter.getTags().isPresent())
+            setNewQuery(feedFilter.basic());
     }
 
-    private void setNewQuery(Query newQuery) {
+    private void setNewQuery(FeedFilter newFeedFilter) {
         // set and store adapter
-        this.adapter = new FeedAdapter(newQuery);
+        this.adapter = new FeedAdapter(newFeedFilter);
         recyclerView.setAdapter(adapter);
     }
 
@@ -305,12 +305,12 @@ public class FeedFragment extends RoboFragment {
      * Creates a new {@link FeedFragment} for the given
      * feed type.
      *
-     * @param query A query to use for getting data
+     * @param feedFilter A query to use for getting data
      * @return The type new fragment that can be shown now.
      */
-    public static FeedFragment newInstance(Query query) {
+    public static FeedFragment newInstance(FeedFilter feedFilter) {
         Bundle arguments = new Bundle();
-        arguments.putParcelable(ARG_FEED_QUERY, query);
+        arguments.putParcelable(ARG_FEED_QUERY, feedFilter);
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);
@@ -320,8 +320,8 @@ public class FeedFragment extends RoboFragment {
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
 
-        public FeedAdapter(Query query) {
-            this(new FeedProxy(query));
+        public FeedAdapter(FeedFilter feedFilter) {
+            this(new FeedProxy(feedFilter));
         }
 
         public FeedAdapter(FeedProxy feedProxy) {
@@ -349,8 +349,8 @@ public class FeedFragment extends RoboFragment {
             this.feedProxy.restart();
         }
 
-        public Query getQuery() {
-            return feedProxy.getQuery();
+        public FeedFilter getQuery() {
+            return feedProxy.getFeedFilter();
         }
 
         public FeedProxy getFeedProxy() {

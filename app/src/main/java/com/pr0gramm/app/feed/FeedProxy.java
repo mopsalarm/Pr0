@@ -28,7 +28,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 public class FeedProxy {
     private final List<FeedItem> items = new ArrayList<>();
 
-    private final Query query;
+    private final FeedFilter feedFilter;
     private boolean loading;
     private boolean atEnd;
     private boolean atStart;
@@ -39,12 +39,12 @@ public class FeedProxy {
     @Nullable
     private transient Loader loader;
 
-    public FeedProxy(Query query) {
-        this.query = query;
+    public FeedProxy(FeedFilter feedFilter) {
+        this.feedFilter = feedFilter;
     }
 
-    private FeedProxy(Query query, List<FeedItem> items) {
-        this.query = query;
+    private FeedProxy(FeedFilter feedFilter, List<FeedItem> items) {
+        this.feedFilter = feedFilter;
         this.items.addAll(items);
 
         checkFeedOrder();
@@ -92,8 +92,8 @@ public class FeedProxy {
      *
      * @return A query that is used to build the feed
      */
-    public Query getQuery() {
-        return query;
+    public FeedFilter getFeedFilter() {
+        return feedFilter;
     }
 
     /**
@@ -107,8 +107,8 @@ public class FeedProxy {
         onLoadStart();
 
         // do the loading.
-        long newest = items.get(0).getId(query.getFeedType());
-        bind(loader.getFeedService().getFeedItemsNewer(query, newest))
+        long newest = items.get(0).getId(feedFilter.getFeedType());
+        bind(loader.getFeedService().getFeedItemsNewer(feedFilter, newest))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
@@ -134,7 +134,7 @@ public class FeedProxy {
         if (loading || isAtEnd() || items.isEmpty())
             return;
 
-        long oldest = items.get(items.size() - 1).getId(query.getFeedType());
+        long oldest = items.get(items.size() - 1).getId(feedFilter.getFeedType());
         loadAfter(Optional.of(oldest));
     }
 
@@ -151,7 +151,7 @@ public class FeedProxy {
         onLoadStart();
 
         // do the loading.
-        bind(loader.getFeedService().getFeedItems(query, start))
+        bind(loader.getFeedService().getFeedItems(feedFilter, start))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
@@ -207,8 +207,8 @@ public class FeedProxy {
             long newMinId = feedTypeId(getLast(newItems));
 
             if (!items.isEmpty()) {
-                long oldMaxId = items.get(0).getId(query.getFeedType());
-                long oldMinId = items.get(items.size() - 1).getId(query.getFeedType());
+                long oldMaxId = items.get(0).getId(feedFilter.getFeedType());
+                long oldMinId = items.get(items.size() - 1).getId(feedFilter.getFeedType());
 
                 if (newMinId > oldMaxId) {
                     Log.i("Feed", "Okay, prepending new data to stored feed");
@@ -243,7 +243,7 @@ public class FeedProxy {
         // lets validate
         long prev = Integer.MAX_VALUE;
         for (FeedItem item : items) {
-            long id = item.getId(query.getFeedType());
+            long id = item.getId(feedFilter.getFeedType());
             if (prev <= id) {
                 Log.w("Feed", "feed not in order!!");
                 break;
@@ -254,7 +254,7 @@ public class FeedProxy {
     }
 
     private long feedTypeId(Feed.Item item) {
-        return query.getFeedType() == FeedType.PROMOTED
+        return feedFilter.getFeedType() == FeedType.PROMOTED
                 ? item.getPromoted()
                 : item.getId();
     }
@@ -298,7 +298,7 @@ public class FeedProxy {
 
     public Bundle toBundle(int idx) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("query", query);
+        bundle.putParcelable("query", feedFilter);
 
         // add a subset of the items
         int start = min(items.size(), max(0, idx - 32));
@@ -311,9 +311,9 @@ public class FeedProxy {
 
     @SuppressWarnings("unchecked")
     public static FeedProxy fromBundle(Bundle bundle) {
-        Query query = bundle.getParcelable("query");
+        FeedFilter feedFilter = bundle.getParcelable("query");
         List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
-        return new FeedProxy(query, items);
+        return new FeedProxy(feedFilter, items);
     }
 
     public Optional<Integer> getPosition(@Nullable FeedItem item) {

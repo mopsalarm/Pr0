@@ -21,9 +21,9 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
-import com.pr0gramm.app.feed.Query;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
@@ -158,8 +158,8 @@ public class MainActivity extends RoboActionBarActivity implements
                 .commit();
     }
 
-    private void gotoFeedFragment(Query query, boolean addToBackStack) {
-        FeedFragment fragment = FeedFragment.newInstance(query);
+    private void gotoFeedFragment(FeedFilter feedFilter, boolean addToBackStack) {
+        FeedFragment fragment = FeedFragment.newInstance(feedFilter);
 
         FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
         try {
@@ -173,7 +173,7 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedType feedType) {
-        gotoFeedFragment(new Query().withFeedType(feedType), false);
+        gotoFeedFragment(new FeedFilter().withFeedType(feedType), false);
     }
 
     @Override
@@ -261,8 +261,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     public void onUserClicked(String username) {
-        Query query = new Query().withUserUploads(username);
-        gotoFeedFragment(query, true);
+        FeedFilter feedFilter = new FeedFilter().withUser(username);
+        gotoFeedFragment(feedFilter, true);
     }
 
     @Override
@@ -311,7 +311,7 @@ public class MainActivity extends RoboActionBarActivity implements
                 return;
 
             clearBackStack();
-            gotoFeedFragment(Query.likes(name), false);
+            gotoFeedFragment(new FeedFilter().withFeedType(FeedType.NEW).withLikes(name), false);
             getDrawerFragment().select(R.id.action_favorites);
         });
 
@@ -331,8 +331,8 @@ public class MainActivity extends RoboActionBarActivity implements
      */
     @Override
     public void onTagClicked(Tag tag) {
-        Query query = new Query().withTags(tag.getTag());
-        gotoFeedFragment(query, true);
+        FeedFilter feedFilter = new FeedFilter().withTags(tag.getTag());
+        gotoFeedFragment(feedFilter, true);
     }
 
     @Override
