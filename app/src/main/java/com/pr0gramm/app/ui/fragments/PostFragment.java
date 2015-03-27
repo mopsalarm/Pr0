@@ -485,6 +485,11 @@ public class PostFragment extends RoboFragment implements
     }
 
     @Override
+    public void onCommentAuthorClicked(Post.Comment comment) {
+        onUserClicked(comment.getName());
+    }
+
+    @Override
     public void onAddNewCommment(long parentId, String text) {
         bindFragment(this, voteService.postComment(feedItem, parentId, text))
                 .lift(busyDialog(this))

@@ -93,6 +93,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.setCommentDepth(getCommentDepth(comment));
         view.name.setUsername(comment.getName(), comment.getMark());
+        view.name.setOnClickListener(v -> doOnAuthorClicked(comment));
 
         // set the comment and add links
         view.comment.setText(comment.getContent());
@@ -112,6 +113,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
 
         view.answer.setOnClickListener(v -> doAnswer(comment));
+    }
+
+    private void doOnAuthorClicked(Post.Comment comment) {
+        if (commentActionListener != null)
+            commentActionListener.onCommentAuthorClicked(comment);
     }
 
     private void doAnswer(Post.Comment comment) {
@@ -185,6 +191,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         boolean onCommentVoteClicked(Post.Comment comment, Vote vote);
 
         void onAnswerClicked(Post.Comment comment);
+
+        void onCommentAuthorClicked(Post.Comment comment);
     }
 
     /**
