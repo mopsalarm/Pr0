@@ -5,7 +5,10 @@
         version="1.17"
         versioncode="17">
 
-        <change>TODO</change>
+        <change>
+            Namen von Uploadern und Kommentarschreibern klickbar gemacht.
+            Klick führt zu den Uploads des Users.
+        </change>
     </release>
 
     <release
