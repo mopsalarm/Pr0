@@ -212,10 +212,6 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
         release(false);
         try {
             mMediaPlayer = new MediaPlayer();
-            // TODO: create SubtitleController in MediaPlayer, but we need
-            // a context for the subtitle renderers
-            final Context context = getContext();
-
             if (mAudioSession != 0) {
                 mMediaPlayer.setAudioSessionId(mAudioSession);
             } else {
