@@ -68,7 +68,6 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
     private int mSurfaceHeight;
     private OnCompletionListener mOnCompletionListener;
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
-    private int mCurrentBufferPercentage;
     private OnErrorListener mOnErrorListener;
     private OnInfoListener mOnInfoListener;
     private int mSeekWhenPrepared;  // recording the seek position while preparing
@@ -222,8 +221,6 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
             mMediaPlayer.setOnCompletionListener(mCompletionListener);
             mMediaPlayer.setOnErrorListener(mErrorListener);
             mMediaPlayer.setOnInfoListener(mInfoListener);
-            mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
-            mCurrentBufferPercentage = 0;
             mMediaPlayer.setDataSource(getContext(), mUri, mHeaders);
             mMediaPlayer.setDisplay(mSurfaceHolder);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -332,13 +329,6 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
              */
 
                     return true;
-                }
-            };
-
-    private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
-            new MediaPlayer.OnBufferingUpdateListener() {
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    mCurrentBufferPercentage = percent;
                 }
             };
 
@@ -480,26 +470,10 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
         return isInPlaybackState() && mMediaPlayer.isPlaying();
     }
 
-    public int getBufferPercentage() {
-        if (mMediaPlayer != null) {
-            return mCurrentBufferPercentage;
-        }
-        return 0;
-    }
-
     private boolean isInPlaybackState() {
         return (mMediaPlayer != null &&
                 mCurrentState != STATE_ERROR &&
                 mCurrentState != STATE_IDLE &&
                 mCurrentState != STATE_PREPARING);
-    }
-
-    public int getAudioSessionId() {
-        if (mAudioSession == 0) {
-            MediaPlayer foo = new MediaPlayer();
-            mAudioSession = foo.getAudioSessionId();
-            foo.release();
-        }
-        return mAudioSession;
     }
 }
