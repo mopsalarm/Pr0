@@ -36,7 +36,7 @@ public class InfoLineView extends LinearLayout {
     private final TextView voteFavoriteView;
     private final TextView addTagView;
 
-    private OnTagClickedListener onTagClickedListener;
+    private OnDetailClickedListener onDetailClickedListener;
     private VoteView.OnVoteListener onVoteListener;
 
     private FeedItem feedItem;
@@ -99,6 +99,13 @@ public class InfoLineView extends LinearLayout {
         dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
         updateViewState(Vote.NEUTRAL);
 
+        usernameView.setOnClickListener(v -> {
+            if(onDetailClickedListener != null) {
+                String username = item.getUser();
+                onDetailClickedListener.onUserClicked(username);
+            }
+        });
+
         vote.subscribe(v -> {
             checkMainThread();
             voteView.setVote(v, true);
@@ -136,12 +143,12 @@ public class InfoLineView extends LinearLayout {
         tagsView.setAdapter(new TagsAdapter(sorted));
     }
 
-    public OnTagClickedListener getOnTagClickedListener() {
-        return onTagClickedListener;
+    public OnDetailClickedListener getOnDetailClickedListener() {
+        return onDetailClickedListener;
     }
 
-    public void setOnTagClickedListener(OnTagClickedListener onTagClickedListener) {
-        this.onTagClickedListener = onTagClickedListener;
+    public void setOnDetailClickedListener(OnDetailClickedListener onDetailClickedListener) {
+        this.onDetailClickedListener = onDetailClickedListener;
     }
 
     public VoteView.OnVoteListener getOnVoteListener() {
@@ -176,8 +183,8 @@ public class InfoLineView extends LinearLayout {
             Tag tag = tags.get(position);
             holder.tag.setText(tag.getTag());
             holder.tag.setOnClickListener(v -> {
-                if (onTagClickedListener != null)
-                    onTagClickedListener.onTagClicked(tag);
+                if (onDetailClickedListener != null)
+                    onDetailClickedListener.onTagClicked(tag);
             });
         }
 
@@ -196,13 +203,19 @@ public class InfoLineView extends LinearLayout {
         }
     }
 
-    public interface OnTagClickedListener {
+    public interface OnDetailClickedListener {
         /**
          * Called if the user clicked on a tag.
          *
          * @param tag The tag that was clicked.
          */
         void onTagClicked(Tag tag);
+
+        /**
+         * Called if a user clicks on a username
+         * @param username The username that was clicked.
+         */
+        void onUserClicked(String username);
     }
 
 }

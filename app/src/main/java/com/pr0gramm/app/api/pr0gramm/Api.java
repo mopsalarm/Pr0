@@ -26,7 +26,8 @@ public interface Api {
             @Query("flags") int flags,
             @Query("tags") String tags,
             @Query("likes") String likes,
-            @Query("self") String self);
+            @Query("self") String self,
+            @Query("user") String user);
 
     @GET("/api/items/info")
     Observable<Post> info(@Query("itemId") long itemId);

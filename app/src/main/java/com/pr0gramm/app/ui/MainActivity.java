@@ -260,6 +260,12 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
+    public void onUserClicked(String username) {
+        Query query = new Query().withUserUploads(username);
+        gotoFeedFragment(query, true);
+    }
+
+    @Override
     public void onActionClicked(int action) {
         if (action == R.id.action_feed_new) {
             moveToFeedNew();

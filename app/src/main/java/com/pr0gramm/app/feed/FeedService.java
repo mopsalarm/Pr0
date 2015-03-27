@@ -38,12 +38,13 @@ public class FeedService {
 
         int flags = ContentType.combine(query.getContentTypes());
         String tags = query.getTags().orNull();
+        String user = query.getUser().orNull();
 
         // FIXME this is quite hacky right now.
         String likes = query.getLikes().orNull();
         String self = Strings.isNullOrEmpty(likes) ? null : "true";
 
-        return api.itemsGet(promoted, older.orNull(), newer.orNull(), flags, tags, likes, self);
+        return api.itemsGet(promoted, older.orNull(), newer.orNull(), flags, tags, likes, self, user);
     }
 
     public Observable<Post> loadPostDetails(long id) {

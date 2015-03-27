@@ -26,6 +26,7 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
@@ -69,7 +70,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 public class PostFragment extends RoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         NewCommentDialogFragment.OnAddNewCommentListener,
-        CommentsAdapter.CommentActionListener {
+        CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
@@ -312,9 +313,7 @@ public class PostFragment extends RoboFragment implements
         // display the feed item in the view
         infoLineView.setFeedItem(feedItem, bindFragment(this, cachedVote));
 
-        infoLineView.setOnTagClickedListener(tag -> {
-            ((MainActionHandler) getActivity()).onTagClicked(tag);
-        });
+        infoLineView.setOnDetailClickedListener(this);
 
         // register the vote listener
         infoLineView.setOnVoteListener(vote -> {
@@ -490,5 +489,15 @@ public class PostFragment extends RoboFragment implements
         bindFragment(this, voteService.postComment(feedItem, parentId, text))
                 .lift(busyDialog(this))
                 .subscribe(this::displayComments, defaultOnError());
+    }
+
+    @Override
+    public void onTagClicked(Tag tag) {
+        ((MainActionHandler) getActivity()).onTagClicked(tag);
+    }
+
+    @Override
+    public void onUserClicked(String username) {
+        ((MainActionHandler) getActivity()).onUserClicked(username);
     }
 }

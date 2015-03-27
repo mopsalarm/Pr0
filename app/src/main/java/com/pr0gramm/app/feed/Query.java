@@ -21,6 +21,7 @@ public final class Query implements Parcelable {
     private Set<ContentType> contentTypes;
     private String tags;
     private String likes;
+    private String userUploads;
 
     public Query() {
         feedType = FeedType.PROMOTED;
@@ -32,6 +33,7 @@ public final class Query implements Parcelable {
         contentTypes = EnumSet.copyOf(other.contentTypes);
         tags = other.tags;
         likes = other.likes;
+        userUploads = other.userUploads;
     }
 
     public FeedType getFeedType() {
@@ -72,8 +74,21 @@ public final class Query implements Parcelable {
         return query;
     }
 
+    public Query withUserUploads(@Nullable String username) {
+        Query query = new Query(this);
+        if (username != null)
+            username = username.trim();
+
+        query.userUploads = Strings.emptyToNull(username);
+        return query;
+    }
+
     public Optional<String> getLikes() {
         return Optional.fromNullable(likes);
+    }
+
+    public Optional<String> getUser() {
+        return Optional.fromNullable(userUploads);
     }
 
     public static Query likes(String user) {
@@ -93,6 +108,7 @@ public final class Query implements Parcelable {
         dest.writeParcelableArray(toArray(contentTypes, ContentType.class), flags);
         dest.writeString(tags);
         dest.writeString(likes);
+        dest.writeString(userUploads);
     }
 
     @SuppressWarnings("unchecked")
@@ -104,6 +120,7 @@ public final class Query implements Parcelable {
 
         this.tags = in.readString();
         this.likes = in.readString();
+        this.userUploads = in.readString();
     }
 
     public static final Parcelable.Creator<Query> CREATOR = new Parcelable.Creator<Query>() {

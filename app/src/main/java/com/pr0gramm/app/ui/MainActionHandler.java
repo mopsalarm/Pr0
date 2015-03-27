@@ -11,4 +11,6 @@ public interface MainActionHandler {
     void onPostClicked(FeedProxy feed, int idx);
 
     void onLogoutClicked();
+
+    void onUserClicked(String username);
 }
