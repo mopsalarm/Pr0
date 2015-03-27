@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -28,6 +27,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.services.SeenService;
+import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
@@ -132,6 +132,10 @@ public class FeedFragment extends RoboFragment {
             activity.getScrollHideToolbarListener().reset();
         }
 
+        // always update the title
+        String title = FeedFilterFormatter.format(getActivity(), getCurrentFilter());
+        getActivity().setTitle(title);
+
         setupInfiniteScroll();
     }
 
@@ -149,7 +153,7 @@ public class FeedFragment extends RoboFragment {
         super.onResume();
 
         // check if content type has changed, and reload if necessary
-        FeedFilter feedFilter = adapter.getQuery();
+        FeedFilter feedFilter = adapter.getFilter();
         boolean changed = !equal(feedFilter.getContentTypes(), settings.getContentType());
         if (changed) {
             FeedFilter newFeedFilter = feedFilter.withContentType(settings.getContentType());
@@ -231,23 +235,10 @@ public class FeedFragment extends RoboFragment {
     private void initializeSearchView(MenuItem item) {
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 
-        // set the search value from the query.
-        Optional<String> term = adapter.getQuery().getTags();
-        if (term.isPresent()) {
-            item.expandActionView();
-            searchView.setQuery(term.get(), false);
-            searchView.clearFocus();
-        }
-
-        // TODO hide searchView completely if we have a term and only
-        // TODO use that term for the query.
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String term) {
-                setSearchTerm(term);
-                searchView.clearFocus();
-
+                performSearch(term);
                 return true;
             }
 
@@ -256,49 +247,25 @@ public class FeedFragment extends RoboFragment {
                 return false;
             }
         });
-
-        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                if (term.isPresent()) {
-                    getFragmentManager().popBackStack();
-                    return true;
-                }
-
-                clearSearchTerm();
-                return true;
-            }
-        });
     }
 
-    private void setSearchTerm(String term) {
-        FeedFilter feedFilter = adapter.getQuery();
-        if (term.equalsIgnoreCase(feedFilter.getTags().orNull()))
-            return;
-
-        FeedFilter newFeedFilter = feedFilter.withTags(term);
-        setNewQuery(newFeedFilter);
-    }
-
-    private void clearSearchTerm() {
-        FeedFilter feedFilter = adapter.getQuery();
-        if (feedFilter.getTags().isPresent())
-            setNewQuery(feedFilter.basic());
+    private void performSearch(String term) {
+        FeedFilter filter = getCurrentFilter().withTags(term);
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
     private void setNewQuery(FeedFilter newFeedFilter) {
         // set and store adapter
         this.adapter = new FeedAdapter(newFeedFilter);
-        recyclerView.setAdapter(adapter);
+        this.recyclerView.setAdapter(this.adapter);
     }
 
     private void onItemClicked(FeedItem item, int idx) {
-        ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
+        try {
+            ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
+        } catch (IllegalStateException error) {
+            Log.w("FeedFragment", "Error while showing post", error);
+        }
     }
 
     /**
@@ -315,6 +282,18 @@ public class FeedFragment extends RoboFragment {
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);
         return fragment;
+    }
+
+    /**
+     * Gets the current filter from this feed.
+     *
+     * @return The filter this feed uses.
+     */
+    public FeedFilter getCurrentFilter() {
+        if (adapter == null)
+            return new FeedFilter();
+
+        return adapter.getFilter();
     }
 
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
@@ -337,7 +316,7 @@ public class FeedFragment extends RoboFragment {
 
                 @Override
                 public void onError(Throwable error) {
-                    if(getFeedProxy().getItemCount() == 0) {
+                    if (getFeedProxy().getItemCount() == 0) {
                         ErrorDialogFragment.showErrorString(
                                 getFragmentManager(),
                                 getString(R.string.could_not_load_feed));
@@ -349,7 +328,7 @@ public class FeedFragment extends RoboFragment {
             this.feedProxy.restart();
         }
 
-        public FeedFilter getQuery() {
+        public FeedFilter getFilter() {
             return feedProxy.getFeedFilter();
         }
 

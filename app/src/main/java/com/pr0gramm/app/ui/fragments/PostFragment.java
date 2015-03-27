@@ -32,7 +32,6 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.VoteService;
-import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -498,11 +497,13 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onTagClicked(Tag tag) {
-        ((MainActionHandler) getActivity()).onTagClicked(tag);
+        if (getParentFragment() instanceof PostPagerFragment)
+            ((PostPagerFragment) getParentFragment()).onTagClicked(tag);
     }
 
     @Override
     public void onUserClicked(String username) {
-        ((MainActionHandler) getActivity()).onUserClicked(username);
+        if (getParentFragment() instanceof PostPagerFragment)
+            ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 }

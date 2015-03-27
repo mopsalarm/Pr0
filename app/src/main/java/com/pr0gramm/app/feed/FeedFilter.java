@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
 import java.util.EnumSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Strings.emptyToNull;
@@ -49,6 +51,13 @@ public final class FeedFilter implements Parcelable {
         copy.likes = Optional.absent();
         copy.username = Optional.absent();
         return copy;
+    }
+
+    /**
+     * Checks if this filter is a basic filter.
+     */
+    public boolean isBasic() {
+        return equals(basic());
     }
 
     /**
@@ -111,12 +120,30 @@ public final class FeedFilter implements Parcelable {
      */
     public FeedFilter withLikes(@Nonnull String username) {
         FeedFilter copy = basic();
-        copy.username = fromNullable(emptyToNull(username.trim()));
+        copy.likes = fromNullable(emptyToNull(username.trim()));
         return copy;
     }
 
     public Optional<String> getLikes() {
         return likes;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(feedType, /*contentTypes,*/ tags, likes, username);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || obj.getClass() != FeedFilter.class)
+            return false;
+
+        FeedFilter other = (FeedFilter) obj;
+        return this == other || feedType == other.feedType
+                //&& equal(contentTypes, other.contentTypes)
+                && equal(tags, other.tags)
+                && equal(likes, other.likes)
+                && equal(username, other.username);
     }
 
     @Override

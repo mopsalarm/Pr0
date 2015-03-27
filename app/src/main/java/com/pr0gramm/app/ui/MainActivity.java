@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -16,21 +17,25 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -52,7 +57,7 @@ import static rx.android.observables.AndroidObservable.bindActivity;
  * This is the main class of our pr0gramm app.
  */
 public class MainActivity extends RoboActionBarActivity implements
-        DrawerFragment.OnDrawerActionListener,
+        DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler, ErrorDialogFragment.OnErrorDialogHandler {
@@ -102,18 +107,18 @@ public class MainActivity extends RoboActionBarActivity implements
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
-        //
+
         getSupportActionBar().setHomeButtonEnabled(true);
         drawerToggle.syncState();
+
+        // listen to fragment changes
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         // load feed-fragment into view
         if (savedInstanceState == null) {
             createDrawerFragment();
-            gotoFeedFragment(FeedType.PROMOTED);
+            gotoFeedFragment(new FeedFilter(), false);
         }
-
-        updateToolbarBackButton();
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         // we trigger the update here manually now. this will be done using
         // the alarm manager later on.
@@ -140,6 +145,26 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onBackStackChanged() {
         updateToolbarBackButton();
+
+        DrawerFragment drawer = getDrawerFragment();
+        if (drawer != null) {
+            // get the filter of the visible fragment.
+            FeedFilter currentFilter = null;
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content);
+            if (fragment != null) {
+                if (fragment instanceof FeedFragment) {
+                    currentFilter = ((FeedFragment) fragment).getCurrentFilter();
+                }
+
+                if (fragment instanceof PostPagerFragment) {
+                    currentFilter = ((PostPagerFragment) fragment).getCurrentFilter();
+                }
+            }
+
+            // and update the filter list on the side
+            List<FeedFilter> filters = ImmutableList.copyOf(listFeedFragments().keySet());
+            drawer.updateCurrentFilters(filters, currentFilter);
+        }
     }
 
     private void updateToolbarBackButton() {
@@ -151,29 +176,10 @@ public class MainActivity extends RoboActionBarActivity implements
 
     private void createDrawerFragment() {
         DrawerFragment fragment = new DrawerFragment();
-        fragment.select(R.id.action_feed_promoted);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.left_drawer, fragment)
                 .commit();
-    }
-
-    private void gotoFeedFragment(FeedFilter feedFilter, boolean addToBackStack) {
-        FeedFragment fragment = FeedFragment.newInstance(feedFilter);
-
-        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
-        try {
-            tr.replace(R.id.content, fragment);
-            if (addToBackStack)
-                tr.addToBackStack(null);
-
-        } finally {
-            tr.commit();
-        }
-    }
-
-    private void gotoFeedFragment(FeedType feedType) {
-        gotoFeedFragment(new FeedFilter().withFeedType(feedType), false);
     }
 
     @Override
@@ -218,6 +224,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
         Observable<UserService.LoginState> state = userService.getLoginStateObservable();
         subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged, Actions.empty());
+
+        onBackStackChanged();
     }
 
     @Override
@@ -232,10 +240,8 @@ public class MainActivity extends RoboActionBarActivity implements
 
     private void onLoginStateChanged(UserService.LoginState state) {
         if (state == UserService.LoginState.NOT_AUTHORIZED) {
-            // TODO we need to check here, what kind of fragment is visible
-            // TODO and then show the promoted feed, if neither new nor promoted
-            // TODO is currently visible.
-            // gotoFeedFragment(FeedType.PROMOTED);
+            // go back to the "top"-fragment
+            // gotoFeedFragment(new FeedFilter());
         }
     }
 
@@ -260,27 +266,58 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
-    public void onUserClicked(String username) {
-        FeedFilter feedFilter = new FeedFilter().withUser(username);
-        gotoFeedFragment(feedFilter, true);
+    public void onFeedFilterSelected(FeedFilter filter) {
+        gotoFeedFragment(filter);
+        drawerLayout.closeDrawers();
     }
 
-    @Override
-    public void onActionClicked(int action) {
-        if (action == R.id.action_feed_new) {
-            moveToFeedNew();
-            return;
+    private void gotoFeedFragment(FeedFilter newFilter) {
+        gotoFeedFragment(newFilter, true);
+    }
+
+    private void gotoFeedFragment(FeedFilter newFilter, boolean addToBackstack) {
+        if (addToBackstack && isRootFilter(newFilter)) {
+            // clear back-stack if we go to one of the "root" fragments
+            clearBackStack();
+
+            // this is the "home"-fragment, we don't want to add
+            // it to the back-stack.
+            if (newFilter.getFeedType() == FeedType.PROMOTED) {
+                addToBackstack = false;
+            }
         }
 
-        if (action == R.id.action_feed_promoted) {
-            moveToFeedPromoted();
-            return;
+        Fragment fragment = FeedFragment.newInstance(newFilter);
+
+        // and show the fragment
+        @SuppressLint("CommitTransaction")
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content, fragment);
+
+        if (addToBackstack)
+            transaction.addToBackStack(null);
+
+        transaction.commit();
+    }
+
+    private boolean isRootFilter(FeedFilter newFilter) {
+        return newFilter.isBasic() || newFilter.getLikes().isPresent();
+    }
+
+    private Map<FeedFilter, Fragment> listFeedFragments() {
+        Map<FeedFilter, Fragment> result = new HashMap<>();
+
+        FragmentManager fm = getSupportFragmentManager();
+        List<Fragment> fragments = firstNonNull(fm.getFragments(), Collections.<Fragment>emptyList());
+        for (Fragment fragment : fragments) {
+            if (fragment instanceof FeedFragment) {
+                FeedFilter filter = ((FeedFragment) fragment).getCurrentFilter();
+                result.put(filter, fragment);
+            }
         }
 
-        if (action == R.id.action_favorites) {
-            moveToFeedFavorites();
-            return;
-        }
+        return result;
     }
 
     private DrawerFragment getDrawerFragment() {
@@ -288,51 +325,9 @@ public class MainActivity extends RoboActionBarActivity implements
                 .findFragmentById(R.id.left_drawer);
     }
 
-    private void moveToFeedPromoted() {
-        clearBackStack();
-        gotoFeedFragment(FeedType.PROMOTED);
-        drawerLayout.closeDrawers();
-
-        getDrawerFragment().select(R.id.action_feed_promoted);
-    }
-
-    private void moveToFeedNew() {
-        clearBackStack();
-        gotoFeedFragment(FeedType.NEW);
-        drawerLayout.closeDrawers();
-
-        getDrawerFragment().select(R.id.action_feed_new);
-    }
-
-    private void moveToFeedFavorites() {
-        LoginDialogFragment.doIfAuthorized(this, () -> {
-            String name = userService.getName().orNull();
-            if (name == null)
-                return;
-
-            clearBackStack();
-            gotoFeedFragment(new FeedFilter().withFeedType(FeedType.NEW).withLikes(name), false);
-            getDrawerFragment().select(R.id.action_favorites);
-        });
-
-        drawerLayout.closeDrawers();
-    }
-
     private void clearBackStack() {
         getSupportFragmentManager().popBackStackImmediate(
                 null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-    }
-
-    /**
-     * Called if the user clicked on a task in a post. This should display
-     * a new search with the tag as query.
-     *
-     * @param tag The tag to search for.
-     */
-    @Override
-    public void onTagClicked(Tag tag) {
-        FeedFilter feedFilter = new FeedFilter().withTags(tag.getTag());
-        gotoFeedFragment(feedFilter, true);
     }
 
     @Override

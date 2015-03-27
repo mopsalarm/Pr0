@@ -14,9 +14,12 @@ import android.view.ViewGroup;
 import com.google.inject.Inject;
 import com.pr0gramm.app.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.ui.MainActionHandler;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
@@ -160,6 +163,27 @@ public class PostPagerFragment extends RoboFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         saveStateToBundle(outState);
+    }
+
+    /**
+     * Returns the feed filter for this fragment.
+     */
+    public FeedFilter getCurrentFilter() {
+        // prevent errors here
+        if (proxy == null)
+            return new FeedFilter();
+
+        return proxy.getFeedFilter();
+    }
+
+    public void onTagClicked(Tag tag) {
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(
+                getCurrentFilter().withTags(tag.getTag()));
+    }
+
+    public void onUsernameClicked(String username) {
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(
+                getCurrentFilter().withUser(username));
     }
 
     private void saveStateToBundle(Bundle outState) {
