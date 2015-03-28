@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -294,6 +295,9 @@ public class MainActivity extends RoboActionBarActivity implements
             transaction.addToBackStack(null);
 
         transaction.commit();
+
+        // trigger a back-stack changed after adding the fragment.
+        new Handler().post(this::onBackStackChanged);
     }
 
     private DrawerFragment getDrawerFragment() {

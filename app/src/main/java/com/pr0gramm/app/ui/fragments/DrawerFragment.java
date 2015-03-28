@@ -215,7 +215,8 @@ public class DrawerFragment extends RoboFragment {
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
         return Lists.transform(entries, entry -> {
             Drawable icon = iconBookmark.getConstantState().newDrawable();
-            return new NavigationItem(entry.asFeedFilter(), entry.getTitle(), icon);
+            String title = entry.getTitle().toUpperCase();
+            return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
         });
     }
 
@@ -320,6 +321,14 @@ public class DrawerFragment extends RoboFragment {
 
             // handle clicks
             holder.itemView.setOnClickListener(v -> onFeedFilterClicked(item.filter));
+
+            holder.itemView.setOnLongClickListener(v -> {
+                if(item.bookmark != null) {
+                    showDialogToRemoveBookmark(item.bookmark);
+                }
+
+                return true;
+            });
         }
 
         @Override
@@ -354,6 +363,20 @@ public class DrawerFragment extends RoboFragment {
         }
     }
 
+    private void showDialogToRemoveBookmark(Bookmark bookmark) {
+        new MaterialDialog.Builder(getActivity())
+                .content(R.string.do_you_want_to_remove_this_bookmark)
+                .positiveText(R.string.yes)
+                .negativeText(R.string.cancel)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        bookmarkService.delete(bookmark);
+                    }
+                })
+                .show();
+    }
+
     private class NavigationItemViewHolder extends RecyclerView.ViewHolder {
         final TextView text;
 
@@ -367,11 +390,17 @@ public class DrawerFragment extends RoboFragment {
         final String title;
         final FeedFilter filter;
         final Drawable icon;
+        final Bookmark bookmark;
 
         NavigationItem(FeedFilter filter, String title, Drawable icon) {
+            this(filter, title, icon, null);
+        }
+
+        NavigationItem(FeedFilter filter, String title, Drawable icon, Bookmark bookmark) {
             this.title = title;
             this.filter = filter;
             this.icon = icon;
+            this.bookmark = bookmark;
         }
     }
 }

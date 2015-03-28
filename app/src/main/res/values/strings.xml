@@ -130,4 +130,10 @@
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
     <string name="action_pin">Pin</string>
+    <string name="do_you_want_to_remove_this_bookmark">Do you want to remove this bookmark?</string>
+    <string name="yes">Yes</string>
+    <string name="filter_format_tag_by">By</string>
+    <string name="filter_format_fav_of">Fav of</string>
+    <string name="filter_format_top">Top</string>
+    <string name="filter_format_new">New</string>
 </resources>

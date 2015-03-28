@@ -20,22 +20,31 @@ public class FeedFilterFormatter {
     public static String format(Context context, FeedFilter filter) {
         StringBuilder result = new StringBuilder();
 
-        if (filter.getFeedType() == FeedType.PROMOTED)
-            result.append(context.getString(R.string.action_feed_type_promoted));
+        if(filter.isBasic()) {
+            if (filter.getFeedType() == FeedType.PROMOTED)
+                result.append(context.getString(R.string.action_feed_type_promoted));
 
-        if (filter.getFeedType() == FeedType.NEW)
-            result.append(context.getString(R.string.action_feed_type_new));
+            if (filter.getFeedType() == FeedType.NEW)
+                result.append(context.getString(R.string.action_feed_type_new));
+        }
+        else {
+            if (filter.getTags().isPresent())
+                result.append(filter.getTags().get());
 
-        result.append(" ");
+            if (filter.getUsername().isPresent())
+                result.append(context.getString(R.string.filter_format_tag_by)).append(" ").append(filter.getUsername().get());
 
-        if (filter.getTags().isPresent())
-            result.append("tags:").append(filter.getTags().get());
+            if (filter.getLikes().isPresent())
+                result.append(context.getString(R.string.filter_format_fav_of)).append(" ").append(filter.getLikes().get());
 
-        if (filter.getUsername().isPresent())
-            result.append("uploads:").append(filter.getUsername().get());
+            result.append(" in ");
 
-        if (filter.getLikes().isPresent())
-            result.append("likes:").append(filter.getLikes().get());
+            if (filter.getFeedType() == FeedType.PROMOTED)
+                result.append(context.getString(R.string.filter_format_top));
+
+            if (filter.getFeedType() == FeedType.NEW)
+                result.append(context.getString(R.string.filter_format_new));
+        }
 
         return result.toString().trim();
     }

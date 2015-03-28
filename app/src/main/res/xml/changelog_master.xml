@@ -6,7 +6,11 @@
         versioncode="17">
 
         <change>
-            Namen von Uploadern und Kommentarschreibern klickbar gemacht.
+            Neu: Suche nach Tags/User-Uploads können nun als Lesezeichen abgespeichert werden
+        </change>
+
+        <change>
+            Neu: Namen von Uploadern und Kommentarschreibern klickbar gemacht.
             Klick führt zu den Uploads des Users.
         </change>
     </release>

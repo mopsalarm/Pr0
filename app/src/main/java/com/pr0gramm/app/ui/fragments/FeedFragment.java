@@ -262,8 +262,9 @@ public class FeedFragment extends RoboFragment {
         // not bookmarkable anymore.
         onBookmarkableStateChanged(false);
 
-        ((MainActionHandler) getActivity()).pinFeedFilter(getCurrentFilter(),
-                "Lesezeichen " + System.currentTimeMillis());
+        FeedFilter filter = getCurrentFilter();
+        String title = FeedFilterFormatter.format(getActivity(), filter);
+        ((MainActionHandler) getActivity()).pinFeedFilter(filter, title);
     }
 
     /**
