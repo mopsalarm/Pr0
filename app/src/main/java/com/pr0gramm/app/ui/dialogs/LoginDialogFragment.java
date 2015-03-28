@@ -108,7 +108,7 @@ public class LoginDialogFragment extends RoboDialogFragment {
         prefs.edit().putString(PREF_USERNAME, username).apply();
 
         bindFragment(this, userService.login(username, password))
-                .lift(busyDialog(this))
+                .lift(busyDialog(this, getString(R.string.login_please_wait)))
                 .lift(loginErrorIntercept())
                 .subscribe(this::onLoginResponse, defaultOnError());
     }

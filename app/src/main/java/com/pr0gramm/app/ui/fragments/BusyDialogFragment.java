@@ -23,20 +23,35 @@ public class BusyDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new MaterialDialog.Builder(getActivity())
-                .content(R.string.please_wait)
+                .content(getDialogText())
                 .progress(true, 0)
                 .cancelable(false)
                 .build();
+    }
+
+    private String getDialogText() {
+        Bundle args = getArguments();
+        if(args != null) {
+            String text = args.getString("text");
+            if(text != null)
+                return text;
+        }
+        return getString(R.string.please_wait);
     }
 
     private static class BusyDialogOperator<T> implements Observable.Operator<T, T> {
         private final String tag = "BusyDialog-" + System.identityHashCode(this);
         private final FragmentManager fragmentManager;
 
-        public BusyDialogOperator(FragmentManager fragmentManager) {
+        public BusyDialogOperator(FragmentManager fragmentManager, String text) {
             this.fragmentManager = fragmentManager;
 
             BusyDialogFragment dialog = new BusyDialogFragment();
+            if(text != null) {
+                Bundle args = new Bundle();
+                args.putString("text", text);
+                dialog.setArguments(args);
+            }
             dialog.show(fragmentManager, tag);
         }
 
@@ -80,10 +95,14 @@ public class BusyDialogFragment extends DialogFragment {
     }
 
     static public <T> BusyDialogOperator<T> busyDialog(Fragment fragment) {
-        return new BusyDialogOperator<>(fragment.getChildFragmentManager());
+        return new BusyDialogOperator<>(fragment.getChildFragmentManager(), null);
+    }
+
+    static public <T> BusyDialogOperator<T> busyDialog(Fragment fragment, String text) {
+        return new BusyDialogOperator<>(fragment.getChildFragmentManager(), text);
     }
 
     public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity) {
-        return new BusyDialogOperator<>(activity.getSupportFragmentManager());
+        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), null);
     }
 }

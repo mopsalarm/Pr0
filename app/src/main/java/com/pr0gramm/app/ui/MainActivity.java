@@ -24,6 +24,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -146,22 +147,31 @@ public class MainActivity extends RoboActionBarActivity implements
 
         DrawerFragment drawer = getDrawerFragment();
         if (drawer != null) {
-            // get the filter of the visible fragment.
-            FeedFilter currentFilter = null;
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content);
-            if (fragment != null) {
-                if (fragment instanceof FeedFragment) {
-                    currentFilter = ((FeedFragment) fragment).getCurrentFilter();
-                }
-
-                if (fragment instanceof PostPagerFragment) {
-                    currentFilter = ((PostPagerFragment) fragment).getCurrentFilter();
-                }
-            }
+            FeedFilter currentFilter = getCurrentFeedFilter();
 
             // show the current item in the drawer
             drawer.updateCurrentFilters(currentFilter);
         }
+    }
+
+    /**
+     * Returns the current feed filter. Might be null, if no filter could be detected.
+     */
+    @Nullable
+    private FeedFilter getCurrentFeedFilter() {
+        // get the filter of the visible fragment.
+        FeedFilter currentFilter = null;
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content);
+        if (fragment != null) {
+            if (fragment instanceof FeedFragment) {
+                currentFilter = ((FeedFragment) fragment).getCurrentFilter();
+            }
+
+            if (fragment instanceof PostPagerFragment) {
+                currentFilter = ((PostPagerFragment) fragment).getCurrentFilter();
+            }
+        }
+        return currentFilter;
     }
 
     private void updateToolbarBackButton() {
@@ -211,7 +221,20 @@ public class MainActivity extends RoboActionBarActivity implements
             return;
         }
 
+        // at the end, go back to the "current" page before stopping everything.
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            FeedFilter filter = getCurrentFeedFilter();
+            if (filter != null && !isTopFilter(filter)) {
+                gotoFeedFragment(new FeedFilter(), true);
+                return;
+            }
+        }
+
         super.onBackPressed();
+    }
+
+    private boolean isTopFilter(FeedFilter filter) {
+        return filter.isBasic() && filter.getFeedType() == FeedType.PROMOTED;
     }
 
     @Override
