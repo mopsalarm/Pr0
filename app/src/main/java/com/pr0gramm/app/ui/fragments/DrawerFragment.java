@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -27,26 +27,28 @@ import com.pr0gramm.app.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.orm.Bookmark;
+import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
+import rx.Observable;
 import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Predicates.not;
+import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -57,6 +59,9 @@ public class DrawerFragment extends RoboFragment {
 
     @Inject
     private Settings settings;
+
+    @Inject
+    private BookmarkService bookmarkService;
 
     @InjectView(R.id.username)
     private TextView usernameView;
@@ -91,11 +96,15 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_line_chart)
     private Drawable iconFeedTypeNew;
 
+    @InjectResource(R.drawable.ic_black_action_pin)
+    private Drawable iconBookmark;
+
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
-    private Subscription subscription;
+    private Subscription scLoginState;
+    private Subscription scNavigationItems;
 
 
     @Override
@@ -119,7 +128,7 @@ public class DrawerFragment extends RoboFragment {
                 getActivity(), WrapContentLinearLayoutManager.VERTICAL, false));
 
         // add the static items to the navigation
-        navigationAdapter.setFixedItems(getFixedNavigationItems(Optional.<Info.User>absent()));
+        navigationAdapter.setNavigationItems(getFixedNavigationItems(Optional.<Info.User>absent()));
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
@@ -158,7 +167,7 @@ public class DrawerFragment extends RoboFragment {
             String name = userInfo.get().getName();
             items.add(new NavigationItem(
                     new FeedFilter().withFeedType(FeedType.NEW).withLikes(name),
-                       getString(R.string.action_favorites),
+                    getString(R.string.action_favorites),
                     iconFavorites));
         }
 
@@ -176,16 +185,47 @@ public class DrawerFragment extends RoboFragment {
     public void onResume() {
         super.onResume();
 
-        subscription = bindFragment(this, userService.getLoginStateObservable())
+        scLoginState = bindFragment(this, userService.getLoginStateObservable())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
+
+        scNavigationItems = bindFragment(this, newNavigationItemsObservable())
+                .subscribe(navigationAdapter::setNavigationItems, ErrorDialogFragment.defaultOnError());
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
     }
 
+    @SuppressWarnings("unchecked")
+    private Observable<List<NavigationItem>> newNavigationItemsObservable() {
+        // observe and merge the menu items from different sources
+        return Observable.combineLatest(asList(
+                userService.getLoginStateObservable().map(st -> st.getInfo() != null
+                        ? getFixedNavigationItems(Optional.of(st.getInfo().getUser()))
+                        : getFixedNavigationItems(Optional.<Info.User>absent())),
+
+                bookmarkService.get().map(this::bookmarksToNavItem)), args -> {
+
+            ArrayList<NavigationItem> result = new ArrayList<>();
+            for (Object arg : args)
+                result.addAll((List<NavigationItem>) arg);
+
+            return result;
+        });
+    }
+
+    private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
+        return Lists.transform(entries, entry -> {
+            Drawable icon = iconBookmark.getConstantState().newDrawable();
+            return new NavigationItem(entry.asFeedFilter(), entry.getTitle(), icon);
+        });
+    }
+
     @Override
     public void onPause() {
-        if (subscription != null)
-            subscription.unsubscribe();
+        if (scLoginState != null)
+            scLoginState.unsubscribe();
+
+        if (scNavigationItems != null)
+            scNavigationItems.unsubscribe();
 
         super.onPause();
     }
@@ -210,7 +250,6 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void onLoginStateChanged(UserService.LoginState state) {
-        List<NavigationItem> items;
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
@@ -223,8 +262,6 @@ public class DrawerFragment extends RoboFragment {
 
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
-
-            items = getFixedNavigationItems(Optional.of(user));
         } else {
             usernameView.setText(R.string.pr0gramm);
             benisContainer.setVisibility(View.GONE);
@@ -232,16 +269,11 @@ public class DrawerFragment extends RoboFragment {
 
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
-
-            items = getFixedNavigationItems(Optional.<Info.User>absent());
         }
-
-        // update the navigation
-        navigationAdapter.setFixedItems(items);
     }
 
-    public void updateCurrentFilters(List<FeedFilter> filters, FeedFilter current) {
-        navigationAdapter.updateCurrentFilters(filters, current);
+    public void updateCurrentFilters(FeedFilter current) {
+        navigationAdapter.setCurrentFilter(current);
     }
 
     public interface OnFeedFilterSelected {
@@ -250,19 +282,18 @@ public class DrawerFragment extends RoboFragment {
          *
          * @param filter The feed filter that was clicked.
          */
-        void onFeedFilterSelected(FeedFilter filter);
+        void onFeedFilterSelectedInNavigation(FeedFilter filter);
     }
 
     private void onFeedFilterClicked(FeedFilter filter) {
         if (getActivity() instanceof OnFeedFilterSelected) {
-            ((OnFeedFilterSelected) getActivity()).onFeedFilterSelected(filter);
+            ((OnFeedFilterSelected) getActivity()).onFeedFilterSelectedInNavigation(filter);
         }
     }
 
     private class NavigationAdapter extends RecyclerView.Adapter<NavigationItemViewHolder> {
-        private final List<NavigationItem> fixedItems = new ArrayList<>();
         private final List<NavigationItem> allItems = new ArrayList<>();
-        private final List<FeedFilter> dynamicFilters = new ArrayList<>();
+        private Optional<NavigationItem> selected = Optional.absent();
         private FeedFilter currentFilter;
 
         @Override
@@ -283,7 +314,7 @@ public class DrawerFragment extends RoboFragment {
             holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null);
 
             // update color
-            ColorStateList color = equal(item.filter, currentFilter) ? markedColor : defaultColor;
+            ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
             holder.text.setTextColor(color);
             changeCompoundDrawableColor(holder.text, color);
 
@@ -296,41 +327,30 @@ public class DrawerFragment extends RoboFragment {
             return allItems.size();
         }
 
-        public void setFixedItems(List<NavigationItem> fixedItems) {
-            this.fixedItems.clear();
-            this.fixedItems.addAll(fixedItems);
+        public void setNavigationItems(List<NavigationItem> items) {
+            this.allItems.clear();
+            this.allItems.addAll(items);
             merge();
         }
 
-        public void updateCurrentFilters(List<FeedFilter> filters, FeedFilter current) {
+        public void setCurrentFilter(FeedFilter current) {
             currentFilter = current;
-            dynamicFilters.clear();
-            dynamicFilters.addAll(filters);
             merge();
         }
 
         private void merge() {
-            allItems.clear();
-            Iterables.addAll(allItems, fixedItems);
+            // calculate the currently selected item
+            selected = FluentIterable.from(allItems)
+                    .filter(nav -> equal(currentFilter, nav.filter))
+                    .first();
 
-            // create a set of all the fixed items, so we wont add them twice
-            Set<FeedFilter> fixedItemFilters = FluentIterable.from(fixedItems)
-                    .transform(item -> item.filter)
-                    .toSet();
-
-            // add the dynamic stuff too
-            FluentIterable.from(dynamicFilters)
-                    .filter(not(fixedItemFilters::contains))
-                    .transform(this::filterToNavItem)
-                    .copyInto(allItems);
+            if (!selected.isPresent() && currentFilter != null) {
+                selected = FluentIterable.from(allItems)
+                        .filter(nav -> nav.filter.getFeedType() == currentFilter.getFeedType())
+                        .first();
+            }
 
             notifyDataSetChanged();
-        }
-
-        private NavigationItem filterToNavItem(FeedFilter filter) {
-            String title = FeedFilterFormatter.format(getActivity(), filter);
-            Drawable icon = iconFeedTypePromoted.getConstantState().newDrawable();
-            return new NavigationItem(filter, title, icon);
         }
     }
 

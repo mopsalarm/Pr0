@@ -26,6 +26,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
@@ -37,10 +38,12 @@ import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
@@ -74,6 +77,11 @@ public class FeedFragment extends RoboFragment {
     private FeedAdapter adapter;
     private GridLayoutManager layoutManager;
     private IndicatorStyle seenIndicatorStyle;
+
+    @Inject
+    private BookmarkService bookmarkService;
+
+    private boolean bookmarkable;
 
 
     /**
@@ -137,6 +145,14 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
+
+        bindFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
+                .subscribe(this::onBookmarkableStateChanged, Actions.empty());
+    }
+
+    private void onBookmarkableStateChanged(boolean bookmarkable) {
+        this.bookmarkable = bookmarkable;
+        getActivity().supportInvalidateOptionsMenu();
     }
 
     private FeedAdapter newFeedAdapter() {
@@ -225,6 +241,29 @@ public class FeedFragment extends RoboFragment {
 
         MenuItem item = menu.findItem(R.id.action_search);
         initializeSearchView(item);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_pin).setVisible(bookmarkable);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_pin) {
+            pinCurrentFeedFilter();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void pinCurrentFeedFilter() {
+        // not bookmarkable anymore.
+        onBookmarkableStateChanged(false);
+
+        ((MainActionHandler) getActivity()).pinFeedFilter(getCurrentFilter(),
+                "Lesezeichen " + System.currentTimeMillis());
     }
 
     /**

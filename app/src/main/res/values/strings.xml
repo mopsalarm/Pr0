@@ -129,4 +129,5 @@
     <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
+    <string name="action_pin">Pin</string>
 </resources>

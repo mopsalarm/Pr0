@@ -11,4 +11,6 @@ public interface MainActionHandler {
     void onLogoutClicked();
 
     void onFeedFilterSelected(FeedFilter filter);
+
+    void pinFeedFilter(FeedFilter filter, String title);
 }

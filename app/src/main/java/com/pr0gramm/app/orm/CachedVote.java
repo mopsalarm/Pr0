@@ -17,6 +17,7 @@ public class CachedVote extends SugarRecord<CachedVote> {
     public Type type;
     public Vote vote;
 
+    // for sugar orm
     public CachedVote() {
     }
 

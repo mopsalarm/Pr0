@@ -17,25 +17,19 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
-import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -74,6 +68,9 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private BookmarkService bookmarkService;
 
     @Inject
     private Settings settings;
@@ -117,7 +114,7 @@ public class MainActivity extends RoboActionBarActivity implements
         // load feed-fragment into view
         if (savedInstanceState == null) {
             createDrawerFragment();
-            gotoFeedFragment(new FeedFilter(), false);
+            gotoFeedFragment(new FeedFilter(), true);
         }
 
         // we trigger the update here manually now. this will be done using
@@ -161,9 +158,8 @@ public class MainActivity extends RoboActionBarActivity implements
                 }
             }
 
-            // and update the filter list on the side
-            List<FeedFilter> filters = ImmutableList.copyOf(listFeedFragments().keySet());
-            drawer.updateCurrentFilters(filters, currentFilter);
+            // show the current item in the drawer
+            drawer.updateCurrentFilters(currentFilter);
         }
     }
 
@@ -266,26 +262,25 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
-    public void onFeedFilterSelected(FeedFilter filter) {
-        gotoFeedFragment(filter);
+    public void onFeedFilterSelectedInNavigation(FeedFilter filter) {
+        gotoFeedFragment(filter, true);
         drawerLayout.closeDrawers();
     }
 
-    private void gotoFeedFragment(FeedFilter newFilter) {
-        gotoFeedFragment(newFilter, true);
+    @Override
+    public void onFeedFilterSelected(FeedFilter filter) {
+        gotoFeedFragment(filter, false);
     }
 
-    private void gotoFeedFragment(FeedFilter newFilter, boolean addToBackstack) {
-        if (addToBackstack && isRootFilter(newFilter)) {
-            // clear back-stack if we go to one of the "root" fragments
-            clearBackStack();
+    @Override
+    public void pinFeedFilter(FeedFilter filter, String title) {
+        bookmarkService.create(filter, title).subscribe(Actions.empty(), defaultOnError());
+        drawerLayout.openDrawer(Gravity.START);
+    }
 
-            // this is the "home"-fragment, we don't want to add
-            // it to the back-stack.
-            if (newFilter.getFeedType() == FeedType.PROMOTED) {
-                addToBackstack = false;
-            }
-        }
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {
+        if (clear)
+            clearBackStack();
 
         Fragment fragment = FeedFragment.newInstance(newFilter);
 
@@ -295,29 +290,10 @@ public class MainActivity extends RoboActionBarActivity implements
                 .beginTransaction()
                 .replace(R.id.content, fragment);
 
-        if (addToBackstack)
+        if (!clear)
             transaction.addToBackStack(null);
 
         transaction.commit();
-    }
-
-    private boolean isRootFilter(FeedFilter newFilter) {
-        return newFilter.isBasic() || newFilter.getLikes().isPresent();
-    }
-
-    private Map<FeedFilter, Fragment> listFeedFragments() {
-        Map<FeedFilter, Fragment> result = new HashMap<>();
-
-        FragmentManager fm = getSupportFragmentManager();
-        List<Fragment> fragments = firstNonNull(fm.getFragments(), Collections.<Fragment>emptyList());
-        for (Fragment fragment : fragments) {
-            if (fragment instanceof FeedFragment) {
-                FeedFilter filter = ((FeedFragment) fragment).getCurrentFilter();
-                result.put(filter, fragment);
-            }
-        }
-
-        return result;
     }
 
     private DrawerFragment getDrawerFragment() {
