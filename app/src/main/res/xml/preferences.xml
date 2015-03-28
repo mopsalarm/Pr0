@@ -70,6 +70,12 @@
             android:summary="@string/pref_fullscreen_zoom_view_summary"
             android:defaultValue="true"/>
 
+        <CheckBoxPreference
+            android:key="pref_show_pin_button"
+            android:title="@string/pref_show_pin_button"
+            android:summary="@string/pref_show_pin_button_summary"
+            android:defaultValue="true"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

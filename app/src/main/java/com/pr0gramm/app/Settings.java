@@ -117,6 +117,10 @@ public class Settings {
         return preferences.getBoolean("pref_fullscreen_zoom_view", true);
     }
 
+    public boolean showPinButton() {
+        return preferences.getBoolean("pref_show_pin_button", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

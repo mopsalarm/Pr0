@@ -136,4 +136,6 @@
     <string name="filter_format_fav_of">Fav of</string>
     <string name="filter_format_top">Top</string>
     <string name="filter_format_new">New</string>
+    <string name="pref_show_pin_button">Show pin action</string>
+    <string name="pref_show_pin_button_summary">If you disable this option, the pin-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
 </resources>

@@ -6,7 +6,9 @@
         versioncode="17">
 
         <change>
-            Neu: Suche nach Tags/User-Uploads können nun als Lesezeichen abgespeichert werden
+            Neu: Suche nach Tags/User-Uploads können nun als Lesezeichen abgespeichert werden.
+            Beispiel: Ich habe mir ein Lesezeichen für den Tag &lt;i&gt;Original Content&lt;/i&gt;
+            in Top angelegt.
         </change>
 
         <change>

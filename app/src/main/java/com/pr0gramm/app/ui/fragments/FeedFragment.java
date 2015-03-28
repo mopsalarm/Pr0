@@ -145,9 +145,6 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
-
-        bindFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
-                .subscribe(this::onBookmarkableStateChanged, Actions.empty());
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -167,6 +164,12 @@ public class FeedFragment extends RoboFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        // check if we should show the pin button or not.
+        if(settings.showPinButton()) {
+            bindFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
+                    .subscribe(this::onBookmarkableStateChanged, Actions.empty());
+        }
 
         // check if content type has changed, and reload if necessary
         FeedFilter feedFilter = adapter.getFilter();
