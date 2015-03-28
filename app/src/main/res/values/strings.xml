@@ -139,4 +139,6 @@
     <string name="pref_show_pin_button">Show pin action</string>
     <string name="pref_show_pin_button_summary">If you disable this option, the pin-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
     <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
+    <string name="pref_pseudo_feedback">Feedback</string>
+    <string name="pref_pseudo_feedback_summary">Click here to give feedback!</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.pr0gramm.app.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -79,6 +81,13 @@ public class SettingsActivity extends RoboActionBarActivity {
                 RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
                 ChangeLogDialog dialog = new ChangeLogDialog();
                 dialog.show(activity.getSupportFragmentManager(), null);
+                return true;
+            }
+
+            if("pref_pseudo_feedback".equals(preference.getKey())) {
+                // open google form
+                String url = "https://docs.google.com/forms/d/1YVZDzaoaeNDncbxv7qKWlp067yUtUtCz5lqpCo0bcFc/viewform";
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 return true;
             }
 

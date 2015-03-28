@@ -135,4 +135,6 @@
     <string name="login_please_wait">Bitte warten, das Synchronisieren der Votes kann einen Moment länger dauern.</string>
     <string name="pref_show_pin_button">Lesezeichen-Button anzeigen</string>
     <string name="pref_show_pin_button_summary">Du kannst den "Lesezeichen erstellen"-Button ausblenden. Dies hat keinen Einfluss auf bereits angelegte Lesezeichen.</string>
+    <string name="pref_pseudo_feedback">Feedback</string>
+    <string name="pref_pseudo_feedback_summary">Klick hier um Feedback zu geben!</string>
 </resources>
