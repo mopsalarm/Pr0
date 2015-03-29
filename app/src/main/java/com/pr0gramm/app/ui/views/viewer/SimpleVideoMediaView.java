@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 
 import roboguice.inject.InjectView;
 
@@ -26,6 +27,14 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         Log.i(TAG, "Playing webm " + url);
         videoView.setAlpha(0);
         videoView.setVideoURI(Uri.parse(url));
+
+        // tries to restart the video on end
+        if(Settings.of(context).restartWebmOnStop()) {
+            videoView.setOnCompletionListener(mp -> {
+                // start playing again!
+                videoView.start();
+            });
+        }
     }
 
     @Override

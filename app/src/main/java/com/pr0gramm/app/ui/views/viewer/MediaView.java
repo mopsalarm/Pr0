@@ -199,19 +199,7 @@ public abstract class MediaView extends FrameLayout {
         MediaView result;
         Settings settings = Settings.of(context);
         if (isVideoUrl(url)) {
-            boolean useCompatVideoPlayer = settings.useCompatVideoPlayer();
-
-            // we use a api that is not available in ICS, so we need to
-            // fallback to the compat player before jelly bean.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-                useCompatVideoPlayer = true;
-
-            // FIXME Always force compat player for now.
-            useCompatVideoPlayer = true;
-
-            result = useCompatVideoPlayer
-                    ? new SimpleVideoMediaView(context, binder, url)
-                    : new VideoMediaView(context, binder, url);
+            result = new SimpleVideoMediaView(context, binder, url);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {
@@ -228,7 +216,7 @@ public abstract class MediaView extends FrameLayout {
     }
 
     private static boolean isVideoUrl(String url) {
-        return url.toLowerCase().matches(".*\\.(webm|mp4|mpg|mpeg)");
+        return url.toLowerCase().matches(".*\\.(webm|mp4|mpg|mpeg|avi)");
     }
 
     /**

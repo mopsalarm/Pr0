@@ -92,6 +92,12 @@
         -->
 
         <CheckBoxPreference
+            android:key="pref_webm_restart_on_stop"
+            android:title="@string/pref_webm_restart_on_stop"
+            android:summary="@string/pref_webm_restart_on_stop_summary"
+            android:defaultValue="false"/>
+
+        <CheckBoxPreference
             android:key="pref_hardware_acceleration"
             android:title="@string/pref_pref_hardware_acceleration"
             android:summary="@string/pref_pref_hardware_acceleration_summary"

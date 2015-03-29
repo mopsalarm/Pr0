@@ -47,9 +47,5 @@ public class Pr0grammApplication extends SugarApp {
         }
     }
 
-    static {
-        // RoboGuice.setUseAnnotationDatabases(false);
-    }
-
     public static Context GLOBAL_CONTEXT;
 }
