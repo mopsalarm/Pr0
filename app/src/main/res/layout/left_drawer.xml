@@ -1,154 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="?android:windowBackground"
-              android:theme="@style/Theme.AppCompat.Light"
-              android:clickable="true">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:windowBackground"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:clickable="true">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@color/background_material_dark"
-        android:elevation="8dp">
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/flavor"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_launcher"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/background_material_dark"
+            android:elevation="8dp">
+
+            <ImageView
+                android:id="@+id/flavor"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_launcher"/>
+
+            <TextView
+                style="@style/Base.TextAppearance.AppCompat.Headline"
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_below="@id/flavor"
+                android:textColor="@color/white"
+                android:text="@string/app_name"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/benis_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/brighter_background">
+
+            <TextView
+                android:id="@+id/benis_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/benis"
+                android:textColor="@color/grey_200"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="4dp"/>
+
+            <TextView
+                android:id="@+id/benis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/benis_label"
+                android:layout_toRightOf="@id/benis_label"
+                android:textColor="@color/grey_200"
+                android:text="@string/dummy_benis"/>
+
+            <ImageView
+                android:id="@+id/benis_graph"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/benis"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="8dp"/>
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/drawer_nav_list"
+            android:overScrollMode="never"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+        <!--
 
         <TextView
-            style="@style/Base.TextAppearance.AppCompat.Headline"
-            android:id="@+id/username"
+            android:id="@+id/action_feed_promoted"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_home"
+            android:text="@string/action_feed_type_promoted"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/action_feed_new"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_line_chart"
+            android:text="@string/action_feed_type_new"/>
+
+        <TextView
+            android:id="@+id/action_upload"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_upload"
+            android:visibility="gone"
+            android:text="@string/action_upload"/>
+
+        <TextView
+            android:id="@+id/action_favorites"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_favorite"
+            android:text="@string/action_favorites"/>
+        -->
+
+        <TextView
+            android:id="@+id/action_messages"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_mail"
+            android:visibility="gone"
+            android:text="@string/action_messages"/>
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="1dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:layout_below="@id/flavor"
-            android:textColor="@color/white"
-            android:text="@string/app_name"/>
+            android:layout_marginBottom="8dp"
+            android:background="#888"/>
 
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/action_settings"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_settings"
+            android:text="@string/action_settings"/>
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        <TextView
+            android:id="@+id/action_logout"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_exit"
+            android:text="@string/action_logout"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:id="@+id/benis_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/brighter_background">
-
-                <TextView
-                    android:id="@+id/benis_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/benis"
-                    android:textColor="@color/grey_200"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="4dp"/>
-
-                <TextView
-                    android:id="@+id/benis"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@id/benis_label"
-                    android:layout_toRightOf="@id/benis_label"
-                    android:textColor="@color/grey_200"
-                    android:text="@string/dummy_benis"/>
-
-                <ImageView
-                    android:id="@+id/benis_graph"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/benis"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_margin="8dp"/>
-
-            </RelativeLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/drawer_nav_list"
-                android:overScrollMode="never"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"/>
-
-            <!--
-
-            <TextView
-                android:id="@+id/action_feed_promoted"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_home"
-                android:text="@string/action_feed_type_promoted"
-                android:layout_marginTop="8dp"/>
-
-            <TextView
-                android:id="@+id/action_feed_new"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_line_chart"
-                android:text="@string/action_feed_type_new"/>
-
-            <TextView
-                android:id="@+id/action_upload"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_upload"
-                android:visibility="gone"
-                android:text="@string/action_upload"/>
-
-            <TextView
-                android:id="@+id/action_favorites"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_favorite"
-                android:text="@string/action_favorites"/>
-            -->
-
-            <TextView
-                android:id="@+id/action_messages"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_mail"
-                android:visibility="gone"
-                android:text="@string/action_messages"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="#888"/>
-
-            <TextView
-                android:id="@+id/action_settings"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_settings"
-                android:text="@string/action_settings"/>
-
-            <TextView
-                android:id="@+id/action_logout"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_exit"
-                android:text="@string/action_logout"/>
-
-            <TextView
-                android:id="@+id/action_login"
-                style="@style/AppStyle.DrawerItem"
-                android:drawableLeft="@drawable/ic_black_action_user"
-                android:text="@string/action_login"/>
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+        <TextView
+            android:id="@+id/action_login"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_black_action_user"
+            android:text="@string/action_login"/>
+    </LinearLayout>
+</ScrollView>
