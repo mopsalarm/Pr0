@@ -166,7 +166,7 @@ public class FeedFragment extends RoboFragment {
         super.onResume();
 
         // check if we should show the pin button or not.
-        if(settings.showPinButton()) {
+        if (settings.showPinButton()) {
             bindFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
@@ -278,6 +278,11 @@ public class FeedFragment extends RoboFragment {
     private void initializeSearchView(MenuItem item) {
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 
+        searchView.setOnSearchClickListener(v -> {
+            FeedFilter currentFilter = getCurrentFilter();
+            searchView.setQuery(currentFilter.getTags().or(""), false);
+        });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String term) {
@@ -293,7 +298,13 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void performSearch(String term) {
-        FeedFilter filter = getCurrentFilter().withTags(term);
+        FeedFilter current = getCurrentFilter();
+        FeedFilter filter = current.withTags(term);
+
+        // do nothing, if the filter did not change
+        if(equal(current, filter))
+            return;
+
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
@@ -303,7 +314,7 @@ public class FeedFragment extends RoboFragment {
         this.recyclerView.setAdapter(this.adapter);
     }
 
-    private void onItemClicked(FeedItem item, int idx) {
+    private void onItemClicked(int idx) {
         try {
             ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
         } catch (IllegalStateException error) {
@@ -394,7 +405,7 @@ public class FeedFragment extends RoboFragment {
             picasso.load("http://thumb.pr0gramm.com/" + item.getThumb())
                     .into(view.image);
 
-            view.itemView.setOnClickListener(v -> onItemClicked(item, position));
+            view.itemView.setOnClickListener(v -> onItemClicked(position));
 
             int row = position / layoutManager.getSpanCount();
             view.itemView.setPadding(0, row == 0 ? AndroidUtility.getActionBarSize(getActivity()) : 0, 0, 0);

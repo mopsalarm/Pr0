@@ -6,7 +6,7 @@
 
         <change>
             Neu: Beta-Kanal. Wenn du in den Einstellungen den Beta-Kanal aktivierst, bekommst
-            du eher Updates (die aber natürlich instabiler sein können).
+            du eher und häufiger Updates (die aber natürlich mehr Fehler enthalten könnten).
         </change>
 
         <change>
@@ -23,7 +23,15 @@
         </change>
 
         <change>
+            Fix: Doppelte Tags in den Vorschlägen entfernt
+        </change>
+
+        <change>
             Fix: Die App ist von 4mb auf 2mb geschrumpft!
+        </change>
+
+        <change>
+            Fix: Wenn man die Suche anklickt, wird der aktuelle Tag angezeigt.
         </change>
     </release>
 
