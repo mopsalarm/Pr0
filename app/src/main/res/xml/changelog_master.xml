@@ -9,6 +9,22 @@
             du eher Updates (die aber natürlich instabiler sein können).
         </change>
 
+        <change>
+            Fix: Große Bilder in der Zoomansicht sollten nun nicht mehr verzerrt dargestellt werden.
+        </change>
+
+        <change>
+            Fix: 503-Fehlermeldung mit einer richtigen Fehlermeldung versehen.
+        </change>
+
+        <change>
+            Fix: In den Einstellungen gibt es nun eine Option, die möglicherweise hilft,
+            Webms am Ende erneut zu starten.
+        </change>
+
+        <change>
+            Fix: Die App ist von 4mb auf 2mb geschrumpft!
+        </change>
     </release>
 
     <release
