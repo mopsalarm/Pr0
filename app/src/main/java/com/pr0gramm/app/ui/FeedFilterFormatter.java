@@ -34,16 +34,18 @@ public class FeedFilterFormatter {
             if (filter.getUsername().isPresent())
                 result.append(context.getString(R.string.filter_format_tag_by)).append(" ").append(filter.getUsername().get());
 
-            if (filter.getLikes().isPresent())
+            if (filter.getLikes().isPresent()) {
                 result.append(context.getString(R.string.filter_format_fav_of)).append(" ").append(filter.getLikes().get());
 
-            result.append(" in ");
+            } else {
+                result.append(" in ");
 
-            if (filter.getFeedType() == FeedType.PROMOTED)
-                result.append(context.getString(R.string.filter_format_top));
+                if (filter.getFeedType() == FeedType.PROMOTED)
+                    result.append(context.getString(R.string.filter_format_top));
 
-            if (filter.getFeedType() == FeedType.NEW)
-                result.append(context.getString(R.string.filter_format_new));
+                if (filter.getFeedType() == FeedType.NEW)
+                    result.append(context.getString(R.string.filter_format_new));
+            }
         }
 
         return result.toString().trim();
