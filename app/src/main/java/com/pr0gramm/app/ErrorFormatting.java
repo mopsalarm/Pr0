@@ -131,7 +131,7 @@ public class ErrorFormatting {
                 R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() / 100 == 500,
+                err -> err.getResponse().getStatus() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
 
         // could not deserialize. this one i am interested in.

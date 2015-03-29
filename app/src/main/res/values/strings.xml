@@ -27,7 +27,7 @@
     <string name="error_nullpointer">A programming error occurred. I am very sorry.</string>
     <string name="error_oom">The app ran of memory. I am working on that.</string>
     <string name="error_timeout">A timeout occurred during a network request.</string>
-    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Go and diss cha0os</string>
+    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Send a complaint to cha0s.</string>
     <string name="gif_as_webm_might_be_buggy">You are saving a lot of traffic, but loading of an yet unconverted gif might take a moment longer. If conversion did not work, the app will fall back to loading the gif.</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Your username</string>

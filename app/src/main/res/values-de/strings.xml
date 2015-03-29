@@ -26,7 +26,7 @@
     <string name="error_not_found">Das konnte ich leider nicht finden (Error 404)</string>
     <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen</string>
     <string name="error_oom">Die App verwendet zu viel Speicher. Wir Arbeiten daran</string>
-    <string name="error_service_unavailable">Pr0gramm ist nicht verfügbar. (ERROR 503). Diss cha0s</string>
+    <string name="error_service_unavailable">Pr0gramm ist gerade nicht verfügbar. Beschwere dich bei cha0s.</string>
     <string name="gif_as_webm_might_be_buggy">Achtung: Du sparst damit sehr viel Traffic, aber es könnte etwas länger dauern.</string>
     <string name="hint_password">Passwort</string>
     <string name="hint_username">Benutzername</string>
