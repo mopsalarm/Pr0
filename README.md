@@ -17,7 +17,10 @@ Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https
 * Kommentare up- und down-voten
 * Bilder als Favorit markieren
 * Auf Kommentare antworten können bzw. einen neuen Kommentar verfassen können
+* Nach Tags suchen
+* Uploads eines Benutzers anschauen
 * Tags hinzufügen können
+* Lesezeichen für Tags anlegen
 
 ## Geplante Features
 * Nachrichten lesen und schreiben können
