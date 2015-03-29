@@ -141,4 +141,6 @@
     <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
     <string name="pref_pseudo_feedback">Feedback</string>
     <string name="pref_pseudo_feedback_summary">Click here to give feedback!</string>
+    <string name="pref_use_beta_channel">Beta channel</string>
+    <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
 </resources>

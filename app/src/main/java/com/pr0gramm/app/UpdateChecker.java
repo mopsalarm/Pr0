@@ -17,9 +17,11 @@ import static java.lang.String.format;
  */
 public class UpdateChecker {
     private final int currentVersion;
+    private final boolean betaChannel;
 
     public UpdateChecker(Context context) {
         this.currentVersion = Pr0grammApplication.getPackageInfo(context).versionCode;
+        this.betaChannel = Settings.of(context).useBetaChannel();
     }
 
     public Observable<Update> check() {
@@ -37,9 +39,22 @@ public class UpdateChecker {
 
     private RestAdapter newRestAdapter() {
         return new RestAdapter.Builder()
-                .setEndpoint("https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master")
+                .setEndpoint(getEndpointUrl())
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build();
+    }
+
+    /**
+     * Returns the Endpoint-URL that is to be queried
+     */
+    private String getEndpointUrl() {
+        String endpoint;
+        if(betaChannel) {
+            endpoint = "https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/beta";
+        } else {
+            endpoint = "https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master";
+        }
+        return endpoint;
     }
 
     private static interface UpdateApi {

@@ -121,6 +121,10 @@ public class Settings {
         return preferences.getBoolean("pref_show_pin_button", true);
     }
 
+    public boolean useBetaChannel() {
+        return preferences.getBoolean("pref_use_beta_channel", false);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

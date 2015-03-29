@@ -153,5 +153,11 @@
             android:title="@string/pref_pseudo_update"
             android:summary="@string/pref_pseudo_update_summary"/>
 
+        <CheckBoxPreference
+            android:key="pref_use_beta_channel"
+            android:title="@string/pref_use_beta_channel"
+            android:summary="@string/pref_use_beta_channel_summary"
+            android:defaultValue="false"/>
+
     </PreferenceCategory>
 </PreferenceScreen>

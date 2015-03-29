@@ -137,4 +137,6 @@
     <string name="pref_show_pin_button_summary">Du kannst den "Lesezeichen erstellen"-Button ausblenden. Dies hat keinen Einfluss auf bereits angelegte Lesezeichen.</string>
     <string name="pref_pseudo_feedback">Feedback</string>
     <string name="pref_pseudo_feedback_summary">Klick hier um Feedback zu geben!</string>
+    <string name="pref_use_beta_channel">Aktiviere Betas</string>
+    <string name="pref_use_beta_channel_summary">Wenn du Betas aktivierst, bekommst du neue Updates früher als andere.</string>
 </resources>
