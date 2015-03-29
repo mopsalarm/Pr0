@@ -14,7 +14,13 @@ import android.widget.MultiAutoCompleteTextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Charsets;
+import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.pr0gramm.app.Lazy;
@@ -27,6 +33,7 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import roboguice.fragment.RoboDialogFragment;
 
@@ -100,7 +107,19 @@ public class NewTagDialogFragment extends RoboDialogFragment {
             }.getType();
 
             try (Reader reader = new InputStreamReader(stream, Charsets.UTF_8)) {
-                return new Gson().fromJson(reader, listType);
+                List<String> tagList = new Gson().fromJson(reader, listType);
+
+                // group by lower-case version of each tag
+                ListMultimap<String, String> byLowerCase = FluentIterable
+                        .from(tagList)
+                        .index(String::toLowerCase);
+
+                // and remove duplicates by getting the first occurrence of each
+                // groups values
+                return FluentIterable.from(byLowerCase.asMap().entrySet())
+                        .transform(e -> Iterables.getFirst(e.getValue(), null))
+                        .filter(Predicates.notNull())
+                        .toList();
             }
 
         } catch (Exception error) {
