@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -48,7 +49,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class FeedFragment extends RoboFragment {
-    private static final String ARG_FEED_QUERY = "FeedFragment.query";
+    private static final String ARG_FEED_FILTER = "FeedFragment.filter";
+    private static final String ARG_FEED_START = "FeedFragment.start";
 
     @Inject
     private FeedService feedService;
@@ -109,6 +111,11 @@ public class FeedFragment extends RoboFragment {
             progressView.setVisibility(View.VISIBLE);
         }
 
+        if(getArguments().containsKey(ARG_FEED_START)) {
+            adapter.getFeedProxy().restartAt(getArguments().getLong(ARG_FEED_START));
+            getArguments().remove(ARG_FEED_START);
+        }
+
         seenIndicatorStyle = settings.seenIndicatorStyle();
 
         // prepare the list of items
@@ -155,7 +162,7 @@ public class FeedFragment extends RoboFragment {
     private FeedAdapter newFeedAdapter() {
         Log.i("Feed", "Restore adapter now");
         FeedFilter feedFilter = getArguments()
-                .<FeedFilter>getParcelable(ARG_FEED_QUERY)
+                .<FeedFilter>getParcelable(ARG_FEED_FILTER)
                 .withContentType(settings.getContentType());
 
         return new FeedAdapter(feedFilter);
@@ -318,9 +325,12 @@ public class FeedFragment extends RoboFragment {
      * @param feedFilter A query to use for getting data
      * @return The type new fragment that can be shown now.
      */
-    public static FeedFragment newInstance(FeedFilter feedFilter) {
+    public static FeedFragment newInstance(FeedFilter feedFilter, Optional<Long> start) {
         Bundle arguments = new Bundle();
-        arguments.putParcelable(ARG_FEED_QUERY, feedFilter);
+        arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
+        if(start.isPresent()) {
+            arguments.putLong(ARG_FEED_START, start.get());
+        }
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);

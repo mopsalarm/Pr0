@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -12,11 +13,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
@@ -32,6 +36,8 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -113,16 +119,19 @@ public class MainActivity extends RoboActionBarActivity implements
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        // load feed-fragment into view
-        if (savedInstanceState == null) {
+        Intent intent = getIntent();
+        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+            handleIntent(intent);
+
+        } else if (savedInstanceState == null) { // load feed-fragment into view
             createDrawerFragment();
             gotoFeedFragment(new FeedFilter(), true);
         }
 
         // we trigger the update here manually now. this will be done using
         // the alarm manager later on.
-        Intent intent = new Intent(this, SyncBroadcastReceiver.class);
-        sendBroadcast(intent);
+        Intent syncIntent = new Intent(this, SyncBroadcastReceiver.class);
+        sendBroadcast(syncIntent);
 
         ChangeLog changelog = new ChangeLog(this);
         if (changelog.isFirstRun()) {
@@ -303,10 +312,14 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {
+        gotoFeedFragment(newFilter, clear, Optional.<Long>absent());
+    }
+
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<Long> start) {
         if (clear)
             clearBackStack();
 
-        Fragment fragment = FeedFragment.newInstance(newFilter);
+        Fragment fragment = FeedFragment.newInstance(newFilter, start);
 
         // and show the fragment
         @SuppressLint("CommitTransaction")
@@ -346,4 +359,54 @@ public class MainActivity extends RoboActionBarActivity implements
 
         ErrorDialogFragment.showErrorString(getSupportFragmentManager(), message);
     }
+
+    /**
+     * handles Intent
+     *
+     * @param intent intent to handle
+     */
+    private void handleIntent(Intent intent) {
+        Uri uri = intent.getData();
+        Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show();
+        List<String> params = uri.getPathSegments();
+        String type = params.get(0);
+
+        if (params.size() >= 1) {
+            if (type.equals("top") || type.equals("new")) {
+                FeedFilter feedFilter = new FeedFilter();
+                feedFilter = feedFilter.withFeedType(type.equals("top") ? FeedType.PROMOTED : FeedType.NEW);
+
+                Long postId = -1l;
+
+                if (params.size() == 2) {
+                    try { // type/id
+                        postId = Long.parseLong(params.get(1));
+                    } catch (NumberFormatException e) { // type/tag
+                        feedFilter = feedFilter.withTags(params.get(1));
+                    }
+
+                } else if (params.size() == 3) { // type/tag/id
+                    feedFilter = feedFilter.withTags(params.get(1));
+                    try {
+                        postId = Long.parseLong(params.get(2));
+                    } catch (NumberFormatException e) {}
+                }
+
+                createDrawerFragment();
+                Log.d("URL PARSE", "Post ID: " + postId);
+                if (postId > 0) {
+                    gotoFeedFragment(feedFilter, true, Optional.<Long>of(postId));
+                } else {
+                    gotoFeedFragment(feedFilter, true);
+                }
+
+            } else if (type.equals("user") && params.size() >= 2) {
+                // TODO show user
+            }
+        } else {
+            createDrawerFragment();
+            gotoFeedFragment(new FeedFilter(), true);
+        }
+    }
+
 }

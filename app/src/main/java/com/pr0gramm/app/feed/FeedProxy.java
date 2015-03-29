@@ -176,6 +176,23 @@ public class FeedProxy {
         loadAfter(Optional.<Long>absent());
     }
 
+    public void restartAt(Long start) {
+        if (loading)
+            return;
+
+        // remove all previous items from the adapter.
+        int oldSize = items.size();
+        items.clear();
+
+        if (onChangeListener != null)
+            onChangeListener.onItemRangeRemoved(0, oldSize);
+
+        // and start loading the first page
+        atEnd = false;
+        atStart = false;
+        loadAfter(Optional.<Long>of(start));
+    }
+
     public boolean isLoading() {
         return loading;
     }
