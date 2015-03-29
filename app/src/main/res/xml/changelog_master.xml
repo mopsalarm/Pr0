@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release
+        version="1.18"
+        versioncode="18">
+
+        <change>
+            Neu: Beta-Kanal. Wenn du in den Einstellungen den Beta-Kanal aktivierst, bekommst
+            du eher Updates (die aber natürlich instabiler sein können).
+        </change>
+
+    </release>
 
     <release
         version="1.17"
@@ -26,7 +36,8 @@
         version="1.15"
         versioncode="15">
 
-        <change>Fix: Musikwiedergabe wird nicht mehr unterbrochen, wenn Videos angezeigt werden</change>
+        <change>Fix: Musikwiedergabe wird nicht mehr unterbrochen, wenn Videos angezeigt werden
+        </change>
         <change>Fix: Übersetzung</change>
     </release>
 
@@ -34,7 +45,7 @@
         version="1.14"
         versioncode="14">
 
-        <change>Neu: Ein Zoomfunktion bei der Anzeige von Bildern</change>
+        <change>Neu: Eine Zoomfunktion bei der Anzeige von Bildern</change>
         <change>Neu: Vorschläge beim Hinzufügen von Tags</change>
         <change>Neu: Einstellung für kleinere Votebuttons bei Kommentaren</change>
         <change>Neu: Einstellung um den Benisgraphen zu deaktivieren</change>
