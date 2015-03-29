@@ -24,7 +24,7 @@ android {
         targetSdkVersion 21
 
         versionCode 18
-        versionName "1.18.dev"
+        versionName "1.18"
     }
 
     signingConfigs {
@@ -41,6 +41,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildTypes {
+        debug {
+            versionNameSuffix ".dev"
+        }
+
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
