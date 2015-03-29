@@ -1,17 +1,51 @@
 # Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /home/oliver/Android/Sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Add any project specific keep options here:
+-dontobfuscate
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-dontwarn java.nio.**
+-dontwarn java.lang.invoke.**
+-dontwarn sun.misc.Unsafe
+-dontwarn com.actionbarsherlock.**
+-dontwarn com.google.appengine.**
+-dontwarn com.google.android.maps.**
+-dontwarn roboguice.**Sherlock*
+-dontwarn roboguice.activity.RoboMapActivity
+-dontwarn org.joda.**
+-dontwarn org.codehaus.**
+
+# keep annotations
+-keepattributes *Annotation*
+
+# keep our application
+-keep class com.pr0gramm.** {
+    *;
+}
+
+# keep retrofit-annotations and methods
+-keep class retrofit.** { *; }
+-keepclasseswithmembers class * {
+    @retrofit.http.* <methods>;
+}
+
+# roboguice - keep classes with inject-constructor
+-keep class * {
+    @com.google.inject.Inject *;
+}
+
+# we need this for roboguice
+-keep class * extends com.google.inject.AnnotationDatabase {
+    *;
+}
+
+# keeps views and other stuff. Support library fails without this.
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
