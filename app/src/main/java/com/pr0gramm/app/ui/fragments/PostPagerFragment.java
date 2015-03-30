@@ -19,6 +19,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.ui.MainActionHandler;
 
 import roboguice.fragment.RoboFragment;
@@ -182,8 +183,12 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     public void onUsernameClicked(String username) {
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(
-                getCurrentFilter().withUser(username));
+        // always show all uploads of a user.
+        FeedFilter newFilter = getCurrentFilter()
+                .withFeedType(FeedType.NEW)
+                .withUser(username);
+
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
     }
 
     private void saveStateToBundle(Bundle outState) {
