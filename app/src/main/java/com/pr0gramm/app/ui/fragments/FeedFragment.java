@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -34,6 +35,8 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -84,6 +87,7 @@ public class FeedFragment extends RoboFragment {
     private BookmarkService bookmarkService;
 
     private boolean bookmarkable;
+    private boolean firstStart = true;
 
 
     /**
@@ -111,11 +115,6 @@ public class FeedFragment extends RoboFragment {
             progressView.setVisibility(View.VISIBLE);
         }
 
-        if(getArguments().containsKey(ARG_FEED_START)) {
-            adapter.getFeedProxy().restartAt(getArguments().getLong(ARG_FEED_START));
-            getArguments().remove(ARG_FEED_START);
-        }
-
         seenIndicatorStyle = settings.seenIndicatorStyle();
 
         // prepare the list of items
@@ -130,7 +129,7 @@ public class FeedFragment extends RoboFragment {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             FeedProxy proxy = adapter.getFeedProxy();
             if (proxy.isAtStart() && !proxy.isLoading()) {
-                proxy.restart();
+                proxy.restart(Optional.<Long>absent());
             } else {
                 // do not refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -165,7 +164,9 @@ public class FeedFragment extends RoboFragment {
                 .<FeedFilter>getParcelable(ARG_FEED_FILTER)
                 .withContentType(settings.getContentType());
 
-        return new FeedAdapter(feedFilter);
+        long startAround = getArguments().getLong(ARG_FEED_START, -1);
+        Optional<Long> around = Optional.fromNullable(startAround > 0 ? startAround : null);
+        return new FeedAdapter(feedFilter, around);
     }
 
     @Override
@@ -179,12 +180,12 @@ public class FeedFragment extends RoboFragment {
         }
 
         // check if content type has changed, and reload if necessary
-        FeedFilter feedFilter = adapter.getFilter();
-        boolean changed = !equal(feedFilter.getContentTypes(), settings.getContentType());
-        if (changed) {
-            FeedFilter newFeedFilter = feedFilter.withContentType(settings.getContentType());
-            setNewQuery(newFeedFilter);
-        }
+//        FeedFilter feedFilter = adapter.getFilter();
+//        boolean changed = !equal(feedFilter.getContentTypes(), settings.getContentType());
+//        if (changed) {
+//            FeedFilter newFeedFilter = feedFilter.withContentType(settings.getContentType());
+//            setNewQuery(newFeedFilter);
+//        }
 
         // set new indicator style
         if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
@@ -309,16 +310,10 @@ public class FeedFragment extends RoboFragment {
         FeedFilter filter = current.withTags(term);
 
         // do nothing, if the filter did not change
-        if(equal(current, filter))
+        if (equal(current, filter))
             return;
 
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
-    }
-
-    private void setNewQuery(FeedFilter newFeedFilter) {
-        // set and store adapter
-        this.adapter = new FeedAdapter(newFeedFilter);
-        this.recyclerView.setAdapter(this.adapter);
     }
 
     private void onItemClicked(int idx) {
@@ -339,7 +334,7 @@ public class FeedFragment extends RoboFragment {
     public static FeedFragment newInstance(FeedFilter feedFilter, Optional<Long> start) {
         Bundle arguments = new Bundle();
         arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
-        if(start.isPresent()) {
+        if (start.isPresent()) {
             arguments.putLong(ARG_FEED_START, start.get());
         }
 
@@ -363,11 +358,11 @@ public class FeedFragment extends RoboFragment {
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
 
-        public FeedAdapter(FeedFilter feedFilter) {
-            this(new FeedProxy(feedFilter));
+        public FeedAdapter(FeedFilter filter, Optional<Long> around) {
+            this(new FeedProxy(filter), around);
         }
 
-        public FeedAdapter(FeedProxy feedProxy) {
+        public FeedAdapter(FeedProxy feedProxy, Optional<Long> around) {
             this.feedProxy = feedProxy;
 
             this.feedProxy.setOnChangeListener(this);
@@ -376,6 +371,12 @@ public class FeedFragment extends RoboFragment {
                 public void onLoadFinished() {
                     progressView.setVisibility(View.GONE);
                     swipeRefreshLayout.setRefreshing(false);
+
+                    if (firstStart) {
+                        firstStart = false;
+
+                        performAutoOpen();
+                    }
                 }
 
                 @Override
@@ -389,7 +390,7 @@ public class FeedFragment extends RoboFragment {
             });
 
             // start the feed
-            this.feedProxy.restart();
+            this.feedProxy.restart(around);
         }
 
         public FeedFilter getFilter() {
@@ -446,6 +447,29 @@ public class FeedFragment extends RoboFragment {
         @Override
         public void onItemRangeRemoved(int start, int count) {
             notifyItemRangeRemoved(start, count);
+        }
+    }
+
+    private void performAutoOpen() {
+        // get the id of the item to open
+        long autoOpenId = getArguments().getLong(ARG_FEED_START, -1);
+        if (autoOpenId == -1)
+            return;
+
+        // look for the index of the item with the given id
+        int idx = FluentIterable
+                .from(adapter.getFeedProxy().getItems())
+                .firstMatch(item -> item.getId() == autoOpenId)
+                .transform(item -> adapter.getFeedProxy().getPosition(item).or(-1))
+                .or(-1);
+
+        if (idx >= 0) {
+            // over scroll a bit
+            int scrollTo = Math.max(idx - 3, 0);
+            recyclerView.scrollToPosition(scrollTo);
+
+            // and open the post in the ui
+            onItemClicked(idx);
         }
     }
 

@@ -13,12 +13,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -36,8 +34,6 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
-
-import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -119,13 +115,17 @@ public class MainActivity extends RoboActionBarActivity implements
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        Intent intent = getIntent();
-        if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-            handleIntent(intent);
-
-        } else if (savedInstanceState == null) { // load feed-fragment into view
+        if (savedInstanceState == null) {
             createDrawerFragment();
-            gotoFeedFragment(new FeedFilter(), true);
+
+            Intent intent = getIntent();
+            if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
+                // load feed-fragment into view
+                gotoFeedFragment(new FeedFilter(), true);
+
+            } else {
+                onNewIntent(intent);
+            }
         }
 
         // we trigger the update here manually now. this will be done using
@@ -142,6 +142,16 @@ public class MainActivity extends RoboActionBarActivity implements
             // start the update check.
             UpdateDialogFragment.checkForUpdates(this, false);
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()))
+            return;
+
+        handleUri(intent.getData());
     }
 
     @Override
@@ -230,8 +240,8 @@ public class MainActivity extends RoboActionBarActivity implements
             return;
         }
 
-        // at the end, go back to the "current" page before stopping everything.
-        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        // at the end, go back to the "top" page before stopping everything.
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             FeedFilter filter = getCurrentFeedFilter();
             if (filter != null && !isTopFilter(filter)) {
                 gotoFeedFragment(new FeedFilter(), true);
@@ -361,52 +371,21 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     /**
-     * handles Intent
+     * Handles a uri to something on pr0gramm
      *
-     * @param intent intent to handle
+     * @param uri The uri to handle
      */
-    private void handleIntent(Intent intent) {
-        Uri uri = intent.getData();
-        Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show();
-        List<String> params = uri.getPathSegments();
-        String type = params.get(0);
+    private boolean handleUri(Uri uri) {
+        Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
+        if(result.isPresent()) {
+            FeedFilter filter = result.get().getFilter();
+            Optional<Long> start = result.get().getStart();
 
-        if (params.size() >= 1) {
-            if (type.equals("top") || type.equals("new")) {
-                FeedFilter feedFilter = new FeedFilter();
-                feedFilter = feedFilter.withFeedType(type.equals("top") ? FeedType.PROMOTED : FeedType.NEW);
-
-                Long postId = -1l;
-
-                if (params.size() == 2) {
-                    try { // type/id
-                        postId = Long.parseLong(params.get(1));
-                    } catch (NumberFormatException e) { // type/tag
-                        feedFilter = feedFilter.withTags(params.get(1));
-                    }
-
-                } else if (params.size() == 3) { // type/tag/id
-                    feedFilter = feedFilter.withTags(params.get(1));
-                    try {
-                        postId = Long.parseLong(params.get(2));
-                    } catch (NumberFormatException e) {}
-                }
-
-                createDrawerFragment();
-                Log.d("URL PARSE", "Post ID: " + postId);
-                if (postId > 0) {
-                    gotoFeedFragment(feedFilter, true, Optional.<Long>of(postId));
-                } else {
-                    gotoFeedFragment(feedFilter, true);
-                }
-
-            } else if (type.equals("user") && params.size() >= 2) {
-                // TODO show user
-            }
-        } else {
-            createDrawerFragment();
-            gotoFeedFragment(new FeedFilter(), true);
+            boolean clear = getSupportFragmentManager().getBackStackEntryCount() == 0;
+            gotoFeedFragment(filter, clear, start);
+            return true;
         }
-    }
 
+        return false;
+    }
 }

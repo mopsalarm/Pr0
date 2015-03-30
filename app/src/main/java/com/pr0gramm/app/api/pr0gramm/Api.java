@@ -23,6 +23,7 @@ public interface Api {
             @Query("promoted") int promoted,
             @Query("older") Long older,
             @Query("newer") Long newer,
+            @Query("id") Long around,
             @Query("flags") int flags,
             @Query("tags") String tags,
             @Query("likes") String likes,

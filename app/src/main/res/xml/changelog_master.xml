@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.19"
+        versiocode="19">
+
+        <change>
+            Neu: pr0gramm-Links können nun (teilweise) in der App geöffnet werden. Kommentare
+            verlinken funktioniert noch nicht.
+        </change>
+    </release>
+
+    <release
         version="1.18"
         versioncode="18">
 

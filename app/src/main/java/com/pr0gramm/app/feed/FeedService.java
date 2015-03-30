@@ -22,16 +22,18 @@ public class FeedService {
         this.api = api;
     }
 
-    public Observable<Feed> getFeedItems(FeedFilter feedFilter, Optional<Long> start) {
-        // value of the "older" field. depends on the feed-type.
-        return performRequest(feedFilter, start, Optional.<Long>absent());
+    public Observable<Feed> getFeedItems(FeedFilter feedFilter, Optional<Long> start, Optional<Long> around) {
+        return performRequest(feedFilter, start, Optional.<Long>absent(), around);
     }
 
     public Observable<Feed> getFeedItemsNewer(FeedFilter feedFilter, long start) {
-        return performRequest(feedFilter, Optional.<Long>absent(), Optional.of(start));
+        return performRequest(feedFilter, Optional.<Long>absent(), Optional.of(start), Optional.<Long>absent());
     }
 
-    private Observable<Feed> performRequest(FeedFilter feedFilter, Optional<Long> older, Optional<Long> newer) {
+    private Observable<Feed> performRequest(FeedFilter feedFilter,
+                                            Optional<Long> older,
+                                            Optional<Long> newer,
+                                            Optional<Long> around) {
 
         // value for the promoted field
         int promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : 0;
@@ -44,7 +46,8 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         String self = Strings.isNullOrEmpty(likes) ? null : "true";
 
-        return api.itemsGet(promoted, older.orNull(), newer.orNull(), flags, tags, likes, self, user);
+        return api.itemsGet(promoted, older.orNull(), newer.orNull(), around.orNull(),
+                flags, tags, likes, self, user);
     }
 
     public Observable<Post> loadPostDetails(long id) {

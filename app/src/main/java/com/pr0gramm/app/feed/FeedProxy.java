@@ -135,15 +135,16 @@ public class FeedProxy {
             return;
 
         long oldest = items.get(items.size() - 1).getId(feedFilter.getFeedType());
-        loadAfter(Optional.of(oldest));
+        load(Optional.of(oldest), Optional.absent());
     }
 
     /**
      * Loads one page of feed items after the given start post.
      *
-     * @param start The post to start at.
+     * @param start  The post to start at.
+     * @param around The id to load around
      */
-    private void loadAfter(Optional<Long> start) {
+    private void load(Optional<Long> start, Optional<Long> around) {
         if (loading || loader == null)
             return;
 
@@ -151,46 +152,27 @@ public class FeedProxy {
         onLoadStart();
 
         // do the loading.
-        bind(loader.getFeedService().getFeedItems(feedFilter, start))
+        bind(loader.getFeedService().getFeedItems(feedFilter, start, around))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
 
-    /**
-     * Clears this adapter and loads the first page of items again.
-     */
-    public void restart() {
-        if (loading)
+    public void restart(Optional<Long> around) {
+        if (loading) {
+            Log.w("Feed", "Can not restart, currently loading");
             return;
+        }
 
         // remove all previous items from the adapter.
         int oldSize = items.size();
         items.clear();
-
         if (onChangeListener != null)
             onChangeListener.onItemRangeRemoved(0, oldSize);
 
-        // and start loading the first page
+        // and start loading the next page
         atEnd = false;
-        atStart = true;
-        loadAfter(Optional.<Long>absent());
-    }
-
-    public void restartAt(Long start) {
-        if (loading)
-            return;
-
-        // remove all previous items from the adapter.
-        int oldSize = items.size();
-        items.clear();
-
-        if (onChangeListener != null)
-            onChangeListener.onItemRangeRemoved(0, oldSize);
-
-        // and start loading the first page
-        atEnd = false;
-        atStart = false;
-        loadAfter(Optional.<Long>of(start));
+        atStart = !around.isPresent();
+        load(Optional.<Long>absent(), around);
     }
 
     public boolean isLoading() {
@@ -212,8 +194,8 @@ public class FeedProxy {
         if (feed.getFeed().isAtStart())
             atStart = true;
 
-        Ordering<Feed.Item> ordering = Ordering.natural().reverse().onResultOf(this::feedTypeId);
-        List<Feed.Item> newItems = ordering.sortedCopy(feed.getFeed().getItems());
+        Ordering<FeedItem> ordering = Ordering.natural().reverse().onResultOf(this::feedTypeId);
+        List<FeedItem> newItems = ordering.sortedCopy(feed.getFeedItems());
 
         if (newItems.size() > 0) {
             // calculate where to insert
@@ -247,7 +229,7 @@ public class FeedProxy {
             }
 
             // insert and notify observers about changes
-            items.addAll(index, feed.getFeedItems());
+            items.addAll(index, newItems);
 
             if (onChangeListener != null)
                 onChangeListener.onItemRangeInserted(index, newItems.size());
@@ -257,16 +239,13 @@ public class FeedProxy {
     }
 
     private void checkFeedOrder() {
-        // lets validate
-        long prev = Integer.MAX_VALUE;
-        for (FeedItem item : items) {
-            long id = item.getId(feedFilter.getFeedType());
-            if (prev <= id) {
-                Log.w("Feed", "feed not in order!!");
-                break;
-            }
+        boolean ordered = Ordering.natural()
+                .onResultOf((FeedItem item) -> item.getId(feedFilter.getFeedType()))
+                .reverse()
+                .isStrictlyOrdered(items);
 
-            prev = id;
+        if(!ordered) {
+            Log.w("Feed", "Feed not strictly ordered :/");
         }
     }
 
@@ -274,6 +253,10 @@ public class FeedProxy {
         return feedFilter.getFeedType() == FeedType.PROMOTED
                 ? item.getPromoted()
                 : item.getId();
+    }
+
+    private long feedTypeId(FeedItem item) {
+        return item.getId(feedFilter.getFeedType());
     }
 
     protected void onError(Throwable error) {
