@@ -8,6 +8,10 @@
             Neu: pr0gramm-Links können nun (teilweise) in der App geöffnet werden. Kommentare
             verlinken funktioniert noch nicht.
         </change>
+
+        <change>
+            Fix: Benisgraph ist wieder da
+        </change>
     </release>
 
     <release
