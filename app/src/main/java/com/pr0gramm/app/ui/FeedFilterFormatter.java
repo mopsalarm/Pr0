@@ -20,24 +20,17 @@ public class FeedFilterFormatter {
     public static String format(Context context, FeedFilter filter) {
         StringBuilder result = new StringBuilder();
 
-        if(filter.isBasic()) {
+        if (filter.isBasic()) {
             if (filter.getFeedType() == FeedType.PROMOTED)
                 result.append(context.getString(R.string.action_feed_type_promoted));
 
             if (filter.getFeedType() == FeedType.NEW)
                 result.append(context.getString(R.string.action_feed_type_new));
-        }
-        else {
-            if (filter.getTags().isPresent())
+
+        } else {
+            if (filter.getTags().isPresent()) {
                 result.append(filter.getTags().get());
 
-            if (filter.getUsername().isPresent())
-                result.append(context.getString(R.string.filter_format_tag_by)).append(" ").append(filter.getUsername().get());
-
-            if (filter.getLikes().isPresent()) {
-                result.append(context.getString(R.string.filter_format_fav_of)).append(" ").append(filter.getLikes().get());
-
-            } else {
                 result.append(" in ");
 
                 if (filter.getFeedType() == FeedType.PROMOTED)
@@ -46,6 +39,12 @@ public class FeedFilterFormatter {
                 if (filter.getFeedType() == FeedType.NEW)
                     result.append(context.getString(R.string.filter_format_new));
             }
+
+            if (filter.getUsername().isPresent())
+                result.append(context.getString(R.string.filter_format_tag_by)).append(" ").append(filter.getUsername().get());
+
+            if (filter.getLikes().isPresent())
+                result.append(context.getString(R.string.filter_format_fav_of)).append(" ").append(filter.getLikes().get());
         }
 
         return result.toString().trim();
