@@ -2,7 +2,11 @@
 <changelog>
     <release
         version="1.19"
-        versiocode="19">
+        versioncode="19">
+
+        <change>
+            Dies ist eine Beta Version. Feedback zu den neuen Features würde mich freuen!
+        </change>
 
         <change>
             Neu: pr0gramm-Links können nun (teilweise) in der App geöffnet werden. Kommentare
