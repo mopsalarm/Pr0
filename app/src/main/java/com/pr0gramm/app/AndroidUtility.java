@@ -1,17 +1,21 @@
 package com.pr0gramm.app;
 
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.common.base.Throwables;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+
+import static com.pr0gramm.app.Pr0grammApplication.GLOBAL_CONTEXT;
+import static com.pr0gramm.app.Pr0grammApplication.tracker;
 
 /**
  */
@@ -27,15 +31,6 @@ public class AndroidUtility {
      * @return The height of the action bar in pixels.
      */
     public static int getActionBarSize(FragmentActivity activity) {
-        TypedArray arr = activity.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
-        try {
-            return arr.getDimensionPixelSize(0, -1);
-        } finally {
-            arr.recycle();
-        }
-    }
-
-    public static int getActionBarSize(Resources.Theme activity) {
         TypedArray arr = activity.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
         try {
             return arr.getDimensionPixelSize(0, -1);
@@ -65,13 +60,23 @@ public class AndroidUtility {
 
     public static void logToCrashlytics(Throwable error) {
         try {
-            Crashlytics.logException(error);
+            String description = new StandardExceptionParser(GLOBAL_CONTEXT, null)
+                    .getDescription(Thread.currentThread().getName(), error);
 
-        } catch (IllegalStateException ignored) {
-            // most certainly crashlytics was not activated.
+            tracker().send(new HitBuilders.ExceptionBuilder()
+                    .setDescription(description)
+                    .setFatal(false)
+                    .build());
+
+            try {
+                // log to crashlytics for fast error reporting.
+                Crashlytics.logException(error);
+            } catch (IllegalStateException ignored) {
+                // most certainly crashlytics was not activated.
+            }
 
         } catch (Exception err) {
-            Log.i("Crashlytics", "Could not send error to crashlytics", err);
+            Log.i("Error", "Could not send error to google", err);
         }
     }
 }

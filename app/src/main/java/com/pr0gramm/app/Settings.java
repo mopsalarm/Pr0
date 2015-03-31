@@ -68,7 +68,7 @@ public class Settings {
         return result;
     }
 
-    public boolean crashlyticsEnabled() {
+    public boolean analyticsEnabled() {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
     }
 

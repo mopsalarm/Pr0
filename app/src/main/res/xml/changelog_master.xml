@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.20"
+        versioncode="20">
+
+        <change>
+            Dies ist eine Beta Version. Feedback zu den neuen Features würde mich freuen!
+        </change>
+
+        <change>
+            Neu: Anonymes Tracking mit Google Analytics.
+            Kann im Menü über den Punkt 'Anonyme Bugreports' deaktiviert werden.
+        </change>
+
+        <change>
+            Fix: Wenn man im Feed ist und SFW/NSFW umstellt, wird nun der Feed
+            korrekt neu geladen.
+        </change>
+    </release>
+
+    <release
         version="1.19"
         versioncode="19">
 

@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.ErrorFormatting;
@@ -46,6 +47,7 @@ import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -124,6 +126,12 @@ public class MainActivity extends RoboActionBarActivity implements
                 gotoFeedFragment(new FeedFilter(), true);
 
             } else {
+                tracker().send(new HitBuilders.EventBuilder()
+                        .setCategory("MainActivity")
+                        .setAction("Started")
+                        .setLabel("WithUrlIntent")
+                        .build());
+
                 onNewIntent(intent);
             }
         }
@@ -377,7 +385,7 @@ public class MainActivity extends RoboActionBarActivity implements
      */
     private boolean handleUri(Uri uri) {
         Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
-        if(result.isPresent()) {
+        if (result.isPresent()) {
             FeedFilter filter = result.get().getFilter();
             Optional<Long> start = result.get().getStart();
 

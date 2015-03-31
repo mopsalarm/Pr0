@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Optional;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -13,6 +14,7 @@ import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
+import static com.pr0gramm.app.Pr0grammApplication.tracker;
 
 /**
  */
@@ -21,6 +23,13 @@ public class BookmarkService {
     private final BehaviorSubject<Void> onChange = BehaviorSubject.create((Void) null);
 
     public Observable<Bookmark> create(FeedFilter filter, String title) {
+        // track this event
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("Bookmarks")
+                .setAction("Create")
+                .setLabel(title)
+                .build());
+
         return Async.start(() -> {
             // check if here is an existing item
             Optional<Bookmark> existing = Bookmark.byFilter(filter);
@@ -76,6 +85,13 @@ public class BookmarkService {
      * @param bookmark The bookmark that is to be deleted.
      */
     public Observable<Void> delete(Bookmark bookmark) {
+        // track this event
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("Bookmarks")
+                .setAction("Remove")
+                .setLabel(bookmark.getTitle())
+                .build());
+
         return Async.<Void>start(() -> {
             bookmark.delete();
             triggerChange();

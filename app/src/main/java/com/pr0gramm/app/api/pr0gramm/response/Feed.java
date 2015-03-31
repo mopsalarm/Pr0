@@ -35,6 +35,7 @@ public class Feed {
         private String user;
         private int up, down;
         private int mark;
+        private int flags;
         private Instant created;
 
         public long getId() {
@@ -71,6 +72,10 @@ public class Feed {
 
         public int getMark() {
             return mark;
+        }
+
+        public int getFlags() {
+            return flags;
         }
 
         public Instant getCreated() {

@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -48,6 +49,7 @@ import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
+import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -320,10 +322,21 @@ public class DrawerFragment extends RoboFragment {
             changeCompoundDrawableColor(holder.text, color);
 
             // handle clicks
-            holder.itemView.setOnClickListener(v -> onFeedFilterClicked(item.filter));
+            holder.itemView.setOnClickListener(v -> {
+                onFeedFilterClicked(item.filter);
+
+                if (item.bookmark != null) {
+                    // track this event
+                    tracker().send(new HitBuilders.EventBuilder()
+                            .setCategory("Bookmarks")
+                            .setAction("Clicked")
+                            .setLabel(item.bookmark.getTitle())
+                            .build());
+                }
+            });
 
             holder.itemView.setOnLongClickListener(v -> {
-                if(item.bookmark != null) {
+                if (item.bookmark != null) {
                     showDialogToRemoveBookmark(item.bookmark);
                 }
 

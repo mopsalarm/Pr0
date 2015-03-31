@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
@@ -56,6 +57,7 @@ import rx.Observable;
 import rx.functions.Actions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
@@ -252,6 +254,14 @@ public class PostFragment extends RoboFragment implements
         request.allowScanningByMediaScanner();
 
         downloadManager.enqueue(request);
+
+        // track the download
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("Media")
+                .setAction("Download")
+                .setLabel(fileType)
+                .build());
+
     }
 
     @Override
@@ -352,8 +362,14 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void onMediaViewDoubleTapped() {
-        if (settings.doubleTapToUpvote())
+        if (settings.doubleTapToUpvote()) {
+            tracker().send(new HitBuilders.EventBuilder()
+                    .setCategory("Media")
+                    .setAction("DoubleTapped")
+                    .build());
+
             infoLineView.getVoteView().triggerUpVoteClicked();
+        }
     }
 
     /**
@@ -428,7 +444,6 @@ public class PostFragment extends RoboFragment implements
     protected void onMarkedActive() {
         //  mark this item seen. We do that in a background thread
         AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
-
         viewer.playMedia();
     }
 
@@ -473,6 +488,11 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onAnswerClicked(Post.Comment comment) {
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("Comment")
+                .setAction("AnswerClicked")
+                .build());
+
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorized(this, () -> {
@@ -497,12 +517,24 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onTagClicked(Tag tag) {
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("Tag")
+                .setAction("Clicked")
+                .setLabel(tag.getTag())
+                .build());
+
         if (getParentFragment() instanceof PostPagerFragment)
             ((PostPagerFragment) getParentFragment()).onTagClicked(tag);
     }
 
     @Override
     public void onUserClicked(String username) {
+        tracker().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("Clicked")
+                .setLabel(username)
+                .build());
+
         if (getParentFragment() instanceof PostPagerFragment)
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }

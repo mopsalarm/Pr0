@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".Pr0grammApplication"
@@ -16,9 +17,13 @@
         <meta-data
             android:name="roboguice.modules"
             android:value="com.pr0gramm.app.Pr0grammModule"/>
+
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
+
+        <meta-data android:name="com.google.android.gms.version"
+                   android:value="@integer/google_play_services_version" />
 
         <!-- Sugar ORM configuration -->
         <meta-data
@@ -77,7 +82,7 @@
 
                 <data
                     android:host="pr0gramm.com"
-                    android:pathPattern="/user/.*\/uploads.*"
+                    android:pathPattern="/user/.*/uploads.*"
                     android:scheme="http"/>
             </intent-filter>
         </activity>
