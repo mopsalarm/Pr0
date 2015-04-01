@@ -58,21 +58,25 @@ public class Pr0grammModule extends AbstractModule {
                 .build()
                 .create(Api.class);
 
-        // proxy to add the nounce if not provided
+        // proxy to add the nonce if not provided
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
             Class<?>[] params = method.getParameterTypes();
             if (params.length > 0 && params[0] == Api.Nonce.class) {
                 if(args.length > 0 && args[0] == null) {
+                    // inform about failure.
+                    if(!cookieHandler.getCookie().isPresent())
+                        throw new LoginRequiredException(method.toString());
+
                     args = Arrays.copyOf(args, args.length);
-                    args[0] = cookieHandler.getNounce();
+                    args[0] = cookieHandler.getNonce();
                 }
             }
 
             // forward method call
             try {
                 return method.invoke(api, args);
-            } catch(InvocationTargetException ierr) {
-                throw ierr.getCause();
+            } catch(InvocationTargetException err) {
+                throw err.getCause();
             }
         });
     }

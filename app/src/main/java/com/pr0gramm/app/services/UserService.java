@@ -88,7 +88,7 @@ public class UserService {
      * Check if we can do authorized requests.
      */
     public boolean isAuthorized() {
-        return cookieHandler.getLoginCookie().isPresent();
+        return cookieHandler.hasCookie();
     }
 
     /**
