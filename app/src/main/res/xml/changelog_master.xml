@@ -8,6 +8,7 @@
         <change>Fix: Bugfixes für die häufigen Abstürze nach dem Hotfix heute morgen.</change>
         <change>Fix: Update-Architektur etwas überarbeitet.</change>
         <change>Fix: Google Analytics wieder entfernt.</change>
+        <change>Fix: Absturz beim Neuladen des Feeds behoben</change>
     </release>
 
     <release
