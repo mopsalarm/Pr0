@@ -56,7 +56,7 @@ public class VoteService {
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
         trackVote("Post", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
-        return api.vote(item.getId(), vote.getVoteValue());
+        return api.vote(null, item.getId(), vote.getVoteValue());
     }
 
     private void trackVote(String type, Vote vote) {
@@ -70,13 +70,13 @@ public class VoteService {
     public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
         trackVote("Comment", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
-        return api.voteComment(comment.getId(), vote.getVoteValue());
+        return api.voteComment(null, comment.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Tag tag, Vote vote) {
         trackVote("Tag", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
-        return api.voteTag(tag.getId(), vote.getVoteValue());
+        return api.voteTag(null, tag.getId(), vote.getVoteValue());
     }
 
     /**
@@ -164,7 +164,7 @@ public class VoteService {
                 .build());
 
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
-        return api.addTags(feedItem.getId(), tagString).map(response -> {
+        return api.addTags(null, feedItem.getId(), tagString).map(response -> {
             SugarTransactionHelper.doInTansaction(() -> {
                 // auto-apply up-vote to newly created tags
                 for (long tagId : response.getTagIds())
@@ -185,7 +185,7 @@ public class VoteService {
                 .setLabel(parentId > 0 ? "WithParent" : "NoParent")
                 .build());
 
-        return api.postComment(item.getId(), parentId, comment)
+        return api.postComment(null, item.getId(), parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {
                     // store the implicit upvote for the comment.

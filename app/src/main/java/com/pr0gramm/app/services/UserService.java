@@ -4,12 +4,9 @@ import android.content.SharedPreferences;
 import android.graphics.PointF;
 
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -45,7 +42,6 @@ public class UserService {
     private final VoteService voteService;
     private final SeenService seenService;
     private final LoginCookieHandler cookieHandler;
-    private final Gson gson;
     private final SharedPreferences preferences;
 
     private final BehaviorSubject<LoginState> loginStateObservable
@@ -58,7 +54,6 @@ public class UserService {
                        SharedPreferences preferences) {
 
         this.api = api;
-        this.gson = new Gson();
         this.seenService = seenService;
         this.voteService = voteService;
         this.cookieHandler = cookieHandler;
@@ -226,16 +221,7 @@ public class UserService {
      * @return The name of the currently signed in user.
      */
     public Optional<String> getName() {
-        return cookieHandler.getLoginCookie().transform(value -> {
-            value = AndroidUtility.urlDecode(value, Charsets.UTF_8);
-            Cookie cookie = gson.fromJson(value, Cookie.class);
-            return cookie.n;
-        });
-    }
-
-
-    private static class Cookie {
-        public String n;
+        return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
     public static class LoginState {

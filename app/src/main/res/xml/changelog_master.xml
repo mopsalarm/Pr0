@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
-        version="1.20"
-        versioncode="20">
+        version="1.21"
+        versioncode="21">
 
         <change>
-            Dies ist eine Beta Version. Feedback zu den neuen Features würde mich freuen!
+            Fix: Cha0s hat was an der API geändert, darum gingen einige Aktionen nicht mehr.
         </change>
+
+        <change>
+            Fix: Hamburger-Menu Button (oben links) natürlich wieder da - ist
+            im Update auf AppCompat v22 versehentlich flöten gegangen.
+        </change>
+    </release>
+
+    <release
+        version="1.20"
+        versioncode="20">
 
         <change>
             Neu: Anonymes Tracking mit Google Analytics.
@@ -22,10 +32,6 @@
     <release
         version="1.19"
         versioncode="19">
-
-        <change>
-            Dies ist eine Beta Version. Feedback zu den neuen Features würde mich freuen!
-        </change>
 
         <change>
             Neu: pr0gramm-Links können nun (teilweise) in der App geöffnet werden. Kommentare

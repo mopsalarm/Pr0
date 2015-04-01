@@ -158,6 +158,9 @@ public class ErrorFormatting {
                 err -> err.getCause() instanceof SocketException,
                 R.string.error_socket).doNotReport());
 
+        formatters.add(new Formatter<>(LoginRequiredException.class,
+                R.string.error_login_required_exception));
+
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());
 

@@ -3,7 +3,10 @@ package com.pr0gramm.app;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.gson.Gson;
+import com.pr0gramm.app.api.pr0gramm.Api;
 
 import java.net.CookieHandler;
 import java.net.HttpCookie;
@@ -25,9 +28,11 @@ public class LoginCookieHandler extends CookieHandler {
 
     private final Object lock = new Object();
     private final SharedPreferences preferences;
+    private final Gson gson = new Gson();
 
     private HttpCookie loginCookie;
     private OnCookieChangedListener onCookieChangedListener;
+    private String nounce;
 
     @Inject
     public LoginCookieHandler(SharedPreferences preferences) {
@@ -141,6 +146,26 @@ public class LoginCookieHandler extends CookieHandler {
 
     public void setOnCookieChangedListener(OnCookieChangedListener onCookieChangedListener) {
         this.onCookieChangedListener = onCookieChangedListener;
+    }
+
+    public Optional<Cookie> getCookie() {
+        return getLoginCookie().transform(value -> {
+            value = AndroidUtility.urlDecode(value, Charsets.UTF_8);
+            return gson.fromJson(value, Cookie.class);
+        });
+    }
+
+    public Api.Nonce getNounce() {
+        return getCookie()
+                .transform(cookie -> new Api.Nonce(cookie.id))
+                .or(() -> {
+                    throw new LoginRequiredException();
+                });
+    }
+
+    public static class Cookie {
+        public String n;
+        public String id;
     }
 
     /**

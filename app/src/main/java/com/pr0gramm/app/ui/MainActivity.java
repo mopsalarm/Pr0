@@ -111,7 +111,7 @@ public class MainActivity extends RoboActionBarActivity implements
         drawerLayout.setDrawerListener(drawerToggle);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
 
         // listen to fragment changes
@@ -204,7 +204,6 @@ public class MainActivity extends RoboActionBarActivity implements
     private void updateToolbarBackButton() {
         FragmentManager fm = getSupportFragmentManager();
         drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(fm.getBackStackEntryCount() > 0);
         drawerToggle.syncState();
     }
 

@@ -30,20 +30,20 @@ public interface Api {
             @Query("self") String self,
             @Query("user") String user);
 
-    @GET("/api/items/info")
-    Observable<Post> info(@Query("itemId") long itemId);
-
     @FormUrlEncoded
     @POST("/api/items/vote")
-    Observable<Nothing> vote(@Field("id") long id, @Field("vote") int voteValue);
+    Observable<Nothing> vote(@Field("_nonce") Nonce nonce,
+                             @Field("id") long id, @Field("vote") int voteValue);
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
-    Observable<Nothing> voteTag(@Field("id") long id, @Field("vote") int voteValue);
+    Observable<Nothing> voteTag(@Field("_nonce") Nonce nonce,
+                                @Field("id") long id, @Field("vote") int voteValue);
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
-    Observable<Nothing> voteComment(@Field("id") long id, @Field("vote") int voteValue);
+    Observable<Nothing> voteComment(@Field("_nonce") Nonce nonce,
+                                    @Field("id") long id, @Field("vote") int voteValue);
 
     @FormUrlEncoded
     @POST("/api/user/login")
@@ -51,23 +51,41 @@ public interface Api {
             @Field("name") String username,
             @Field("password") String password);
 
-    @GET("/api/user/sync")
-    Sync sync(@Query("lastId") long lastId);
-
     @FormUrlEncoded
     @POST("/api/tags/add")
     Observable<NewTag> addTags(
+            @Field("_nonce") Nonce nonce,
             @Field("itemId") long lastId,
             @Field("tags") String tags);
-
 
     @FormUrlEncoded
     @POST("/api/comments/post")
     Observable<NewComment> postComment(
+            @Field("_nonce") Nonce nonce,
             @Field("itemId") long itemId,
             @Field("parentId") long parentId,
             @Field("comment") String comment);
 
+    @GET("/api/items/info")
+    Observable<Post> info(@Query("itemId") long itemId);
+
+
+    @GET("/api/user/sync")
+    Sync sync(@Query("lastId") long lastId);
+
     @GET("/api/profile/info")
     Info info(@Query("name") String name);
+
+    public static class Nonce {
+        public final String value;
+
+        public Nonce(String userId) {
+            this.value = userId.substring(0, 16);
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 }
