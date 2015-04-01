@@ -139,4 +139,7 @@
     <string name="pref_pseudo_feedback_summary">Klick hier um Feedback zu geben!</string>
     <string name="pref_use_beta_channel">Aktiviere Betas</string>
     <string name="pref_use_beta_channel_summary">Wenn du Betas aktivierst, bekommst du neue Updates früher als andere.</string>
+    <string name="pref_webm_restart_on_stop">Manuelles Neustarten (webm)</string>
+    <string name="pref_webm_restart_on_stop_summary">Aktiviere diese Option wenn sich webm Videos nicht wiederholen.</string>
+    <string name="action_refresh">Refresh</string>
 </resources>
