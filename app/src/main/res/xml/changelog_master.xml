@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.22"
+        versioncode="22">
+
+        <change>&lt;b&gt;Info:&lt;/b&gt; Wenn ich das richtig sehe, wird man aus der App ausgeloggt, wenn man sich im Browser ausloggt. Ich hoffe, dass es dafür bald eine Lösung gibt.</change>
+        <change>Fix: Bugfixes für die häufigen Abstürze nach dem Hotfix heute morgen.</change>
+        <change>Fix: Update-Architektur etwas überarbeitet.</change>
+        <change>Fix: Google Analytics wieder entfernt.</change>
+    </release>
+
+    <release
         version="1.21"
         versioncode="21">
 

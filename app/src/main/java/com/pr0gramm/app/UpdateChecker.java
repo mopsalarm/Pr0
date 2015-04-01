@@ -1,6 +1,7 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -17,16 +18,18 @@ import static java.lang.String.format;
  */
 public class UpdateChecker {
     private final int currentVersion;
-    private final boolean betaChannel;
+    private final String endpoint;
 
     public UpdateChecker(Context context) {
         this.currentVersion = Pr0grammApplication.getPackageInfo(context).versionCode;
-        this.betaChannel = Settings.of(context).useBetaChannel();
+
+        boolean betaChannel = Settings.of(context).useBetaChannel();
+        endpoint = getEndpointUrl(betaChannel);
     }
 
     public Observable<Update> check() {
         return Async.start(() -> {
-            UpdateApi api = newRestAdapter().create(UpdateApi.class);
+            UpdateApi api = newRestAdapter(endpoint).create(UpdateApi.class);
             return api.get();
 
         }).filter(update -> {
@@ -34,32 +37,16 @@ public class UpdateChecker {
 
             // filter out if up to date
             return update.getVersion() > currentVersion;
+        }).map(update -> {
+            // rewrite url to make it absolute
+            String apk = update.getApk();
+            if (!apk.startsWith("http")) {
+                apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString();
+            }
+
+            Log.i("Update", "Got new update at url " + apk);
+            return new Update(update.version, apk, update.changelog);
         });
-    }
-
-    private RestAdapter newRestAdapter() {
-        return new RestAdapter.Builder()
-                .setEndpoint(getEndpointUrl())
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .build();
-    }
-
-    /**
-     * Returns the Endpoint-URL that is to be queried
-     */
-    private String getEndpointUrl() {
-        String endpoint;
-        if(betaChannel) {
-            endpoint = "https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/beta";
-        } else {
-            endpoint = "https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master";
-        }
-        return endpoint;
-    }
-
-    private static interface UpdateApi {
-        @GET("/update.json")
-        Update get();
     }
 
     public static class Update implements Parcelable {
@@ -72,6 +59,12 @@ public class UpdateChecker {
         }
 
         public Update() {
+        }
+
+        public Update(int version, String apk, String changelog) {
+            this.version = version;
+            this.apk = apk;
+            this.changelog = changelog;
         }
 
         public String getApk() {
@@ -110,6 +103,31 @@ public class UpdateChecker {
                 return new Update[size];
             }
         };
+    }
+
+    private static RestAdapter newRestAdapter(String endpoint) {
+        return new RestAdapter.Builder()
+                .setEndpoint(endpoint)
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .build();
+    }
+
+    private static interface UpdateApi {
+        @GET("/update.json")
+        Update get();
+    }
+
+    /**
+     * Returns the Endpoint-URL that is to be queried
+     */
+    private static String getEndpointUrl(boolean betaChannel) {
+        String endpoint;
+        if (betaChannel) {
+            endpoint = "https://github.com/mopsalarm/pr0gramm-updates/raw/beta";
+        } else {
+            endpoint = "https://github.com/mopsalarm/pr0gramm-updates/raw/master";
+        }
+        return endpoint;
     }
 }
 
