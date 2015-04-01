@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.ContentView;
 import roboguice.inject.InjectExtra;
 import roboguice.inject.InjectView;
 

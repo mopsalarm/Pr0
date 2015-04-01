@@ -3,7 +3,6 @@ package com.pr0gramm.app.services;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
@@ -31,7 +30,6 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.transform;
-import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static java.lang.String.format;
 
 /**
@@ -54,27 +52,16 @@ public class VoteService {
      * @param vote The vote to send to the server
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
-        trackVote("Post", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
         return api.vote(null, item.getId(), vote.getVoteValue());
     }
 
-    private void trackVote(String type, Vote vote) {
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory(type)
-                .setAction("Vote")
-                .setLabel(String.valueOf(vote))
-                .build());
-    }
-
     public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
-        trackVote("Comment", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
         return api.voteComment(null, comment.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Tag tag, Vote vote) {
-        trackVote("Tag", vote);
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
         return api.voteTag(null, tag.getId(), vote.getVoteValue());
     }
@@ -157,12 +144,6 @@ public class VoteService {
      * and returns a list of tags.
      */
     public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory("Tag")
-                .setAction("Created")
-                .setValue(tags.size())
-                .build());
-
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
         return api.addTags(null, feedItem.getId(), tagString).map(response -> {
             SugarTransactionHelper.doInTansaction(() -> {
@@ -179,12 +160,6 @@ public class VoteService {
      * Writes a comment to the given post.
      */
     public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory("Comment")
-                .setAction("Created")
-                .setLabel(parentId > 0 ? "WithParent" : "NoParent")
-                .build());
-
         return api.postComment(null, item.getId(), parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {

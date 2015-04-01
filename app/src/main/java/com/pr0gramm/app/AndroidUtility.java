@@ -6,16 +6,11 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.common.base.Throwables;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-
-import static com.pr0gramm.app.Pr0grammApplication.GLOBAL_CONTEXT;
-import static com.pr0gramm.app.Pr0grammApplication.tracker;
 
 /**
  */
@@ -60,20 +55,11 @@ public class AndroidUtility {
 
     public static void logToCrashlytics(Throwable error) {
         try {
-            String description = new StandardExceptionParser(GLOBAL_CONTEXT, null)
-                    .getDescription(Thread.currentThread().getName(), error);
+            // log to crashlytics for fast error reporting.
+            Crashlytics.logException(error);
 
-            tracker().send(new HitBuilders.ExceptionBuilder()
-                    .setDescription(description)
-                    .setFatal(false)
-                    .build());
-
-            try {
-                // log to crashlytics for fast error reporting.
-                Crashlytics.logException(error);
-            } catch (IllegalStateException ignored) {
-                // most certainly crashlytics was not activated.
-            }
+        } catch (IllegalStateException ignored) {
+            // most certainly crashlytics was not activated.
 
         } catch (Exception err) {
             Log.i("Error", "Could not send error to google", err);

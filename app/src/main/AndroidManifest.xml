@@ -22,9 +22,6 @@
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
 
-        <meta-data android:name="com.google.android.gms.version"
-                   android:value="@integer/google_play_services_version" />
-
         <!-- Sugar ORM configuration -->
         <meta-data
             android:name="DATABASE"

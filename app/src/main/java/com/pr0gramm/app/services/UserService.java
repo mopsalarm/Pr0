@@ -3,7 +3,6 @@ package com.pr0gramm.app.services;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -28,7 +27,6 @@ import rx.util.async.Async;
 
 import static com.orm.SugarRecord.deleteAll;
 import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
-import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
 import static org.joda.time.Duration.standardDays;
 
@@ -71,12 +69,6 @@ public class UserService {
     public Observable<Login> login(String username, String password) {
         return api.login(username, password).map(response -> {
             if (response.isSuccess()) {
-                // track successful login of the user
-                tracker().send(new HitBuilders.EventBuilder()
-                        .setCategory("Users")
-                        .setAction("Login")
-                        .build());
-
                 // wait for the first sync to complete.
                 sync();
 
@@ -103,11 +95,6 @@ public class UserService {
      * Performs a logout of the user.
      */
     public Observable<Void> logout() {
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory("Users")
-                .setAction("Logout")
-                .build());
-
         return Async.<Void>start(() -> {
             // removing cookie from requests
             cookieHandler.clearLoginCookie();

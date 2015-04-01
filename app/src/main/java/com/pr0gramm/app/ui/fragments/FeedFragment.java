@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
@@ -48,7 +47,6 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.pr0gramm.app.Pr0grammApplication.tracker;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static java.lang.Math.max;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -165,13 +163,6 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
-
-        // track this view of the feed
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory("Feed")
-                .setAction("View")
-                .setLabel(FeedFilterFormatter.format(getActivity(), getCurrentFilter()))
-                .build());
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -355,13 +346,6 @@ public class FeedFragment extends RoboFragment {
         // do nothing, if the filter did not change
         if (equal(current, filter))
             return;
-
-        // track that the user performed a search
-        tracker().send(new HitBuilders.EventBuilder()
-                .setCategory("Feed")
-                .setAction("Search")
-                .setLabel(term)
-                .build());
 
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
