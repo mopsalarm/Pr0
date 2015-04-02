@@ -301,7 +301,7 @@ public class FeedFragment extends RoboFragment {
 
     private void doRefreshWithIndicator() {
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.postDelayed(this::doRefresh, 1000);
+        swipeRefreshLayout.postDelayed(this::doRefresh, 500);
 
     }
 

@@ -225,7 +225,7 @@ public class PostFragment extends RoboFragment implements
 
     private void doRefreshWithIndicator() {
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.postDelayed(this::loadPostDetails, 1000);
+        swipeRefreshLayout.postDelayed(this::loadPostDetails, 500);
     }
 
     private void downloadPostMedia() {
