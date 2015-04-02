@@ -3,15 +3,13 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import com.google.common.base.Enums;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
 
-import java.util.EnumSet;
-
 import javax.inject.Inject;
+import java.util.EnumSet;
 
 /**
  */
@@ -119,6 +117,10 @@ public class Settings {
 
     public boolean showPinButton() {
         return preferences.getBoolean("pref_show_pin_button", true);
+    }
+
+    public boolean showRefreshButton() {
+        return preferences.getBoolean("pref_show_refresh_button", true);
     }
 
     public boolean useBetaChannel() {

@@ -146,5 +146,8 @@
     <string name="pref_webm_restart_on_stop">Manual restart</string>
     <string name="pref_webm_restart_on_stop_summary">Activate this if webm videos don\'t loop. This tries to restart the videos at their end.</string>
     <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
-    <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldnt happen, and maybe cha0s changed something at the pr0gramm api level.</string>
+    <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe cha0s changed something at the pr0gramm api level.</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="pref_show_refresh_button">Show refresh action</string>
+    <string name="pref_show_refresh_button_summary">If enabled, a separate Button for Refresh will be displayed.</string>
 </resources>

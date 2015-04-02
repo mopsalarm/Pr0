@@ -10,25 +10,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.feed.ContentType;
-import com.pr0gramm.app.feed.FeedFilter;
-import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.feed.FeedProxy;
-import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.*;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
@@ -36,14 +25,12 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -138,15 +125,7 @@ public class FeedFragment extends RoboFragment {
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.setCanSwipeUpPredicate(() -> !adapter.getFeedProxy().isAtStart());
 
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            FeedProxy proxy = adapter.getFeedProxy();
-            if (proxy.isAtStart() && !proxy.isLoading()) {
-                proxy.restart(Optional.<Long>absent());
-            } else {
-                // do not refresh
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::doRefresh);
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
@@ -163,6 +142,16 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
+    }
+
+    private void doRefresh() {
+        FeedProxy proxy = adapter.getFeedProxy();
+        if (proxy.isAtStart() && !proxy.isLoading()) {
+            proxy.restart(Optional.<Long>absent());
+        } else {
+            // do not refresh
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -290,6 +279,7 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_feed_refresh).setVisible(settings.showRefreshButton());
         menu.findItem(R.id.action_pin).setVisible(bookmarkable);
     }
 
@@ -300,7 +290,19 @@ public class FeedFragment extends RoboFragment {
             return true;
         }
 
+        if (item.getItemId() == R.id.action_feed_refresh) {
+            // refresh feed
+            doRefreshWithIndicator();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doRefreshWithIndicator() {
+        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.postDelayed(this::doRefresh, 500);
+
     }
 
     private void pinCurrentFeedFilter() {
@@ -311,6 +313,7 @@ public class FeedFragment extends RoboFragment {
         String title = FeedFilterFormatter.format(getActivity(), filter);
         ((MainActionHandler) getActivity()).pinFeedFilter(filter, title);
     }
+
 
     /**
      * Registers the listeners for the search view.
@@ -481,7 +484,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void performAutoOpen() {
-        if(autoScrollOnLoad.isPresent()) {
+        if (autoScrollOnLoad.isPresent()) {
             int idx = findItemIndexById(autoScrollOnLoad.get());
             if (idx >= 0) {
                 // over scroll a bit
@@ -490,9 +493,9 @@ public class FeedFragment extends RoboFragment {
             }
         }
 
-        if(autoOpenOnLoad.isPresent()) {
+        if (autoOpenOnLoad.isPresent()) {
             int idx = findItemIndexById(autoOpenOnLoad.get());
-            if(idx > 0) {
+            if (idx > 0) {
                 onItemClicked(idx);
             }
         }
