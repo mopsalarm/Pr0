@@ -287,7 +287,7 @@ public class FeedFragment extends RoboFragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_post_refresh) {
+        if (item.getItemId() == R.id.action_feed_refresh) {
             // refresh feed
             restartFeed();
             return true;
