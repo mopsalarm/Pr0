@@ -182,6 +182,8 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_post_refresh).setVisible(settings.showRefreshButton());
+
         MenuItem item = menu.findItem(R.id.action_zoom);
         if (item != null) {
             item.setVisible(isStaticImage(feedItem.getImage()));
@@ -203,7 +205,7 @@ public class PostFragment extends RoboFragment implements
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_post_refresh) {
-            refreshPost();
+            doRefreshWithIndicator();
             return true;
         }
 
@@ -221,8 +223,9 @@ public class PostFragment extends RoboFragment implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void refreshPost() {
-        loadPostDetails();
+    private void doRefreshWithIndicator() {
+        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.postDelayed(this::loadPostDetails, 1000);
     }
 
     private void downloadPostMedia() {

@@ -125,15 +125,7 @@ public class FeedFragment extends RoboFragment {
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.setCanSwipeUpPredicate(() -> !adapter.getFeedProxy().isAtStart());
 
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            FeedProxy proxy = adapter.getFeedProxy();
-            if (proxy.isAtStart() && !proxy.isLoading()) {
-                proxy.restart(Optional.<Long>absent());
-            } else {
-                // do not refresh
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::doRefresh);
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
@@ -150,6 +142,16 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
+    }
+
+    private void doRefresh() {
+        FeedProxy proxy = adapter.getFeedProxy();
+        if (proxy.isAtStart() && !proxy.isLoading()) {
+            proxy.restart(Optional.<Long>absent());
+        } else {
+            // do not refresh
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -277,6 +279,7 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_feed_refresh).setVisible(settings.showRefreshButton());
         menu.findItem(R.id.action_pin).setVisible(bookmarkable);
     }
 
@@ -289,16 +292,17 @@ public class FeedFragment extends RoboFragment {
 
         if (item.getItemId() == R.id.action_feed_refresh) {
             // refresh feed
-            restartFeed();
+            doRefreshWithIndicator();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void restartFeed() {
-        FeedProxy feedProxy = adapter.getFeedProxy();
-        feedProxy.restart(Optional.<Long>absent());
+    private void doRefreshWithIndicator() {
+        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.postDelayed(this::doRefresh, 1000);
+
     }
 
     private void pinCurrentFeedFilter() {

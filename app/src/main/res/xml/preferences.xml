@@ -76,6 +76,13 @@
             android:summary="@string/pref_show_pin_button_summary"
             android:defaultValue="true"/>
 
+        <CheckBoxPreference
+                android:key="pref_show_refresh_button"
+                android:title="@string/pref_show_refresh_button"
+                android:summary="@string/pref_show_refresh_button_summary"
+                android:defaultValue="true"/>
+
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -141,5 +141,7 @@
     <string name="pref_use_beta_channel_summary">Wenn du Betas aktivierst, bekommst du neue Updates früher als andere.</string>
     <string name="pref_webm_restart_on_stop">Manuelles Neustarten (webm)</string>
     <string name="pref_webm_restart_on_stop_summary">Aktiviere diese Option wenn sich webm Videos nicht wiederholen.</string>
-    <string name="action_refresh">Refresh</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="pref_show_refresh_button">Aktualisieren-Button anzeigen</string>
+    <string name="pref_show_refresh_button_summary">Wenn aktiviert, wird ein zusätzlicher Aktualisieren-Button angezeigt.</string>
 </resources>
