@@ -10,16 +10,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
@@ -41,19 +35,16 @@ import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.VerticalScrollView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
-
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.io.File;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.functions.Actions;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -210,6 +201,12 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == R.id.action_post_refresh) {
+            refreshPost();
+            return true;
+        }
+
         if (item.getItemId() == R.id.action_download) {
             Log.i("Post", "Request download of post #" + feedItem.getId());
             downloadPostMedia();
@@ -222,6 +219,10 @@ public class PostFragment extends RoboFragment implements
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshPost() {
+        loadPostDetails();
     }
 
     private void downloadPostMedia() {
