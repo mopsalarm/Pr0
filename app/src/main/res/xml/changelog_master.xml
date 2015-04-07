@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+
+    <release
+        version="1.23"
+        versioncode="23">
+
+        <change>&lt;b&gt;Fix:&lt;/b&gt; Wenn man von SFW nach NSFW umgestellt hat, wurde der Feed nicht sauber geladen.</change>
+    </release>
+
     <release
         version="1.22"
         versioncode="22">
