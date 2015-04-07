@@ -82,7 +82,6 @@
                 android:summary="@string/pref_show_refresh_button_summary"
                 android:defaultValue="true"/>
 
-
     </PreferenceCategory>
 
     <PreferenceCategory

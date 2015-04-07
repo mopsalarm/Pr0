@@ -140,7 +140,15 @@ public class FeedFragment extends RoboFragment {
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.setCanSwipeUpPredicate(() -> !adapter.getFeedProxy().isAtStart());
 
-        swipeRefreshLayout.setOnRefreshListener(this::doRefresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            FeedProxy proxy = adapter.getFeedProxy();
+            if (proxy.isAtStart() && !proxy.isLoading()) {
+                proxy.restart(Optional.<Long>absent());
+            } else {
+                // do not refresh
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarSize(getActivity());
@@ -157,16 +165,6 @@ public class FeedFragment extends RoboFragment {
         getActivity().setTitle(title);
 
         setupInfiniteScroll();
-    }
-
-    private void doRefresh() {
-        FeedProxy proxy = adapter.getFeedProxy();
-        if (proxy.isAtStart() && !proxy.isLoading()) {
-            proxy.restart(Optional.<Long>absent());
-        } else {
-            // do not refresh
-            swipeRefreshLayout.setRefreshing(false);
-        }
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -297,7 +295,7 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_feed_refresh).setVisible(settings.showRefreshButton());
+        menu.findItem(R.id.action_refresh).setVisible(settings.showRefreshButton());
         menu.findItem(R.id.action_pin).setVisible(bookmarkable);
     }
 
@@ -308,7 +306,7 @@ public class FeedFragment extends RoboFragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_feed_refresh) {
+        if (item.getItemId() == R.id.action_refresh) {
             // refresh feed
             doRefreshWithIndicator();
             return true;
@@ -318,8 +316,11 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void doRefreshWithIndicator() {
+        if(swipeRefreshLayout.isRefreshing())
+            return;
+
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.postDelayed(this::doRefresh, 500);
+        swipeRefreshLayout.postDelayed(() -> adapter.getFeedProxy().restart(Optional.<Long>absent()), 500);
 
     }
 

@@ -149,5 +149,5 @@
     <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe cha0s changed something at the pr0gramm api level.</string>
     <string name="action_refresh">Refresh</string>
     <string name="pref_show_refresh_button">Show refresh action</string>
-    <string name="pref_show_refresh_button_summary">If enabled, a separate Button for Refresh will be displayed.</string>
+    <string name="pref_show_refresh_button_summary">If enabled, a separate button for refresh will be displayed.</string>
 </resources>

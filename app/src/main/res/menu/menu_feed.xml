@@ -4,22 +4,22 @@
       tools:context=".MainActivity">
 
     <item
-            android:id="@+id/action_feed_refresh"
-            android:title="@string/action_refresh"
-            app:showAsAction="ifRoom|collapseActionView"
-            android:icon="@drawable/ic_white_action_refresh"/>
+        android:id="@+id/action_search"
+        android:title="@string/action_search"
+        android:icon="@drawable/ic_white_action_search"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView"/>
 
     <item
-            android:id="@+id/action_search"
-            android:title="@string/action_search"
-            android:icon="@drawable/ic_white_action_search"
-            app:showAsAction="ifRoom|collapseActionView"
-            app:actionViewClass="android.support.v7.widget.SearchView"/>
+        android:id="@+id/action_refresh"
+        android:title="@string/action_refresh"
+        android:icon="@drawable/ic_white_action_refresh"
+        app:showAsAction="ifRoom"/>
 
     <item
-            android:id="@+id/action_pin"
-            android:title="@string/action_pin"
-            android:icon="@drawable/ic_white_action_pin"
-            app:showAsAction="ifRoom"/>
+        android:id="@+id/action_pin"
+        android:title="@string/action_pin"
+        android:icon="@drawable/ic_white_action_pin"
+        app:showAsAction="ifRoom"/>
 
 </menu>

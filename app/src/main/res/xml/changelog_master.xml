@@ -5,6 +5,7 @@
         version="1.23"
         versioncode="23">
 
+        <change>&lt;b&gt;Neu:&lt;/b&gt; Ein Neuladen-Button. Kann in den Einstellungen deaktiviert werden.</change>
         <change>&lt;b&gt;Fix:&lt;/b&gt; Wenn man von SFW nach NSFW umgestellt hat, wurde der Feed nicht sauber geladen.</change>
     </release>
 
