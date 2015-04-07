@@ -10,14 +10,25 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
-import android.view.*;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.feed.*;
+import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.feed.FeedFilter;
+import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.feed.FeedProxy;
+import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
@@ -25,12 +36,16 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -182,12 +197,13 @@ public class FeedFragment extends RoboFragment {
 
         // check if content type has changed, and reload if necessary
         FeedFilter feedFilter = adapter.getFilter();
-        boolean changed = !equal(feedFilter.getContentTypes(), settings.getContentType());
+        EnumSet<ContentType> newContentType = settings.getContentType();
+        boolean changed = !equal(feedFilter.getContentTypes(), newContentType);
         if (changed) {
-            Optional<Long> around = findFirstVisibleSfwItem().transform(FeedItem::getId);
+            Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);
 
             // set a new adapter if we have a new content type
-            FeedFilter filter = feedFilter.withContentType(settings.getContentType());
+            FeedFilter filter = feedFilter.withContentType(newContentType);
             adapter = new FeedAdapter(filter, autoScrollOnLoad = around);
             recyclerView.setAdapter(adapter);
         }
@@ -199,22 +215,24 @@ public class FeedFragment extends RoboFragment {
         }
     }
 
-    private Optional<FeedItem> findFirstVisibleSfwItem() {
-        Optional<FeedItem> sfwItem = Optional.absent();
-
+    /**
+     * Finds the first item in the proxy, that is visible and of one of the given content type.
+     *
+     * @param contentType The target-content type.
+     */
+    private Optional<FeedItem> findFirstVisibleItem(Set<ContentType> contentType) {
         List<FeedItem> items = adapter.getFeedProxy().getItems();
 
         int idx = layoutManager.findFirstVisibleItemPosition();
         if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
             for (FeedItem item : items.subList(idx, items.size() - 1)) {
-                if (item.isContentType(ContentType.SFW)) {
-                    sfwItem = Optional.of(item);
-                    break;
+                if (contentType.contains(item.getContentType())) {
+                    return Optional.of(item);
                 }
             }
         }
 
-        return sfwItem;
+        return Optional.absent();
     }
 
     /**

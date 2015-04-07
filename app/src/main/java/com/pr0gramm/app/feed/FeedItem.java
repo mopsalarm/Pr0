@@ -144,4 +144,8 @@ public class FeedItem implements Parcelable {
             return new FeedItem[size];
         }
     };
+
+    public ContentType getContentType() {
+        return ContentType.valueOf(flags).get();
+    }
 }

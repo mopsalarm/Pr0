@@ -5,10 +5,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Content type to load.
@@ -38,6 +40,27 @@ public enum ContentType implements Parcelable {
             sum += flag.getFlag();
 
         return sum;
+    }
+
+    /**
+     * Gets a all the content types that are encoded in the given
+     * flags number. This is the reverse of {@link #combine(Iterable)}.
+     *
+     * @param flags The encoded content types.
+     */
+    public static Set<ContentType> decompose(int flags) {
+        return FluentIterable.of(values())
+                .filter(ct -> (ct.flag & flags) != 0)
+                .toSet();
+    }
+
+    /**
+     * Returns the {@link com.pr0gramm.app.feed.ContentType} that matches the given
+     * flag's value. There must be only one bit set on the flags parameter.
+     * This returns an empty optional, if no content type could be found.
+     */
+    public static Optional<ContentType> valueOf(int flag) {
+        return FluentIterable.of(values()).firstMatch(ct -> ct.flag == flag);
     }
 
     public static String toString(Context context, Collection<ContentType> types) {
