@@ -92,6 +92,13 @@ public class UserService {
     }
 
     /**
+     * Checks if the user has paid for a pr0mium account
+     */
+    public boolean isPremiumUser() {
+        return cookieHandler.isPaid();
+    }
+
+    /**
      * Performs a logout of the user.
      */
     public Observable<Void> logout() {

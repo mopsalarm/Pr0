@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.FeedFilter;
-import com.pr0gramm.app.feed.FeedType;
 
 public class FeedFilterFormatter {
     private FeedFilterFormatter() {
@@ -21,23 +20,13 @@ public class FeedFilterFormatter {
         StringBuilder result = new StringBuilder();
 
         if (filter.isBasic()) {
-            if (filter.getFeedType() == FeedType.PROMOTED)
-                result.append(context.getString(R.string.action_feed_type_promoted));
-
-            if (filter.getFeedType() == FeedType.NEW)
-                result.append(context.getString(R.string.action_feed_type_new));
+            result.append(feedTypeToString(context, filter));
 
         } else {
             if (filter.getTags().isPresent()) {
                 result.append(filter.getTags().get());
-
                 result.append(" in ");
-
-                if (filter.getFeedType() == FeedType.PROMOTED)
-                    result.append(context.getString(R.string.filter_format_top));
-
-                if (filter.getFeedType() == FeedType.NEW)
-                    result.append(context.getString(R.string.filter_format_new));
+                result.append(feedTypeToString(context, filter));
             }
 
             if (filter.getUsername().isPresent())
@@ -48,5 +37,21 @@ public class FeedFilterFormatter {
         }
 
         return result.toString().trim();
+    }
+
+    private static String feedTypeToString(Context context, FeedFilter filter) {
+        switch (filter.getFeedType()) {
+            case PROMOTED:
+                return context.getString(R.string.filter_format_top);
+
+            case NEW:
+                return context.getString(R.string.filter_format_new);
+
+            case PREMIUM:
+                return context.getString(R.string.filter_format_premium);
+
+            default:
+                throw new IllegalArgumentException("Invalid feed type");
+        }
     }
 }

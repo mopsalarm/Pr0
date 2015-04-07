@@ -20,14 +20,15 @@ import rx.Observable;
 public interface Api {
     @GET("/api/items/get")
     Observable<Feed> itemsGet(
-            @Query("promoted") int promoted,
+            @Query("promoted") Integer promoted,
+            @Query("following") Integer following,
             @Query("older") Long older,
             @Query("newer") Long newer,
             @Query("id") Long around,
             @Query("flags") int flags,
             @Query("tags") String tags,
             @Query("likes") String likes,
-            @Query("self") String self,
+            @Query("self") Boolean self,
             @Query("user") String user);
 
     @FormUrlEncoded

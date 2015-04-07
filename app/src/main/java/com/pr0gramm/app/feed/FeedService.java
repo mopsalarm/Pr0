@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import rx.Observable;
 
 /**
+ * Performs the actual request to get the items for a feed.
  */
 @Singleton
 public class FeedService {
@@ -35,8 +36,9 @@ public class FeedService {
                                             Optional<Long> newer,
                                             Optional<Long> around) {
 
-        // value for the promoted field
-        int promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : 0;
+        // filter by feed-type
+        Integer promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : null;
+        Integer following = (feedFilter.getFeedType() == FeedType.PREMIUM) ? 1 : null;
 
         int flags = ContentType.combine(feedFilter.getContentTypes());
         String tags = feedFilter.getTags().orNull();
@@ -44,9 +46,10 @@ public class FeedService {
 
         // FIXME this is quite hacky right now.
         String likes = feedFilter.getLikes().orNull();
-        String self = Strings.isNullOrEmpty(likes) ? null : "true";
+        Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        return api.itemsGet(promoted, older.orNull(), newer.orNull(), around.orNull(),
+        return api.itemsGet(promoted, following, older.orNull(),
+                newer.orNull(), around.orNull(),
                 flags, tags, likes, self, user);
     }
 

@@ -19,7 +19,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -93,6 +92,9 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_home)
     private Drawable iconFeedTypePromoted;
 
+    @InjectResource(R.drawable.ic_black_action_glasses)
+    private Drawable iconFeedTypePremium;
+
     @InjectResource(R.drawable.ic_black_action_line_chart)
     private Drawable iconFeedTypeNew;
 
@@ -163,6 +165,13 @@ public class DrawerFragment extends RoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
+        if (userService.isPremiumUser()) {
+            items.add(new NavigationItem(
+                    new FeedFilter().withFeedType(FeedType.PREMIUM),
+                    getString(R.string.action_feed_type_premium),
+                    iconFeedTypePremium));
+        }
+
         if (userInfo.isPresent()) {
             String name = userInfo.get().getName();
             items.add(new NavigationItem(
@@ -202,7 +211,9 @@ public class DrawerFragment extends RoboFragment {
                         ? getFixedNavigationItems(Optional.of(st.getInfo().getUser()))
                         : getFixedNavigationItems(Optional.<Info.User>absent())),
 
-                bookmarkService.get().map(this::bookmarksToNavItem)), args -> {
+                userService.getLoginStateObservable()
+                        .flatMap(ignored -> bookmarkService.get())
+                        .map(this::bookmarksToNavItem)), args -> {
 
             ArrayList<NavigationItem> result = new ArrayList<>();
             for (Object arg : args)
@@ -213,11 +224,15 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        return Lists.transform(entries, entry -> {
-            Drawable icon = iconBookmark.getConstantState().newDrawable();
-            String title = entry.getTitle().toUpperCase();
-            return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
-        });
+        boolean premium = userService.isPremiumUser();
+        return FluentIterable.from(entries)
+                .filter(entry -> premium || entry.asFeedFilter().getFeedType() != FeedType.PREMIUM)
+                .transform(entry -> {
+                    Drawable icon = iconBookmark.getConstantState().newDrawable();
+                    String title = entry.getTitle().toUpperCase();
+                    return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
+                })
+                .toList();
     }
 
     @Override
