@@ -129,6 +129,8 @@ public class FeedFragment extends RoboFragment {
             // create a new adapter if necessary
             adapter = newFeedAdapter();
             progressView.setVisibility(View.VISIBLE);
+        } else {
+            updateNoResultsTextView();
         }
 
         seenIndicatorStyle = settings.seenIndicatorStyle();
@@ -159,7 +161,6 @@ public class FeedFragment extends RoboFragment {
 
         resetToolbar();
         setupInfiniteScroll();
-        updateNoResultsTextView();
     }
 
     private void resetToolbar() {
