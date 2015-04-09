@@ -82,6 +82,9 @@ public class FeedFragment extends RoboFragment {
     @InjectView(R.id.refresh)
     private CustomSwipeRefreshLayout swipeRefreshLayout;
 
+    @InjectView(R.id.empty)
+    private View noResultsView;
+
     private FeedAdapter adapter;
     private GridLayoutManager layoutManager;
     private IndicatorStyle seenIndicatorStyle;
@@ -154,12 +157,16 @@ public class FeedFragment extends RoboFragment {
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
+        resetToolbar();
+        setupInfiniteScroll();
+        updateNoResultsTextView();
+    }
+
+    private void resetToolbar() {
         if (getActivity() instanceof ToolbarActivity) {
             ToolbarActivity activity = (ToolbarActivity) getActivity();
             activity.getScrollHideToolbarListener().reset();
         }
-
-        setupInfiniteScroll();
     }
 
     private void onBookmarkableStateChanged(boolean bookmarkable) {
@@ -314,8 +321,10 @@ public class FeedFragment extends RoboFragment {
             return;
 
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.postDelayed(() -> adapter.getFeedProxy().restart(Optional.<Long>absent()), 500);
-
+        swipeRefreshLayout.postDelayed(() -> {
+            resetToolbar();
+            adapter.getFeedProxy().restart(Optional.<Long>absent());
+        }, 500);
     }
 
     private void pinCurrentFeedFilter() {
@@ -423,6 +432,7 @@ public class FeedFragment extends RoboFragment {
                     swipeRefreshLayout.setRefreshing(false);
 
                     performAutoOpen();
+                    updateNoResultsTextView();
                 }
 
                 @Override
@@ -494,6 +504,11 @@ public class FeedFragment extends RoboFragment {
         public void onItemRangeRemoved(int start, int count) {
             notifyItemRangeRemoved(start, count);
         }
+    }
+
+    private void updateNoResultsTextView() {
+        boolean empty = adapter.getItemCount() == 0;
+        noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
     private void performAutoOpen() {
