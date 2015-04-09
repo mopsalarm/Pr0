@@ -163,6 +163,7 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onBackStackChanged() {
         updateToolbarBackButton();
+        updateActionbarTitle();
 
         DrawerFragment drawer = getDrawerFragment();
         if (drawer != null) {
@@ -171,6 +172,18 @@ public class MainActivity extends RoboActionBarActivity implements
             // show the current item in the drawer
             drawer.updateCurrentFilters(currentFilter);
         }
+    }
+
+    private void updateActionbarTitle() {
+        String title;
+        FeedFilter filter = getCurrentFeedFilter();
+        if(filter == null) {
+            title = getString(R.string.pr0gramm);
+        } else {
+            title = FeedFilterFormatter.format(this, filter);
+        }
+
+        setTitle(title);
     }
 
     /**

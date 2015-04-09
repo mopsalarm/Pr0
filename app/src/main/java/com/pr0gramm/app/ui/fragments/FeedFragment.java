@@ -159,10 +159,6 @@ public class FeedFragment extends RoboFragment {
             activity.getScrollHideToolbarListener().reset();
         }
 
-        // always update the title
-        String title = FeedFilterFormatter.format(getActivity(), getCurrentFilter());
-        getActivity().setTitle(title);
-
         setupInfiniteScroll();
     }
 
