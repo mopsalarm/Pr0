@@ -152,4 +152,5 @@
     <string name="pref_show_refresh_button_summary">If enabled, a separate button for refresh will be displayed.</string>
     <string name="action_feed_type_premium">STELZ</string>
     <string name="filter_format_premium">Stelz</string>
+    <string name="nothing_there">Nothing there\n¯_(ツ)_/¯</string>
 </resources>
