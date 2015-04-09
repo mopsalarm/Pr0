@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.graphics.Point;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
@@ -10,7 +10,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -270,18 +269,17 @@ public class FeedFragment extends RoboFragment {
     }
 
     /**
-     * Depending on whether the screen is landscape or portrait,
-     * we show a different number of items per row.
+     * Depending on whether the screen is landscape or portrait, and how large
+     * the screen is, we show a different number of items per row.
      */
     private int getThumbnailColumns() {
         checkNotNull(getActivity(), "must be attached to call this method");
 
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        Configuration config = getResources().getConfiguration();
+        boolean portrait = config.screenWidthDp < config.screenHeightDp;
 
-        Point point = new Point();
-        display.getSize(point);
-
-        return point.x > point.y ? 5 : 3;
+        int screenWidth = config.screenWidthDp;
+        return Math.min((int) (screenWidth / 120.0 + 0.5), portrait ? 5 : 7);
     }
 
     @Override
@@ -316,7 +314,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void doRefreshWithIndicator() {
-        if(swipeRefreshLayout.isRefreshing())
+        if (swipeRefreshLayout.isRefreshing())
             return;
 
         swipeRefreshLayout.setRefreshing(true);
