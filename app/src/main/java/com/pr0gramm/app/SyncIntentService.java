@@ -2,8 +2,6 @@ package com.pr0gramm.app;
 
 import android.app.Notification;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -57,19 +55,13 @@ public class SyncIntentService extends RoboIntentService {
     }
 
     private void showInboxNotification(Sync sync) {
-        int iconId = R.drawable.ic_notify_unread;
-
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), iconId);
-
-        int color = getResources().getColor(R.color.primary);
         Notification notification = new NotificationCompat.Builder(this)
                 .setContentTitle("New message")
                 .setContentText("Something happened on pr0gramm")
-                .setSmallIcon(iconId)
-                .setLargeIcon(icon)
+                .setSmallIcon(R.drawable.ic_notify_new_message)
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(color, 500, 500)
+                .setLights(getResources().getColor(R.color.primary), 500, 500)
                 .build();
 
         NotificationManagerCompat.from(this).notify(ID_NEW_MESSAGE, notification);
