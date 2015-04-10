@@ -157,4 +157,6 @@
     <string name="notify_new_messages_title">New messages</string>
     <string name="notify_new_message_text">One new message on pr0gramm</string>
     <string name="notify_new_messages_text">%d new messages on pr0gramm</string>
+    <string name="pref_show_notifications">Notifications</string>
+    <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
 </resources>

@@ -3,13 +3,15 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
 import com.google.common.base.Enums;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
 
-import javax.inject.Inject;
 import java.util.EnumSet;
+
+import javax.inject.Inject;
 
 /**
  */
@@ -129,6 +131,10 @@ public class Settings {
 
     public boolean restartWebmOnStop() {
         return preferences.getBoolean("pref_webm_restart_on_stop", false);
+    }
+
+    public boolean showNotifications() {
+        return preferences.getBoolean("pref_show_notifications", true);
     }
 
     public static Settings of(Context context) {

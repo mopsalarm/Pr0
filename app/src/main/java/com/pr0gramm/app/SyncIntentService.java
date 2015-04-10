@@ -51,7 +51,9 @@ public class SyncIntentService extends RoboIntentService {
 
             // now show results, if any
             if (sync.isPresent() && sync.get().getInboxCount() > 0) {
-                showInboxNotification(sync.get());
+                if (settings.showNotifications()) {
+                    showInboxNotification(sync.get());
+                }
             }
 
         } catch (Throwable thr) {

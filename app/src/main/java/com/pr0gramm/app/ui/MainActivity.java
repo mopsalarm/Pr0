@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -35,6 +36,10 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+import org.joda.time.Minutes;
+
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -59,6 +64,8 @@ public class MainActivity extends RoboActionBarActivity implements
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler, ErrorDialogFragment.OnErrorDialogHandler {
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -128,11 +135,6 @@ public class MainActivity extends RoboActionBarActivity implements
             }
         }
 
-        // we trigger the update here manually now. this will be done using
-        // the alarm manager later on.
-        Intent syncIntent = new Intent(this, SyncBroadcastReceiver.class);
-        sendBroadcast(syncIntent);
-
         ChangeLog changelog = new ChangeLog(this);
         if (changelog.isFirstRun()) {
             ChangeLogDialog dialog = new ChangeLogDialog();
@@ -152,6 +154,20 @@ public class MainActivity extends RoboActionBarActivity implements
             return;
 
         handleUri(intent.getData());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // trigger updates while the activity is running
+        sendSyncRequest.run();
+    }
+
+    @Override
+    protected void onStop() {
+        handler.removeCallbacks(sendSyncRequest);
+        super.onStop();
     }
 
     @Override
@@ -177,7 +193,7 @@ public class MainActivity extends RoboActionBarActivity implements
     private void updateActionbarTitle() {
         String title;
         FeedFilter filter = getCurrentFeedFilter();
-        if(filter == null) {
+        if (filter == null) {
             title = getString(R.string.pr0gramm);
         } else {
             title = FeedFilterFormatter.format(this, filter);
@@ -400,4 +416,25 @@ public class MainActivity extends RoboActionBarActivity implements
 
         return false;
     }
+
+    @SuppressWarnings("Convert2Lambda")
+    private final Runnable sendSyncRequest = new Runnable() {
+        private Instant lastUpdate = new Instant(0);
+
+        @Override
+        public void run() {
+            Instant now = Instant.now();
+            if(Minutes.minutesBetween(lastUpdate, now).getMinutes() > 4) {
+                Intent intent = new Intent(MainActivity.this, SyncBroadcastReceiver.class);
+                MainActivity.this.sendBroadcast(intent);
+            }
+
+            // reschedule
+            Duration delay = Minutes.minutes(5).toStandardDuration();
+            handler.postDelayed(this, delay.getMillis());
+
+            // and remember the last update time
+            lastUpdate = now;
+        }
+    };
 }

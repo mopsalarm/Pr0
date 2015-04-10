@@ -82,6 +82,11 @@
                 android:summary="@string/pref_show_refresh_button_summary"
                 android:defaultValue="true"/>
 
+        <CheckBoxPreference
+            android:key="pref_show_notifications"
+            android:title="@string/pref_show_notifications"
+            android:summary="@string/pref_show_notifications_summary"
+            android:defaultValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory

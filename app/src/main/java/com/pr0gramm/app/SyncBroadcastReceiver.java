@@ -10,6 +10,9 @@ import android.util.Log;
 
 import com.pr0gramm.app.services.UserService;
 
+import org.joda.time.Duration;
+import org.joda.time.Hours;
+
 import roboguice.RoboGuice;
 
 /**
@@ -39,7 +42,7 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
     }
 
     public static void scheduleNextSync(Context context) {
-        // we dont need to schedule, if benis graph is disabled.
+        // we don't need to schedule, if benis graph is disabled.
         if (!Settings.of(context).benisGraphEnabled())
             return;
 
@@ -50,8 +53,8 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, nextIntent, 0);
 
         // register a pending event.
-        int oneHour = 3600 * 1000;
+        Duration delay = Hours.ONE.toStandardDuration();
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + oneHour, alarmIntent);
+                SystemClock.elapsedRealtime() + delay.getMillis(), alarmIntent);
     }
 }
