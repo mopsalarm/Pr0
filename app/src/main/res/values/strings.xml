@@ -153,4 +153,8 @@
     <string name="action_feed_type_premium">STELZ</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
+    <string name="notify_new_message_title">New message</string>
+    <string name="notify_new_messages_title">New messages</string>
+    <string name="notify_new_message_text">One new message on pr0gramm</string>
+    <string name="notify_new_messages_text">%d new messages on pr0gramm</string>
 </resources>

@@ -1,7 +1,9 @@
 package com.pr0gramm.app;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -23,6 +25,9 @@ public class SyncIntentService extends RoboIntentService {
     @Inject
     private UserService userService;
 
+    @Inject
+    private Settings settings;
+
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
     }
@@ -37,14 +42,17 @@ public class SyncIntentService extends RoboIntentService {
         try {
             Log.i("SyncIntentService", "performing sync");
             Optional<Sync> sync = userService.sync();
-            if(sync.isPresent() && sync.get().getInboxCount() > 0)
-                showInboxNotification(sync.get());
 
             Log.i("SyncIntentService", "updating info");
             userService.info();
 
             // print info!
             Log.i("SyncIntentService", "finished without error after " + watch);
+
+            // now show results, if any
+            if (sync.isPresent() && sync.get().getInboxCount() > 0) {
+                showInboxNotification(sync.get());
+            }
 
         } catch (Throwable thr) {
             Log.e(TAG, "Error while syncing", thr);
@@ -55,9 +63,24 @@ public class SyncIntentService extends RoboIntentService {
     }
 
     private void showInboxNotification(Sync sync) {
+        String title = sync.getInboxCount() == 1
+                ? getString(R.string.notify_new_message_title)
+                : getString(R.string.notify_new_messages_title);
+
+        String content = sync.getInboxCount() == 1
+                ? getString(R.string.notify_new_message_text)
+                : getString(R.string.notify_new_messages_text, sync.getInboxCount());
+
+
+        String url = "http://pr0gramm.com/inbox/unread";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification notification = new NotificationCompat.Builder(this)
-                .setContentTitle("New message")
-                .setContentText("Something happened on pr0gramm")
+                .setContentTitle(title)
+                .setContentText(content)
+                .setContentIntent(contentIntent)
                 .setSmallIcon(R.drawable.ic_notify_new_message)
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
