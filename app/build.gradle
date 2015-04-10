@@ -3,7 +3,7 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'io.fabric'
 
 ext {
-    appVersion = 23
+    appVersion = 25
 }
 
 buildscript {

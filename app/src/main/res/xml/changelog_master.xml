@@ -5,6 +5,7 @@
         version="1.24"
         versioncode="24">
 
+        <change>&lt;b&gt;Neu:&lt;/b&gt; Benachrichtigung, wenn Du eine neue Nachricht oder einen Kommentar hast.</change>
         <change>&lt;b&gt;Fix:&lt;/b&gt; Anzahl der Bilder pro Zeile ist jetzt abhängig von der Bildschirmgröße. Wenn es bei irgendwem nicht passt, bitte melden!</change>
         <change>&lt;b&gt;Fix:&lt;/b&gt; Der Title über dem Feed wird richtig gesetzt, wenn man von einer Tag-Suche zurückkehrt.</change>
         <change>&lt;b&gt;Neu:&lt;/b&gt; Information, wenn eine Suche keine Ergebnisse ergeben hat.</change>
