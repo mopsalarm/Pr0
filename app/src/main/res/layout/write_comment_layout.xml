@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="16dp"
+    tools:showIn="@layout/fragment_post">
+
+    <EditText
+        android:id="@+id/comment_text"
+        style="@style/Base.TextAppearance.AppCompat.Body1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/input_background"
+        android:padding="8dp"
+        android:hint="@string/comment_hint"
+
+        android:maxLines="3"/>
+
+    <TextView
+        android:id="@+id/comment_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="8dp"
+        android:textColor="@color/primary"
+        android:text="@string/post_comment"/>
+</LinearLayout>

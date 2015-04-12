@@ -4,66 +4,12 @@
                                               android:layout_width="match_parent"
                                               android:layout_height="match_parent">
 
-    <com.pr0gramm.app.ui.views.VerticalScrollView
-        android:id="@+id/scroll"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:overScrollMode="never">
+        android:overScrollMode="never"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"/>
 
-        <LinearLayout
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <FrameLayout
-                android:id="@+id/player_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="?actionBarSize"/>
-
-            <com.pr0gramm.app.ui.views.InfoLineView
-                android:id="@+id/info_line"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp">
-
-                <EditText
-                    android:id="@+id/comment_text"
-                    style="@style/Base.TextAppearance.AppCompat.Body1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@color/input_background"
-                    android:padding="8dp"
-                    android:hint="@string/comment_hint"
-                    android:maxLines="3"/>
-
-                <TextView
-                    android:id="@+id/comment_post"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:padding="8dp"
-                    android:textColor="@color/primary"
-                    android:text="@string/post_comment"/>
-            </LinearLayout>
-
-            <!-- RecyclerView inside of scroll view is not a good idea.
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/comments"
-                android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:overScrollMode="never"/>
-            -->
-        </LinearLayout>
-    </com.pr0gramm.app.ui.views.VerticalScrollView>
 </android.support.v4.widget.SwipeRefreshLayout>

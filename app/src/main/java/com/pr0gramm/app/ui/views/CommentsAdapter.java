@@ -27,9 +27,9 @@ import java.util.Map;
 
 import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
@@ -38,19 +38,12 @@ import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final Map<Integer, Post.Comment> byId = new HashMap<>();
     private final Map<Long, Vote> voteCache = new HashMap<>();
-    private final Optional<String> op;
+    private Optional<String> op;
 
     private List<Post.Comment> comments = new ArrayList<>();
     private CommentActionListener commentActionListener;
 
-    /**
-     * You can provide an optional OP (original poster). OPs comments will be
-     * highlighted.
-     *
-     * @param op The name of the original poster, if known
-     */
-    public CommentsAdapter(Optional<String> op) {
-        this.op = checkNotNull(op);
+    public CommentsAdapter() {
         setHasStableIds(true);
     }
 
@@ -68,6 +61,19 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public void addVoteCache(Map<Long, Vote> votes) {
         voteCache.putAll(votes);
         notifyDataSetChanged();
+    }
+
+    public void clear() {
+        comments = emptyList();
+        voteCache.clear();
+        byId.clear();
+        op = Optional.absent();
+
+        notifyDataSetChanged();
+    }
+
+    public void setOp(Optional<String> op) {
+        this.op = op;
     }
 
     private int getCommentDepth(Post.Comment comment) {

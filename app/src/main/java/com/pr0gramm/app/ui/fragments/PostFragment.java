@@ -11,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,12 +23,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
@@ -43,9 +45,9 @@ import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
+import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
-import com.pr0gramm.app.ui.views.VerticalScrollView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 
 import org.joda.time.format.DateTimeFormat;
@@ -104,29 +106,17 @@ public class PostFragment extends RoboFragment implements
     @Inject
     private LocalCacheService localCacheService;
 
-    @InjectView(R.id.list)
-    private LinearLayout list;
-
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    @InjectView(R.id.info_line)
+    @InjectView(R.id.content)
+    private RecyclerView content;
+
     private InfoLineView infoLineView;
 
-    @InjectView(R.id.scroll)
-    private VerticalScrollView scrollView;
-
-    @InjectView(R.id.player_container)
-    private FrameLayout viewerContainer;
-
-    @InjectView(R.id.comment_post)
-    private View commentPostView;
-
-    @InjectView(R.id.comment_text)
-    private EditText commentTextView;
-
     // start with an empty adapter here
-    private CommentsAdapter adapter = new CommentsAdapter(Optional.<String>absent());
+    private MergeRecyclerAdapter<RecyclerView.Adapter> adapter;
+    private CommentsAdapter commentsAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -152,9 +142,11 @@ public class PostFragment extends RoboFragment implements
             ToolbarActivity activity = (ToolbarActivity) getActivity();
             activity.getScrollHideToolbarListener().reset();
 
-            scrollView.setOnScrollListener((oldTop, top) -> {
-                int dy = top - oldTop;
-                activity.getScrollHideToolbarListener().onScrolled(dy);
+            content.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    activity.getScrollHideToolbarListener().onScrolled(dy);
+                }
             });
         }
 
@@ -164,30 +156,38 @@ public class PostFragment extends RoboFragment implements
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(this::loadPostDetails);
 
-        // TODO Think of something nicer for the comments
-        // commentsView.setLayoutManager(new WrapContentLinearLayoutManager(getActivity(),
-        //         LinearLayoutManager.VERTICAL, false));
+        adapter = new MergeRecyclerAdapter<>();
+        content.setAdapter(adapter);
+        content.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        initializeMediaView();
         initializeInfoLine();
-        initializePlayerFragment();
         initializeCommentPostLine();
+
+        commentsAdapter = new CommentsAdapter();
+        adapter.addAdapter(commentsAdapter);
+
         loadPostDetails();
     }
 
     private void initializeCommentPostLine() {
-        commentTextView.addTextChangedListener(new SimpleTextWatcher() {
+        CommentPostLine line = new CommentPostLine(getActivity());
+        adapter.addView(line);
+
+        line.getCommentTextView().addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                String text = commentTextView.getText().toString().trim();
-                commentPostView.setEnabled(text.length() > 0);
+                String text = s.toString().trim();
+                line.getPostButton().setEnabled(text.length() > 0);
             }
         });
 
-        commentPostView.setEnabled(false);
-        commentPostView.setOnClickListener(view -> {
+        line.getPostButton().setEnabled(false);
+        line.getPostButton().setOnClickListener(view -> {
             Runnable action = () -> {
-                String text = commentTextView.getText().toString().trim();
-                commentTextView.setText("");
+                EditText textView = line.getCommentTextView();
+                String text = textView.getText().toString().trim();
+                textView.setText("");
 
                 onAddNewCommment(0, text);
             };
@@ -338,6 +338,9 @@ public class PostFragment extends RoboFragment implements
         // get the vote from the service
         Observable<Vote> cachedVote = voteService.getVote(feedItem);
 
+        infoLineView = new InfoLineView(getActivity());
+        adapter.addView(infoLineView);
+
         // display the feed item in the view
         infoLineView.setFeedItem(feedItem, bindFragment(this, cachedVote));
 
@@ -370,7 +373,7 @@ public class PostFragment extends RoboFragment implements
         });
     }
 
-    private void initializePlayerFragment() {
+    private void initializeMediaView() {
         //noinspection Convert2Lambda
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
@@ -387,7 +390,14 @@ public class PostFragment extends RoboFragment implements
         // initialize a new viewer fragment
         viewer = MediaView.newInstance(getActivity(), binder, feedItem);
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
+
+        // wrap into a container before adding
+        FrameLayout viewerContainer = (FrameLayout) LayoutInflater
+                .from(getActivity())
+                .inflate(R.layout.post_player_container, new FrameLayout(getActivity()), false);
+
         viewerContainer.addView(viewer);
+        adapter.addView(viewerContainer);
     }
 
     private void onMediaViewDoubleTapped() {
@@ -425,22 +435,11 @@ public class PostFragment extends RoboFragment implements
      */
     private void displayComments(List<Post.Comment> comments) {
         bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
-            // and display the comments
-            adapter = new CommentsAdapter(Optional.of(feedItem.getUser()));
-            adapter.addVoteCache(votes);
-            adapter.addComments(comments);
-
-            // remove previous comments
-            for (int idx = list.getChildCount() - 1; idx >= 3; idx--)
-                list.removeViewAt(idx);
-
-            for (int idx = 0; idx < adapter.getItemCount(); idx++) {
-                CommentsAdapter.CommentView view = adapter.onCreateViewHolder(list, 0);
-                adapter.onBindViewHolder(view, idx);
-                list.addView(view.itemView);
-            }
-
-            adapter.setCommentActionListener(this);
+            commentsAdapter.clear();
+            commentsAdapter.setOp(Optional.of(feedItem.getUser()));
+            commentsAdapter.addVoteCache(votes);
+            commentsAdapter.addComments(comments);
+            commentsAdapter.setCommentActionListener(this);
         }, defaultOnError());
     }
 
