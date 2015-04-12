@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singleton;
@@ -36,11 +38,19 @@ import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final Map<Integer, Post.Comment> byId = new HashMap<>();
     private final Map<Long, Vote> voteCache = new HashMap<>();
-    private List<Post.Comment> comments = new ArrayList<>();
+    private final Optional<String> op;
 
+    private List<Post.Comment> comments = new ArrayList<>();
     private CommentActionListener commentActionListener;
 
-    public CommentsAdapter() {
+    /**
+     * You can provide an optional OP (original poster). OPs comments will be
+     * highlighted.
+     *
+     * @param op The name of the original poster, if known
+     */
+    public CommentsAdapter(Optional<String> op) {
+        this.op = checkNotNull(op);
         setHasStableIds(true);
     }
 
@@ -108,6 +118,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         CharSequence date = getRelativeTimeSpanString(context, comment.getCreated());
         view.date.setText(date);
 
+        // enable or disable the badge
+        boolean badge = op.transform(op -> op.equalsIgnoreCase(comment.getName())).or(false);
+        view.badgeOp.setVisibility(badge ? View.VISIBLE : View.GONE);
+
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
         view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
@@ -162,6 +176,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView points;
         final TextView date;
         final View answer;
+        final View badgeOp;
 
         final VoteView vote;
         private final int baseLeftMargin;
@@ -179,6 +194,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             date = (TextView) itemView.findViewById(R.id.date);
             vote = (VoteView) itemView.findViewById(R.id.voting);
             answer = itemView.findViewById(R.id.answer);
+            badgeOp = itemView.findViewById(R.id.badge_op);
         }
 
         public void setCommentDepth(int depth) {

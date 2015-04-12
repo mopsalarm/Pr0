@@ -114,7 +114,7 @@ public class PostFragment extends RoboFragment implements
     private EditText commentTextView;
 
     // start with an empty adapter here
-    private CommentsAdapter adapter = new CommentsAdapter();
+    private CommentsAdapter adapter = new CommentsAdapter(Optional.<String>absent());
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -395,7 +395,7 @@ public class PostFragment extends RoboFragment implements
     private void displayComments(List<Post.Comment> comments) {
         bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
             // and display the comments
-            adapter = new CommentsAdapter();
+            adapter = new CommentsAdapter(Optional.of(feedItem.getUser()));
             adapter.addVoteCache(votes);
             adapter.addComments(comments);
 

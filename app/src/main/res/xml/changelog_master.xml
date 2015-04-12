@@ -2,6 +2,13 @@
 <changelog>
 
     <release
+        version="1.25"
+        versioncode="25">
+
+        <change>&lt;b&gt;Neu:&lt;/b&gt; Kommentare vom OP werden als solche markiert.</change>
+    </release>
+
+    <release
         version="1.24"
         versioncode="24">
 
