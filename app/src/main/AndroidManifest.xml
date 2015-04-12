@@ -69,6 +69,11 @@
 
                 <data
                     android:host="pr0gramm.com"
+                    android:pathPrefix="/"
+                    android:scheme="http"/>
+
+                <data
+                    android:host="pr0gramm.com"
                     android:pathPrefix="/new"
                     android:scheme="http"/>
 
