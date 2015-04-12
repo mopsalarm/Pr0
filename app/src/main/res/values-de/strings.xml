@@ -95,7 +95,7 @@
     <string name="action_settings">EINSTELLUNGEN</string>
     <string name="add_new_comment_summary">Bitte Kommentar unten eingeben</string>
     <string name="add_new_comment_title">Einen neuen Kommentar schreiben</string>
-    <string name="add_new_tag_summary">Einen neuen Tag hinzufügen. Mehrere Tags können mit Kommata separiert werden.\n<b>Hinweis:</b> Es kann sein, dass dein neuer Tag nicht sofort in der Liste der Tags angezeigt wird. Das ist normal.</string>
+    <string name="add_new_tag_summary">Einen neuen Tag hinzufügen. Mehrere Tags können mit Kommata separiert werden.</string>
     <string name="add_new_tag_title">Neuen Tag hinzufügen</string>
     <string name="are_you_sure_to_logout">Bist du sicher, dass du dich abmelden möchtest? Deine Benis-Historie geht dabei unwiderruflich verloren.</string>
     <string name="benis">Benis:</string>

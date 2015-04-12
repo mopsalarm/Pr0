@@ -34,6 +34,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.VoteService;
@@ -99,6 +100,9 @@ public class PostFragment extends RoboFragment implements
 
     @Inject
     private SingleShotService singleShotService;
+
+    @Inject
+    private LocalCacheService localCacheService;
 
     @InjectView(R.id.list)
     private LinearLayout list;
@@ -401,13 +405,17 @@ public class PostFragment extends RoboFragment implements
         swipeRefreshLayout.setRefreshing(false);
 
         // update tags from post
-        infoLineView.setTags(post.getTags());
-
+        displayTags(post.getTags());
         displayComments(post.getComments());
 
         if (active && singleShotService.isFirstTime("show_tag_vote_on_long_press")) {
             new TagVoteInfoDialogFragment().show(getChildFragmentManager(), null);
         }
+    }
+
+    private void displayTags(List<Tag> tags) {
+        tags = localCacheService.enhanceTags(feedItem.getId(), tags);
+        infoLineView.setTags(tags);
     }
 
     /**
@@ -484,7 +492,7 @@ public class PostFragment extends RoboFragment implements
     public void onAddNewTags(List<String> tags) {
         bindFragment(this, voteService.tag(feedItem, tags))
                 .lift(busyDialog(this))
-                .subscribe(infoLineView::setTags, defaultOnError());
+                .subscribe(this::displayTags, defaultOnError());
     }
 
     /**
