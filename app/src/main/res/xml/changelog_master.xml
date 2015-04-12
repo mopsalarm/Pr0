@@ -5,6 +5,7 @@
         version="1.25"
         versioncode="25">
 
+        <change>&lt;b&gt;Neu:&lt;/b&gt; Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.</change>
         <change>&lt;b&gt;Neu:&lt;/b&gt; Kommentare vom OP werden als solche markiert.</change>
     </release>
 

@@ -23,7 +23,7 @@
         android:layout_below="@id/comment">
 
         <TextView
-            style="@style/Base.AppStyle.OpBadge"
+            style="@style/AppStyle.OpBadge"
             android:id="@+id/badge_op"
             />
 

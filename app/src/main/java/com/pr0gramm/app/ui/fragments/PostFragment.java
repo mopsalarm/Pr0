@@ -1,12 +1,15 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.util.Log;
@@ -20,6 +23,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
@@ -31,6 +35,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.SeenService;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
@@ -91,6 +96,9 @@ public class PostFragment extends RoboFragment implements
 
     @Inject
     private DownloadManager downloadManager;
+
+    @Inject
+    private SingleShotService singleShotService;
 
     @InjectView(R.id.list)
     private LinearLayout list;
@@ -233,7 +241,7 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void doRefreshWithIndicator() {
-        if(swipeRefreshLayout.isRefreshing())
+        if (swipeRefreshLayout.isRefreshing())
             return;
 
         swipeRefreshLayout.setRefreshing(true);
@@ -396,6 +404,10 @@ public class PostFragment extends RoboFragment implements
         infoLineView.setTags(post.getTags());
 
         displayComments(post.getComments());
+
+        if (active && singleShotService.isFirstTime("show_tag_vote_on_long_press")) {
+            new TagVoteInfoDialogFragment().show(getChildFragmentManager(), null);
+        }
     }
 
     /**
@@ -532,5 +544,17 @@ public class PostFragment extends RoboFragment implements
     public void onUserClicked(String username) {
         if (getParentFragment() instanceof PostPagerFragment)
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
+    }
+
+
+    public static class TagVoteInfoDialogFragment extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new MaterialDialog.Builder(getActivity())
+                    .content(R.string.info_how_to_vote_tags)
+                    .positiveText(R.string.okay)
+                    .build();
+        }
     }
 }

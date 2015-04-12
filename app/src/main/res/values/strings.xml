@@ -162,4 +162,5 @@
     <string name="badge_op">Op</string>
     <string name="tag_vote_up">Vote up</string>
     <string name="tag_vote_down">Vote down</string>
+    <string name="info_how_to_vote_tags">Tags can now be voted by long pressing the tag! Try it out!</string>
 </resources>
