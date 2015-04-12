@@ -69,7 +69,7 @@
 
                 <data
                     android:host="pr0gramm.com"
-                    android:pathPrefix="/"
+                    android:path="/"
                     android:scheme="http"/>
 
                 <data

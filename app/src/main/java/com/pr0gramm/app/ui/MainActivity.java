@@ -403,7 +403,7 @@ public class MainActivity extends RoboActionBarActivity implements
      *
      * @param uri The uri to handle
      */
-    private boolean handleUri(Uri uri) {
+    private void handleUri(Uri uri) {
         Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
         if (result.isPresent()) {
             FeedFilter filter = result.get().getFilter();
@@ -411,10 +411,10 @@ public class MainActivity extends RoboActionBarActivity implements
 
             boolean clear = getSupportFragmentManager().getBackStackEntryCount() == 0;
             gotoFeedFragment(filter, clear, start);
-            return true;
-        }
 
-        return false;
+        } else {
+            gotoFeedFragment(new FeedFilter(), true);
+        }
     }
 
     @SuppressWarnings("Convert2Lambda")

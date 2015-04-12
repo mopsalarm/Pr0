@@ -1,6 +1,7 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.common.reflect.Reflection;
 import com.google.gson.Gson;
@@ -12,6 +13,8 @@ import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.GifToVideoService;
 import com.pr0gramm.app.services.MyGifToVideoService;
+import com.pr0gramm.app.services.SimpleProxyService;
+import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
@@ -20,6 +23,7 @@ import com.squareup.picasso.Picasso;
 import org.joda.time.Instant;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.CookieHandler;
 import java.util.Arrays;
@@ -62,9 +66,9 @@ public class Pr0grammModule extends AbstractModule {
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
             Class<?>[] params = method.getParameterTypes();
             if (params.length > 0 && params[0] == Api.Nonce.class) {
-                if(args.length > 0 && args[0] == null) {
+                if (args.length > 0 && args[0] == null) {
                     // inform about failure.
-                    if(!cookieHandler.getCookie().isPresent())
+                    if (!cookieHandler.getCookie().isPresent())
                         throw new LoginRequiredException(method.toString());
 
                     args = Arrays.copyOf(args, args.length);
@@ -75,7 +79,7 @@ public class Pr0grammModule extends AbstractModule {
             // forward method call
             try {
                 return method.invoke(api, args);
-            } catch(InvocationTargetException err) {
+            } catch (InvocationTargetException err) {
                 throw err.getCause();
             }
         });
@@ -101,6 +105,23 @@ public class Pr0grammModule extends AbstractModule {
                 .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(downloader)
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public SimpleProxyService proxyService(Context context) throws IOException {
+        File cache = new File(context.getCacheDir(), "vidCache");
+        OkHttpClient client = new OkHttpClient();
+        client.setCache(new Cache(cache, 1024 * 1024 * 50));
+
+        client.networkInterceptors().add(chain -> {
+            Log.i("Proxy", "Doing http request for " + chain.request().urlString());
+            return chain.proceed(chain.request());
+        });
+
+        SimpleProxyService proxy = new SimpleProxyService(client);
+        proxy.start();
+        return proxy;
     }
 
     @Provides

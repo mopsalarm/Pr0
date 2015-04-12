@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.SimpleProxyService;
 
 import javax.annotation.Nullable;
 
@@ -198,6 +199,11 @@ public abstract class MediaView extends FrameLayout {
         MediaView result;
         Settings settings = Settings.of(context);
         if (isVideoUrl(url)) {
+            RoboInjector injector = RoboGuice.getInjector(context);
+            SimpleProxyService proxy = injector.getInstance(SimpleProxyService.class);
+
+            // redirect video request though proxy
+            url = proxy.getProxyUrl(url);
             result = new SimpleVideoMediaView(context, binder, url);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
