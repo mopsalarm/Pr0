@@ -321,6 +321,7 @@ public class PostFragment extends RoboFragment implements
         bindFragment(this, details).subscribe(this::onPostReceived, defaultOnError());
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     private void initializeInfoLine() {
         // get the vote from the service
         Observable<Vote> cachedVote = voteService.getVote(feedItem);
@@ -339,6 +340,16 @@ public class PostFragment extends RoboFragment implements
 
             Runnable retry = () -> infoLineView.getVoteView().setVote(vote);
             return doIfAuthorized(PostFragment.this, action, retry);
+        });
+
+        // and a vote listener vor voting tags.
+        infoLineView.setTagVoteListener((tag, vote) -> {
+            Runnable action = () -> {
+                bindFragment(this, voteService.vote(tag, vote))
+                        .subscribe(Actions.empty(), defaultOnError());
+            };
+
+            return doIfAuthorized(PostFragment.this, action, action);
         });
 
         infoLineView.getAddTagView().setOnClickListener(v -> {

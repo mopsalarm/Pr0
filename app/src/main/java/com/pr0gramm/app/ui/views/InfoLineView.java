@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -40,6 +41,7 @@ public class InfoLineView extends LinearLayout {
     private VoteView.OnVoteListener onVoteListener;
 
     private FeedItem feedItem;
+    private TagVoteListener tagVoteListener;
 
     public InfoLineView(Context context) {
         this(context, null);
@@ -100,7 +102,7 @@ public class InfoLineView extends LinearLayout {
         updateViewState(Vote.NEUTRAL);
 
         usernameView.setOnClickListener(v -> {
-            if(onDetailClickedListener != null) {
+            if (onDetailClickedListener != null) {
                 String username = item.getUser();
                 onDetailClickedListener.onUserClicked(username);
             }
@@ -159,6 +161,14 @@ public class InfoLineView extends LinearLayout {
         this.onVoteListener = onVoteListener;
     }
 
+    public TagVoteListener getTagVoteListener() {
+        return tagVoteListener;
+    }
+
+    public void setTagVoteListener(TagVoteListener tagVoteListener) {
+        this.tagVoteListener = tagVoteListener;
+    }
+
     public TextView getAddTagView() {
         return addTagView;
     }
@@ -186,12 +196,32 @@ public class InfoLineView extends LinearLayout {
                 if (onDetailClickedListener != null)
                     onDetailClickedListener.onTagClicked(tag);
             });
+
+            holder.tag.setOnLongClickListener(v -> {
+                showVoteTagDialog(tag);
+                return true;
+            });
         }
 
         @Override
         public int getItemCount() {
             return tags.size();
         }
+    }
+
+    private void showVoteTagDialog(Tag tag) {
+        if (tagVoteListener == null)
+            return;
+
+        new MaterialDialog.Builder(getContext())
+                .items(new CharSequence[]{
+                        getContext().getString(R.string.tag_vote_up),
+                        getContext().getString(R.string.tag_vote_down)
+                })
+                .itemsCallback((dialog, view, idx, charSequence) -> {
+                    tagVoteListener.onVote(tag, idx == 0 ? Vote.UP : Vote.DOWN);
+                })
+                .show();
     }
 
     private static class TagViewHolder extends RecyclerView.ViewHolder {
@@ -213,9 +243,13 @@ public class InfoLineView extends LinearLayout {
 
         /**
          * Called if a user clicks on a username
+         *
          * @param username The username that was clicked.
          */
         void onUserClicked(String username);
     }
 
+    public interface TagVoteListener {
+        boolean onVote(Tag tag, Vote vote);
+    }
 }

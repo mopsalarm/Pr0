@@ -160,4 +160,6 @@
     <string name="pref_show_notifications">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">Op</string>
+    <string name="tag_vote_up">Vote up</string>
+    <string name="tag_vote_down">Vote down</string>
 </resources>
