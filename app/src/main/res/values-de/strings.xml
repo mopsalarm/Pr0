@@ -155,4 +155,7 @@
     <string name="notify_new_messages_title">Neue Nachrichten</string>
     <string name="pref_show_notifications">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
+    <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
+    <string name="tag_vote_up">Upvote</string>
+    <string name="tag_vote_down">Downvote</string>
 </resources>
