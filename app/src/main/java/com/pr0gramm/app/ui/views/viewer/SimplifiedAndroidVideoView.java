@@ -404,13 +404,13 @@ public class SimplifiedAndroidVideoView extends SurfaceView {
     /*
      * release the media player in any state
      */
-    private void release(boolean cleartargetstate) {
+    private void release(boolean clearTargetState) {
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
             mMediaPlayer.release();
             mMediaPlayer = null;
             mCurrentState = STATE_IDLE;
-            if (cleartargetstate) {
+            if (clearTargetState) {
                 mTargetState = STATE_IDLE;
             }
         }
