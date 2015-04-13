@@ -2,8 +2,10 @@ package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Graph;
@@ -194,6 +196,8 @@ public class UserService {
     }
 
     private Graph loadBenisHistory() {
+        Stopwatch watch = Stopwatch.createStarted();
+
         Duration historyLength = standardDays(1);
         Instant start = Instant.now().minus(historyLength);
 
@@ -205,6 +209,7 @@ public class UserService {
                     return new PointF(x, record.getBenis());
                 }).toList();
 
+        Log.i("UserService", "Loading benis graph took " + watch);
         return new Graph(0, historyLength.getMillis(), points);
     }
 

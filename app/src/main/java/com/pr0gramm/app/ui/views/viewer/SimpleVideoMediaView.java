@@ -5,86 +5,251 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
+import com.google.common.base.Throwables;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+
+import java.io.IOException;
 
 import roboguice.inject.InjectView;
+import rx.functions.Actions;
+import rx.util.async.Async;
 
 /**
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener {
+public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
     @InjectView(R.id.video)
-    private SimplifiedAndroidVideoView videoView;
+    private SurfaceView surfaceView;
+
+    private State targetState = State.IDLE;
+    private State currentState = State.IDLE;
+    private MediaPlayer mediaPlayer;
+    private SurfaceHolder surfaceHolder;
 
     public SimpleVideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video_compat, url);
 
-        videoView.setOnPreparedListener(this);
-
         Log.i(TAG, "Playing webm " + url);
-        videoView.setAlpha(0);
-        videoView.setVideoURI(Uri.parse(url));
+        surfaceView.getHolder().addCallback(surfaceHolderCallback);
 
-        // tries to restart the video on end
-        if(Settings.of(context).restartWebmOnStop()) {
-            videoView.setOnCompletionListener(mp -> {
-                // start playing again!
-                videoView.start();
-            });
-        }
+        moveTo_Idle();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        startVideoPlayback();
-    }
-
-    private void startVideoPlayback() {
-        if (videoView != null && isPlaying())
-            videoView.start();
+        moveTo(isPlaying() ? State.PLAYING : State.IDLE);
     }
 
     @Override
     public void onPause() {
-        pauseVideoPlayback();
         super.onPause();
-    }
-
-    private void pauseVideoPlayback() {
-        if (videoView == null)
-            return;
-
-        videoView.pause();
+        moveTo(State.IDLE);
     }
 
     @Override
     public void playMedia() {
         super.playMedia();
-        Log.i(TAG, "Setting state to 'playing' now.");
-
-        startVideoPlayback();
+        moveTo(State.PLAYING);
     }
 
     @Override
     public void stopMedia() {
         super.stopMedia();
-        pauseVideoPlayback();
+        moveTo(currentState == State.PLAYING ? State.PAUSED : State.IDLE);
+    }
+
+    private void moveTo(State target) {
+        targetState = target;
+        if (currentState == targetState)
+            return;
+
+        Log.i(TAG, "Moving from state " + currentState + " to " + targetState);
+
+        switch (targetState) {
+            case IDLE:
+                moveTo_Idle();
+                break;
+
+            case PAUSED:
+                moveTo_Pause();
+                break;
+
+            case PLAYING:
+                moveTo_Playing();
+                break;
+        }
+    }
+
+    private void moveTo_Playing() {
+        if (currentState == State.PAUSED) {
+            if (surfaceHolder != null)
+                mediaPlayer.setDisplay(surfaceHolder);
+
+            mediaPlayer.start();
+            currentState = State.PLAYING;
+        }
+
+        if (currentState == State.IDLE) {
+            openMediaPlayer();
+        }
+    }
+
+    private void moveTo_Pause() {
+        if (currentState == State.PLAYING) {
+
+            mediaPlayer.pause();
+            currentState = State.PAUSED;
+        }
+
+        if (currentState == State.IDLE) {
+            openMediaPlayer();
+        }
+    }
+
+    private void moveTo_Idle() {
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        surfaceView.setAlpha(0);
+        showBusyIndicator();
+
+        currentState = State.IDLE;
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        currentState = State.PAUSED;
+        if (targetState == State.IDLE) {
+            moveTo(State.IDLE);
+            return;
+        }
+
         mp.setLooping(true);
         mp.setVolume(0, 0);
 
-        // scale view correctly
-        float aspect = mp.getVideoWidth() / (float) mp.getVideoHeight();
-        resizeViewerView(videoView, aspect, 10);
-
         hideBusyIndicator();
-        videoView.setAlpha(1);
+        surfaceView.setAlpha(1);
+
+        // if we already have a surface, set it
+        if (surfaceHolder != null) {
+            mediaPlayer.setDisplay(surfaceHolder);
+            moveTo(targetState);
+        }
     }
+
+    @Override
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+        // scale view correctly
+        float aspect = width / (float) height;
+        resizeViewerView(surfaceView, aspect, 10);
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        Exception error;
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_IO:
+                error = new RuntimeException("Could not load data");
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                error = new RuntimeException("Malformed video data");
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                error = new RuntimeException("Can not stream this format");
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                error = new RuntimeException("The server did serving the video");
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                error = new RuntimeException("Timeout error");
+                break;
+
+            default:
+                error = new RuntimeException("Unknown error code " + what);
+                break;
+        }
+
+        ErrorDialogFragment.defaultOnError().call(error);
+
+        moveTo(State.IDLE);
+        return true;
+    }
+
+    private void openMediaPlayer() {
+        moveTo_Idle();
+        currentState = State.PREPARING;
+
+        mediaPlayer = new MediaPlayer();
+        Async.fromCallable(() -> {
+            try {
+                mediaPlayer.setDataSource(getContext(), Uri.parse(url));
+                mediaPlayer.setOnPreparedListener(this);
+                mediaPlayer.setOnErrorListener(this);
+                mediaPlayer.setOnVideoSizeChangedListener(this);
+                mediaPlayer.prepareAsync();
+                return mediaPlayer;
+
+            } catch (IOException error) {
+                throw Throwables.propagate(error);
+            }
+        }).subscribe(Actions.empty(), error -> {
+            moveTo(State.IDLE);
+            ErrorDialogFragment.defaultOnError().call(error);
+        });
+    }
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private final SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            if(surfaceHolder == holder)
+                return;
+
+            Log.i(TAG, "Surface changed " + holder);
+            surfaceHolder = holder;
+            if (mediaPlayer != null) {
+                mediaPlayer.setDisplay(holder);
+
+                if(isPlaying()) {
+                    moveTo(State.PLAYING);
+                }
+            }
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.i(TAG, "Surface destroyed " + holder);
+            surfaceHolder = null;
+
+            if(mediaPlayer != null) {
+                mediaPlayer.setDisplay(null);
+            }
+
+            if(currentState != State.IDLE) {
+                moveTo(isPlaying() ? State.PAUSED : State.IDLE);
+            }
+        }
+    };
+
+    private enum State {
+        IDLE, PREPARING, PAUSED, PLAYING
+    }
+
 }

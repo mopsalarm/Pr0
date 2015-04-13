@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.pr0gramm.app.ui.views.viewer.SimplifiedAndroidVideoView
+    <SurfaceView
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="150dp"

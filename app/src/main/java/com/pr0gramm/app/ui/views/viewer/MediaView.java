@@ -49,6 +49,9 @@ public abstract class MediaView extends FrameLayout {
     @Nullable
     private View progress;
 
+    @Nullable
+    private View progressContainer;
+
     protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
         this(context, binder, layoutId, R.id.progress, url);
     }
@@ -110,8 +113,12 @@ public abstract class MediaView extends FrameLayout {
      * this with a call to {@link #hideBusyIndicator()}
      */
     protected void showBusyIndicator() {
-        if (progress != null)
+        if (progress != null) {
+            if(progress.getParent() == null)
+                addView(progress);
+
             progress.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -124,7 +131,6 @@ public abstract class MediaView extends FrameLayout {
             ViewParent parent = progress.getParent();
             if (parent instanceof ViewGroup) {
                 ((ViewGroup) parent).removeView(progress);
-                progress = null;
             }
         }
     }
