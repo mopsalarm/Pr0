@@ -50,6 +50,8 @@ public class SimpleProxyService extends NanoHttpServer {
                 BaseEncoding.base64Url().decode(path.substring(1)),
                 Charsets.UTF_8).trim();
 
+        Log.i("Proxy", "Range: " + session.getHeaders().get("Range"));
+
         com.squareup.okhttp.Response response;
         try {
             Request request = new Request.Builder().url(url).build();
@@ -63,6 +65,7 @@ public class SimpleProxyService extends NanoHttpServer {
             if(length > 0)
                 result.addHeader("Content-Length", String.valueOf(length));
 
+            result.addHeader("Accept-Range", "bytes");
             return result;
 
         } catch (IOException e) {

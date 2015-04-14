@@ -2,11 +2,12 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.Surface;
+import android.view.TextureView;
 
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.R;
@@ -22,20 +23,23 @@ import rx.util.async.Async;
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
+public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener, TextureView.SurfaceTextureListener {
+
     @InjectView(R.id.video)
-    private SurfaceView surfaceView;
+    private TextureView surfaceView;
 
     private State targetState = State.IDLE;
     private State currentState = State.IDLE;
     private MediaPlayer mediaPlayer;
-    private SurfaceHolder surfaceHolder;
+
+    private SurfaceTexture surface;
 
     public SimpleVideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video_compat, url);
 
         Log.i(TAG, "Playing webm " + url);
-        surfaceView.getHolder().addCallback(surfaceHolderCallback);
+        surfaceView.setSurfaceTextureListener(this);
 
         moveTo_Idle();
     }
@@ -88,8 +92,11 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
 
     private void moveTo_Playing() {
         if (currentState == State.PAUSED) {
-            if (surfaceHolder != null)
-                mediaPlayer.setDisplay(surfaceHolder);
+            if (surface != null) {
+                mediaPlayer.setSurface(new Surface(surface));
+                mediaPlayer.seekTo(0);
+                surface = null;
+            }
 
             mediaPlayer.start();
             currentState = State.PLAYING;
@@ -140,8 +147,10 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         surfaceView.setAlpha(1);
 
         // if we already have a surface, set it
-        if (surfaceHolder != null) {
-            mediaPlayer.setDisplay(surfaceHolder);
+        if (surface != null) {
+            mediaPlayer.setSurface(new Surface(surface));
+            surface = null;
+
             moveTo(targetState);
         }
     }
@@ -211,45 +220,41 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         });
     }
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private final SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        Log.i(TAG, "Surface changed to " + surface);
+
+        this.surface = surface;
+        if (mediaPlayer != null && isPlaying()) {
+            moveTo(State.PLAYING);
+        }
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        Log.i(TAG, "Surface destroyed " + surface);
+
+        this.surface = null;
+        if (mediaPlayer != null) {
+            mediaPlayer.setSurface(null);
         }
 
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            if(surfaceHolder == holder)
-                return;
-
-            Log.i(TAG, "Surface changed " + holder);
-            surfaceHolder = holder;
-            if (mediaPlayer != null) {
-                mediaPlayer.setDisplay(holder);
-
-                if(isPlaying()) {
-                    moveTo(State.PLAYING);
-                }
-            }
+        if (currentState != State.IDLE) {
+            moveTo(isPlaying() ? State.PAUSED : State.IDLE);
         }
 
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            Log.i(TAG, "Surface destroyed " + holder);
-            surfaceHolder = null;
-
-            if(mediaPlayer != null) {
-                mediaPlayer.setDisplay(null);
-            }
-
-            if(currentState != State.IDLE) {
-                moveTo(isPlaying() ? State.PAUSED : State.IDLE);
-            }
-        }
-    };
+        return true;
+    }
 
     private enum State {
         IDLE, PREPARING, PAUSED, PLAYING
     }
-
 }
