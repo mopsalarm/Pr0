@@ -74,7 +74,7 @@ public class SimpleProxyService extends NanoHttpServer {
                     @Override
                     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
                         int result = super.read(buffer, byteOffset, byteCount);
-                        if(read / 10_000 != (read + result) / 10_000) {
+                        if(read / 100_000 != (read + result) / 100_000) {
                             Log.i("Proxy", format("Approx %1d%% loaded", 100 * read / length));
                         }
 
