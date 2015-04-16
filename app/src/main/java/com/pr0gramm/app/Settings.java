@@ -97,10 +97,6 @@ public class Settings {
         return preferences.getBoolean("pref_animate_vote_view", true);
     }
 
-    public boolean useHardwareAcceleration() {
-        return preferences.getBoolean("pref_hardware_acceleration", true);
-    }
-
     public boolean doubleTapToUpvote() {
         return preferences.getBoolean("pref_double_tap_to_upvote", true);
     }

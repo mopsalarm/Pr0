@@ -106,8 +106,6 @@
     <string name="logout">Abmelden</string>
     <string name="need_to_restart_app">Damit diese Änderung wirksam wird, musst du die App einmal komplett neustarten.</string>
     <string name="post_comment">Absenden</string>
-    <string name="pref_pref_hardware_acceleration">Hardwarebeschleunigung</string>
-    <string name="pref_pref_hardware_acceleration_summary">Hardwarebeschleunigung macht alles flüssiger, kann aber unter Umständen zu Problemen führen. Einfach mal ausprobieren!</string>
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten 24 Stunden.</string>
     <string name="pref_double_tap_to_upvote">Doppeltklick für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltklick auf ein Bild oder Video führt einen Upvote aus</string>

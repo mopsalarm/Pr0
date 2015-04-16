@@ -108,12 +108,6 @@
             android:summary="@string/pref_webm_restart_on_stop_summary"
             android:defaultValue="false"/>
 
-        <CheckBoxPreference
-            android:key="pref_hardware_acceleration"
-            android:title="@string/pref_pref_hardware_acceleration"
-            android:summary="@string/pref_pref_hardware_acceleration_summary"
-            android:defaultValue="true"/>
-
         <ListPreference
             android:key="pref_max_image_size"
             android:title="@string/pref_max_image_size"

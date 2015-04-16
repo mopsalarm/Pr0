@@ -45,10 +45,6 @@ public class ImageMediaView extends MediaView {
                     .centerInside()
                     .onlyScaleDown();
 
-            // disable fading if we don't use hardware acceleration.
-            if (!settings.useHardwareAcceleration())
-                requestCreator.noFade();
-
             requestCreator.into(imageView, new HideBusyIndicator(this));
         }
     }

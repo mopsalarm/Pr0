@@ -17,7 +17,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -96,11 +95,6 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (settings.useHardwareAcceleration()) {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-        }
 
         setContentView(R.layout.activity_main);
 
