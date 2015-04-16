@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
+import com.google.common.primitives.Ints;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.squareup.okhttp.OkHttpClient;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.String.format;
 
 /**
  */
@@ -64,11 +66,22 @@ public class SimpleProxyService extends NanoHttpServer {
             String contentType = response.header("Content-Type", "application/octet-stream");
 
             InputStream stream;
-            Integer length;
-
-            length = Integer.parseInt(response.header("Content-Length", "-1"));
-            if (length > 0) {
+            final Integer length = Ints.tryParse(response.header("Content-Length", ""));
+            if (length != null && length > 0) {
                 stream = new FilterInputStream(response.body().byteStream()) {
+                    int read = 0;
+
+                    @Override
+                    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+                        int result = super.read(buffer, byteOffset, byteCount);
+                        if(read / 10_000 != (read + result) / 10_000) {
+                            Log.i("Proxy", format("Approx %1d%% loaded", 100 * read / length));
+                        }
+
+                        read += result;
+                        return result;
+                    }
+
                     @Override
                     public int available() throws IOException {
                         // fake a large value here, so ByteStreams.limit can fix it :/
@@ -78,7 +91,6 @@ public class SimpleProxyService extends NanoHttpServer {
 
                 stream = ByteStreams.limit(stream, length.longValue());
             } else {
-                length = null;
                 stream = response.body().byteStream();
             }
 
