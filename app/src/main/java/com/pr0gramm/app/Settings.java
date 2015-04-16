@@ -125,10 +125,6 @@ public class Settings {
         return preferences.getBoolean("pref_use_beta_channel", false);
     }
 
-    public boolean restartWebmOnStop() {
-        return preferences.getBoolean("pref_webm_restart_on_stop", false);
-    }
-
     public boolean showNotifications() {
         return preferences.getBoolean("pref_show_notifications", true);
     }

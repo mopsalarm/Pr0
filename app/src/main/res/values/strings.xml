@@ -141,8 +141,6 @@
     <string name="pref_pseudo_feedback_summary">Click here to give feedback!</string>
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
-    <string name="pref_webm_restart_on_stop">Manual restart</string>
-    <string name="pref_webm_restart_on_stop_summary">Activate this if webm videos don\'t loop. This tries to restart the videos at their end.</string>
     <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
     <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe cha0s changed something at the pr0gramm api level.</string>
     <string name="action_refresh">Refresh</string>

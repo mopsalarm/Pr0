@@ -93,21 +93,6 @@
         android:key="prefcat_compatibility"
         android:title="@string/pref_compatibility">
 
-        <!--
-        <CheckBoxPreference
-            android:key="pref_webm_use_compat_viewer"
-            android:title="@string/pref_webm_use_compat_viewer"
-            android:summaryOn="@string/pref_webm_use_compat_viewer_on"
-            android:summaryOff="@string/pref_webm_use_compat_viewer_off"
-            android:defaultValue="true"/>
-        -->
-
-        <CheckBoxPreference
-            android:key="pref_webm_restart_on_stop"
-            android:title="@string/pref_webm_restart_on_stop"
-            android:summary="@string/pref_webm_restart_on_stop_summary"
-            android:defaultValue="false"/>
-
         <ListPreference
             android:key="pref_max_image_size"
             android:title="@string/pref_max_image_size"
