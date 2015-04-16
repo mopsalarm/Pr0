@@ -1,13 +1,16 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.ViewGroup;
 
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.R;
@@ -19,27 +22,36 @@ import roboguice.inject.InjectView;
 import rx.functions.Actions;
 import rx.util.async.Async;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+
 /**
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
 public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener, TextureView.SurfaceTextureListener {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
 
     @InjectView(R.id.video)
     private TextureView surfaceView;
+
+    @InjectView(R.id.video_container)
+    private ViewGroup videoContainer;
 
     private State targetState = State.IDLE;
     private State currentState = State.IDLE;
     private MediaPlayer mediaPlayer;
 
-    private SurfaceTexture surface;
+    private SurfaceTextureListenerImpl surfaceHolder;
+    private boolean mediaPlayerHasTexture;
 
     public SimpleVideoMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_video_compat, url);
+        super(context, binder, R.layout.player_video, url);
 
         Log.i(TAG, "Playing webm " + url);
-        surfaceView.setSurfaceTextureListener(this);
+
+        surfaceHolder = new SurfaceTextureListenerImpl();
+        surfaceView.setSurfaceTextureListener(surfaceHolder);
 
         moveTo_Idle();
     }
@@ -69,6 +81,8 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     }
 
     private void moveTo(State target) {
+        checkMainThread();
+
         targetState = target;
         if (currentState == targetState)
             return;
@@ -92,14 +106,13 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
 
     private void moveTo_Playing() {
         if (currentState == State.PAUSED) {
-            if (surface != null) {
-                mediaPlayer.setSurface(new Surface(surface));
-                mediaPlayer.seekTo(0);
-                surface = null;
-            }
+            if (!mediaPlayerHasTexture && surfaceHolder.hasTexture())
+                setMediaPlayerTexture(surfaceHolder.getTexture());
 
-            mediaPlayer.start();
-            currentState = State.PLAYING;
+            if (mediaPlayerHasTexture) {
+                mediaPlayer.start();
+                currentState = State.PLAYING;
+            }
         }
 
         if (currentState == State.IDLE) {
@@ -107,9 +120,25 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         }
     }
 
+    private void setMediaPlayerTexture(SurfaceTexture texture) {
+        if (texture != null) {
+            if (!mediaPlayerHasTexture && mediaPlayer != null) {
+                Log.i(TAG, "Setting surface on MediaPlayer");
+                mediaPlayer.setSurface(new Surface(texture));
+                mediaPlayerHasTexture = true;
+            }
+        } else {
+            if (mediaPlayer != null) {
+                Log.i(TAG, "Removing surface from MediaPlayer");
+                mediaPlayer.setSurface(null);
+            }
+
+            mediaPlayerHasTexture = false;
+        }
+    }
+
     private void moveTo_Pause() {
         if (currentState == State.PLAYING) {
-
             mediaPlayer.pause();
             currentState = State.PAUSED;
         }
@@ -120,20 +149,32 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     }
 
     private void moveTo_Idle() {
+        currentState = State.IDLE;
+
         if (mediaPlayer != null) {
             mediaPlayer.reset();
             mediaPlayer.release();
             mediaPlayer = null;
         }
 
+        setMediaPlayerTexture(null);
+
+        if (surfaceHolder.hasTexture()) {
+            Log.i(TAG, "Detaching TextureView");
+            videoContainer.removeView(surfaceView);
+        }
+
+        // destroy the previous texture
+        surfaceHolder.destroyTexture();
+
         surfaceView.setAlpha(0);
         showBusyIndicator();
-
-        currentState = State.IDLE;
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        Log.i(TAG, "MediaPlayer is prepared");
+
         currentState = State.PAUSED;
         if (targetState == State.IDLE) {
             moveTo(State.IDLE);
@@ -146,13 +187,9 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         hideBusyIndicator();
         surfaceView.setAlpha(1);
 
-        // if we already have a surface, set it
-        if (surface != null) {
-            mediaPlayer.setSurface(new Surface(surface));
-            surface = null;
-
+        // if we already have a surface, move on
+        if (mediaPlayerHasTexture)
             moveTo(targetState);
-        }
     }
 
     @Override
@@ -179,7 +216,7 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
                 break;
 
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                error = new RuntimeException("The server did serving the video");
+                error = new RuntimeException("The server died serving the video");
                 break;
 
             case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
@@ -191,6 +228,8 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
                 break;
         }
 
+        Log.i(TAG, "Error: " + error.getMessage());
+
         ErrorDialogFragment.defaultOnError().call(error);
 
         moveTo(State.IDLE);
@@ -201,6 +240,14 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         moveTo_Idle();
         currentState = State.PREPARING;
 
+        // re-attach in a moment
+        if (surfaceView.getParent() == null) {
+            Log.i(TAG, "Attaching TextureView back");
+            videoContainer.addView(surfaceView, 0);
+        }
+
+        Log.i(TAG, "Creating new MediaPlayer");
+        mediaPlayerHasTexture = false;
         mediaPlayer = new MediaPlayer();
         Async.fromCallable(() -> {
             try {
@@ -220,41 +267,95 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         });
     }
 
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        Log.i(TAG, "Surface changed to " + surface);
+    private class SurfaceTextureListenerImpl implements TextureView.SurfaceTextureListener {
+        private SurfaceTexture texture;
 
-        this.surface = surface;
-        if (mediaPlayer != null && isPlaying()) {
-            moveTo(State.PLAYING);
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            if (this.texture == null) {
+                Log.i(TAG, "Keeping new Texture");
+
+                this.texture = surface;
+                if (mediaPlayer != null) {
+                    setMediaPlayerTexture(texture);
+                }
+
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                tryRestoreTexture(this.texture);
+
+            } else if (mediaPlayer != null) {
+                setMediaPlayerTexture(texture);
+            }
+
+            if (currentState.after(State.PREPARING) && isPlaying())
+                moveTo(State.PLAYING);
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            if (currentState.after(State.IDLE)) {
+                // goto pause mode and retain the current surface
+                moveTo(State.PAUSED);
+
+                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    Log.i(TAG, "Keeping Texture after onDestroyed-event");
+                    return false;
+                } else {
+                    setMediaPlayerTexture(null);
+
+                    Log.i(TAG, "Destroying Texture in onDestroyed-event because of old android.");
+                    return true;
+                }
+
+            } else {
+                Log.i(TAG, "Destroying Texture in onDestroyed-event");
+
+                texture = null;
+                return true;
+            }
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+
+        public boolean hasTexture() {
+            return texture != null;
+        }
+
+        public SurfaceTexture getTexture() {
+            return texture;
+        }
+
+        public void destroyTexture() {
+            if (texture != null) {
+                Log.i(TAG, "Destroying Texture");
+
+                texture.release();
+                texture = null;
+            }
         }
     }
 
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-    }
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void tryRestoreTexture(SurfaceTexture texture) {
+        Log.i(TAG, "Trying to restore texture");
 
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        Log.i(TAG, "Surface destroyed " + surface);
-
-        this.surface = null;
-        if (mediaPlayer != null) {
-            mediaPlayer.setSurface(null);
+        checkNotNull(texture, "Texture must not be null");
+        if (surfaceView.getSurfaceTexture() != texture) {
+            surfaceView.setSurfaceTexture(texture);
         }
-
-        if (currentState != State.IDLE) {
-            moveTo(isPlaying() ? State.PAUSED : State.IDLE);
-        }
-
-        return true;
     }
 
     private enum State {
-        IDLE, PREPARING, PAUSED, PLAYING
+        IDLE, PREPARING, PAUSED, PLAYING;
+
+        public boolean after(State state) {
+            return ordinal() > state.ordinal();
+        }
     }
 }

@@ -4,12 +4,15 @@ import android.util.Log;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -57,15 +60,32 @@ public class SimpleProxyService extends NanoHttpServer {
             Request request = new Request.Builder().url(url).build();
             response = okHttpClient.newCall(request).execute();
 
-            Response.IStatus status = translateStatus(response.code(), response.message());
-            String contentType = response.header("Content-Type", "application/octet");
-            Response result = new Response(status, contentType, response.body().byteStream());
-            result.setChunkedTransfer(true);
-            int length = Integer.parseInt(response.header("Content-Length", "-1"));
-            if(length > 0)
-                result.addHeader("Content-Length", String.valueOf(length));
+            Response.IStatus status = Response.Status.OK; // translateStatus(response.code(), response.message());
+            String contentType = response.header("Content-Type", "application/octet-stream");
 
+            InputStream stream;
+            Integer length;
+
+            length = Integer.parseInt(response.header("Content-Length", "-1"));
+            if (length > 0) {
+                stream = new FilterInputStream(response.body().byteStream()) {
+                    @Override
+                    public int available() throws IOException {
+                        // fake a large value here, so ByteStreams.limit can fix it :/
+                        return Integer.MAX_VALUE;
+                    }
+                };
+
+                stream = ByteStreams.limit(stream, length.longValue());
+            } else {
+                length = null;
+                stream = response.body().byteStream();
+            }
+
+            Response result = new Response(status, contentType, stream);
             result.addHeader("Accept-Range", "bytes");
+            result.addHeader("Connection", "close");
+            result.setChunkedTransfer(length == null);
             return result;
 
         } catch (IOException e) {
