@@ -92,24 +92,7 @@ public class SettingsActivity extends RoboActionBarActivity {
             }
 
             if ("pref_pseudo_logcat".equals(preference.getKey())) {
-                try {
-                    Process process = Runtime.getRuntime().exec(new String[]{
-                            "sh", "-c", "logcat -d > /sdcard/pr0gramm.log"
-                    });
-
-                    process.waitFor();
-
-                    new MaterialDialog.Builder(getActivity())
-                            .content("Logfile in /sdcard/pr0gramm.txt angelegt.")
-                            .positiveText(R.string.okay)
-                            .show();
-
-                } catch (Exception err) {
-                    new MaterialDialog.Builder(getActivity())
-                            .content("Fehler: " + err.getMessage())
-                            .positiveText(R.string.okay)
-                            .show();
-                }
+                dumpLogcatToFile();
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -147,6 +130,30 @@ public class SettingsActivity extends RoboActionBarActivity {
 
                 if (sharedPreferences.getBoolean(ctKey, false))
                     pref.setEnabled(enabled);
+            }
+        }
+
+        /**
+         * Dumps the logcat to a file
+         */
+        private void dumpLogcatToFile() {
+            try {
+                Process process = Runtime.getRuntime().exec(new String[]{
+                        "sh", "-c", "logcat -d > /sdcard/pr0gramm.log"
+                });
+
+                process.waitFor();
+
+                new MaterialDialog.Builder(getActivity())
+                        .content("Logfile in /sdcard/pr0gramm.txt angelegt.")
+                        .positiveText(R.string.okay)
+                        .show();
+
+            } catch (Exception err) {
+                new MaterialDialog.Builder(getActivity())
+                        .content("Fehler: " + err.getMessage())
+                        .positiveText(R.string.okay)
+                        .show();
             }
         }
     }
