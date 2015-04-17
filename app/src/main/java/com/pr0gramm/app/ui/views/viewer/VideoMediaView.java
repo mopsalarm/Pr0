@@ -29,7 +29,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
+public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
 
     @InjectView(R.id.video)
@@ -45,7 +45,7 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     private SurfaceTextureListenerImpl surfaceHolder;
     private boolean mediaPlayerHasTexture;
 
-    public SimpleVideoMediaView(Context context, Binder binder, String url) {
+    public VideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video, url);
 
         Log.i(TAG, "Playing webm " + url);

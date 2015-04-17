@@ -210,7 +210,7 @@ public abstract class MediaView extends FrameLayout {
 
             // redirect video request though proxy
             url = proxy.getProxyUrl(url);
-            result = new SimpleVideoMediaView(context, binder, url);
+            result = new VideoMediaView(context, binder, url);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {
