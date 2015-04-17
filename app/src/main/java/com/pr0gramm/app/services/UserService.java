@@ -198,7 +198,7 @@ public class UserService {
     private Graph loadBenisHistory() {
         Stopwatch watch = Stopwatch.createStarted();
 
-        Duration historyLength = standardDays(1);
+        Duration historyLength = standardDays(7);
         Instant start = Instant.now().minus(historyLength);
 
         // get the values and transform them

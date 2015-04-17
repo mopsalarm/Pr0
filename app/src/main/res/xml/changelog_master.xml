@@ -5,13 +5,16 @@
         version="1.25"
         versioncode="25">
 
-        <change>&lt;b&gt;Neu:&lt;/b&gt; Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.</change>
         <change>&lt;b&gt;Neu:&lt;/b&gt; Kommentare vom OP werden als solche markiert.</change>
+        <change>&lt;b&gt;Neu:&lt;/b&gt; Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.</change>
+        <change><![CDATA[<b>Neu</b> Neuer und hoffentlich besserer Videoplayer für die Anzeige von webm.
+            <b>Achtung, diese Version ist Beta! Wenn du keine Videos sehen kannst,
+            bitte Feedback schreiben (am liebsten mit Logcat)!</b>
+        ]]></change>
+        <change><![CDATA[<b>Neu</b> Benisgraph zeigt nun den Benis der letzten Woche an]]></change>
+
         <change>&lt;b&gt;Fix:&lt;/b&gt; Tags sollten nun nach dem Erstellen nicht wieder verschwinden</change>
         <change>&lt;b&gt;Fix:&lt;/b&gt; Anzeige von Posts mit vielen Kommentaren ist jetzt viel schneller</change>
-        <change><![CDATA[<b>Neu</b> Neuer und hoffentlich besserer Videoplayer für die Anzeige von webm.
-            <b>Achtung! Wenn du keine Videos sehen kannst, bitte Feedback schreiben. Am liebsten mit Logcat!</b>
-            ]]></change>
     </release>
 
     <release
