@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.reflect.Reflection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,6 +17,8 @@ import com.pr0gramm.app.services.MyGifToVideoService;
 import com.pr0gramm.app.services.SimpleProxyService;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -25,7 +28,6 @@ import org.joda.time.Instant;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.CookieHandler;
 import java.util.Arrays;
 
 import retrofit.RestAdapter;
@@ -40,15 +42,11 @@ import roboguice.inject.SharedPreferencesName;
 public class Pr0grammModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(CookieHandler.class).to(LoginCookieHandler.class);
     }
 
     @Provides
     @Singleton
-    public Api api(Settings settings, LoginCookieHandler cookieHandler) {
-        OkHttpClient client = new OkHttpClient();
-        client.setCookieHandler(cookieHandler);
-
+    public Api api(Settings settings, LoginCookieHandler cookieHandler, OkHttpClient client) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new InstantDeserializer())
                 .create();
@@ -87,15 +85,39 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public GifToVideoService gifToVideoService() {
-        return new MyGifToVideoService();
+    public GifToVideoService gifToVideoService(OkHttpClient client) {
+        return new MyGifToVideoService(client);
     }
 
     @Provides
     @Singleton
-    public Downloader downloader(Context context) {
-        File cache = new File(context.getCacheDir(), "imgCache");
-        return new OkHttpDownloader(cache);
+    public OkHttpClient okHttpClient(Context context, LoginCookieHandler cookieHandler) throws IOException {
+        File cacheDir = new File(context.getCacheDir(), "imgCache");
+
+        OkHttpClient client = new OkHttpClient();
+        client.setCache(new Cache(cacheDir, 100 * 1024 * 1024));
+        client.setCookieHandler(cookieHandler);
+
+        client.networkInterceptors().add(chain -> {
+            Stopwatch watch = Stopwatch.createStarted();
+            Request request = chain.request();
+
+            Log.i("HttpClient", "performing http request for " + request.urlString());
+            Response response = chain.proceed(request);
+
+            Log.i("HttpClient", String.format("%s (%d) took %s",
+                    request.urlString(), response.code(), watch));
+
+            return response;
+        });
+
+        return client;
+    }
+
+    @Provides
+    @Singleton
+    public Downloader downloader(OkHttpClient client) {
+        return new OkHttpDownloader(client);
     }
 
     @Provides
@@ -109,18 +131,10 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public SimpleProxyService proxyService(Context context) throws IOException {
-        File cache = new File(context.getCacheDir(), "vidCache");
-        OkHttpClient client = new OkHttpClient();
-        client.setCache(new Cache(cache, 1024 * 1024 * 50));
-
-        client.networkInterceptors().add(chain -> {
-            Log.i("Proxy", "Doing http request for " + chain.request().urlString());
-            return chain.proceed(chain.request());
-        });
-
-        SimpleProxyService proxy = new SimpleProxyService(client);
+    public SimpleProxyService proxyService(OkHttpClient httpClient) throws IOException {
+        SimpleProxyService proxy = new SimpleProxyService(httpClient);
         proxy.start();
+
         return proxy;
     }
 

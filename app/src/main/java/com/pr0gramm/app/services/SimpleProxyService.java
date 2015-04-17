@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static java.lang.String.format;
 
 /**
  */
@@ -62,25 +61,25 @@ public class SimpleProxyService extends NanoHttpServer {
             Request request = new Request.Builder().url(url).build();
             response = okHttpClient.newCall(request).execute();
 
-            Response.IStatus status = Response.Status.OK; // translateStatus(response.code(), response.message());
+            Response.IStatus status = translateStatus(response.code(), response.message());
             String contentType = response.header("Content-Type", "application/octet-stream");
 
             InputStream stream;
             final Integer length = Ints.tryParse(response.header("Content-Length", ""));
             if (length != null && length > 0) {
                 stream = new FilterInputStream(response.body().byteStream()) {
-                    int read = 0;
-
-                    @Override
-                    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-                        int result = super.read(buffer, byteOffset, byteCount);
-                        if(read / 100_000 != (read + result) / 100_000) {
-                            Log.i("Proxy", format("Approx %1d%% loaded", 100 * read / length));
-                        }
-
-                        read += result;
-                        return result;
-                    }
+//                    int read = 0;
+//
+//                    @Override
+//                    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+//                        int result = super.read(buffer, byteOffset, byteCount);
+//                        if(read / 100_000 != (read + result) / 100_000) {
+//                            Log.i("Proxy", format("Approx %1d%% loaded", 100 * read / length));
+//                        }
+//
+//                        read += result;
+//                        return result;
+//                    }
 
                     @Override
                     public int available() throws IOException {
