@@ -28,6 +28,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
@@ -88,6 +89,9 @@ public class MainActivity extends RoboActionBarActivity implements
     @Inject
     private SharedPreferences shared;
 
+    @Inject
+    private SingleShotService singleShotService;
+
     private Subscription subscription;
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -138,6 +142,26 @@ public class MainActivity extends RoboActionBarActivity implements
             // start the update check.
             UpdateDialogFragment.checkForUpdates(this, false);
         }
+
+        addOriginalContentBookmarkOnce();
+    }
+
+    /**
+     * Adds a bookmark if there currently are no bookmarks.
+     */
+    private void addOriginalContentBookmarkOnce() {
+        if (!singleShotService.isFirstTime("add_original_content_bookmarks"))
+            return;
+
+        bindActivity(this, bookmarkService.get().first()).subscribe(bookmarks -> {
+            if(bookmarks.isEmpty()) {
+                FeedFilter filter = new FeedFilter()
+                        .withFeedType(FeedType.PROMOTED)
+                        .withTags("original content");
+
+                bookmarkService.create(filter);
+            }
+        }, Actions.empty());
     }
 
     @Override
@@ -418,7 +442,7 @@ public class MainActivity extends RoboActionBarActivity implements
         @Override
         public void run() {
             Instant now = Instant.now();
-            if(Minutes.minutesBetween(lastUpdate, now).getMinutes() > 4) {
+            if (Minutes.minutesBetween(lastUpdate, now).getMinutes() > 4) {
                 Intent intent = new Intent(MainActivity.this, SyncBroadcastReceiver.class);
                 MainActivity.this.sendBroadcast(intent);
             }

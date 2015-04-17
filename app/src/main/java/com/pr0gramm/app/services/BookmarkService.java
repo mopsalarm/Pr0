@@ -1,9 +1,13 @@
 package com.pr0gramm.app.services;
 
+import android.content.Context;
+
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
+import com.pr0gramm.app.ui.FeedFilterFormatter;
 
 import java.util.List;
 
@@ -19,6 +23,12 @@ import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 @Singleton
 public class BookmarkService {
     private final BehaviorSubject<Void> onChange = BehaviorSubject.create((Void) null);
+    private final Context context;
+
+    @Inject
+    public BookmarkService(Context context) {
+        this.context = context;
+    }
 
     public Observable<Bookmark> create(FeedFilter filter, String title) {
         return Async.start(() -> {
@@ -81,5 +91,15 @@ public class BookmarkService {
             triggerChange();
             return null;
         }, Schedulers.io()).ignoreElements();
+    }
+
+    /**
+     * Creates a bookmark for the filter. The title is auto generated.
+     *
+     * @param filter The filter to create a bookmark for.
+     * @return The bookmark for that filter
+     */
+    public Observable<Bookmark> create(FeedFilter filter) {
+        return create(filter, FeedFilterFormatter.format(context, filter));
     }
 }
