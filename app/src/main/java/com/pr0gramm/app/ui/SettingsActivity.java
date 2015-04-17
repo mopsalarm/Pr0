@@ -71,24 +71,45 @@ public class SettingsActivity extends RoboActionBarActivity {
 
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
-            if("pref_pseudo_update".equals(preference.getKey())) {
+            if ("pref_pseudo_update".equals(preference.getKey())) {
                 RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }
 
-            if("pref_pseudo_changelog".equals(preference.getKey())) {
+            if ("pref_pseudo_changelog".equals(preference.getKey())) {
                 RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
                 ChangeLogDialog dialog = new ChangeLogDialog();
                 dialog.show(activity.getSupportFragmentManager(), null);
                 return true;
             }
 
-            if("pref_pseudo_feedback".equals(preference.getKey())) {
+            if ("pref_pseudo_feedback".equals(preference.getKey())) {
                 // open google form
                 String url = "https://docs.google.com/forms/d/1YVZDzaoaeNDncbxv7qKWlp067yUtUtCz5lqpCo0bcFc/viewform";
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 return true;
+            }
+
+            if ("pref_pseudo_logcat".equals(preference.getKey())) {
+                try {
+                    Process process = Runtime.getRuntime().exec(new String[]{
+                            "sh", "-c", "logcat -d > /sdcard/pr0gramm.log"
+                    });
+
+                    process.waitFor();
+
+                    new MaterialDialog.Builder(getActivity())
+                            .content("Logfile in /sdcard/pr0gramm.txt angelegt.")
+                            .positiveText(R.string.okay)
+                            .show();
+
+                } catch (Exception err) {
+                    new MaterialDialog.Builder(getActivity())
+                            .content("Fehler: " + err.getMessage())
+                            .positiveText(R.string.okay)
+                            .show();
+                }
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

@@ -155,5 +155,12 @@
             android:summary="@string/pref_use_beta_channel_summary"
             android:defaultValue="false"/>
 
+
+        <Preference
+            android:key="pref_pseudo_logcat"
+            android:title="LOGCAT"
+            android:summary="Speichere LOGCAT unter /sdcard/pr0gramm.log"/>
+
+
     </PreferenceCategory>
 </PreferenceScreen>
