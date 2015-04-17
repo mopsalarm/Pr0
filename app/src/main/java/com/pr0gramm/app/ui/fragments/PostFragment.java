@@ -49,6 +49,7 @@ import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
+import com.pr0gramm.app.ui.views.viewer.MediaViews;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -388,7 +389,7 @@ public class PostFragment extends RoboFragment implements
         };
 
         // initialize a new viewer fragment
-        viewer = MediaView.newInstance(getActivity(), binder, feedItem);
+        viewer = MediaViews.newInstance(getActivity(), binder, feedItem);
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
         // wrap into a container before adding
