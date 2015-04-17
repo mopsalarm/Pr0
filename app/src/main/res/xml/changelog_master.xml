@@ -12,6 +12,7 @@
             bitte Feedback schreiben (am liebsten mit Logcat)!</b>
         ]]></change>
         <change><![CDATA[<b>Neu</b> Benisgraph zeigt nun den Benis der letzten Woche an]]></change>
+        <change><![CDATA[<b>Neu</b> Klick auf den Benutzernamen im Menu zeigt die eigenen Uploads an.]]></change>
 
         <change>&lt;b&gt;Fix:&lt;/b&gt; Tags sollten nun nach dem Erstellen nicht wieder verschwinden</change>
         <change>&lt;b&gt;Fix:&lt;/b&gt; Anzeige von Posts mit vielen Kommentaren ist jetzt viel schneller</change>

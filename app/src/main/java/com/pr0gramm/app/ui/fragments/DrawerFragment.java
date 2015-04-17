@@ -269,6 +269,7 @@ public class DrawerFragment extends RoboFragment {
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
+            usernameView.setOnClickListener(v -> onUsernameClicked());
 
             String benisValue = String.valueOf(user.getScore());
 
@@ -280,11 +281,24 @@ public class DrawerFragment extends RoboFragment {
             logoutView.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
+            usernameView.setOnClickListener(null);
+
             benisContainer.setVisibility(View.GONE);
             benisGraph.setImageDrawable(null);
 
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
+        }
+    }
+
+    private void onUsernameClicked() {
+        Optional<String> name = userService.getName();
+        if(name.isPresent()) {
+            FeedFilter filter = new FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .withUser(name.get());
+
+            onFeedFilterClicked(filter);
         }
     }
 
