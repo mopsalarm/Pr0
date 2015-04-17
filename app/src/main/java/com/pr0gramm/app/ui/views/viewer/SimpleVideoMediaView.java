@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import java.io.IOException;
 
@@ -24,6 +23,7 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
  * Plays videos in a not optimal but compatible way.
@@ -87,20 +87,24 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         if (currentState == targetState)
             return;
 
-        Log.i(TAG, "Moving from state " + currentState + " to " + targetState);
+        try {
+            Log.i(TAG, "Moving from state " + currentState + " to " + targetState);
+            switch (targetState) {
+                case IDLE:
+                    moveTo_Idle();
+                    break;
 
-        switch (targetState) {
-            case IDLE:
-                moveTo_Idle();
-                break;
+                case PAUSED:
+                    moveTo_Pause();
+                    break;
 
-            case PAUSED:
-                moveTo_Pause();
-                break;
-
-            case PLAYING:
-                moveTo_Playing();
-                break;
+                case PLAYING:
+                    moveTo_Playing();
+                    break;
+            }
+        } catch(Exception err) {
+            // log this exception
+            defaultOnError().call(err);
         }
     }
 
@@ -121,19 +125,23 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     }
 
     private void setMediaPlayerTexture(SurfaceTexture texture) {
-        if (texture != null) {
-            if (!mediaPlayerHasTexture && mediaPlayer != null) {
-                Log.i(TAG, "Setting surface on MediaPlayer");
-                mediaPlayer.setSurface(new Surface(texture));
-                mediaPlayerHasTexture = true;
-            }
-        } else {
-            if (mediaPlayer != null) {
-                Log.i(TAG, "Removing surface from MediaPlayer");
-                mediaPlayer.setSurface(null);
-            }
+        try {
+            if (texture != null) {
+                if (!mediaPlayerHasTexture && mediaPlayer != null) {
+                    Log.i(TAG, "Setting surface on MediaPlayer");
+                    mediaPlayer.setSurface(new Surface(texture));
+                    mediaPlayerHasTexture = true;
+                }
+            } else {
+                if (mediaPlayer != null) {
+                    Log.i(TAG, "Removing surface from MediaPlayer");
+                    mediaPlayer.setSurface(null);
+                }
 
-            mediaPlayerHasTexture = false;
+                mediaPlayerHasTexture = false;
+            }
+        } catch(Exception err) {
+            defaultOnError().call(err);
         }
     }
 
@@ -229,8 +237,7 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
         }
 
         Log.i(TAG, "Error: " + error.getMessage());
-
-        ErrorDialogFragment.defaultOnError().call(error);
+        defaultOnError().call(error);
 
         moveTo(State.IDLE);
         return true;
@@ -263,7 +270,7 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
             }
         }).subscribe(Actions.empty(), error -> {
             moveTo(State.IDLE);
-            ErrorDialogFragment.defaultOnError().call(error);
+            defaultOnError().call(error);
         });
     }
 
@@ -272,23 +279,23 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            if (this.texture == null) {
-                Log.i(TAG, "Keeping new Texture");
+                if (this.texture == null) {
+                    Log.i(TAG, "Keeping new Texture");
 
-                this.texture = surface;
-                if (mediaPlayer != null) {
+                    this.texture = surface;
+                    if (mediaPlayer != null) {
+                        setMediaPlayerTexture(texture);
+                    }
+
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    tryRestoreTexture(this.texture);
+
+                } else if (mediaPlayer != null) {
                     setMediaPlayerTexture(texture);
                 }
 
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                tryRestoreTexture(this.texture);
-
-            } else if (mediaPlayer != null) {
-                setMediaPlayerTexture(texture);
-            }
-
-            if (currentState.after(State.PREPARING) && isPlaying())
-                moveTo(State.PLAYING);
+                if (currentState.after(State.PREPARING) && isPlaying())
+                    moveTo(State.PLAYING);
         }
 
         @Override
@@ -345,9 +352,13 @@ public class SimpleVideoMediaView extends MediaView implements MediaPlayer.OnPre
     private void tryRestoreTexture(SurfaceTexture texture) {
         Log.i(TAG, "Trying to restore texture");
 
-        checkNotNull(texture, "Texture must not be null");
-        if (surfaceView.getSurfaceTexture() != texture) {
-            surfaceView.setSurfaceTexture(texture);
+        try {
+            checkNotNull(texture, "Texture must not be null");
+            if (surfaceView.getSurfaceTexture() != texture) {
+                surfaceView.setSurfaceTexture(texture);
+            }
+        } catch(Exception err) {
+            defaultOnError().call(err);
         }
     }
 
