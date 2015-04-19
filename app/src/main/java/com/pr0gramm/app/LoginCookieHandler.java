@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static com.google.common.base.Objects.equal;
+import static java.util.Arrays.asList;
 
 /**
  */
@@ -198,7 +199,14 @@ public class LoginCookieHandler extends CookieHandler {
      * Returns true, if the user has pr0mium status.
      */
     public boolean isPaid() {
-        return getCookie().transform(cookie -> cookie.paid).or(false);
+        Object result = getCookie().transform(cookie -> cookie.paid).or(false);
+        if (result instanceof Boolean)
+            return (boolean) result;
+
+        if (result instanceof Number)
+            return ((Number) result).intValue() != 0;
+
+        return asList("true", "1").contains(result.toString().toLowerCase());
     }
 
     public boolean hasCookie() {
@@ -208,7 +216,7 @@ public class LoginCookieHandler extends CookieHandler {
     public static class Cookie {
         public String n;
         public String id;
-        public boolean paid;
+        public Object paid;
     }
 
     /**
