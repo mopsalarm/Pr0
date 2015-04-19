@@ -195,6 +195,11 @@ public abstract class MediaView extends FrameLayout {
      * Resizes the video view while keeping the given aspect ratio.
      */
     protected void resizeViewerView(View view, float aspect, int retries) {
+        if(Float.isNaN(aspect)) {
+            Log.i(TAG, "Not setting aspect to NaN!");
+            return;
+        }
+
         Log.i(TAG, "Setting aspect of viewer View to " + aspect);
 
         if (view.getWindowToken() == null) {
