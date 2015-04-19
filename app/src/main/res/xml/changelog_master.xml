@@ -2,6 +2,18 @@
 <changelog>
 
     <release
+        version="1.26"
+        versioncode="26">
+
+        <change><![CDATA[Ich habe eine Möglichkeit zum Erstellen einer Logdatei
+            eingebaut. Bitte schicke mir diese Logdatei, wenn Videos bei dir nicht
+            abgespielt werden (z.B. die Datei bei Dropbox hochladen).]]>
+        </change>
+
+        <change><![CDATA[<b>Fix</b> Bugfixes bei der Videowiedergabe]]></change>
+    </release>
+
+    <release
         version="1.25"
         versioncode="25">
 
