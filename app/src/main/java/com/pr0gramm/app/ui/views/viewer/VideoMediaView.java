@@ -13,9 +13,13 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
 
+import java.io.File;
 import java.io.IOException;
 
 import roboguice.inject.InjectView;
@@ -212,12 +216,12 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        // release the player now
+        moveTo(State.IDLE);
+
         if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             if (retryCount < 3) {
                 retryCount++;
-
-                // release the player now
-                moveTo(State.IDLE);
 
                 // try again in a moment
                 if (isPlaying()) {
@@ -233,9 +237,32 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         }
 
         String message = String.format("Error playing this video (%d, %d)", what, extra);
-
         Log.i(TAG, "Could not play video: " + message);
+
         try {
+            if(what == MediaPlayer.MEDIA_ERROR_UNSUPPORTED && extra == MediaPlayer.MEDIA_ERROR_IO) {
+                new MaterialDialog.Builder(getContext())
+                        .content(R.string.could_not_play_video_io)
+                        .positiveText(R.string.okay)
+                        .show();
+
+                return true;
+            }
+
+            AndroidUtility.logToCrashlytics(new RuntimeException(message));
+
+            if (what == 262) {
+                Optional<File> logFile = LogcatUtility.dump();
+                if (logFile.isPresent()) {
+                    new MaterialDialog.Builder(getContext())
+                            .content(getContext().getString(R.string.could_not_play_video_262, logFile.get()))
+                            .positiveText(R.string.okay)
+                            .show();
+
+                    return true;
+                }
+            }
+
             new MaterialDialog.Builder(getContext())
                     .content(R.string.could_not_play_video)
                     .positiveText(R.string.okay)

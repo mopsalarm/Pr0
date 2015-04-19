@@ -12,11 +12,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
+import java.io.File;
 import java.util.List;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -92,7 +95,19 @@ public class SettingsActivity extends RoboActionBarActivity {
             }
 
             if ("pref_pseudo_logcat".equals(preference.getKey())) {
-                dumpLogcatToFile();
+                Optional<File> logFile = LogcatUtility.dump();
+                if(logFile.isPresent()) {
+                    new MaterialDialog.Builder(getActivity())
+                            .content(getString(R.string.logcat_logfile_created, logFile.get()))
+                            .positiveText(R.string.okay)
+                            .show();
+
+                } else {
+                    new MaterialDialog.Builder(getActivity())
+                            .content(getString(R.string.logcat_error_occurred, logFile.get()))
+                            .positiveText(R.string.okay)
+                            .show();
+                }
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -132,30 +147,5 @@ public class SettingsActivity extends RoboActionBarActivity {
                     pref.setEnabled(enabled);
             }
         }
-
-        /**
-         * Dumps the logcat to a file
-         */
-        private void dumpLogcatToFile() {
-            try {
-                Process process = Runtime.getRuntime().exec(new String[]{
-                        "sh", "-c", "logcat -d > /sdcard/pr0gramm.log"
-                });
-
-                process.waitFor();
-
-                new MaterialDialog.Builder(getActivity())
-                        .content("Logfile in /sdcard/pr0gramm.txt angelegt.")
-                        .positiveText(R.string.okay)
-                        .show();
-
-            } catch (Exception err) {
-                new MaterialDialog.Builder(getActivity())
-                        .content("Fehler: " + err.getMessage())
-                        .positiveText(R.string.okay)
-                        .show();
-            }
-        }
     }
-
 }
