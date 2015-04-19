@@ -154,4 +154,6 @@
     <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
     <string name="tag_vote_up">Upvote</string>
     <string name="tag_vote_down">Downvote</string>
+    <string name="badge_op">OP</string>
+    <string name="could_not_play_video">Video kann nicht abgespielt werden. Wenn du keine Videos sehen kannst, melde das bitte Mopsalarm zusammen mit deinem Log (Einstellungen, ganz unten: Logcat). </string>
 </resources>

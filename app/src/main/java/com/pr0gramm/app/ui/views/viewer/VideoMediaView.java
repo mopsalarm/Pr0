@@ -12,6 +12,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.R;
 
@@ -44,6 +45,8 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     private SurfaceTextureListenerImpl surfaceHolder;
     private boolean mediaPlayerHasTexture;
+
+    private int retryCount;
 
     public VideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video, url);
@@ -102,7 +105,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                     moveTo_Playing();
                     break;
             }
-        } catch(Exception err) {
+        } catch (Exception err) {
             // log this exception
             defaultOnError().call(err);
         }
@@ -140,7 +143,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
                 mediaPlayerHasTexture = false;
             }
-        } catch(Exception err) {
+        } catch (Exception err) {
             defaultOnError().call(err);
         }
     }
@@ -209,37 +212,38 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Exception error;
-        switch (what) {
-            case MediaPlayer.MEDIA_ERROR_IO:
-                error = new RuntimeException("Could not load data");
-                break;
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+            if (retryCount < 3) {
+                retryCount++;
 
-            case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                error = new RuntimeException("Malformed video data");
-                break;
+                // release the player now
+                moveTo(State.IDLE);
 
-            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                error = new RuntimeException("Can not stream this format");
-                break;
+                // try again in a moment
+                if (isPlaying()) {
+                    postDelayed(() -> {
+                        if (isPlaying()) {
+                            moveTo(State.PLAYING);
+                        }
+                    }, 500);
+                }
 
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                error = new RuntimeException("The server died serving the video");
-                break;
-
-            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                error = new RuntimeException("Timeout error");
-                break;
-
-            default:
-                error = new RuntimeException("Unknown error code " + what);
-                break;
+                return true;
+            }
         }
 
-        Log.i(TAG, "Error: " + error.getMessage());
-        defaultOnError().call(error);
+        String message = String.format("Error playing this video (%d, %d)", what, extra);
 
-        moveTo(State.IDLE);
+        Log.i(TAG, "Could not play video: " + message);
+        try {
+            new MaterialDialog.Builder(getContext())
+                    .content(R.string.could_not_play_video)
+                    .positiveText(R.string.okay)
+                    .show();
+
+        } catch (Exception err) {
+        }
+
         return true;
     }
 
@@ -247,7 +251,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         moveTo_Idle();
         currentState = State.PREPARING;
 
-        // re-attach in a moment
+        // re-attach the view, if not yet there.
         if (surfaceView.getParent() == null) {
             Log.i(TAG, "Attaching TextureView back");
             videoContainer.addView(surfaceView, 0);
@@ -279,23 +283,24 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-                if (this.texture == null) {
-                    Log.i(TAG, "Keeping new Texture");
+            Log.i(TAG, "Texture available at size " + width + "x" + height);
+            if (this.texture == null) {
+                Log.i(TAG, "Keeping new Texture");
 
-                    this.texture = surface;
-                    if (mediaPlayer != null) {
-                        setMediaPlayerTexture(texture);
-                    }
-
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    tryRestoreTexture(this.texture);
-
-                } else if (mediaPlayer != null) {
+                this.texture = surface;
+                if (mediaPlayer != null) {
                     setMediaPlayerTexture(texture);
                 }
 
-                if (currentState.after(State.PREPARING) && isPlaying())
-                    moveTo(State.PLAYING);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                tryRestoreTexture(this.texture);
+
+            } else if (mediaPlayer != null) {
+                setMediaPlayerTexture(texture);
+            }
+
+            if (currentState.after(State.PREPARING) && isPlaying())
+                moveTo(State.PLAYING);
         }
 
         @Override
@@ -308,7 +313,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 // goto pause mode and retain the current surface
                 moveTo(State.PAUSED);
 
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     Log.i(TAG, "Keeping Texture after onDestroyed-event");
                     return false;
                 } else {
@@ -357,7 +362,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             if (surfaceView.getSurfaceTexture() != texture) {
                 surfaceView.setSurfaceTexture(texture);
             }
-        } catch(Exception err) {
+        } catch (Exception err) {
             defaultOnError().call(err);
         }
     }
