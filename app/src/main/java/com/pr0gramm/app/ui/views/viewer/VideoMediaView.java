@@ -241,7 +241,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                     .positiveText(R.string.okay)
                     .show();
 
-        } catch (Exception err) {
+        } catch (Exception ignored) {
         }
 
         return true;
