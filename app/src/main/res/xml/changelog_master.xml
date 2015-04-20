@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
 
+
+    <release
+        version="1.27"
+        versioncode="27">
+
+        <change><![CDATA[
+            Siehe Changelog 1.26 und 1.25 für Änderungen in dieser Version.
+        ]]></change>
+    </release>
+
     <release
         version="1.26"
         versioncode="26">

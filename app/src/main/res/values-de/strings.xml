@@ -160,4 +160,6 @@
     <string name="logcat_logfile_created">Logdatei unter %s angelegt. Bitte sende diese an Mopsalarm.</string>
     <string name="could_not_play_video_262">Fehler 262 ist aufgetreten. Ein Logfile wurde unter %s angelegt. Bitte schicke es an Mopsalarm, damit er den Fehler beheben kann.</string>
     <string name="could_not_play_video_io">Video konnte nicht abgespielt werden, da ein Netzwerkfehler aufgetreten ist.</string>
+    <string name="logcat_summary">Speichere LOGCAT unter /sdcard/pr0gramm.log</string>
+    <string name="logcat">Logcat</string>
 </resources>

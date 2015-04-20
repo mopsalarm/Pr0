@@ -164,4 +164,6 @@
     <string name="logcat_logfile_created">Logfile was created at %s. Please send this to Mopsalarm.</string>
     <string name="could_not_play_video_262">Error 262 occurred during video playback. A logfile was created at %s. Please send this to Mopsalarm to help fix this bug.</string>
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
+    <string name="logcat">Logcat</string>
+    <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
 </resources>

@@ -157,7 +157,7 @@
 
         <Preference
             android:key="pref_pseudo_logcat"
-            android:title="LOGCAT"
-            android:summary="Speichere LOGCAT unter /sdcard/pr0gramm.log"/>
+            android:title="@string/logcat"
+            android:summary="@string/logcat_summary"/>
     </PreferenceCategory>
 </PreferenceScreen>
