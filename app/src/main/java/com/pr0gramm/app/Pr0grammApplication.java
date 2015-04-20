@@ -3,7 +3,6 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
@@ -11,12 +10,18 @@ import com.orm.SugarApp;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.fabric.sdk.android.Fabric;
+import pl.brightinventions.slf4android.LoggerConfiguration;
 
 /**
  * Global application class for pr0gramm app.
  */
 public class Pr0grammApplication extends SugarApp {
+    private static final Logger logger = LoggerFactory.getLogger(Pr0grammApplication.class);
+
     public Pr0grammApplication() {
         GLOBAL_CONTEXT = this;
     }
@@ -31,10 +36,15 @@ public class Pr0grammApplication extends SugarApp {
         if (!development) {
             Settings settings = Settings.of(this);
             if (settings.analyticsEnabled()) {
+                logger.info("Initialize Fabric");
                 Fabric.with(this, new Crashlytics());
+
+                LoggerConfiguration.configuration()
+                        .removeRootLogcatHandler()
+                        .addHandlerToRootLogger(new CrashlyticsLogHandler());
             }
         } else {
-            Log.i("App", "This is a development version.");
+            logger.info("This is a development version.");
         }
     }
 
