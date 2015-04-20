@@ -32,7 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import retrofit.RestAdapter;
-import retrofit.android.AndroidLog;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 import roboguice.inject.SharedPreferencesName;
@@ -58,7 +57,7 @@ public class Pr0grammModule extends AbstractModule {
                 .setEndpoint("http://pr0gramm.com")
                 .setConverter(new GsonConverter(gson))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setLog(new AndroidLog("Pr0grammApi"))
+                .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
                 .setClient(new OkClient(client))
                 .build()
                 .create(Api.class);

@@ -2,10 +2,12 @@ package com.pr0gramm.app.services;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
+import com.pr0gramm.app.LoggerAdapter;
 import com.squareup.okhttp.OkHttpClient;
 
+import org.slf4j.LoggerFactory;
+
 import retrofit.RestAdapter;
-import retrofit.android.AndroidLog;
 import retrofit.client.OkClient;
 import retrofit.http.GET;
 import retrofit.http.Path;
@@ -22,7 +24,7 @@ public class MyGifToVideoService implements GifToVideoService {
     public MyGifToVideoService(OkHttpClient client) {
         this.api = new RestAdapter.Builder()
                 .setEndpoint(DEFAULT_ENDPOINT)
-                .setLog(new AndroidLog("Gif2Webm"))
+                .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setClient(new OkClient(client))
                 .build()
