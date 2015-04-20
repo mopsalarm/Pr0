@@ -28,11 +28,6 @@ public class UsernameView extends TextView {
     }
 
     private void init() {
-        int padding = getContext().getResources()
-                .getDimensionPixelOffset(R.dimen.user_type_drawable_padding);
-
-        setCompoundDrawablePadding(padding);
-
         if (isInEditMode())
             setUsername("Mopsalarm", 2);
     }
@@ -46,7 +41,7 @@ public class UsernameView extends TextView {
     }
 
     public void setUsername(String name, int mark) {
-        setText(name);
+        setText(name + " ");
         setMark(mark);
     }
 

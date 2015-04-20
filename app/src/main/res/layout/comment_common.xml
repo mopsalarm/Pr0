@@ -15,6 +15,7 @@
         android:text="@string/dummy_comment"/>
 
     <LinearLayout
+        android:id="@+id/username_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -25,21 +26,30 @@
         <TextView
             style="@style/AppStyle.OpBadge"
             android:id="@+id/badge_op"
+            android:layout_marginRight="4dp"
             />
 
         <com.pr0gramm.app.ui.views.UsernameView
             style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/username"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"/>
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignLeft="@+id/comment"
+        android:layout_below="@id/username_container">
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Caption"
             android:id="@+id/points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="0dp"
             android:textSize="10sp"
             android:text="@string/dummy_points"/>
 
@@ -59,6 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:textColor="@color/primary"
+            android:singleLine="true"
             android:text="@string/action_answer"/>
-    </LinearLayout>
+
+        </LinearLayout>
 </merge>
