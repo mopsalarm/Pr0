@@ -77,16 +77,16 @@
             android:defaultValue="true"/>
 
         <CheckBoxPreference
-                android:key="pref_show_refresh_button"
-                android:title="@string/pref_show_refresh_button"
-                android:summary="@string/pref_show_refresh_button_summary"
-                android:defaultValue="true"/>
+            android:key="pref_show_refresh_button"
+            android:title="@string/pref_show_refresh_button"
+            android:summary="@string/pref_show_refresh_button_summary"
+            android:defaultValue="true"/>
 
         <CheckBoxPreference
             android:key="pref_show_notifications"
             android:title="@string/pref_show_notifications"
             android:summary="@string/pref_show_notifications_summary"
-            android:defaultValue="true" />
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -106,6 +106,12 @@
             android:title="@string/pref_convert_gif_to_webm"
             android:summaryOn="@string/pref_convert_gif_to_webm_on"
             android:summaryOff="@string/pref_convert_gif_to_webm_off"
+            android:defaultValue="false"/>
+
+        <CheckBoxPreference
+            android:key="pref_dont_restore_surface"
+            android:title="@string/pref_dont_restore_surface_title"
+            android:summary="@string/pref_dont_restore_surface_summary"
             android:defaultValue="false"/>
 
     </PreferenceCategory>

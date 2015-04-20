@@ -14,9 +14,11 @@ import android.view.ViewGroup;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,9 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @InjectView(R.id.video_container)
     private ViewGroup videoContainer;
+
+    @Inject
+    private Settings settings;
 
     private State targetState = State.IDLE;
     private State currentState = State.IDLE;
@@ -241,7 +246,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         logger.info("Could not play video: " + message);
 
         try {
-            if(what == MediaPlayer.MEDIA_ERROR_UNSUPPORTED && extra == MediaPlayer.MEDIA_ERROR_IO) {
+            if (what == MediaPlayer.MEDIA_ERROR_UNSUPPORTED && extra == MediaPlayer.MEDIA_ERROR_IO) {
                 new MaterialDialog.Builder(getContext())
                         .content(R.string.could_not_play_video_io)
                         .positiveText(R.string.okay)
@@ -327,7 +332,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                     setMediaPlayerTexture(texture);
                 }
 
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !settings.dontRestoreSurfaceTexture()) {
                 tryRestoreTexture(this.texture);
 
             } else if (mediaPlayer != null) {
@@ -348,7 +353,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 // goto pause mode and retain the current surface
                 moveTo(State.PAUSED);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !settings.dontRestoreSurfaceTexture()) {
                     logger.info("Keeping Texture after onDestroyed-event");
                     return false;
                 } else {

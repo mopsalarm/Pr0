@@ -166,4 +166,6 @@
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
     <string name="logcat">Logcat</string>
     <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
+    <string name="pref_dont_restore_surface_title">Video compatibility mode</string>
+    <string name="pref_dont_restore_surface_summary">Activate this if you have problems playing webm videos</string>
 </resources>

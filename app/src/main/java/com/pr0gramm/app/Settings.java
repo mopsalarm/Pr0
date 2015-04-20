@@ -129,6 +129,10 @@ public class Settings {
         return preferences.getBoolean("pref_show_notifications", true);
     }
 
+    public boolean dontRestoreSurfaceTexture() {
+        return preferences.getBoolean("pref_dont_restore_surface", false);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }
