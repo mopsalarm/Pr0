@@ -25,7 +25,7 @@ public class GuavaPicassoCache implements Cache {
     private final int maxSize;
 
     public GuavaPicassoCache(int maxSize) {
-        Log.i("PicassoCache", "Initializing cache with about " + maxSize / 1024 * 1024 + "mb");
+        Log.i("PicassoCache", "Initializing cache with about " + maxSize / (1024 * 1024) + "mb");
 
         this.maxSize = maxSize;
         cache = CacheBuilder.<String, Bitmap>newBuilder()
