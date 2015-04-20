@@ -91,7 +91,7 @@ dependencies {
         transitive = true
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.2@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
         transitive = true;
     }
 

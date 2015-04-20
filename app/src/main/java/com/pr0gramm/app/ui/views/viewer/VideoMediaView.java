@@ -357,6 +357,9 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                     logger.info("Keeping Texture after onDestroyed-event");
                     return false;
                 } else {
+                    texture = null;
+
+                    moveTo(State.PAUSED);
                     setMediaPlayerTexture(null);
 
                     logger.info("Destroying Texture in onDestroyed-event because of old android.");

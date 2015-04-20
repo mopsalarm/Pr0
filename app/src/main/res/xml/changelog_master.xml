@@ -7,7 +7,8 @@
         versioncode="27">
 
         <change><![CDATA[
-            Siehe Changelog 1.26 und 1.25 für Änderungen in dieser Version.
+            Wieder VideoPlayer Bugfixes. Es wäre gut, wenn mehr Leute, die Probleme haben,
+            mir ein Logcat schicken könnten! Ich kann die Probleme sonst nicht beheben!
         ]]></change>
     </release>
 
