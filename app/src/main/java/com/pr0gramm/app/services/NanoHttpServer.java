@@ -131,6 +131,10 @@ public abstract class NanoHttpServer {
         setAsyncRunner(new DefaultAsyncRunner());
     }
 
+    public int getMyPort() {
+        return myPort;
+    }
+
     private static void safeClose(Closeable closeable) {
         if (closeable != null) {
             try {

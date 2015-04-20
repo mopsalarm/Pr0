@@ -1,8 +1,11 @@
 package com.pr0gramm.app.services;
 
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterables;
+import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
@@ -16,19 +19,23 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.System.currentTimeMillis;
 
 /**
  */
 @Singleton
 public class SimpleProxyService extends NanoHttpServer {
-    private OkHttpClient okHttpClient;
+    private final String nonce;
+    private final OkHttpClient okHttpClient;
 
     @Inject
     public SimpleProxyService(OkHttpClient okHttpClient) {
         super(getRandomPort());
-        this.okHttpClient = okHttpClient;
 
-        Log.i("Proxy", "Open simple proxy on port " + getListeningPort());
+        this.okHttpClient = okHttpClient;
+        this.nonce = Hashing.md5().hashLong(currentTimeMillis()).toString();
+
+        Log.i("Proxy", "Open simple proxy on port " + getMyPort());
     }
 
     /**
@@ -42,23 +49,30 @@ public class SimpleProxyService extends NanoHttpServer {
 
     public String getProxyUrl(String url) {
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
-        return "http://127.0.0.1:" + getListeningPort() + "/" + encoded;
+        return new Uri.Builder()
+                .scheme("http")
+                .encodedAuthority("127.0.0.1:" + getMyPort())
+                .appendPath(nonce)
+                .appendPath(encoded)
+                .toString();
     }
 
     @Override
     public Response serve(IHTTPSession session) {
-        String path = session.getUri();
-        Log.i("Proxy", "Request " + path);
+        Uri uri = Uri.parse(session.getUri());
+        if(!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null)))
+            return new Response(Response.Status.FORBIDDEN, "text/plain", "");
+
+        String encodedUrl = uri.getLastPathSegment();
+        Log.i("Proxy", "Request " + encodedUrl);
 
         String url = new String(
-                BaseEncoding.base64Url().decode(path.substring(1)),
+                BaseEncoding.base64Url().decode(encodedUrl),
                 Charsets.UTF_8).trim();
-
-        Log.i("Proxy", "Range: " + session.getHeaders().get("Range"));
 
         com.squareup.okhttp.Response response;
         try {
-            Request request = new Request.Builder().url(url).build();
+            Request request = buildRequest(url, session);
             response = okHttpClient.newCall(request).execute();
 
             Response.IStatus status = translateStatus(response.code(), response.message());
@@ -103,6 +117,17 @@ public class SimpleProxyService extends NanoHttpServer {
             Log.e("Proxy", "Could not proxy for url " + url, e);
             return new Response(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
         }
+    }
+
+    private Request buildRequest(String url, IHTTPSession session) {
+        Request.Builder req = new Request.Builder().url(url);
+
+        // forward the range header
+        String range = session.getHeaders().get("range");
+        if(range != null)
+            req = req.addHeader("Range", range);
+
+        return req.build();
     }
 
     private static Response.IStatus translateStatus(int code, String description) {
