@@ -111,6 +111,12 @@ public class SimpleProxyService extends NanoHttpServer {
             result.addHeader("Accept-Range", "bytes");
             result.addHeader("Connection", "close");
             result.setChunkedTransfer(length == null);
+
+            // forward content range header
+            String contentRange = response.header("Content-Range");
+            if(contentRange != null)
+                result.addHeader("Content-Range", contentRange);
+
             return result;
 
         } catch (IOException e) {
@@ -119,7 +125,7 @@ public class SimpleProxyService extends NanoHttpServer {
         }
     }
 
-    private Request buildRequest(String url, IHTTPSession session) {
+    private static Request buildRequest(String url, IHTTPSession session) {
         Request.Builder req = new Request.Builder().url(url);
 
         // forward the range header
