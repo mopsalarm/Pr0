@@ -70,10 +70,9 @@ public class SimpleProxyService extends NanoHttpServer {
                 BaseEncoding.base64Url().decode(encodedUrl),
                 Charsets.UTF_8).trim();
 
-        com.squareup.okhttp.Response response;
         try {
             Request request = buildRequest(url, session);
-            response = okHttpClient.newCall(request).execute();
+            com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
 
             Response.IStatus status = translateStatus(response.code(), response.message());
             String contentType = response.header("Content-Type", "application/octet-stream");
