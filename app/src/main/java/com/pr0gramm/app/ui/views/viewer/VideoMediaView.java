@@ -34,7 +34,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
  */
 @SuppressLint("ViewConstructor")
 public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnInfoListener {
 
     @InjectView(R.id.video)
     private TextureView surfaceView;
@@ -292,6 +292,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             try {
                 mediaPlayer.setDataSource(getContext(), Uri.parse(url));
                 mediaPlayer.setOnPreparedListener(this);
+                mediaPlayer.setOnInfoListener(this);
                 mediaPlayer.setOnErrorListener(this);
                 mediaPlayer.setOnVideoSizeChangedListener(this);
                 mediaPlayer.prepareAsync();
@@ -304,6 +305,12 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             moveTo(State.IDLE);
             defaultOnError().call(error);
         });
+    }
+
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        logger.info("MediaPlayer.info({}, {})", what, extra);
+        return true;
     }
 
     private class SurfaceTextureListenerImpl implements TextureView.SurfaceTextureListener {
