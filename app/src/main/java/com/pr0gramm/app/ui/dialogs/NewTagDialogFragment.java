@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +24,9 @@ import com.pr0gramm.app.Lazy;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -37,6 +39,8 @@ import roboguice.fragment.RoboDialogFragment;
 /**
  */
 public class NewTagDialogFragment extends RoboDialogFragment {
+    private static final Logger logger = LoggerFactory.getLogger(NewTagDialogFragment.class);
+
     private MultiAutoCompleteTextView tagInput;
 
     @NonNull
@@ -120,7 +124,7 @@ public class NewTagDialogFragment extends RoboDialogFragment {
             }
 
         } catch (Exception error) {
-            Log.e("Tags", "Could not load list of tags", error);
+            logger.error("Could not load list of tags", error);
             return Collections.emptyList();
         }
     });

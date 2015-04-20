@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -16,6 +15,9 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +38,8 @@ import static java.lang.String.format;
  */
 @Singleton
 public class VoteService {
-    public static final String TAG = "VoteService";
+    private static final Logger logger = LoggerFactory.getLogger(VoteService.class);
+
     private final Api api;
 
     @Inject
@@ -124,7 +127,7 @@ public class VoteService {
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTansaction(() -> {
-            Log.i(TAG, "Applying " + actions.size() / 2 + " vote actions");
+            logger.info("Applying " + actions.size() / 2 + " vote actions");
 
             for (int idx = 0; idx < actions.size(); idx += 2) {
                 VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
@@ -136,7 +139,7 @@ public class VoteService {
             }
         });
 
-        Log.i(TAG, "Applying vote actions took " + watch);
+        logger.info("Applying vote actions took " + watch);
     }
 
     /**
@@ -174,7 +177,7 @@ public class VoteService {
      * Removes all votes from the vote cache.
      */
     public void clear() {
-        Log.i(TAG, "Removing all items from vote cache");
+        logger.info("Removing all items from vote cache");
         SugarRecord.deleteAll(CachedVote.class);
     }
 
@@ -197,7 +200,7 @@ public class VoteService {
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 
-            Log.i(TAG, format("Loading votes for %d comments took %s", comments.size(), watch));
+            logger.info(format("Loading votes for %d comments took %s", comments.size(), watch));
             return result;
         }, Schedulers.io());
     }

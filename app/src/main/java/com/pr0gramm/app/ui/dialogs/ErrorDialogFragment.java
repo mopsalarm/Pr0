@@ -6,11 +6,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -23,6 +25,8 @@ import static com.pr0gramm.app.AndroidUtility.logToCrashlytics;
  * This dialog fragment shows and error to the user.
  */
 public class ErrorDialogFragment extends DialogFragment {
+    private static final Logger logger = LoggerFactory.getLogger(ErrorDialogFragment.class);
+
     private static WeakReference<OnErrorDialogHandler> GLOBAL_ERROR_DIALOG_HANDLER;
     private static WeakReference<Throwable> PREVIOUS_ERROR = new WeakReference<>(null);
 
@@ -71,7 +75,7 @@ public class ErrorDialogFragment extends DialogFragment {
 //                // get the cause
 //                Throwable cause = error.getCause();
 //
-//                Log.i("Error", "The next error occurred somewhere in RxJava");
+//                logger.info("The next error occurred somewhere in RxJava");
 //                try {
 //                    mainHandler.post(() -> processError(cause, getGlobalErrorDialogHandler()));
 //                } catch (Throwable ignored) {
@@ -82,7 +86,7 @@ public class ErrorDialogFragment extends DialogFragment {
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private static void processError(Throwable error, OnErrorDialogHandler handler) {
-        Log.e("Error", "An error occurred", error);
+        logger.error("An error occurred", error);
 
         try {
             // do some checking so we don't log this exception twice
@@ -115,7 +119,7 @@ public class ErrorDialogFragment extends DialogFragment {
     }
 
     public static void showErrorString(FragmentManager fragmentManager, String message) {
-        Log.i("Error", message);
+        logger.info(message);
 
         try {
             Bundle arguments = new Bundle();
@@ -129,7 +133,7 @@ public class ErrorDialogFragment extends DialogFragment {
             dialog.show(fragmentManager, "ErrorDialog");
 
         } catch(Exception error) {
-            Log.e("ErrorDialog", "Could not show error dialog", error);
+            logger.error("Could not show error dialog", error);
         }
     }
 
@@ -145,7 +149,7 @@ public class ErrorDialogFragment extends DialogFragment {
             }
 
         } catch (Throwable error) {
-            Log.w("Error", "Error removing previous dialog", error);
+            logger.warn("Error removing previous dialog", error);
         }
     }
 

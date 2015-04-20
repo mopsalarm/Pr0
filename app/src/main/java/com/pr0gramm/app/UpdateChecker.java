@@ -4,7 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import retrofit.RestAdapter;
 import retrofit.http.GET;
@@ -17,6 +19,8 @@ import static java.lang.String.format;
  * Class to perform an update check.
  */
 public class UpdateChecker {
+    private static final Logger logger = LoggerFactory.getLogger(UpdateChecker.class);
+
     private final int currentVersion;
     private final String endpoint;
 
@@ -33,7 +37,7 @@ public class UpdateChecker {
             return api.get();
 
         }).filter(update -> {
-            Log.i("Update", format("Installed v%d, current v%d", currentVersion, update.getVersion()));
+            logger.info(format("Installed v%d, current v%d", currentVersion, update.getVersion()));
 
             // filter out if up to date
             return update.getVersion() > currentVersion;
@@ -44,7 +48,7 @@ public class UpdateChecker {
                 apk = Uri.withAppendedPath(Uri.parse(endpoint), apk).toString();
             }
 
-            Log.i("Update", "Got new update at url " + apk);
+            logger.info("Got new update at url " + apk);
             return new Update(update.version, apk, update.changelog);
         });
     }

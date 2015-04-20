@@ -1,11 +1,13 @@
 package com.pr0gramm.app;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.squareup.picasso.Cache;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -19,13 +21,14 @@ import static com.google.common.collect.Iterables.filter;
  * This should prevent further out of memory errors.
  */
 public class GuavaPicassoCache implements Cache {
+    private static final Logger logger = LoggerFactory.getLogger(GuavaPicassoCache.class);
     private static final long MAX_CACHE_ITEM_SIZE = 128 * 128 * 4;
 
     private final com.google.common.cache.Cache<String, Bitmap> cache;
     private final int maxSize;
 
     public GuavaPicassoCache(int maxSize) {
-        Log.i("PicassoCache", "Initializing cache with about " + maxSize / (1024 * 1024) + "mb");
+        logger.info("Initializing cache with about " + maxSize / (1024 * 1024) + "mb");
 
         this.maxSize = maxSize;
         cache = CacheBuilder.<String, Bitmap>newBuilder()
@@ -47,7 +50,7 @@ public class GuavaPicassoCache implements Cache {
             cache.put(key, bitmap);
         }
 
-        // Log.i("PicassoCache", "Stats: " + cache.stats());
+        // logger.info("Stats: " + cache.stats());
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 
 import com.pr0gramm.app.services.GifToVideoService;
 
@@ -28,18 +27,18 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     }
 
     private void startWebmConversion(Binder binder, String url) {
-        Log.i("Gif2Webm", "Start converting gif to webm");
+        logger.info("Start converting gif to webm");
         conversion = binder.bind(gifToVideoService.toVideo(url)).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer
             MediaView child;
             if (result.getVideoUrl().isPresent()) {
-                Log.i("Gif2Webm", "Converted successfully, replace with video player");
+                logger.info("Converted successfully, replace with video player");
                 child = MediaViews.newInstance(getContext(), binder, result.getVideoUrl().get());
 
             } else {
-                Log.i("Gif2Webm", "Conversion did not work, showing gif");
+                logger.info("Conversion did not work, showing gif");
                 child = new GifMediaView(getContext(), binder, result.getGifUrl());
             }
 

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -14,12 +13,16 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.UserService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import roboguice.service.RoboIntentService;
 
 /**
  */
 public class SyncIntentService extends RoboIntentService {
-    private static final String TAG = "SyncIntentService";
+    private static final Logger logger = LoggerFactory.getLogger(SyncIntentService.class);
+
     private static final int ID_NEW_MESSAGE = 5001;
 
     @Inject
@@ -34,20 +37,20 @@ public class SyncIntentService extends RoboIntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "Performing a sync operation now");
+        logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)
             return;
 
         Stopwatch watch = Stopwatch.createStarted();
         try {
-            Log.i("SyncIntentService", "performing sync");
+            logger.info("performing sync");
             Optional<Sync> sync = userService.sync();
 
-            Log.i("SyncIntentService", "updating info");
+            logger.info("updating info");
             userService.info();
 
             // print info!
-            Log.i("SyncIntentService", "finished without error after " + watch);
+            logger.info("finished without error after " + watch);
 
             // now show results, if any
             if (sync.isPresent() && sync.get().getInboxCount() > 0) {
@@ -57,7 +60,7 @@ public class SyncIntentService extends RoboIntentService {
             }
 
         } catch (Throwable thr) {
-            Log.e(TAG, "Error while syncing", thr);
+            logger.error("Error while syncing", thr);
 
         } finally {
             SyncBroadcastReceiver.completeWakefulIntent(intent);

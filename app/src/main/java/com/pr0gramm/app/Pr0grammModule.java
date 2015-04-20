@@ -1,7 +1,6 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.reflect.Reflection;
@@ -24,6 +23,8 @@ import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +41,8 @@ import roboguice.inject.SharedPreferencesName;
  */
 @SuppressWarnings("UnusedDeclaration")
 public class Pr0grammModule extends AbstractModule {
+    private static final Logger logger = LoggerFactory.getLogger(Pr0grammModule.class);
+
     @Override
     protected void configure() {
     }
@@ -102,10 +105,10 @@ public class Pr0grammModule extends AbstractModule {
             Stopwatch watch = Stopwatch.createStarted();
             Request request = chain.request();
 
-            Log.i("HttpClient", "performing http request for " + request.urlString());
+            logger.info("performing http request for " + request.urlString());
             Response response = chain.proceed(request);
 
-            Log.i("HttpClient", String.format("%s (%d) took %s",
+            logger.info(String.format("%s (%d) took %s",
                     request.urlString(), response.code(), watch));
 
             return response;

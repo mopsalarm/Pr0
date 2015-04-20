@@ -3,10 +3,12 @@ package com.pr0gramm.app;
 import android.content.res.TypedArray;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -15,6 +17,8 @@ import java.nio.charset.Charset;
 /**
  */
 public class AndroidUtility {
+    private static final Logger logger = LoggerFactory.getLogger(AndroidUtility.class);
+
     private AndroidUtility() {
     }
 
@@ -62,7 +66,7 @@ public class AndroidUtility {
             // most certainly crashlytics was not activated.
 
         } catch (Exception err) {
-            Log.i("Error", "Could not send error to google", err);
+            logger.info("Could not send error to google", err);
         }
     }
 }

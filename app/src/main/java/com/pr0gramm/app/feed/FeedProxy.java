@@ -3,11 +3,13 @@ package com.pr0gramm.app.feed;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +28,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class FeedProxy {
+    private static final Logger logger = LoggerFactory.getLogger(FeedProxy.class);
+
     private final List<FeedItem> items = new ArrayList<>();
 
     private final FeedFilter feedFilter;
@@ -159,7 +163,7 @@ public class FeedProxy {
 
     public void restart(Optional<Long> around) {
         if (loading) {
-            Log.w("Feed", "Can not restart, currently loading");
+            logger.warn("Can not restart, currently loading");
             return;
         }
 
@@ -210,20 +214,20 @@ public class FeedProxy {
                 long oldMinId = items.get(items.size() - 1).getId(feedFilter.getFeedType());
 
                 if (newMinId > oldMaxId) {
-                    Log.i("Feed", "Okay, prepending new data to stored feed");
+                    logger.info("Okay, prepending new data to stored feed");
                     index = 0;
 
                 } else if (newMaxId < oldMinId) {
-                    Log.i("Feed", "Okay, appending new data to stored feed");
+                    logger.info("Okay, appending new data to stored feed");
                     index = items.size();
 
                 } else if (newMinId < oldMinId) {
                     // mixed!
-                    Log.w("Feed", "New data is overlapping with old data! Appending new data.");
+                    logger.warn("New data is overlapping with old data! Appending new data.");
                     index = items.size();
 
                 } else if (newMaxId > oldMaxId) {
-                    Log.w("Feed", "New data is overlapping with old data! Prepending new data.");
+                    logger.warn("New data is overlapping with old data! Prepending new data.");
                     index = items.size();
                 }
             }
@@ -245,7 +249,7 @@ public class FeedProxy {
                 .isStrictlyOrdered(items);
 
         if(!ordered) {
-            Log.w("Feed", "Feed not strictly ordered :/");
+            logger.warn("Feed not strictly ordered :/");
         }
     }
 
@@ -394,7 +398,7 @@ public class FeedProxy {
         @Override
         public void onError(Throwable error) {
             checkMainThread();
-            Log.e("Feed", "Could not load feed", error);
+            logger.error("Could not load feed", error);
         }
 
         @Override

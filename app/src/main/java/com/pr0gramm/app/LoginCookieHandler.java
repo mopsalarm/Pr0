@@ -1,12 +1,14 @@
 package com.pr0gramm.app;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
 import com.pr0gramm.app.api.pr0gramm.Api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.CookieHandler;
 import java.net.HttpCookie;
@@ -25,6 +27,8 @@ import static java.util.Arrays.asList;
  */
 @Singleton
 public class LoginCookieHandler extends CookieHandler {
+    private static final Logger logger = LoggerFactory.getLogger(LoginCookieHandler.class);
+
     private static final String PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue";
 
     private final Object lock = new Object();
@@ -41,7 +45,7 @@ public class LoginCookieHandler extends CookieHandler {
 
         String restored = preferences.getString(PREF_LOGIN_COOKIE, null);
         if (restored != null && !"null".equals(restored)) {
-            Log.i("LoginCookieHandler", "restoring cookie value from prefs: " + restored);
+            logger.info("restoring cookie value from prefs: " + restored);
             setLoginCookie(restored);
         }
     }
@@ -54,7 +58,7 @@ public class LoginCookieHandler extends CookieHandler {
         if (httpCookie == null || httpCookie.getValue() == null)
             return Collections.emptyMap();
 
-        Log.d("LoginCookieHandler", "Add login cookie to request: " + httpCookie.getValue());
+        // logger.debug("LoginCookieHandler", "Add login cookie to request: " + httpCookie.getValue());
         return cookiesToHeaders(Collections.singletonList(httpCookie));
     }
 
@@ -71,8 +75,8 @@ public class LoginCookieHandler extends CookieHandler {
                 List<HttpCookie> cookies;
                 try {
                     cookies = HttpCookie.parse(value);
-                } catch (IllegalArgumentException ignored) {
-                    Log.d("LoginCookieHandler", "invalid cookie format");
+                } catch (IllegalArgumentException err) {
+                    logger.warn("LoginCookieHandler", "invalid cookie format", err);
                     continue;
                 }
 
@@ -88,7 +92,7 @@ public class LoginCookieHandler extends CookieHandler {
 
     private void handleCookie(HttpCookie cookie) {
         if (isLoginCookie(cookie)) {
-            Log.d("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
+            // logger.debug("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
             setLoginCookie(cookie);
         }
     }
@@ -102,7 +106,7 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     public void setLoginCookie(String value) {
-        Log.i("LoginCookieHandler", "Set login cookie called: " + value);
+        logger.info("Set login cookie called: " + value);
 
         // convert to a http cookie
         HttpCookie cookie = new HttpCookie("me", value);
@@ -158,7 +162,7 @@ public class LoginCookieHandler extends CookieHandler {
             String value = AndroidUtility.urlDecode(cookie.getValue(), Charsets.UTF_8);
             return Optional.of(gson.fromJson(value, Cookie.class));
         } catch (Exception err) {
-            Log.w("Cookie", "Could not parse login cookie!", err);
+            logger.warn("Could not parse login cookie!", err);
 
             AndroidUtility.logToCrashlytics(err);
             return Optional.absent();

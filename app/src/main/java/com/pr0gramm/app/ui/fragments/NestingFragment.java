@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import roboguice.fragment.RoboFragment;
  * @link http://ideaventure.blogspot.com.au/2014/10/nested-retained-fragment-lost-state.html
  */
 public class NestingFragment extends RoboFragment {
+    private static final Logger logger = LoggerFactory.getLogger(NestingFragment.class);
+
     private FragmentManager retainedChildFragmentManager;
 
     public NestingFragment() {
@@ -31,7 +35,7 @@ public class NestingFragment extends RoboFragment {
         if (retainedChildFragmentManager != null) {
             //restore the last retained child fragment manager to the new
             //created fragment
-            Log.i(getClass().getSimpleName(), "restoring child fragment manager");
+            logger.info("restoring child fragment manager");
             setFieldByName(this, "mChildFragmentManager", retainedChildFragmentManager);
 
             if (activity instanceof FragmentActivity) {
@@ -64,7 +68,7 @@ public class NestingFragment extends RoboFragment {
         super.onDetach();
 
         try {
-            Log.i(getClass().getSimpleName(), "storing child fragment manager");
+            logger.info("storing child fragment manager");
             Field childFmField = Fragment.class.getDeclaredField("mChildFragmentManager");
             childFmField.setAccessible(true);
             retainedChildFragmentManager = (FragmentManager) childFmField.get(this);

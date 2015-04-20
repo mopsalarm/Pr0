@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -17,6 +16,9 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,6 +31,8 @@ import roboguice.inject.InjectView;
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 
 public class ZoomViewActivity extends RoboActionBarActivity {
+    private static final Logger logger = LoggerFactory.getLogger(ZoomViewActivity.class);
+
     @InjectExtra("ZoomViewActivity.imageUrl")
     private String imageUrl;
 
@@ -142,7 +146,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         if (parent instanceof ViewGroup) {
             ((ViewGroup) parent).removeView(view);
         } else {
-            Log.w("ZoomActivity", "Could not remove temporary view canvas!");
+            logger.warn("Could not remove temporary view canvas!");
         }
     }
 
@@ -167,7 +171,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         private void onCanvasAvailable(Canvas canvas) {
             int maximumBitmapWidth = Math.max(2048, canvas.getMaximumBitmapWidth());
             int maximumBitmapHeight = Math.max(2048, canvas.getMaximumBitmapHeight());
-            Log.i("ZoomActivity", "Maximum image size is " + maximumBitmapWidth + "x" + maximumBitmapHeight);
+            logger.info("Maximum image size is " + maximumBitmapWidth + "x" + maximumBitmapHeight);
 
             // now start loading the image and remove this view again
             handler.post(() -> {

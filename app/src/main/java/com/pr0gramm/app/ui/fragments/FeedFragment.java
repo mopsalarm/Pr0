@@ -9,7 +9,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +35,9 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +57,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class FeedFragment extends RoboFragment {
+    private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
+
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start";
 
@@ -176,7 +180,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     private FeedAdapter newFeedAdapter() {
-        Log.i("Feed", "Restore adapter now");
+        logger.info("Restore adapter now");
         FeedFilter feedFilter = getArguments()
                 .<FeedFilter>getParcelable(ARG_FEED_FILTER)
                 .withContentType(settings.getContentType());
@@ -256,7 +260,7 @@ public class FeedFragment extends RoboFragment {
                 if (dy > 0 && !proxy.isAtEnd()) {
                     int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        Log.i("FeedScroll", "Request next page now");
+                        logger.info("Request next page now");
                         proxy.loadNextPage();
                     }
                 }
@@ -264,7 +268,7 @@ public class FeedFragment extends RoboFragment {
                 if (dy < 0 && !proxy.isAtStart()) {
                     int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        Log.i("FeedScroll", "Request previous page now");
+                        logger.info("Request previous page now");
                         proxy.loadPreviousPage();
                     }
                 }
@@ -380,7 +384,7 @@ public class FeedFragment extends RoboFragment {
         try {
             ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
         } catch (IllegalStateException error) {
-            Log.w("FeedFragment", "Error while showing post", error);
+            logger.warn("Error while showing post", error);
         }
     }
 

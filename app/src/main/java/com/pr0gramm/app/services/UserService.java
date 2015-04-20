@@ -2,7 +2,6 @@ package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -18,6 +17,8 @@ import com.pr0gramm.app.orm.BenisRecord;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,6 +37,8 @@ import static org.joda.time.Duration.standardDays;
  */
 @Singleton
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
 
     private final Api api;
@@ -209,7 +212,7 @@ public class UserService {
                     return new PointF(x, record.getBenis());
                 }).toList();
 
-        Log.i("UserService", "Loading benis graph took " + watch);
+        logger.info("Loading benis graph took " + watch);
         return new Graph(0, historyLength.getMillis(), points);
     }
 

@@ -11,7 +11,8 @@
 -dontwarn roboguice.**Sherlock*
 -dontwarn roboguice.activity.RoboMapActivity
 -dontwarn org.joda.**
--dontwarn org.codehaus.**
+-dontwarn org.codehaus.**.**
+-dontwarn org.slf4j.**
 
 # keep annotations
 -keepattributes *Annotation*

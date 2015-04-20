@@ -14,7 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +52,8 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -79,6 +80,8 @@ public class PostFragment extends RoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         NewCommentDialogFragment.OnAddNewCommentListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
@@ -232,7 +235,7 @@ public class PostFragment extends RoboFragment implements
         }
 
         if (item.getItemId() == R.id.action_download) {
-            Log.i("Post", "Request download of post #" + feedItem.getId());
+            logger.info("Request download of post #" + feedItem.getId());
             downloadPostMedia();
             return true;
         }

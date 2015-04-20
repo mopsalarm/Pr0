@@ -7,7 +7,6 @@ import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
@@ -55,7 +54,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
     public VideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, R.layout.player_video, url);
 
-        Log.i(TAG, "Playing webm " + url);
+        logger.info("Playing webm " + url);
 
         surfaceHolder = new SurfaceTextureListenerImpl();
         surfaceView.setSurfaceTextureListener(surfaceHolder);
@@ -95,7 +94,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             return;
 
         try {
-            Log.i(TAG, "Moving from state " + currentState + " to " + targetState);
+            logger.info("Moving from state " + currentState + " to " + targetState);
             switch (targetState) {
                 case IDLE:
                     moveTo_Idle();
@@ -135,13 +134,13 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         try {
             if (texture != null) {
                 if (!mediaPlayerHasTexture && mediaPlayer != null) {
-                    Log.i(TAG, "Setting surface on MediaPlayer");
+                    logger.info("Setting surface on MediaPlayer");
                     mediaPlayer.setSurface(new Surface(texture));
                     mediaPlayerHasTexture = true;
                 }
             } else {
                 if (mediaPlayer != null) {
-                    Log.i(TAG, "Removing surface from MediaPlayer");
+                    logger.info("Removing surface from MediaPlayer");
                     mediaPlayer.setSurface(null);
                 }
 
@@ -175,7 +174,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         setMediaPlayerTexture(null);
 
         if (surfaceHolder.hasTexture()) {
-            Log.i(TAG, "Detaching TextureView");
+            logger.info("Detaching TextureView");
             videoContainer.removeView(surfaceView);
         }
 
@@ -188,7 +187,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        Log.i(TAG, "MediaPlayer is prepared");
+        logger.info("MediaPlayer is prepared");
 
         currentState = State.PAUSED;
         if (targetState == State.IDLE) {
@@ -239,7 +238,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         }
 
         String message = String.format("Error playing this video (%d, %d)", what, extra);
-        Log.i(TAG, "Could not play video: " + message);
+        logger.info("Could not play video: " + message);
 
         try {
             if(what == MediaPlayer.MEDIA_ERROR_UNSUPPORTED && extra == MediaPlayer.MEDIA_ERROR_IO) {
@@ -282,11 +281,11 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         // re-attach the view, if not yet there.
         if (surfaceView.getParent() == null) {
-            Log.i(TAG, "Attaching TextureView back");
+            logger.info("Attaching TextureView back");
             videoContainer.addView(surfaceView, 0);
         }
 
-        Log.i(TAG, "Creating new MediaPlayer");
+        logger.info("Creating new MediaPlayer");
         mediaPlayerHasTexture = false;
         mediaPlayer = new MediaPlayer();
         Async.fromCallable(() -> {
@@ -312,9 +311,9 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            Log.i(TAG, "Texture available at size " + width + "x" + height);
+            logger.info("Texture available at size " + width + "x" + height);
             if (this.texture == null) {
-                Log.i(TAG, "Keeping new Texture");
+                logger.info("Keeping new Texture");
 
                 this.texture = surface;
                 if (mediaPlayer != null) {
@@ -343,17 +342,17 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 moveTo(State.PAUSED);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    Log.i(TAG, "Keeping Texture after onDestroyed-event");
+                    logger.info("Keeping Texture after onDestroyed-event");
                     return false;
                 } else {
                     setMediaPlayerTexture(null);
 
-                    Log.i(TAG, "Destroying Texture in onDestroyed-event because of old android.");
+                    logger.info("Destroying Texture in onDestroyed-event because of old android.");
                     return true;
                 }
 
             } else {
-                Log.i(TAG, "Destroying Texture in onDestroyed-event");
+                logger.info("Destroying Texture in onDestroyed-event");
 
                 texture = null;
                 return true;
@@ -374,7 +373,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         public void destroyTexture() {
             if (texture != null) {
-                Log.i(TAG, "Destroying Texture");
+                logger.info("Destroying Texture");
 
                 texture.release();
                 texture = null;
@@ -384,7 +383,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void tryRestoreTexture(SurfaceTexture texture) {
-        Log.i(TAG, "Trying to restore texture");
+        logger.info("Trying to restore texture");
 
         try {
             checkNotNull(texture, "Texture must not be null");

@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
@@ -14,6 +13,9 @@ import com.google.inject.Singleton;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +27,8 @@ import static java.lang.System.currentTimeMillis;
  */
 @Singleton
 public class SimpleProxyService extends NanoHttpServer {
+    private static final Logger logger = LoggerFactory.getLogger(SimpleProxyService.class);
+
     private final String nonce;
     private final OkHttpClient okHttpClient;
 
@@ -35,7 +39,7 @@ public class SimpleProxyService extends NanoHttpServer {
         this.okHttpClient = okHttpClient;
         this.nonce = Hashing.md5().hashLong(currentTimeMillis()).toString();
 
-        Log.i("Proxy", "Open simple proxy on port " + getMyPort());
+        logger.info("Open simple proxy on port " + getMyPort());
     }
 
     /**
@@ -64,7 +68,7 @@ public class SimpleProxyService extends NanoHttpServer {
             return new Response(Response.Status.FORBIDDEN, "text/plain", "");
 
         String encodedUrl = uri.getLastPathSegment();
-        Log.i("Proxy", "Request " + encodedUrl);
+        logger.info("Request " + encodedUrl);
 
         String url = new String(
                 BaseEncoding.base64Url().decode(encodedUrl),
@@ -87,7 +91,7 @@ public class SimpleProxyService extends NanoHttpServer {
 //                    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
 //                        int result = super.read(buffer, byteOffset, byteCount);
 //                        if(read / 100_000 != (read + result) / 100_000) {
-//                            Log.i("Proxy", format("Approx %1d%% loaded", 100 * read / length));
+//                            logger.info(format("Approx %1d%% loaded", 100 * read / length));
 //                        }
 //
 //                        read += result;
@@ -119,7 +123,7 @@ public class SimpleProxyService extends NanoHttpServer {
             return result;
 
         } catch (IOException e) {
-            Log.e("Proxy", "Could not proxy for url " + url, e);
+            logger.error("Could not proxy for url " + url, e);
             return new Response(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
         }
     }

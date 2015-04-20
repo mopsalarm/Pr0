@@ -5,15 +5,19 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.pr0gramm.app.R;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.droidsonroids.gif.GifImageView;
 
 /**
  */
 public class MaximizeImageView extends GifImageView {
+    private static final Logger logger = LoggerFactory.getLogger(MaximizeImageView.class);
+
     public MaximizeImageView(Context context) {
         super(context);
     }
@@ -44,7 +48,7 @@ public class MaximizeImageView extends GifImageView {
             // check if height is still okay, if not,
             // scale down height (and width as such too)
             if (height > getMaximumHeightCompat()) {
-                Log.i("Image", "Would be too heigh, scale down width");
+                logger.info("Would be too heigh, scale down width");
                 height = getMaximumHeightCompat();
                 width = (int) (height * aspect);
             }
@@ -53,7 +57,7 @@ public class MaximizeImageView extends GifImageView {
                 height = ViewCompat.getMinimumHeight(this);
         }
 
-        Log.i("Image", "Size is now " + width + "x" + height);
+        logger.info("Size is now " + width + "x" + height);
         setMeasuredDimension(width, height);
     }
 

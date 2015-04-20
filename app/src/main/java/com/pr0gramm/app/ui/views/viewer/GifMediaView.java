@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -69,7 +68,7 @@ public class GifMediaView extends MediaView {
     private void onDownloadProgress(float progress) {
         checkMainThread();
 
-        Log.i(TAG, "Download at " + ((int) (100 * progress)) + " percent.");
+        logger.info("Download at " + ((int) (100 * progress)) + " percent.");
 
         View progressView = getProgressView();
         if (progressView instanceof ProgressBar) {

@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +26,8 @@ import net.danlew.android.joda.DateUtils;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.Weeks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -44,6 +45,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class LoginDialogFragment extends RoboDialogFragment {
+    private static final Logger logger = LoggerFactory.getLogger(LoginDialogFragment.class);
+
     private static final String PREF_USERNAME = "LoginDialogFragment.username";
 
     @Inject
@@ -180,15 +183,15 @@ public class LoginDialogFragment extends RoboDialogFragment {
                 .getInjector(context)
                 .getInstance(UserService.class);
 
-        Log.i("LoginDialog", "Using login service " + userService);
+        logger.info("Using login service " + userService);
 
         if (userService.isAuthorized()) {
-            Log.i("LoginDialog", "is authorized");
+            logger.info("is authorized");
             runnable.run();
             return true;
 
         } else {
-            Log.i("LoginDialog", "not authorized, showing login dialog");
+            logger.info("not authorized, showing login dialog");
 
             LoginDialogFragment dialog = new LoginDialogFragment();
             dialog.doOnLogin = retry;

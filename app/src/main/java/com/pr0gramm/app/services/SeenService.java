@@ -3,12 +3,14 @@ package com.pr0gramm.app.services;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedItem;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +25,8 @@ import javax.inject.Inject;
  */
 @Singleton
 public class SeenService {
+    private static final Logger logger = LoggerFactory.getLogger(SeenService.class);
+
     private final Object lock = new Object();
     private final SettableFuture<ByteBuffer> buffer = SettableFuture.create();
 
@@ -34,7 +38,7 @@ public class SeenService {
             try {
                 buffer.set(mapByteBuffer(file));
             } catch (IOException error) {
-                Log.w("SeenService", "Could not load the seen-Cache");
+                logger.warn("Could not load the seen-Cache");
             }
         });
     }
@@ -47,7 +51,7 @@ public class SeenService {
 
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
-            Log.w("SeenService", "Id is too large");
+            logger.warn("Id is too large");
             return false;
         }
 
@@ -63,7 +67,7 @@ public class SeenService {
 
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
-            Log.w("SeenService", "Id is too large");
+            logger.warn("Id is too large");
             return;
         }
 
@@ -85,7 +89,7 @@ public class SeenService {
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
 
         synchronized (lock) {
-            Log.i("SeenService", "Removing all the items");
+            logger.info("Removing all the items");
             for (int idx = 0; idx < buffer.limit(); idx++) {
                 buffer.put(idx, (byte) 0);
             }
@@ -103,7 +107,7 @@ public class SeenService {
         // space for up to two million posts
         final long size = 2_000_000 / 8;
 
-        Log.i("SeenService", "Mapping cache: " + file);
+        logger.info("Mapping cache: " + file);
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             raf.setLength(size);
             return raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, size);

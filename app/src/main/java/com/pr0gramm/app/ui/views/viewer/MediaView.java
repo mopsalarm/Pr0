@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,6 +16,9 @@ import android.widget.FrameLayout;
 
 import com.pr0gramm.app.R;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nullable;
 
 import roboguice.RoboGuice;
@@ -24,15 +26,15 @@ import roboguice.inject.RoboInjector;
 import rx.Observable;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
-import static java.lang.System.identityHashCode;
 
 /**
  */
 public abstract class MediaView extends FrameLayout {
-    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
-    protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
-            identityHashCode(this), Character.MAX_RADIX);
+    protected final Logger logger = LoggerFactory.getLogger(VideoMediaView.class.getSimpleName()
+            + Integer.toHexString(System.identityHashCode(this)));
+
+    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     private final GestureDetector gestureDetector;
     protected final Binder binder;
@@ -196,15 +198,15 @@ public abstract class MediaView extends FrameLayout {
      */
     protected void resizeViewerView(View view, float aspect, int retries) {
         if(Float.isNaN(aspect)) {
-            Log.i(TAG, "Not setting aspect to NaN!");
+            logger.info("Not setting aspect to NaN!");
             return;
         }
 
-        Log.i(TAG, "Setting aspect of viewer View to " + aspect);
+        logger.info("Setting aspect of viewer View to " + aspect);
 
         if (view.getWindowToken() == null) {
             if (retries > 0) {
-                Log.i(TAG, "Delay resizing of View for 100ms");
+                logger.info("Delay resizing of View for 100ms");
                 HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
             }
 
@@ -217,7 +219,7 @@ public abstract class MediaView extends FrameLayout {
             if (parentWidth == 0) {
                 // relayout again in a short moment
                 if (retries > 0) {
-                    Log.i(TAG, "Delay resizing of View for 100ms");
+                    logger.info("Delay resizing of View for 100ms");
                     HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
                 }
 
@@ -226,27 +228,27 @@ public abstract class MediaView extends FrameLayout {
 
             int newHeight = (int) (parentWidth / aspect);
             if (view.getHeight() == newHeight) {
-                Log.i(TAG, "View already correctly sized at " + parentWidth + "x" + newHeight);
+                logger.info("View already correctly sized at " + parentWidth + "x" + newHeight);
                 return;
             }
 
-            Log.i(TAG, "Setting size of View to " + parentWidth + "x" + newHeight);
+            logger.info("Setting size of View to " + parentWidth + "x" + newHeight);
             ViewGroup.LayoutParams params = view.getLayoutParams();
             params.height = newHeight;
             view.setLayoutParams(params);
 
         } else {
-            Log.w(TAG, "View has no parent, can not set size.");
+            logger.warn("View has no parent, can not set size.");
         }
     }
 
     public void playMedia() {
-        Log.i(TAG, "Should start playing media");
+        logger.info("Should start playing media");
         playing = true;
     }
 
     public void stopMedia() {
-        Log.i(TAG, "Should stop playing media");
+        logger.info("Should stop playing media");
         playing = false;
     }
 
