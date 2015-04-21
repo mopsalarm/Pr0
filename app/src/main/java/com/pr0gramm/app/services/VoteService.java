@@ -32,7 +32,6 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.transform;
-import static java.lang.String.format;
 
 /**
  */
@@ -55,16 +54,22 @@ public class VoteService {
      * @param vote The vote to send to the server
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
+        logger.info("Voting feed item {} {}", item.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
         return api.vote(null, item.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
+        logger.info("Voting comment {} {}", comment.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
         return api.voteComment(null, comment.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Tag tag, Vote vote) {
+        logger.info("Voting tag {} {}", tag.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
         return api.voteTag(null, tag.getId(), vote.getVoteValue());
     }
@@ -75,8 +80,6 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        // Vote vote = firstNonNull(voteCache.getIfPresent(item.getId()), Vote.NEUTRAL);
-
         return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()))
                 .map(vote -> vote.transform(v -> v.vote))
                 .map(vote -> vote.or(Vote.NEUTRAL));
@@ -127,7 +130,7 @@ public class VoteService {
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTansaction(() -> {
-            logger.info("Applying " + actions.size() / 2 + " vote actions");
+            logger.info("Applying {} vote actions", actions.size() / 2);
 
             for (int idx = 0; idx < actions.size(); idx += 2) {
                 VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
@@ -139,7 +142,7 @@ public class VoteService {
             }
         });
 
-        logger.info("Applying vote actions took " + watch);
+        logger.info("Applying vote actions took {}", watch);
     }
 
     /**
@@ -200,7 +203,7 @@ public class VoteService {
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 
-            logger.info(format("Loading votes for %d comments took %s", comments.size(), watch));
+            logger.info("Loading votes for {} comments took {}", comments.size(), watch);
             return result;
         }, Schedulers.io());
     }

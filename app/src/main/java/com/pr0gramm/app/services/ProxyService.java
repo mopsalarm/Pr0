@@ -26,14 +26,14 @@ import static java.lang.System.currentTimeMillis;
 /**
  */
 @Singleton
-public class SimpleProxyService extends NanoHttpServer {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleProxyService.class);
+public class ProxyService extends NanoHttpServer {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyService.class);
 
     private final String nonce;
     private final OkHttpClient okHttpClient;
 
     @Inject
-    public SimpleProxyService(OkHttpClient okHttpClient) {
+    public ProxyService(OkHttpClient okHttpClient) {
         super(getRandomPort());
 
         this.okHttpClient = okHttpClient;
@@ -51,7 +51,11 @@ public class SimpleProxyService extends NanoHttpServer {
         return (int) (20000 + (Math.random() * 40000));
     }
 
-    public String getProxyUrl(String url) {
+    public String proxy(String url) {
+        // do not proxy twice!
+        if(url.contains(nonce) && url.contains("127.0.0.1"))
+            return url;
+
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
         return new Uri.Builder()
                 .scheme("http")

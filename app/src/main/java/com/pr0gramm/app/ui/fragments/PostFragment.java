@@ -36,6 +36,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.VoteService;
@@ -108,6 +109,9 @@ public class PostFragment extends RoboFragment implements
 
     @Inject
     private LocalCacheService localCacheService;
+
+    @Inject
+    private ProxyService proxyService;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -256,7 +260,8 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void downloadPostMedia() {
-        Uri url = Uri.parse("http://img.pr0gramm.com/" + feedItem.getImage());
+        // download over proxy to use caching
+        Uri url = Uri.parse(proxyService.proxy(MediaViews.url(feedItem)));
 
         File external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File targetDirectory = new File(external, "pr0gramm");
@@ -386,7 +391,8 @@ public class PostFragment extends RoboFragment implements
         };
 
         // initialize a new viewer fragment
-        viewer = MediaViews.newInstance(getActivity(), binder, feedItem);
+        String url = MediaViews.url(feedItem);
+        viewer = MediaViews.newInstance(getActivity(), binder, url);
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
         // wrap into a container before adding
@@ -507,6 +513,7 @@ public class PostFragment extends RoboFragment implements
         return fragment;
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
         return doIfAuthorized(this, () -> {
@@ -515,6 +522,7 @@ public class PostFragment extends RoboFragment implements
         });
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void onAnswerClicked(Post.Comment comment) {
         Runnable retry = () -> onAnswerClicked(comment);

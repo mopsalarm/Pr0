@@ -1,5 +1,8 @@
 package com.pr0gramm.app.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -81,7 +84,10 @@ import java.util.TimeZone;
  * <p>
  * See the separate "LICENSE.md" file for the distribution license (Modified BSD licence)
  */
+@SuppressWarnings("SpellCheckingInspection")
 public abstract class NanoHttpServer {
+    private static final Logger logger = LoggerFactory.getLogger(NanoHttpServer.class);
+
     /**
      * Maximum time to wait on Socket.getInputStream().read() (in milliseconds)
      * This is required as the Keep-Alive HTTP connections would otherwise
@@ -103,7 +109,7 @@ public abstract class NanoHttpServer {
     private final String hostname;
     private final int myPort;
     private ServerSocket myServerSocket;
-    private Set<Socket> openConnections = new HashSet<Socket>();
+    private Set<Socket> openConnections = new HashSet<>();
     private Thread myThread;
     /**
      * Pluggable strategy for asynchronously executing requests.
@@ -139,7 +145,7 @@ public abstract class NanoHttpServer {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -148,7 +154,7 @@ public abstract class NanoHttpServer {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -157,7 +163,7 @@ public abstract class NanoHttpServer {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -190,7 +196,7 @@ public abstract class NanoHttpServer {
                             // When the socket is closed by the client, we throw our own SocketException
                             // to break the  "keep alive" loop above.
                             if (!(e instanceof SocketException && "NanoHttpd Shutdown".equals(e.getMessage()))) {
-                                e.printStackTrace();
+                                logger.warn("Error handling client", e);
                             }
                         } finally {
                             safeClose(outputStream);
@@ -199,7 +205,7 @@ public abstract class NanoHttpServer {
                             unRegisterConnection(finalAccept);
                         }
                     });
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             } while (!myServerSocket.isClosed());
         });
@@ -290,7 +296,7 @@ public abstract class NanoHttpServer {
      * @return HTTP response, see class Response for details
      */
     public Response serve(IHTTPSession session) {
-        Map<String, String> files = new HashMap<String, String>();
+        Map<String, String> files = new HashMap<>();
         Method method = session.getMethod();
         if (Method.PUT.equals(method) || Method.POST.equals(method)) {
             try {
@@ -343,7 +349,7 @@ public abstract class NanoHttpServer {
      * @return a map of <code>String</code> (parameter name) to <code>List&lt;String&gt;</code> (a list of the values supplied).
      */
     protected Map<String, List<String>> decodeParameters(String queryString) {
-        Map<String, List<String>> parms = new HashMap<String, List<String>>();
+        Map<String, List<String>> parms = new HashMap<>();
         if (queryString != null) {
             StringTokenizer st = new StringTokenizer(queryString, "&");
             while (st.hasMoreTokens()) {
@@ -351,7 +357,7 @@ public abstract class NanoHttpServer {
                 int sep = e.indexOf('=');
                 String propertyName = (sep >= 0) ? decodePercent(e.substring(0, sep)).trim() : decodePercent(e).trim();
                 if (!parms.containsKey(propertyName)) {
-                    parms.put(propertyName, new ArrayList<String>());
+                    parms.put(propertyName, new ArrayList<>());
                 }
                 String propertyValue = (sep >= 0) ? decodePercent(e.substring(sep + 1)) : null;
                 if (propertyValue != null) {
@@ -485,7 +491,7 @@ public abstract class NanoHttpServer {
 
         public DefaultTempFileManager() {
             tmpdir = System.getProperty("java.io.tmpdir");
-            tempFiles = new ArrayList<TempFile>();
+            tempFiles = new ArrayList<>();
         }
 
         @Override
@@ -558,7 +564,7 @@ public abstract class NanoHttpServer {
         /**
          * Headers for the HTTP response. Use addHeader() to add lines.
          */
-        private Map<String, String> header = new HashMap<String, String>();
+        private Map<String, String> header = new HashMap<>();
         /**
          * The request method that spawned this response.
          */
@@ -652,7 +658,7 @@ public abstract class NanoHttpServer {
                 outputStream.flush();
                 safeClose(data);
             } catch (IOException ioe) {
-                ioe.printStackTrace();
+                logger.info("Error sending data to the client", ioe);
             }
         }
 
@@ -680,7 +686,7 @@ public abstract class NanoHttpServer {
             pw.print("Transfer-Encoding: chunked\r\n");
             pw.print("\r\n");
             pw.flush();
-            int BUFFER_SIZE = 16 * 1024;
+            int BUFFER_SIZE = 64 * 1024;
             byte[] CRLF = "\r\n".getBytes();
             byte[] buff = new byte[BUFFER_SIZE];
             int read;
@@ -694,13 +700,14 @@ public abstract class NanoHttpServer {
 
         private void sendAsFixedLength(OutputStream outputStream, int pending) throws IOException {
             if (requestMethod != Method.HEAD && data != null) {
-                int BUFFER_SIZE = 16 * 1024;
+                int BUFFER_SIZE = 64 * 1024;
                 byte[] buff = new byte[BUFFER_SIZE];
                 while (pending > 0) {
                     int read = data.read(buff, 0, ((pending > BUFFER_SIZE) ? BUFFER_SIZE : pending));
                     if (read <= 0) {
                         break;
                     }
+
                     outputStream.write(buff, 0, read);
                     pending -= read;
                 }
@@ -831,8 +838,6 @@ public abstract class NanoHttpServer {
 
         /**
          * Adds the files in the request body to the files map.
-         *
-         * @arg files - map to modify
          */
         void parseBody(Map<String, String> files) throws IOException, ResponseException;
     }
@@ -862,7 +867,7 @@ public abstract class NanoHttpServer {
             this.inputStream = new PushbackInputStream(inputStream, BUFSIZE);
             this.outputStream = outputStream;
             String remoteIp = inetAddress.isLoopbackAddress() || inetAddress.isAnyLocalAddress() ? "127.0.0.1" : inetAddress.getHostAddress().toString();
-            headers = new HashMap<String, String>();
+            headers = new HashMap<>();
 
             headers.put("remote-addr", remoteIp);
             headers.put("http-client-ip", remoteIp);
@@ -906,16 +911,16 @@ public abstract class NanoHttpServer {
                     inputStream.unread(buf, splitbyte, rlen - splitbyte);
                 }
 
-                parms = new HashMap<String, String>();
+                parms = new HashMap<>();
                 if (null == headers) {
-                    headers = new HashMap<String, String>();
+                    headers = new HashMap<>();
                 }
 
                 // Create a BufferedReader for parsing the header.
                 BufferedReader hin = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(buf, 0, rlen)));
 
                 // Decode the header into parms and header java properties
-                Map<String, String> pre = new HashMap<String, String>();
+                Map<String, String> pre = new HashMap<>();
                 decodeHeader(hin, pre, parms, headers);
 
                 method = Method.lookup(pre.get("method"));
@@ -936,11 +941,9 @@ public abstract class NanoHttpServer {
                     r.setRequestMethod(method);
                     r.send(outputStream);
                 }
-            } catch (SocketException e) {
+            } catch (SocketException | SocketTimeoutException e) {
                 // throw it out to close socket object (finalAccept)
                 throw e;
-            } catch (SocketTimeoutException ste) {
-                throw ste;
             } catch (IOException ioe) {
                 Response r = new Response(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
                 r.send(outputStream);
@@ -1005,11 +1008,13 @@ public abstract class NanoHttpServer {
 
                     if ("multipart/form-data".equalsIgnoreCase(contentType)) {
                         // Handle multipart/form-data
-                        if (!st.hasMoreTokens()) {
+                        if (st != null && !st.hasMoreTokens()) {
                             throw new ResponseException(Response.Status.BAD_REQUEST, "BAD REQUEST: Content type is multipart/form-data but boundary missing. Usage: GET /example/file.html");
                         }
 
                         String boundaryStartString = "boundary=";
+
+                        assert contentTypeHeader != null;
                         int boundaryContentStart = contentTypeHeader.indexOf(boundaryStartString) + boundaryStartString.length();
                         String boundary = contentTypeHeader.substring(boundaryContentStart, contentTypeHeader.length());
                         if (boundary.startsWith("\"") && boundary.endsWith("\"")) {
@@ -1113,7 +1118,7 @@ public abstract class NanoHttpServer {
                         throw new ResponseException(Response.Status.BAD_REQUEST, "BAD REQUEST: Content type is multipart/form-data but next chunk does not start with boundary. Usage: GET /example/file.html");
                     }
                     boundarycount++;
-                    Map<String, String> item = new HashMap<String, String>();
+                    Map<String, String> item = new HashMap<>();
                     mpline = in.readLine();
                     while (mpline != null && mpline.trim().length() > 0) {
                         int p = mpline.indexOf(':');
@@ -1128,7 +1133,7 @@ public abstract class NanoHttpServer {
                             throw new ResponseException(Response.Status.BAD_REQUEST, "BAD REQUEST: Content type is multipart/form-data but no content-disposition info found. Usage: GET /example/file.html");
                         }
                         StringTokenizer st = new StringTokenizer(contentDisposition, ";");
-                        Map<String, String> disposition = new HashMap<String, String>();
+                        Map<String, String> disposition = new HashMap<>();
                         while (st.hasMoreTokens()) {
                             String token = st.nextToken().trim();
                             int p = token.indexOf('=');
@@ -1193,7 +1198,7 @@ public abstract class NanoHttpServer {
         private int[] getBoundaryPositions(ByteBuffer b, byte[] boundary) {
             int matchcount = 0;
             int matchbyte = -1;
-            List<Integer> matchbytes = new ArrayList<Integer>();
+            List<Integer> matchbytes = new ArrayList<>();
             for (int i = 0; i < b.limit(); i++) {
                 if (b.get(i) == boundary[matchcount]) {
                     if (matchcount == 0)
@@ -1363,8 +1368,8 @@ public abstract class NanoHttpServer {
      * @author LordFokas
      */
     public class CookieHandler implements Iterable<String> {
-        private HashMap<String, String> cookies = new HashMap<String, String>();
-        private ArrayList<Cookie> queue = new ArrayList<Cookie>();
+        private HashMap<String, String> cookies = new HashMap<>();
+        private ArrayList<Cookie> queue = new ArrayList<>();
 
         public CookieHandler(Map<String, String> httpHeaders) {
             String raw = httpHeaders.get("cookie");

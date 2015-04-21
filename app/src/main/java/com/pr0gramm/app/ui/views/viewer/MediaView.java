@@ -28,7 +28,7 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
 /**
  */
 public abstract class MediaView extends FrameLayout {
-    protected final Logger logger = LoggerFactory.getLogger(VideoMediaView.class.getName()
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getName()
             + " " + Integer.toHexString(System.identityHashCode(this)));
 
     private final GestureDetector gestureDetector;

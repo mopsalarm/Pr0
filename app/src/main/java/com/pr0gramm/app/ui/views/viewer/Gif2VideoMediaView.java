@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.pr0gramm.app.services.GifToVideoService;
+import com.pr0gramm.app.services.ProxyService;
 
 import javax.inject.Inject;
 
@@ -21,6 +22,9 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     private GifToVideoService gifToVideoService;
 
+    @Inject
+    private ProxyService proxyService;
+
     public Gif2VideoMediaView(Context context, Binder binder, String url) {
         super(context, binder, url);
         startWebmConversion(binder, url);
@@ -35,11 +39,13 @@ public class Gif2VideoMediaView extends ProxyMediaView {
             MediaView child;
             if (result.getVideoUrl().isPresent()) {
                 logger.info("Converted successfully, replace with video player");
-                child = MediaViews.newInstance(getContext(), binder, result.getVideoUrl().get());
+                String webm = result.getVideoUrl().get();
+                child = MediaViews.newInstance(getContext(), binder, webm);
 
             } else {
                 logger.info("Conversion did not work, showing gif");
-                child = new GifMediaView(getContext(), binder, result.getGifUrl());
+                child = new GifMediaView(getContext(), binder,
+                        proxyService.proxy(result.getGifUrl()));
             }
 
             setChild(child);

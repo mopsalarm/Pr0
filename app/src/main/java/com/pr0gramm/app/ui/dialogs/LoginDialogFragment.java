@@ -183,8 +183,6 @@ public class LoginDialogFragment extends RoboDialogFragment {
                 .getInjector(context)
                 .getInstance(UserService.class);
 
-        logger.info("Using login service " + userService);
-
         if (userService.isAuthorized()) {
             logger.info("is authorized");
             runnable.run();

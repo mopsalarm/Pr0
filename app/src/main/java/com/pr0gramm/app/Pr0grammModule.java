@@ -13,7 +13,7 @@ import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.GifToVideoService;
 import com.pr0gramm.app.services.MyGifToVideoService;
-import com.pr0gramm.app.services.SimpleProxyService;
+import com.pr0gramm.app.services.ProxyService;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -35,6 +35,7 @@ import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 import roboguice.inject.SharedPreferencesName;
+import rx.Observable;
 
 /**
  */
@@ -68,11 +69,22 @@ public class Pr0grammModule extends AbstractModule {
             if (params.length > 0 && params[0] == Api.Nonce.class) {
                 if (args.length > 0 && args[0] == null) {
                     // inform about failure.
-                    if (!cookieHandler.getCookie().isPresent())
-                        throw new LoginRequiredException(method.toString());
 
-                    args = Arrays.copyOf(args, args.length);
-                    args[0] = cookieHandler.getNonce();
+                    try {
+                        args = Arrays.copyOf(args, args.length);
+                        args[0] = cookieHandler.getNonce();
+
+                    } catch(Throwable error) {
+                        AndroidUtility.logToCrashlytics(error);
+
+                        if (method.getReturnType() == Observable.class) {
+                            // don't fail here, but fail in the resulting observable.
+                            return Observable.error(error);
+
+                        } else {
+                            throw error;
+                        }
+                    }
                 }
             }
 
@@ -134,8 +146,8 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public SimpleProxyService proxyService(OkHttpClient httpClient) throws IOException {
-        SimpleProxyService proxy = new SimpleProxyService(httpClient);
+    public ProxyService proxyService(OkHttpClient httpClient) throws IOException {
+        ProxyService proxy = new ProxyService(httpClient);
         proxy.start();
 
         return proxy;
