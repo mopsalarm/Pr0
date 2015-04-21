@@ -1,46 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
 
-
     <release
-        version="1.27"
-        versioncode="27">
+        version="1.28"
+        versioncode="28">
 
-        <change><![CDATA[
-            Wieder VideoPlayer Bugfixes. Es wäre gut, wenn mehr Leute, die Probleme haben,
-            mir ein Logcat schicken könnten! Ich kann die Probleme sonst nicht beheben!
-        ]]></change>
-    </release>
-
-    <release
-        version="1.26"
-        versioncode="26">
-
-        <change><![CDATA[Ich habe eine Möglichkeit zum Erstellen einer Logdatei
-            eingebaut. Bitte schicke mir diese Logdatei, wenn Videos bei dir nicht
-            abgespielt werden (z.B. die Datei bei Dropbox hochladen).]]>
-        </change>
-
-        <change><![CDATA[<b>Fix</b> Bugfixes bei der Videowiedergabe]]></change>
-    </release>
-
-    <release
-        version="1.25"
-        versioncode="25">
-
-        <change>&lt;b&gt;Neu:&lt;/b&gt; Kommentare vom OP werden als solche markiert.</change>
-        <change>&lt;b&gt;Neu:&lt;/b&gt; Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.</change>
-        <change><![CDATA[<b>Neu</b> Neuer und hoffentlich besserer Videoplayer für die Anzeige von webm.
-            <b>Achtung, diese Version ist Beta! Wenn du keine Videos sehen kannst,
-            bitte Feedback schreiben (am liebsten mit Logcat)!</b>
-        ]]></change>
+        <change><![CDATA[<b>Neu</b> Kommentare vom OP werden als solche markiert.]]></change>
+        <change><![CDATA[<b>Neu</b> Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.]]></change>
+        <change><![CDATA[<b>Neu</b> Neuer und hoffentlich besserer Videoplayer für die Anzeige von webm.]]></change>
         <change><![CDATA[<b>Neu</b> Benisgraph zeigt nun den Benis der letzten Woche an]]></change>
         <change><![CDATA[<b>Neu</b> Klick auf den Benutzernamen im Menu zeigt die eigenen Uploads an.]]></change>
         <change><![CDATA[<b>Neu</b> Es wird automatisch ein 'Original Content'-Bookmark angelegt, falls du noch keine
             Bookmarks hast. Länger anklicken um es zu entfernen.]]></change>
 
-        <change>&lt;b&gt;Fix:&lt;/b&gt; Tags sollten nun nach dem Erstellen nicht wieder verschwinden</change>
-        <change>&lt;b&gt;Fix:&lt;/b&gt; Anzeige von Posts mit vielen Kommentaren ist jetzt viel schneller</change>
+        <change><![CDATA[<b>Fix</b> Tags sollten nun nach dem Erstellen nicht wieder verschwinden]]></change>
+        <change><![CDATA[<b>Fix</b> Anzeige von Posts mit vielen Kommentaren ist jetzt viel schneller]]></change>
     </release>
 
     <release
