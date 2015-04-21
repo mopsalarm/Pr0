@@ -1,8 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -30,11 +28,8 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
 /**
  */
 public abstract class MediaView extends FrameLayout {
-
-    protected final Logger logger = LoggerFactory.getLogger(VideoMediaView.class.getSimpleName()
-            + Integer.toHexString(System.identityHashCode(this)));
-
-    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
+    protected final Logger logger = LoggerFactory.getLogger(VideoMediaView.class.getName()
+            + " " + Integer.toHexString(System.identityHashCode(this)));
 
     private final GestureDetector gestureDetector;
     protected final Binder binder;
@@ -47,9 +42,6 @@ public abstract class MediaView extends FrameLayout {
 
     @Nullable
     private View progress;
-
-    @Nullable
-    private View progressContainer;
 
     protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
         this(context, binder, layoutId, R.id.progress, url);
@@ -207,7 +199,7 @@ public abstract class MediaView extends FrameLayout {
         if (view.getWindowToken() == null) {
             if (retries > 0) {
                 logger.info("Delay resizing of View for 100ms");
-                HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+                postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
             }
 
             return;
@@ -220,7 +212,7 @@ public abstract class MediaView extends FrameLayout {
                 // relayout again in a short moment
                 if (retries > 0) {
                     logger.info("Delay resizing of View for 100ms");
-                    HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+                    postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
                 }
 
                 return;
@@ -254,8 +246,6 @@ public abstract class MediaView extends FrameLayout {
 
     public interface Binder {
         <T> Observable<T> bind(Observable<T> observable);
-
-        void onError(String text);
     }
 
     public interface OnDoubleTapListener {

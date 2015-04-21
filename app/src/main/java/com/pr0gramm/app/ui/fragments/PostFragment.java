@@ -41,7 +41,6 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -383,11 +382,6 @@ public class PostFragment extends RoboFragment implements
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
                 return bindFragment(PostFragment.this, observable);
-            }
-
-            @Override
-            public void onError(String text) {
-                ErrorDialogFragment.showErrorString(getFragmentManager(), text);
             }
         };
 

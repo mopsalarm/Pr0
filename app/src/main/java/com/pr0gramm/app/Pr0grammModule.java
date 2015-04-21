@@ -100,6 +100,7 @@ public class Pr0grammModule extends AbstractModule {
         client.setCache(new Cache(cacheDir, 100 * 1024 * 1024));
         client.setCookieHandler(cookieHandler);
 
+        final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
         client.networkInterceptors().add(chain -> {
             Stopwatch watch = Stopwatch.createStarted();
             Request request = chain.request();
