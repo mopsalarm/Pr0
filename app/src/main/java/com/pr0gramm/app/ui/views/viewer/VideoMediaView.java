@@ -225,7 +225,10 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         final int METHOD_CALLED_IN_INVALID_STATE = -38;
 
-        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED || what == METHOD_CALLED_IN_INVALID_STATE) {
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED
+                || what == METHOD_CALLED_IN_INVALID_STATE
+                || extra == METHOD_CALLED_IN_INVALID_STATE) {
+
             if (retryCount < 3) {
                 retryCount++;
 
