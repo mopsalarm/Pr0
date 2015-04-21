@@ -246,7 +246,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         logger.info("Could not play video: " + message);
 
         try {
-            if (what == MediaPlayer.MEDIA_ERROR_UNSUPPORTED && extra == MediaPlayer.MEDIA_ERROR_IO) {
+            if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
                 new MaterialDialog.Builder(getContext())
                         .content(R.string.could_not_play_video_io)
                         .positiveText(R.string.okay)
