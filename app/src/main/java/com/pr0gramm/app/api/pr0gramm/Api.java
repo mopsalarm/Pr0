@@ -2,9 +2,11 @@ package com.pr0gramm.app.api.pr0gramm;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
+import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.NewTag;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.Nothing;
 
@@ -76,6 +78,19 @@ public interface Api {
 
     @GET("/api/profile/info")
     Info info(@Query("name") String name);
+
+    @GET("/api/inbox/all")
+    Observable<MessageFeed> inboxAll();
+
+    @GET("/api/inbox/messages")
+    Observable<PrivateMessageFeed> inboxPrivateMessages();
+
+    @FormUrlEncoded
+    @POST("/api/inbox/post")
+    Observable<Nothing> sendMessage(
+            @Field("_nonce") Nonce nonce,
+            @Field("comment") String text,
+            @Field("recipientId") int recipient);
 
     public static class Nonce {
         public final String value;
