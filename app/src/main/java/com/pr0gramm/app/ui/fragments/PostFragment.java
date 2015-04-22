@@ -26,6 +26,7 @@ import android.widget.FrameLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -65,6 +67,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.functions.Actions;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -427,9 +430,14 @@ public class PostFragment extends RoboFragment implements
         }
     }
 
-    private void displayTags(List<Tag> tags) {
-        tags = localCacheService.enhanceTags(feedItem.getId(), tags);
-        infoLineView.setTags(tags);
+    private void displayTags(List<Tag> tags_) {
+        List<Tag> tags = localCacheService.enhanceTags(feedItem.getId(), tags_);
+        bindFragment(this, voteService.getTagVotes(tags)).subscribe(votes_ -> {
+            Map<Tag, Vote> votes = Maps.toMap(tags,
+                    tag -> firstNonNull(votes_.get((long) tag.getId()), Vote.NEUTRAL));
+
+            infoLineView.setTags(votes);
+        }, Actions.empty());
     }
 
     /**

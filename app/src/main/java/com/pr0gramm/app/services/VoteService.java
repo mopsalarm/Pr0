@@ -19,7 +19,6 @@ import com.pr0gramm.app.orm.CachedVote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,19 +190,28 @@ public class VoteService {
      * @return A map containing the vote from commentId to vote
      */
     public Observable<Map<Long, Vote>> getCommentVotes(List<Post.Comment> comments) {
-        if (comments.isEmpty())
-            return Observable.just(Collections.<Long, Vote>emptyMap());
+        List<Long> ids = transform(comments, Post.Comment::getId);
+        return findCachedVotes(CachedVote.Type.COMMENT, ids);
+    }
+
+    public Observable<Map<Long, Vote>> getTagVotes(List<Tag> tags) {
+        List<Long> ids = transform(tags, tag -> (long) tag.getId());
+        return findCachedVotes(CachedVote.Type.TAG, ids);
+    }
+
+    private Observable<Map<Long, Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
+        if(ids.isEmpty())
+            return Observable.empty();
 
         return Async.start(() -> {
             Stopwatch watch = Stopwatch.createStarted();
-            List<Long> ids = transform(comments, Post.Comment::getId);
-            List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);
+            List<CachedVote> cachedVotes = CachedVote.find(type, ids);
 
             Map<Long, Vote> result = new HashMap<>();
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 
-            logger.info("Loading votes for {} comments took {}", comments.size(), watch);
+            logger.info("Loading votes for {} {}s took {}", ids.size(), type.name().toLowerCase(), watch);
             return result;
         }, Schedulers.io());
     }

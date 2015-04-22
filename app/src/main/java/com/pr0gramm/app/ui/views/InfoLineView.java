@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -18,6 +20,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
 
 import java.util.List;
+import java.util.Map;
 
 import rx.Observable;
 import rx.functions.Actions;
@@ -137,12 +140,12 @@ public class InfoLineView extends LinearLayout {
         return voteView;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Map<Tag, Vote> tags) {
         List<Tag> sorted = Ordering.natural().reverse()
                 .onResultOf(Tag::getConfidence)
-                .sortedCopy(tags);
+                .sortedCopy(tags.keySet());
 
-        tagsView.setAdapter(new TagsAdapter(sorted));
+        tagsView.setAdapter(new TagsAdapter(sorted, tags));
     }
 
     public OnDetailClickedListener getOnDetailClickedListener() {
@@ -175,9 +178,12 @@ public class InfoLineView extends LinearLayout {
 
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
         private final List<Tag> tags;
+        private final Map<Tag, Vote> votes;
+        private int selected = -1;
 
-        private TagsAdapter(List<Tag> tags) {
-            this.tags = tags;
+        private TagsAdapter(List<Tag> tags, Map<Tag, Vote> votes) {
+            this.tags = ImmutableList.copyOf(tags);
+            this.votes = ImmutableMap.copyOf(votes);
         }
 
         @Override
@@ -197,10 +203,31 @@ public class InfoLineView extends LinearLayout {
                     onDetailClickedListener.onTagClicked(tag);
             });
 
-            holder.tag.setOnLongClickListener(v -> {
-                showVoteTagDialog(tag);
-                return true;
-            });
+            if(tagVoteListener != null && position == selected) {
+                holder.vote.setVote(votes.get(tag), true);
+                holder.vote.setVisibility(View.VISIBLE);
+                holder.tag.setOnLongClickListener(v -> {
+                    updateSelection(-1);
+                    return true;
+                });
+
+                holder.vote.setOnVoteListener(vote -> tagVoteListener.onVote(tag, vote));
+
+            } else {
+                holder.vote.setVisibility(View.GONE);
+                holder.tag.setOnLongClickListener(v -> {
+                    updateSelection(position);
+                    return true;
+                });
+            }
+        }
+
+        private void updateSelection(int position) {
+            int previousSelected = selected;
+            selected = position;
+
+            notifyItemChanged(Math.max(0, previousSelected));
+            notifyItemChanged(selected);
         }
 
         @Override
@@ -226,10 +253,12 @@ public class InfoLineView extends LinearLayout {
 
     private static class TagViewHolder extends RecyclerView.ViewHolder {
         final TextView tag;
+        final VoteView vote;
 
         TagViewHolder(View itemView) {
             super(itemView);
-            tag = (TextView) itemView;
+            tag = (TextView) itemView.findViewById(R.id.tag_text);
+            vote = (VoteView) itemView.findViewById(R.id.tag_vote);
         }
     }
 
