@@ -82,6 +82,9 @@ public interface Api {
     @GET("/api/inbox/all")
     Observable<MessageFeed> inboxAll();
 
+    @GET("/api/inbox/unread")
+    Observable<MessageFeed> inboxUnread();
+
     @GET("/api/inbox/messages")
     Observable<PrivateMessageFeed> inboxPrivateMessages();
 
@@ -91,6 +94,7 @@ public interface Api {
             @Field("_nonce") Nonce nonce,
             @Field("comment") String text,
             @Field("recipientId") int recipient);
+
 
     public static class Nonce {
         public final String value;
