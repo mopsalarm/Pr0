@@ -156,8 +156,6 @@
     <string name="pref_show_notifications">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
-    <string name="tag_vote_up">Vote up</string>
-    <string name="tag_vote_down">Vote down</string>
     <string name="info_how_to_vote_tags">Tags can now be voted by long pressing the tag! Try it out!</string>
     <string name="could_not_play_video">Could not play video. Try the compatibility settings and if  you still can\'t play any videos, please report logcat to Mopsalarm (see settings, at the bottom).</string>
     <string name="logcat_error_occurred">Could not dump logfile.</string>

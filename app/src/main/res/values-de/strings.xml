@@ -152,8 +152,6 @@
     <string name="pref_show_notifications">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
-    <string name="tag_vote_up">Upvote</string>
-    <string name="tag_vote_down">Downvote</string>
     <string name="badge_op">OP</string>
     <string name="could_not_play_video">Video kann nicht abgespielt werden. Probiere die Video-Kompatibilitätseinstellung oder, wenn du keine Videos sehen kannst, melde das bitte Mopsalarm zusammen mit deinem Log (Einstellungen, ganz unten: Logcat).</string>
     <string name="logcat_error_occurred">Logdatei konnte nicht angelegt werden.</string>

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
@@ -234,21 +233,6 @@ public class InfoLineView extends LinearLayout {
         public int getItemCount() {
             return tags.size();
         }
-    }
-
-    private void showVoteTagDialog(Tag tag) {
-        if (tagVoteListener == null)
-            return;
-
-        new MaterialDialog.Builder(getContext())
-                .items(new CharSequence[]{
-                        getContext().getString(R.string.tag_vote_up),
-                        getContext().getString(R.string.tag_vote_down)
-                })
-                .itemsCallback((dialog, view, idx, charSequence) -> {
-                    tagVoteListener.onVote(tag, idx == 0 ? Vote.UP : Vote.DOWN);
-                })
-                .show();
     }
 
     private static class TagViewHolder extends RecyclerView.ViewHolder {
