@@ -89,6 +89,12 @@
         </activity>
 
         <activity
+            android:name=".ui.InboxActivity"
+            android:label="@string/inbox_activity_title"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme.ActionBar"/>
+
+        <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"

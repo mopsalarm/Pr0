@@ -29,6 +29,7 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
@@ -48,6 +49,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -100,6 +102,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectResource(R.drawable.ic_black_action_pin)
     private Drawable iconBookmark;
+
+    @InjectResource(R.drawable.ic_black_action_mail)
+    private Drawable iconInbox;
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
@@ -178,6 +183,7 @@ public class DrawerFragment extends RoboFragment {
                     new FeedFilter().withFeedType(FeedType.NEW).withLikes(name),
                     getString(R.string.action_favorites),
                     iconFavorites));
+
         }
 
         return items;
@@ -213,7 +219,10 @@ public class DrawerFragment extends RoboFragment {
 
                 userService.getLoginStateObservable()
                         .flatMap(ignored -> bookmarkService.get())
-                        .map(this::bookmarksToNavItem)), args -> {
+                        .map(this::bookmarksToNavItem),
+
+                Observable.just(singletonList(getInboxNavigationItem()))
+        ), args -> {
 
             ArrayList<NavigationItem> result = new ArrayList<>();
             for (Object arg : args)
@@ -293,7 +302,7 @@ public class DrawerFragment extends RoboFragment {
 
     private void onUsernameClicked() {
         Optional<String> name = userService.getName();
-        if(name.isPresent()) {
+        if (name.isPresent()) {
             FeedFilter filter = new FeedFilter()
                     .withFeedType(FeedType.NEW)
                     .withUser(name.get());
@@ -304,6 +313,19 @@ public class DrawerFragment extends RoboFragment {
 
     public void updateCurrentFilters(FeedFilter current) {
         navigationAdapter.setCurrentFilter(current);
+    }
+
+    /**
+     * Returns the menu item that takes the user to the inbox.
+     */
+    public NavigationItem getInboxNavigationItem() {
+        Runnable run = () -> {
+            Intent intent = new Intent(getActivity(), InboxActivity.class);
+            startActivity(intent);
+        };
+
+        return new NavigationItem(getString(R.string.action_inbox), iconInbox, () ->
+                LoginDialogFragment.doIfAuthorized(this, run, run));
     }
 
     public interface OnFeedFilterSelected {
@@ -350,7 +372,12 @@ public class DrawerFragment extends RoboFragment {
 
             // handle clicks
             holder.itemView.setOnClickListener(v -> {
-                onFeedFilterClicked(item.filter);
+                if (item.hasFilter()) {
+                    onFeedFilterClicked(item.filter);
+
+                } else if (item.callback != null) {
+                    item.callback.run();
+                }
             });
 
             holder.itemView.setOnLongClickListener(v -> {
@@ -381,11 +408,13 @@ public class DrawerFragment extends RoboFragment {
         private void merge() {
             // calculate the currently selected item
             selected = FluentIterable.from(allItems)
+                    .filter(NavigationItem::hasFilter)
                     .filter(nav -> equal(currentFilter, nav.filter))
                     .first();
 
             if (!selected.isPresent() && currentFilter != null) {
                 selected = FluentIterable.from(allItems)
+                        .filter(NavigationItem::hasFilter)
                         .filter(nav -> nav.filter.getFeedType() == currentFilter.getFeedType())
                         .first();
             }
@@ -417,11 +446,21 @@ public class DrawerFragment extends RoboFragment {
         }
     }
 
-    private class NavigationItem {
+    private static class NavigationItem {
         final String title;
         final FeedFilter filter;
         final Drawable icon;
         final Bookmark bookmark;
+        final Runnable callback;
+
+        NavigationItem(String title, Drawable icon, Runnable callback) {
+            this.title = title;
+            this.icon = icon;
+            this.callback = callback;
+
+            this.filter = null;
+            this.bookmark = null;
+        }
 
         NavigationItem(FeedFilter filter, String title, Drawable icon) {
             this(filter, title, icon, null);
@@ -432,6 +471,11 @@ public class DrawerFragment extends RoboFragment {
             this.filter = filter;
             this.icon = icon;
             this.bookmark = bookmark;
+            this.callback = null;
+        }
+
+        public boolean hasFilter() {
+            return filter != null;
         }
     }
 }
