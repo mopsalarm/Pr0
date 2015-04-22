@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release
+        version="1.29"
+        versioncode="29">
+
+        <change><![CDATA[<b>Neu</b> Option, damit der Bildschirm beim anschauen von Posts aktiv bleibt.]]></change>
+        <change><![CDATA[<b>Neu</b> Layout für das Voten von Tags überarbeitet.]]></change>
+    </release>
 
     <release
         version="1.28"

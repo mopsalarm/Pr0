@@ -133,6 +133,10 @@ public class Settings {
         return preferences.getBoolean("pref_dont_restore_surface", false);
     }
 
+    public boolean keepScreenOn() {
+        return preferences.getBoolean("pref_keep_screen_on", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

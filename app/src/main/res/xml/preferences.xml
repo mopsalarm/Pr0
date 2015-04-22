@@ -87,6 +87,13 @@
             android:title="@string/pref_show_notifications"
             android:summary="@string/pref_show_notifications_summary"
             android:defaultValue="true"/>
+
+        <CheckBoxPreference
+            android:key="pref_keep_screen_on"
+            android:title="@string/pref_keep_screen_on"
+            android:summary="@string/pref_keep_screen_on_summary"
+            android:defaultValue="true"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

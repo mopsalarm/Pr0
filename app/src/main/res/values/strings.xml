@@ -166,4 +166,6 @@
     <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
     <string name="pref_dont_restore_surface_title">Video compatibility mode</string>
     <string name="pref_dont_restore_surface_summary">Activate this if you have problems playing webm videos</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
 </resources>

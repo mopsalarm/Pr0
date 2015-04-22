@@ -13,11 +13,13 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
@@ -42,6 +44,9 @@ public abstract class MediaView extends FrameLayout {
 
     @Nullable
     private View progress;
+
+    @Inject
+    private Settings settings;
 
     protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
         this(context, binder, layoutId, R.id.progress, url);
@@ -69,6 +74,9 @@ public abstract class MediaView extends FrameLayout {
 
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(context, gestureListener);
+
+        // flag to keep the screen on or not.
+        setKeepScreenOn(settings.keepScreenOn());
 
         showBusyIndicator();
     }
