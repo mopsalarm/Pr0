@@ -171,4 +171,6 @@
     <string name="inbox_activity_title">Inbox</string>
     <string name="inbox">Inbox</string>
     <string name="action_inbox">MESSAGES</string>
+    <string name="inbox_message_private">PRIVATE MESSAGE</string>
+    <string name="inbox_message_comment">COMMENT</string>
 </resources>
