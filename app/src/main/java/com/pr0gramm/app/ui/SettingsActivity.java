@@ -15,6 +15,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.LogcatUtility;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
@@ -89,7 +90,8 @@ public class SettingsActivity extends RoboActionBarActivity {
 
             if ("pref_pseudo_feedback".equals(preference.getKey())) {
                 // open google form
-                String url = "https://docs.google.com/forms/d/1YVZDzaoaeNDncbxv7qKWlp067yUtUtCz5lqpCo0bcFc/viewform";
+                String version = Pr0grammApplication.getPackageInfo(getActivity()).versionName;
+                String url = "https://docs.google.com/forms/d/1YVZDzaoaeNDncbxv7qKWlp067yUtUtCz5lqpCo0bcFc/viewform?entry.409811813=" + version;
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 return true;
             }

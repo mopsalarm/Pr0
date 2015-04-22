@@ -5,6 +5,11 @@
         version="1.28"
         versioncode="28">
 
+        <change><![CDATA[
+            <i><b>Info</b> In dieser Version gibt es einige Änderungen. Falls du Pr0bleme haben solltest
+            und beispielsweise keine WEBMs mehr sehen kannst, schicke mir doch bitte ein Logcat (Einstellungen)!
+        </i>]]></change>
+
         <change><![CDATA[<b>Neu</b> Kommentare vom OP werden als solche markiert.]]></change>
         <change><![CDATA[<b>Neu</b> Tags können jetzt durch längeres Drücken gevoted werden! Ist definitiv nicht die schönste Art, aber leider fehlt es mir an hübschen Alternativen.]]></change>
         <change><![CDATA[<b>Neu</b> Neuer und hoffentlich besserer Videoplayer für die Anzeige von webm.]]></change>
