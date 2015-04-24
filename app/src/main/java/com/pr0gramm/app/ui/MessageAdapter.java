@@ -19,7 +19,6 @@ import java.util.List;
 import roboguice.RoboGuice;
 
 /**
- * Created by oliver on 24.04.15.
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private final List<Message> messages;
@@ -30,6 +29,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.context = context;
         this.messages = ImmutableList.copyOf(messages);
         this.picasso = RoboGuice.getInjector(context).getInstance(Picasso.class);
+
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return messages.get(position).getId();
     }
 
     @Override

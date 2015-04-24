@@ -3,7 +3,6 @@ package com.pr0gramm.app;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
@@ -12,6 +11,7 @@ import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.InboxActivity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +77,8 @@ public class SyncIntentService extends RoboIntentService {
                 : getString(R.string.notify_new_messages_text, sync.getInboxCount());
 
 
-        String url = "http://pr0gramm.com/inbox/unread";
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent intent = new Intent(this, InboxActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this)

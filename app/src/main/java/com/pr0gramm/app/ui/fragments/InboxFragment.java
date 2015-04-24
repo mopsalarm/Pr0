@@ -21,6 +21,7 @@ import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import rx.Observable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -28,6 +29,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class InboxFragment extends RoboFragment {
+    private static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
+
     @Inject
     private UserService userService;
 
@@ -54,11 +57,56 @@ public class InboxFragment extends RoboFragment {
         messagesView.setItemAnimator(null);
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        bindFragment(this, inboxService.getInbox())
-                .subscribe(this::onMessagesLoaded, defaultOnError());
+        if (!isLazyLoading()) {
+            reloadInboxContent();
+        }
+    }
+
+    public void reloadInboxContent() {
+        Observable<List<Message>> messages = newMessageObservable();
+        bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
+    }
+
+    private boolean isLazyLoading() {
+        return getInboxType() == InboxType.UNREAD;
+    }
+
+    private Observable<List<Message>> newMessageObservable() {
+        switch (getInboxType()) {
+            case UNREAD:
+                return inboxService.getUnreadMessages();
+
+            case PRIVATE:
+                return Observable.empty();
+
+            case ALL:
+            default:
+                return inboxService.getInbox();
+        }
     }
 
     private void onMessagesLoaded(List<Message> messages) {
         messagesView.setAdapter(new MessageAdapter(getActivity(), messages));
+    }
+
+    private InboxType getInboxType() {
+        InboxType type = InboxType.ALL;
+        Bundle args = getArguments();
+        if (args != null) {
+            type = InboxType.values()[args.getInt(ARG_INBOX_TYPE, InboxType.ALL.ordinal())];
+        }
+
+        return type;
+    }
+
+    /**
+     * Builds arguments to create a fragment for the given type.
+     *
+     * @param inboxType The inbox type to create the fragment for.
+     */
+    public static Bundle buildArguments(InboxType inboxType) {
+        Bundle args = new Bundle();
+        args.putInt(ARG_INBOX_TYPE, inboxType.ordinal());
+        return args;
     }
 }

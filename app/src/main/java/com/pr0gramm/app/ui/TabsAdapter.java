@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,10 +14,14 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Adapted from https://github.com/android/platform_development/blob/2d52182dfac91014c2975a1bb1afd99a3b14b4e9/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabsPager.java
@@ -34,11 +39,13 @@ import java.util.List;
 public class TabsAdapter extends FragmentPagerAdapter
         implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
 
+    private final List<TabInfo> mTabs = new ArrayList<>();
+    private final Map<Integer, WeakReference<Fragment>> mFragments = new HashMap<>();
+
     private final Context context;
     private final TabHost tabHost;
     private final TabWidget tabWidget;
     private final ViewPager viewPager;
-    private final List<TabInfo> mTabs = new ArrayList<>();
 
     private static final class TabInfo {
         final String title;
@@ -80,9 +87,22 @@ public class TabsAdapter extends FragmentPagerAdapter
         this.viewPager.setOnPageChangeListener(this);
     }
 
-    public void addTab(TabHost.TabSpec tabSpec, String title, Class<?> cls, Bundle args) {
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Fragment fragment = (Fragment) super.instantiateItem(container, position);
+        mFragments.put(position, new WeakReference<>(fragment));
+        return fragment;
+    }
+
+    public Optional<Fragment> getTabFragment(int position) {
+        WeakReference<Fragment> result = mFragments.get(position);
+        return Optional.fromNullable(result != null ? result.get() : null);
+    }
+
+    public void addTab(TabHost.TabSpec tabSpec, @StringRes int titleId, Class<?> cls, Bundle args) {
         tabSpec.setContent(new DummyTabFactory(context));
 
+        String title = context.getString(titleId);
         TabInfo info = new TabInfo(title, cls, args);
         mTabs.add(info);
         tabHost.addTab(tabSpec.setIndicator(createIndicator(title)));
@@ -93,7 +113,7 @@ public class TabsAdapter extends FragmentPagerAdapter
         TextView view = (TextView) LayoutInflater.from(context)
                 .inflate(R.layout.tab_widget_title, tabWidget, false);
 
-        view.setText(title);
+        view.setText(title.toUpperCase());
         return view;
     }
 

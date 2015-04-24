@@ -12,6 +12,7 @@ import android.widget.TabWidget;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
+import com.pr0gramm.app.ui.fragments.InboxType;
 
 import javax.inject.Inject;
 
@@ -58,9 +59,14 @@ public class InboxActivity extends RoboActionBarActivity {
 
         tabHost.setup();
         TabsAdapter tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), "INBOX", InboxFragment.class, null);
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), "PRIVATE", InboxFragment.class, null);
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), "UNREAD", InboxFragment.class, null);
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), R.string.inbox_type_unread, InboxFragment.class,
+                InboxFragment.buildArguments(InboxType.UNREAD));
+
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), R.string.inbox_type_all, InboxFragment.class,
+                InboxFragment.buildArguments(InboxType.ALL));
+
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private, InboxFragment.class,
+                InboxFragment.buildArguments(InboxType.PRIVATE));
 
         // this is to animate the little line below the tabs
         viewPager.setOnPageChangeListener(new PageChangeListener());
@@ -68,8 +74,19 @@ public class InboxActivity extends RoboActionBarActivity {
         // change the activities title on tab-change
         tabHost.setOnTabChangedListener(tabId -> {
             int index = tabHost.getCurrentTab();
-            if(index >= 0 && index < tabsAdapter.getCount())
+            if(index >= 0 && index < tabsAdapter.getCount()) {
                 setTitle(tabsAdapter.getPageTitle(index));
+                viewPager.setCurrentItem(index, true);
+            }
+
+            InboxFragment fragment = tabsAdapter.getTabFragment(index)
+                    .transform(f -> (InboxFragment) f)
+                    .orNull();
+
+            if(fragment != null) {
+                // now perform the load on the inbox
+                fragment.reloadInboxContent();
+            }
         });
 
         // restore previously selected tab
@@ -104,7 +121,8 @@ public class InboxActivity extends RoboActionBarActivity {
                 updateIndicatorPosition(position, 0);
             }
 
-            tabWidget.setCurrentTab(position);
+            // tabWidget.setCurrentTab(position);
+            tabHost.setCurrentTab(position);
         }
 
         @Override

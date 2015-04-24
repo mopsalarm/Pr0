@@ -173,4 +173,7 @@
     <string name="action_inbox">MESSAGES</string>
     <string name="inbox_message_private">PRIVATE MESSAGE</string>
     <string name="inbox_message_comment">COMMENT</string>
+    <string name="inbox_type_private">Private</string>
+    <string name="inbox_type_all">Inbox</string>
+    <string name="inbox_type_unread">Unread</string>
 </resources>
