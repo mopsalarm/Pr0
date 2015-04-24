@@ -12,8 +12,12 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.squareup.picasso.Picasso;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,6 +33,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class InboxFragment extends RoboFragment {
+    private static final Logger logger = LoggerFactory.getLogger(InboxFragment.class);
     private static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
 
     @Inject
@@ -42,6 +47,17 @@ public class InboxFragment extends RoboFragment {
 
     @InjectView(R.id.messages)
     private RecyclerView messagesView;
+
+    @InjectView(android.R.id.empty)
+    private View viewNothingHere;
+
+    private Observable<List<Message>> messages;
+
+    boolean overrideLazyLoading;
+
+    public InboxFragment() {
+        setRetainInstance(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -57,36 +73,71 @@ public class InboxFragment extends RoboFragment {
         messagesView.setItemAnimator(null);
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        if (!isLazyLoading()) {
-            reloadInboxContent();
+        if (messages != null || !isLazyLoading()) {
+            loadInboxContent();
         }
     }
 
-    public void reloadInboxContent() {
-        Observable<List<Message>> messages = newMessageObservable();
-        bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        messagesView = null;
+        viewNothingHere = null;
     }
 
     private boolean isLazyLoading() {
-        return getInboxType() == InboxType.UNREAD;
+        return !overrideLazyLoading;// && getInboxType() == InboxType.UNREAD;
     }
 
-    private Observable<List<Message>> newMessageObservable() {
-        switch (getInboxType()) {
-            case UNREAD:
-                return inboxService.getUnreadMessages();
+    private void hideNothingHereIndicator() {
+        if (hasView()) {
+            viewNothingHere.setVisibility(View.GONE);
+        }
+    }
 
-            case PRIVATE:
-                return Observable.empty();
+    private void showNothingHereIndicator() {
+        if (hasView()) {
+            viewNothingHere.setVisibility(View.VISIBLE);
+            viewNothingHere.setAlpha(0);
+            viewNothingHere.animate().alpha(1).start();
+        }
+    }
 
-            case ALL:
-            default:
-                return inboxService.getInbox();
+    private void loadInboxContent() {
+        hideNothingHereIndicator();
+
+        // initialize the message observable
+        if (messages == null) {
+            logger.info("Query messages of type {}", getInboxType());
+            messages = newMessageObservable(inboxService, getInboxType()).cache();
+        }
+
+        // only bind if we have a ui.
+        if (hasView()) {
+            logger.info("Subscribe to the messages of type {}", getInboxType());
+            bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
+        }
+    }
+
+    private boolean hasView() {
+        return messagesView != null;
+    }
+
+    public void loadIfLazy() {
+        if(inboxService == null) {
+            overrideLazyLoading = true;
+
+        } else if (messages == null && isLazyLoading()) {
+            loadInboxContent();
         }
     }
 
     private void onMessagesLoaded(List<Message> messages) {
         messagesView.setAdapter(new MessageAdapter(getActivity(), messages));
+
+        if (messages.isEmpty())
+            showNothingHereIndicator();
     }
 
     private InboxType getInboxType() {
@@ -97,6 +148,20 @@ public class InboxFragment extends RoboFragment {
         }
 
         return type;
+    }
+
+    private static Observable<List<Message>> newMessageObservable(InboxService inboxService, InboxType inboxType) {
+        switch (inboxType) {
+            case UNREAD:
+                return inboxService.getUnreadMessages();
+
+            case PRIVATE:
+                return Observable.empty();
+
+            case ALL:
+            default:
+                return inboxService.getInbox();
+        }
     }
 
     /**

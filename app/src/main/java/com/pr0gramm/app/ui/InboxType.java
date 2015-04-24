@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.fragments;
+package com.pr0gramm.app.ui;
 
 /**
 * Type of inbox

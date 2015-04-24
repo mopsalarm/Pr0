@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.TabWidget;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
-import com.pr0gramm.app.ui.fragments.InboxType;
 
 import javax.inject.Inject;
 
@@ -39,6 +39,7 @@ public class InboxActivity extends RoboActionBarActivity {
 
     @InjectView(R.id.indicator)
     private View indicator;
+    private TabsAdapter tabsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,8 @@ public class InboxActivity extends RoboActionBarActivity {
         ViewCompat.setElevation(tabHost, elevation);
 
         tabHost.setup();
-        TabsAdapter tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
+
+        tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
         tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), R.string.inbox_type_unread, InboxFragment.class,
                 InboxFragment.buildArguments(InboxType.UNREAD));
 
@@ -68,30 +70,36 @@ public class InboxActivity extends RoboActionBarActivity {
         tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private, InboxFragment.class,
                 InboxFragment.buildArguments(InboxType.PRIVATE));
 
+        tabsAdapter.setOnTabChangedListener(tabId -> onTabChanged());
+
         // this is to animate the little line below the tabs
         viewPager.setOnPageChangeListener(new PageChangeListener());
-
-        // change the activities title on tab-change
-        tabHost.setOnTabChangedListener(tabId -> {
-            int index = tabHost.getCurrentTab();
-            if(index >= 0 && index < tabsAdapter.getCount()) {
-                setTitle(tabsAdapter.getPageTitle(index));
-                viewPager.setCurrentItem(index, true);
-            }
-
-            InboxFragment fragment = tabsAdapter.getTabFragment(index)
-                    .transform(f -> (InboxFragment) f)
-                    .orNull();
-
-            if(fragment != null) {
-                // now perform the load on the inbox
-                fragment.reloadInboxContent();
-            }
-        });
 
         // restore previously selected tab
         if (savedInstanceState != null) {
             tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        onTabChanged();
+    }
+
+    private void onTabChanged() {
+        int index = tabHost.getCurrentTab();
+        if (index >= 0 && index < tabsAdapter.getCount()) {
+            setTitle(tabsAdapter.getPageTitle(index));
+        }
+
+        InboxFragment fragment = tabsAdapter.getTabFragment(index)
+                .transform(f -> (InboxFragment) f)
+                .orNull();
+
+        if (fragment != null) {
+            // now perform the load on the inbox
+            fragment.loadIfLazy();
         }
     }
 

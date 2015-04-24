@@ -47,6 +47,8 @@ public class TabsAdapter extends FragmentPagerAdapter
     private final TabWidget tabWidget;
     private final ViewPager viewPager;
 
+    private TabHost.OnTabChangeListener onTabChangeListener;
+
     private static final class TabInfo {
         final String title;
         final Class<?> cls;
@@ -137,6 +139,9 @@ public class TabsAdapter extends FragmentPagerAdapter
     public void onTabChanged(String tabId) {
         int position = tabHost.getCurrentTab();
         viewPager.setCurrentItem(position);
+
+        if (onTabChangeListener != null)
+            onTabChangeListener.onTabChanged(tabId);
     }
 
     @Override
@@ -159,5 +164,9 @@ public class TabsAdapter extends FragmentPagerAdapter
 
     @Override
     public void onPageScrollStateChanged(int state) {
+    }
+
+    public void setOnTabChangedListener(TabHost.OnTabChangeListener onTabChangeListener) {
+        this.onTabChangeListener = onTabChangeListener;
     }
 }
