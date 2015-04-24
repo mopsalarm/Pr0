@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1"
+          android:gravity="bottom|center_horizontal"
+          android:paddingBottom="16dp"
+          android:textColor="@color/tab_widget_text"
+          android:textSize="14sp"
+          tools:layout_width="match_parent"
+          tools:text="INBOX"/>

@@ -2,14 +2,22 @@ package com.pr0gramm.app.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TabHost;
+import android.widget.TabWidget;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.fragments.InboxFragment;
 
 import javax.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
 /**
  * The activity that displays the inbox.
@@ -18,6 +26,18 @@ import roboguice.inject.ContentView;
 public class InboxActivity extends RoboActionBarActivity {
     @Inject
     private UserService userService;
+
+    @InjectView(android.R.id.tabhost)
+    private TabHost tabHost;
+
+    @InjectView(R.id.pager)
+    private ViewPager viewPager;
+
+    @InjectView(android.R.id.tabs)
+    private TabWidget tabWidget;
+
+    @InjectView(R.id.indicator)
+    private View indicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +49,41 @@ public class InboxActivity extends RoboActionBarActivity {
             return;
         }
 
-        if (savedInstanceState == null) {
+        // put the actionbar down
+        getSupportActionBar().setElevation(0);
 
+        // elevate the tab host, so that it cast a shadow.
+        float elevation = 4 * getResources().getDisplayMetrics().density;
+        ViewCompat.setElevation(tabHost, elevation);
+
+        tabHost.setup();
+        TabsAdapter tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), "INBOX", InboxFragment.class, null);
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), "PRIVATE", InboxFragment.class, null);
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), "UNREAD", InboxFragment.class, null);
+
+        // this is to animate the little line below the tabs
+        viewPager.setOnPageChangeListener(new PageChangeListener());
+
+        // change the activities title on tab-change
+        tabHost.setOnTabChangedListener(tabId -> {
+            int index = tabHost.getCurrentTab();
+            if(index >= 0 && index < tabsAdapter.getCount())
+                setTitle(tabsAdapter.getPageTitle(index));
+        });
+
+        // restore previously selected tab
+        if (savedInstanceState != null) {
+            tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (tabHost != null) {
+            outState.putString("tab", tabHost.getCurrentTabTag());
         }
     }
 
@@ -41,4 +94,39 @@ public class InboxActivity extends RoboActionBarActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    private class PageChangeListener implements ViewPager.OnPageChangeListener {
+        private int scrollingState = ViewPager.SCROLL_STATE_IDLE;
+
+        @Override
+        public void onPageSelected(int position) {
+            if (scrollingState == ViewPager.SCROLL_STATE_IDLE) {
+                updateIndicatorPosition(position, 0);
+            }
+
+            tabWidget.setCurrentTab(position);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            scrollingState = state;
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            updateIndicatorPosition(position, positionOffset);
+        }
+
+        private void updateIndicatorPosition(int position, float positionOffset) {
+            View tabView = tabWidget.getChildTabViewAt(position);
+            int indicatorWidth = tabView.getWidth();
+            int indicatorLeft = (int) ((position + positionOffset) * indicatorWidth);
+
+            final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) indicator.getLayoutParams();
+            layoutParams.width = indicatorWidth;
+            layoutParams.setMargins(indicatorLeft, 0, 0, 0);
+            indicator.setLayoutParams(layoutParams);
+        }
+    }
+
 }
