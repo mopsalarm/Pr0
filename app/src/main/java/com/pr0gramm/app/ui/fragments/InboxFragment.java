@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -55,6 +56,9 @@ public class InboxFragment extends RoboFragment {
     @InjectView(R.id.busy_indicator)
     private View viewBusyIndicator;
 
+    @InjectView(R.id.refresh)
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private Observable<List<Message>> messages;
 
     boolean overrideLazyLoading;
@@ -77,9 +81,22 @@ public class InboxFragment extends RoboFragment {
         messagesView.setItemAnimator(null);
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
+
         if (messages != null || !isLazyLoading()) {
             loadInboxContent();
         }
+    }
+
+    private void reloadInboxContent() {
+        messages = null;
+
+        if(hasView()) {
+            messagesView.setAdapter(new MessageAdapter(
+                    getActivity(), Collections.<Message>emptyList()));
+        }
+
+        loadInboxContent();
     }
 
     @Override
@@ -89,6 +106,7 @@ public class InboxFragment extends RoboFragment {
         messagesView = null;
         viewNothingHere = null;
         viewBusyIndicator = null;
+        swipeRefreshLayout = null;
     }
 
     private boolean isLazyLoading() {
@@ -110,14 +128,15 @@ public class InboxFragment extends RoboFragment {
     }
 
     private void showBusyIndicator() {
-        if(hasView()) {
+        if (hasView()) {
             viewBusyIndicator.setVisibility(View.VISIBLE);
         }
     }
 
     private void hideBusyIndicator() {
-        if(hasView()) {
+        if (hasView()) {
             viewBusyIndicator.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -132,8 +151,9 @@ public class InboxFragment extends RoboFragment {
 
         // only bind if we have a ui.
         if (hasView()) {
-            logger.info("Subscribe to the messages of type {}", getInboxType());
             showBusyIndicator();
+
+            logger.info("Subscribe to the messages of type {}", getInboxType());
             bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
         }
     }
@@ -143,7 +163,7 @@ public class InboxFragment extends RoboFragment {
     }
 
     public void loadIfLazy() {
-        if(inboxService == null) {
+        if (inboxService == null) {
             overrideLazyLoading = true;
 
         } else if (messages == null && isLazyLoading()) {

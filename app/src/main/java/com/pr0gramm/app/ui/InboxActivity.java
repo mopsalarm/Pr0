@@ -85,7 +85,9 @@ public class InboxActivity extends RoboActionBarActivity {
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        onTabChanged();
+
+        if(tabHost != null)
+            onTabChanged();
     }
 
     private void onTabChanged() {
