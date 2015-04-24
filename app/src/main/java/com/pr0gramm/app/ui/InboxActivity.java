@@ -37,8 +37,9 @@ public class InboxActivity extends RoboActionBarActivity {
     @InjectView(android.R.id.tabs)
     private TabWidget tabWidget;
 
-    @InjectView(R.id.indicator)
+    @InjectView(R.id.tab_indicator)
     private View indicator;
+
     private TabsAdapter tabsAdapter;
 
     @Override

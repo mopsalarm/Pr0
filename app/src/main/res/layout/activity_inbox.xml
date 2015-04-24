@@ -26,7 +26,7 @@
             android:layout_height="0dp"/>
 
         <View
-            android:id="@+id/indicator"
+            android:id="@+id/tab_indicator"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_gravity="bottom"

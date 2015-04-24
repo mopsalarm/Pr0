@@ -10,6 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <com.pr0gramm.app.ui.views.BusyCircleView
+        android:id="@+id/busy_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
+
     <TextView
         style="@style/TextAppearance.AppCompat.Body1"
         android:id="@android:id/empty"

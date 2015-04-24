@@ -19,6 +19,7 @@ import com.squareup.picasso.Picasso;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -50,6 +51,9 @@ public class InboxFragment extends RoboFragment {
 
     @InjectView(android.R.id.empty)
     private View viewNothingHere;
+
+    @InjectView(R.id.busy_indicator)
+    private View viewBusyIndicator;
 
     private Observable<List<Message>> messages;
 
@@ -84,6 +88,7 @@ public class InboxFragment extends RoboFragment {
 
         messagesView = null;
         viewNothingHere = null;
+        viewBusyIndicator = null;
     }
 
     private boolean isLazyLoading() {
@@ -104,6 +109,18 @@ public class InboxFragment extends RoboFragment {
         }
     }
 
+    private void showBusyIndicator() {
+        if(hasView()) {
+            viewBusyIndicator.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideBusyIndicator() {
+        if(hasView()) {
+            viewBusyIndicator.setVisibility(View.GONE);
+        }
+    }
+
     private void loadInboxContent() {
         hideNothingHereIndicator();
 
@@ -116,6 +133,7 @@ public class InboxFragment extends RoboFragment {
         // only bind if we have a ui.
         if (hasView()) {
             logger.info("Subscribe to the messages of type {}", getInboxType());
+            showBusyIndicator();
             bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
         }
     }
@@ -134,6 +152,7 @@ public class InboxFragment extends RoboFragment {
     }
 
     private void onMessagesLoaded(List<Message> messages) {
+        hideBusyIndicator();
         messagesView.setAdapter(new MessageAdapter(getActivity(), messages));
 
         if (messages.isEmpty())
@@ -156,7 +175,7 @@ public class InboxFragment extends RoboFragment {
                 return inboxService.getUnreadMessages();
 
             case PRIVATE:
-                return Observable.empty();
+                return Observable.just(Collections.emptyList());
 
             case ALL:
             default:
