@@ -53,7 +53,7 @@ public class ProxyService extends NanoHttpServer {
 
     public String proxy(String url) {
         // do not proxy twice!
-        if(url.contains(nonce) && url.contains("127.0.0.1"))
+        if (url.contains(nonce) && url.contains("127.0.0.1"))
             return url;
 
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
@@ -68,7 +68,7 @@ public class ProxyService extends NanoHttpServer {
     @Override
     public Response serve(IHTTPSession session) {
         Uri uri = Uri.parse(session.getUri());
-        if(!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null)))
+        if (!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null)))
             return new Response(Response.Status.FORBIDDEN, "text/plain", "");
 
         String encodedUrl = uri.getLastPathSegment();
@@ -121,7 +121,7 @@ public class ProxyService extends NanoHttpServer {
 
             // forward content range header
             String contentRange = response.header("Content-Range");
-            if(contentRange != null)
+            if (contentRange != null)
                 result.addHeader("Content-Range", contentRange);
 
             return result;
@@ -137,7 +137,7 @@ public class ProxyService extends NanoHttpServer {
 
         // forward the range header
         String range = session.getHeaders().get("range");
-        if(range != null)
+        if (range != null)
             req = req.addHeader("Range", range);
 
         return req.build();

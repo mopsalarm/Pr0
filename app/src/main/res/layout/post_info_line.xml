@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +18,7 @@
             app:orientation="horizontal"
             app:markedColor="?colorPrimary"
             app:defaultColor="?android:textColorSecondary"
-            app:textSize="28sp" />
+            app:textSize="28sp"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Display1"
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
-            android:text="@string/dummy_rating" />
+            android:text="@string/dummy_rating"/>
 
         <com.pr0gramm.app.ui.views.Pr0grammFontTextView
             android:id="@+id/favorite"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:text="*"
-            android:textSize="28sp" />
+            android:textSize="28sp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -47,12 +47,12 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dummy_post_date" />
+                android:text="@string/dummy_post_date"/>
 
             <com.pr0gramm.app.ui.views.UsernameView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -73,13 +73,13 @@
             android:layout_gravity="center_vertical"
             android:textColor="@color/primary"
             android:padding="8dp"
-            android:text="@string/action_add_tag" />
+            android:text="@string/action_add_tag"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/tags"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
 
         <!-- <include layout="@layout/tag"/> -->
     </LinearLayout>

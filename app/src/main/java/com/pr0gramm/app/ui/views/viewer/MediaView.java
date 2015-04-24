@@ -113,7 +113,7 @@ public abstract class MediaView extends FrameLayout {
      */
     protected void showBusyIndicator() {
         if (progress != null) {
-            if(progress.getParent() == null)
+            if (progress.getParent() == null)
                 addView(progress);
 
             progress.setVisibility(View.VISIBLE);
@@ -197,7 +197,7 @@ public abstract class MediaView extends FrameLayout {
      * Resizes the video view while keeping the given aspect ratio.
      */
     protected void resizeViewerView(View view, float aspect, int retries) {
-        if(Float.isNaN(aspect)) {
+        if (Float.isNaN(aspect)) {
             logger.info("Not setting aspect to NaN!");
             return;
         }

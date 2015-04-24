@@ -125,7 +125,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         busyIndicator.setVisibility(View.GONE);
 
         ViewParent parent = busyIndicator.getParent();
-        if(parent instanceof ViewGroup) {
+        if (parent instanceof ViewGroup) {
             ((ViewGroup) parent).removeView(busyIndicator);
         }
     }

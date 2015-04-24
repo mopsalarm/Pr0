@@ -154,7 +154,7 @@ public class MainActivity extends RoboActionBarActivity implements
             return;
 
         bindActivity(this, bookmarkService.get().first()).subscribe(bookmarks -> {
-            if(bookmarks.isEmpty()) {
+            if (bookmarks.isEmpty()) {
                 FeedFilter filter = new FeedFilter()
                         .withFeedType(FeedType.PROMOTED)
                         .withTags("original content");

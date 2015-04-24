@@ -200,7 +200,7 @@ public class VoteService {
     }
 
     private Observable<Map<Long, Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
-        if(ids.isEmpty())
+        if (ids.isEmpty())
             return Observable.empty();
 
         return Async.start(() -> {

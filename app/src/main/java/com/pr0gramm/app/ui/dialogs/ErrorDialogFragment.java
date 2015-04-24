@@ -132,7 +132,7 @@ public class ErrorDialogFragment extends DialogFragment {
             dialog.setArguments(arguments);
             dialog.show(fragmentManager, "ErrorDialog");
 
-        } catch(Exception error) {
+        } catch (Exception error) {
             logger.error("Could not show error dialog", error);
         }
     }

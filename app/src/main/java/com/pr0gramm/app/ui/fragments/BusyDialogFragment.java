@@ -31,9 +31,9 @@ public class BusyDialogFragment extends DialogFragment {
 
     private String getDialogText() {
         Bundle args = getArguments();
-        if(args != null) {
+        if (args != null) {
             String text = args.getString("text");
-            if(text != null)
+            if (text != null)
                 return text;
         }
         return getString(R.string.please_wait);
@@ -47,7 +47,7 @@ public class BusyDialogFragment extends DialogFragment {
             this.fragmentManager = fragmentManager;
 
             BusyDialogFragment dialog = new BusyDialogFragment();
-            if(text != null) {
+            if (text != null) {
                 Bundle args = new Bundle();
                 args.putString("text", text);
                 dialog.setArguments(args);

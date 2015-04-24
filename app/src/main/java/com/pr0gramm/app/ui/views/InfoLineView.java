@@ -202,7 +202,7 @@ public class InfoLineView extends LinearLayout {
                     onDetailClickedListener.onTagClicked(tag);
             });
 
-            if(tagVoteListener != null && position == selected) {
+            if (tagVoteListener != null && position == selected) {
                 holder.vote.setVote(votes.get(tag), true);
                 holder.vote.setVisibility(View.VISIBLE);
                 holder.tag.setOnLongClickListener(v -> {

@@ -17,5 +17,7 @@
         app:spacing="4dp"
         app:textSize="18sp"
         app:defaultColor="@color/grey_700"
-        app:markedColor="?colorPrimary"/><include layout="@layout/comment_common"/>
+        app:markedColor="?colorPrimary"/>
+
+    <include layout="@layout/comment_common"/>
 </RelativeLayout>

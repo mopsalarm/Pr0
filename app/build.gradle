@@ -87,7 +87,7 @@ dependencies {
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:2.1.1'
     compile 'com.github.tony19:named-regexp:0.2.3'
 
-    compile('pl.brightinventions:slf4android:0.0.11@aar'){
+    compile('pl.brightinventions:slf4android:0.0.11@aar') {
         transitive = true
     }
 

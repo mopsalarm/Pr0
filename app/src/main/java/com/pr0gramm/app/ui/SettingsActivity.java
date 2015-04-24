@@ -98,7 +98,7 @@ public class SettingsActivity extends RoboActionBarActivity {
 
             if ("pref_pseudo_logcat".equals(preference.getKey())) {
                 Optional<File> logFile = LogcatUtility.dump();
-                if(logFile.isPresent()) {
+                if (logFile.isPresent()) {
                     new MaterialDialog.Builder(getActivity())
                             .content(getString(R.string.logcat_logfile_created, logFile.get()))
                             .positiveText(R.string.okay)

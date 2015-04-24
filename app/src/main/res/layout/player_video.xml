@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/video_container">
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:id="@+id/video_container">
 
     <TextureView
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"/>
 
     <com.pr0gramm.app.ui.views.BusyCircleView
         android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
 </FrameLayout>

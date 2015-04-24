@@ -102,7 +102,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
         Settings settings = injector.getInstance(Settings.class);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 
-        if(!interactive) {
+        if (!interactive) {
             if (!settings.updateCheckEnabled())
                 return;
 
@@ -127,7 +127,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 .defaultIfEmpty(null)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {
-                    if(interactive || update != null) {
+                    if (interactive || update != null) {
                         UpdateDialogFragment dialog = newInstance(update);
                         dialog.show(activity.getSupportFragmentManager(), null);
                     }

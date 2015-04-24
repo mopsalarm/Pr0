@@ -29,6 +29,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">16dp</item>
     </style>
+
     <style name="AppStyle.DrawerItem" parent="Base.AppStyle.DrawerItem"/>
 
     <style name="Base.AppStyle.OpBadge" parent="Base.TextAppearance.AppCompat.Caption">
@@ -39,6 +40,7 @@
         <item name="android:paddingLeft">2sp</item>
         <item name="android:paddingRight">2sp</item>
     </style>
+
     <style name="AppStyle.OpBadge" parent="Base.AppStyle.OpBadge"/>
 
 </resources>

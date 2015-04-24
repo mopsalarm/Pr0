@@ -72,5 +72,5 @@
             android:singleLine="true"
             android:text="@string/action_answer"/>
 
-        </LinearLayout>
+    </LinearLayout>
 </merge>

@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
-*/
+ */
 public class FeedFilterWithStart {
     private final FeedFilter filter;
     private final Optional<Long> start;

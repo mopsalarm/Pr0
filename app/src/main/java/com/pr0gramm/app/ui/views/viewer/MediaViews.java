@@ -13,7 +13,8 @@ import roboguice.RoboGuice;
  * {@link com.pr0gramm.app.ui.views.viewer.MediaView} for some url.
  */
 public class MediaViews {
-    private MediaViews() {}
+    private MediaViews() {
+    }
 
     /**
      * Instantiates one of the viewer fragments subclasses depending

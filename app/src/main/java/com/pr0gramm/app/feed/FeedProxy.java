@@ -248,7 +248,7 @@ public class FeedProxy {
                 .reverse()
                 .isStrictlyOrdered(items);
 
-        if(!ordered) {
+        if (!ordered) {
             logger.warn("Feed not strictly ordered :/");
         }
     }

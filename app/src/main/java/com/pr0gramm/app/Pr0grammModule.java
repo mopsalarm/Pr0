@@ -74,7 +74,7 @@ public class Pr0grammModule extends AbstractModule {
                         args = Arrays.copyOf(args, args.length);
                         args[0] = cookieHandler.getNonce();
 
-                    } catch(Throwable error) {
+                    } catch (Throwable error) {
                         AndroidUtility.logToCrashlytics(error);
 
                         if (method.getReturnType() == Observable.class) {

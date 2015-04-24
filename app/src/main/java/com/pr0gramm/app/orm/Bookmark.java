@@ -47,7 +47,7 @@ public final class Bookmark extends SugarRecord<Bookmark> {
 
     public static Optional<Bookmark> byFilter(FeedFilter filter) {
         for (Bookmark bookmark : Bookmark.find(Bookmark.class, null)) {
-            if(equal(filter, bookmark.asFeedFilter()))
+            if (equal(filter, bookmark.asFeedFilter()))
                 return Optional.of(bookmark);
         }
 
