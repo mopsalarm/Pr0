@@ -71,14 +71,15 @@ public class ProxyService extends NanoHttpServer {
         if (!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null)))
             return new Response(Response.Status.FORBIDDEN, "text/plain", "");
 
-        String encodedUrl = uri.getLastPathSegment();
-        logger.info("Request " + encodedUrl);
-
-        String url = new String(
-                BaseEncoding.base64Url().decode(encodedUrl),
-                Charsets.UTF_8).trim();
-
+        String url = null;
         try {
+            String encodedUrl = uri.getLastPathSegment();
+            url = new String(
+                    BaseEncoding.base64Url().decode(encodedUrl),
+                    Charsets.UTF_8).trim();
+
+            logger.info("Request {} (decoded: {}) ", encodedUrl, url);
+
             Request request = buildRequest(url, session);
             com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
 
@@ -126,7 +127,7 @@ public class ProxyService extends NanoHttpServer {
 
             return result;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Could not proxy for url " + url, e);
             return new Response(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
         }

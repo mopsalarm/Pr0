@@ -118,12 +118,15 @@ public class Pr0grammModule extends AbstractModule {
             Request request = chain.request();
 
             logger.info("performing http request for " + request.urlString());
-            Response response = chain.proceed(request);
+            try {
+                Response response = chain.proceed(request);
+                logger.info("{} ({}) took {}", request.urlString(), response.code(), watch);
+                return response;
 
-            logger.info(String.format("%s (%d) took %s",
-                    request.urlString(), response.code(), watch));
-
-            return response;
+            } catch(Exception error) {
+                logger.warn("{} produced error: {}", request.urlString(), error);
+                throw error;
+            }
         });
 
         return client;
