@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.InboxActivity;
+import com.pr0gramm.app.ui.InboxType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,7 @@ public class SyncIntentService extends RoboIntentService {
 
 
         Intent intent = new Intent(this, InboxActivity.class);
+        intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

@@ -30,6 +30,7 @@ import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.InboxActivity;
+import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
@@ -321,6 +322,7 @@ public class DrawerFragment extends RoboFragment {
     public NavigationItem getInboxNavigationItem() {
         Runnable run = () -> {
             Intent intent = new Intent(getActivity(), InboxActivity.class);
+            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.ALL.ordinal());
             startActivity(intent);
         };
 

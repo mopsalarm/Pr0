@@ -23,6 +23,8 @@ import roboguice.inject.InjectView;
  * The activity that displays the inbox.
  */
 public class InboxActivity extends RoboActionBarActivity {
+    public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
+
     @Inject
     private UserService userService;
 
@@ -79,14 +81,29 @@ public class InboxActivity extends RoboActionBarActivity {
         // restore previously selected tab
         if (savedInstanceState != null) {
             tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+
+        } else if (getIntent() != null && getIntent().getExtras() != null) {
+            Bundle extras = getIntent().getExtras();
+            showInboxType(InboxType.values()[extras.getInt(EXTRA_INBOX_TYPE, 0)]);
         }
+    }
+
+    private void showInboxType(InboxType type) {
+        if (type == InboxType.UNREAD)
+            tabHost.setCurrentTab(0);
+
+        else if (type == InboxType.ALL)
+            tabHost.setCurrentTab(1);
+
+        else if (type == InboxType.PRIVATE)
+            tabHost.setCurrentTab(2);
     }
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
 
-        if(tabHost != null)
+        if (tabHost != null)
             onTabChanged();
     }
 
