@@ -27,6 +27,12 @@ public class NewCommentDialogFragment extends DialogFragment {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_comment, null);
         commentInput = (EditText) view.findViewById(R.id.comment);
 
+        // restore message text on rotation
+        if (savedInstanceState != null) {
+            String text = savedInstanceState.getString("commentText", "");
+            commentInput.setText(text);
+        }
+
         return new MaterialDialog.Builder(getActivity())
                 .title(R.string.add_new_comment_title)
                 .customView(view, true)
@@ -39,6 +45,12 @@ public class NewCommentDialogFragment extends DialogFragment {
                     }
                 })
                 .build();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("commentText", commentInput.getText().toString());
     }
 
     private void onOkayClicked(MaterialDialog dialog) {

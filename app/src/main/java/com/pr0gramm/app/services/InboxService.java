@@ -5,6 +5,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
+import com.pr0gramm.app.feed.Nothing;
 
 import java.util.List;
 
@@ -46,5 +47,12 @@ public class InboxService {
      */
     public Observable<List<PrivateMessage>> getPrivateMessages() {
         return api.inboxPrivateMessages().map(PrivateMessageFeed::getMessages);
+    }
+
+    /**
+     * Sends a private message to a receiver
+     */
+    public Observable<Nothing> send(int receiverId, String message) {
+        return api.sendMessage(null, message, receiverId);
     }
 }

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
-        version="1.29"
-        versioncode="29">
+        version="1.30"
+        versioncode="30">
 
         <change>
             <![CDATA[<b>Neu</b> Option, damit der Bildschirm beim anschauen von Posts aktiv bleibt.]]></change>
         <change><![CDATA[<b>Neu</b> Layout für das Voten von Tags überarbeitet.]]></change>
         <change><![CDATA[<b>Neu</b> Beta: Lesen von Nachrichten und Benachrichtigungen in der App.]]></change>
+        <change><![CDATA[<b>Neu</b> Beta: Antworten auf private Nachrichten in der App]]></change>
+        <change><![CDATA[<b>Fix</b> Text geht nicht verloren, wenn man das Gerät dreht, während man einen Kommentar schreibt]]></change>
     </release>
 
     <release

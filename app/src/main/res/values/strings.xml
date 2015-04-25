@@ -177,4 +177,7 @@
     <string name="inbox_type_all">Inbox</string>
     <string name="inbox_type_unread">Unread</string>
     <string name="inbox_nothing_here">No messages\n¯\\_(ツ)_/¯</string>
+    <string name="write_private_message_summary">New message to user %s.</string>
+    <string name="message_hint">Message text</string>
+    <string name="action_send">Send</string>
 </resources>

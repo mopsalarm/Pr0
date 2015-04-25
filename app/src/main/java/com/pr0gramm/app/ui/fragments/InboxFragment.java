@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MessageAdapter;
+import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
@@ -173,7 +175,7 @@ public class InboxFragment extends RoboFragment {
 
     private void onMessagesLoaded(List<Message> messages) {
         hideBusyIndicator();
-        messagesView.setAdapter(new MessageAdapter(getActivity(), messages));
+        messagesView.setAdapter(new MessageAdapter(getActivity(), messages, actionListener));
 
         if (messages.isEmpty())
             showNothingHereIndicator();
@@ -188,6 +190,14 @@ public class InboxFragment extends RoboFragment {
 
         return type;
     }
+
+    private final MessageAdapter.ActionListener actionListener = new MessageAdapter.ActionListener() {
+        @Override
+        public void onAnswerToPrivateMessage(int receiverId, String name) {
+            DialogFragment dialog = WritePrivateMessageDialog.newInstance(receiverId, name);
+            dialog.show(getFragmentManager(), null);
+        }
+    };
 
     private static Observable<List<Message>> newMessageObservable(InboxService inboxService, InboxType inboxType) {
         switch (inboxType) {

@@ -25,9 +25,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private final List<Message> messages;
     private final Context context;
     private final Picasso picasso;
+    private final ActionListener actionListener;
 
     public MessageAdapter(Context context, List<Message> messages) {
+        this(context, messages, null);
+    }
+
+    public MessageAdapter(Context context, List<Message> messages, ActionListener actionListener) {
         this.context = context;
+        this.actionListener = actionListener;
         this.messages = ImmutableList.copyOf(messages);
         this.picasso = RoboGuice.getInjector(context).getInstance(Picasso.class);
 
@@ -45,12 +51,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return new MessageViewHolder(view);
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void onBindViewHolder(MessageViewHolder view, int position) {
         Message message = messages.get(position);
 
-        // set the type. if we have no thumbnail, we have a private message
-        boolean isComment = message.getThumb() != null;
+        // set the type. if we have an item, we  have a comment
+        boolean isComment = message.getItemId() != 0;
         view.type.setText(isComment ? context.getString(R.string.inbox_message_comment) : context.getString(R.string.inbox_message_private));
 
         // the text of the message
@@ -73,6 +80,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         view.sender.setPointsVisible(isComment);
         view.sender.setPoints(message.getScore());
         view.sender.setDate(message.getCreated());
+
+        if(actionListener != null && !isComment) {
+            view.sender.setAnswerClickedListener(v -> {
+                actionListener.onAnswerToPrivateMessage(message.getSenderId(), message.getName());
+            });
+        }
     }
 
     @Override
@@ -94,5 +107,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             image = (ImageView) itemView.findViewById(R.id.message_image);
             sender = (SenderInfoView) itemView.findViewById(R.id.sender_info);
         }
+    }
+
+    public interface ActionListener {
+        /**
+         * The user wants to answer to the message with the given id that was
+         * written by the given user.
+         */
+        void onAnswerToPrivateMessage(int receiverId, String name);
     }
 }

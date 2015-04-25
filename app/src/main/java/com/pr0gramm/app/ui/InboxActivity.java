@@ -70,8 +70,8 @@ public class InboxActivity extends RoboActionBarActivity {
         tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), R.string.inbox_type_all, InboxFragment.class,
                 InboxFragment.buildArguments(InboxType.ALL));
 
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private, InboxFragment.class,
-                InboxFragment.buildArguments(InboxType.PRIVATE));
+        //tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private, InboxFragment.class,
+        //        InboxFragment.buildArguments(InboxType.PRIVATE));
 
         tabsAdapter.setOnTabChangedListener(tabId -> onTabChanged());
 
