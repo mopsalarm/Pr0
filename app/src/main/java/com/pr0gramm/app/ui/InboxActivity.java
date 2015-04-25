@@ -17,13 +17,11 @@ import com.pr0gramm.app.ui.fragments.InboxFragment;
 import javax.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 /**
  * The activity that displays the inbox.
  */
-@ContentView(R.layout.activity_inbox)
 public class InboxActivity extends RoboActionBarActivity {
     @Inject
     private UserService userService;
@@ -51,6 +49,8 @@ public class InboxActivity extends RoboActionBarActivity {
             finish();
             return;
         }
+
+        setContentView(R.layout.activity_inbox);
 
         // put the actionbar down
         getSupportActionBar().setElevation(0);

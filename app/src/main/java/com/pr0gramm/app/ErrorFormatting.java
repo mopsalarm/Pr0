@@ -71,8 +71,8 @@ public class ErrorFormatting {
          * Gets the message for the given exception. You must only call this,
          * if {@link #handles(Throwable)} returned true before.
          */
+        @SuppressWarnings("unchecked")
         public String getMessage(Context context, Throwable thr) {
-            //noinspection unchecked
             return message.call((T) thr, context);
         }
 

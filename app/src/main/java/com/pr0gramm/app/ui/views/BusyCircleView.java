@@ -74,6 +74,7 @@ public class BusyCircleView extends FrameLayout {
             if (animator.isRunning())
                 continue;
 
+            animator.setupStartValues();
             animator.start();
         }
     }
