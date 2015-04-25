@@ -10,8 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 
@@ -33,17 +33,11 @@ public class NewCommentDialogFragment extends DialogFragment {
             commentInput.setText(text);
         }
 
-        return new MaterialDialog.Builder(getActivity())
+        return DialogBuilder.start(getActivity())
                 .title(R.string.add_new_comment_title)
-                .customView(view, true)
-                .negativeText(R.string.cancel)
-                .positiveText(R.string.action_add_tag)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        onOkayClicked(dialog);
-                    }
-                })
+                .content(view, true)
+                .negative(R.string.cancel)
+                .positive(R.string.action_add_tag, this::onOkayClicked)
                 .build();
     }
 
@@ -53,7 +47,7 @@ public class NewCommentDialogFragment extends DialogFragment {
         outState.putString("commentText", commentInput.getText().toString());
     }
 
-    private void onOkayClicked(MaterialDialog dialog) {
+    private void onOkayClicked() {
         String text = commentInput.getText().toString().trim();
 
         // do nothing if the user had not typed a comment

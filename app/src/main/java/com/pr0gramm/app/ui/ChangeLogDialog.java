@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.webkit.WebView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
@@ -26,28 +26,22 @@ public class ChangeLogDialog extends DialogFragment {
 
         Settings settings = Settings.of(getActivity());
 
-        return new MaterialDialog.Builder(getActivity())
-                .customView(webView, false)
+        return DialogBuilder.start(getActivity())
+                .content(webView, false)
                 .title(R.string.changelog_title)
-                .positiveText(R.string.okay)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        changeLog.skipLogDialog();
-
-                        if (settings.useBetaChannel()) {
-                            showFeedbackReminderDialog();
-                        }
-
+                .positive(R.string.okay, () -> {
+                    changeLog.skipLogDialog();
+                    if (settings.useBetaChannel()) {
+                        showFeedbackReminderDialog();
                     }
                 })
                 .build();
     }
 
     private void showFeedbackReminderDialog() {
-        new MaterialDialog.Builder(getActivity())
+        DialogBuilder.start(getActivity())
                 .content(R.string.feedback_reminder)
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .show();
     }
 }

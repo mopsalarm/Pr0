@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.MultiAutoCompleteTextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
@@ -20,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.Lazy;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
@@ -58,21 +58,15 @@ public class NewTagDialogFragment extends RoboDialogFragment {
         tagInput.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         tagInput.setAdapter(adapter);
 
-        return new MaterialDialog.Builder(getActivity())
+        return DialogBuilder.start(getActivity())
                 .title(R.string.add_new_tag_title)
-                .customView(view, true)
-                .negativeText(R.string.cancel)
-                .positiveText(R.string.action_add_tag)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        onOkayClicked(dialog);
-                    }
-                })
+                .content(view, true)
+                .negative(R.string.cancel)
+                .positive(R.string.action_add_tag, this::onOkayClicked)
                 .build();
     }
 
-    private void onOkayClicked(MaterialDialog dialog) {
+    private void onOkayClicked() {
         String text = tagInput.getText().toString();
 
         // split text into tags.

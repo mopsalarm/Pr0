@@ -14,9 +14,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
 import com.google.common.base.Strings;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -73,26 +72,17 @@ public class LoginDialogFragment extends RoboDialogFragment {
             usernameView.setText(defaultUsername);
         }
 
-        return new MaterialDialog.Builder(context)
+        return DialogBuilder.start(getActivity())
                 .title(R.string.login)
-                .customView(layout, true)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        onLoginClicked(dialog);
-                    }
-                })
-                .positiveText(R.string.login)
-                .autoDismiss(false)
-                .theme(Theme.LIGHT)
+                .content(layout, true)
+                .positive(R.string.login, this::onLoginClicked)
+                .noAutoDismiss()
                 .build();
     }
 
-    private void onLoginClicked(MaterialDialog dialog) {
-        View view = dialog.getCustomView();
-
-        TextView usernameView = (TextView) view.findViewById(R.id.username);
-        TextView passwordView = (TextView) view.findViewById(R.id.password);
+    private void onLoginClicked(Dialog dialog) {
+        TextView usernameView = (TextView) dialog.findViewById(R.id.username);
+        TextView passwordView = (TextView) dialog.findViewById(R.id.password);
 
         String username = usernameView.getText().toString();
         String password = passwordView.getText().toString();

@@ -7,9 +7,14 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.MaterialProgressDrawable;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -22,10 +27,25 @@ public class BusyDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new MaterialDialog.Builder(getActivity())
-                .content(getDialogText())
-                .progress(true, 0)
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.progress_dialog, null);
+
+        TextView text = (TextView) view.findViewById(R.id.text);
+        text.setText(getDialogText());
+
+        ImageView image = (ImageView) view.findViewById(R.id.image);
+        MaterialProgressDrawable mpd = new MaterialProgressDrawable(getActivity(), image);
+        mpd.setColorSchemeColors(getResources().getColor(R.color.primary));
+        mpd.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        mpd.updateSizes(MaterialProgressDrawable.LARGE);
+        mpd.setAlpha(255);
+
+        return DialogBuilder.start(getActivity())
+                .content(view)
                 .cancelable(false)
+                .onShow(di -> {
+                    image.setImageDrawable(mpd);
+                    mpd.start();
+                })
                 .build();
     }
 

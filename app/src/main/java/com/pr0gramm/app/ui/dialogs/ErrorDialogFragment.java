@@ -7,7 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 
@@ -112,9 +112,9 @@ public class ErrorDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
-        return new MaterialDialog.Builder(getActivity())
+        return DialogBuilder.start(getActivity())
                 .content(args.getString("content"))
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .build();
     }
 

@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InboxService;
 
@@ -49,22 +49,11 @@ public class WritePrivateMessageDialog extends RoboDialogFragment {
         TextView summary = (TextView) view.findViewById(R.id.summary);
         summary.setText(getString(R.string.write_private_message_summary, getReceiverName()));
 
-        return new MaterialDialog.Builder(getActivity())
-                .customView(view, true)
-                .negativeText(R.string.cancel)
-                .positiveText(R.string.action_send)
-                .autoDismiss(false)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        onOkayClicked(dialog);
-                    }
-
-                    @Override
-                    public void onNegative(MaterialDialog dialog) {
-                        dismiss();
-                    }
-                })
+        return DialogBuilder.start(getActivity())
+                .content(view, true)
+                .negative(R.string.cancel, this::dismiss)
+                .positive(R.string.action_send, this::onOkayClicked)
+                .noAutoDismiss()
                 .build();
     }
 
@@ -74,7 +63,7 @@ public class WritePrivateMessageDialog extends RoboDialogFragment {
         outState.putString("messageText", messageText.getText().toString());
     }
 
-    private void onOkayClicked(MaterialDialog dialog) {
+    private void onOkayClicked() {
         String message = messageText.getText().toString().trim();
         if (message.isEmpty())
             return;

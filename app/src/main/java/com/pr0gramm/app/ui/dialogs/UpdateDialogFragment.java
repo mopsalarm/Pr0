@@ -7,8 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UpdateChecker;
@@ -48,24 +48,18 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 : noNewUpdateDialog();
     }
 
-    private MaterialDialog updateAvailableDialog(final UpdateChecker.Update update) {
-        return new MaterialDialog.Builder(getActivity())
+    private Dialog updateAvailableDialog(final UpdateChecker.Update update) {
+        return DialogBuilder.start(getActivity())
                 .content(getString(R.string.new_update_available, update.getChangelog()))
-                .positiveText(R.string.download)
-                .negativeText(R.string.ignore)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        download(update);
-                    }
-                })
+                .positive(R.string.download, () -> download(update))
+                .negative(R.string.ignore)
                 .build();
     }
 
     private Dialog noNewUpdateDialog() {
-        return new MaterialDialog.Builder(getActivity())
+        return DialogBuilder.start(getActivity())
                 .content(R.string.no_new_update)
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .show();
     }
 

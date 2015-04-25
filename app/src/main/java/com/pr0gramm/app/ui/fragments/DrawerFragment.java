@@ -16,9 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -191,9 +191,9 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void onBenisGraphClicked(View view) {
-        new MaterialDialog.Builder(getActivity())
+        DialogBuilder.start(getActivity())
                 .content(R.string.benis_graph_explanation)
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .show();
     }
 
@@ -426,16 +426,10 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void showDialogToRemoveBookmark(Bookmark bookmark) {
-        new MaterialDialog.Builder(getActivity())
+        DialogBuilder.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.cancel)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        bookmarkService.delete(bookmark);
-                    }
-                })
+                .positive(R.string.yes, () -> bookmarkService.delete(bookmark))
+                .negative(R.string.cancel)
                 .show();
     }
 

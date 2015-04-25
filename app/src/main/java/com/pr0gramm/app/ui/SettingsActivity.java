@@ -11,9 +11,9 @@ import android.support.annotation.NonNull;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
@@ -99,15 +99,15 @@ public class SettingsActivity extends RoboActionBarActivity {
             if ("pref_pseudo_logcat".equals(preference.getKey())) {
                 Optional<File> logFile = LogcatUtility.dump();
                 if (logFile.isPresent()) {
-                    new MaterialDialog.Builder(getActivity())
+                    DialogBuilder.start(getActivity())
                             .content(getString(R.string.logcat_logfile_created, logFile.get()))
-                            .positiveText(R.string.okay)
+                            .positive(R.string.okay)
                             .show();
 
                 } else {
-                    new MaterialDialog.Builder(getActivity())
+                    DialogBuilder.start(getActivity())
                             .content(getString(R.string.logcat_error_occurred, logFile.get()))
-                            .positiveText(R.string.okay)
+                            .positive(R.string.okay)
                             .show();
                 }
             }
@@ -121,17 +121,17 @@ public class SettingsActivity extends RoboActionBarActivity {
 
             if ("pref_convert_gif_to_webm".equals(key)) {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
-                    new MaterialDialog.Builder(getActivity())
+                    DialogBuilder.start(getActivity())
                             .content(R.string.gif_as_webm_might_be_buggy)
-                            .positiveText(R.string.okay)
+                            .positive(R.string.okay)
                             .show();
                 }
             }
 
             if ("pref_hardware_acceleration".equals(key)) {
-                new MaterialDialog.Builder(getActivity())
+                DialogBuilder.start(getActivity())
                         .content(R.string.need_to_restart_app)
-                        .positiveText(R.string.okay)
+                        .positive(R.string.okay)
                         .show();
             }
         }

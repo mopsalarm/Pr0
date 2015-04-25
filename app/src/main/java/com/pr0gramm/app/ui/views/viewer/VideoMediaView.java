@@ -11,11 +11,11 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -250,9 +250,9 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         try {
             if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
-                new MaterialDialog.Builder(getContext())
+                DialogBuilder.start(getContext())
                         .content(R.string.could_not_play_video_io)
-                        .positiveText(R.string.okay)
+                        .positive(R.string.okay)
                         .show();
 
                 return true;
@@ -263,18 +263,18 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             if (what == 262) {
                 Optional<File> logFile = LogcatUtility.dump();
                 if (logFile.isPresent()) {
-                    new MaterialDialog.Builder(getContext())
+                    DialogBuilder.start(getContext())
                             .content(getContext().getString(R.string.could_not_play_video_262, logFile.get()))
-                            .positiveText(R.string.okay)
+                            .positive(R.string.okay)
                             .show();
 
                     return true;
                 }
             }
 
-            new MaterialDialog.Builder(getContext())
+            DialogBuilder.start(getContext())
                     .content(R.string.could_not_play_video)
-                    .positiveText(R.string.okay)
+                    .positive(R.string.okay)
                     .show();
 
         } catch (Exception ignored) {

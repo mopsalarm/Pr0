@@ -23,11 +23,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -572,9 +572,9 @@ public class PostFragment extends RoboFragment implements
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new MaterialDialog.Builder(getActivity())
+            return DialogBuilder.start(getActivity())
                     .content(R.string.info_how_to_vote_tags)
-                    .positiveText(R.string.okay)
+                    .positive(R.string.okay)
                     .build();
         }
     }
