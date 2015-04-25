@@ -164,4 +164,15 @@
     <string name="pref_dont_restore_surface_summary">Aktiviere diese Option, wenn Videos bei dir nicht abgespielt werden</string>
     <string name="pref_keep_screen_on">Bildschirm anlassen</string>
     <string name="pref_keep_screen_on_summary">Der Bildschirm geht nicht aus, während du dir einen Post anguckst.</string>
+    <string name="action_inbox">NACHRICHTEN</string>
+    <string name="action_send">Senden</string>
+    <string name="inbox">Inbox</string>
+    <string name="inbox_activity_title">Inbox</string>
+    <string name="inbox_message_comment">KOMMENTAR</string>
+    <string name="inbox_message_private">PRIVATE NACHRICHT</string>
+    <string name="inbox_nothing_here">Keine Nachrichten\n¯\\_(ツ)_/¯</string>
+    <string name="inbox_type_all">Inbox</string>
+    <string name="inbox_type_private">Privat</string>
+    <string name="inbox_type_unread">Ungelesen</string>
+    <string name="write_private_message_summary">Neue Nachricht an %s.</string>
 </resources>
