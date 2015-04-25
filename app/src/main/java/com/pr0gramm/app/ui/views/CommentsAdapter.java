@@ -31,7 +31,6 @@ import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
-import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
  */
@@ -108,31 +107,30 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         Post.Comment comment = comments.get(position);
 
         view.setCommentDepth(getCommentDepth(comment));
-        view.name.setUsername(comment.getName(), comment.getMark());
-        view.name.setOnClickListener(v -> doOnAuthorClicked(comment));
+        view.senderInfo.setSenderName(comment.getName(), comment.getMark());
+        view.senderInfo.setOnSenderClickedListener(v -> doOnAuthorClicked(comment));
 
         // set the comment and add links
         view.comment.setText(comment.getContent());
         Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
-        Context context = view.itemView.getContext();
         int points = comment.getUp() - comment.getDown();
-        view.points.setText(context.getString(R.string.points, points));
+        view.senderInfo.setPoints(points);
+        view.senderInfo.setPointsVisible(true);
 
         // and the date of the post
-        CharSequence date = getRelativeTimeSpanString(context, comment.getCreated());
-        view.date.setText(date);
+        view.senderInfo.setDate(comment.getCreated());
 
         // enable or disable the badge
         boolean badge = op.transform(op -> op.equalsIgnoreCase(comment.getName())).or(false);
-        view.badgeOp.setVisibility(badge ? View.VISIBLE : View.GONE);
+        view.senderInfo.setBadgeOpVisible(badge);
 
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
         view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
 
-        view.answer.setOnClickListener(v -> doAnswer(comment));
+        view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
     }
 
     private void doOnAuthorClicked(Post.Comment comment) {
@@ -177,14 +175,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
-        final UsernameView name;
         final TextView comment;
-        final TextView points;
-        final TextView date;
-        final View answer;
-        final View badgeOp;
-
         final VoteView vote;
+        final SenderInfoView senderInfo;
+
         private final int baseLeftMargin;
 
         public CommentView(View itemView) {
@@ -194,13 +188,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             baseLeftMargin = params.leftMargin;
 
             // get the subviews
-            name = (UsernameView) itemView.findViewById(R.id.username);
             comment = (TextView) itemView.findViewById(R.id.comment);
-            points = (TextView) itemView.findViewById(R.id.points);
-            date = (TextView) itemView.findViewById(R.id.date);
             vote = (VoteView) itemView.findViewById(R.id.voting);
-            answer = itemView.findViewById(R.id.answer);
-            badgeOp = itemView.findViewById(R.id.badge_op);
+            senderInfo = (SenderInfoView) itemView.findViewById(R.id.sender_info);
         }
 
         public void setCommentDepth(int depth) {

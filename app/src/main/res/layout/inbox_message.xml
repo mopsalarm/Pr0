@@ -35,4 +35,23 @@
         android:layout_marginTop="8dp"
         android:singleLine="false"
         />
+
+    <com.pr0gramm.app.ui.views.SenderInfoView
+        layout="@layout/sender_info"
+        android:id="@+id/sender_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/message_text"
+        android:layout_below="@+id/message_text"
+        android:layout_marginTop="4dp"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/sender_info"
+        android:layout_alignLeft="@id/message_text"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8dp"
+        android:background="@color/brighter_background"/>
+
 </RelativeLayout>

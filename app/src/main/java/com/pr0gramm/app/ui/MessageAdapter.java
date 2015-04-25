@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -45,27 +46,33 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     @Override
-    public void onBindViewHolder(MessageViewHolder holder, int position) {
+    public void onBindViewHolder(MessageViewHolder view, int position) {
         Message message = messages.get(position);
 
         // set the type. if we have no thumbnail, we have a private message
-        holder.type.setText(message.getThumb() != null
-                ? context.getString(R.string.inbox_message_comment)
-                : context.getString(R.string.inbox_message_private));
+        boolean isComment = message.getThumb() != null;
+        view.type.setText(isComment ? context.getString(R.string.inbox_message_comment) : context.getString(R.string.inbox_message_private));
 
         // the text of the message
-        holder.text.setText(message.getMessage());
-        Linkify.addLinks(holder.text, Linkify.WEB_URLS);
+        view.text.setText(message.getMessage());
+        Linkify.addLinks(view.text, Linkify.WEB_URLS);
 
-        if (message.getThumb() != null) {
-            holder.image.setVisibility(View.VISIBLE);
+        // draw the image for this post
+        if (isComment) {
+            view.image.setVisibility(View.VISIBLE);
 
             String url = "http://thumb.pr0gramm.com/" + message.getThumb();
-            picasso.load(url).into(holder.image);
+            picasso.load(url).into(view.image);
         } else {
-            holder.image.setVisibility(View.GONE);
-            picasso.cancelRequest(holder.image);
+            view.image.setVisibility(View.GONE);
+            picasso.cancelRequest(view.image);
         }
+
+        // sender info
+        view.sender.setSenderName(message.getName(), message.getMark());
+        view.sender.setPointsVisible(isComment);
+        view.sender.setPoints(message.getScore());
+        view.sender.setDate(message.getCreated());
     }
 
     @Override
@@ -77,6 +84,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         final TextView text;
         final TextView type;
         final ImageView image;
+        final SenderInfoView sender;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -84,6 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             text = (TextView) itemView.findViewById(R.id.message_text);
             type = (TextView) itemView.findViewById(R.id.message_type);
             image = (ImageView) itemView.findViewById(R.id.message_image);
+            sender = (SenderInfoView) itemView.findViewById(R.id.sender_info);
         }
     }
 }

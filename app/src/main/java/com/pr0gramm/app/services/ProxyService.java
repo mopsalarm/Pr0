@@ -67,18 +67,24 @@ public class ProxyService extends NanoHttpServer {
 
     @Override
     public Response serve(IHTTPSession session) {
+        logger.info("New request for {}", session.getUri());
+
         Uri uri = Uri.parse(session.getUri());
-        if (!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null)))
+        if (!nonce.equals(Iterables.getFirst(uri.getPathSegments(), null))) {
+            logger.info("Got request with invalid nonce: {}", uri);
             return new Response(Response.Status.FORBIDDEN, "text/plain", "");
+        }
 
         String url = null;
         try {
             String encodedUrl = uri.getLastPathSegment();
+
+            logger.info("Decode {} as utf8 string now", encodedUrl);
             url = new String(
                     BaseEncoding.base64Url().decode(encodedUrl),
                     Charsets.UTF_8).trim();
 
-            logger.info("Request {} (decoded: {}) ", encodedUrl, url);
+            logger.info("Decoded request to {}", url);
 
             Request request = buildRequest(url, session);
             com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
