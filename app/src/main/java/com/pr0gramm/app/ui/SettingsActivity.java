@@ -8,11 +8,12 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.Pr0grammApplication;
@@ -25,34 +26,56 @@ import java.util.List;
 
 import roboguice.activity.RoboActionBarActivity;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 /**
  */
-public class SettingsActivity extends RoboActionBarActivity {
+public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FrameLayout view = new FrameLayout(this);
-        view.setId(android.R.id.content);
-        view.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        String category = null;
+        String action = getIntent().getAction();
+        if (action != null && action.startsWith("preference://"))
+            category = emptyToNull(action.substring("preference://".length()));
 
-        setContentView(view);
+        if (savedInstanceState == null) {
+            SettingsFragment fragment = new SettingsFragment();
+            fragment.setArguments(AndroidUtility.bundle("category", category));
 
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
-                .commit();
+            getFragmentManager().beginTransaction()
+                    .replace(android.R.id.content, fragment)
+                    .commit();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.preferences);
+
+            String category = getArguments().getString("category");
+            if (category != null) {
+                Preference root = getPreferenceManager().findPreference(category);
+                if (root != null) {
+                    getActivity().setTitle(root.getTitle());
+                    setPreferenceScreen((PreferenceScreen) root);
+                }
+            }
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.preferences);
             updateContentTypeBoxes(getPreferenceManager().getSharedPreferences());
         }
 
@@ -82,7 +105,7 @@ public class SettingsActivity extends RoboActionBarActivity {
             }
 
             if ("pref_pseudo_changelog".equals(preference.getKey())) {
-                RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+                AppCompatActivity activity = (AppCompatActivity) getActivity();
                 ChangeLogDialog dialog = new ChangeLogDialog();
                 dialog.show(activity.getSupportFragmentManager(), null);
                 return true;
@@ -144,8 +167,7 @@ public class SettingsActivity extends RoboActionBarActivity {
 
             for (String ctKey : contentTypeKeys) {
                 Preference pref = findPreference(ctKey);
-
-                if (sharedPreferences.getBoolean(ctKey, false))
+                if (pref != null && sharedPreferences.getBoolean(ctKey, false))
                     pref.setEnabled(enabled);
             }
         }

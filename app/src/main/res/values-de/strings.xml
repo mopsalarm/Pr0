@@ -84,7 +84,7 @@
     <string name="pref_animate_vote_view_on">Spiele eine Animation beim Voten</string>
     <string name="pref_seen_indicator_style">Bilder als gesehen markieren</string>
     <string name="pref_seen_indicator_style_summary">Legt die Art fest, wie Bilder als gesehen markiert werden sollen </string>
-    <string name="prefcat_style">Aussehen</string>
+    <string name="prefcat_behaviour">Verhalten</string>
     <string name="error_timeout">Zeitüberschreitung bei einer Anfrage.</string>
     <string name="error_out_of_memory_while_decoding_gif">Das gif-Bild konnte nicht in den Speicher geladen werden. Überprüfe deine Einstellung und deaktivere das Dekodieren von gifs im Speicher.</string>
     <string name="error_socket">Ein Netzwerkfehler ist aufgetreten.</string>
@@ -175,4 +175,10 @@
     <string name="inbox_type_private">Privat</string>
     <string name="inbox_type_unread">Ungelesen</string>
     <string name="write_private_message_summary">Neue Nachricht an %s.</string>
+    <string name="pref_compatibility_summary">Wenn etwas nicht funktioniert, probiere es hier.</string>
+    <string name="prefcat_behaviour_summary">Verhaltenseinstellungen wie: Doppelt-Tab zum Voten und Benachrichtigungen.</string>
+    <string name="prefcat_settings_title">Einstellungen</string>
+    <string name="prefcat_visual_summary">Hier kannst du einstellen, wie die App aussehen soll.</string>
+    <string name="prefcat_visual_title">Visuell</string>
+    <string name="prev_privacy_summary">Hast du etwas zu verstecken?</string>
 </resources>

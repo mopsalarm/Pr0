@@ -77,7 +77,7 @@
     <string name="type_nsfl">nsfl</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
-    <string name="prefcat_style">Customization</string>
+    <string name="prefcat_behaviour">Behaviour</string>
     <string name="pref_seen_indicator_style">Mark images as seen</string>
 
     <string name="indicator_none">No indicator</string>
@@ -180,4 +180,10 @@
     <string name="write_private_message_summary">New message to user %s.</string>
     <string name="message_hint">Message text</string>
     <string name="action_send">Send</string>
+    <string name="prefcat_visual_title">Visual</string>
+    <string name="prefcat_settings_title">Settings</string>
+    <string name="prefcat_behaviour_summary">Behaviour settings like double tap to vote, notifications and other stuff.</string>
+    <string name="prefcat_visual_summary">Customize how some parts of the app should look like.</string>
+    <string name="pref_compatibility_summary">Something is not working? Check here!</string>
+    <string name="prev_privacy_summary">Do you have something to hide?</string>
 </resources>

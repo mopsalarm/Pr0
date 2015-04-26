@@ -1,6 +1,7 @@
 package com.pr0gramm.app;
 
 import android.content.res.TypedArray;
+import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 
@@ -68,5 +69,11 @@ public class AndroidUtility {
         } catch (Exception err) {
             logger.info("Could not send error to google", err);
         }
+    }
+
+    public static Bundle bundle(String key, String value) {
+        Bundle bundle = new Bundle();
+        bundle.putString(key, value);
+        return bundle;
     }
 }
