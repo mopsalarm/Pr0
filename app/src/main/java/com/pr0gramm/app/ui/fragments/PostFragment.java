@@ -81,7 +81,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
  */
 public class PostFragment extends RoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
-        NewCommentDialogFragment.OnAddNewCommentListener,
+        NewCommentDialogFragment.OnNewCommentsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
@@ -199,10 +199,16 @@ public class PostFragment extends RoboFragment implements
                 String text = textView.getText().toString().trim();
                 textView.setText("");
 
-                onAddNewCommment(0, text);
+                writeComment(text);
             };
             doIfAuthorized(this, action, action);
         });
+    }
+
+    private void writeComment(String text) {
+        bindFragment(this, voteService.postComment(feedItem, 0, text))
+                .lift(busyDialog(this))
+                .subscribe(this::displayComments, defaultOnError());
     }
 
     @Override
@@ -542,7 +548,7 @@ public class PostFragment extends RoboFragment implements
 
         doIfAuthorized(this, () -> {
             NewCommentDialogFragment
-                    .newInstance(Optional.fromNullable(comment))
+                    .newInstance(feedItem.getId(), Optional.fromNullable(comment))
                     .show(getChildFragmentManager(), null);
 
         }, retry);
@@ -551,13 +557,6 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onCommentAuthorClicked(Post.Comment comment) {
         onUserClicked(comment.getName());
-    }
-
-    @Override
-    public void onAddNewCommment(long parentId, String text) {
-        bindFragment(this, voteService.postComment(feedItem, parentId, text))
-                .lift(busyDialog(this))
-                .subscribe(this::displayComments, defaultOnError());
     }
 
     @Override
@@ -572,6 +571,10 @@ public class PostFragment extends RoboFragment implements
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 
+    @Override
+    public void onNewComments(List<Post.Comment> comments) {
+        displayComments(comments);
+    }
 
     public static class TagVoteInfoDialogFragment extends DialogFragment {
         @NonNull

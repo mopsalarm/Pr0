@@ -81,10 +81,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         view.sender.setPoints(message.getScore());
         view.sender.setDate(message.getCreated());
 
-        if(actionListener != null && !isComment) {
-            view.sender.setAnswerClickedListener(v -> {
-                actionListener.onAnswerToPrivateMessage(message.getSenderId(), message.getName());
-            });
+        if (actionListener != null) {
+            if (isComment) {
+                view.sender.setAnswerClickedListener(v -> {
+                    actionListener.onAnswerToCommentClicked(message.getItemId(), message.getId());
+                });
+
+                view.image.setOnClickListener(v -> {
+                    actionListener.onCommentClicked(message.getItemId(), message.getId());
+                });
+            } else {
+                view.sender.setAnswerClickedListener(v -> {
+                    actionListener.onAnswerToPrivateMessage(message.getSenderId(), message.getName());
+                });
+                view.image.setOnClickListener(null);
+            }
         }
     }
 

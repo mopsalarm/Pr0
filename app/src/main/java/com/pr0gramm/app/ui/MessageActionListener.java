@@ -8,4 +8,14 @@ public interface MessageActionListener {
      * written by the given user.
      */
     void onAnswerToPrivateMessage(int receiverId, String name);
+
+    /**
+     * The user clicked on a comment (and probably wants to see that comment now)
+     */
+    void onCommentClicked(long itemId, long commentId);
+
+    /**
+     * The user wants to answer to a comment
+     */
+    void onAnswerToCommentClicked(long itemId, long commentId);
 }

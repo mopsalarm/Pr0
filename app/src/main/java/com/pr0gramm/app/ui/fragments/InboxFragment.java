@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -14,7 +16,9 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.ui.EmptyAdapter;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
+import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.squareup.picasso.Picasso;
 
@@ -198,6 +202,20 @@ public abstract class InboxFragment<T> extends RoboFragment {
         @Override
         public void onAnswerToPrivateMessage(int receiverId, String name) {
             DialogFragment dialog = WritePrivateMessageDialog.newInstance(receiverId, name);
+            dialog.show(getFragmentManager(), null);
+        }
+
+        @Override
+        public void onCommentClicked(long itemId, long commentId) {
+            Uri uri = Uri.parse("http://pr0gramm.com/new/" + itemId);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri, getActivity(), MainActivity.class);
+            startActivity(intent);
+        }
+
+        @Override
+        public void onAnswerToCommentClicked(long itemId, long commentId) {
+            DialogFragment dialog = NewCommentDialogFragment.newInstance(itemId, commentId);
             dialog.show(getFragmentManager(), null);
         }
     };

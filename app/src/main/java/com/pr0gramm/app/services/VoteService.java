@@ -164,8 +164,8 @@ public class VoteService {
     /**
      * Writes a comment to the given post.
      */
-    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
-        return api.postComment(null, item.getId(), parentId, comment)
+    public Observable<List<Post.Comment>> postComment(long itemId, long parentId, String comment) {
+        return api.postComment(null, itemId, parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {
                     // store the implicit upvote for the comment.
@@ -174,6 +174,9 @@ public class VoteService {
                 });
     }
 
+    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
+        return postComment(item.getId(), parentId, comment);
+    }
 
     /**
      * Removes all votes from the vote cache.
