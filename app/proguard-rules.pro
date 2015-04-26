@@ -24,13 +24,11 @@
 
 # keep retrofit-annotations and methods
 -keep class retrofit.** { *; }
--keepclasseswithmembers class * {
-    @retrofit.http.* <methods>;
-}
 
 # roboguice - keep classes with inject-constructor
--keep class * {
-    @com.google.inject.Inject *;
+-keep class roboguice.inject.** { *; }
+-keepclasseswithmembers class * {
+    @com.google.inject.Inject public <init>(...);
 }
 
 # we need this for roboguice
