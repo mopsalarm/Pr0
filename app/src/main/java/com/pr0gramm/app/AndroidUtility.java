@@ -1,9 +1,12 @@
 package com.pr0gramm.app;
 
+import android.content.Context;
 import android.content.res.TypedArray;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.net.ConnectivityManagerCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
@@ -75,5 +78,17 @@ public class AndroidUtility {
         Bundle bundle = new Bundle();
         bundle.putString(key, value);
         return bundle;
+    }
+
+    public static int dp(Context context, int pixel) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return (int) (pixel * density);
+    }
+
+    public static boolean isOnMobile(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
     }
 }

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
@@ -63,6 +64,7 @@ public abstract class MediaView extends FrameLayout {
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
             LayoutInflater.from(context).inflate(layoutId, this);
+            setMinimumHeight(AndroidUtility.dp(context, 150));
 
             if (progressId != null)
                 progress = findViewById(progressId);

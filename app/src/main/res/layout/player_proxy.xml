@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:minHeight="150dp">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.pr0gramm.app.ui.views.BusyCircleView
         android:id="@+id/proxy_progress"
@@ -11,4 +8,4 @@
         android:layout_gravity="center"
         android:visibility="gone"/>
 
-</FrameLayout>
+</merge>

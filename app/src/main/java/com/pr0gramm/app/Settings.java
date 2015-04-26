@@ -141,6 +141,10 @@ public class Settings {
         return preferences.getBoolean("pref_keep_screen_on", true);
     }
 
+    public boolean confirmPlayOnMobile() {
+        return preferences.getBoolean("pref_confirm_play_on_mobile", true);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

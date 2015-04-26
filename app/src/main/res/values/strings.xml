@@ -189,4 +189,6 @@
     <string name="pref_use_proxy_title">Use caching</string>
     <string name="pref_use_proxy_summary">Caching is good to save bandwidth and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
     <string name="rating_not_yet_visible">●●●</string>
+    <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
+    <string name="pref_confirm_play_on_mobile_summary">Confirm playback of videos and gifs on mobile to conserve bandwidth.</string>
 </resources>

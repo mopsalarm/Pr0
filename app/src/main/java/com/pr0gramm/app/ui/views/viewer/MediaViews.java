@@ -26,6 +26,12 @@ public class MediaViews {
     public static MediaView newInstance(Context context, MediaView.Binder binder, String url) {
         ProxyService proxyService = RoboGuice.getInjector(context).getInstance(ProxyService.class);
 
+        // handle delay: urls.
+        if(url.startsWith("delay:")) {
+            String realUrl = url.substring("delay:".length());
+            return new DelayedMediaView(context, binder, realUrl);
+        }
+
         MediaView result;
         Settings settings = Settings.of(context);
         if (isVideoUrl(url)) {
@@ -50,7 +56,18 @@ public class MediaViews {
         return url != null && url.toLowerCase().matches(".*\\.(?:webm|mp4|mpg|mpeg|avi)");
     }
 
+    private static boolean isGifUrl(String url) {
+        return url != null && url.toLowerCase().endsWith(".gif");
+    }
+
     public static String url(FeedItem feedItem) {
         return "http://img.pr0gramm.com/" + feedItem.getImage();
+    }
+
+    public static String delay(String url) {
+        if(isVideoUrl(url) || isGifUrl(url))
+            return "delay:" + url;
+
+        return url;
     }
 }
