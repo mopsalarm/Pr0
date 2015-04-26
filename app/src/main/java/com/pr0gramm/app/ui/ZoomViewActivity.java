@@ -13,6 +13,7 @@ import android.view.ViewParent;
 import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
+import roboguice.RoboGuice;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectExtra;
 import roboguice.inject.InjectView;
@@ -92,8 +94,13 @@ public class ZoomViewActivity extends RoboActionBarActivity {
     }
 
     public static Intent newIntent(Context context, String imageUrl) {
+        ProxyService proxyService = RoboGuice.getInjector(context)
+                .getInstance(ProxyService.class);
+
         Intent intent = new Intent(context, ZoomViewActivity.class);
-        intent.putExtra("ZoomViewActivity.imageUrl", "http://img.pr0gramm.com/" + imageUrl);
+        String url = proxyService.proxy("http://img.pr0gramm.com/" + imageUrl);
+
+        intent.putExtra("ZoomViewActivity.imageUrl", url);
         return intent;
     }
 

@@ -133,6 +133,10 @@ public class Settings {
         return preferences.getBoolean("pref_dont_restore_surface", false);
     }
 
+    public boolean useProxy() {
+        return preferences.getBoolean("pref_use_proxy", true);
+    }
+
     public boolean keepScreenOn() {
         return preferences.getBoolean("pref_keep_screen_on", true);
     }

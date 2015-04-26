@@ -186,4 +186,6 @@
     <string name="prefcat_visual_summary">Customize how some parts of the app should look like.</string>
     <string name="pref_compatibility_summary">Something is not working? Check here!</string>
     <string name="prev_privacy_summary">Do you have something to hide?</string>
+    <string name="pref_use_proxy_title">Use caching</string>
+    <string name="pref_use_proxy_summary">Caching is good to save bandwith and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
 </resources>

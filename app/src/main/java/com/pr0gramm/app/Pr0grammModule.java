@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.content.Context;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Throwables;
 import com.google.common.reflect.Reflection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +13,7 @@ import com.google.inject.Singleton;
 import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.GifToVideoService;
+import com.pr0gramm.app.services.HttpProxyService;
 import com.pr0gramm.app.services.MyGifToVideoService;
 import com.pr0gramm.app.services.ProxyService;
 import com.squareup.okhttp.Cache;
@@ -149,11 +151,25 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public ProxyService proxyService(OkHttpClient httpClient) throws IOException {
-        ProxyService proxy = new ProxyService(httpClient);
-        proxy.start();
+    public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
+        Exception error = null;
+        for(int i = 0; i < 10; i++) {
+            try {
+                HttpProxyService proxy = new HttpProxyService(httpClient);
+                proxy.start();
 
-        return proxy;
+                // return the proxy
+                return url -> settings.useProxy() ? proxy.proxy(url) : url;
+
+            } catch (IOException ioError) {
+                error = ioError;
+
+                logger.info("Could not open proxy: {}", ioError.toString());
+            }
+        }
+
+        assert error != null;
+        throw Throwables.propagate(error);
     }
 
     @Provides

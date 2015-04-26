@@ -153,6 +153,12 @@
                 android:summary="@string/pref_dont_restore_surface_summary"
                 android:defaultValue="false"/>
 
+            <CheckBoxPreference
+                android:key="pref_use_proxy"
+                android:title="@string/pref_use_proxy_title"
+                android:summary="@string/pref_use_proxy_summary"
+                android:defaultValue="true"/>
+
         </PreferenceScreen>
 
         <PreferenceScreen
