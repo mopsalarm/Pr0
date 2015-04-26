@@ -16,7 +16,7 @@
             android:layout_height="match_parent"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <com.pr0gramm.app.ui.views.BusyCircleView
+    <com.pr0gramm.app.ui.views.BusyIndicator
         android:id="@+id/busy_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

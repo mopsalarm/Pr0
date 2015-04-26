@@ -21,20 +21,20 @@ import static android.util.FloatMath.cos;
 
 /**
  */
-public class BusyCircleView extends FrameLayout {
+public class BusyIndicator extends FrameLayout {
     private ImmutableList<Animator> animators;
 
-    public BusyCircleView(Context context) {
+    public BusyIndicator(Context context) {
         super(context);
         init();
     }
 
-    public BusyCircleView(Context context, AttributeSet attrs) {
+    public BusyIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public BusyCircleView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public BusyIndicator(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
