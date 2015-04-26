@@ -1,10 +1,9 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.AndroidUtility;
@@ -13,8 +12,9 @@ import com.pr0gramm.app.ui.MaterialProgressDrawable;
 
 /**
  */
-public class BusyIndicator extends ImageView {
+public class BusyIndicator extends FrameLayout {
     private MaterialProgressDrawable mpd;
+    private ImageView imageView;
 
     public BusyIndicator(Context context) {
         super(context);
@@ -32,37 +32,34 @@ public class BusyIndicator extends ImageView {
     }
 
     private void init() {
-        mpd = new MaterialProgressDrawable(getContext(), this);
+        // set size of the container
+        int size = AndroidUtility.dp(getContext(), 64);
+        setLayoutParams(new ViewGroup.LayoutParams(size, size));
+
+        // and create the image-view holding the drawable
+        imageView = new ImageView(getContext());
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(size, size));
+        addView(imageView);
+
+        mpd = new MaterialProgressDrawable(getContext(), imageView);
         mpd.setColorSchemeColors(getResources().getColor(R.color.primary));
         mpd.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         mpd.updateSizes(MaterialProgressDrawable.LARGE);
         mpd.setAlpha(255);
 
-        int size = AndroidUtility.dp(getContext(), 64);
-        setLayoutParams(new ViewGroup.LayoutParams(size, size));
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        setImageDrawable(mpd);
+
+        imageView.setImageDrawable(mpd);
         mpd.start();
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        setImageDrawable(null);
         super.onDetachedFromWindow();
-    }
-
-    @Override
-    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        if (visibility == VISIBLE) {
-            setImageDrawable(mpd);
-            mpd.start();
-        } else {
-            setImageDrawable(null);
-        }
+        imageView.setImageDrawable(null);
     }
 }

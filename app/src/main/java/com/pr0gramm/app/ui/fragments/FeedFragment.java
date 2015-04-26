@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
@@ -32,6 +33,7 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.squareup.picasso.Picasso;
 
@@ -81,7 +83,7 @@ public class FeedFragment extends RoboFragment {
     private RecyclerView recyclerView;
 
     @InjectView(R.id.progress)
-    private View progressView;
+    private BusyIndicator busyIndicator;
 
     @InjectView(R.id.refresh)
     private CustomSwipeRefreshLayout swipeRefreshLayout;
@@ -130,11 +132,15 @@ public class FeedFragment extends RoboFragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (adapter == null) {
+            if (busyIndicator != null)
+                busyIndicator.setVisibility(View.VISIBLE);
+
             // create a new adapter if necessary
             adapter = newFeedAdapter();
-            progressView.setVisibility(View.VISIBLE);
+
         } else {
             updateNoResultsTextView();
+            removeBusyIndicator();
         }
 
         seenIndicatorStyle = settings.seenIndicatorStyle();
@@ -165,6 +171,21 @@ public class FeedFragment extends RoboFragment {
 
         resetToolbar();
         setupInfiniteScroll();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        AndroidUtility.uninjectViews(this);
+    }
+
+    private void removeBusyIndicator() {
+        if (busyIndicator != null) {
+            ViewParent parent = busyIndicator.getParent();
+            ((ViewGroup) parent).removeView(busyIndicator);
+
+            busyIndicator = null;
+        }
     }
 
     private void resetToolbar() {
@@ -433,7 +454,7 @@ public class FeedFragment extends RoboFragment {
             this.feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(FeedFragment.this, feedService) {
                 @Override
                 public void onLoadFinished() {
-                    progressView.setVisibility(View.GONE);
+                    removeBusyIndicator();
                     swipeRefreshLayout.setRefreshing(false);
 
                     performAutoOpen();

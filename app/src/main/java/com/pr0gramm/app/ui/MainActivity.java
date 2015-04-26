@@ -357,6 +357,11 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
+    public void onOtherNavigationItemClicked() {
+        drawerLayout.closeDrawers();
+    }
+
+    @Override
     public void onFeedFilterSelected(FeedFilter filter) {
         gotoFeedFragment(filter, false);
     }

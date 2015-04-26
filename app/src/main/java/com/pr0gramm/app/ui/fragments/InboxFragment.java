@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.ui.EmptyAdapter;
@@ -84,6 +85,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         if (messages != null || !isLazyLoading()) {
             loadInboxContent();
@@ -104,10 +106,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
     public void onDestroyView() {
         super.onDestroyView();
 
-        messagesView = null;
-        viewNothingHere = null;
-        viewBusyIndicator = null;
-        swipeRefreshLayout = null;
+        AndroidUtility.uninjectViews(this);
     }
 
     private boolean isLazyLoading() {

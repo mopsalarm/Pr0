@@ -337,11 +337,23 @@ public class DrawerFragment extends RoboFragment {
          * @param filter The feed filter that was clicked.
          */
         void onFeedFilterSelectedInNavigation(FeedFilter filter);
+
+        /**
+         * Some other menu item was clicked and we request that this
+         * drawer gets closed
+         */
+        void onOtherNavigationItemClicked();
     }
 
     private void onFeedFilterClicked(FeedFilter filter) {
         if (getActivity() instanceof OnFeedFilterSelected) {
             ((OnFeedFilterSelected) getActivity()).onFeedFilterSelectedInNavigation(filter);
+        }
+    }
+
+    private void onOtherNavigationItemClicked() {
+        if (getActivity() instanceof OnFeedFilterSelected) {
+            ((OnFeedFilterSelected) getActivity()).onOtherNavigationItemClicked();
         }
     }
 
@@ -379,6 +391,7 @@ public class DrawerFragment extends RoboFragment {
 
                 } else if (item.callback != null) {
                     item.callback.run();
+                    onOtherNavigationItemClicked();
                 }
             });
 

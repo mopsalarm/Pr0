@@ -15,8 +15,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import roboguice.inject.InjectView;
+
+import static java.util.Arrays.asList;
 
 /**
  */
@@ -90,5 +97,27 @@ public class AndroidUtility {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+    }
+
+    public static void uninjectViews(Object object) {
+        List<Field> fields = new ArrayList<>();
+
+        Class<?> currentClass = object.getClass();
+        while (currentClass != Object.class) {
+            if (currentClass.getName().startsWith("android."))
+                break;
+
+            fields.addAll(asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
+        }
+
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(InjectView.class)) {
+                try {
+                    field.set(object, null);
+                } catch (IllegalAccessException ignored) {
+                }
+            }
+        }
     }
 }
