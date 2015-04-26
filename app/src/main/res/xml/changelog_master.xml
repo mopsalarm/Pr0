@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.31"
+        versioncode="31">
+
+        <change><![CDATA[<b>Neu</b> Kein automatisches Laden von Videos und Gifs im Mobilnetz]]></change>
+        <change><![CDATA[<b>Neu</b> Neue Kompatibilitätseinstellung falls Bilder nicht mehr geladen werden]]></change>
+        <change><![CDATA[<b>Fix</b> Einstellungen umsortiert]]></change>
+    </release>
+
+    <release
         version="1.30"
         versioncode="30">
 
