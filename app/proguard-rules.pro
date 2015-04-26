@@ -27,6 +27,7 @@
 
 # roboguice - keep classes with inject-constructor
 -keep class roboguice.inject.** { *; }
+-keep class javax.annotation.** { *; }
 -keepclasseswithmembers class * {
     @com.google.inject.Inject public <init>(...);
 }
