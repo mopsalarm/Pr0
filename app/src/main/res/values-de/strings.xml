@@ -181,4 +181,9 @@
     <string name="prefcat_visual_summary">Hier kannst du einstellen, wie die App aussehen soll.</string>
     <string name="prefcat_visual_title">Visuell</string>
     <string name="prev_privacy_summary">Hast du etwas zu verstecken?</string>
+    <string name="message_hint">Nachrichtentext</string>
+    <string name="pref_confirm_play_on_mobile_summary">Abspielen von Videos und Gifs müssen bestätigt werden, wenn du dich nicht im WLAN befindest.</string>
+    <string name="pref_confirm_play_on_mobile_title">Bestätigung im Mobilnetz</string>
+    <string name="pref_use_proxy_title">Zwischenspeicher</string>
+    <string name="pref_use_proxy_summary">Wenn das Zwischenspeichern aktiviert ist, werden Anfragen über einen lokalen Proxyserver geleitet. Deaktiviere, falls du keine Bilder mehr sehen kannst. </string>
 </resources>
