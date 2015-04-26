@@ -81,9 +81,20 @@ public class InboxActivity extends RoboActionBarActivity {
         // restore previously selected tab
         if (savedInstanceState != null) {
             tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        } else {
+            handleNewIntent(getIntent());
+        }
+    }
 
-        } else if (getIntent() != null && getIntent().getExtras() != null) {
-            Bundle extras = getIntent().getExtras();
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNewIntent(intent);
+    }
+
+    private void handleNewIntent(Intent intent) {
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
             showInboxType(InboxType.values()[extras.getInt(EXTRA_INBOX_TYPE, 0)]);
         }
     }
