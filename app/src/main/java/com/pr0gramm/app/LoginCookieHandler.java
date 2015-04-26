@@ -121,7 +121,8 @@ public class LoginCookieHandler extends CookieHandler {
                 return;
 
             Optional<Cookie> parsedCookie = parseCookie(cookie);
-            if (parsedCookie.isPresent()) {
+            boolean valid = parsedCookie.transform(c -> c.id != null && c.n != null).or(false);
+            if (valid) {
                 this.httpCookie = cookie;
                 this.parsedCookie = parsedCookie;
 
@@ -131,8 +132,8 @@ public class LoginCookieHandler extends CookieHandler {
                         .apply();
 
             } else {
-                // couldn't parse the cookie, so stop here.
-                clearLoginCookie();
+                // couldn't parse the cookie or it is not valid
+                clearLoginCookie(true);
             }
         }
 
@@ -140,14 +141,14 @@ public class LoginCookieHandler extends CookieHandler {
             onCookieChangedListener.onCookieChanged();
     }
 
-    public void clearLoginCookie() {
+    public void clearLoginCookie(boolean informListener) {
         synchronized (lock) {
             httpCookie = null;
             parsedCookie = Optional.absent();
             preferences.edit().remove(PREF_LOGIN_COOKIE).apply();
         }
 
-        if (onCookieChangedListener != null)
+        if (informListener && onCookieChangedListener != null)
             onCookieChangedListener.onCookieChanged();
     }
 
@@ -194,9 +195,15 @@ public class LoginCookieHandler extends CookieHandler {
      * no cookie to get the nonce from.
      */
     public Api.Nonce getNonce() throws LoginRequiredException {
-        return getCookie().transform(cookie -> new Api.Nonce(cookie.id)).or(() -> {
+        Optional<Cookie> cookie = getCookie();
+        if(!cookie.transform(c -> c.id != null).or(false)) {
+            if(cookie.isPresent())
+                clearLoginCookie(true);
+
             throw new LoginRequiredException();
-        });
+        }
+
+        return cookie.transform(c -> new Api.Nonce(c.id)).get();
     }
 
     /**
@@ -214,7 +221,7 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     public boolean hasCookie() {
-        return httpCookie != null && parsedCookie.isPresent();
+        return httpCookie != null && parsedCookie.transform(c -> c.id != null).or(false);
     }
 
     public static class Cookie {

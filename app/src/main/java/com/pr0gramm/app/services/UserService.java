@@ -68,7 +68,7 @@ public class UserService {
     private void onCookieChanged() {
         Optional<String> cookie = cookieHandler.getLoginCookie();
         if (!cookie.isPresent())
-            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+            logout();
     }
 
     public Observable<Login> login(String username, String password) {
@@ -108,8 +108,10 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
+            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+
             // removing cookie from requests
-            cookieHandler.clearLoginCookie();
+            cookieHandler.clearLoginCookie(false);
 
             // remove sync id
             preferences.edit().remove(KEY_LAST_SYNC_ID).apply();

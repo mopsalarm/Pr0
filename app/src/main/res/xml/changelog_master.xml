@@ -7,6 +7,7 @@
         <change><![CDATA[<b>Neu</b> Kein automatisches Laden von Videos und Gifs im Mobilnetz]]></change>
         <change><![CDATA[<b>Neu</b> Neue Kompatibilitätseinstellung falls Bilder nicht mehr geladen werden]]></change>
         <change><![CDATA[<b>Fix</b> Einstellungen umsortiert]]></change>
+        <change><![CDATA[<b>Fix</b> Bessere Fehlerbehandlung bei Logincookie-Problemen]]></change>
     </release>
 
     <release
