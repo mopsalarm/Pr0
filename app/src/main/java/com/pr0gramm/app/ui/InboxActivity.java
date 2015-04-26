@@ -59,7 +59,7 @@ public class InboxActivity extends RoboActionBarActivity {
 
         // put the actionbar down
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null)
+        if (actionBar != null)
             actionBar.setElevation(0);
 
         // elevate the tab host, so that it cast a shadow.

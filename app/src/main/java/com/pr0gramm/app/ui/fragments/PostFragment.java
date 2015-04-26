@@ -403,7 +403,7 @@ public class PostFragment extends RoboFragment implements
         String url = MediaViews.url(feedItem);
 
         // delay playback on mobile
-        if(settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity()))
+        if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity()))
             url = MediaViews.delay(url);
 
         viewer = MediaViews.newInstance(getActivity(), binder, url);

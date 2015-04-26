@@ -27,7 +27,7 @@ public class MediaViews {
         ProxyService proxyService = RoboGuice.getInjector(context).getInstance(ProxyService.class);
 
         // handle delay: urls.
-        if(url.startsWith("delay:")) {
+        if (url.startsWith("delay:")) {
             String realUrl = url.substring("delay:".length());
             return new DelayedMediaView(context, binder, realUrl);
         }
@@ -65,7 +65,7 @@ public class MediaViews {
     }
 
     public static String delay(String url) {
-        if(isVideoUrl(url) || isGifUrl(url))
+        if (isVideoUrl(url) || isGifUrl(url))
             return "delay:" + url;
 
         return url;

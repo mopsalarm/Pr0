@@ -125,7 +125,7 @@ public class Pr0grammModule extends AbstractModule {
                 logger.info("{} ({}) took {}", request.urlString(), response.code(), watch);
                 return response;
 
-            } catch(Exception error) {
+            } catch (Exception error) {
                 logger.warn("{} produced error: {}", request.urlString(), error);
                 throw error;
             }
@@ -153,7 +153,7 @@ public class Pr0grammModule extends AbstractModule {
     @Singleton
     public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
         Exception error = null;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             try {
                 HttpProxyService proxy = new HttpProxyService(httpClient);
                 proxy.start();

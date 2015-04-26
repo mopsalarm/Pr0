@@ -196,8 +196,8 @@ public class LoginCookieHandler extends CookieHandler {
      */
     public Api.Nonce getNonce() throws LoginRequiredException {
         Optional<Cookie> cookie = getCookie();
-        if(!cookie.transform(c -> c.id != null).or(false)) {
-            if(cookie.isPresent())
+        if (!cookie.transform(c -> c.id != null).or(false)) {
+            if (cookie.isPresent())
                 clearLoginCookie(true);
 
             throw new LoginRequiredException();

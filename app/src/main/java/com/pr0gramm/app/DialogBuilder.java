@@ -133,7 +133,7 @@ public class DialogBuilder {
     }
 
     public DialogBuilder content(View view, boolean wrapInScroll) {
-        if(wrapInScroll) {
+        if (wrapInScroll) {
             ScrollView scroll = new ScrollView(context);
             scroll.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -191,7 +191,7 @@ public class DialogBuilder {
                 }
             }
 
-            if(onShowListener != null)
+            if (onShowListener != null)
                 onShowListener.onShow(dialog);
         });
 

@@ -93,7 +93,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
     private void reloadInboxContent() {
         messages = null;
 
-        if(hasView()) {
+        if (hasView()) {
             messagesView.setAdapter(new EmptyAdapter());
         }
 
