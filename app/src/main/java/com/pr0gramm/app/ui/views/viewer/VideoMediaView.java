@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
@@ -257,8 +256,6 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
                 return true;
             }
-
-            AndroidUtility.logToCrashlytics(new RuntimeException(message));
 
             if (what == 262) {
                 Optional<File> logFile = LogcatUtility.dump();
