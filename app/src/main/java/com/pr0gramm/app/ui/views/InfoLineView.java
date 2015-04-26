@@ -18,6 +18,9 @@ import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
 
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+
 import java.util.List;
 import java.util.Map;
 
@@ -127,8 +130,12 @@ public class InfoLineView extends LinearLayout {
         if (feedItem == null)
             return;
 
-        int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
-        ratingView.setText(String.valueOf(rating));
+        if (isOneHourOld()) {
+            int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
+            ratingView.setText(String.valueOf(rating));
+        } else {
+            ratingView.setText(R.string.rating_not_yet_visible);
+        }
 
         voteFavoriteView.setTextColor(vote == Vote.FAVORITE
                 ? voteView.getMarkedColor()
@@ -147,24 +154,12 @@ public class InfoLineView extends LinearLayout {
         tagsView.setAdapter(new TagsAdapter(sorted, tags));
     }
 
-    public OnDetailClickedListener getOnDetailClickedListener() {
-        return onDetailClickedListener;
-    }
-
     public void setOnDetailClickedListener(OnDetailClickedListener onDetailClickedListener) {
         this.onDetailClickedListener = onDetailClickedListener;
     }
 
-    public VoteView.OnVoteListener getOnVoteListener() {
-        return onVoteListener;
-    }
-
     public void setOnVoteListener(VoteView.OnVoteListener onVoteListener) {
         this.onVoteListener = onVoteListener;
-    }
-
-    public TagVoteListener getTagVoteListener() {
-        return tagVoteListener;
     }
 
     public void setTagVoteListener(TagVoteListener tagVoteListener) {
@@ -173,6 +168,11 @@ public class InfoLineView extends LinearLayout {
 
     public TextView getAddTagView() {
         return addTagView;
+    }
+
+    public boolean isOneHourOld() {
+        Instant oneHourAgo = Instant.now().minus(Duration.standardHours(1));
+        return feedItem.getCreated().isBefore(oneHourAgo);
     }
 
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
