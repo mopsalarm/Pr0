@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TabHost;
@@ -13,6 +14,8 @@ import android.widget.TabWidget;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
+import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
+import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 
 import javax.inject.Inject;
 
@@ -55,7 +58,9 @@ public class InboxActivity extends RoboActionBarActivity {
         setContentView(R.layout.activity_inbox);
 
         // put the actionbar down
-        getSupportActionBar().setElevation(0);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null)
+            actionBar.setElevation(0);
 
         // elevate the tab host, so that it cast a shadow.
         float elevation = 4 * getResources().getDisplayMetrics().density;
@@ -64,14 +69,14 @@ public class InboxActivity extends RoboActionBarActivity {
         tabHost.setup();
 
         tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), R.string.inbox_type_unread, InboxFragment.class,
-                InboxFragment.buildArguments(InboxType.UNREAD));
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), R.string.inbox_type_unread, MessageInboxFragment.class,
+                MessageInboxFragment.buildArguments(InboxType.UNREAD));
 
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), R.string.inbox_type_all, InboxFragment.class,
-                InboxFragment.buildArguments(InboxType.ALL));
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), R.string.inbox_type_all, MessageInboxFragment.class,
+                MessageInboxFragment.buildArguments(InboxType.ALL));
 
-        //tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private, InboxFragment.class,
-        //        InboxFragment.buildArguments(InboxType.PRIVATE));
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private,
+                PrivateMessageInboxFragment.class, null);
 
         tabsAdapter.setOnTabChangedListener(tabId -> onTabChanged());
 

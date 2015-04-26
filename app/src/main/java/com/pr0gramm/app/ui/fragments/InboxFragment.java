@@ -11,18 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.services.InboxService;
-import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.EmptyAdapter;
 import com.pr0gramm.app.ui.InboxType;
-import com.pr0gramm.app.ui.MessageAdapter;
+import com.pr0gramm.app.ui.MessageActionListener;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -36,12 +34,10 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
-public class InboxFragment extends RoboFragment {
-    private static final Logger logger = LoggerFactory.getLogger(InboxFragment.class);
-    private static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
+public abstract class InboxFragment<T> extends RoboFragment {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Inject
-    private UserService userService;
+    protected static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
 
     @Inject
     private InboxService inboxService;
@@ -61,7 +57,7 @@ public class InboxFragment extends RoboFragment {
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private Observable<List<Message>> messages;
+    private Observable<List<T>> messages;
 
     boolean overrideLazyLoading;
 
@@ -94,8 +90,7 @@ public class InboxFragment extends RoboFragment {
         messages = null;
 
         if(hasView()) {
-            messagesView.setAdapter(new MessageAdapter(
-                    getActivity(), Collections.<Message>emptyList()));
+            messagesView.setAdapter(new EmptyAdapter());
         }
 
         loadInboxContent();
@@ -148,7 +143,7 @@ public class InboxFragment extends RoboFragment {
         // initialize the message observable
         if (messages == null) {
             logger.info("Query messages of type {}", getInboxType());
-            messages = newMessageObservable(inboxService, getInboxType()).cache();
+            messages = newMessageObservable().cache();
         }
 
         // only bind if we have a ui.
@@ -159,6 +154,8 @@ public class InboxFragment extends RoboFragment {
             bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
         }
     }
+
+    protected abstract Observable<List<T>> newMessageObservable();
 
     private boolean hasView() {
         return messagesView != null;
@@ -173,15 +170,17 @@ public class InboxFragment extends RoboFragment {
         }
     }
 
-    private void onMessagesLoaded(List<Message> messages) {
+    private void onMessagesLoaded(List<T> messages) {
         hideBusyIndicator();
-        messagesView.setAdapter(new MessageAdapter(getActivity(), messages, actionListener));
+        messagesView.setAdapter(newAdapter(messages));
 
         if (messages.isEmpty())
             showNothingHereIndicator();
     }
 
-    private InboxType getInboxType() {
+    protected abstract RecyclerView.Adapter<?> newAdapter(List<T> messages);
+
+    protected InboxType getInboxType() {
         InboxType type = InboxType.ALL;
         Bundle args = getArguments();
         if (args != null) {
@@ -191,36 +190,15 @@ public class InboxFragment extends RoboFragment {
         return type;
     }
 
-    private final MessageAdapter.ActionListener actionListener = new MessageAdapter.ActionListener() {
+    protected InboxService getInboxService() {
+        return inboxService;
+    }
+
+    protected final MessageActionListener actionListener = new MessageActionListener() {
         @Override
         public void onAnswerToPrivateMessage(int receiverId, String name) {
             DialogFragment dialog = WritePrivateMessageDialog.newInstance(receiverId, name);
             dialog.show(getFragmentManager(), null);
         }
     };
-
-    private static Observable<List<Message>> newMessageObservable(InboxService inboxService, InboxType inboxType) {
-        switch (inboxType) {
-            case UNREAD:
-                return inboxService.getUnreadMessages();
-
-            case PRIVATE:
-                return Observable.just(Collections.emptyList());
-
-            case ALL:
-            default:
-                return inboxService.getInbox();
-        }
-    }
-
-    /**
-     * Builds arguments to create a fragment for the given type.
-     *
-     * @param inboxType The inbox type to create the fragment for.
-     */
-    public static Bundle buildArguments(InboxType inboxType) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_INBOX_TYPE, inboxType.ordinal());
-        return args;
-    }
 }

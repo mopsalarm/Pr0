@@ -25,13 +25,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private final List<Message> messages;
     private final Context context;
     private final Picasso picasso;
-    private final ActionListener actionListener;
+    private final MessageActionListener actionListener;
 
     public MessageAdapter(Context context, List<Message> messages) {
         this(context, messages, null);
     }
 
-    public MessageAdapter(Context context, List<Message> messages, ActionListener actionListener) {
+    public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener) {
         this.context = context;
         this.actionListener = actionListener;
         this.messages = ImmutableList.copyOf(messages);
@@ -109,11 +109,4 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-    public interface ActionListener {
-        /**
-         * The user wants to answer to the message with the given id that was
-         * written by the given user.
-         */
-        void onAnswerToPrivateMessage(int receiverId, String name);
-    }
 }

@@ -47,7 +47,8 @@ public class SenderInfoView extends LinearLayout {
         setBadgeOpVisible(false);
         setAnswerClickedListener(null);
         setPointsVisible(false);
-        setOrientation(VERTICAL);
+
+        setSingleLine(false);
     }
 
     public void setPoints(int points) {
@@ -87,5 +88,9 @@ public class SenderInfoView extends LinearLayout {
 
     public void setOnSenderClickedListener(OnClickListener onClickListener) {
         nameView.setOnClickListener(onClickListener);
+    }
+
+    public void setSingleLine(boolean singleLine) {
+        setOrientation(singleLine ? HORIZONTAL : VERTICAL);
     }
 }

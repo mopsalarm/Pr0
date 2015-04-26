@@ -14,6 +14,7 @@ public class PrivateMessage {
     private int senderMark;
     private String senderName;
     private boolean sent;
+    private String message;
 
     public int getId() {
         return id;
@@ -49,5 +50,9 @@ public class PrivateMessage {
 
     public boolean isSent() {
         return sent;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

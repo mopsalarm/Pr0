@@ -12,7 +12,7 @@
         android:layout_marginLeft="4dp"
         android:layout_toRightOf="@+id/voting"
         android:layout_alignParentRight="true"
-        android:text="@string/dummy_comment"/>
+        android:text="@string/dummy_text"/>
 
     <com.pr0gramm.app.ui.views.SenderInfoView
         layout="@layout/sender_info"
