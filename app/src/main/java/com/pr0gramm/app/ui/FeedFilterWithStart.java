@@ -55,8 +55,14 @@ public class FeedFilterWithStart {
 
             // filter by user
             String user = groups.get("user");
-            if (!Strings.isNullOrEmpty(user))
-                filter = filter.withUser(user);
+            if (!Strings.isNullOrEmpty(user)) {
+                String subcategory = groups.get("subcategory");
+                if("uploads".equals(subcategory)) {
+                    filter = filter.withUser(user);
+                } else {
+                    filter = filter.withLikes(user);
+                }
+            }
 
             // filter by tag
             String tag = groups.get("tag");
@@ -72,8 +78,8 @@ public class FeedFilterWithStart {
 
     private static final Pattern pFeed = Pattern.compile("^/(?<type>new|top)$");
     private static final Pattern pFeedId = Pattern.compile("^/(?<type>new|top)/(?<id>[0-9]+)$");
-    private static final Pattern pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/uploads$");
-    private static final Pattern pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/uploads/(?<id>[0-9]+)$");
+    private static final Pattern pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/?$");
+    private static final Pattern pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<id>[0-9]+)$");
     private static final Pattern pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$");
     private static final Pattern pTagId = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)/(?<id>[0-9]+)$");
 }
