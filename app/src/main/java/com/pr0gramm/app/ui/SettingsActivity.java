@@ -24,8 +24,6 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import java.io.File;
 import java.util.List;
 
-import roboguice.activity.RoboActionBarActivity;
-
 import static com.google.common.base.Strings.emptyToNull;
 
 /**
@@ -99,7 +97,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
             if ("pref_pseudo_update".equals(preference.getKey())) {
-                RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+                AppCompatActivity activity = (AppCompatActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }
