@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
@@ -23,12 +24,18 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import roboguice.util.RoboContext;
 
 import static com.google.common.base.Strings.emptyToNull;
 
 /**
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements RoboContext {
+    private final Map<Key<?>, Object> scopedObjectMap = new ConcurrentHashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +63,11 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Map<Key<?>, Object> getScopedObjectMap() {
+        return scopedObjectMap;
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
@@ -16,7 +17,6 @@ import com.pr0gramm.app.UpdateChecker;
 import org.joda.time.Instant;
 
 import roboguice.RoboGuice;
-import roboguice.activity.RoboActionBarActivity;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
@@ -91,7 +91,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(RoboActionBarActivity activity, boolean interactive) {
+    public static void checkForUpdates(FragmentActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
         Settings settings = injector.getInstance(Settings.class);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
