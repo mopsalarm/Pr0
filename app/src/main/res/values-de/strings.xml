@@ -185,4 +185,7 @@
     <string name="pref_confirm_play_on_mobile_title">Bestätigung im Mobilnetz</string>
     <string name="pref_use_proxy_title">Zwischenspeicher</string>
     <string name="pref_use_proxy_summary">Wenn das Zwischenspeichern aktiviert ist, werden Anfragen über einen lokalen Proxyserver geleitet. Deaktiviere, falls du keine Bilder mehr sehen kannst. </string>
+    <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
+    <string name="prefcat_update">Updates</string>
+    <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
 </resources>

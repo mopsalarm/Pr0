@@ -18,4 +18,16 @@
         android:layout_gravity="center"
         android:visibility="gone"/>
 
+    <TextView
+        style="@style/TextAppearance.AppCompat"
+        android:id="@+id/error"
+        android:visibility="gone"
+        android:textColor="@color/primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/could_not_load_image"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.3"/>
+
 </FrameLayout>

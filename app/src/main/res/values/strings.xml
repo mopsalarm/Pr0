@@ -11,7 +11,7 @@
     <string name="banned">You are banned until %1$s. Reason: %2$s</string>
     <string name="cancel">Cancel</string>
     <string name="download">Download</string>
-    <string name="dummy_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
+    <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
     <string name="dummy_content_type">swf</string>
     <string name="dummy_points">4 points</string>
     <string name="dummy_post_date">3 hours ago</string>
@@ -149,6 +149,7 @@
     <string name="action_feed_type_premium">STELZ</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
+    <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
     <string name="notify_new_message_title">New message</string>
     <string name="notify_new_messages_title">New messages</string>
     <string name="notify_new_message_text">One new message on pr0gramm</string>

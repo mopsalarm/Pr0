@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -23,6 +24,9 @@ import roboguice.inject.InjectView;
 public class ImageMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
+
+    @InjectView(R.id.error)
+    private View errorIndicator;
 
     @Inject
     private Settings settings;
@@ -51,12 +55,12 @@ public class ImageMediaView extends MediaView {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         picasso.cancelRequest(imageView);
         imageView.setImageDrawable(null);
 
         ((ViewGroup) imageView.getParent()).removeView(imageView);
-
-        super.onDestroy();
     }
 
     /**
@@ -79,8 +83,17 @@ public class ImageMediaView extends MediaView {
 
         @Override
         public void onError() {
-            //  just indicate that we are finished.
-            onSuccess();
+            ImageMediaView player = fragment.get();
+            if (player != null) {
+                player.hideBusyIndicator();
+                player.showErrorIndicator();
+            }
         }
+    }
+
+    private void showErrorIndicator() {
+        errorIndicator.setVisibility(VISIBLE);
+        errorIndicator.setAlpha(0);
+        errorIndicator.animate().alpha(1).start();
     }
 }
