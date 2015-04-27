@@ -219,7 +219,10 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_refresh).setVisible(settings.showRefreshButton());
+        MenuItem refresh = menu.findItem(R.id.action_refresh);
+        if(refresh != null) {
+            refresh.setVisible(settings.showRefreshButton());
+        }
 
         MenuItem item = menu.findItem(R.id.action_zoom);
         if (item != null) {
