@@ -123,7 +123,7 @@
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
     <string name="pref_pseudo_changelog">Changelog</string>
-    <string name="pref_pseudo_update">Check for updates</string>
+    <string name="pref_pseudo_update">Check for updates now</string>
     <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
@@ -191,4 +191,6 @@
     <string name="rating_not_yet_visible" translatable="false">●●●</string>
     <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
     <string name="pref_confirm_play_on_mobile_summary">Confirm playback of videos and gifs on mobile to conserve bandwidth.</string>
+    <string name="prefcat_update">Updates</string>
+    <string name="prefcat_update_summary">Configure updates and betas here</string>
 </resources>

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.32"
+        versioncode="32">
+
+        <change><![CDATA[<b>Release</b> Für die vielen Update siehe die vorigen Versionen]]></change>
+        <change><![CDATA[<b>Fix</b> Bugfix für Updates]]></change>
+        <change><![CDATA[<b>Fix</b> Einstellungen fertig umsortiert]]></change>
+    </release>
+
+    <release
         version="1.31"
         versioncode="31">
 

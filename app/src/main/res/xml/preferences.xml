@@ -168,15 +168,15 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="prefcat_privacy"
-            android:title="@string/pref_privacy"
-            android:summary="@string/prev_privacy_summary"
+            android:key="prefcat_update"
+            android:title="@string/prefcat_update"
+            android:summary="@string/prefcat_update_summary"
             android:persistent="false">
 
             <intent
                 android:targetPackage="com.pr0gramm.app"
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:action="preference://prefcat_privacy"/>
+                android:action="preference://prefcat_update"/>
 
             <Preference
                 android:key="pref_pseudo_update"
@@ -214,16 +214,23 @@
             android:title="@string/pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"/>
 
+        <Preference
+            android:key="pref_pseudo_logcat"
+            android:title="@string/logcat"
+            android:summary="@string/logcat_summary"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_privacy"
+        android:title="@string/pref_privacy"
+        android:persistent="false">
+
         <CheckBoxPreference
             android:key="pref_crashlytics_enabled"
             android:title="@string/pref_crashlytics_enabled"
             android:summaryOn="@string/pref_crashlytics_enabled_on"
             android:summaryOff="@string/pref_crashlytics_enabled_off"
             android:defaultValue="true"/>
-
-        <Preference
-            android:key="pref_pseudo_logcat"
-            android:title="@string/logcat"
-            android:summary="@string/logcat_summary"/>
     </PreferenceCategory>
+
 </PreferenceScreen>
