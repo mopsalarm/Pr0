@@ -21,14 +21,15 @@ Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https
 * Uploads eines Benutzers anschauen
 * Tags hinzufügen können
 * Lesezeichen für Tags anlegen
+* Nachrichten lesen und schreiben können
+* Eine Einstellung die Festlegt, dass *gif*s und *webm*s erst nach einem Knopfdruck geladen werden.
+* OP Anzeige in den Kommentaren
 
 ## Geplante Features
-* Nachrichten lesen und schreiben können
 * Hochladen neuer Bilder direkt vom Handy
 * Cleanups + Kommentare.
 
 ## Geplante Features zum Datensparen
-* Eine Einstellung die Festlegt, dass *gif*s und *webm*s erst nach einem Knopfdruck geladen werden.
 * Bilder auf einem Server neu komprimieren (http://bellard.org/bpg/ bietet sich da an)
 
 ## Benötigt
