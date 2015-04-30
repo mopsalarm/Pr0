@@ -115,6 +115,7 @@ public class AndroidUtility {
         for (Field field : fields) {
             if (field.isAnnotationPresent(InjectView.class)) {
                 try {
+                    field.setAccessible(true);
                     field.set(object, null);
                     count++;
                 } catch (IllegalAccessException ignored) {
