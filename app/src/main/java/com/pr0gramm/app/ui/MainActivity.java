@@ -114,6 +114,7 @@ public class MainActivity extends RoboActionBarActivity implements
         drawerLayout.setDrawerListener(drawerToggle);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
 
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
 
