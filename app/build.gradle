@@ -2,9 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'io.fabric'
 
-ext {
-    appVersion = 32
-}
+apply from: 'version.gradle'
 
 buildscript {
     repositories {
