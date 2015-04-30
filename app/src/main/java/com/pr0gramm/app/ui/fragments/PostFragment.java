@@ -1,15 +1,12 @@
 package com.pr0gramm.app.ui.fragments;
 
-import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -70,6 +67,7 @@ import rx.functions.Actions;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
+import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
@@ -152,12 +150,7 @@ public class PostFragment extends RoboFragment implements
             ToolbarActivity activity = (ToolbarActivity) getActivity();
             activity.getScrollHideToolbarListener().reset();
 
-            content.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    activity.getScrollHideToolbarListener().onScrolled(dy);
-                }
-            });
+            content.addOnScrollListener(onScrollListener);
         }
 
         // use height of the toolbar to configure swipe refresh layout.
@@ -179,6 +172,13 @@ public class PostFragment extends RoboFragment implements
         adapter.addAdapter(commentsAdapter);
 
         loadPostDetails();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        content.removeOnScrollListener(onScrollListener);
     }
 
     private void initializeCommentPostLine() {
@@ -221,7 +221,7 @@ public class PostFragment extends RoboFragment implements
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem refresh = menu.findItem(R.id.action_refresh);
-        if(refresh != null) {
+        if (refresh != null) {
             refresh.setVisible(settings.showRefreshButton());
         }
 
@@ -441,7 +441,10 @@ public class PostFragment extends RoboFragment implements
         displayComments(post.getComments());
 
         if (active && singleShotService.isFirstTime("show_tag_vote_on_long_press")) {
-            new TagVoteInfoDialogFragment().show(getChildFragmentManager(), null);
+            DialogBuilder.start(getActivity())
+                    .content(R.string.info_how_to_vote_tags)
+                    .positive(R.string.okay)
+                    .show();
         }
     }
 
@@ -577,14 +580,21 @@ public class PostFragment extends RoboFragment implements
         displayComments(comments);
     }
 
-    public static class TagVoteInfoDialogFragment extends DialogFragment {
-        @NonNull
+    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return DialogBuilder.start(getActivity())
-                    .content(R.string.info_how_to_vote_tags)
-                    .positive(R.string.okay)
-                    .build();
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            ToolbarActivity activity = (ToolbarActivity) getActivity();
+            activity.getScrollHideToolbarListener().onScrolled(dy);
         }
-    }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                int y = estimateRecyclerViewScrollY(recyclerView);
+
+                ToolbarActivity activity = (ToolbarActivity) getActivity();
+                activity.getScrollHideToolbarListener().onScrollFinished(y);
+            }
+        }
+    };
 }

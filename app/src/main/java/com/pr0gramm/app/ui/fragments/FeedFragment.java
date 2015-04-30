@@ -53,6 +53,7 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
+import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -101,7 +102,6 @@ public class FeedFragment extends RoboFragment {
     private boolean bookmarkable;
     private Optional<Long> autoOpenOnLoad = Optional.absent();
     private Optional<Long> autoScrollOnLoad = Optional.absent();
-
 
     /**
      * Initialize a new feed fragment.
@@ -170,12 +170,14 @@ public class FeedFragment extends RoboFragment {
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         resetToolbar();
-        setupInfiniteScroll();
+
+        recyclerView.addOnScrollListener(onScrollListener);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        recyclerView.removeOnScrollListener(onScrollListener);
         AndroidUtility.uninjectViews(this);
     }
 
@@ -259,42 +261,6 @@ public class FeedFragment extends RoboFragment {
         }
 
         return Optional.absent();
-    }
-
-    /**
-     * Loads the next page when we are near the end of one page.
-     */
-    private void setupInfiniteScroll() {
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (getActivity() instanceof ToolbarActivity) {
-                    ToolbarActivity activity = (ToolbarActivity) getActivity();
-                    activity.getScrollHideToolbarListener().onScrolled(dy);
-                }
-
-                int totalItemCount = layoutManager.getItemCount();
-                FeedProxy proxy = adapter.getFeedProxy();
-                if (proxy.isLoading())
-                    return;
-
-                if (dy > 0 && !proxy.isAtEnd()) {
-                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                    if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        logger.info("Request next page now");
-                        proxy.loadNextPage();
-                    }
-                }
-
-                if (dy < 0 && !proxy.isAtStart()) {
-                    int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-                    if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        logger.info("Request previous page now");
-                        proxy.loadPreviousPage();
-                    }
-                }
-            }
-        });
     }
 
     /**
@@ -566,6 +532,49 @@ public class FeedFragment extends RoboFragment {
                 .transform(item -> adapter.getFeedProxy().getPosition(item).or(-1))
                 .or(-1);
     }
+
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            if (getActivity() instanceof ToolbarActivity) {
+                ToolbarActivity activity = (ToolbarActivity) getActivity();
+                activity.getScrollHideToolbarListener().onScrolled(dy);
+            }
+
+            int totalItemCount = layoutManager.getItemCount();
+            FeedProxy proxy = adapter.getFeedProxy();
+            if (proxy.isLoading())
+                return;
+
+            if (dy > 0 && !proxy.isAtEnd()) {
+                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
+                    logger.info("Request next page now");
+                    proxy.loadNextPage();
+                }
+            }
+
+            if (dy < 0 && !proxy.isAtStart()) {
+                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                if (totalItemCount > 12 && firstVisibleItem < 12) {
+                    logger.info("Request previous page now");
+                    proxy.loadPreviousPage();
+                }
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (getActivity() instanceof ToolbarActivity) {
+                    int y = estimateRecyclerViewScrollY(recyclerView);
+
+                    ToolbarActivity activity = (ToolbarActivity) getActivity();
+                    activity.getScrollHideToolbarListener().onScrollFinished(y);
+                }
+            }
+        }
+    };
 
     private static class FeedItemViewHolder extends RecyclerView.ViewHolder {
         private final ImageView image;

@@ -111,13 +111,17 @@ public class AndroidUtility {
             currentClass = currentClass.getSuperclass();
         }
 
+        int count = 0;
         for (Field field : fields) {
             if (field.isAnnotationPresent(InjectView.class)) {
                 try {
                     field.set(object, null);
+                    count++;
                 } catch (IllegalAccessException ignored) {
                 }
             }
         }
+
+        logger.info("Uninjected {} views from {}", count, object.getClass().getSimpleName());
     }
 }
