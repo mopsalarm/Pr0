@@ -181,6 +181,7 @@ public class InfoLineView extends LinearLayout {
         private int selected = -1;
 
         private TagsAdapter(List<Tag> tags, Map<Tag, Vote> votes) {
+            setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
             this.votes = ImmutableMap.copyOf(votes);
         }
@@ -191,7 +192,6 @@ public class InfoLineView extends LinearLayout {
             View view = inflater.inflate(R.layout.tag, parent, false);
             return new TagViewHolder(view);
         }
-
 
         @Override
         public void onBindViewHolder(TagViewHolder holder, int position) {
@@ -232,6 +232,11 @@ public class InfoLineView extends LinearLayout {
         @Override
         public int getItemCount() {
             return tags.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return tags.get(position).getId();
         }
     }
 
