@@ -92,6 +92,12 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        AndroidUtility.uninjectViews(this);
+    }
+
     private void reloadInboxContent() {
         messages = null;
 
@@ -100,13 +106,6 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
 
         loadInboxContent();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        AndroidUtility.uninjectViews(this);
     }
 
     private boolean isLazyLoading() {

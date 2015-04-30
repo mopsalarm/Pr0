@@ -10,6 +10,8 @@ import android.support.v4.net.ConnectivityManagerCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +21,11 @@ import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import roboguice.inject.InjectView;
-
-import static java.util.Arrays.asList;
 
 /**
  */
@@ -100,29 +102,42 @@ public class AndroidUtility {
     }
 
     public static void uninjectViews(Object object) {
-        List<Field> fields = new ArrayList<>();
+        checkMainThread();
 
-        Class<?> currentClass = object.getClass();
-        while (currentClass != Object.class) {
-            if (currentClass.getName().startsWith("android."))
-                break;
-
-            fields.addAll(asList(currentClass.getDeclaredFields()));
-            currentClass = currentClass.getSuperclass();
+        Class<?> objectClass = object.getClass();
+        List<Field> fields = VIEW_FIELDS_CACHE.get(objectClass);
+        if (fields == null) {
+            fields = ImmutableList.copyOf(queryInjectViewFields(objectClass));
+            VIEW_FIELDS_CACHE.put(objectClass, fields);
         }
 
         int count = 0;
         for (Field field : fields) {
-            if (field.isAnnotationPresent(InjectView.class)) {
-                try {
-                    field.setAccessible(true);
-                    field.set(object, null);
-                    count++;
-                } catch (IllegalAccessException ignored) {
-                }
+            try {
+                field.setAccessible(true);
+                field.set(object, null);
+                count++;
+            } catch (IllegalAccessException ignored) {
             }
         }
 
-        logger.info("Uninjected {} views from {}", count, object.getClass().getSimpleName());
+        logger.info("Uninjected {} views out of {}", count, objectClass.getSimpleName());
     }
+
+    private static List<Field> queryInjectViewFields(Class<?> currentClass) {
+        List<Field> fields = new ArrayList<>();
+        while (currentClass != Object.class) {
+            if (currentClass.getName().startsWith("android."))
+                break;
+
+            FluentIterable.of(currentClass.getDeclaredFields())
+                    .filter(field -> field.isAnnotationPresent(InjectView.class))
+                    .copyInto(fields);
+
+            currentClass = currentClass.getSuperclass();
+        }
+        return fields;
+    }
+
+    private static final Map<Class<?>, List<Field>> VIEW_FIELDS_CACHE = new HashMap<>();
 }
