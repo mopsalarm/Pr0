@@ -191,7 +191,11 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
-        super.onDestroy();
+
+        try {
+            super.onDestroy();
+        } catch (RuntimeException ignored) {
+        }
     }
 
     @Override
@@ -377,8 +381,12 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<Long> start) {
-        if (clear)
+        if(isFinishing())
+            return;
+
+        if (clear) {
             clearBackStack();
+        }
 
         Fragment fragment = FeedFragment.newInstance(newFilter, start);
 
@@ -391,7 +399,10 @@ public class MainActivity extends RoboActionBarActivity implements
         if (!clear)
             transaction.addToBackStack(null);
 
-        transaction.commit();
+        try {
+            transaction.commit();
+        } catch (IllegalStateException ignored) {
+        }
 
         // trigger a back-stack changed after adding the fragment.
         new Handler().post(this::onBackStackChanged);
