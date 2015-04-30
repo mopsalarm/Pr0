@@ -82,6 +82,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         view.sender.setDate(message.getCreated());
 
         if (actionListener != null) {
+            view.sender.setOnSenderClickedListener(v -> {
+                actionListener.onUserClicked(message.getSenderId(), message.getName());
+            });
+
             if (isComment) {
                 view.sender.setAnswerClickedListener(v -> {
                     actionListener.onAnswerToCommentClicked(message.getItemId(), message.getId());

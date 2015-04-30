@@ -72,6 +72,10 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
         view.sender.setDate(item.message.getCreated());
 
         if (actionListener != null && !item.message.isSent()) {
+            view.sender.setOnSenderClickedListener(v -> {
+                actionListener.onUserClicked(item.message.getSenderId(), item.message.getSenderName());
+            });
+
             view.sender.setAnswerClickedListener(v -> {
                 actionListener.onAnswerToPrivateMessage(item.partner.id, item.partner.name);
             });

@@ -41,6 +41,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
         <receiver android:name=".DownloadCompleteReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
@@ -97,13 +98,15 @@
             android:name=".ui.InboxActivity"
             android:label="@string/inbox_activity_title"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.ActionBar"
+            android:launchMode="singleInstance"/>
 
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.ActionBar"
+            android:launchMode="singleInstance"/>
 
         <activity
             android:name=".ui.ZoomViewActivity"

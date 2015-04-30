@@ -205,8 +205,10 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
         @Override
         public void onCommentClicked(long itemId, long commentId) {
-            Uri uri = Uri.parse("http://pr0gramm.com/new/" + itemId);
+            open(Uri.parse("http://pr0gramm.com/new/" + itemId));
+        }
 
+        private void open(Uri uri) {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri, getActivity(), MainActivity.class);
             startActivity(intent);
         }
@@ -215,6 +217,11 @@ public abstract class InboxFragment<T> extends RoboFragment {
         public void onAnswerToCommentClicked(long itemId, long commentId) {
             DialogFragment dialog = NewCommentDialogFragment.newInstance(itemId, commentId);
             dialog.show(getFragmentManager(), null);
+        }
+
+        @Override
+        public void onUserClicked(int userId, String username) {
+            open(Uri.parse("http://pr0gramm.com/user/" + username + "/uploads"));
         }
     };
 }
