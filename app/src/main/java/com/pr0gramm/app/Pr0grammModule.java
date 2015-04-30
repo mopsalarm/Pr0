@@ -3,7 +3,6 @@ package com.pr0gramm.app;
 import android.content.Context;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Throwables;
 import com.google.common.reflect.Reflection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -152,7 +151,6 @@ public class Pr0grammModule extends AbstractModule {
     @Provides
     @Singleton
     public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
-        Exception error = null;
         for (int i = 0; i < 10; i++) {
             try {
                 HttpProxyService proxy = new HttpProxyService(httpClient);
@@ -162,14 +160,12 @@ public class Pr0grammModule extends AbstractModule {
                 return url -> settings.useProxy() ? proxy.proxy(url) : url;
 
             } catch (IOException ioError) {
-                error = ioError;
-
-                logger.info("Could not open proxy: {}", ioError.toString());
+                logger.warn("Could not open proxy: {}", ioError.toString());
             }
         }
 
-        assert error != null;
-        throw Throwables.propagate(error);
+        // if we could not open a proxy, just go with no proxy.
+        return url -> url;
     }
 
     @Provides
