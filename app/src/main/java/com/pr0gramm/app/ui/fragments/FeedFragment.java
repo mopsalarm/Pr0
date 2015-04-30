@@ -288,8 +288,15 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_refresh).setVisible(settings.showRefreshButton());
-        menu.findItem(R.id.action_pin).setVisible(bookmarkable);
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        if(item != null) {
+            item.setVisible(settings.showRefreshButton());
+        }
+
+        item = menu.findItem(R.id.action_pin);
+        if(item != null) {
+            item.setVisible(bookmarkable);
+        }
     }
 
     @Override
