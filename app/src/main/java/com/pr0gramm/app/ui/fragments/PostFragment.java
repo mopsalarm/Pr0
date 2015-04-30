@@ -175,6 +175,7 @@ public class PostFragment extends RoboFragment implements
         initializeCommentPostLine();
 
         commentsAdapter = new CommentsAdapter();
+        commentsAdapter.setCommentActionListener(this);
         adapter.addAdapter(commentsAdapter);
 
         loadPostDetails();
@@ -461,11 +462,8 @@ public class PostFragment extends RoboFragment implements
      */
     private void displayComments(List<Post.Comment> comments) {
         bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
-            commentsAdapter.clear();
             commentsAdapter.setOp(Optional.of(feedItem.getUser()));
-            commentsAdapter.addVoteCache(votes);
-            commentsAdapter.addComments(comments);
-            commentsAdapter.setCommentActionListener(this);
+            commentsAdapter.setComments(comments, votes);
         }, defaultOnError());
     }
 

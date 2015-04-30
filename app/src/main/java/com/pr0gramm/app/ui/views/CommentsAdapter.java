@@ -27,10 +27,7 @@ import java.util.Map;
 
 import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 
 /**
  */
@@ -46,19 +43,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         setHasStableIds(true);
     }
 
-    public void addComments(Collection<Post.Comment> comments) {
-        this.comments = sort(newArrayList(concat(this.comments, comments)));
+    public void setComments(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
+        this.comments = sort(comments);
+
+        this.byId.clear();
         this.byId.putAll(Maps.uniqueIndex(this.comments, c -> (int) c.getId()));
-        notifyDataSetChanged();
-    }
 
-    public void addComment(Post.Comment comment, Vote vote) {
-        voteCache.put(comment.getId(), vote);
-        addComments(singleton(comment));
-    }
+        this.voteCache.clear();
+        this.voteCache.putAll(votes);
 
-    public void addVoteCache(Map<Long, Vote> votes) {
-        voteCache.putAll(votes);
         notifyDataSetChanged();
     }
 
@@ -128,7 +121,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
-        view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
+        view.vote.setOnVoteListener(vote -> doVote(comment, vote));
 
         view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
     }
@@ -143,14 +136,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             commentActionListener.onAnswerClicked(comment);
     }
 
-    private boolean doVote(int position, Post.Comment comment, Vote vote) {
+    private boolean doVote(Post.Comment comment, Vote vote) {
         if (commentActionListener == null)
             return false;
 
         boolean performVote = commentActionListener.onCommentVoteClicked(comment, vote);
         if (performVote) {
             voteCache.put(comment.getId(), vote);
-            notifyItemChanged(position);
         }
 
         return performVote;
@@ -168,10 +160,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     public void setCommentActionListener(CommentActionListener commentActionListener) {
         this.commentActionListener = commentActionListener;
-    }
-
-    public CommentActionListener getCommentActionListener() {
-        return commentActionListener;
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
