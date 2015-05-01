@@ -105,8 +105,7 @@
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.ActionBar"
-            android:launchMode="singleInstance"/>
+            android:theme="@style/AppTheme.ActionBar"/>
 
         <activity
             android:name=".ui.ZoomViewActivity"
