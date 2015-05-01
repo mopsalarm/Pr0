@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
@@ -127,14 +128,21 @@ public abstract class InboxFragment<T> extends RoboFragment {
     }
 
     private void showBusyIndicator() {
-        if (hasView()) {
+        if (hasView() && viewBusyIndicator != null) {
             viewBusyIndicator.setVisibility(View.VISIBLE);
         }
     }
 
     private void hideBusyIndicator() {
         if (hasView()) {
-            viewBusyIndicator.setVisibility(View.GONE);
+            if(viewBusyIndicator != null) {
+                viewBusyIndicator.setVisibility(View.GONE);
+                ViewParent parent = viewBusyIndicator.getParent();
+                ((ViewGroup) parent).removeView(viewBusyIndicator);
+
+                viewBusyIndicator = null;
+            }
+
             swipeRefreshLayout.setRefreshing(false);
         }
     }
