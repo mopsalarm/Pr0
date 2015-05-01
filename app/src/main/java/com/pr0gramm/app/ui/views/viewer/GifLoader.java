@@ -75,7 +75,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             long lastStatusTime = System.currentTimeMillis();
             try (InputStream stream = response.getInputStream()) {
                 int length, count = 0;
-                byte[] buffer = new byte[16 * 1024];
+                byte[] buffer = new byte[4 * 1024];
                 while ((length = stream.read(buffer)) >= 0) {
                     storage.write(buffer, 0, length);
                     count += length;
@@ -97,7 +97,6 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             if (subscriber.isUnsubscribed())
                 return;
 
-            logger.info("loading gif from file");
             GifDrawable drawable = new GifDrawable(storage.getFD());
 
             // closing is now delegated to the drawable.

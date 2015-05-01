@@ -54,6 +54,8 @@ public class GifMediaView extends MediaView {
             onDownloadProgress(state.getProgress());
 
             if (state.isFinished()) {
+                logger.info("loading finished");
+
                 hideBusyIndicator();
 
                 gif = state.getDrawable();
@@ -68,7 +70,7 @@ public class GifMediaView extends MediaView {
     private void onDownloadProgress(float progress) {
         checkMainThread();
 
-        logger.info("Download at " + ((int) (100 * progress)) + " percent.");
+        // logger.info("Download at " + ((int) (100 * progress)) + " percent.");
 
         View progressView = getProgressView();
         if (progressView instanceof BusyIndicator) {
@@ -118,5 +120,4 @@ public class GifMediaView extends MediaView {
 
         super.onDestroy();
     }
-
 }
