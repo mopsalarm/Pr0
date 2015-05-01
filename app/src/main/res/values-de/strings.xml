@@ -188,4 +188,5 @@
     <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
+    <string name="inbox_type_comments">Kommentare</string>
 </resources>

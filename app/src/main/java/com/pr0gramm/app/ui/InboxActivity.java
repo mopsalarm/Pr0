@@ -13,9 +13,12 @@ import android.widget.TabWidget;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.OnErrorDialogHandler;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
+import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
 
 import javax.inject.Inject;
 
@@ -27,6 +30,9 @@ import roboguice.inject.InjectView;
  */
 public class InboxActivity extends RoboActionBarActivity {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
+
+    private final OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
+
 
     @Inject
     private UserService userService;
@@ -78,6 +84,9 @@ public class InboxActivity extends RoboActionBarActivity {
         tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private,
                 PrivateMessageInboxFragment.class, null);
 
+        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.comments"), R.string.inbox_type_comments,
+                WrittenCommentFragment.class, null);
+
         tabsAdapter.setOnTabChangedListener(tabId -> onTabChanged());
 
         // this is to animate the little line below the tabs
@@ -95,6 +104,18 @@ public class InboxActivity extends RoboActionBarActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleNewIntent(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
     }
 
     private void handleNewIntent(Intent intent) {

@@ -19,8 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
-import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
@@ -63,9 +61,10 @@ public class MainActivity extends RoboActionBarActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler, ErrorDialogFragment.OnErrorDialogHandler {
+        MainActionHandler {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final ErrorDialogFragment.OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -310,7 +309,7 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        ErrorDialogFragment.setGlobalErrorDialogHandler(this);
+        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
 
         Observable<UserService.LoginState> state = userService.getLoginStateObservable();
         subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged, Actions.empty());
@@ -320,7 +319,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     protected void onPause() {
-        ErrorDialogFragment.unsetGlobalErrorDialogHandler(this);
+        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
 
         if (subscription != null)
             subscription.unsubscribe();
@@ -382,7 +381,7 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<Long> start) {
-        if(isFinishing())
+        if (isFinishing())
             return;
 
         if (clear) {
@@ -422,15 +421,6 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public ScrollHideToolbarListener getScrollHideToolbarListener() {
         return scrollHideToolbarListener;
-    }
-
-    @Override
-    public void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter) {
-        String message = formatter.handles(error)
-                ? formatter.getMessage(this, error)
-                : Throwables.getStackTraceAsString(error);
-
-        ErrorDialogFragment.showErrorString(getSupportFragmentManager(), message);
     }
 
     /**

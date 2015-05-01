@@ -8,6 +8,7 @@ import com.pr0gramm.app.api.pr0gramm.response.NewTag;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
 
 import retrofit.http.Field;
@@ -88,6 +89,9 @@ public interface Api {
     @GET("/api/inbox/messages")
     Observable<PrivateMessageFeed> inboxPrivateMessages();
 
+    @GET("/api/profile/comments")
+    Observable<UserComments> userComments(@Query("name") String user, @Query("before") long before);
+
     @FormUrlEncoded
     @POST("/api/inbox/post")
     Observable<Nothing> sendMessage(
@@ -96,7 +100,7 @@ public interface Api {
             @Field("recipientId") int recipient);
 
 
-    public static class Nonce {
+    final class Nonce {
         public final String value;
 
         public Nonce(String userId) {

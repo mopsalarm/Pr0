@@ -194,4 +194,5 @@
     <string name="pref_confirm_play_on_mobile_summary">Confirm playback of videos and gifs on mobile to conserve bandwidth.</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Configure updates and betas here</string>
+    <string name="inbox_type_comments">Comments</string>
 </resources>
