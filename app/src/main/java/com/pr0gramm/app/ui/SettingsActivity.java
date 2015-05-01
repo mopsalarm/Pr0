@@ -139,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
 
                 } else {
                     DialogBuilder.start(getActivity())
-                            .content(getString(R.string.logcat_error_occurred, logFile.get()))
+                            .content(getString(R.string.logcat_error_occurred))
                             .positive(R.string.okay)
                             .show();
                 }
