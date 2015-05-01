@@ -6,11 +6,9 @@
               android:padding="16dp"
               android:theme="@style/Theme.AppCompat.Light">
 
-    <ImageView
-        android:id="@+id/image"
+    <com.pr0gramm.app.ui.views.BusyIndicator
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:scaleType="fitCenter"
         android:layout_gravity="center_vertical"/>
 
     <TextView

@@ -4,10 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.squareup.picasso.Downloader;
 
 import javax.inject.Inject;
@@ -50,13 +50,13 @@ public class GifMediaView extends MediaView {
                 .loader(downloader, getContext().getCacheDir(), url)
                 .subscribeOn(Schedulers.io());
 
-        dlGifSubscription = binder.bind(loader).subscribe(progress -> {
-            onDownloadProgress(progress.getProgress());
+        dlGifSubscription = binder.bind(loader).subscribe(state -> {
+            onDownloadProgress(state.getProgress());
 
-            if (progress.isFinished()) {
+            if (state.isFinished()) {
                 hideBusyIndicator();
 
-                gif = progress.getDrawable();
+                gif = state.getDrawable();
                 imageView.setImageDrawable(this.gif);
 
                 if (!isPlaying())
@@ -71,12 +71,9 @@ public class GifMediaView extends MediaView {
         logger.info("Download at " + ((int) (100 * progress)) + " percent.");
 
         View progressView = getProgressView();
-        if (progressView instanceof ProgressBar) {
-            ProgressBar bar = (ProgressBar) progressView;
-
-            bar.setMax(100);
-            bar.setIndeterminate(false);
-            bar.setProgress((int) (100 * progress));
+        if (progressView instanceof BusyIndicator) {
+            BusyIndicator bar = (BusyIndicator) progressView;
+            bar.setProgress(progress);
         }
     }
 
