@@ -190,5 +190,4 @@ public class InboxActivity extends RoboActionBarActivity {
             indicator.setLayoutParams(layoutParams);
         }
     }
-
 }

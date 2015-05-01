@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release
+        version="1.34"
+        versioncode="34">
+
+        <change><![CDATA[<b>Neu</b> Absender einer Nachricht klickbar gemacht]]></change>
+        <change><![CDATA[<b>Fix</b> Animation beim Voten von Kommentaren]]></change>
+        <change><![CDATA[<b>Fix</b> Logspam reduziert]]></change>
+        <change><![CDATA[<b>Fix</b> Referenzen zu zerstörten Views entfernt]]></change>
+        <change><![CDATA[<b>Fix</b> Mehr Bugfixes]]></change>
+    </release>
+
+
+    <release
         version="1.32"
         versioncode="32">
 
