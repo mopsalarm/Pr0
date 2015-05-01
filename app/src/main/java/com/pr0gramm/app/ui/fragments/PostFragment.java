@@ -1,5 +1,9 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -125,6 +130,7 @@ public class PostFragment extends RoboFragment implements
     // start with an empty adapter here
     private MergeRecyclerAdapter<RecyclerView.Adapter> adapter;
     private CommentsAdapter commentsAdapter;
+    private TextView voteAnimationIndicator;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -370,6 +376,8 @@ public class PostFragment extends RoboFragment implements
         // register the vote listener
         infoLineView.setOnVoteListener(vote -> {
             Runnable action = () -> {
+                showPostVoteAnimation(vote);
+
                 bindFragment(this, voteService.vote(feedItem, vote))
                         .subscribe(Actions.empty(), defaultOnError());
             };
@@ -394,7 +402,35 @@ public class PostFragment extends RoboFragment implements
         });
     }
 
+    private void showPostVoteAnimation(Vote vote) {
+        if(vote == null || vote == Vote.NEUTRAL)
+            return;
+
+        String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
+        voteAnimationIndicator.setText(text);
+
+        voteAnimationIndicator.setVisibility(View.VISIBLE);
+        voteAnimationIndicator.setAlpha(0);
+        voteAnimationIndicator.setScaleX(0.7f);
+        voteAnimationIndicator.setScaleY(0.7f);
+
+        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0, 0.6f, 0.7f, 0.6f, 0),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 0.7f, 1.3f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.7f, 1.3f));
+
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                voteAnimationIndicator.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void initializeMediaView() {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+
         //noinspection Convert2Lambda
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
@@ -413,12 +449,15 @@ public class PostFragment extends RoboFragment implements
         viewer = MediaViews.newInstance(getActivity(), binder, url);
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
+        // this provides an animation while voting
+        voteAnimationIndicator = (TextView) inflater.inflate(R.layout.viewer_vote_indicators, null);
+
         // wrap into a container before adding
-        FrameLayout viewerContainer = (FrameLayout) LayoutInflater
-                .from(getActivity())
+        FrameLayout viewerContainer = (FrameLayout) inflater
                 .inflate(R.layout.post_player_container, new FrameLayout(getActivity()), false);
 
         viewerContainer.addView(viewer);
+        viewerContainer.addView(voteAnimationIndicator);
         adapter.addView(viewerContainer);
     }
 
