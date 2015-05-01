@@ -4,6 +4,7 @@
         version="1.34"
         versioncode="34">
 
+        <change><![CDATA[<b>Neu</b> Liste der letzten eigenen Kommentare unter Nachrichten]]></change>
         <change><![CDATA[<b>Neu</b> Animation, wenn man mit Doppeltklick ein Bild votet]]></change>
         <change><![CDATA[<b>Neu</b> Absender einer Nachricht klickbar gemacht]]></change>
         <change><![CDATA[<b>Fix</b> Animation beim Voten von Kommentaren]]></change>
