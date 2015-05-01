@@ -48,7 +48,7 @@ public class MaximizeImageView extends GifImageView {
             // check if height is still okay, if not,
             // scale down height (and width as such too)
             if (height > getMaximumHeightCompat()) {
-                logger.info("Would be too heigh, scale down width");
+                logger.info("Would be too height, scale down width");
                 height = getMaximumHeightCompat();
                 width = (int) (height * aspect);
             }
