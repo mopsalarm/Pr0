@@ -57,8 +57,6 @@ public class DelayedMediaView extends ProxyMediaView {
 
     private void loadThumbnailImage() {
         String url = getUrlArgument();
-        if (!url.endsWith(".webm"))
-            return;
 
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
         Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
