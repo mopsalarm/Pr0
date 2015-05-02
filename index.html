@@ -107,15 +107,14 @@
 </main>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="//rawgit.com/mopsalarm/pr0gramm-updates/master/update.js"></script>
 <script>
 	$(document).ready(function() {
-    var url = "https://rawgit.com/mopsalarm/pr0gramm-updates/master/update.json";
-
-    $.getJSON(url).done(function(json) {
+    getUpdateJson(function(json) {
         $("#version").html(json.version);
         $("#download-button").attr("href", json.apk);
     });
-});
+	});
 </script>
 
 </body>
