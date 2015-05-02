@@ -109,6 +109,12 @@
                 android:defaultValue="true"/>
 
             <CheckBoxPreference
+                android:key="pref_animate_post_on_vote"
+                android:title="@string/pref_animate_post_on_vote"
+                android:summary="@string/pref_animate_post_on_vote_summary"
+                android:defaultValue="true"/>
+
+            <CheckBoxPreference
                 android:key="pref_comment_view_vote_buttons_small"
                 android:title="@string/pref_comment_view_vote_buttons_small"
                 android:summary="@string/pref_comment_view_vote_buttons_small_summary"

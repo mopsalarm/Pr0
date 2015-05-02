@@ -195,4 +195,6 @@
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Configure updates and betas here</string>
     <string name="inbox_type_comments">Comments</string>
+    <string name="pref_animate_post_on_vote">Animation on post</string>
+    <string name="pref_animate_post_on_vote_summary">Show an animation on the post while voting</string>
 </resources>

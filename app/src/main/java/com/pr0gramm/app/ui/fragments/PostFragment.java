@@ -406,26 +406,28 @@ public class PostFragment extends RoboFragment implements
         if(vote == null || vote == Vote.NEUTRAL)
             return;
 
-        String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
-        voteAnimationIndicator.setText(text);
+        if(settings.animatePostOnVote()) {
+            String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
+            voteAnimationIndicator.setText(text);
 
-        voteAnimationIndicator.setVisibility(View.VISIBLE);
-        voteAnimationIndicator.setAlpha(0);
-        voteAnimationIndicator.setScaleX(0.7f);
-        voteAnimationIndicator.setScaleY(0.7f);
+            voteAnimationIndicator.setVisibility(View.VISIBLE);
+            voteAnimationIndicator.setAlpha(0);
+            voteAnimationIndicator.setScaleX(0.7f);
+            voteAnimationIndicator.setScaleY(0.7f);
 
-        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
-                PropertyValuesHolder.ofFloat(View.ALPHA, 0, 0.6f, 0.7f, 0.6f, 0),
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 0.7f, 1.3f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.7f, 1.3f));
+            ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
+                    PropertyValuesHolder.ofFloat(View.ALPHA, 0, 0.6f, 0.7f, 0.6f, 0),
+                    PropertyValuesHolder.ofFloat(View.SCALE_X, 0.7f, 1.3f),
+                    PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.7f, 1.3f));
 
-        animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                voteAnimationIndicator.setVisibility(View.GONE);
-            }
-        });
+            animator.start();
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    voteAnimationIndicator.setVisibility(View.GONE);
+                }
+            });
+        }
     }
 
     private void initializeMediaView() {

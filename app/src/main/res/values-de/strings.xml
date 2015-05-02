@@ -189,4 +189,6 @@
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
     <string name="inbox_type_comments">Kommentare</string>
+    <string name="pref_animate_post_on_vote">Voten animieren (auf dem Bild)</string>
+    <string name="pref_animate_post_on_vote_summary">Zeige eine Animation auf dem Bild oder Video, das gevoted wurde (wie bei Instagram)</string>
 </resources>
