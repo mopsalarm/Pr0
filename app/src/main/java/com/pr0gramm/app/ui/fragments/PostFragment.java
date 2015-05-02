@@ -403,10 +403,10 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void showPostVoteAnimation(Vote vote) {
-        if(vote == null || vote == Vote.NEUTRAL)
+        if (vote == null || vote == Vote.NEUTRAL)
             return;
 
-        if(settings.animatePostOnVote()) {
+        if (settings.animatePostOnVote()) {
             String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
             voteAnimationIndicator.setText(text);
 

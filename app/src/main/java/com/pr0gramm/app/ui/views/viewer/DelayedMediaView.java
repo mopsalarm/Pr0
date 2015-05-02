@@ -83,7 +83,7 @@ public class DelayedMediaView extends ProxyMediaView {
 
     private static void removeViewFromParent(View view) {
         ViewParent parent = view.getParent();
-        if(parent instanceof ViewGroup) {
+        if (parent instanceof ViewGroup) {
             ((ViewGroup) parent).removeView(view);
         }
     }

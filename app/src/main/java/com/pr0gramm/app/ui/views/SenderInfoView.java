@@ -47,7 +47,7 @@ public class SenderInfoView extends LinearLayout {
         setBadgeOpVisible(false);
         setAnswerClickedListener(null);
         setPointsVisible(false);
-        
+
         setSingleLine(false);
     }
 

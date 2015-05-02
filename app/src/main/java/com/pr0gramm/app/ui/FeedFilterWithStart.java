@@ -57,7 +57,7 @@ public class FeedFilterWithStart {
             String user = groups.get("user");
             if (!Strings.isNullOrEmpty(user)) {
                 String subcategory = groups.get("subcategory");
-                if("uploads".equals(subcategory)) {
+                if ("uploads".equals(subcategory)) {
                     filter = filter.withUser(user);
                 } else {
                     filter = filter.withLikes(user);

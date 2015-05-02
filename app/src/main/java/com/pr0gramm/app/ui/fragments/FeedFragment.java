@@ -289,12 +289,12 @@ public class FeedFragment extends RoboFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_refresh);
-        if(item != null) {
+        if (item != null) {
             item.setVisible(settings.showRefreshButton());
         }
 
         item = menu.findItem(R.id.action_pin);
-        if(item != null) {
+        if (item != null) {
             item.setVisible(bookmarkable);
         }
     }
@@ -572,7 +572,7 @@ public class FeedFragment extends RoboFragment {
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 if (getActivity() instanceof ToolbarActivity) {
                     int y = estimateRecyclerViewScrollY(recyclerView);
 

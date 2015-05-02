@@ -135,7 +135,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
     private void hideBusyIndicator() {
         if (hasView()) {
-            if(viewBusyIndicator != null) {
+            if (viewBusyIndicator != null) {
                 viewBusyIndicator.setVisibility(View.GONE);
                 ViewParent parent = viewBusyIndicator.getParent();
                 ((ViewGroup) parent).removeView(viewBusyIndicator);
