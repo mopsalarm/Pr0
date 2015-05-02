@@ -5,7 +5,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>pr0gramm App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
 </head>
 <style>
   body {
@@ -66,6 +66,10 @@
     vertical-align: middle;
     float: none;
   }
+	
+	.download-details, .download-details a {
+		color: #555555;
+	}
 </style>
 <body>
 
@@ -87,25 +91,31 @@
           </div>
         </div><!--
       --><div class="col-xs-12 col-sm-6 vcenter text-center">
-          Jetzt auf deinem Android installieren!
-          <br/><br/>
-          <a href="https://github.com/mopsalarm/pr0gramm-updates/blob/beta/pr0gramm-v1.34.apk?raw=true"
+          Jetzt auf deinem Android installieren!<br />
+          <img class="col-md-6 visible-md visible-lg" src="qrcode.svg" alt="qr">
+          <div class="col-md-6 col-sm-12">
+          	<br/>
+          	<a href="https://github.com/mopsalarm/pr0gramm-updates/blob/beta/pr0gramm-v1.34.apk?raw=true"
              id="download-button"
-             class="btn btn-lg btn-primary">Download</a>
+             class="btn btn-lg btn-primary">Download</a><br/><br/>
+          	<span class="download-details">Version <span id="version">x.xx</span> &bull; <a href="https://github.com/mopsalarm/pr0gramm-updates">Alle Versionen</a></span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="//rawgit.com/mopsalarm/pr0gramm-updates/master/update.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script>
-  jQuery(function() {
-    getCurrentVersion(function(apk) {
-      jQuery("#download-button").attr("href", apk);
+	$(document).ready(function() {
+    var url = "https://rawgit.com/mopsalarm/pr0gramm-updates/master/update.json";
+
+    $.getJSON(url).done(function(json) {
+        $("#version").html(json.version);
+        $("#download-button").attr("href", json.apk);
     });
-  });
+});
 </script>
 
 </body>
