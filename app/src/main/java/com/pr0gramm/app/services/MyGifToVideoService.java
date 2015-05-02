@@ -17,7 +17,7 @@ import rx.Observable;
  * Converts a gif to a webm using my own conversion service.
  */
 public class MyGifToVideoService implements GifToVideoService {
-    private static final String DEFAULT_ENDPOINT = "http://128.199.53.54:5000";
+    private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de:5000";
 
     private final Api api;
 
@@ -53,7 +53,7 @@ public class MyGifToVideoService implements GifToVideoService {
     /**
      * Simple gif-to-webm service.
      */
-    private static interface Api {
+    private interface Api {
         @GET("/convert/{url}")
         Observable<ConvertResult> convert(@Path("url") String encodedUrl);
     }

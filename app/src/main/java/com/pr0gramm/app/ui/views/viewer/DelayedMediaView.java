@@ -61,7 +61,7 @@ public class DelayedMediaView extends ProxyMediaView {
             return;
 
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
-        Uri image = Uri.parse("http://128.199.53.54:5001/" + encoded + "/thumb.jpg");
+        Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
         picasso.load(image).into(thumbnail);
     }
 
