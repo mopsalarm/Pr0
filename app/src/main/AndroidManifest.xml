@@ -84,13 +84,9 @@
 
                 <data
                     android:host="pr0gramm.com"
-                    android:pathPattern="/user/.*/uploads.*"
+                    android:pathPattern="/user/.*"
                     android:scheme="http"/>
 
-                <data
-                    android:host="pr0gramm.com"
-                    android:pathPattern="/user/.*/likes/.*"
-                    android:scheme="http"/>
             </intent-filter>
         </activity>
 
