@@ -263,7 +263,7 @@ public class PostFragment extends RoboFragment implements
         }
 
         if (item.getItemId() == R.id.action_zoom) {
-            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem.getImage());
+            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, false);
             startActivity(intent);
         }
 

@@ -1,11 +1,16 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
 
 import com.crashlytics.android.Crashlytics;
@@ -99,6 +104,16 @@ public class AndroidUtility {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+    }
+
+    /**
+     * Gets the color tinted hq-icon
+     */
+    public static Drawable getTintentDrawable(Context context, @DrawableRes int drawableId, @ColorRes int colorId) {
+        Resources resources = context.getResources();
+        Drawable icon = DrawableCompat.wrap(resources.getDrawable(drawableId));
+        DrawableCompat.setTint(icon, resources.getColor(colorId));
+        return icon;
     }
 
     public static void uninjectViews(Object object) {

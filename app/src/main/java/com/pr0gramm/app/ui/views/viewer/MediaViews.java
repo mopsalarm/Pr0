@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
 
+import com.google.common.base.Strings;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.ProxyService;
@@ -61,6 +62,13 @@ public class MediaViews {
     }
 
     public static String url(FeedItem feedItem) {
+        return url(feedItem, false);
+    }
+
+    public static String url(FeedItem feedItem, boolean hq) {
+        if(hq && !Strings.isNullOrEmpty(feedItem.getFullsize()))
+            return "http://full.pr0gramm.com/" + feedItem.getFullsize();
+
         return "http://img.pr0gramm.com/" + feedItem.getImage();
     }
 
