@@ -66,10 +66,10 @@
     vertical-align: middle;
     float: none;
   }
-	
-	.download-details, .download-details a {
-		color: #555555;
-	}
+  
+  .download-details, .download-details a {
+    color: #555555;
+  }
 </style>
 <body>
 
@@ -87,18 +87,21 @@
 
         <div class="col-xs-12 col-sm-6 vcenter phone">
           <div class="screen">
-            <video src="pr0.mp4" autoplay muted loop poster="pr0-poster.jpg"></video>
+            <video autoplay muted loop poster="pr0-poster.jpg">
+              <source src="pr0.mp4" type="video/mp4">
+              <source src="pr0.webm" type="video/webm">
+            </video>
           </div>
         </div><!--
       --><div class="col-xs-12 col-sm-6 vcenter text-center">
           Jetzt auf deinem Android installieren!<br />
           <img class="col-md-6 visible-md visible-lg" src="qrcode.svg" alt="qr">
           <div class="col-md-6 col-sm-12">
-          	<br/>
-          	<a href="https://github.com/mopsalarm/pr0gramm-updates/blob/beta/pr0gramm-v1.34.apk?raw=true"
+            <br/>
+            <a href="https://github.com/mopsalarm/pr0gramm-updates/blob/beta/pr0gramm-v1.34.apk?raw=true"
              id="download-button"
              class="btn btn-lg btn-primary">Download</a><br/><br/>
-          	<span class="download-details">Version <span id="version">x.xx</span> &bull; <a href="https://github.com/mopsalarm/pr0gramm-updates">Alle Versionen</a></span>
+            <span class="download-details">Version <span id="version">x.xx</span> &bull; <a href="https://github.com/mopsalarm/pr0gramm-updates">Alle Versionen</a></span>
           </div>
         </div>
       </div>
