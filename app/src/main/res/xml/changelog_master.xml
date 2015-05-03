@@ -6,7 +6,11 @@
         versioncode="35">
 
         <change><![CDATA[<b>Neu</b> Vorschaubildchen bei Videos im Mobilnetz]]></change>
+        <change><![CDATA[<b>Neu</b> In der Zoomansicht kann man nun die HD-Variante
+            von Bildern ansehen, falls vorhanden. Dazu gibts auch eine neue Einstellung]]></change>
+
         <change><![CDATA[<b>Fix</b> Neue Animation deaktivierbar]]></change>
+        <change><![CDATA[<b>Fix</b> Bildschirm anlassen fixed]]></change>
     </release>
 
     <release

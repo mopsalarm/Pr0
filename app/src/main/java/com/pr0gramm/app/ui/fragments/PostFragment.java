@@ -165,6 +165,8 @@ public class PostFragment extends RoboFragment implements
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(this::loadPostDetails);
 
+        swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
+
         adapter = new MergeRecyclerAdapter<>();
         content.setAdapter(adapter);
         content.setLayoutManager(new LinearLayoutManager(getActivity()));

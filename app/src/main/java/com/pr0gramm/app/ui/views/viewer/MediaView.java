@@ -77,9 +77,6 @@ public abstract class MediaView extends FrameLayout {
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(context, gestureListener);
 
-        // flag to keep the screen on or not.
-        setKeepScreenOn(settings.keepScreenOn());
-
         showBusyIndicator();
     }
 
