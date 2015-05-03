@@ -111,9 +111,9 @@
 <script>
 	$(document).ready(function() {
     getUpdateJson(function(json) {
-				var versionString = json.versionStr || ("1." + json.version);
-        $("#version").html(versionString);
-        $("#download-button").attr("href", json.apk);
+      var versionString = json.versionStr || ("1." + json.version);
+      $("#version").html(versionString);
+      $("#download-button").attr("href", json.apk);
     });
 	});
 </script>
