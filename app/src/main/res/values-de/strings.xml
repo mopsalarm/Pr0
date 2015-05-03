@@ -191,4 +191,6 @@
     <string name="inbox_type_comments">Kommentare</string>
     <string name="pref_animate_post_on_vote">Voten animieren (auf dem Bild)</string>
     <string name="pref_animate_post_on_vote_summary">Zeige eine Animation auf dem Bild oder Video, das gevoted wurde (wie bei Instagram)</string>
+    <string name="pref_load_hq_image_in_zoomview_title">HD in Zoom-Ansicht</string>
+    <string name="pref_load_hq_image_in_zoomview_summary">Zeige automatisch die HD Version von Bildern in der Zoom-Ansicht, falls vorhanden</string>
 </resources>
