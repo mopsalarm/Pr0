@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+
+    <release
+        version="1.35"
+        versioncode="35">
+
+        <change><![CDATA[<b>Neu</b> Vorschaubildchen bei Videos im Mobilnetz]]></change>
+        <change><![CDATA[<b>Fix</b> Neue Animation deaktivierbar]]></change>
+    </release>
+
     <release
         version="1.34"
         versioncode="34">
