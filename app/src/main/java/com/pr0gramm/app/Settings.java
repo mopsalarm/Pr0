@@ -149,6 +149,10 @@ public class Settings {
         return preferences.getBoolean("pref_confirm_play_on_mobile", true);
     }
 
+    public boolean loadHqInZoomView() {
+        return preferences.getBoolean("pref_load_hq_image_in_zoomview", false);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

@@ -82,6 +82,12 @@
                 android:summary="@string/pref_confirm_play_on_mobile_summary"
                 android:defaultValue="true"/>
 
+            <CheckBoxPreference
+                android:key="pref_load_hq_image_in_zoomview"
+                android:title="@string/pref_load_hq_image_in_zoomview_title"
+                android:summary="@string/pref_load_hq_image_in_zoomview_summary"
+                android:defaultValue="false"/>
+
         </PreferenceScreen>
 
         <PreferenceScreen
