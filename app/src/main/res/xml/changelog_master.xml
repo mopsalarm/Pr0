@@ -6,6 +6,8 @@
         versioncode="36">
 
         <change><![CDATA[<b>Neu</b> Vote-Buttons sind nun bei Tags immer sichtbar (einstellbar)]]></change>
+        <change><![CDATA[<b>Neu</b> Share-Button zum Teilen von Links auf Bildchen und Videos]]></change>
+        <change><![CDATA[<b>Neu</b> Material- statt Holo-Icons]]></change>
     </release>
 
     <release
