@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
@@ -42,6 +43,7 @@ public class InfoLineView extends LinearLayout {
     private final TextView voteFavoriteView;
     private final TextView addTagView;
 
+    private final Settings settings;
     private OnDetailClickedListener onDetailClickedListener;
     private VoteView.OnVoteListener onVoteListener;
 
@@ -58,9 +60,10 @@ public class InfoLineView extends LinearLayout {
 
     public InfoLineView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inflate(context, R.layout.post_info_line, this);
+        settings = Settings.of(context);
 
         setOrientation(VERTICAL);
+        inflate(context, R.layout.post_info_line, this);
 
         // get the views from the hierarchy
         ratingView = (TextView) findViewById(R.id.rating);
@@ -178,12 +181,14 @@ public class InfoLineView extends LinearLayout {
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
         private final List<Tag> tags;
         private final Map<Tag, Vote> votes;
+        private final boolean alwaysVoteViews;
         private int selected = -1;
 
         private TagsAdapter(List<Tag> tags, Map<Tag, Vote> votes) {
             setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
             this.votes = ImmutableMap.copyOf(votes);
+            this.alwaysVoteViews = !settings.hideTagVoteButtons();
         }
 
         @Override
@@ -202,13 +207,16 @@ public class InfoLineView extends LinearLayout {
                     onDetailClickedListener.onTagClicked(tag);
             });
 
-            if (tagVoteListener != null && position == selected) {
+            if (tagVoteListener != null && shouldShowVoteView(position)) {
                 holder.vote.setVote(votes.get(tag), true);
                 holder.vote.setVisibility(View.VISIBLE);
-                holder.tag.setOnLongClickListener(v -> {
-                    updateSelection(-1);
-                    return true;
-                });
+
+                if(!alwaysVoteViews) {
+                    holder.tag.setOnLongClickListener(v -> {
+                        updateSelection(-1);
+                        return true;
+                    });
+                }
 
                 holder.vote.setOnVoteListener(vote -> tagVoteListener.onVote(tag, vote));
 
@@ -219,6 +227,10 @@ public class InfoLineView extends LinearLayout {
                     return true;
                 });
             }
+        }
+
+        private boolean shouldShowVoteView(int position) {
+            return position == selected || alwaysVoteViews;
         }
 
         private void updateSelection(int position) {

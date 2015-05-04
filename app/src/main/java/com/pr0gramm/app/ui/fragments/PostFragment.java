@@ -29,7 +29,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -490,13 +489,6 @@ public class PostFragment extends RoboFragment implements
         // update tags from post
         displayTags(post.getTags());
         displayComments(post.getComments());
-
-        if (active && singleShotService.isFirstTime("show_tag_vote_on_long_press")) {
-            DialogBuilder.start(getActivity())
-                    .content(R.string.info_how_to_vote_tags)
-                    .positive(R.string.okay)
-                    .show();
-        }
     }
 
     private void displayTags(List<Tag> tags_) {

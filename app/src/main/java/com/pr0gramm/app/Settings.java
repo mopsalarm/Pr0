@@ -153,6 +153,10 @@ public class Settings {
         return preferences.getBoolean("pref_load_hq_image_in_zoomview", false);
     }
 
+    public boolean hideTagVoteButtons() {
+        return preferences.getBoolean("pref_hide_tag_vote_buttons", false);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }

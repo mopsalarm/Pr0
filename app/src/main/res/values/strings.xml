@@ -200,4 +200,6 @@
     <string name="pref_load_hq_image_in_zoomview_title">Highquality in zoom view</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Automatically load hq version of image in zoom view, if available.</string>
     <string name="share">Share</string>
+    <string name="pref_hide_tag_vote_buttons_title">Hide vote buttons on tag</string>
+    <string name="pref_hide_tag_vote_buttons_summary">Hide the little vote buttons on tags. You can make them visible by long-tapping the tag.</string>
 </resources>

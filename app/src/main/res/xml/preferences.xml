@@ -152,6 +152,12 @@
                 android:summary="@string/pref_show_refresh_button_summary"
                 android:defaultValue="true"/>
 
+            <CheckBoxPreference
+                android:key="pref_hide_tag_vote_buttons"
+                android:title="@string/pref_hide_tag_vote_buttons_title"
+                android:summary="@string/pref_hide_tag_vote_buttons_summary"
+                android:defaultValue="false"/>
+
         </PreferenceScreen>
 
         <PreferenceScreen

@@ -2,6 +2,13 @@
 <changelog>
 
     <release
+        version="1.36"
+        versioncode="36">
+
+        <change><![CDATA[<b>Neu</b> Vote-Buttons sind nun bei Tags immer sichtbar (einstellbar)]]></change>
+    </release>
+
+    <release
         version="1.35"
         versioncode="35">
 
