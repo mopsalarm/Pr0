@@ -199,4 +199,5 @@
     <string name="pref_animate_post_on_vote_summary">Show an animation on the post while voting</string>
     <string name="pref_load_hq_image_in_zoomview_title">Highquality in zoom view</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Automatically load hq version of image in zoom view, if available.</string>
+    <string name="share">Share</string>
 </resources>
