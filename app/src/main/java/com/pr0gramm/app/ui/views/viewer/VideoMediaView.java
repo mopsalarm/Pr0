@@ -125,6 +125,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
             if (mediaPlayerHasTexture) {
                 mediaPlayer.start();
+                mediaPlayer.setLooping(true);
                 currentState = State.PLAYING;
             }
         }
