@@ -270,6 +270,13 @@ public class PostFragment extends RoboFragment implements
             startActivity(intent);
         }
 
+        if(item.getItemId() == R.id.action_share) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, MediaViews.url(feedItem));
+            startActivity(intent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
