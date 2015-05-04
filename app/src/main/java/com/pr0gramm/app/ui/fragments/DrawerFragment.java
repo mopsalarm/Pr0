@@ -95,13 +95,13 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_home)
     private Drawable iconFeedTypePromoted;
 
-    @InjectResource(R.drawable.ic_black_action_glasses)
+    @InjectResource(R.drawable.ic_black_action_stelz)
     private Drawable iconFeedTypePremium;
 
-    @InjectResource(R.drawable.ic_black_action_line_chart)
+    @InjectResource(R.drawable.ic_black_action_trending)
     private Drawable iconFeedTypeNew;
 
-    @InjectResource(R.drawable.ic_black_action_pin)
+    @InjectResource(R.drawable.ic_black_action_bookmark)
     private Drawable iconBookmark;
 
     @InjectResource(R.drawable.ic_black_action_mail)
@@ -109,7 +109,8 @@ public class DrawerFragment extends RoboFragment {
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
-    private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
+    private static final int ICON_ALPHA = 200;
+    private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK).withAlpha(ICON_ALPHA);
     private ColorStateList markedColor;
     private Subscription scLoginState;
     private Subscription scNavigationItems;
@@ -128,7 +129,7 @@ public class DrawerFragment extends RoboFragment {
 
         // get "marked" color
         int primary = getActivity().getResources().getColor(R.color.primary);
-        markedColor = ColorStateList.valueOf(primary);
+        markedColor = ColorStateList.valueOf(primary).withAlpha(ICON_ALPHA);
 
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);

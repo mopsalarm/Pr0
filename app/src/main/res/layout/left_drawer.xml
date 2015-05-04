@@ -99,7 +99,7 @@
         <TextView
             android:id="@+id/action_settings"
             style="@style/AppStyle.DrawerItem"
-            android:drawableLeft="@drawable/ic_black_action_settings"
+            android:drawableLeft="@drawable/ic_grey_action_settings"
             android:text="@string/action_settings"/>
 
         <TextView
@@ -111,7 +111,7 @@
         <TextView
             android:id="@+id/action_login"
             style="@style/AppStyle.DrawerItem"
-            android:drawableLeft="@drawable/ic_black_action_user"
+            android:drawableLeft="@drawable/ic_grey_action_login"
             android:text="@string/action_login"/>
     </LinearLayout>
 </ScrollView>
