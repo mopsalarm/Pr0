@@ -109,8 +109,8 @@ public class DrawerFragment extends RoboFragment {
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
-    private static final int ICON_ALPHA = 200;
-    private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK).withAlpha(ICON_ALPHA);
+    private static final int ICON_ALPHA = 127;
+    private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
     private Subscription scLoginState;
     private Subscription scNavigationItems;
@@ -129,7 +129,7 @@ public class DrawerFragment extends RoboFragment {
 
         // get "marked" color
         int primary = getActivity().getResources().getColor(R.color.primary);
-        markedColor = ColorStateList.valueOf(primary).withAlpha(ICON_ALPHA);
+        markedColor = ColorStateList.valueOf(primary);
 
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);
@@ -383,7 +383,7 @@ public class DrawerFragment extends RoboFragment {
             // update color
             ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
             holder.text.setTextColor(color);
-            changeCompoundDrawableColor(holder.text, color);
+            changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA));
 
             // handle clicks
             holder.itemView.setOnClickListener(v -> {
