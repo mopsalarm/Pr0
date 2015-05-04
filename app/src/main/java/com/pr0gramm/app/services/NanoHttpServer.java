@@ -180,16 +180,17 @@ public abstract class NanoHttpServer {
         myThread = new Thread(() -> {
             do {
                 try {
-                    final Socket finalAccept = myServerSocket.accept();
-                    registerConnection(finalAccept);
-                    finalAccept.setSoTimeout(SOCKET_READ_TIMEOUT);
-                    final InputStream inputStream = finalAccept.getInputStream();
+                    final Socket client = myServerSocket.accept();
+                    client.setSoTimeout(SOCKET_READ_TIMEOUT);
+                    final InputStream inputStream = client.getInputStream();
+
+                    registerConnection(client);
                     asyncRunner.exec(() -> {
                         OutputStream outputStream = null;
                         try {
-                            outputStream = finalAccept.getOutputStream();
+                            outputStream = client.getOutputStream();
                             TempFileManager tempFileManager = tempFileManagerFactory.create();
-                            HTTPSession session = new HTTPSession(tempFileManager, inputStream, outputStream, finalAccept.getInetAddress());
+                            HTTPSession session = new HTTPSession(tempFileManager, inputStream, outputStream, client.getInetAddress());
                             session.execute();
 
                         } catch (Exception e) {
@@ -201,8 +202,8 @@ public abstract class NanoHttpServer {
                         } finally {
                             safeClose(outputStream);
                             safeClose(inputStream);
-                            safeClose(finalAccept);
-                            unRegisterConnection(finalAccept);
+                            safeClose(client);
+                            unRegisterConnection(client);
                         }
                     });
                 } catch (IOException ignored) {
