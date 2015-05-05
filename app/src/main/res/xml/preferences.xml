@@ -236,6 +236,14 @@
             android:key="pref_pseudo_logcat"
             android:title="@string/logcat"
             android:summary="@string/logcat_summary"/>
+
+         <ListPreference
+            android:key="pref_savefolder"
+            android:title="@string/pref_savefolder_title"
+            android:entries="@array/pref_savefolder_human"
+            android:entryValues="@array/pref_savefolder_values"
+            android:defaultValue="@string/pref_savefolder_default"
+            android:summary="@string/pref_savefolder_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -290,8 +290,14 @@ public class PostFragment extends RoboFragment implements
     private void downloadPostMedia() {
         // download over proxy to use caching
         Uri url = Uri.parse(proxyService.proxy(MediaViews.url(feedItem)));
-
-        File external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File external;
+        if (settings.savefolder().equals("downloads")) {
+            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        }else if(settings.savefolder().equals("root")){
+            external = Environment.getExternalStorageDirectory();
+        }else{
+            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        }
         File targetDirectory = new File(external, "pr0gramm");
         if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
             showErrorString(getChildFragmentManager(), getString(R.string.error_could_not_create_download_directory));

@@ -14,6 +14,20 @@
         <item>4096</item>
     </string-array>
 
+    <string-array name="pref_savefolder_values">
+        <item>pictures</item>
+        <item>downloads</item>
+        <item>root</item>
+    </string-array>
+
+    <string-array name="pref_savefolder_human">
+        <item>@string/savefolder_pictures</item>
+        <item>@string/savefolder_downloads</item>
+        <item>@string/savefolder_root</item>
+    </string-array>
+
+    <string name="pref_savefolder_default" translatable="false">pictures</string>
+
     <string name="pref_max_image_size_default" translatable="false">2048</string>
 
     <string-array name="pref_seen_indicator_style_human">
