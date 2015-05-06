@@ -89,7 +89,8 @@ public class Settings {
     }
 
     public String downloadLocation(){
-        return preferences.getString("pref_downloadLocation", "downloads");
+        String def = Pr0grammApplication.GLOBAL_CONTEXT.getString(R.string.pref_downloadLocation_default);
+        return preferences.getString("pref_downloadLocation", def);
     }
 
     public IndicatorStyle seenIndicatorStyle() {
