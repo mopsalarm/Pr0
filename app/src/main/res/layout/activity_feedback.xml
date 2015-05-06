@@ -6,12 +6,14 @@
               android:orientation="vertical">
 
     <EditText
+        android:id="@+id/feedback_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/feedback_name"
         android:inputType="textPersonName"/>
 
     <EditText
+        android:id="@+id/feedback_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -22,10 +24,11 @@
         android:minLines="8"/>
 
     <Button
-        android:layout_marginTop="8dp"
+        android:id="@+id/submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
+        android:layout_marginTop="8dp"
         android:backgroundTint="@color/primary"
         android:text="@string/feedback_submit"/>
 </LinearLayout>

@@ -10,17 +10,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,22 +119,6 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
             if ("pref_pseudo_feedback".equals(preference.getKey())) {
                 startActivity(new Intent(getActivity(), FeedbackActivity.class));
                 return true;
-            }
-
-            if ("pref_pseudo_logcat".equals(preference.getKey())) {
-                Optional<File> logFile = LogcatUtility.dump();
-                if (logFile.isPresent()) {
-                    DialogBuilder.start(getActivity())
-                            .content(getString(R.string.logcat_logfile_created, logFile.get()))
-                            .positive(R.string.okay)
-                            .show();
-
-                } else {
-                    DialogBuilder.start(getActivity())
-                            .content(getString(R.string.logcat_error_occurred))
-                            .positive(R.string.okay)
-                            .show();
-                }
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

@@ -231,11 +231,6 @@
             android:key="pref_pseudo_changelog"
             android:title="@string/pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"/>
-
-        <Preference
-            android:key="pref_pseudo_logcat"
-            android:title="@string/logcat"
-            android:summary="@string/logcat_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory
