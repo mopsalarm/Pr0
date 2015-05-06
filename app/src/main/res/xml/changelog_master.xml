@@ -2,6 +2,14 @@
 <changelog>
 
     <release
+        version="1.38"
+        versioncode="38">
+
+        <change><![CDATA[<b>Neu</b> Downloadordner ist Konfigurierbar (danke an Deathmage)]]></change>
+        <change><![CDATA[<b>Neu</b> Neues, besseres Feedbackformular (in den Einstellungen)]]></change>
+    </release>
+
+    <release
         version="1.37"
         versioncode="37">
 
