@@ -30,6 +30,7 @@ public class DialogBuilder {
     private boolean autoDismiss = true;
     private boolean cancelable = true;
     private DialogInterface.OnShowListener onShowListener;
+    private DialogInterface.OnCancelListener onCancelListener;
 
     private DialogBuilder(Context context) {
         this.context = context;
@@ -195,6 +196,8 @@ public class DialogBuilder {
                 onShowListener.onShow(dialog);
         });
 
+        dialog.setOnCancelListener(onCancelListener);
+
         return dialog;
     }
 
@@ -223,6 +226,11 @@ public class DialogBuilder {
 
     public DialogBuilder onShow(Dialog.OnShowListener onShowListener) {
         this.onShowListener = onShowListener;
+        return this;
+    }
+
+    public DialogBuilder onCancel(Dialog.OnCancelListener onCancelListener) {
+        this.onCancelListener = onCancelListener;
         return this;
     }
 

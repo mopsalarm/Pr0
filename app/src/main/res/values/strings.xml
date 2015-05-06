@@ -206,4 +206,5 @@
     <string name="feedback_feedback">Your feedback</string>
     <string name="feedback_submit">Submit</string>
     <string name="feedback_title">Feedback</string>
+    <string name="feedback_sent">Thank you for your feedback!</string>
 </resources>

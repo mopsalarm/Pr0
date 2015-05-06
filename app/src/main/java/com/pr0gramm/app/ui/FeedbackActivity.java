@@ -1,12 +1,15 @@
 package com.pr0gramm.app.ui;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -46,6 +49,8 @@ public class FeedbackActivity extends RoboActionBarActivity {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
+        int primary = getResources().getColor(R.color.primary);
+        ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> submitClicked());
     }
 
@@ -67,7 +72,16 @@ public class FeedbackActivity extends RoboActionBarActivity {
 
         bindActivity(this, feedbackService.post(this, name, feedback))
                 .lift(busyDialog(this))
+                .doOnCompleted(this::onSubmitSuccess)
                 .subscribe(Actions.empty(), defaultOnError());
+    }
+
+    private void onSubmitSuccess() {
+        DialogBuilder.start(this)
+                .content(R.string.feedback_sent)
+                .positive(R.string.okay, di -> finish())
+                .onCancel(di -> finish())
+                .show();
     }
 
     @Override
