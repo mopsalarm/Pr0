@@ -2,6 +2,13 @@
 <changelog>
 
     <release
+        version="1.37"
+        versioncode="37">
+
+        <change><![CDATA[<b>Fix</b> Videos loopen nun endlich (Bugfix für Samsung-Untersmartphones)]]></change>
+    </release>
+
+    <release
         version="1.36"
         versioncode="36">
 

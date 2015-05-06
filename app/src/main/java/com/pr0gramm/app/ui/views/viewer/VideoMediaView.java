@@ -124,8 +124,8 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 setMediaPlayerTexture(surfaceHolder.getTexture());
 
             if (mediaPlayerHasTexture) {
-                mediaPlayer.start();
                 mediaPlayer.setLooping(true);
+                mediaPlayer.start();
                 currentState = State.PLAYING;
             }
         }
@@ -296,6 +296,14 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         mediaPlayer = new MediaPlayer();
         Async.fromCallable(() -> {
             try {
+                // Enable looping for Samsung devices, tested on Galaxy S5 (4.4.4)
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    logger.info("Playback stopped, restarting now.");
+                    mp.pause();
+                    mp.seekTo(0);
+                    mp.start();
+                });
+
                 mediaPlayer.setDataSource(getContext(), Uri.parse(url));
                 mediaPlayer.setOnPreparedListener(this);
                 mediaPlayer.setOnInfoListener(this);
