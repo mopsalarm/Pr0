@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -290,8 +291,16 @@ public class PostFragment extends RoboFragment implements
     private void downloadPostMedia() {
         // download over proxy to use caching
         Uri url = Uri.parse(proxyService.proxy(MediaViews.url(feedItem)));
-
-        File external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File external;
+        Resources res = getResources();
+        String[] downloadLocation = res.getStringArray(R.array.pref_downloadLocation_values);
+        if (settings.downloadLocation().equals(downloadLocation[1])) {
+            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        }else if(settings.downloadLocation().equals(downloadLocation[2])){
+            external = Environment.getExternalStorageDirectory();
+        }else{
+            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        }
         File targetDirectory = new File(external, "pr0gramm");
         if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
             showErrorString(getChildFragmentManager(), getString(R.string.error_could_not_create_download_directory));

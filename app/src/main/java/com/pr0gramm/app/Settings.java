@@ -88,6 +88,10 @@ public class Settings {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
     }
 
+    public String downloadLocation(){
+        return preferences.getString("pref_downloadLocation", "downloads");
+    }
+
     public IndicatorStyle seenIndicatorStyle() {
         String value = preferences.getString("pref_seen_indicator_style", IndicatorStyle.NONE.toString());
         return Enums.getIfPresent(IndicatorStyle.class, value).or(IndicatorStyle.NONE);
