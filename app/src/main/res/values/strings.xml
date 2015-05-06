@@ -202,9 +202,9 @@
     <string name="share">Share</string>
     <string name="pref_hide_tag_vote_buttons_title">Hide vote buttons on tag</string>
     <string name="pref_hide_tag_vote_buttons_summary">Hide the little vote buttons on tags. You can make them visible by long-tapping the tag.</string>
-    <string name="pref_savefolder_title">Download folder</string>
-    <string name="pref_savefolder_summary">Downloaded files are saved here.</string>
-    <string name="savefolder_downloads" translatable="false">/Downloads/pr0gramm</string>
-    <string name="savefolder_pictures" translatable="false">/Pictures/pr0gramm</string>
-    <string name="savefolder_root" translatable="false">/pr0gramm</string>
+    <string name="pref_downloadLocation_title">Download folder</string>
+    <string name="pref_downloadLocation_summary">Downloaded files are saved here.</string>
+    <string name="downloadLocation_downloads" translatable="false">/Downloads/pr0gramm</string>
+    <string name="downloadLocation_pictures" translatable="false">/Pictures/pr0gramm</string>
+    <string name="downloadLocation_root" translatable="false">/pr0gramm</string>
 </resources>

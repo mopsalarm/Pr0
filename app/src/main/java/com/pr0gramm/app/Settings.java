@@ -88,8 +88,8 @@ public class Settings {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
     }
 
-    public String savefolder(){
-        return preferences.getString("pref_savefolder", "downloads");
+    public String downloadLocation(){
+        return preferences.getString("pref_downloadLocation", "downloads");
     }
 
     public IndicatorStyle seenIndicatorStyle() {

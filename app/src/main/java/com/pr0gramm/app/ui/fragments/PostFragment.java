@@ -291,9 +291,9 @@ public class PostFragment extends RoboFragment implements
         // download over proxy to use caching
         Uri url = Uri.parse(proxyService.proxy(MediaViews.url(feedItem)));
         File external;
-        if (settings.savefolder().equals("downloads")) {
+        if (settings.downloadLocation().equals("downloads")) {
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        }else if(settings.savefolder().equals("root")){
+        }else if(settings.downloadLocation().equals("root")){
             external = Environment.getExternalStorageDirectory();
         }else{
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
