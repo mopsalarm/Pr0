@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -17,7 +16,6 @@ import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.LogcatUtility;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
@@ -122,10 +120,7 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
             }
 
             if ("pref_pseudo_feedback".equals(preference.getKey())) {
-                // open google form
-                String version = Pr0grammApplication.getPackageInfo(getActivity()).versionName;
-                String url = "https://docs.google.com/forms/d/1YVZDzaoaeNDncbxv7qKWlp067yUtUtCz5lqpCo0bcFc/viewform?entry.409811813=" + version;
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                startActivity(new Intent(getActivity(), FeedbackActivity.class));
                 return true;
             }
 

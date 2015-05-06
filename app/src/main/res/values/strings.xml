@@ -202,4 +202,8 @@
     <string name="share">Share</string>
     <string name="pref_hide_tag_vote_buttons_title">Hide vote buttons on tag</string>
     <string name="pref_hide_tag_vote_buttons_summary">Hide the little vote buttons on tags. You can make them visible by long-tapping the tag.</string>
+    <string name="feedback_name">Your name (optional)</string>
+    <string name="feedback_feedback">Your feedback</string>
+    <string name="feedback_submit">Submit</string>
+    <string name="feedback_title">Feedback</string>
 </resources>
