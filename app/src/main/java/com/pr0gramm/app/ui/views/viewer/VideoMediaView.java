@@ -11,15 +11,12 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.LogcatUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
-import java.io.File;
 import java.io.IOException;
 
 import roboguice.inject.InjectView;
@@ -124,8 +121,8 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 setMediaPlayerTexture(surfaceHolder.getTexture());
 
             if (mediaPlayerHasTexture) {
-                mediaPlayer.start();
                 mediaPlayer.setLooping(true);
+                mediaPlayer.start();
                 currentState = State.PLAYING;
             }
         }
@@ -258,18 +255,6 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 return true;
             }
 
-            if (what == 262) {
-                Optional<File> logFile = LogcatUtility.dump();
-                if (logFile.isPresent()) {
-                    DialogBuilder.start(getContext())
-                            .content(getContext().getString(R.string.could_not_play_video_262, logFile.get()))
-                            .positive(R.string.okay)
-                            .show();
-
-                    return true;
-                }
-            }
-
             DialogBuilder.start(getContext())
                     .content(R.string.could_not_play_video)
                     .positive(R.string.okay)
@@ -296,6 +281,14 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         mediaPlayer = new MediaPlayer();
         Async.fromCallable(() -> {
             try {
+                // Enable looping for Samsung devices, tested on Galaxy S5 (4.4.4)
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    logger.info("Playback stopped, restarting now.");
+                    mp.pause();
+                    mp.seekTo(0);
+                    mp.start();
+                });
+
                 mediaPlayer.setDataSource(getContext(), Uri.parse(url));
                 mediaPlayer.setOnPreparedListener(this);
                 mediaPlayer.setOnInfoListener(this);

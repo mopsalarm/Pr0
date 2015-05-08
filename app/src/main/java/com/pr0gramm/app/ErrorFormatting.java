@@ -9,6 +9,7 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -156,6 +157,10 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof SocketException,
+                R.string.error_socket).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof EOFException,
                 R.string.error_socket).doNotReport());
 
         formatters.add(new Formatter<>(LoginRequiredException.class,

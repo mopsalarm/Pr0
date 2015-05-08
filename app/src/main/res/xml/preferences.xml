@@ -88,6 +88,14 @@
                 android:summary="@string/pref_load_hq_image_in_zoomview_summary"
                 android:defaultValue="false"/>
 
+            <ListPreference
+                android:key="pref_downloadLocation"
+                android:title="@string/pref_downloadLocation_title"
+                android:entries="@array/pref_downloadLocation_human"
+                android:entryValues="@array/pref_downloadLocation_values"
+                android:defaultValue="@string/pref_downloadLocation_default"
+                android:summary="@string/pref_downloadLocation_summary"/>
+            
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -232,18 +240,6 @@
             android:title="@string/pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"/>
 
-        <Preference
-            android:key="pref_pseudo_logcat"
-            android:title="@string/logcat"
-            android:summary="@string/logcat_summary"/>
-
-         <ListPreference
-            android:key="pref_downloadLocation"
-            android:title="@string/pref_downloadLocation_title"
-            android:entries="@array/pref_downloadLocation_human"
-            android:entryValues="@array/pref_downloadLocation_values"
-            android:defaultValue="@string/pref_downloadLocation_default"
-            android:summary="@string/pref_downloadLocation_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory

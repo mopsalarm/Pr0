@@ -86,7 +86,7 @@
     <string name="prefcat_behaviour">Verhalten</string>
     <string name="error_timeout">Zeitüberschreitung bei einer Anfrage.</string>
     <string name="error_out_of_memory_while_decoding_gif">Das gif-Bild konnte nicht in den Speicher geladen werden. Überprüfe deine Einstellung und deaktivere das Dekodieren von gifs im Speicher.</string>
-    <string name="error_socket">Ein Netzwerkfehler ist aufgetreten.</string>
+    <string name="error_socket">Ein Netzwerkfehler ist aufgetreten. Probiere es nochmal.</string>
     <string name="action_answer">Antworten</string>
     <string name="action_download">Herunterladen</string>
     <string name="action_login">ANMELDEN</string>
