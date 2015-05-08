@@ -195,4 +195,6 @@
     <string name="pref_load_hq_image_in_zoomview_summary">Zeige automatisch die HD Version von Bildern in der Zoom-Ansicht, falls vorhanden</string>
     <string name="pref_downloadLocation_title">Download Ordner</string>
     <string name="pref_downloadLocation_summary">Hier werden die heruntergeladenen Bilder gespeichert.</string>
+    <string name="pref_hide_tag_vote_buttons_title">Tag Vote-Buttons verstecken</string>
+    <string name="pref_hide_tag_vote_buttons_summary">Versteckt die kleinen Vote-Buttons bei den Tags. Tag lang gedrückt halten zum Anzeigen.</string>
 </resources>
