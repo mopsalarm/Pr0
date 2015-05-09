@@ -106,8 +106,8 @@
     <string name="need_to_restart_app">Damit diese Änderung wirksam wird, musst du die App einmal komplett neustarten.</string>
     <string name="post_comment">Absenden</string>
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
-    <string name="pref_double_tap_to_upvote">Doppeltklick für Upvote</string>
-    <string name="pref_double_tap_to_upvote_summary">Doppeltklick auf ein Bild oder Video führt einen Upvote aus</string>
+    <string name="pref_double_tap_to_upvote">Doppelklick für Upvote</string>
+    <string name="pref_double_tap_to_upvote_summary">Doppelklick auf ein Bild oder Video führt einen Upvote aus</string>
     <string name="could_not_load_feed">Kann den Feed nicht laden. Ist pr0gramm gerade nicht erreichbar?</string>
     <string name="hello_world">Hallo Welt</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
@@ -194,7 +194,13 @@
     <string name="pref_load_hq_image_in_zoomview_title">HD in Zoom-Ansicht</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Zeige automatisch die HD Version von Bildern in der Zoom-Ansicht, falls vorhanden</string>
     <string name="pref_downloadLocation_title">Download Ordner</string>
-    <string name="pref_downloadLocation_summary">Hier werden die heruntergeladenen Bilder gespeichert.</string>
+    <string name="pref_downloadLocation_summary">Hier werden die heruntergeladenen Bilder gespeichert</string>
     <string name="pref_hide_tag_vote_buttons_title">Tag Vote-Buttons verstecken</string>
     <string name="pref_hide_tag_vote_buttons_summary">Versteckt die kleinen Vote-Buttons bei den Tags. Tag lang gedrückt halten zum Anzeigen.</string>
+    <string name="feedback_feedback">Dein Feedback</string>
+    <string name="feedback_name">Dein Name (optional)</string>
+    <string name="feedback_sent">Danke für dein Feedback!</string>
+    <string name="feedback_submit">Absenden</string>
+    <string name="share">Teilen</string>
+    <string name="feedback_title">Feedback</string>
 </resources>
