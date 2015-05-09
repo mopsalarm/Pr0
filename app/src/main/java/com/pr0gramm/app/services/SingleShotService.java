@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.Pr0grammApplication;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,5 +35,10 @@ public class SingleShotService {
         } else {
             return false;
         }
+    }
+
+    public boolean isFirstTimeInVersion(String action) {
+        int version = Pr0grammApplication.getPackageInfo().versionCode;
+        return isFirstTime(action + "--" + version);
     }
 }

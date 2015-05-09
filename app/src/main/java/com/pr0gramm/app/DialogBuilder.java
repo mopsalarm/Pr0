@@ -165,8 +165,7 @@ public class DialogBuilder {
     }
 
     public Dialog build() {
-        int theme = R.style.Theme_AppCompat_Light_Dialog;
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, theme)
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, theme())
                 .setTitle(title)
                 .setMessage(content)
                 .setView(view)
@@ -199,6 +198,10 @@ public class DialogBuilder {
         dialog.setOnCancelListener(onCancelListener);
 
         return dialog;
+    }
+
+    public static int theme() {
+        return R.style.Theme_AppCompat_Light_Dialog;
     }
 
     private void onButtonClicked(int button, AlertDialog dialog) {
