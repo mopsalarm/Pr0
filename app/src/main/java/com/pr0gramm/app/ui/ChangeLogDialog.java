@@ -142,10 +142,10 @@ public class ChangeLogDialog extends DialogFragment {
 
             final SpannableStringBuilder builder = new SpannableStringBuilder();
             builder.append(type);
-            builder.setSpan(bold, 0, type.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-
             builder.append(' ');
             builder.append(text);
+
+            builder.setSpan(bold, 0, type.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
             this.text.setText(builder);
         }
