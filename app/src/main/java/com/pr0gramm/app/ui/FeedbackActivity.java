@@ -8,10 +8,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -29,6 +31,9 @@ public class FeedbackActivity extends RoboActionBarActivity {
 
     @Inject
     private FeedbackService feedbackService;
+
+    @Inject
+    private UserService userService;
 
     @InjectView(R.id.submit)
     private Button buttonSubmit;
@@ -52,6 +57,19 @@ public class FeedbackActivity extends RoboActionBarActivity {
         int primary = getResources().getColor(R.color.primary);
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> submitClicked());
+
+        vText.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean empty = s.toString().trim().isEmpty();
+                buttonSubmit.setEnabled(!empty);
+            }
+        });
+
+        Optional<String> name = userService.getName();
+        if(name.isPresent()) {
+            vName.setText(name.get());
+        }
     }
 
     @Override
