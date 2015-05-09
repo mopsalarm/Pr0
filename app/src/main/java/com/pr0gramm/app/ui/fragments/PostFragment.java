@@ -167,8 +167,9 @@ public class PostFragment extends RoboFragment implements
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 
         adapter = new MergeRecyclerAdapter<>();
-        content.setAdapter(adapter);
+        content.setItemAnimator(null);
         content.setLayoutManager(new LinearLayoutManager(getActivity()));
+        content.setAdapter(adapter);
 
         initializeMediaView();
         initializeInfoLine();

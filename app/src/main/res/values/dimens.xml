@@ -1,4 +1,5 @@
 <resources>
     <dimen name="user_type_circle_diameter">8sp</dimen>
     <dimen name="max_image_view_height">550dp</dimen>
+    <dimen name="tag_gap_size">8dp</dimen>
 </resources>

@@ -18,6 +18,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.ui.TagCloudLayoutManager;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -74,7 +75,16 @@ public class InfoLineView extends LinearLayout {
         addTagView = (TextView) findViewById(R.id.add_tag);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
-        tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+
+        if (settings.tagCloudView()) {
+            int tagGaps = getResources().getDimensionPixelSize(R.dimen.tag_gap_size);
+
+            tagsView.setItemAnimator(null);
+            tagsView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps));
+        } else {
+            tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        }
 
         voteView.setOnVoteListener(newVote -> {
             boolean changed = onVoteListener != null && onVoteListener.onVoteClicked(newVote);
@@ -211,7 +221,7 @@ public class InfoLineView extends LinearLayout {
                 holder.vote.setVote(votes.get(tag), true);
                 holder.vote.setVisibility(View.VISIBLE);
 
-                if(!alwaysVoteViews) {
+                if (!alwaysVoteViews) {
                     holder.tag.setOnLongClickListener(v -> {
                         updateSelection(-1);
                         return true;

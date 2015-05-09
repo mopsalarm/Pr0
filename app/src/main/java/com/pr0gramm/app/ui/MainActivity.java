@@ -41,11 +41,8 @@ import org.joda.time.Minutes;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import de.cketti.library.changelog.ChangeLog;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
-import rx.Observable;
-import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -91,9 +88,9 @@ public class MainActivity extends RoboActionBarActivity implements
     @Inject
     private SingleShotService singleShotService;
 
-    private Subscription subscription;
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
+    private boolean startedWithIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,12 +126,12 @@ public class MainActivity extends RoboActionBarActivity implements
                 gotoFeedFragment(new FeedFilter(), true);
 
             } else {
+                startedWithIntent = true;
                 onNewIntent(intent);
             }
         }
 
-        ChangeLog changelog = new ChangeLog(this);
-        if (changelog.isFirstRun()) {
+        if (singleShotService.isFirstTimeInVersion("changelog")) {
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
 
@@ -291,7 +288,7 @@ public class MainActivity extends RoboActionBarActivity implements
         }
 
         // at the end, go back to the "top" page before stopping everything.
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0 && !startedWithIntent) {
             FeedFilter filter = getCurrentFeedFilter();
             if (filter != null && !isTopFilter(filter)) {
                 gotoFeedFragment(new FeedFilter(), true);
@@ -310,28 +307,13 @@ public class MainActivity extends RoboActionBarActivity implements
     protected void onResume() {
         super.onResume();
         ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
-
-        Observable<UserService.LoginState> state = userService.getLoginStateObservable();
-        subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged, Actions.empty());
-
         onBackStackChanged();
     }
 
     @Override
     protected void onPause() {
         ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
-
-        if (subscription != null)
-            subscription.unsubscribe();
-
         super.onPause();
-    }
-
-    private void onLoginStateChanged(UserService.LoginState state) {
-        if (state == UserService.LoginState.NOT_AUTHORIZED) {
-            // go back to the "top"-fragment
-            // gotoFeedFragment(new FeedFilter());
-        }
     }
 
     @Override

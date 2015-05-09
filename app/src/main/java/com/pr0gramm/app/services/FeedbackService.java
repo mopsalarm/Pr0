@@ -35,7 +35,7 @@ public class FeedbackService {
     }
 
     public Observable<Nothing> post(Context context, String name, String feedback) {
-        String version = Pr0grammApplication.getPackageInfo(context).versionName;
+        String version = Pr0grammApplication.getPackageInfo().versionName;
 
         return Async
                 .start(FeedbackService::logcat)

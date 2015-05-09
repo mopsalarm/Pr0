@@ -70,7 +70,7 @@
             android:id="@+id/add_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="top"
             android:textColor="@color/primary"
             android:padding="8dp"
             android:text="@string/action_add_tag"/>

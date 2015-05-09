@@ -155,4 +155,9 @@ public class AndroidUtility {
     }
 
     private static final Map<Class<?>, List<Field>> VIEW_FIELDS_CACHE = new HashMap<>();
+
+    public static Logger logger(Object instance) {
+        String suffix = Integer.toString(System.identityHashCode(instance), Character.MAX_RADIX);
+        return LoggerFactory.getLogger(instance.getClass().getSimpleName() + "-" + suffix);
+    }
 }

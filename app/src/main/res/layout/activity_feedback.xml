@@ -33,6 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
+            android:enabled="false"
             android:text="@string/feedback_submit"/>
     </LinearLayout>
 </ScrollView>

@@ -1,0 +1,32 @@
+[
+  {
+    "version": 39,
+    "type": "Neu",
+    "change": "Tags können mehrzeilig angezeigt werden."
+  },
+  {
+    "version": 39,
+    "type": "Fix",
+    "change": "Abstürze durch Anzeigen des Changelogs hoffentlich behoben"
+  },
+  {
+    "version": 39,
+    "type": "Fix",
+    "change": "Wenn man über einen Link ins pr0gramm gekommen ist, kann man die App mit zweimal Zurück wieder verlassen"
+  },
+  {
+    "version": 38,
+    "type": "Neu",
+    "change": "Downloadordner ist jetzt konfigurierbar (danke an Deathmage)"
+  },
+  {
+    "version": 38,
+    "type": "Neu",
+    "change": "Neues und besseres Feedbackformular in den Einstellungen"
+  },
+  {
+    "version": 37,
+    "type": "Neu",
+    "change": "Videos Loopen nun endlich (Bugfix für Samsung-Untersmartphones)"
+  }
+]

@@ -162,6 +162,10 @@ public class Settings {
         return preferences.getBoolean("pref_hide_tag_vote_buttons", false);
     }
 
+    public boolean tagCloudView() {
+        return preferences.getBoolean("pref_tag_cloud_view", false);
+    }
+
     public static Settings of(Context context) {
         return new Settings(context);
     }
