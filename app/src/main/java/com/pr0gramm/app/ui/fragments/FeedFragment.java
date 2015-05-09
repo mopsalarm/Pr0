@@ -149,6 +149,7 @@ public class FeedFragment extends RoboFragment {
         int count = getThumbnailColumns();
         layoutManager = new GridLayoutManager(getActivity(), count);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(null);
         recyclerView.setAdapter(adapter);
 
         // we can still swipe up if we are not at the start of the feed.

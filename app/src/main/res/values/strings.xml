@@ -212,4 +212,6 @@
     <string name="feedback_submit">Submit</string>
     <string name="feedback_title">Feedback</string>
     <string name="feedback_sent">Thank you for your feedback!</string>
+    <string name="pref_tag_cloud_view_title">Show all tags</string>
+    <string name="pref_tag_cloud_view_summary">Show all tags of an image in multiple lines at once.</string>
 </resources>

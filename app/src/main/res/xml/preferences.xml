@@ -166,6 +166,12 @@
                 android:summary="@string/pref_hide_tag_vote_buttons_summary"
                 android:defaultValue="false"/>
 
+            <CheckBoxPreference
+                android:key="pref_tag_cloud_view"
+                android:title="@string/pref_tag_cloud_view_title"
+                android:summary="@string/pref_tag_cloud_view_summary"
+                android:defaultValue="false"/>
+
         </PreferenceScreen>
 
         <PreferenceScreen
