@@ -94,6 +94,7 @@ public class MainActivity extends RoboActionBarActivity implements
     private Subscription subscription;
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
+    private boolean startedWithIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,6 +130,7 @@ public class MainActivity extends RoboActionBarActivity implements
                 gotoFeedFragment(new FeedFilter(), true);
 
             } else {
+                startedWithIntent = true;
                 onNewIntent(intent);
             }
         }
@@ -291,7 +293,7 @@ public class MainActivity extends RoboActionBarActivity implements
         }
 
         // at the end, go back to the "top" page before stopping everything.
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0 && !startedWithIntent) {
             FeedFilter filter = getCurrentFeedFilter();
             if (filter != null && !isTopFilter(filter)) {
                 gotoFeedFragment(new FeedFilter(), true);
