@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
@@ -32,6 +33,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -50,7 +52,6 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
@@ -106,6 +107,10 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectResource(R.drawable.ic_black_action_mail)
     private Drawable iconInbox;
+
+    @InjectResource(R.drawable.ic_black_action_upload)
+    private Drawable iconUpload;
+
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
@@ -223,7 +228,9 @@ public class DrawerFragment extends RoboFragment {
                         .flatMap(ignored -> bookmarkService.get())
                         .map(this::bookmarksToNavItem),
 
-                Observable.just(singletonList(getInboxNavigationItem()))
+                Observable.just(ImmutableList.of(
+                        getInboxNavigationItem(),
+                        getUploadNavigationItem()))
         ), args -> {
 
             ArrayList<NavigationItem> result = new ArrayList<>();
@@ -328,6 +335,18 @@ public class DrawerFragment extends RoboFragment {
         };
 
         return new NavigationItem(getString(R.string.action_inbox), iconInbox, () ->
+                LoginDialogFragment.doIfAuthorized(this, run, run));
+    }
+
+    /**
+     * Returns the menu item that takes the user to the upload activity.
+     */
+    public NavigationItem getUploadNavigationItem() {
+        Runnable run = () -> {
+            startActivity(new Intent(getActivity(), UploadActivity.class));
+        };
+
+        return new NavigationItem(getString(R.string.action_upload), iconUpload, () ->
                 LoginDialogFragment.doIfAuthorized(this, run, run));
     }
 

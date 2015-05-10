@@ -55,8 +55,13 @@ public class Pr0grammModule extends AbstractModule {
                 .registerTypeAdapter(Instant.class, new InstantDeserializer())
                 .create();
 
+        String host = "http://pr0gramm.com";
+
+        // activate this to use a mock
+        // host = "http://demo8733773.mockable.io";
+
         Api api = new RestAdapter.Builder()
-                .setEndpoint("http://pr0gramm.com")
+                .setEndpoint(host)
                 .setConverter(new GsonConverter(gson))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
@@ -69,8 +74,8 @@ public class Pr0grammModule extends AbstractModule {
             Class<?>[] params = method.getParameterTypes();
             if (params.length > 0 && params[0] == Api.Nonce.class) {
                 if (args.length > 0 && args[0] == null) {
-                    // inform about failure.
 
+                    // inform about failure.
                     try {
                         args = Arrays.copyOf(args, args.length);
                         args[0] = cookieHandler.getNonce();
@@ -112,6 +117,7 @@ public class Pr0grammModule extends AbstractModule {
         OkHttpClient client = new OkHttpClient();
         client.setCache(new Cache(cacheDir, 100 * 1024 * 1024));
         client.setCookieHandler(cookieHandler);
+        client.setSocketFactory(new SmallBufferSocketFactory());
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
         client.networkInterceptors().add(chain -> {

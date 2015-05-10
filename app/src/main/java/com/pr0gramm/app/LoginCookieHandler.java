@@ -87,7 +87,7 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     private boolean isApiRequest(URI uri) {
-        return uri.getHost().equalsIgnoreCase("pr0gramm.com");
+        return uri.getHost().equalsIgnoreCase("pr0gramm.com") || uri.getHost().contains("mockable.io");
     }
 
     private void handleCookie(HttpCookie cookie) {
