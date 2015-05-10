@@ -6,16 +6,21 @@ import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.NewTag;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.api.pr0gramm.response.Upload;
 import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
 
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.Multipart;
 import retrofit.http.POST;
+import retrofit.http.Part;
 import retrofit.http.Query;
+import retrofit.mime.TypedOutput;
 import rx.Observable;
 
 /**
@@ -99,6 +104,17 @@ public interface Api {
             @Field("comment") String text,
             @Field("recipientId") int recipient);
 
+    @Multipart
+    @POST("/api/items/upload")
+    Observable<Upload> upload(@Part("image") TypedOutput file);
+
+    @FormUrlEncoded
+    @POST("/api/items/post")
+    Observable<Posted> post(@Field("_nonce") Nonce nonce,
+                            @Field("sfwstatus") String sfwStatus,
+                            @Field("tags") String tags,
+                            @Field("checkSimilar") int checkSimilar,
+                            @Field("key") String key);
 
     final class Nonce {
         public final String value;
