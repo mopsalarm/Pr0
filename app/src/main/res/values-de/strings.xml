@@ -203,4 +203,6 @@
     <string name="feedback_submit">Absenden</string>
     <string name="share">Teilen</string>
     <string name="feedback_title">Feedback</string>
+    <string name="pref_tag_cloud_view_summary">Alle Tags werden in mehreren Zeilen dargestellt</string>
+    <string name="pref_tag_cloud_view_title">Alle Tags anzeigen</string>
 </resources>
