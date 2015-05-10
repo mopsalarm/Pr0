@@ -1,5 +1,10 @@
 [
   {
+    "version": 40,
+    "type": "Neu",
+    "change": "Bei eigenen Uploads wird der Benis sofort angezeigt, nicht erst eine Stunde später."
+  },
+  {
     "version": 39,
     "type": "Neu",
     "change": "Tags können mehrzeilig angezeigt werden."

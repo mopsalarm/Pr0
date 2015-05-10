@@ -41,6 +41,7 @@ import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
@@ -117,6 +118,9 @@ public class PostFragment extends RoboFragment implements
 
     @Inject
     private ProxyService proxyService;
+
+    @Inject
+    private UserService userService;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -388,8 +392,13 @@ public class PostFragment extends RoboFragment implements
         infoLineView = new InfoLineView(getActivity());
         adapter.addView(infoLineView);
 
+
+        boolean isSelfPost = userService.getName()
+                .transform(name -> name.equalsIgnoreCase(feedItem.getUser()))
+                .or(false);
+
         // display the feed item in the view
-        infoLineView.setFeedItem(feedItem, bindFragment(this, cachedVote));
+        infoLineView.setFeedItem(feedItem, isSelfPost, bindFragment(this, cachedVote));
 
         infoLineView.setOnDetailClickedListener(this);
 

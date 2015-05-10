@@ -50,6 +50,7 @@ public class InfoLineView extends LinearLayout {
 
     private FeedItem feedItem;
     private TagVoteListener tagVoteListener;
+    private boolean isSelfPost;
 
     public InfoLineView(Context context) {
         this(context, null);
@@ -111,8 +112,9 @@ public class InfoLineView extends LinearLayout {
      * @param item The item to display
      * @param vote The vote that belongs to the given item.
      */
-    public void setFeedItem(FeedItem item, Observable<Vote> vote) {
+    public void setFeedItem(FeedItem item, boolean isSelfPost, Observable<Vote> vote) {
         this.feedItem = item;
+        this.isSelfPost = isSelfPost;
 
         // update the views!
         usernameView.setUsername(item.getUser(), item.getMark());
@@ -143,7 +145,7 @@ public class InfoLineView extends LinearLayout {
         if (feedItem == null)
             return;
 
-        if (isOneHourOld()) {
+        if (isOneHourOld() || isSelfPost) {
             int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
             ratingView.setText(String.valueOf(rating));
         } else {
