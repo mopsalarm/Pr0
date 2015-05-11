@@ -30,7 +30,7 @@
         <item>@string/downloadLocation_root</item>
     </string-array>
 
-    <string name="pref_downloadLocation_default">@string/pref_downloadLocation_value_downloads</string>
+    <string name="pref_downloadLocation_default" translatable="false">@string/pref_downloadLocation_value_downloads</string>
 
     <string name="pref_max_image_size_default" translatable="false">2048</string>
 

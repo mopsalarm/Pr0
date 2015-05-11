@@ -4,15 +4,27 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.RadioButton;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.ContentType;
@@ -29,6 +41,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Set;
 
 import roboguice.activity.RoboActionBarActivity;
@@ -61,6 +74,13 @@ public class UploadActivity extends RoboActionBarActivity {
 
     @InjectView(R.id.busy_indicator)
     private BusyIndicator busyIndicator;
+
+    @InjectView(R.id.tags)
+    private MultiAutoCompleteTextView tags;
+
+    @InjectView(R.id.scrollView)
+    private ScrollView scrollView;
+
     private File file;
 
 
@@ -73,7 +93,40 @@ public class UploadActivity extends RoboActionBarActivity {
         photoPickerIntent.setType("image/*");
         startActivityForResult(photoPickerIntent, REQ_SELECT_IMAGE);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // enable auto-complete
+        TagInputView.setup(tags);
+
+        // add the small print to the view
+        TextView smallPrintView = (TextView) findViewById(R.id.small_print);
+        int offset = getResources().getDimensionPixelSize(R.dimen.bullet_list_leading_margin);
+        smallPrintView.setText(AndroidUtility.makeBulletList(offset,
+                getResources().getStringArray(R.array.upload_small_print)));
+
         upload.setOnClickListener(v -> onUploadClicked());
+
+        // give the upload-button the primary-tint
+        int color = getResources().getColor(R.color.primary);
+        ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
+
+        DialogBuilder.start(this)
+                .content(R.string.upload_warning)
+                .positive(R.string.okay)
+                .show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void onUploadClicked() {
@@ -84,30 +137,49 @@ public class UploadActivity extends RoboActionBarActivity {
         busyIndicator.setProgress(0.f);
 
         // get those from UI
-        ContentType type = ContentType.SFW;
-        Set<String> tags = ImmutableSet.of("app");
+        ContentType type = getSelectedContentType();
+        Set<String> tags = ImmutableSet.copyOf(Splitter.on(",")
+                .trimResults().omitEmptyStrings()
+                .split(this.tags.getText().toString()));
 
-        bindActivity(this, uploadService.upload(file, type, tags))
-                .subscribe(status -> {
-                    if (status.isFinished()) {
-                        logger.info("finished! item id is {}", status.getId());
-                        upload.postDelayed(this::finish, 500);
+        logger.info("Start upload of type {} with tags {}", type, tags);
+        bindActivity(this, uploadService.upload(file, type, tags)).subscribe(status -> {
+            if (status.isFinished()) {
+                logger.info("finished! item id is {}", status.getId());
+                onUploadComplete(status.getId());
 
-                    } else if (status.getProgress() >= 0) {
-                        float progress = status.getProgress();
-                        logger.info("uploading, progress is {}", progress);
-                        busyIndicator.setProgress(progress);
+            } else if (status.getProgress() >= 0) {
+                float progress = status.getProgress();
+                logger.info("uploading, progress is {}", progress);
+                busyIndicator.setProgress(progress);
 
-                    } else {
-                        busyIndicator.spin();
-                    }
-                }, this::onUploadError);
+            } else {
+                logger.info("upload finished, posting now.");
+                busyIndicator.spin();
+            }
+        }, this::onUploadError);
+
+        // scroll back up
+        scrollView.fullScroll(View.FOCUS_UP);
+    }
+
+    private void onUploadComplete(long postId) {
+        logger.info("go to new post: {}", postId);
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("http://pr0gramm.com/new/" + postId));
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+
+        finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
+        logger.info("got response from image picker: rc={}, intent={}", resultCode, intent);
         if (requestCode == REQ_SELECT_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri image = intent.getData();
@@ -121,16 +193,20 @@ public class UploadActivity extends RoboActionBarActivity {
     private void handleImageUri(Uri image) {
         busyIndicator.setVisibility(View.VISIBLE);
 
+        logger.info("copy image to private memory");
         bindActivity(this, copy(image)).subscribe(this::onImageFile, this::onError);
     }
 
     private void onError(Throwable throwable) {
-        // TODO implement better error handling!!
-        throwable.printStackTrace();
+        logger.error("got some error loading the image", throwable);
+        AndroidUtility.logToCrashlytics(throwable);
         finish();
     }
 
     private void onUploadError(Throwable throwable) {
+        logger.error("got an upload error", throwable);
+        AndroidUtility.logToCrashlytics(throwable);
+
         upload.setEnabled(true);
         busyIndicator.setVisibility(View.GONE);
 
@@ -141,6 +217,7 @@ public class UploadActivity extends RoboActionBarActivity {
     private void onImageFile(File file) {
         this.file = file;
 
+        logger.info("loading image file into preview.");
         picasso.load(file).into(preview, new Callback() {
             @Override
             public void onSuccess() {
@@ -171,5 +248,21 @@ public class UploadActivity extends RoboActionBarActivity {
 
     private static File getTempFileUri(Context context) {
         return new File(context.getCacheDir(), "upload.jpg");
+    }
+
+    private ContentType getSelectedContentType() {
+        ImmutableMap<Integer, ContentType> types = ImmutableMap.<Integer, ContentType>builder()
+                .put(R.id.upload_type_sfw, ContentType.SFW)
+                .put(R.id.upload_type_nsfw, ContentType.NSFW)
+                .put(R.id.upload_type_nsfl, ContentType.NSFL)
+                .build();
+
+        for (Map.Entry<Integer, ContentType> entry : types.entrySet()) {
+            RadioButton button = (RadioButton) findViewById(entry.getKey());
+            if (button != null && button.isChecked())
+                return entry.getValue();
+        }
+
+        return ContentType.NSFL;
     }
 }

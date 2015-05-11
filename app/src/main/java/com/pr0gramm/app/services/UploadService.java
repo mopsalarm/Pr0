@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -43,7 +45,7 @@ public class UploadService {
 
             @Override
             public String mimeType() {
-                return "image/jpeg";
+                return isPngImage(file) ? "image/png" : "image/jpeg";
             }
 
             @Override
@@ -94,6 +96,7 @@ public class UploadService {
     private Observable<Posted> post(String key, ContentType contentType, Set<String> tags) {
         String sfwType = contentType.name().toLowerCase();
         String tagStr = FluentIterable.from(tags)
+                .filter(tag -> !INVALID_TAGS.contains(tag.toLowerCase()))
                 .append(sfwType)
                 .transform(String::trim)
                 .join(Joiner.on(","));
@@ -147,4 +150,25 @@ public class UploadService {
             return id;
         }
     }
+
+    @SuppressLint("NewApi")
+    private static boolean isPngImage(File file) {
+        try {
+            try (InputStream input = new FileInputStream(file)) {
+                // read the first four bytes to check file type
+                byte[] buffer = new byte[4];
+                ByteStreams.readFully(input, buffer);
+
+                // and compare to well known values
+                return buffer[0] == (byte) 0x89
+                        && buffer[1] == 'P' && buffer[2] == 'N' && buffer[3] == 'G';
+            }
+        } catch (Exception error) {
+            error.printStackTrace();
+            return false;
+        }
+    }
+
+    private static final ImmutableSet<Object> INVALID_TAGS = ImmutableSet.of(
+            "sfw", "nsfw", "nsfl", "gif", "webm");
 }

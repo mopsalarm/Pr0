@@ -2,6 +2,11 @@
   {
     "version": 40,
     "type": "Neu",
+    "change": "Unterstützung zum Upload von Bildern!"
+  },
+  {
+    "version": 40,
+    "type": "Neu",
     "change": "Bei eigenen Uploads wird der Benis sofort angezeigt, nicht erst eine Stunde später."
   },
   {

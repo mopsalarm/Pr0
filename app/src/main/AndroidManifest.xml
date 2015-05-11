@@ -115,7 +115,8 @@
         <activity
             android:name=".ui.UploadActivity"
             android:label="@string/upload_title"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.ActionBar"
+            android:screenOrientation="portrait"/>
 
     </application>
 

@@ -12,6 +12,11 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BulletSpan;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
@@ -159,5 +164,26 @@ public class AndroidUtility {
     public static Logger logger(Object instance) {
         String suffix = Integer.toString(System.identityHashCode(instance), Character.MAX_RADIX);
         return LoggerFactory.getLogger(instance.getClass().getSimpleName() + "-" + suffix);
+    }
+
+    /**
+     * Returns a CharSequence containing a bulleted and properly indented list.
+     *
+     * @param leadingMargin In pixels, the space between the left edge of the bullet and the left edge of the text.
+     * @param lines         An array of CharSequences. Each CharSequences will be a separate line/bullet-point.
+     */
+    public static CharSequence makeBulletList(int leadingMargin, CharSequence... lines) {
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        for (int idx = 0; idx < lines.length; idx++) {
+            boolean last = idx == lines.length - 1;
+            CharSequence line = lines[idx];
+
+            Spannable spannable = new SpannableString(line + (last ? "" : "\n"));
+            spannable.setSpan(new BulletSpan(leadingMargin), 0, spannable.length(),
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+            sb.append(spannable);
+        }
+        return sb;
     }
 }

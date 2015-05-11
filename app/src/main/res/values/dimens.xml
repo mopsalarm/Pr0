@@ -2,4 +2,6 @@
     <dimen name="user_type_circle_diameter">8sp</dimen>
     <dimen name="max_image_view_height">550dp</dimen>
     <dimen name="tag_gap_size">8dp</dimen>
+
+    <dimen name="bullet_list_leading_margin">16sp</dimen>
 </resources>
