@@ -208,4 +208,7 @@
     <string name="upload_tags">Tags</string>
     <string name="upload_title">Upload</string>
     <string name="upload_warning">Achtung, momentan wird nur das Hochladen von Bildern unterstützt. Diese Funktion ist experimentell. Über Feedback würde ich mich freuen!</string>
+    <string name="upload_checking_if_upload_is_allowed">Uploadlimit wird überprüft</string>
+    <string name="upload_not_allowed">Upload nicht erlaubt</string>
+    <string name="upload_not_allowed_description">Dein Uploadlimit ist für heute erreicht. Warte, bis du wieder einen Upload machen darfst. Dein Uploadlimit wird mit mehr Benis erhöht.</string>
 </resources>
