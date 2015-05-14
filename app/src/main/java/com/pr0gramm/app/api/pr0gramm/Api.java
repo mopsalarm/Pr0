@@ -104,6 +104,9 @@ public interface Api {
             @Field("comment") String text,
             @Field("recipientId") int recipient);
 
+    @GET("/api/items/ratelimited")
+    Observable<Nothing> ratelimited();
+
     @Multipart
     @POST("/api/items/upload")
     Observable<Upload> upload(@Part("image") TypedOutput file);

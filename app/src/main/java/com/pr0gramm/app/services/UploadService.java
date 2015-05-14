@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import retrofit.mime.TypedOutput;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -107,11 +109,30 @@ public class UploadService {
     public Observable<UploadInfo> upload(File file, ContentType sfw, Set<String> app) {
         return upload(file).flatMap(status -> {
             if (status.key != null) {
-                return post(status.key, sfw, app)
-                        .map(response -> new UploadInfo(response.getItemId()));
+                return post(status.key, sfw, app).map(
+                        response -> new UploadInfo(response.getItemId()));
             } else {
                 return Observable.just(status);
             }
+        });
+    }
+
+    /**
+     * Checks if the current user is rate limited. Returns true, if the user
+     * is not allowed to upload an image right now. Returns false, if the user is
+     * allowed to upload an image.
+     */
+    public Observable<Boolean> checkIsRateLimited() {
+        return api.ratelimited().map(v -> false).onErrorResumeNext(error -> {
+            if (error instanceof RetrofitError) {
+                // a http error code 403 tells us that the user is rate limited.
+                Response response = ((RetrofitError) error).getResponse();
+                if (response != null && response.getStatus() == 403)
+                    return Observable.just(true);
+            }
+
+            // just forward the error
+            return Observable.error(error);
         });
     }
 
