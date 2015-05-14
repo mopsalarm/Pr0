@@ -30,9 +30,7 @@
         <item name="android:drawablePadding">16dp</item>
     </style>
 
-    <style name="AppStyle.DrawerItem" parent="Base.AppStyle.DrawerItem">
-        <item name="android:textStyle">bold</item>
-    </style>
+    <style name="AppStyle.DrawerItem" parent="Base.AppStyle.DrawerItem"/>
 
     <style name="Base.AppStyle.OpBadge" parent="Base.TextAppearance.AppCompat.Caption">
         <item name="android:layout_width">wrap_content</item>
