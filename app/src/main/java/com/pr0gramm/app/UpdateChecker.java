@@ -123,7 +123,7 @@ public class UpdateChecker {
                 .build();
     }
 
-    private static interface UpdateApi {
+    private interface UpdateApi {
         @GET("/update.json")
         Update get();
     }
@@ -135,11 +135,11 @@ public class UpdateChecker {
         if (betaChannel) {
             return ImmutableList.of(
                     "https://github.com/mopsalarm/pr0gramm-updates/raw/beta",
-                    "http://pr0gramm.wibbly-wobbly.de/beta");
+                    "http://pr0.wibbly-wobbly.de/beta");
         } else {
             return ImmutableList.of(
                     "https://github.com/mopsalarm/pr0gramm-updates/raw/master",
-                    "http://pr0gramm.wibbly-wobbly.de/stable");
+                    "http://pr0.wibbly-wobbly.de/stable");
         }
     }
 }
