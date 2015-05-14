@@ -1,11 +1,16 @@
 [
   {
-    "version": 40,
+    "version": 42,
+    "type": "Fix",
+    "change": "Es wird geprüft, ob das Uploadlimit erreicht ist, bevor der Upload erlaubt wird."
+  },
+  {
+    "version": 41,
     "type": "Neu",
     "change": "Unterstützung zum Upload von Bildern!"
   },
   {
-    "version": 40,
+    "version": 41,
     "type": "Neu",
     "change": "Bei eigenen Uploads wird der Benis sofort angezeigt, nicht erst eine Stunde später."
   },

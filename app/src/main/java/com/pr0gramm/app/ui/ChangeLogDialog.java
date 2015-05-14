@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
@@ -68,6 +70,7 @@ public class ChangeLogDialog extends DialogFragment {
 
     private static class ChangeAdapter extends RecyclerView.Adapter<ChangeViewHolder> {
         private final List<Object> items;
+        private final int currentVersion = Pr0grammApplication.getPackageInfo().versionCode;
 
         ChangeAdapter(List<Change> changes) {
             int lastVersion = -1;
@@ -75,7 +78,7 @@ public class ChangeLogDialog extends DialogFragment {
             ImmutableList.Builder<Object> items = ImmutableList.builder();
             for (Change change : changes) {
                 if (change.version != lastVersion) {
-                    items.add("Version 1." + change.version);
+                    items.add(Version.of(change.version));
                     lastVersion = change.version;
                 }
 
@@ -90,12 +93,17 @@ public class ChangeLogDialog extends DialogFragment {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
             View view;
-            if (viewType == VIEW_TYPE_VERSION) {
-                view = inflater.inflate(R.layout.changelog_version, parent, false);
-            } else if (viewType == VIEW_TYPE_CHANGE) {
-                view = inflater.inflate(R.layout.changelog_change, parent, false);
-            } else {
-                throw new IllegalArgumentException("invalid view type: " + viewType);
+            switch (viewType) {
+                case VIEW_TYPE_VERSION:
+                    view = inflater.inflate(R.layout.changelog_version, parent, false);
+                    break;
+
+                case VIEW_TYPE_CHANGE:
+                    view = inflater.inflate(R.layout.changelog_change, parent, false);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("invalid view type: " + viewType);
             }
 
             return new ChangeViewHolder(view);
@@ -110,8 +118,11 @@ public class ChangeLogDialog extends DialogFragment {
                 holder.setText(change.type, change.change);
             }
 
-            if (item instanceof String) {
-                holder.setVersion((String) item);
+            if (item instanceof Version) {
+                Version version = (Version) item;
+                holder.setVersion(version.formatted);
+                holder.setTextColorId(version.number == currentVersion
+                        ? R.color.primary : R.color.primary_dark_material_light);
             }
         }
 
@@ -122,7 +133,7 @@ public class ChangeLogDialog extends DialogFragment {
 
         @Override
         public int getItemViewType(int position) {
-            return items.get(position) instanceof String ? VIEW_TYPE_VERSION : VIEW_TYPE_CHANGE;
+            return items.get(position) instanceof Version ? VIEW_TYPE_VERSION : VIEW_TYPE_CHANGE;
         }
 
         private static final int VIEW_TYPE_VERSION = 0;
@@ -153,12 +164,31 @@ public class ChangeLogDialog extends DialogFragment {
         public void setVersion(String version) {
             this.text.setText(version);
         }
+
+        public void setTextColorId(@ColorRes int textColorId) {
+            int color = itemView.getContext().getResources().getColor(textColorId);
+            this.text.setTextColor(color);
+        }
     }
 
-    private static class Change {
+    private static final class Change {
         int version;
         String type;
         String change;
+    }
+
+    private static final class Version {
+        final int number;
+        final String formatted;
+
+        public Version(int number, String formatted) {
+            this.number = number;
+            this.formatted = formatted;
+        }
+
+        public static Version of(int number) {
+            return new Version(number, "Version 1." + number);
+        }
     }
 
     @SuppressLint("NewApi")
