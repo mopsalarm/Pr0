@@ -18,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import roboguice.service.RoboIntentService;
+import rx.functions.Actions;
+
+import static com.pr0gramm.app.AndroidUtility.toOptional;
 
 /**
  */
@@ -45,10 +48,10 @@ public class SyncIntentService extends RoboIntentService {
         Stopwatch watch = Stopwatch.createStarted();
         try {
             logger.info("performing sync");
-            Optional<Sync> sync = userService.sync();
+            Optional<Sync> sync = toOptional(userService.sync());
 
             logger.info("updating info");
-            userService.info();
+            toOptional(userService.info());
 
             // print info!
             logger.info("finished without error after " + watch);

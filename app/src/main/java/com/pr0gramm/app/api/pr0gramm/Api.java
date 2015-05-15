@@ -80,10 +80,10 @@ public interface Api {
     Observable<Post> info(@Query("itemId") long itemId);
 
     @GET("/api/user/sync")
-    Sync sync(@Query("lastId") long lastId);
+    Observable<Sync> sync(@Query("lastId") long lastId);
 
     @GET("/api/profile/info")
-    Info info(@Query("name") String name);
+    Observable<Info> info(@Query("name") String name);
 
     @GET("/api/inbox/all")
     Observable<MessageFeed> inboxAll();

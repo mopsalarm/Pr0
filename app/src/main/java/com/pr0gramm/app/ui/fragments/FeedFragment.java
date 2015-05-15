@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,8 +22,10 @@ import android.widget.ImageView;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
@@ -30,16 +33,20 @@ import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SeenService;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
+import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +55,7 @@ import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import rx.Observable;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
@@ -59,7 +67,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
-public class FeedFragment extends RoboFragment {
+public class FeedFragment extends RoboFragment implements UserInfoCell.UserActionListener {
     private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
@@ -92,16 +100,22 @@ public class FeedFragment extends RoboFragment {
     @InjectView(R.id.empty)
     private View noResultsView;
 
-    private FeedAdapter adapter;
+    private MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter;
+    private FeedAdapter feedAdapter;
     private GridLayoutManager layoutManager;
     private IndicatorStyle seenIndicatorStyle;
 
     @Inject
     private BookmarkService bookmarkService;
 
+    @Inject
+    private UserService userService;
+
     private boolean bookmarkable;
     private Optional<Long> autoOpenOnLoad = Optional.absent();
     private Optional<Long> autoScrollOnLoad = Optional.absent();
+
+    private Observable<Info> userInfoObservable;
 
     /**
      * Initialize a new feed fragment.
@@ -131,32 +145,41 @@ public class FeedFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (adapter == null) {
+        if (feedAdapter == null) {
             if (busyIndicator != null)
                 busyIndicator.setVisibility(View.VISIBLE);
 
             // create a new adapter if necessary
-            adapter = newFeedAdapter();
+            feedAdapter = newFeedAdapter();
+            startQueryForUser();
 
         } else {
             updateNoResultsTextView();
             removeBusyIndicator();
         }
 
+
         seenIndicatorStyle = settings.seenIndicatorStyle();
 
         // prepare the list of items
-        int count = getThumbnailColumns();
-        layoutManager = new GridLayoutManager(getActivity(), count);
+        int columnCount = getThumbnailColumns();
+        layoutManager = new GridLayoutManager(getActivity(), columnCount);
+        layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(1, columnCount));
+
+        adapter = new MergeRecyclerAdapter<>();
+        adapter.addView(newFeedStartPaddingView());
+        adapter.addAdapter(feedAdapter);
+        addUserInfoToAdapter(columnCount);
+
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
         recyclerView.setAdapter(adapter);
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.setCanSwipeUpPredicate(() -> !adapter.getFeedProxy().isAtStart());
+        swipeRefreshLayout.setCanSwipeUpPredicate(() -> !feedAdapter.getFeedProxy().isAtStart());
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            FeedProxy proxy = adapter.getFeedProxy();
+            FeedProxy proxy = feedAdapter.getFeedProxy();
             if (proxy.isAtStart() && !proxy.isLoading()) {
                 proxy.restart(Optional.<Long>absent());
             } else {
@@ -173,6 +196,35 @@ public class FeedFragment extends RoboFragment {
         resetToolbar();
 
         recyclerView.addOnScrollListener(onScrollListener);
+    }
+
+    private void addUserInfoToAdapter(int columnCount) {
+        bindFragment(this, userInfoObservable.limit(1)).subscribe(userInfo -> {
+            UserInfoCell userInfoCell = new UserInfoCell(getActivity(), userInfo);
+            userInfoCell.setUserActionListener(FeedFragment.this);
+
+            // add views to adapter.
+            List<View> views = Collections.singletonList(userInfoCell);
+            adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
+            layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
+        });
+    }
+
+    private View newFeedStartPaddingView() {
+        int height = AndroidUtility.getActionBarSize(getActivity());
+
+        View view = new View(getActivity());
+        view.setLayoutParams(new ViewGroup.LayoutParams(1, height));
+        return view;
+    }
+
+    private void startQueryForUser() {
+        Optional<String> username = getFilterArgument().getUsername().or(getFilterArgument().getTags());
+        if (username.isPresent()) {
+            userInfoObservable = userService.info(username.get()).onErrorResumeNext(Observable.<Info>empty());
+        } else {
+            userInfoObservable = Observable.empty();
+        }
     }
 
     @Override
@@ -205,13 +257,17 @@ public class FeedFragment extends RoboFragment {
 
     private FeedAdapter newFeedAdapter() {
         logger.info("Restore adapter now");
-        FeedFilter feedFilter = getArguments()
-                .<FeedFilter>getParcelable(ARG_FEED_FILTER)
-                .withContentType(settings.getContentType());
+        FeedFilter feedFilter = getFilterArgument();
 
         long startAround = getArguments().getLong(ARG_FEED_START, -1);
         Optional<Long> around = Optional.fromNullable(startAround > 0 ? startAround : null);
         return new FeedAdapter(feedFilter, around);
+    }
+
+    private FeedFilter getFilterArgument() {
+        return getArguments()
+                .<FeedFilter>getParcelable(ARG_FEED_FILTER)
+                .withContentType(settings.getContentType());
     }
 
     @Override
@@ -225,7 +281,7 @@ public class FeedFragment extends RoboFragment {
         }
 
         // check if content type has changed, and reload if necessary
-        FeedFilter feedFilter = adapter.getFilter();
+        FeedFilter feedFilter = feedAdapter.getFilter();
         EnumSet<ContentType> newContentType = settings.getContentType();
         boolean changed = !equal(feedFilter.getContentTypes(), newContentType);
         if (changed) {
@@ -233,14 +289,14 @@ public class FeedFragment extends RoboFragment {
 
             // set a new adapter if we have a new content type
             FeedFilter filter = feedFilter.withContentType(newContentType);
-            adapter = new FeedAdapter(filter, autoScrollOnLoad = around);
-            recyclerView.setAdapter(adapter);
+            feedAdapter = new FeedAdapter(filter, autoScrollOnLoad = around);
+            recyclerView.setAdapter(feedAdapter);
         }
 
         // set new indicator style
         if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
             seenIndicatorStyle = settings.seenIndicatorStyle();
-            adapter.notifyDataSetChanged();
+            feedAdapter.notifyDataSetChanged();
         }
     }
 
@@ -250,7 +306,7 @@ public class FeedFragment extends RoboFragment {
      * @param contentType The target-content type.
      */
     private Optional<FeedItem> findFirstVisibleItem(Set<ContentType> contentType) {
-        List<FeedItem> items = adapter.getFeedProxy().getItems();
+        List<FeedItem> items = feedAdapter.getFeedProxy().getItems();
 
         int idx = layoutManager.findFirstVisibleItemPosition();
         if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
@@ -323,7 +379,7 @@ public class FeedFragment extends RoboFragment {
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.postDelayed(() -> {
             resetToolbar();
-            adapter.getFeedProxy().restart(Optional.<Long>absent());
+            feedAdapter.getFeedProxy().restart(Optional.<Long>absent());
         }, 500);
     }
 
@@ -377,7 +433,7 @@ public class FeedFragment extends RoboFragment {
 
     private void onItemClicked(int idx) {
         try {
-            ((MainActionHandler) getActivity()).onPostClicked(adapter.getFeedProxy(), idx);
+            ((MainActionHandler) getActivity()).onPostClicked(feedAdapter.getFeedProxy(), idx);
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }
@@ -408,10 +464,16 @@ public class FeedFragment extends RoboFragment {
      * @return The filter this feed uses.
      */
     public FeedFilter getCurrentFilter() {
-        if (adapter == null)
+        if (feedAdapter == null)
             return new FeedFilter();
 
-        return adapter.getFilter();
+        return feedAdapter.getFilter();
+    }
+
+    @Override
+    public void onWriteMessageClicked(int userId, String name) {
+        DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
+        dialog.show(getFragmentManager(), null);
     }
 
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
@@ -474,9 +536,6 @@ public class FeedFragment extends RoboFragment {
 
             view.itemView.setOnClickListener(v -> onItemClicked(position));
 
-            int row = position / layoutManager.getSpanCount();
-            view.itemView.setPadding(0, row == 0 ? AndroidUtility.getActionBarSize(getActivity()) : 0, 0, 0);
-
             // check if this item was already seen.
             if (seenIndicatorStyle == IndicatorStyle.ICON) {
                 view.seen.setVisibility(seenService.isSeen(item) ? View.VISIBLE : View.GONE);
@@ -507,7 +566,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void updateNoResultsTextView() {
-        boolean empty = adapter.getItemCount() == 0;
+        boolean empty = feedAdapter.getItemCount() == 0;
         noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
@@ -535,9 +594,9 @@ public class FeedFragment extends RoboFragment {
     private int findItemIndexById(long id) {
         // look for the index of the item with the given id
         return FluentIterable
-                .from(adapter.getFeedProxy().getItems())
+                .from(feedAdapter.getFeedProxy().getItems())
                 .firstMatch(item -> item.getId() == id)
-                .transform(item -> adapter.getFeedProxy().getPosition(item).or(-1))
+                .transform(item -> feedAdapter.getFeedProxy().getPosition(item).or(-1))
                 .or(-1);
     }
 
@@ -550,7 +609,7 @@ public class FeedFragment extends RoboFragment {
             }
 
             int totalItemCount = layoutManager.getItemCount();
-            FeedProxy proxy = adapter.getFeedProxy();
+            FeedProxy proxy = feedAdapter.getFeedProxy();
             if (proxy.isLoading())
                 return;
 

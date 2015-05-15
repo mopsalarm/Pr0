@@ -1,6 +1,11 @@
 [
   {
     "version": 43,
+    "type": "Neu",
+    "change": "Erste Informationen über andere Benutzer werden angezeigt."
+  },
+  {
+    "version": 43,
     "type": "Fix",
     "change": "Wenn eine Netzwerkanfrage fehlgeschlagen ist, wird sie bis zu zweimal wiederholt."
   },

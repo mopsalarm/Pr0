@@ -239,4 +239,5 @@
     <string name="upload_checking_if_upload_is_allowed">Checking if upload is allowed</string>
     <string name="upload_not_allowed">Upload not allowed</string>
     <string name="upload_not_allowed_description">Limit for today is reached. You need to wait until you are allowed to do another upload (a longer benis is required alternatively!)</string>
+    <string name="dummy_date">3. Mai 2014</string>
 </resources>

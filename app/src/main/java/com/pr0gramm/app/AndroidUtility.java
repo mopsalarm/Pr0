@@ -19,6 +19,7 @@ import android.text.Spanned;
 import android.text.style.BulletSpan;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import roboguice.inject.InjectView;
+import rx.Observable;
 
 /**
  */
@@ -185,5 +187,13 @@ public class AndroidUtility {
             sb.append(spannable);
         }
         return sb;
+    }
+
+    /**
+     * Converts the observable into an optional.
+     */
+    public static <T> Optional<T> toOptional(Observable<T> observable) {
+        T element = observable.toBlocking().singleOrDefault(null);
+        return Optional.fromNullable(element);
     }
 }

@@ -72,20 +72,19 @@ public class UserService {
     }
 
     public Observable<Login> login(String username, String password) {
-        return api.login(username, password).map(response -> {
+        return api.login(username, password).flatMap(response -> {
+            Observable<Login> result;
             if (response.isSuccess()) {
                 // wait for the first sync to complete.
-                sync();
+                result = sync().concatMap(ignored -> info())
+                        .ignoreElements()
+                        .cast(Login.class);
 
-                // get info about the current user
-                Optional<Info> info = info();
-                if (!info.isPresent())
-                    throw new IllegalStateException("Login successful, but info could not be loaded");
-
-                loginStateObservable.onNext(createLoginState(info));
+            } else {
+                result = Observable.empty();
             }
 
-            return response;
+            return result.concatWith(Observable.just(response));
         });
     }
 
@@ -139,32 +138,31 @@ public class UserService {
      * <p>
      * Someone needs to subscribe to the returned observable.
      */
-    public Optional<Sync> sync() {
+    public Observable<Sync> sync() {
         checkNotMainThread();
         if (!isAuthorized())
-            return Optional.absent();
+            return Observable.empty();
 
         // tell the sync request where to start
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
-        Sync response = api.sync(lastSyncId);
+        return api.sync(lastSyncId).map(response -> {
+            // store syncId for next time.
+            if (response.getLastId() > lastSyncId) {
+                preferences.edit()
+                        .putLong(KEY_LAST_SYNC_ID, response.getLastId())
+                        .apply();
+            }
 
-        // store syncId for next time.
-        if (response.getLastId() > lastSyncId) {
-            preferences.edit()
-                    .putLong(KEY_LAST_SYNC_ID, response.getLastId())
-                    .apply();
-        }
-
-        // and apply votes now
-        voteService.applyVoteActions(response.getLog());
-        return Optional.of(response);
+            // and apply votes now
+            voteService.applyVoteActions(response.getLog());
+            return response;
+        });
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    public Info info(String username) {
-        checkNotMainThread();
+    public Observable<Info> info(String username) {
         return api.info(username);
     }
 
@@ -174,29 +172,24 @@ public class UserService {
      *
      * @return The info, if the user is currently signed in.
      */
-    public Optional<Info> info() {
-        checkNotMainThread();
-
-        Optional<Info> info = getName().transform(this::info);
-        if (info.isPresent()) {
-            Info.User user = info.get().getUser();
+    public Observable<Info> info() {
+        return Observable.from(getName().asSet()).flatMap(this::info).map(info -> {
+            Info.User user = info.getUser();
 
             // stores the current benis value
             BenisRecord record = new BenisRecord(Instant.now(), user.getScore());
             record.save();
 
             // updates the login state and ui
-            loginStateObservable.onNext(createLoginState(info));
-        }
-
-        return info;
+            loginStateObservable.onNext(createLoginState(Optional.of(info)));
+            return info;
+        });
     }
 
     private LoginState createLoginState(Optional<Info> info) {
         checkNotMainThread();
 
         Graph benisHistory = loadBenisHistory();
-
         return new LoginState(info.get(), benisHistory);
     }
 
