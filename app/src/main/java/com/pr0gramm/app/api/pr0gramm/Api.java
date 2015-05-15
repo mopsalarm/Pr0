@@ -16,6 +16,7 @@ import com.pr0gramm.app.feed.Nothing;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.HEAD;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
@@ -78,7 +79,6 @@ public interface Api {
     @GET("/api/items/info")
     Observable<Post> info(@Query("itemId") long itemId);
 
-
     @GET("/api/user/sync")
     Sync sync(@Query("lastId") long lastId);
 
@@ -104,7 +104,7 @@ public interface Api {
             @Field("comment") String text,
             @Field("recipientId") int recipient);
 
-    @GET("/api/items/ratelimited")
+    @HEAD("/api/items/ratelimited")
     Observable<Nothing> ratelimited();
 
     @Multipart

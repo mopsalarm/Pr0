@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.reflect.Reflection;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
@@ -30,11 +31,15 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
+import retrofit.http.GET;
 import roboguice.inject.SharedPreferencesName;
 import rx.Observable;
 
@@ -94,13 +99,42 @@ public class Pr0grammModule extends AbstractModule {
                 }
             }
 
-            // forward method call
+            if (method.getReturnType() == Observable.class) {
+                // check if this is a get for retry.
+                GET get = method.getAnnotation(GET.class);
+                final int retryCount = get != null ? 2 : 0;
+
+                return invokeWithRetry(api, method, args, retryCount);
+            }
+
             try {
                 return method.invoke(api, args);
-            } catch (InvocationTargetException err) {
-                throw err.getCause();
+            } catch (InvocationTargetException targetError) {
+                throw targetError.getCause();
             }
         });
+    }
+
+    @SuppressWarnings({"unchecked", "RedundantCast"})
+    private static Observable<Object> invokeWithRetry(Api api, Method method, Object[] args, int retryCount)
+            throws IllegalAccessException, InvocationTargetException {
+
+        Observable<Object> result = (Observable<Object>) method.invoke(api, args);
+        for (int i = 0; i < retryCount; i++) {
+            result = result.onErrorResumeNext(ignored -> {
+                try {
+                    // give the server a small grace period before trying again.
+                    Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+
+                    logger.warn("perform retry, calling method {} again", method);
+                    return (Observable<Object>) method.invoke(api, args);
+                } catch (Exception error) {
+                    return Observable.error(error);
+                }
+            });
+        }
+
+        return result;
     }
 
     @Provides
@@ -178,5 +212,16 @@ public class Pr0grammModule extends AbstractModule {
     @SharedPreferencesName
     public String sharedPreferencesName() {
         return "pr0gramm";
+    }
+
+    private static boolean isNetworkError(Throwable error) {
+        if (error instanceof RetrofitError) {
+            RetrofitError httpError = (RetrofitError) error;
+
+            RetrofitError.Kind kind = httpError.getKind();
+            return kind == RetrofitError.Kind.HTTP || kind == RetrofitError.Kind.NETWORK;
+        }
+
+        return false;
     }
 }
