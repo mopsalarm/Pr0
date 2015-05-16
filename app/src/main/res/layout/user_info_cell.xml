@@ -3,9 +3,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/background_material_dark"
-                android:elevation="8dp"
-                android:paddingBottom="12dp">
+                android:background="@color/background_material_dark">
 
     <com.pr0gramm.app.ui.views.UsernameView
         android:id="@+id/username"
@@ -169,4 +167,11 @@
             android:textColor="@color/primary"
             tools:ignore="HardcodedText"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@id/user_info_last_row"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/dropshadow_reverse"/>
 </RelativeLayout>
