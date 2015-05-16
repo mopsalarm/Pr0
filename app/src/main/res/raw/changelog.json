@@ -1,5 +1,25 @@
 [
   {
+    "version": 44,
+    "type": "Neu",
+    "change": "Wenn man nach einem Benutzer in den Tags sucht, bekommt man die Möglichkeit zu dessen Uploads zu gehen."
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Hinzufügen-Button für Tags mit den Tags scrollbar gemacht für mehr Platz!"
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Bessere Fehlerbehandlung bei Uploads."
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Deaktiviere die Ansicht während ein Bild hochgeladen wird."
+  },
+  {
     "version": 43,
     "type": "Neu",
     "change": "Erste Informationen über andere Benutzer werden angezeigt."

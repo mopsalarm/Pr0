@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -55,6 +56,7 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static rx.android.observables.AndroidObservable.bindActivity;
 import static rx.android.observables.AndroidObservable.bindFragment;
@@ -95,7 +97,14 @@ public class UploadActivity extends RoboActionBarActivity {
     }
 
     private void onError(Throwable throwable) {
-        finish();
+        showSomethingWentWrong();
+    }
+
+    private void showSomethingWentWrong() {
+        Fragment fragment = new SomethingWentWrongFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 
     private void showUploadLimitReached() {
@@ -146,6 +155,9 @@ public class UploadActivity extends RoboActionBarActivity {
         @InjectView(R.id.scrollView)
         private ScrollView scrollView;
 
+        @InjectView(R.id.content_type_group)
+        private RadioGroup contentTypeGroup;
+
         private File file;
 
 
@@ -182,7 +194,8 @@ public class UploadActivity extends RoboActionBarActivity {
         private void onUploadClicked() {
             checkState(file != null, "File must be set on the activity");
 
-            upload.setEnabled(false);
+            setFormEnabled(false);
+
             busyIndicator.setVisibility(View.VISIBLE);
             busyIndicator.setProgress(0.f);
 
@@ -211,6 +224,16 @@ public class UploadActivity extends RoboActionBarActivity {
 
             // scroll back up
             scrollView.fullScroll(View.FOCUS_UP);
+        }
+
+        private void setFormEnabled(boolean enabled) {
+            upload.setEnabled(enabled);
+            tags.setEnabled(enabled);
+
+            for (int idx = 0; idx < contentTypeGroup.getChildCount(); idx++) {
+                View view = contentTypeGroup.getChildAt(idx);
+                view.setEnabled(enabled);
+            }
         }
 
         private void onUploadComplete(long postId) {
@@ -254,14 +277,24 @@ public class UploadActivity extends RoboActionBarActivity {
         }
 
         private void onUploadError(Throwable throwable) {
-            logger.error("got an upload error", throwable);
-            AndroidUtility.logToCrashlytics(throwable);
-
-            upload.setEnabled(true);
+            setFormEnabled(true);
             busyIndicator.setVisibility(View.GONE);
 
-            String str = ErrorFormatting.getFormatter(throwable).getMessage(getActivity(), throwable);
-            ErrorDialogFragment.showErrorString(getFragmentManager(), str);
+            if (throwable instanceof UploadService.UploadFailedException) {
+                String cause = ((UploadService.UploadFailedException) throwable).getErrorCode();
+                String causeText = getUploadFailureText(getActivity(), cause);
+                DialogBuilder.start(getActivity())
+                        .content(causeText)
+                        .positive(R.string.okay)
+                        .show();
+
+            } else {
+                logger.error("got an upload error", throwable);
+                AndroidUtility.logToCrashlytics(throwable);
+
+                String str = ErrorFormatting.getFormatter(throwable).getMessage(getActivity(), throwable);
+                ErrorDialogFragment.showErrorString(getFragmentManager(), str);
+            }
         }
 
         private void onImageFile(File file) {
@@ -339,5 +372,26 @@ public class UploadActivity extends RoboActionBarActivity {
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_upload_limit_reached, container, false);
         }
+    }
+
+    public static class SomethingWentWrongFragment extends Fragment {
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_upload_something_went_wrong, container, false);
+        }
+    }
+
+    private static String getUploadFailureText(Context context, String reason) {
+        Integer textId = ImmutableMap.<String, Integer>builder()
+                .put("blacklisted", R.string.upload_error_blacklisted)
+                .put("internal", R.string.upload_error_internal)
+                .put("invalid", R.string.upload_error_invalid)
+                .put("download", R.string.upload_error_download_failed)
+                .put("exists", R.string.upload_error_exists)
+                .build()
+                .get(reason);
+
+        return context.getString(firstNonNull(textId, R.string.upload_error_unknown));
     }
 }

@@ -101,6 +101,7 @@ public class UploadService {
                 .filter(tag -> !INVALID_TAGS.contains(tag.toLowerCase()))
                 .append(sfwType)
                 .transform(String::trim)
+                .filter(tag -> !"sfw".equals(tag.toLowerCase()))
                 .join(Joiner.on(","));
 
         return api.post(null, sfwType, tagStr, 0, key);
@@ -109,8 +110,13 @@ public class UploadService {
     public Observable<UploadInfo> upload(File file, ContentType sfw, Set<String> app) {
         return upload(file).flatMap(status -> {
             if (status.key != null) {
-                return post(status.key, sfw, app).map(
-                        response -> new UploadInfo(response.getItemId()));
+                return post(status.key, sfw, app).flatMap(response -> {
+                    if (response.getError() != null) {
+                        return Observable.error(new UploadFailedException(response.getError()));
+                    } else {
+                        return Observable.just(new UploadInfo(response.getItemId()));
+                    }
+                });
             } else {
                 return Observable.just(status);
             }
@@ -192,4 +198,14 @@ public class UploadService {
 
     private static final ImmutableSet<Object> INVALID_TAGS = ImmutableSet.of(
             "sfw", "nsfw", "nsfl", "gif", "webm");
+
+    public static final class UploadFailedException extends Exception {
+        public UploadFailedException(String message) {
+            super(message);
+        }
+
+        public String getErrorCode() {
+            return getMessage();
+        }
+    }
 }

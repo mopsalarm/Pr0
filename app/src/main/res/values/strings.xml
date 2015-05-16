@@ -248,4 +248,12 @@
     <string name="userinfo_tags">Tags</string>
     <string name="userinfo_comments">Comments</string>
     <string name="dialog_action_add">Add</string>
+    <string name="upload_error_blacklisted">This image is blacklisted from pr0gramm.</string>
+    <string name="upload_error_internal">Internal error - cha0s fucked up here.</string>
+    <string name="upload_error_invalid">The image is invalid. Maybe too large?</string>
+    <string name="upload_error_download_failed">Download of your image url failed.</string>
+    <string name="upload_error_exists">This upload already exists. I have just saved you from a repost. Say thanks.</string>
+    <string name="upload_error_unknown">An unknown error occurred during upload.</string>
+    <string name="upload_something_went_wrong">Something went wrong</string>
+    <string name="upload_just_try_again">Best thing to do is just to try again.</string>
 </resources>

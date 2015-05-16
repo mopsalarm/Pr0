@@ -220,4 +220,12 @@
     <string name="userinfo_since">seit</string>
     <string name="userinfo_tags">Tags</string>
     <string name="userinfo_uploads">Uploads</string>
+    <string name="upload_error_blacklisted">Dieses Bild ist auf pr0gramm nicht (mehr) erlaubt.</string>
+    <string name="upload_error_download_failed">Download über die URL ist fehlgeschlagen.</string>
+    <string name="upload_error_exists">Dieser Upload existiert bereits und einen Repost möchtest du doch nicht machen, oder? </string>
+    <string name="upload_error_internal">Interner Fehler - cha0s hat vermutlich versagt.</string>
+    <string name="upload_error_invalid">Das Bild ist ungültig. Vielleicht ist es zu groß?</string>
+    <string name="upload_error_unknown">Ein mir unbekannter Fehler ist beim Upload aufgetreten.</string>
+    <string name="upload_just_try_again">Am besten probierst du es jetzt einfach nochmal.</string>
+    <string name="upload_something_went_wrong">Irgendwas ist schief gelaufen.</string>
 </resources>
