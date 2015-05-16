@@ -37,6 +37,7 @@ import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -431,13 +432,13 @@ public class MainActivity extends RoboActionBarActivity implements
         @Override
         public void run() {
             Instant now = Instant.now();
-            if (Minutes.minutesBetween(lastUpdate, now).getMinutes() > 4) {
+            if (Seconds.secondsBetween(lastUpdate, now).getSeconds() > 45) {
                 Intent intent = new Intent(MainActivity.this, SyncBroadcastReceiver.class);
                 MainActivity.this.sendBroadcast(intent);
             }
 
             // reschedule
-            Duration delay = Minutes.minutes(5).toStandardDuration();
+            Duration delay = Minutes.minutes(1).toStandardDuration();
             handler.postDelayed(this, delay.getMillis());
 
             // and remember the last update time
