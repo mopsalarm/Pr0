@@ -121,6 +121,8 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
             View view = recycler.getViewForPosition(idx);
             removeMarginsFromView(view);
             sizes.add(measureChildUnspecified(view));
+
+            detachView(view);
             recycler.recycleView(view);
         }
 

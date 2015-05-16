@@ -1,5 +1,15 @@
 [
   {
+    "version": 45,
+    "type": "Info",
+    "change": "Dies ist nur ein Bugfixrelease. Entschuldigt. Bitte weiter unten für die Neuigkeiten gucken."
+  },
+  {
+    "version": 45,
+    "type": "Fix",
+    "change": "Absturz beim Voten von Kommentaren gefixt."
+  },
+  {
     "version": 44,
     "type": "Neu",
     "change": "Wenn man nach einem Benutzer in den Tags sucht, bekommt man die Möglichkeit zu dessen Uploads zu gehen."
