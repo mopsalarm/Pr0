@@ -427,7 +427,7 @@ public class PostFragment extends RoboFragment implements
             return doIfAuthorized(PostFragment.this, action, action);
         });
 
-        infoLineView.getAddTagView().setOnClickListener(v -> {
+        infoLineView.setOnAddTagClickedListener(() -> {
             NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
         });

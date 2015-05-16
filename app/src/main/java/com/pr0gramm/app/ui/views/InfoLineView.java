@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
+import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -42,7 +44,6 @@ public class InfoLineView extends LinearLayout {
     private final UsernameView usernameView;
     private final RecyclerView tagsView;
     private final TextView voteFavoriteView;
-    private final TextView addTagView;
 
     private final Settings settings;
     private OnDetailClickedListener onDetailClickedListener;
@@ -51,6 +52,7 @@ public class InfoLineView extends LinearLayout {
     private FeedItem feedItem;
     private TagVoteListener tagVoteListener;
     private boolean isSelfPost;
+    private Runnable onAddTagClickedListener;
 
     public InfoLineView(Context context) {
         this(context, null);
@@ -73,7 +75,6 @@ public class InfoLineView extends LinearLayout {
         dateView = (TextView) findViewById(R.id.date);
         voteView = (VoteView) findViewById(R.id.voting);
         voteFavoriteView = (TextView) findViewById(R.id.favorite);
-        addTagView = (TextView) findViewById(R.id.add_tag);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
 
@@ -166,7 +167,27 @@ public class InfoLineView extends LinearLayout {
                 .onResultOf(Tag::getConfidence)
                 .sortedCopy(tags.keySet());
 
-        tagsView.setAdapter(new TagsAdapter(sorted, tags));
+        View addTagView = LayoutInflater.from(getContext()).inflate(R.layout.tags_add, null);
+        addTagView.setOnClickListener(v -> {
+            if (onAddTagClickedListener != null) {
+                onAddTagClickedListener.run();
+            }
+        });
+
+        addTagView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        int spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        addTagView.measure(spec, spec);
+
+        int height = addTagView.getMeasuredHeight();
+        tagsView.setMinimumHeight(height);
+
+        MergeRecyclerAdapter<RecyclerView.Adapter> adapter = new MergeRecyclerAdapter<>();
+        adapter.addView(addTagView);
+        adapter.addAdapter(new TagsAdapter(sorted, tags));
+        tagsView.setAdapter(adapter);
     }
 
     public void setOnDetailClickedListener(OnDetailClickedListener onDetailClickedListener) {
@@ -181,8 +202,8 @@ public class InfoLineView extends LinearLayout {
         this.tagVoteListener = tagVoteListener;
     }
 
-    public TextView getAddTagView() {
-        return addTagView;
+    public void setOnAddTagClickedListener(Runnable onAddTagClickedListener) {
+        this.onAddTagClickedListener = onAddTagClickedListener;
     }
 
     public boolean isOneHourOld() {
