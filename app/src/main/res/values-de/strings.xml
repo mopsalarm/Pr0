@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_add_tag">Neu</string>
+    <string name="dialog_action_add">Hinzufügen</string>
     <string name="action_favorites">FAVORITEN</string>
     <string name="action_feed_type_new">NEU</string>
     <string name="action_feed_type_promoted">TOP</string>

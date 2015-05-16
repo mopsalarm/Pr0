@@ -50,7 +50,7 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
                 .title(R.string.add_new_comment_title)
                 .content(view, true)
                 .negative(R.string.cancel)
-                .positive(R.string.action_add_tag, this::onOkayClicked)
+                .positive(R.string.dialog_action_add, this::onOkayClicked)
                 .build();
     }
 
