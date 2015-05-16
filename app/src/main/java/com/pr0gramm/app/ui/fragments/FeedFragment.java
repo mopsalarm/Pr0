@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
@@ -41,6 +42,7 @@ import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
+import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
@@ -116,6 +118,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private Optional<Long> autoScrollOnLoad = Optional.absent();
 
     private Observable<Info> userInfoObservable;
+    private Function<Info, View> userInfoViewSupplier;
 
     /**
      * Initialize a new feed fragment.
@@ -151,13 +154,11 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
             // create a new adapter if necessary
             feedAdapter = newFeedAdapter();
-            startQueryForUser();
 
         } else {
             updateNoResultsTextView();
             removeBusyIndicator();
         }
-
 
         seenIndicatorStyle = settings.seenIndicatorStyle();
 
@@ -199,12 +200,45 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private void addUserInfoToAdapter(int columnCount) {
-        bindFragment(this, userInfoObservable.limit(1)).subscribe(userInfo -> {
-            UserInfoCell userInfoCell = new UserInfoCell(getActivity(), userInfo);
-            userInfoCell.setUserActionListener(FeedFragment.this);
+        if (userInfoObservable == null) {
+            FeedFilter filter = getCurrentFilter();
+            if (filter.getUsername().isPresent()) {
+                String username = filter.getUsername().get();
+                userInfoObservable = userService.info(username)
+                        .onErrorResumeNext(Observable.<Info>empty())
+                        .cache();
+
+                userInfoViewSupplier = info -> {
+                    UserInfoCell view = new UserInfoCell(getActivity(), info);
+                    view.setUserActionListener(FeedFragment.this);
+                    return view;
+                };
+
+            } else if (filter.getTags().isPresent()) {
+                String query = filter.getTags().get();
+                userInfoObservable = userService.info(query)
+                        .onErrorResumeNext(Observable.<Info>empty())
+                        .cache();
+
+                userInfoViewSupplier = info -> {
+                    UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
+                    view.setUploadsClickedListener((userId, name) -> {
+                        FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
+                        ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
+                    });
+                    return view;
+                };
+
+            } else {
+                userInfoObservable = Observable.empty();
+            }
+        }
+
+        bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
+            View userView = userInfoViewSupplier.apply(info);
 
             // add views to adapter.
-            List<View> views = Collections.singletonList(userInfoCell);
+            List<View> views = Collections.singletonList(userView);
             adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
             layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
         });
@@ -216,15 +250,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         View view = new View(getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(1, height));
         return view;
-    }
-
-    private void startQueryForUser() {
-        Optional<String> username = getFilterArgument().getUsername().or(getFilterArgument().getTags());
-        if (username.isPresent()) {
-            userInfoObservable = userService.info(username.get()).onErrorResumeNext(Observable.<Info>empty());
-        } else {
-            userInfoObservable = Observable.empty();
-        }
     }
 
     @Override

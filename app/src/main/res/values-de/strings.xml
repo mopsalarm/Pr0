@@ -211,4 +211,12 @@
     <string name="upload_checking_if_upload_is_allowed">Uploadlimit wird überprüft</string>
     <string name="upload_not_allowed">Upload nicht erlaubt</string>
     <string name="upload_not_allowed_description">Dein Uploadlimit ist für heute erreicht. Warte, bis du wieder einen Upload machen darfst. Dein Uploadlimit wird mit mehr Benis erhöht.</string>
+    <string name="dummy_date">3. Mai 2014</string>
+    <string name="user_info_uploads">Zu den Uploads</string>
+    <string name="userinfo_benis">Benis</string>
+    <string name="userinfo_comments">Kommentare</string>
+    <string name="userinfo_favorites">Favoriten</string>
+    <string name="userinfo_since">seit</string>
+    <string name="userinfo_tags">Tags</string>
+    <string name="userinfo_uploads">Uploads</string>
 </resources>

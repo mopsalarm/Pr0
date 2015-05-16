@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/brighter_background"
+                android:background="@color/background_material_dark"
                 android:elevation="8dp"
                 android:paddingBottom="12dp">
 
@@ -13,8 +14,8 @@
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
 
     <ImageButton
         android:id="@+id/action_messages"
@@ -27,7 +28,7 @@
         android:background="?android:selectableItemBackground"
         android:padding="8dp"
         android:src="@drawable/ic_black_action_mail"
-        android:tint="@color/grey_200"/>
+        android:tint="@color/grey_400"/>
 
     <LinearLayout
         android:id="@+id/user_info_first_row"
@@ -42,7 +43,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="Benis"/>
+            android:text="@string/userinfo_benis"/>
 
         <TextView
             android:id="@+id/benis"
@@ -51,7 +52,7 @@
             android:layout_marginLeft="4dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="1354"
+            android:text="@string/dummy_benis"
             android:textColor="@color/primary"/>
 
         <TextView
@@ -61,7 +62,7 @@
             android:layout_marginLeft="8dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="seit"/>
+            android:text="@string/userinfo_since"/>
 
         <TextView
             android:id="@+id/date"
@@ -87,7 +88,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="Uploads"/>
+            android:text="@string/userinfo_uploads"/>
 
         <TextView
             android:id="@+id/uploads"
@@ -96,8 +97,9 @@
             android:layout_marginLeft="4dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="1532"
-            android:textColor="@color/primary"/>
+            android:text="124"
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
 
         <TextView
             style="@style/TextAppearance.AppCompat.Caption"
@@ -106,7 +108,7 @@
             android:layout_marginLeft="8dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="Favorites"/>
+            android:text="@string/userinfo_favorites"/>
 
         <TextView
             android:id="@+id/favorites"
@@ -116,7 +118,8 @@
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
             android:text="534"
-            android:textColor="@color/primary"/>
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
     </LinearLayout>
 
     <LinearLayout
@@ -132,7 +135,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="Tags"/>
+            android:text="@string/userinfo_tags"/>
 
         <TextView
             android:id="@+id/tags"
@@ -142,7 +145,8 @@
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
             android:text="143"
-            android:textColor="@color/primary"/>
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
 
 
         <TextView
@@ -152,7 +156,7 @@
             android:layout_marginLeft="8dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:text="Comments"/>
+            android:text="@string/userinfo_comments"/>
 
         <TextView
             android:id="@+id/comments"
@@ -162,6 +166,7 @@
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
             android:text="143"
-            android:textColor="@color/primary"/>
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
     </LinearLayout>
 </RelativeLayout>

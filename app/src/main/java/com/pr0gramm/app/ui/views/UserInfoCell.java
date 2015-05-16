@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  */
+@SuppressLint("ViewConstructor")
 public class UserInfoCell extends FrameLayout {
     private final UsernameView username;
     private final TextView benis, favorites, comments, tags, uploads, date;
