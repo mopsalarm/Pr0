@@ -24,6 +24,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Info;
@@ -43,6 +44,7 @@ import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
+import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
@@ -257,6 +259,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         super.onDestroyView();
         recyclerView.removeOnScrollListener(onScrollListener);
         AndroidUtility.uninjectViews(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     private void removeBusyIndicator() {

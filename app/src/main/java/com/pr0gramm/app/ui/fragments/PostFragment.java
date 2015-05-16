@@ -30,6 +30,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
@@ -373,6 +374,7 @@ public class PostFragment extends RoboFragment implements
             viewer.onDestroy();
 
         super.onDestroy();
+        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     /**

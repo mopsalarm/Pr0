@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.google.common.base.Optional;
@@ -26,7 +27,7 @@ public class BookmarkService {
     private final Context context;
 
     @Inject
-    public BookmarkService(Context context) {
+    public BookmarkService(Application context) {
         this.context = context;
     }
 

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.ui.EmptyAdapter;
@@ -97,6 +98,12 @@ public abstract class InboxFragment<T> extends RoboFragment {
     public void onDestroyView() {
         super.onDestroyView();
         AndroidUtility.uninjectViews(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     private void reloadInboxContent() {
