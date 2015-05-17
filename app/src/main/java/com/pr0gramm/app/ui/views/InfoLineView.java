@@ -85,6 +85,7 @@ public class InfoLineView extends LinearLayout {
             tagsView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
             tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps));
         } else {
+            tagsView.setItemAnimator(null);
             tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         }
 
