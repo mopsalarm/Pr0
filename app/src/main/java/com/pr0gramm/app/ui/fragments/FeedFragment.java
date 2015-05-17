@@ -509,6 +509,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         dialog.show(getFragmentManager(), null);
     }
 
+    @Override
+    public void onUserFavoritesClicked(String name) {
+        FeedFilter filter = getCurrentFilter().basic().withLikes(name);
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+    }
+
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
 

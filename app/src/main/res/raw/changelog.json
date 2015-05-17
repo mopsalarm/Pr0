@@ -1,5 +1,10 @@
 [
   {
+    "version": 46,
+    "type": "Neu",
+    "change": "Klick auf die Anzahl der Favoriten eines Benutzers zeigt diese an."
+  },
+  {
     "version": 45,
     "type": "Info",
     "change": "Dies ist nur ein Bugfixrelease. Entschuldigt. Bitte weiter unten für die Neuigkeiten gucken."

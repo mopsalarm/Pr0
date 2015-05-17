@@ -60,6 +60,12 @@ public class UserInfoCell extends FrameLayout {
                 userActionListener.onWriteMessageClicked(user.getId(), user.getName());
             }
         });
+
+        favorites.setOnClickListener(view -> {
+            if (userActionListener != null) {
+                userActionListener.onUserFavoritesClicked(user.getName());
+            }
+        });
     }
 
     public void setUserActionListener(UserActionListener userActionListener) {
@@ -75,5 +81,7 @@ public class UserInfoCell extends FrameLayout {
 
     public interface UserActionListener {
         void onWriteMessageClicked(int userId, String name);
+
+        void onUserFavoritesClicked(String name);
     }
 }
