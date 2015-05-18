@@ -33,6 +33,7 @@ import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
@@ -278,7 +279,7 @@ public class PostFragment extends RoboFragment implements
         if(item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, MediaViews.url(feedItem));
+            intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
             startActivity(intent);
         }
 
@@ -295,7 +296,7 @@ public class PostFragment extends RoboFragment implements
 
     private void downloadPostMedia() {
         // download over proxy to use caching
-        Uri url = Uri.parse(proxyService.proxy(MediaViews.url(feedItem)));
+        Uri url = Uri.parse(proxyService.proxy(Uris.get().media(feedItem).toString()));
 
         File external;
         if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
@@ -473,7 +474,7 @@ public class PostFragment extends RoboFragment implements
         };
 
         // initialize a new viewer fragment
-        String url = MediaViews.url(feedItem);
+        String url = Uris.get().media(feedItem).toString();
 
         // delay playback on mobile
         if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity()))

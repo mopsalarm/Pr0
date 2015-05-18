@@ -254,6 +254,12 @@
         android:persistent="false">
 
         <CheckBoxPreference
+            android:key="pref_use_https"
+            android:title="@string/pref_use_https_title"
+            android:summary="@string/pref_use_https_summary"
+            android:defaultValue="false"/>
+
+        <CheckBoxPreference
             android:key="pref_crashlytics_enabled"
             android:title="@string/pref_crashlytics_enabled"
             android:summaryOn="@string/pref_crashlytics_enabled_on"

@@ -32,7 +32,9 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -241,7 +243,7 @@ public class UploadActivity extends RoboActionBarActivity {
 
             Intent intent = new Intent(getActivity(), MainActivity.class);
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("http://pr0gramm.com/new/" + postId));
+            intent.setData(Uris.of(getActivity()).post(FeedType.NEW, postId));
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 

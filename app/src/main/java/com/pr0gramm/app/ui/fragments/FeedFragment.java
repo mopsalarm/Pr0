@@ -27,6 +27,7 @@ import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -570,7 +571,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
             FeedItem item = feedProxy.getItemAt(position);
 
-            picasso.load("http://thumb.pr0gramm.com/" + item.getThumb())
+            picasso.load(Uris.get().thumbnail(item))
                     .into(view.image);
 
             view.itemView.setOnClickListener(v -> onItemClicked(position));

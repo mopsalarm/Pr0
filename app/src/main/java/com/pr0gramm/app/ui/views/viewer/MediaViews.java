@@ -61,17 +61,6 @@ public class MediaViews {
         return url != null && url.toLowerCase().endsWith(".gif");
     }
 
-    public static String url(FeedItem feedItem) {
-        return url(feedItem, false);
-    }
-
-    public static String url(FeedItem feedItem, boolean hq) {
-        if(hq && !Strings.isNullOrEmpty(feedItem.getFullsize()))
-            return "http://full.pr0gramm.com/" + feedItem.getFullsize();
-
-        return "http://img.pr0gramm.com/" + feedItem.getImage();
-    }
-
     public static String delay(String url) {
         if (isVideoUrl(url) || isGifUrl(url))
             return "delay:" + url;

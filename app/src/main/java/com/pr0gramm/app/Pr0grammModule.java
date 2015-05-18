@@ -60,7 +60,7 @@ public class Pr0grammModule extends AbstractModule {
                 .registerTypeAdapter(Instant.class, new InstantDeserializer())
                 .create();
 
-        String host = "http://pr0gramm.com";
+        String host = Uris.of(settings).base().toString();
 
         // activate this to use a mock
         // host = "http://demo8733773.mockable.io";

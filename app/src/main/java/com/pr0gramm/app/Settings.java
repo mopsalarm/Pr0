@@ -88,7 +88,7 @@ public class Settings {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
     }
 
-    public String downloadLocation(){
+    public String downloadLocation() {
         String def = Pr0grammApplication.GLOBAL_CONTEXT.getString(R.string.pref_downloadLocation_default);
         return preferences.getString("pref_downloadLocation", def);
     }
@@ -166,8 +166,12 @@ public class Settings {
         return preferences.getBoolean("pref_tag_cloud_view", false);
     }
 
+    public boolean useHttps() {
+        return preferences.getBoolean("pref_use_https", false);
+    }
+
     public static Settings of(Context context) {
-        return new Settings(context);
+        return new Settings(context.getApplicationContext());
     }
 
     public static Settings of(SharedPreferences preferences) {
