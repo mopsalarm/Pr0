@@ -170,6 +170,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_https", false);
     }
 
+    public SharedPreferences.Editor edit() {
+        return preferences.edit();
+    }
+
     public static Settings of(Context context) {
         return new Settings(context.getApplicationContext());
     }
