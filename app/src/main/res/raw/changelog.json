@@ -2,6 +2,16 @@
   {
     "version": 46,
     "type": "Neu",
+    "change": "Support für HTTPS (voll sicher!)"
+  },
+  {
+    "version": 46,
+    "type": "Fix",
+    "change": "Absturz beim schließen eines Tags behoben"
+  },
+  {
+    "version": 46,
+    "type": "Neu",
     "change": "Klick auf die Anzahl der Favoriten eines Benutzers zeigt diese an."
   },
   {
