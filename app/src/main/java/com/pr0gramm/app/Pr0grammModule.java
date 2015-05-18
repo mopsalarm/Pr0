@@ -18,6 +18,7 @@ import com.pr0gramm.app.services.MyGifToVideoService;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.RestAdapterProvider;
 import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.ConnectionPool;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -26,6 +27,8 @@ import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,8 @@ import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import roboguice.inject.SharedPreferencesName;
 import rx.Observable;
+
+import static org.joda.time.Duration.standardMinutes;
 
 /**
  */
@@ -70,6 +75,11 @@ public class Pr0grammModule extends AbstractModule {
         client.setCache(new Cache(cacheDir, 100 * 1024 * 1024));
         client.setCookieHandler(cookieHandler);
         client.setSocketFactory(new SmallBufferSocketFactory());
+
+        client.setReadTimeout(10, TimeUnit.SECONDS);
+        client.setWriteTimeout(10, TimeUnit.SECONDS);
+        client.setConnectTimeout(10, TimeUnit.SECONDS);
+        client.setConnectionPool(new ConnectionPool(10, standardMinutes(1).getMillis()));
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
         client.networkInterceptors().add(chain -> {
