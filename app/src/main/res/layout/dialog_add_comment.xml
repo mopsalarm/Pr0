@@ -19,6 +19,7 @@
         android:hint="@string/comment_hint"
         android:layout_marginTop="16dp"
         android:maxLines="3"
+        android:minLines="3"
         android:gravity="top|start"/>
 
 </LinearLayout>

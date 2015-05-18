@@ -228,4 +228,8 @@
     <string name="upload_error_unknown">Ein mir unbekannter Fehler ist beim Upload aufgetreten.</string>
     <string name="upload_just_try_again">Am besten probierst du es jetzt einfach nochmal.</string>
     <string name="upload_something_went_wrong">Irgendwas ist schief gelaufen.</string>
+    <string name="enable_https_beta">Pr0gramm probiert gerade HTTPS aus - willst du es aktivieren? Es kann Probleme geben, aber in den Einstellungen kannst du die Option jederzeit wieder deaktivieren.</string>
+    <string name="no">Nein</string>
+    <string name="pref_use_https_title">HTTPS</string>
+    <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
 </resources>

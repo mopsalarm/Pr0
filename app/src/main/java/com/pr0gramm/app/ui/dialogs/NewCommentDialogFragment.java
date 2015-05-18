@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 
 import com.google.common.base.Optional;
@@ -36,6 +37,7 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
         Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_comment, null);
         commentInput = (EditText) view.findViewById(R.id.comment);
@@ -47,6 +49,7 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
         }
 
         return DialogBuilder.start(getActivity())
+                .fullWidth()
                 .title(R.string.add_new_comment_title)
                 .content(view, true)
                 .negative(R.string.cancel)

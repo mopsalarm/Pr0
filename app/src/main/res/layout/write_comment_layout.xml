@@ -20,7 +20,6 @@
         android:background="@color/input_background"
         android:padding="8dp"
         android:hint="@string/comment_hint"
-
         android:maxLines="3"/>
 
     <TextView

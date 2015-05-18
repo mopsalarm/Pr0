@@ -43,7 +43,7 @@ public class ChangeLogDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Settings settings = Settings.of(getActivity());
 
-        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), DialogBuilder.theme());
+        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), DialogBuilder.DEFAULT_THEME);
 
         List<Change> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);

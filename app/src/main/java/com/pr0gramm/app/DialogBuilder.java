@@ -9,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ScrollView;
 
@@ -16,6 +18,8 @@ import android.widget.ScrollView;
  * Wrapper around {@link android.support.v7.app.AlertDialog.Builder}
  */
 public class DialogBuilder {
+    public static final int DEFAULT_THEME = R.style.Theme_AppCompat_Light_Dialog;
+
     private final Context context;
     private String positive;
     private String neutral;
@@ -31,6 +35,8 @@ public class DialogBuilder {
     private boolean cancelable = true;
     private DialogInterface.OnShowListener onShowListener;
     private DialogInterface.OnCancelListener onCancelListener;
+    private int theme = DEFAULT_THEME;
+    private boolean fullWidth;
 
     private DialogBuilder(Context context) {
         this.context = context;
@@ -165,7 +171,7 @@ public class DialogBuilder {
     }
 
     public Dialog build() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, theme())
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, theme)
                 .setTitle(title)
                 .setMessage(content)
                 .setView(view)
@@ -197,11 +203,24 @@ public class DialogBuilder {
 
         dialog.setOnCancelListener(onCancelListener);
 
+        if (fullWidth) {
+            //Grab the window of the dialog, and change the width
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            Window window = dialog.getWindow();
+            lp.copyFrom(window.getAttributes());
+
+            //This makes the dialog take up the full width
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(lp);
+        }
+
         return dialog;
     }
 
-    public static int theme() {
-        return R.style.Theme_AppCompat_Light_Dialog;
+    public DialogBuilder theme(int theme) {
+        this.theme = theme;
+        return this;
     }
 
     private void onButtonClicked(int button, AlertDialog dialog) {
@@ -227,6 +246,11 @@ public class DialogBuilder {
         return this;
     }
 
+    public DialogBuilder fullWidth() {
+        this.fullWidth = true;
+        return this;
+    }
+
     public DialogBuilder onShow(Dialog.OnShowListener onShowListener) {
         this.onShowListener = onShowListener;
         return this;
@@ -245,5 +269,4 @@ public class DialogBuilder {
             Dialog.BUTTON_NEGATIVE,
             Dialog.BUTTON_POSITIVE,
             Dialog.BUTTON_NEUTRAL};
-
 }

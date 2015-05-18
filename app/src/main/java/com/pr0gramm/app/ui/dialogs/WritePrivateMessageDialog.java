@@ -50,6 +50,7 @@ public class WritePrivateMessageDialog extends RoboDialogFragment {
         summary.setText(getString(R.string.write_private_message_summary, getReceiverName()));
 
         return DialogBuilder.start(getActivity())
+                .fullWidth()
                 .content(view, true)
                 .negative(R.string.cancel, this::dismiss)
                 .positive(R.string.action_send, this::onOkayClicked)
