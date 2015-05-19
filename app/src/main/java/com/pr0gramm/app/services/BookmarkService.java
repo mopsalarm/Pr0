@@ -43,7 +43,7 @@ public class BookmarkService {
             entry.save();
             triggerChange();
             return entry;
-        });
+        }, Schedulers.io());
     }
 
     /**
@@ -60,7 +60,7 @@ public class BookmarkService {
             return Observable.just(false);
 
         // check if already in database
-        return Async.start(() -> !Bookmark.byFilter(filter).isPresent());
+        return Async.start(() -> !Bookmark.byFilter(filter).isPresent(), Schedulers.io());
     }
 
     private void triggerChange() {

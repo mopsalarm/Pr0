@@ -79,7 +79,7 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()))
+        return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()), Schedulers.io())
                 .map(vote -> vote.transform(v -> v.vote))
                 .map(vote -> vote.or(Vote.NEUTRAL));
     }

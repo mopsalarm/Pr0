@@ -17,6 +17,7 @@ import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 /**
@@ -38,7 +39,7 @@ public class FeedbackService {
         String version = Pr0grammApplication.getPackageInfo().versionName;
 
         return Async
-                .start(FeedbackService::logcat)
+                .start(FeedbackService::logcat, Schedulers.io())
                 .flatMap(logcat -> api.post(name, feedback, version, logcat));
     }
 

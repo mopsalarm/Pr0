@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import retrofit.RestAdapter;
 import retrofit.http.GET;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 /**
@@ -36,7 +37,7 @@ public class UpdateChecker {
             UpdateApi api = newRestAdapter(endpoint).create(UpdateApi.class);
             return api.get();
 
-        }).filter(update -> {
+        }, Schedulers.io()).filter(update -> {
             logger.info("Installed v{}, found update v{} at {}",
                     currentVersion, update.getVersion(), endpoint);
 
