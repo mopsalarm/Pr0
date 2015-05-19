@@ -121,9 +121,6 @@ public class UserService {
             // clear the seen items
             seenService.clear();
 
-            // remove all benis records
-            deleteAll(BenisRecord.class);
-
             return null;
         }, Schedulers.io()).ignoreElements();
     }
@@ -177,7 +174,7 @@ public class UserService {
             Info.User user = info.getUser();
 
             // stores the current benis value
-            BenisRecord record = new BenisRecord(Instant.now(), user.getScore());
+            BenisRecord record = new BenisRecord(user.getId(), Instant.now(), user.getScore());
             record.save();
 
             // updates the login state and ui
@@ -189,11 +186,12 @@ public class UserService {
     private LoginState createLoginState(Optional<Info> info) {
         checkNotMainThread();
 
-        Graph benisHistory = loadBenisHistory();
+        int userId = info.get().getUser().getId();
+        Graph benisHistory = loadBenisHistory(userId);
         return new LoginState(info.get(), benisHistory);
     }
 
-    private Graph loadBenisHistory() {
+    private Graph loadBenisHistory(int userId) {
         Stopwatch watch = Stopwatch.createStarted();
 
         Duration historyLength = standardDays(7);
@@ -201,7 +199,7 @@ public class UserService {
 
         // get the values and transform them
         ImmutableList<PointF> points = FluentIterable
-                .from(getBenisValuesAfter(start))
+                .from(getBenisValuesAfter(userId, start))
                 .transform(record -> {
                     float x = record.getTimeMillis() - start.getMillis();
                     return new PointF(x, record.getBenis());
