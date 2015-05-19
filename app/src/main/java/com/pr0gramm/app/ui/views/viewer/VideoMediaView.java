@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Throwables;
@@ -16,11 +17,13 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import java.io.IOException;
 
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
+import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,7 +35,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
  */
 @SuppressLint("ViewConstructor")
 public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnInfoListener {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
 
     @InjectView(R.id.video)
     private TextureView surfaceView;
@@ -291,7 +294,15 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
                 mediaPlayer.setDataSource(getContext(), Uri.parse(url));
                 mediaPlayer.setOnPreparedListener(this);
-                mediaPlayer.setOnInfoListener(this);
+                mediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
+                    View view = getProgressView();
+                    if(view instanceof BusyIndicator) {
+                        logger.info("buffer filled: {}", percent);
+                        BusyIndicator busyIndicator = (BusyIndicator) view;
+                        busyIndicator.setProgress(0.01f * percent);
+                    }
+                });
+
                 mediaPlayer.setOnErrorListener(this);
                 mediaPlayer.setOnVideoSizeChangedListener(this);
                 mediaPlayer.prepareAsync();
@@ -300,16 +311,10 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             } catch (IOException error) {
                 throw Throwables.propagate(error);
             }
-        }).subscribe(Actions.empty(), error -> {
+        }, Schedulers.io()).subscribe(Actions.empty(), error -> {
             moveTo(State.IDLE);
             defaultOnError().call(error);
         });
-    }
-
-    @Override
-    public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        logger.info("MediaPlayer.info({}, {})", what, extra);
-        return true;
     }
 
     private class SurfaceTextureListenerImpl implements TextureView.SurfaceTextureListener {

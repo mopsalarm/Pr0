@@ -80,10 +80,6 @@ public class Settings {
         return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }
 
-    public boolean useCompatVideoPlayer() {
-        return preferences.getBoolean("pref_webm_use_compat_viewer", true);
-    }
-
     public int maxImageSize() {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
     }
