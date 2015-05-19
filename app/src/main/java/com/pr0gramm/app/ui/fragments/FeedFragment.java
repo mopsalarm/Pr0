@@ -45,7 +45,6 @@ import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
-import com.squareup.leakcanary.LeakCanary;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
@@ -65,6 +64,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
@@ -105,9 +105,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     @InjectView(R.id.empty)
     private View noResultsView;
 
-    private MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter;
     private FeedAdapter feedAdapter;
-    private GridLayoutManager layoutManager;
     private IndicatorStyle seenIndicatorStyle;
 
     @Inject
@@ -167,17 +165,11 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         // prepare the list of items
         int columnCount = getThumbnailColumns();
-        layoutManager = new GridLayoutManager(getActivity(), columnCount);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), columnCount);
         layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(1, columnCount));
-
-        adapter = new MergeRecyclerAdapter<>();
-        adapter.addView(newFeedStartPaddingView());
-        adapter.addAdapter(feedAdapter);
-        addUserInfoToAdapter(columnCount);
-
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(wrapFeedAdapter(columnCount, feedAdapter));
 
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.setCanSwipeUpPredicate(() -> !feedAdapter.getFeedProxy().isAtStart());
@@ -202,7 +194,17 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         recyclerView.addOnScrollListener(onScrollListener);
     }
 
-    private void addUserInfoToAdapter(int columnCount) {
+    private MergeRecyclerAdapter<RecyclerView.Adapter<?>> wrapFeedAdapter(
+            int columnCount, FeedAdapter feedAdapter) {
+
+        MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter = new MergeRecyclerAdapter<>();
+        adapter.addView(newFeedStartPaddingView());
+        adapter.addAdapter(feedAdapter);
+        addUserInfoToAdapter(adapter, columnCount);
+        return adapter;
+    }
+
+    private void addUserInfoToAdapter(MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter, int columnCount) {
         if (userInfoObservable == null) {
             FeedFilter filter = getCurrentFilter();
             if (filter.getUsername().isPresent()) {
@@ -240,10 +242,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
             View userView = userInfoViewSupplier.apply(info);
 
-            // add views to adapter.
-            List<View> views = Collections.singletonList(userView);
-            adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
-            layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
+            ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
+                // add views to adapter.
+                List<View> views = Collections.singletonList(userView);
+                adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
+                layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
+            });
         });
     }
 
@@ -324,7 +328,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             // set a new adapter if we have a new content type
             FeedFilter filter = feedFilter.withContentType(newContentType);
             feedAdapter = new FeedAdapter(filter, autoScrollOnLoad = around);
-            recyclerView.setAdapter(feedAdapter);
+            recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
         }
 
         // set new indicator style
@@ -342,16 +346,18 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private Optional<FeedItem> findFirstVisibleItem(Set<ContentType> contentType) {
         List<FeedItem> items = feedAdapter.getFeedProxy().getItems();
 
-        int idx = layoutManager.findFirstVisibleItemPosition();
-        if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
-            for (FeedItem item : items.subList(idx, items.size() - 1)) {
-                if (contentType.contains(item.getContentType())) {
-                    return Optional.of(item);
+        return getRecyclerViewLayoutManager().<Optional<FeedItem>>transform(layoutManager -> {
+            int idx = layoutManager.findFirstVisibleItemPosition();
+            if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
+                for (FeedItem item : items.subList(idx, items.size() - 1)) {
+                    if (contentType.contains(item.getContentType())) {
+                        return Optional.of(item);
+                    }
                 }
             }
-        }
 
-        return Optional.absent();
+            return Optional.absent();
+        }).get();
     }
 
     /**
@@ -640,6 +646,13 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 .or(-1);
     }
 
+    private Optional<GridLayoutManager> getRecyclerViewLayoutManager() {
+        if (recyclerView == null)
+            return Optional.absent();
+
+        return Optional.fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
+    }
+
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -648,26 +661,28 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 activity.getScrollHideToolbarListener().onScrolled(dy);
             }
 
-            int totalItemCount = layoutManager.getItemCount();
-            FeedProxy proxy = feedAdapter.getFeedProxy();
-            if (proxy.isLoading())
-                return;
+            ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
+                int totalItemCount = layoutManager.getItemCount();
+                FeedProxy proxy = feedAdapter.getFeedProxy();
+                if (proxy.isLoading())
+                    return;
 
-            if (dy > 0 && !proxy.isAtEnd()) {
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                    logger.info("Request next page now");
-                    proxy.loadNextPage();
+                if (dy > 0 && !proxy.isAtEnd()) {
+                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                    if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
+                        logger.info("Request next page now");
+                        proxy.loadNextPage();
+                    }
                 }
-            }
 
-            if (dy < 0 && !proxy.isAtStart()) {
-                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
-                if (totalItemCount > 12 && firstVisibleItem < 12) {
-                    logger.info("Request previous page now");
-                    proxy.loadPreviousPage();
+                if (dy < 0 && !proxy.isAtStart()) {
+                    int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                    if (totalItemCount > 12 && firstVisibleItem < 12) {
+                        logger.info("Request previous page now");
+                        proxy.loadPreviousPage();
+                    }
                 }
-            }
+            });
         }
 
         @Override

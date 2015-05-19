@@ -297,7 +297,6 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 mediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
                     View view = getProgressView();
                     if(view instanceof BusyIndicator) {
-                        logger.info("buffer filled: {}", percent);
                         BusyIndicator busyIndicator = (BusyIndicator) view;
                         busyIndicator.setProgress(0.01f * percent);
                     }

@@ -38,6 +38,7 @@ import java.util.Map;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.functions.Action1;
 
 /**
  */
@@ -195,5 +196,14 @@ public class AndroidUtility {
     public static <T> Optional<T> toOptional(Observable<T> observable) {
         T element = observable.toBlocking().singleOrDefault(null);
         return Optional.fromNullable(element);
+    }
+
+    /**
+     * Calls the given action with the value from the optional, if there it is present.
+     */
+    public static <T> void ifPresent(Optional<T> optional, Action1<T> action) {
+        if (optional.isPresent()) {
+            action.call(optional.get());
+        }
     }
 }
