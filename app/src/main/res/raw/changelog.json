@@ -10,6 +10,11 @@
     "change": "Fehlerhafte Anzeige korrigiert, wenn man zwischen sfw/nsfw wechselt."
   },
   {
+    "version": 47,
+    "type": "Fix",
+    "change": "Deaktivieren der Updateprüfung entfernt. Es gibt immer noch Deppen, die mit ner zwei Monate alten App Version unterwegs sind."
+  },
+  {
     "version": 46,
     "type": "Neu",
     "change": "Support für HTTPS (voll sicher!)"
