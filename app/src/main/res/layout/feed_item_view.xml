@@ -13,9 +13,10 @@
 
     <ImageView
         android:id="@+id/seen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom|right"
-        android:src="@drawable/ic_black_action_read"
-        android:tint="@color/primary"/>
+        android:background="#8000"
+        android:scaleType="center"
+        android:src="@drawable/ic_checked"/>
 </FrameLayout>
