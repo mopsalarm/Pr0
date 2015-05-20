@@ -23,6 +23,7 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -117,7 +118,17 @@ public class UploadActivity extends RoboActionBarActivity {
     }
 
     private void showUploadFragment() {
+        Bundle arguments = new Bundle();
+
+        Intent intent = getIntent();
+        if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
+            Uri url = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            arguments.putParcelable(UploadFragment.EXTRA_LOCAL_URI, url);
+        }
+
         Fragment fragment = new UploadFragment();
+        fragment.setArguments(arguments);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
@@ -134,6 +145,8 @@ public class UploadActivity extends RoboActionBarActivity {
     }
 
     public static class UploadFragment extends RoboFragment {
+        public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
+
         private final int REQ_SELECT_IMAGE = 1;
 
         @Inject
@@ -173,9 +186,15 @@ public class UploadActivity extends RoboActionBarActivity {
         public void onViewCreated(View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, REQ_SELECT_IMAGE);
+            Optional<Uri> uri = getUrlArgument();
+            if (uri.isPresent()) {
+                handleImageUri(uri.get());
+
+            } else {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, REQ_SELECT_IMAGE);
+            }
 
             // enable auto-complete
             TagInputView.setup(tags);
@@ -357,6 +376,14 @@ public class UploadActivity extends RoboActionBarActivity {
             }
 
             return ContentType.NSFL;
+        }
+
+        private Optional<Uri> getUrlArgument() {
+            Bundle arguments = getArguments();
+            if (arguments == null)
+                return Optional.absent();
+
+            return Optional.fromNullable(arguments.getParcelable(EXTRA_LOCAL_URI));
         }
     }
 

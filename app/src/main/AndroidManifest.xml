@@ -115,8 +115,17 @@
         <activity
             android:name=".ui.UploadActivity"
             android:label="@string/upload_title"
-            android:theme="@style/AppTheme.ActionBar"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.ActionBar">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/png"/>
+                <data android:mimeType="image/jpeg"/>
+            </intent-filter>
+        </activity>
 
     </application>
 

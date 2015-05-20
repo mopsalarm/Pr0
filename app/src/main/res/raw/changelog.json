@@ -6,6 +6,11 @@
   },
   {
     "version": 47,
+    "type": "Neu",
+    "change": "Bilder können direkt über die Gallerie ins pr0gramm geteilt werden."
+  },
+  {
+    "version": 47,
     "type": "Fix",
     "change": "Fehlerhafte Anzeige korrigiert, wenn man zwischen sfw/nsfw wechselt."
   },
