@@ -22,6 +22,11 @@
   {
     "version": 47,
     "type": "Fix",
+    "change": "Posts werden erst als 'gesehen' markiert, wenn sie wirklich angezeigt wurden."
+  },
+  {
+    "version": 47,
+    "type": "Fix",
     "change": "Deaktivieren der Updateprüfung entfernt. Es gibt immer noch Deppen, die mit ner zwei Monate alten App Version unterwegs sind."
   },
   {
