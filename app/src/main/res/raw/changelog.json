@@ -11,6 +11,11 @@
   },
   {
     "version": 47,
+    "type": "Neu",
+    "change": "Markierung bereits gesehener Bilder verbessert."
+  },
+  {
+    "version": 47,
     "type": "Fix",
     "change": "Fehlerhafte Anzeige korrigiert, wenn man zwischen sfw/nsfw wechselt."
   },
