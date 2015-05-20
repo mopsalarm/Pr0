@@ -24,30 +24,30 @@ public class MediaViews {
      * @param url The url that should be displayed.
      * @return A new {@link MediaView} instance.
      */
-    public static MediaView newInstance(Context context, MediaView.Binder binder, String url) {
+    public static MediaView newInstance(Context context, MediaView.Binder binder, String url, Runnable onViewListener) {
         ProxyService proxyService = RoboGuice.getInjector(context).getInstance(ProxyService.class);
 
         // handle delay: urls.
         if (url.startsWith("delay:")) {
             String realUrl = url.substring("delay:".length());
-            return new DelayedMediaView(context, binder, realUrl);
+            return new DelayedMediaView(context, binder, realUrl, onViewListener);
         }
 
         MediaView result;
         Settings settings = Settings.of(context);
         if (isVideoUrl(url)) {
             // redirect video request though proxy
-            result = new VideoMediaView(context, binder, proxyService.proxy(url));
+            result = new VideoMediaView(context, binder, proxyService.proxy(url), onViewListener);
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {
-                result = new Gif2VideoMediaView(context, binder, url);
+                result = new Gif2VideoMediaView(context, binder, url, onViewListener);
             } else {
-                result = new GifMediaView(context, binder, proxyService.proxy(url));
+                result = new GifMediaView(context, binder, proxyService.proxy(url), onViewListener);
             }
 
         } else {
-            result = new ImageMediaView(context, binder, proxyService.proxy(url));
+            result = new ImageMediaView(context, binder, proxyService.proxy(url), onViewListener);
         }
 
         return result;

@@ -37,6 +37,7 @@ public abstract class MediaView extends FrameLayout {
     private final GestureDetector gestureDetector;
     protected final Binder binder;
     protected final String url;
+    protected final Runnable onViewListener;
 
     private OnDoubleTapListener onDoubleTapListener;
     private boolean started;
@@ -49,17 +50,18 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     private Settings settings;
 
-    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
-        this(context, binder, layoutId, R.id.progress, url);
+    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url, Runnable onViewListener) {
+        this(context, binder, layoutId, R.id.progress, url, onViewListener);
     }
 
     protected MediaView(Context context, Binder binder,
                         @LayoutRes Integer layoutId, @IdRes Integer progressId,
-                        String url) {
+                        String url, Runnable onViewListener) {
 
         super(context);
         this.binder = binder;
         this.url = url;
+        this.onViewListener = onViewListener;
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {

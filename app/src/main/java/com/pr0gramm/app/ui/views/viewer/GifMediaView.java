@@ -39,8 +39,8 @@ public class GifMediaView extends MediaView {
 
     private Subscription dlGifSubscription;
 
-    public GifMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_gif, url);
+    public GifMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, R.layout.player_gif, url, onViewListener);
 
         loadGif();
     }
@@ -61,8 +61,11 @@ public class GifMediaView extends MediaView {
                 gif = state.getDrawable();
                 imageView.setImageDrawable(this.gif);
 
-                if (!isPlaying())
+                if (isPlaying()) {
+                    onViewListener.run();
+                } else {
                     gif.stop();
+                }
             }
         }, defaultOnError());
     }
@@ -82,8 +85,10 @@ public class GifMediaView extends MediaView {
     @Override
     public void onResume() {
         super.onResume();
-        if (gif != null && isPlaying())
+        if (gif != null && isPlaying()) {
             gif.start();
+            onViewListener.run();
+        }
     }
 
     @Override

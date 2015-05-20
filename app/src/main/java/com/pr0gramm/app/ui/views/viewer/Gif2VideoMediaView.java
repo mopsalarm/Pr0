@@ -25,8 +25,8 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     private ProxyService proxyService;
 
-    public Gif2VideoMediaView(Context context, Binder binder, String url) {
-        super(context, binder, url);
+    public Gif2VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, url, onViewListener);
         startWebmConversion(binder, url);
     }
 
@@ -40,12 +40,12 @@ public class Gif2VideoMediaView extends ProxyMediaView {
             if (result.getVideoUrl().isPresent()) {
                 logger.info("Converted successfully, replace with video player");
                 String webm = result.getVideoUrl().get();
-                child = MediaViews.newInstance(getContext(), binder, webm);
+                child = MediaViews.newInstance(getContext(), binder, webm, onViewListener);
 
             } else {
                 logger.info("Conversion did not work, showing gif");
                 child = new GifMediaView(getContext(), binder,
-                        proxyService.proxy(result.getGifUrl()));
+                        proxyService.proxy(result.getGifUrl()), onViewListener);
             }
 
             setChild(child);

@@ -29,8 +29,8 @@ public class DelayedMediaView extends ProxyMediaView {
     @Inject
     private Picasso picasso;
 
-    public DelayedMediaView(Context context, Binder binder, String url) {
-        super(context, binder, url);
+    public DelayedMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, url, onViewListener);
         hideBusyIndicator();
 
         overlay = LayoutInflater.from(context).inflate(R.layout.play_now, this, false);
@@ -64,7 +64,7 @@ public class DelayedMediaView extends ProxyMediaView {
     }
 
     private void playNow() {
-        setChild(MediaViews.newInstance(getContext(), binder, url));
+        setChild(MediaViews.newInstance(getContext(), binder, url, onViewListener));
 
         // transfer the current height from the thumbnail to the video.
         setMinimumHeight(overlay.getMeasuredHeight());

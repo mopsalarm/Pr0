@@ -55,8 +55,8 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     private int retryCount;
 
-    public VideoMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_video, url);
+    public VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, R.layout.player_video, url, onViewListener);
 
         logger.info("Playing webm " + url);
 
@@ -127,6 +127,8 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
                 currentState = State.PLAYING;
+
+                onViewListener.run();
             }
         }
 

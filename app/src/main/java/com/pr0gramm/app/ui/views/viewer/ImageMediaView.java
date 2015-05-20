@@ -34,8 +34,8 @@ public class ImageMediaView extends MediaView {
     @Inject
     private Picasso picasso;
 
-    public ImageMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_image, url);
+    public ImageMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
     @Override
@@ -95,5 +95,11 @@ public class ImageMediaView extends MediaView {
         errorIndicator.setVisibility(VISIBLE);
         errorIndicator.setAlpha(0);
         errorIndicator.animate().alpha(1).start();
+    }
+
+    @Override
+    public void playMedia() {
+        super.playMedia();
+        onViewListener.run();
     }
 }

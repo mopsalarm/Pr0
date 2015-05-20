@@ -480,7 +480,11 @@ public class PostFragment extends RoboFragment implements
         if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity()))
             url = MediaViews.delay(url);
 
-        viewer = MediaViews.newInstance(getActivity(), binder, url);
+        viewer = MediaViews.newInstance(getActivity(), binder, url, () -> {
+            //  mark this item seen. We do that in a background thread
+            AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
+        });
+
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
         // this provides an animation while voting
@@ -566,8 +570,6 @@ public class PostFragment extends RoboFragment implements
      * Called if this fragment becomes the active post fragment.
      */
     protected void onMarkedActive() {
-        //  mark this item seen. We do that in a background thread
-        AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
         viewer.playMedia();
     }
 
