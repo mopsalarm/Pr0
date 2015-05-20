@@ -216,13 +216,6 @@
                 android:summary="@string/pref_pseudo_update_summary"/>
 
             <CheckBoxPreference
-                android:key="pref_check_for_updates"
-                android:title="@string/pref_check_for_updates"
-                android:summaryOn="@string/pref_check_for_updates_on"
-                android:summaryOff="@string/pref_check_for_updates_off"
-                android:defaultValue="true"/>
-
-            <CheckBoxPreference
                 android:key="pref_use_beta_channel"
                 android:title="@string/pref_use_beta_channel"
                 android:summary="@string/pref_use_beta_channel_summary"

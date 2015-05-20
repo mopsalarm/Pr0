@@ -72,10 +72,6 @@ public class Settings {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
     }
 
-    public boolean updateCheckEnabled() {
-        return preferences.getBoolean("pref_check_for_updates", true);
-    }
-
     public boolean convertGifToWebm() {
         return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }

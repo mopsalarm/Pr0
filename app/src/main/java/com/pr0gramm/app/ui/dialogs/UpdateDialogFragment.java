@@ -93,13 +93,9 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      */
     public static void checkForUpdates(FragmentActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
-        Settings settings = injector.getInstance(Settings.class);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 
         if (!interactive) {
-            if (!settings.updateCheckEnabled())
-                return;
-
             Instant last = new Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0));
             if (last.isAfter(now().minus(standardHours(1))))
                 return;
