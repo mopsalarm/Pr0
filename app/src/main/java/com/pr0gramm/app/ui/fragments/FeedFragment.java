@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.fragments;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -64,6 +65,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
@@ -185,8 +187,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         });
 
         // use height of the toolbar to configure swipe refresh layout.
-        int abHeight = AndroidUtility.getActionBarSize(getActivity());
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
+        int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
+        int offset = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+                getStatusBarHeight(getActivity()) : 0;
+        swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         resetToolbar();
@@ -252,7 +256,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private View newFeedStartPaddingView() {
-        int height = AndroidUtility.getActionBarSize(getActivity());
+        int height = AndroidUtility.getActionBarContentOffset(getActivity());
 
         View view = new View(getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(1, height));

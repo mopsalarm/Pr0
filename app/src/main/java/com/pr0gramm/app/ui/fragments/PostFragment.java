@@ -165,7 +165,7 @@ public class PostFragment extends RoboFragment implements
         }
 
         // use height of the toolbar to configure swipe refresh layout.
-        int abHeight = AndroidUtility.getActionBarSize(getActivity());
+        int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(this::loadPostDetails);
@@ -496,6 +496,7 @@ public class PostFragment extends RoboFragment implements
 
         viewerContainer.addView(viewer);
         viewerContainer.addView(voteAnimationIndicator);
+        viewerContainer.setPadding(0, AndroidUtility.getActionBarContentOffset(getActivity()), 0, 0);
         adapter.addView(viewerContainer);
     }
 

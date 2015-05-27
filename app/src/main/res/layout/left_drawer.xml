@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?android:windowBackground"
+            android:clickable="true"
+            android:orientation="vertical"
             android:theme="@style/Theme.AppCompat.Light"
-            android:clickable="true">
+            app:theme="@style/Theme.AppCompat.Light">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/user_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
             android:background="@color/background_material_dark"
-            android:elevation="8dp">
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <ImageView
-                android:id="@+id/flavor"
+                android:id="@+id/user_image"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:src="@drawable/ic_launcher"/>
 
             <TextView
-                style="@style/Base.TextAppearance.AppCompat.Headline"
                 android:id="@+id/username"
+                style="@style/Base.TextAppearance.AppCompat.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_below="@id/flavor"
-                android:textColor="@color/white"
-                android:text="@string/app_name"/>
-        </RelativeLayout>
+                android:text="@string/app_name"
+                android:textColor="@color/white"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/benis_container"
@@ -47,53 +50,53 @@
                 android:id="@+id/benis_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/benis"
-                android:textColor="@color/grey_200"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginRight="4dp"/>
+                android:layout_marginRight="4dp"
+                android:paddingBottom="16dp"
+                android:paddingTop="16dp"
+                android:text="@string/benis"
+                android:textColor="@color/grey_200"/>
 
             <TextView
                 android:id="@+id/benis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp"
                 android:paddingBottom="16dp"
-                android:textColor="@color/grey_200"
-                android:text="@string/dummy_benis"/>
+                android:paddingTop="16dp"
+                android:text="@string/dummy_benis"
+                android:textColor="@color/grey_200"/>
 
             <ImageView
                 android:id="@+id/benis_graph"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_margin="8dp"
                 android:layout_weight="1"
-                android:contentDescription="@string/benis_graph_explanation"
-                android:layout_margin="8dp"/>
+                android:contentDescription="@string/benis_graph_explanation"/>
 
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/drawer_nav_list"
-            android:overScrollMode="never"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:overScrollMode="never"/>
 
         <TextView
             android:id="@+id/action_messages"
             style="@style/AppStyle.DrawerItem"
             android:drawableLeft="@drawable/ic_black_action_mail"
-            android:visibility="gone"
-            android:text="@string/action_messages"/>
+            android:text="@string/action_messages"
+            android:visibility="gone"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
             android:background="#888"/>
 
         <TextView

@@ -5,11 +5,11 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.text.Spannable;
@@ -50,18 +50,44 @@ public class AndroidUtility {
 
     /**
      * Gets the height of the action bar as definied in the style attribute
-     * {@link R.attr#actionBarSize}.
+     * {@link R.attr#actionBarSize} plus the height of the status bar on android
+     * Kitkat and above.
      *
-     * @param activity An activity to resolve the styled attribute value for
-     * @return The height of the action bar in pixels.
+     * @param context A context to resolve the styled attribute value for
      */
-    public static int getActionBarSize(FragmentActivity activity) {
-        TypedArray arr = activity.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
+    public static int getActionBarContentOffset(Context context) {
+        int offset = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            offset = getStatusBarHeight(context);
+        }
+
+        return getActionBarHeight(context) + offset;
+    }
+
+    /**
+     * Gets the height of the actionbar.
+     */
+    public static int getActionBarHeight(Context context) {
+        TypedArray arr = context.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
         try {
             return arr.getDimensionPixelSize(0, -1);
         } finally {
             arr.recycle();
         }
+    }
+
+    /**
+     * Gets the height of the statusbar.
+     */
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        Resources resources = context.getResources();
+        int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = resources.getDimensionPixelSize(resourceId);
+        }
+
+        return result;
     }
 
     public static String urlDecode(String value, Charset charset) {

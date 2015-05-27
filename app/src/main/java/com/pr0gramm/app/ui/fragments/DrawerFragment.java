@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -51,6 +52,7 @@ import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
+import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -86,6 +88,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.action_settings)
     private View settingsView;
+
+    @InjectView(R.id.user_image)
+    private View userImageView;
 
     @InjectView(R.id.drawer_nav_list)
     private RecyclerView navItemsRecyclerView;
@@ -123,8 +128,6 @@ public class DrawerFragment extends RoboFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
-        inflater = LayoutInflater.from(context);
         return inflater.inflate(R.layout.left_drawer, container, false);
     }
 
@@ -135,6 +138,14 @@ public class DrawerFragment extends RoboFragment {
         // get "marked" color
         int primary = getActivity().getResources().getColor(R.color.primary);
         markedColor = ColorStateList.valueOf(primary);
+
+        // add some space on the top for the translucent status bar
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
+                    userImageView.getLayoutParams();
+
+            params.topMargin += getStatusBarHeight(getActivity());
+        }
 
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);
