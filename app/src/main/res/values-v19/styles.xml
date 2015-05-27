@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Base.AppTheme">
         <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="AppTheme.TranslucentNavbar" parent="Base.AppTheme">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
     </style>
 
     <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar">

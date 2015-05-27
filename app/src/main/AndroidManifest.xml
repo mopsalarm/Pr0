@@ -105,7 +105,7 @@
 
         <activity
             android:name=".ui.ZoomViewActivity"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme.TranslucentNavbar"/>
 
         <activity
             android:name=".ui.FeedbackActivity"
