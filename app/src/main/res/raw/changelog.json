@@ -1,5 +1,10 @@
 [
   {
+    "version": 48,
+    "type": "Neu",
+    "change": "Transparente Statusleiste für Android Kitkat und neuer."
+  },
+  {
     "version": 47,
     "type": "Neu",
     "change": "Benisgraph bleibt auf dem Gerät gespeichert, wenn man sich aus- und wieder einloggt."
