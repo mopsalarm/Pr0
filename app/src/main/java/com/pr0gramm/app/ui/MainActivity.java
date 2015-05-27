@@ -142,17 +142,6 @@ public class MainActivity extends RoboActionBarActivity implements
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
-        // ask to use the experimental http feature.
-        if (singleShotService.isFirstTime("ask_to_enable_https_beta")) {
-            DialogBuilder.start(this)
-                    .content(R.string.enable_https_beta)
-                    .negative(R.string.no)
-                    .positive(R.string.yes, () -> {
-                        settings.edit().putBoolean("pref_use_https", true).apply();
-                    })
-                    .show();
-        }
-
         addOriginalContentBookmarkOnce();
     }
 

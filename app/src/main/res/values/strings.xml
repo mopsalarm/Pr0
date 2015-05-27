@@ -255,6 +255,5 @@
     <string name="upload_just_try_again">Best thing to do is just to try again.</string>
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
-    <string name="enable_https_beta">Pr0gramm is now testing HTTPS. It might not work correctly. Do you want to enable HTTPS anyways? You can disable it in the settings anytime.</string>
     <string name="no">No</string>
 </resources>
