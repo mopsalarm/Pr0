@@ -19,13 +19,16 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.common.base.Optional;
-import com.pr0gramm.app.DialogBuilder;
+import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.mpeg.PictureBuffer;
+import com.pr0gramm.app.mpeg.VideoConsumer;
+import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
@@ -39,6 +42,10 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileInputStream;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -62,6 +69,7 @@ public class MainActivity extends RoboActionBarActivity implements
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ErrorDialogFragment.OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 

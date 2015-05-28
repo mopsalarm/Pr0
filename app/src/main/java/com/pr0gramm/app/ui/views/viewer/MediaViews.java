@@ -38,6 +38,8 @@ public class MediaViews {
         if (isVideoUrl(url)) {
             // redirect video request though proxy
             result = new VideoMediaView(context, binder, proxyService.proxy(url), onViewListener);
+            // return new MpegMediaView(context, binder, proxyService.proxy(url.replace(".webm", ".mpg")), onViewListener);
+
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {

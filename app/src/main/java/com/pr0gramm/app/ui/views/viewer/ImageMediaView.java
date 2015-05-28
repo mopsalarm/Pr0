@@ -6,13 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.mpeg.PictureBuffer;
+import com.pr0gramm.app.mpeg.VideoConsumer;
+import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
+import java.io.FileInputStream;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -77,8 +84,9 @@ public class ImageMediaView extends MediaView {
         @Override
         public void onSuccess() {
             ImageMediaView player = fragment.get();
-            if (player != null)
+            if (player != null) {
                 player.hideBusyIndicator();
+            }
         }
 
         @Override
