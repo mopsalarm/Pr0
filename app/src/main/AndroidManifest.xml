@@ -75,8 +75,18 @@
 
                 <data
                     android:host="pr0gramm.com"
+                    android:path="/"
+                    android:scheme="https"/>
+
+                <data
+                    android:host="pr0gramm.com"
                     android:pathPrefix="/new"
                     android:scheme="http"/>
+
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPrefix="/new"
+                    android:scheme="https"/>
 
                 <data
                     android:host="pr0gramm.com"
@@ -85,8 +95,18 @@
 
                 <data
                     android:host="pr0gramm.com"
+                    android:pathPrefix="/top"
+                    android:scheme="https"/>
+
+                <data
+                    android:host="pr0gramm.com"
                     android:pathPattern="/user/.*"
                     android:scheme="http"/>
+
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPattern="/user/.*"
+                    android:scheme="https"/>
 
             </intent-filter>
         </activity>
@@ -101,7 +121,7 @@
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.ActionBar.Simple"/>
 
         <activity
             android:name=".ui.ZoomViewActivity"
@@ -110,18 +130,19 @@
         <activity
             android:name=".ui.FeedbackActivity"
             android:label="@string/feedback_title"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.ActionBar.Simple"/>
 
         <activity
             android:name=".ui.UploadActivity"
             android:label="@string/upload_title"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.ActionBar">
+            android:theme="@style/AppTheme.ActionBar.Simple">
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
+
                 <data android:mimeType="image/png"/>
                 <data android:mimeType="image/jpeg"/>
             </intent-filter>

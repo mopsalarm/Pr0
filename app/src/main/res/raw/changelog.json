@@ -1,5 +1,15 @@
 [
   {
+    "version": 49,
+    "type": "Fix",
+    "change": "Durch die Statusleiste versteckte Einstellungen wieder sichtbar gemacht"
+  },
+  {
+    "version": 49,
+    "type": "Fix",
+    "change": "Öffne auch https-Links mit der App"
+  },
+  {
     "version": 48,
     "type": "Neu",
     "change": "Transparente Statusleiste für Android Kitkat und neuer."
