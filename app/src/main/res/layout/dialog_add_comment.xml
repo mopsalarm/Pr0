@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/comment_hint"
         android:layout_marginTop="16dp"
-        android:maxLines="3"
+        android:maxLines="5"
         android:minLines="3"
         android:gravity="top|start"/>
 

@@ -89,8 +89,8 @@
     <string name="dummy_tags" translatable="false">würde, Kreiselficker</string>
     <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
     <string name="add_new_tag_title">Add new tag</string>
-    <string name="add_new_comment_summary">Please insert comment below</string>
-    <string name="comment_hint">Your comment here</string>
+    <string name="add_new_comment_summary">Write a comment</string>
+    <string name="comment_hint">Comment...</string>
     <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>

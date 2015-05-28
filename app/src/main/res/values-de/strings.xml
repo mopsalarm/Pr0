@@ -93,7 +93,7 @@
     <string name="action_login">ANMELDEN</string>
     <string name="action_logout">ABMELDEN</string>
     <string name="action_settings">EINSTELLUNGEN</string>
-    <string name="add_new_comment_summary">Bitte Kommentar unten eingeben</string>
+    <string name="add_new_comment_summary">Kommentar schreiben</string>
     <string name="add_new_comment_title">Einen neuen Kommentar schreiben</string>
     <string name="add_new_tag_summary">Einen neuen Tag hinzufügen. Mehrere Tags können mit Kommata separiert werden.</string>
     <string name="add_new_tag_title">Neuen Tag hinzufügen</string>
@@ -101,7 +101,7 @@
     <string name="benis">Benis:</string>
     <string name="benis_delta_down">(-%d seit gestern)</string>
     <string name="benis_delta_up">(+%d seit gestern)</string>
-    <string name="comment_hint">Hier einen Kommentar schreiben</string>
+    <string name="comment_hint">Kommentar...</string>
     <string name="error_could_not_create_download_directory">Downloadordner konnte nicht angelegt werden.</string>
     <string name="logout">Abmelden</string>
     <string name="need_to_restart_app">Damit diese Änderung wirksam wird, musst du die App einmal komplett neustarten.</string>

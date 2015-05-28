@@ -40,7 +40,6 @@ public class NewTagDialogFragment extends RoboDialogFragment {
 
         return DialogBuilder.start(getActivity())
                 .fullWidth()
-                .title(R.string.add_new_tag_title)
                 .content(view, true)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)

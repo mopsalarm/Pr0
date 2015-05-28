@@ -50,7 +50,6 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
 
         return DialogBuilder.start(getActivity())
                 .fullWidth()
-                .title(R.string.add_new_comment_title)
                 .content(view, true)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)
