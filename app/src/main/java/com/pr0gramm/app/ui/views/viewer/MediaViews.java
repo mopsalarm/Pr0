@@ -2,9 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
 
-import com.google.common.base.Strings;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.ProxyService;
 
 import roboguice.RoboGuice;
@@ -36,10 +34,11 @@ public class MediaViews {
         MediaView result;
         Settings settings = Settings.of(context);
         if (isVideoUrl(url)) {
-            // redirect video request though proxy
-            result = new VideoMediaView(context, binder, proxyService.proxy(url), onViewListener);
-            // return new MpegMediaView(context, binder, proxyService.proxy(url.replace(".webm", ".mpg")), onViewListener);
-
+            if (url.matches("^.*pr0gramm.*\\.webm$") && settings.useMpegDecoder()) {
+                result = new MpegMediaView(context, binder, proxyService.proxy(url.replace(".webm", ".mpg")), onViewListener);
+            } else {
+                result = new VideoMediaView(context, binder, proxyService.proxy(url), onViewListener);
+            }
 
         } else if (url.toLowerCase().endsWith(".gif")) {
             if (settings.convertGifToWebm()) {

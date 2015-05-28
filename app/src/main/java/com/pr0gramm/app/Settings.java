@@ -162,6 +162,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_https", false);
     }
 
+    public boolean useMpegDecoder() {
+        return preferences.getBoolean("pref_use_mpeg_decoder", false);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

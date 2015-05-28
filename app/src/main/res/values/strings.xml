@@ -256,4 +256,6 @@
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
     <string name="no">No</string>
+    <string name="pref_use_mpeg_decoder_title">Software decoder</string>
+    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you.</string>
 </resources>

@@ -231,4 +231,6 @@
     <string name="no">Nein</string>
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
+    <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
+    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst.</string>
 </resources>
