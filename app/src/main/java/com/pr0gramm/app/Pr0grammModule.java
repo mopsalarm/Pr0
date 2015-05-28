@@ -48,6 +48,7 @@ import roboguice.inject.SharedPreferencesName;
 import rx.Observable;
 
 import static org.joda.time.Duration.standardMinutes;
+import static org.joda.time.Duration.standardSeconds;
 
 /**
  */
@@ -76,10 +77,10 @@ public class Pr0grammModule extends AbstractModule {
         client.setCookieHandler(cookieHandler);
         client.setSocketFactory(new SmallBufferSocketFactory());
 
-        client.setReadTimeout(10, TimeUnit.SECONDS);
-        client.setWriteTimeout(10, TimeUnit.SECONDS);
-        client.setConnectTimeout(10, TimeUnit.SECONDS);
-        client.setConnectionPool(new ConnectionPool(10, standardMinutes(1).getMillis()));
+        client.setReadTimeout(15, TimeUnit.SECONDS);
+        client.setWriteTimeout(15, TimeUnit.SECONDS);
+        client.setConnectTimeout(20, TimeUnit.SECONDS);
+        client.setConnectionPool(new ConnectionPool(10, standardSeconds(4).getMillis()));
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
         client.networkInterceptors().add(chain -> {

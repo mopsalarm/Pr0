@@ -13,6 +13,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,18 +136,21 @@ public class ErrorFormatting {
                 err -> err.getResponse().getStatus() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
 
-        // could not deserialize. this one i am interested in.
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof TimeoutException,
+                R.string.error_timeout).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof SocketTimeoutException,
+                R.string.error_timeout).doNotReport());
+
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getKind() == RetrofitError.Kind.CONVERSION,
-                R.string.error_conversion));
+                R.string.error_conversion).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof UnknownHostException,
                 R.string.error_host_not_found).doNotReport());
-
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof TimeoutException,
-                R.string.error_timeout).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof ConnectException,
