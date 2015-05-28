@@ -36,6 +36,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -154,6 +155,9 @@ public class UploadActivity extends RoboActionBarActivity {
 
         @Inject
         private UploadService uploadService;
+
+        @Inject
+        private SingleShotService singleShotService;
 
         @InjectView(R.id.preview)
         private ImageView preview;
@@ -334,10 +338,12 @@ public class UploadActivity extends RoboActionBarActivity {
                 }
             });
 
-            DialogBuilder.start(getActivity())
-                    .content(R.string.upload_warning)
-                    .positive(R.string.okay)
-                    .show();
+            if(singleShotService.isFirstTime("upload_is_experimental_warning")) {
+                DialogBuilder.start(getActivity())
+                        .content(R.string.upload_warning)
+                        .positive(R.string.okay)
+                        .show();
+            }
         }
 
         @SuppressLint("NewApi")
