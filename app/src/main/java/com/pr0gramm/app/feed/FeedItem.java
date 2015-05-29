@@ -22,6 +22,7 @@ public class FeedItem implements Parcelable {
     private final int down;
     private final int mark;
     private final Instant created;
+    private final int flags;
 
     public FeedItem(Feed.Item item) {
         id = item.getId();
@@ -34,6 +35,7 @@ public class FeedItem implements Parcelable {
         down = item.getDown();
         mark = item.getMark();
         created = item.getCreated();
+        flags = item.getFlags();
     }
 
     public long getId() {
@@ -76,6 +78,14 @@ public class FeedItem implements Parcelable {
         return created;
     }
 
+    public int getFlags() {
+        return flags;
+    }
+
+    public boolean isContentType(ContentType type) {
+        return (flags & type.getFlag()) != 0;
+    }
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *
@@ -105,6 +115,7 @@ public class FeedItem implements Parcelable {
         dest.writeInt(rating);
         dest.writeByte((byte) mark);
         dest.writeInt((int) (created.getMillis() / 1000));
+        dest.writeByte((byte) this.flags);
     }
 
     private FeedItem(Parcel in) {
@@ -117,6 +128,7 @@ public class FeedItem implements Parcelable {
         int rating = in.readInt();
         this.mark = in.readByte();
         this.created = new Instant(1000L * in.readInt());
+        this.flags = in.readByte();
 
         // extract up/down from rating
         this.up = (rating >> 16) & 0xffff;
@@ -132,4 +144,8 @@ public class FeedItem implements Parcelable {
             return new FeedItem[size];
         }
     };
+
+    public ContentType getContentType() {
+        return ContentType.valueOf(flags).get();
+    }
 }

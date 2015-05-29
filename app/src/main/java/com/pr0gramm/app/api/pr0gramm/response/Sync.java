@@ -6,8 +6,10 @@ import java.util.List;
 
 /**
  */
+@SuppressWarnings("UnusedDeclaration")
 public class Sync {
     private long lastId;
+    private int inboxCount;
     private int[] log;
 
     public List<Integer> getLog() {
@@ -16,5 +18,9 @@ public class Sync {
 
     public long getLastId() {
         return lastId;
+    }
+
+    public int getInboxCount() {
+        return inboxCount;
     }
 }

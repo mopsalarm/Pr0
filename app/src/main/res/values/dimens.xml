@@ -1,8 +1,7 @@
 <resources>
     <dimen name="user_type_circle_diameter">8sp</dimen>
-    <dimen name="user_type_drawable_padding">4sp</dimen>
     <dimen name="max_image_view_height">550dp</dimen>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="tag_gap_size">8dp</dimen>
+
+    <dimen name="bullet_list_leading_margin">16sp</dimen>
 </resources>

@@ -1,5 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm;
 
+import org.joda.time.Instant;
+
 /**
  */
 public class Info {
@@ -34,6 +36,7 @@ public class Info {
         private int mark;
         private int score;
         private String name;
+        private Instant registered;
 
         public int getId() {
             return id;
@@ -49,6 +52,10 @@ public class Info {
 
         public String getName() {
             return name;
+        }
+
+        public Instant getRegistered() {
+            return registered;
         }
     }
 }

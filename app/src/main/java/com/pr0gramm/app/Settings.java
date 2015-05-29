@@ -68,24 +68,21 @@ public class Settings {
         return result;
     }
 
-    public boolean crashlyticsEnabled() {
+    public boolean analyticsEnabled() {
         return preferences.getBoolean("pref_crashlytics_enabled", true);
-    }
-
-    public boolean updateCheckEnabled() {
-        return preferences.getBoolean("pref_check_for_updates", true);
     }
 
     public boolean convertGifToWebm() {
         return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }
 
-    public boolean useCompatVideoPlayer() {
-        return preferences.getBoolean("pref_webm_use_compat_viewer", true);
-    }
-
     public int maxImageSize() {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
+    }
+
+    public String downloadLocation() {
+        String def = Pr0grammApplication.GLOBAL_CONTEXT.getString(R.string.pref_downloadLocation_default);
+        return preferences.getString("pref_downloadLocation", def);
     }
 
     public IndicatorStyle seenIndicatorStyle() {
@@ -97,8 +94,8 @@ public class Settings {
         return preferences.getBoolean("pref_animate_vote_view", true);
     }
 
-    public boolean useHardwareAcceleration() {
-        return preferences.getBoolean("pref_hardware_acceleration", true);
+    public boolean animatePostOnVote() {
+        return preferences.getBoolean("pref_animate_post_on_vote", true);
     }
 
     public boolean doubleTapToUpvote() {
@@ -121,8 +118,60 @@ public class Settings {
         return preferences.getBoolean("pref_show_pin_button", true);
     }
 
+    public boolean showRefreshButton() {
+        return preferences.getBoolean("pref_show_refresh_button", true);
+    }
+
+    public boolean useBetaChannel() {
+        return preferences.getBoolean("pref_use_beta_channel", false);
+    }
+
+    public boolean showNotifications() {
+        return preferences.getBoolean("pref_show_notifications", true);
+    }
+
+    public boolean dontRestoreSurfaceTexture() {
+        return preferences.getBoolean("pref_dont_restore_surface", false);
+    }
+
+    public boolean useProxy() {
+        return preferences.getBoolean("pref_use_proxy", true);
+    }
+
+    public boolean keepScreenOn() {
+        return preferences.getBoolean("pref_keep_screen_on", true);
+    }
+
+    public boolean confirmPlayOnMobile() {
+        return preferences.getBoolean("pref_confirm_play_on_mobile", true);
+    }
+
+    public boolean loadHqInZoomView() {
+        return preferences.getBoolean("pref_load_hq_image_in_zoomview", false);
+    }
+
+    public boolean hideTagVoteButtons() {
+        return preferences.getBoolean("pref_hide_tag_vote_buttons", false);
+    }
+
+    public boolean tagCloudView() {
+        return preferences.getBoolean("pref_tag_cloud_view", false);
+    }
+
+    public boolean useHttps() {
+        return preferences.getBoolean("pref_use_https", false);
+    }
+
+    public boolean useMpegDecoder() {
+        return preferences.getBoolean("pref_use_mpeg_decoder", false);
+    }
+
+    public SharedPreferences.Editor edit() {
+        return preferences.edit();
+    }
+
     public static Settings of(Context context) {
-        return new Settings(context);
+        return new Settings(context.getApplicationContext());
     }
 
     public static Settings of(SharedPreferences preferences) {

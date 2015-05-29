@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/background_material_dark">
+
+    <com.pr0gramm.app.ui.views.UsernameView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+    <ImageButton
+        android:id="@+id/action_messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:selectableItemBackground"
+        android:padding="8dp"
+        android:src="@drawable/ic_black_action_mail"
+        android:tint="@color/grey_400"/>
+
+    <LinearLayout
+        android:id="@+id/user_info_first_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/username"
+        android:layout_below="@id/username">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_benis"/>
+
+        <TextView
+            android:id="@+id/benis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/dummy_benis"
+            android:textColor="@color/primary"/>
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_since"/>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/dummy_date"
+            android:textColor="@color/primary"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/user_info_second_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/username"
+        android:layout_below="@id/user_info_first_row">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_uploads"/>
+
+        <TextView
+            android:id="@+id/uploads"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="124"
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_favorites"/>
+
+        <TextView
+            android:id="@+id/favorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="4dp"
+            android:text="534"
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/user_info_last_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/username"
+        android:layout_below="@id/user_info_second_row">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_tags"/>
+
+        <TextView
+            android:id="@+id/tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="143"
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
+
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/userinfo_comments"/>
+
+        <TextView
+            android:id="@+id/comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="143"
+            android:textColor="@color/primary"
+            tools:ignore="HardcodedText"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@id/user_info_last_row"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/dropshadow_reverse"/>
+</RelativeLayout>

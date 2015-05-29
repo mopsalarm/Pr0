@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
@@ -26,38 +27,45 @@ import java.util.Map;
 
 import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.singleton;
-import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
+import static java.util.Collections.emptyList;
 
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final Map<Integer, Post.Comment> byId = new HashMap<>();
     private final Map<Long, Vote> voteCache = new HashMap<>();
-    private List<Post.Comment> comments = new ArrayList<>();
+    private Optional<String> op;
 
+    private List<Post.Comment> comments = new ArrayList<>();
     private CommentActionListener commentActionListener;
 
     public CommentsAdapter() {
         setHasStableIds(true);
     }
 
-    public void addComments(Collection<Post.Comment> comments) {
-        this.comments = sort(newArrayList(concat(this.comments, comments)));
+    public void setComments(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
+        this.comments = sort(comments);
+
+        this.byId.clear();
         this.byId.putAll(Maps.uniqueIndex(this.comments, c -> (int) c.getId()));
+
+        this.voteCache.clear();
+        this.voteCache.putAll(votes);
+
         notifyDataSetChanged();
     }
 
-    public void addComment(Post.Comment comment, Vote vote) {
-        voteCache.put(comment.getId(), vote);
-        addComments(singleton(comment));
+    public void clear() {
+        comments = emptyList();
+        voteCache.clear();
+        byId.clear();
+        op = Optional.absent();
+
+        notifyDataSetChanged();
     }
 
-    public void addVoteCache(Map<Long, Vote> votes) {
-        voteCache.putAll(votes);
-        notifyDataSetChanged();
+    public void setOp(Optional<String> op) {
+        this.op = op;
     }
 
     private int getCommentDepth(Post.Comment comment) {
@@ -92,27 +100,30 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         Post.Comment comment = comments.get(position);
 
         view.setCommentDepth(getCommentDepth(comment));
-        view.name.setUsername(comment.getName(), comment.getMark());
-        view.name.setOnClickListener(v -> doOnAuthorClicked(comment));
+        view.senderInfo.setSenderName(comment.getName(), comment.getMark());
+        view.senderInfo.setOnSenderClickedListener(v -> doOnAuthorClicked(comment));
 
         // set the comment and add links
         view.comment.setText(comment.getContent());
         Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
-        Context context = view.itemView.getContext();
         int points = comment.getUp() - comment.getDown();
-        view.points.setText(context.getString(R.string.points, points));
+        view.senderInfo.setPoints(points);
+        view.senderInfo.setPointsVisible(true);
 
         // and the date of the post
-        CharSequence date = getRelativeTimeSpanString(context, comment.getCreated());
-        view.date.setText(date);
+        view.senderInfo.setDate(comment.getCreated());
+
+        // enable or disable the badge
+        boolean badge = op.transform(op -> op.equalsIgnoreCase(comment.getName())).or(false);
+        view.senderInfo.setBadgeOpVisible(badge);
 
         // and register a vote handler
         view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
-        view.vote.setOnVoteListener(vote -> doVote(position, comment, vote));
+        view.vote.setOnVoteListener(vote -> doVote(comment, vote));
 
-        view.answer.setOnClickListener(v -> doAnswer(comment));
+        view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
     }
 
     private void doOnAuthorClicked(Post.Comment comment) {
@@ -125,14 +136,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             commentActionListener.onAnswerClicked(comment);
     }
 
-    private boolean doVote(int position, Post.Comment comment, Vote vote) {
+    private boolean doVote(Post.Comment comment, Vote vote) {
         if (commentActionListener == null)
             return false;
 
         boolean performVote = commentActionListener.onCommentVoteClicked(comment, vote);
         if (performVote) {
             voteCache.put(comment.getId(), vote);
-            notifyItemChanged(position);
         }
 
         return performVote;
@@ -152,18 +162,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         this.commentActionListener = commentActionListener;
     }
 
-    public CommentActionListener getCommentActionListener() {
-        return commentActionListener;
-    }
-
     public static class CommentView extends RecyclerView.ViewHolder {
-        final UsernameView name;
         final TextView comment;
-        final TextView points;
-        final TextView date;
-        final View answer;
-
         final VoteView vote;
+        final SenderInfoView senderInfo;
+
         private final int baseLeftMargin;
 
         public CommentView(View itemView) {
@@ -173,12 +176,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             baseLeftMargin = params.leftMargin;
 
             // get the subviews
-            name = (UsernameView) itemView.findViewById(R.id.username);
             comment = (TextView) itemView.findViewById(R.id.comment);
-            points = (TextView) itemView.findViewById(R.id.points);
-            date = (TextView) itemView.findViewById(R.id.date);
             vote = (VoteView) itemView.findViewById(R.id.voting);
-            answer = itemView.findViewById(R.id.answer);
+            senderInfo = (SenderInfoView) itemView.findViewById(R.id.sender_info);
         }
 
         public void setCommentDepth(int depth) {

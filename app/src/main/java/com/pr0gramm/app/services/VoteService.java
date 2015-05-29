@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -17,7 +16,9 @@ import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
 
-import java.util.Collections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,13 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.transform;
-import static java.lang.String.format;
 
 /**
  */
 @Singleton
 public class VoteService {
-    public static final String TAG = "VoteService";
+    private static final Logger logger = LoggerFactory.getLogger(VoteService.class);
+
     private final Api api;
 
     @Inject
@@ -52,18 +53,24 @@ public class VoteService {
      * @param vote The vote to send to the server
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
+        logger.info("Voting feed item {} {}", item.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
-        return api.vote(item.getId(), vote.getVoteValue());
+        return api.vote(null, item.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
+        logger.info("Voting comment {} {}", comment.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
-        return api.voteComment(comment.getId(), vote.getVoteValue());
+        return api.voteComment(null, comment.getId(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Tag tag, Vote vote) {
+        logger.info("Voting tag {} {}", tag.getId(), vote);
+
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
-        return api.voteTag(tag.getId(), vote.getVoteValue());
+        return api.voteTag(null, tag.getId(), vote.getVoteValue());
     }
 
     /**
@@ -72,9 +79,7 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        // Vote vote = firstNonNull(voteCache.getIfPresent(item.getId()), Vote.NEUTRAL);
-
-        return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()))
+        return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()), Schedulers.io())
                 .map(vote -> vote.transform(v -> v.vote))
                 .map(vote -> vote.or(Vote.NEUTRAL));
     }
@@ -124,7 +129,7 @@ public class VoteService {
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTansaction(() -> {
-            Log.i(TAG, "Applying " + actions.size() / 2 + " vote actions");
+            logger.info("Applying {} vote actions", actions.size() / 2);
 
             for (int idx = 0; idx < actions.size(); idx += 2) {
                 VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
@@ -136,7 +141,7 @@ public class VoteService {
             }
         });
 
-        Log.i(TAG, "Applying vote actions took " + watch);
+        logger.info("Applying vote actions took {}", watch);
     }
 
     /**
@@ -145,7 +150,7 @@ public class VoteService {
      */
     public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
-        return api.addTags(feedItem.getId(), tagString).map(response -> {
+        return api.addTags(null, feedItem.getId(), tagString).map(response -> {
             SugarTransactionHelper.doInTansaction(() -> {
                 // auto-apply up-vote to newly created tags
                 for (long tagId : response.getTagIds())
@@ -159,8 +164,8 @@ public class VoteService {
     /**
      * Writes a comment to the given post.
      */
-    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
-        return api.postComment(item.getId(), parentId, comment)
+    public Observable<List<Post.Comment>> postComment(long itemId, long parentId, String comment) {
+        return api.postComment(null, itemId, parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {
                     // store the implicit upvote for the comment.
@@ -169,12 +174,15 @@ public class VoteService {
                 });
     }
 
+    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
+        return postComment(item.getId(), parentId, comment);
+    }
 
     /**
      * Removes all votes from the vote cache.
      */
     public void clear() {
-        Log.i(TAG, "Removing all items from vote cache");
+        logger.info("Removing all items from vote cache");
         SugarRecord.deleteAll(CachedVote.class);
     }
 
@@ -185,19 +193,28 @@ public class VoteService {
      * @return A map containing the vote from commentId to vote
      */
     public Observable<Map<Long, Vote>> getCommentVotes(List<Post.Comment> comments) {
-        if (comments.isEmpty())
-            return Observable.just(Collections.<Long, Vote>emptyMap());
+        List<Long> ids = transform(comments, Post.Comment::getId);
+        return findCachedVotes(CachedVote.Type.COMMENT, ids);
+    }
+
+    public Observable<Map<Long, Vote>> getTagVotes(List<Tag> tags) {
+        List<Long> ids = transform(tags, tag -> (long) tag.getId());
+        return findCachedVotes(CachedVote.Type.TAG, ids);
+    }
+
+    private Observable<Map<Long, Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
+        if (ids.isEmpty())
+            return Observable.empty();
 
         return Async.start(() -> {
             Stopwatch watch = Stopwatch.createStarted();
-            List<Long> ids = transform(comments, Post.Comment::getId);
-            List<CachedVote> cachedVotes = CachedVote.find(CachedVote.Type.COMMENT, ids);
+            List<CachedVote> cachedVotes = CachedVote.find(type, ids);
 
             Map<Long, Vote> result = new HashMap<>();
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 
-            Log.i(TAG, format("Loading votes for %d comments took %s", comments.size(), watch));
+            logger.info("Loading votes for {} {}s took {}", ids.size(), type.name().toLowerCase(), watch);
             return result;
         }, Schedulers.io());
     }

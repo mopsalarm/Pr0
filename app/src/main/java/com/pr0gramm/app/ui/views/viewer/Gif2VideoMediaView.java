@@ -2,9 +2,9 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 
 import com.pr0gramm.app.services.GifToVideoService;
+import com.pr0gramm.app.services.ProxyService;
 
 import javax.inject.Inject;
 
@@ -22,25 +22,30 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     private GifToVideoService gifToVideoService;
 
-    public Gif2VideoMediaView(Context context, Binder binder, String url) {
-        super(context, binder, url);
+    @Inject
+    private ProxyService proxyService;
+
+    public Gif2VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, url, onViewListener);
         startWebmConversion(binder, url);
     }
 
     private void startWebmConversion(Binder binder, String url) {
-        Log.i("Gif2Webm", "Start converting gif to webm");
+        logger.info("Start converting gif to webm");
         conversion = binder.bind(gifToVideoService.toVideo(url)).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer
             MediaView child;
             if (result.getVideoUrl().isPresent()) {
-                Log.i("Gif2Webm", "Converted successfully, replace with video player");
-                child = MediaView.newInstance(getContext(), binder, result.getVideoUrl().get());
+                logger.info("Converted successfully, replace with video player");
+                String webm = result.getVideoUrl().get();
+                child = MediaViews.newInstance(getContext(), binder, webm, onViewListener);
 
             } else {
-                Log.i("Gif2Webm", "Conversion did not work, showing gif");
-                child = new GifMediaView(getContext(), binder, result.getGifUrl());
+                logger.info("Conversion did not work, showing gif");
+                child = new GifMediaView(getContext(), binder,
+                        proxyService.proxy(result.getGifUrl()), onViewListener);
             }
 
             setChild(child);

@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TextView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/fragment_post"
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:layout_marginRight="8dp"
-    android:padding="8dp"
-    android:background="@color/tag_background"
-    android:text="@string/dummy_tag"
-    />
+    android:background="@color/tag_background">
+
+    <TextView
+        android:id="@+id/tag_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_tag"
+        android:layout_gravity="center_vertical"
+        android:padding="8dp"
+        android:textSize="14sp"
+        />
+
+    <com.pr0gramm.app.ui.views.VoteView
+        android:id="@+id/tag_vote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:orientation="horizontal"
+        app:defaultColor="@color/secondary_text_default_material_dark"
+        app:markedColor="@color/primary"
+        app:textSize="22sp"
+        app:spacing="4sp"
+        android:paddingRight="8dp"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone"/>
+
+</LinearLayout>

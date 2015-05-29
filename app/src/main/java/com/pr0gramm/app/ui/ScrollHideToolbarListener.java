@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 
@@ -30,7 +31,6 @@ public class ScrollHideToolbarListener {
     }
 
     public void onScrolled(int dy) {
-        // int abHeight = AndroidUtility.getActionBarSize(MainActivity.this);
         int abHeight = toolbar.getHeight();
         if (abHeight == 0)
             return;
@@ -45,6 +45,19 @@ public class ScrollHideToolbarListener {
         applyToolbarPosition(false);
     }
 
+    public void onScrollFinished(int y) {
+        int abHeight = toolbar.getHeight();
+        if (abHeight == 0)
+            return;
+
+        if (y < abHeight) {
+            reset();
+        } else {
+            toolbarMarginOffset = (toolbarMarginOffset > abHeight / 2) ? abHeight : 0;
+            applyToolbarPosition(true);
+        }
+    }
+
     public void reset() {
         if (toolbarMarginOffset != 0) {
             toolbarMarginOffset = 0;
@@ -54,5 +67,22 @@ public class ScrollHideToolbarListener {
 
     public interface ToolbarActivity {
         ScrollHideToolbarListener getScrollHideToolbarListener();
+    }
+
+    /**
+     * This method estimates scrolling based on y value of the first element
+     * in this recycler view. If scrolling could not be estimated, it will
+     * return {@link Integer#MAX_VALUE} as estimate.
+     *
+     * @param recyclerView The recycler view to estimate scrolling of
+     */
+    public static int estimateRecyclerViewScrollY(RecyclerView recyclerView) {
+        int scrollY = Integer.MAX_VALUE;
+        View view = recyclerView.getLayoutManager().findViewByPosition(0);
+        if (view != null) {
+            scrollY = -(int) view.getY();
+        }
+
+        return scrollY;
     }
 }

@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -16,10 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -30,7 +31,10 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.InboxActivity;
+import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -48,6 +52,7 @@ import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
+import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static java.util.Arrays.asList;
 import static rx.android.observables.AndroidObservable.bindFragment;
 
@@ -84,6 +89,9 @@ public class DrawerFragment extends RoboFragment {
     @InjectView(R.id.action_settings)
     private View settingsView;
 
+    @InjectView(R.id.user_image)
+    private View userImageView;
+
     @InjectView(R.id.drawer_nav_list)
     private RecyclerView navItemsRecyclerView;
 
@@ -93,14 +101,25 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_home)
     private Drawable iconFeedTypePromoted;
 
-    @InjectResource(R.drawable.ic_black_action_line_chart)
+    @InjectResource(R.drawable.ic_black_action_stelz)
+    private Drawable iconFeedTypePremium;
+
+    @InjectResource(R.drawable.ic_black_action_trending)
     private Drawable iconFeedTypeNew;
 
-    @InjectResource(R.drawable.ic_black_action_pin)
+    @InjectResource(R.drawable.ic_black_action_bookmark)
     private Drawable iconBookmark;
+
+    @InjectResource(R.drawable.ic_black_action_mail)
+    private Drawable iconInbox;
+
+    @InjectResource(R.drawable.ic_black_action_upload)
+    private Drawable iconUpload;
+
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
+    private static final int ICON_ALPHA = 127;
     private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
     private Subscription scLoginState;
@@ -109,8 +128,6 @@ public class DrawerFragment extends RoboFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
-        inflater = LayoutInflater.from(context);
         return inflater.inflate(R.layout.left_drawer, container, false);
     }
 
@@ -121,6 +138,14 @@ public class DrawerFragment extends RoboFragment {
         // get "marked" color
         int primary = getActivity().getResources().getColor(R.color.primary);
         markedColor = ColorStateList.valueOf(primary);
+
+        // add some space on the top for the translucent status bar
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
+                    userImageView.getLayoutParams();
+
+            params.topMargin += getStatusBarHeight(getActivity());
+        }
 
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);
@@ -163,21 +188,29 @@ public class DrawerFragment extends RoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
+        if (userService.isPremiumUser()) {
+            items.add(new NavigationItem(
+                    new FeedFilter().withFeedType(FeedType.PREMIUM),
+                    getString(R.string.action_feed_type_premium),
+                    iconFeedTypePremium));
+        }
+
         if (userInfo.isPresent()) {
             String name = userInfo.get().getName();
             items.add(new NavigationItem(
                     new FeedFilter().withFeedType(FeedType.NEW).withLikes(name),
                     getString(R.string.action_favorites),
                     iconFavorites));
+
         }
 
         return items;
     }
 
     private void onBenisGraphClicked(View view) {
-        new MaterialDialog.Builder(getActivity())
+        DialogBuilder.start(getActivity())
                 .content(R.string.benis_graph_explanation)
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .show();
     }
 
@@ -202,7 +235,14 @@ public class DrawerFragment extends RoboFragment {
                         ? getFixedNavigationItems(Optional.of(st.getInfo().getUser()))
                         : getFixedNavigationItems(Optional.<Info.User>absent())),
 
-                bookmarkService.get().map(this::bookmarksToNavItem)), args -> {
+                userService.getLoginStateObservable()
+                        .flatMap(ignored -> bookmarkService.get())
+                        .map(this::bookmarksToNavItem),
+
+                Observable.just(ImmutableList.of(
+                        getInboxNavigationItem(),
+                        getUploadNavigationItem()))
+        ), args -> {
 
             ArrayList<NavigationItem> result = new ArrayList<>();
             for (Object arg : args)
@@ -213,11 +253,15 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        return Lists.transform(entries, entry -> {
-            Drawable icon = iconBookmark.getConstantState().newDrawable();
-            String title = entry.getTitle().toUpperCase();
-            return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
-        });
+        boolean premium = userService.isPremiumUser();
+        return FluentIterable.from(entries)
+                .filter(entry -> premium || entry.asFeedFilter().getFeedType() != FeedType.PREMIUM)
+                .transform(entry -> {
+                    Drawable icon = iconBookmark.getConstantState().newDrawable();
+                    String title = entry.getTitle().toUpperCase();
+                    return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
+                })
+                .toList();
     }
 
     @Override
@@ -254,6 +298,7 @@ public class DrawerFragment extends RoboFragment {
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
+            usernameView.setOnClickListener(v -> onUsernameClicked());
 
             String benisValue = String.valueOf(user.getScore());
 
@@ -265,6 +310,8 @@ public class DrawerFragment extends RoboFragment {
             logoutView.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
+            usernameView.setOnClickListener(null);
+
             benisContainer.setVisibility(View.GONE);
             benisGraph.setImageDrawable(null);
 
@@ -273,8 +320,45 @@ public class DrawerFragment extends RoboFragment {
         }
     }
 
+    private void onUsernameClicked() {
+        Optional<String> name = userService.getName();
+        if (name.isPresent()) {
+            FeedFilter filter = new FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .withUser(name.get());
+
+            onFeedFilterClicked(filter);
+        }
+    }
+
     public void updateCurrentFilters(FeedFilter current) {
         navigationAdapter.setCurrentFilter(current);
+    }
+
+    /**
+     * Returns the menu item that takes the user to the inbox.
+     */
+    public NavigationItem getInboxNavigationItem() {
+        Runnable run = () -> {
+            Intent intent = new Intent(getActivity(), InboxActivity.class);
+            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.ALL.ordinal());
+            startActivity(intent);
+        };
+
+        return new NavigationItem(getString(R.string.action_inbox), iconInbox, () ->
+                LoginDialogFragment.doIfAuthorized(this, run, run));
+    }
+
+    /**
+     * Returns the menu item that takes the user to the upload activity.
+     */
+    public NavigationItem getUploadNavigationItem() {
+        Runnable run = () -> {
+            startActivity(new Intent(getActivity(), UploadActivity.class));
+        };
+
+        return new NavigationItem(getString(R.string.action_upload), iconUpload, () ->
+                LoginDialogFragment.doIfAuthorized(this, run, run));
     }
 
     public interface OnFeedFilterSelected {
@@ -284,11 +368,23 @@ public class DrawerFragment extends RoboFragment {
          * @param filter The feed filter that was clicked.
          */
         void onFeedFilterSelectedInNavigation(FeedFilter filter);
+
+        /**
+         * Some other menu item was clicked and we request that this
+         * drawer gets closed
+         */
+        void onOtherNavigationItemClicked();
     }
 
     private void onFeedFilterClicked(FeedFilter filter) {
         if (getActivity() instanceof OnFeedFilterSelected) {
             ((OnFeedFilterSelected) getActivity()).onFeedFilterSelectedInNavigation(filter);
+        }
+    }
+
+    private void onOtherNavigationItemClicked() {
+        if (getActivity() instanceof OnFeedFilterSelected) {
+            ((OnFeedFilterSelected) getActivity()).onOtherNavigationItemClicked();
         }
     }
 
@@ -317,13 +413,21 @@ public class DrawerFragment extends RoboFragment {
             // update color
             ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
             holder.text.setTextColor(color);
-            changeCompoundDrawableColor(holder.text, color);
+            changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA));
 
             // handle clicks
-            holder.itemView.setOnClickListener(v -> onFeedFilterClicked(item.filter));
+            holder.itemView.setOnClickListener(v -> {
+                if (item.hasFilter()) {
+                    onFeedFilterClicked(item.filter);
+
+                } else if (item.callback != null) {
+                    item.callback.run();
+                    onOtherNavigationItemClicked();
+                }
+            });
 
             holder.itemView.setOnLongClickListener(v -> {
-                if(item.bookmark != null) {
+                if (item.bookmark != null) {
                     showDialogToRemoveBookmark(item.bookmark);
                 }
 
@@ -350,11 +454,13 @@ public class DrawerFragment extends RoboFragment {
         private void merge() {
             // calculate the currently selected item
             selected = FluentIterable.from(allItems)
+                    .filter(NavigationItem::hasFilter)
                     .filter(nav -> equal(currentFilter, nav.filter))
                     .first();
 
             if (!selected.isPresent() && currentFilter != null) {
                 selected = FluentIterable.from(allItems)
+                        .filter(NavigationItem::hasFilter)
                         .filter(nav -> nav.filter.getFeedType() == currentFilter.getFeedType())
                         .first();
             }
@@ -364,16 +470,10 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void showDialogToRemoveBookmark(Bookmark bookmark) {
-        new MaterialDialog.Builder(getActivity())
+        DialogBuilder.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.cancel)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        bookmarkService.delete(bookmark);
-                    }
-                })
+                .positive(R.string.yes, () -> bookmarkService.delete(bookmark))
+                .negative(R.string.cancel)
                 .show();
     }
 
@@ -386,11 +486,21 @@ public class DrawerFragment extends RoboFragment {
         }
     }
 
-    private class NavigationItem {
+    private static class NavigationItem {
         final String title;
         final FeedFilter filter;
         final Drawable icon;
         final Bookmark bookmark;
+        final Runnable callback;
+
+        NavigationItem(String title, Drawable icon, Runnable callback) {
+            this.title = title;
+            this.icon = icon;
+            this.callback = callback;
+
+            this.filter = null;
+            this.bookmark = null;
+        }
 
         NavigationItem(FeedFilter filter, String title, Drawable icon) {
             this(filter, title, icon, null);
@@ -401,6 +511,11 @@ public class DrawerFragment extends RoboFragment {
             this.filter = filter;
             this.icon = icon;
             this.bookmark = bookmark;
+            this.callback = null;
+        }
+
+        public boolean hasFilter() {
+            return filter != null;
         }
     }
 }

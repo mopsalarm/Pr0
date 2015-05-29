@@ -2,9 +2,11 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
-import android.util.Log;
 
 import com.squareup.picasso.Downloader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,8 @@ import static java.lang.System.identityHashCode;
 /**
  */
 public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatus> {
+    private static final Logger logger = LoggerFactory.getLogger(GifLoader.class);
+
     private final Downloader downloader;
     private final File temporaryPath;
     private final String url;
@@ -39,6 +43,8 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             // and load + parse it
             loadGifUsingTempFile(subscriber, response);
         } catch (Exception error) {
+            logger.warn("Error during loading", error);
+
             if (!subscriber.isUnsubscribed())
                 subscriber.onError(error);
         }
@@ -55,7 +61,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
         File temporary = new File(temporaryPath, "tmp" + identityHashCode(subscriber) + ".gif");
 
-        Log.i("Gif", "storing data into temporary file");
+        logger.info("storing data into temporary file");
         RandomAccessFile storage = new RandomAccessFile(temporary, "rw");
 
         boolean close = true;
@@ -69,13 +75,13 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             long lastStatusTime = System.currentTimeMillis();
             try (InputStream stream = response.getInputStream()) {
                 int length, count = 0;
-                byte[] buffer = new byte[16 * 1024];
+                byte[] buffer = new byte[4 * 1024];
                 while ((length = stream.read(buffer)) >= 0) {
                     storage.write(buffer, 0, length);
                     count += length;
 
                     if (subscriber.isUnsubscribed()) {
-                        Log.i("GifLoader", "Stopped because the subscriber unsubscribed");
+                        logger.info("Stopped because the subscriber unsubscribed");
                         return;
                     }
 
@@ -91,7 +97,6 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             if (subscriber.isUnsubscribed())
                 return;
 
-            Log.i("Gif", "loading gif from file");
             GifDrawable drawable = new GifDrawable(storage.getFD());
 
             // closing is now delegated to the drawable.

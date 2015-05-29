@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,11 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.ui.MainActionHandler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
@@ -30,6 +33,8 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 /**
  */
 public class PostPagerFragment extends RoboFragment {
+    private static final Logger logger = LoggerFactory.getLogger(PostPagerFragment.class);
+
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";
 
@@ -82,7 +87,7 @@ public class PostPagerFragment extends RoboFragment {
         }
 
         viewPager.setAdapter(adapter);
-        Log.i("PostPager", "state is " + savedInstanceState);
+        logger.info("state is " + savedInstanceState);
 
         if (savedInstanceState != null) {
             // calculate index of the first item to show if this is the first
@@ -105,7 +110,7 @@ public class PostPagerFragment extends RoboFragment {
     private void makeItemCurrent(FeedItem item) {
         int index = proxy.getPosition(item).or(0);
 
-        Log.i("PostPager", "Moving to index: " + index);
+        logger.info("Moving to index: " + index);
         viewPager.setCurrentItem(index, false);
     }
 
@@ -114,7 +119,7 @@ public class PostPagerFragment extends RoboFragment {
         if (activePostFragment == newActiveFragment)
             return;
 
-        Log.i("PostPager", "Setting feed item activate at " + position + " to " + newActiveFragment);
+        logger.info("Setting feed item activate at " + position + " to " + newActiveFragment);
 
         // deactivate previous item
         if (activePostFragment != null)
@@ -182,8 +187,12 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     public void onUsernameClicked(String username) {
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(
-                getCurrentFilter().withUser(username));
+        // always show all uploads of a user.
+        FeedFilter newFilter = getCurrentFilter()
+                .withFeedType(FeedType.NEW)
+                .withUser(username);
+
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
     }
 
     private void saveStateToBundle(Bundle outState) {
@@ -209,12 +218,12 @@ public class PostPagerFragment extends RoboFragment {
         public Fragment getItem(int position) {
             if (!proxy.isLoading()) {
                 if (position > proxy.getItemCount() - 8) {
-                    Log.i("PostPager", "requested pos=" + position + ", load next page");
+                    logger.info("requested pos=" + position + ", load next page");
                     proxy.loadNextPage();
                 }
 
                 if (position < 8) {
-                    Log.i("PostPager", "requested pos=" + position + ", load prev page");
+                    logger.info("requested pos=" + position + ", load prev page");
                     proxy.loadPreviousPage();
                 }
             }
@@ -229,7 +238,7 @@ public class PostPagerFragment extends RoboFragment {
 
         @Override
         public void onItemRangeInserted(int start, int count) {
-            Log.i("PostPager", "Insert new posts at " + start);
+            logger.info("Insert new posts at " + start);
             notifyDataSetChanged();
         }
 

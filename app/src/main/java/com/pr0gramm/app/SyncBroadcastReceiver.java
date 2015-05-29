@@ -6,40 +6,44 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.util.Log;
 
 import com.pr0gramm.app.services.UserService;
+
+import org.joda.time.Duration;
+import org.joda.time.Hours;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import roboguice.RoboGuice;
 
 /**
  */
 public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
-    private static final String TAG = "SyncBroadcastReceiver";
+    private static final Logger logger = LoggerFactory.getLogger(SyncBroadcastReceiver.class);
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "System says, we shall sync now");
+        logger.info("System says, we shall sync now");
         UserService userService = RoboGuice.getInjector(context).getInstance(UserService.class);
         if (!userService.isAuthorized()) {
-            Log.i(TAG, "Looks like we are not authorized to sync.");
+            logger.info("Looks like we are not authorized to sync.");
             return;
         }
 
         try {
-            Log.i(TAG, "Schedule another sync in one hour.");
+            logger.info("Schedule another sync in one hour.");
             scheduleNextSync(context);
         } catch (Exception err) {
-            Log.e(TAG, "Could not schedule the next sync");
+            logger.error("Could not schedule the next sync");
         }
 
-        Log.i(TAG, "Start the SyncIntentService now");
+        logger.info("Start the SyncIntentService now");
         Intent service = new Intent(context, SyncIntentService.class);
         startWakefulService(context, service);
     }
 
     public static void scheduleNextSync(Context context) {
-        // we dont need to schedule, if benis graph is disabled.
+        // we don't need to schedule, if benis graph is disabled.
         if (!Settings.of(context).benisGraphEnabled())
             return;
 
@@ -50,8 +54,8 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, nextIntent, 0);
 
         // register a pending event.
-        int oneHour = 3600 * 1000;
+        Duration delay = Hours.ONE.toStandardDuration();
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + oneHour, alarmIntent);
+                SystemClock.elapsedRealtime() + delay.getMillis(), alarmIntent);
     }
 }

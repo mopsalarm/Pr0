@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
         android:id="@+id/refresh"
@@ -13,15 +13,24 @@
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/feed_background" />
+            android:background="@color/feed_background"/>
 
     </com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout>
 
-    <com.pr0gramm.app.ui.views.BusyCircleView
+    <com.pr0gramm.app.ui.views.BusyIndicator
         android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/nothing_there"
+        android:visibility="gone"/>
 
 </FrameLayout>

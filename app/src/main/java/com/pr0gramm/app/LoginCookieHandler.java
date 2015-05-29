@@ -1,9 +1,14 @@
 package com.pr0gramm.app;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.gson.Gson;
+import com.pr0gramm.app.api.pr0gramm.Api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.CookieHandler;
 import java.net.HttpCookie;
@@ -16,18 +21,23 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static com.google.common.base.Objects.equal;
+import static java.util.Arrays.asList;
 
 /**
  */
 @Singleton
 public class LoginCookieHandler extends CookieHandler {
+    private static final Logger logger = LoggerFactory.getLogger(LoginCookieHandler.class);
+
     private static final String PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue";
 
     private final Object lock = new Object();
     private final SharedPreferences preferences;
+    private final Gson gson = new Gson();
 
-    private HttpCookie loginCookie;
+    private HttpCookie httpCookie;
     private OnCookieChangedListener onCookieChangedListener;
+    private Optional<Cookie> parsedCookie = Optional.absent();
 
     @Inject
     public LoginCookieHandler(SharedPreferences preferences) {
@@ -35,7 +45,7 @@ public class LoginCookieHandler extends CookieHandler {
 
         String restored = preferences.getString(PREF_LOGIN_COOKIE, null);
         if (restored != null && !"null".equals(restored)) {
-            Log.i("LoginCookieHandler", "restoring cookie value from prefs: " + restored);
+            logger.info("restoring cookie value from prefs: " + restored);
             setLoginCookie(restored);
         }
     }
@@ -45,11 +55,11 @@ public class LoginCookieHandler extends CookieHandler {
         if (!isApiRequest(uri))
             return requestHeaders;
 
-        if (loginCookie == null || loginCookie.getValue() == null)
+        if (httpCookie == null || httpCookie.getValue() == null)
             return Collections.emptyMap();
 
-        Log.d("LoginCookieHandler", "Add login cookie to request: " + loginCookie.getValue());
-        return cookiesToHeaders(Collections.singletonList(loginCookie));
+        // logger.debug("LoginCookieHandler", "Add login cookie to request: " + httpCookie.getValue());
+        return cookiesToHeaders(Collections.singletonList(httpCookie));
     }
 
     @Override
@@ -65,8 +75,8 @@ public class LoginCookieHandler extends CookieHandler {
                 List<HttpCookie> cookies;
                 try {
                     cookies = HttpCookie.parse(value);
-                } catch (IllegalArgumentException ignored) {
-                    Log.d("LoginCookieHandler", "invalid cookie format");
+                } catch (IllegalArgumentException err) {
+                    logger.warn("LoginCookieHandler", "invalid cookie format", err);
                     continue;
                 }
 
@@ -77,12 +87,12 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     private boolean isApiRequest(URI uri) {
-        return uri.getHost().equalsIgnoreCase("pr0gramm.com");
+        return uri.getHost().equalsIgnoreCase("pr0gramm.com") || uri.getHost().contains("mockable.io");
     }
 
     private void handleCookie(HttpCookie cookie) {
         if (isLoginCookie(cookie)) {
-            Log.d("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
+            // logger.debug("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
             setLoginCookie(cookie);
         }
     }
@@ -95,44 +105,76 @@ public class LoginCookieHandler extends CookieHandler {
         return !"null".equals(value);
     }
 
-    private void setLoginCookie(HttpCookie cookie) {
-        synchronized (lock) {
-            boolean notChanged = loginCookie != null && equal(cookie.getValue(), loginCookie.getValue());
-            if (notChanged)
-                return;
-
-            loginCookie = cookie;
-
-            // store cookie for next time
-            preferences.edit()
-                    .putString(PREF_LOGIN_COOKIE, cookie.getValue())
-                    .apply();
-        }
-
-        if (onCookieChangedListener != null)
-            onCookieChangedListener.onCookieChanged();
-    }
-
-    public Optional<String> getLoginCookie() {
-        return Optional.fromNullable(loginCookie != null ? loginCookie.getValue() : null);
-    }
-
     public void setLoginCookie(String value) {
-        Log.i("LoginCookieHandler", "Set login cookie called: " + value);
+        logger.info("Set login cookie called: " + value);
 
+        // convert to a http cookie
         HttpCookie cookie = new HttpCookie("me", value);
         cookie.setVersion(0);
         setLoginCookie(cookie);
     }
 
-    public void clearLoginCookie() {
+    private void setLoginCookie(HttpCookie cookie) {
         synchronized (lock) {
-            loginCookie = null;
-            preferences.edit().remove(PREF_LOGIN_COOKIE).apply();
+            boolean notChanged = httpCookie != null && equal(cookie.getValue(), httpCookie.getValue());
+            if (notChanged)
+                return;
+
+            Optional<Cookie> parsedCookie = parseCookie(cookie);
+            boolean valid = parsedCookie.transform(c -> c.id != null && c.n != null).or(false);
+            if (valid) {
+                this.httpCookie = cookie;
+                this.parsedCookie = parsedCookie;
+
+                // store cookie for next time
+                preferences.edit()
+                        .putString(PREF_LOGIN_COOKIE, cookie.getValue())
+                        .apply();
+
+            } else {
+                // couldn't parse the cookie or it is not valid
+                clearLoginCookie(true);
+            }
         }
 
         if (onCookieChangedListener != null)
             onCookieChangedListener.onCookieChanged();
+    }
+
+    public void clearLoginCookie(boolean informListener) {
+        synchronized (lock) {
+            httpCookie = null;
+            parsedCookie = Optional.absent();
+            preferences.edit().remove(PREF_LOGIN_COOKIE).apply();
+        }
+
+        if (informListener && onCookieChangedListener != null)
+            onCookieChangedListener.onCookieChanged();
+    }
+
+    /**
+     * Tries to parse the cookie into a {@link com.pr0gramm.app.LoginCookieHandler.Cookie} instance.
+     */
+    private Optional<Cookie> parseCookie(HttpCookie cookie) {
+        if (cookie == null || cookie.getValue() == null)
+            return Optional.absent();
+
+        try {
+            String value = AndroidUtility.urlDecode(cookie.getValue(), Charsets.UTF_8);
+            return Optional.of(gson.fromJson(value, Cookie.class));
+        } catch (Exception err) {
+            logger.warn("Could not parse login cookie!", err);
+
+            AndroidUtility.logToCrashlytics(err);
+            return Optional.absent();
+        }
+    }
+
+    /**
+     * Gets the value of the login cookie, if any.
+     */
+    public Optional<String> getLoginCookie() {
+        return Optional.fromNullable(httpCookie != null ? httpCookie.getValue() : null);
     }
 
     public OnCookieChangedListener getOnCookieChangedListener() {
@@ -141,6 +183,51 @@ public class LoginCookieHandler extends CookieHandler {
 
     public void setOnCookieChangedListener(OnCookieChangedListener onCookieChangedListener) {
         this.onCookieChangedListener = onCookieChangedListener;
+    }
+
+    public Optional<Cookie> getCookie() {
+        return parsedCookie;
+    }
+
+    /**
+     * Gets the nonce. There must be a cookie to perform this action.
+     * You will receive a {@link com.pr0gramm.app.LoginRequiredException} if there is
+     * no cookie to get the nonce from.
+     */
+    public Api.Nonce getNonce() throws LoginRequiredException {
+        Optional<Cookie> cookie = getCookie();
+        if (!cookie.transform(c -> c.id != null).or(false)) {
+            if (cookie.isPresent())
+                clearLoginCookie(true);
+
+            throw new LoginRequiredException();
+        }
+
+        return cookie.transform(c -> new Api.Nonce(c.id)).get();
+    }
+
+    /**
+     * Returns true, if the user has pr0mium status.
+     */
+    public boolean isPaid() {
+        Object result = getCookie().transform(cookie -> cookie.paid).or(false);
+        if (result instanceof Boolean)
+            return (boolean) result;
+
+        if (result instanceof Number)
+            return ((Number) result).intValue() != 0;
+
+        return asList("true", "1").contains(result.toString().toLowerCase());
+    }
+
+    public boolean hasCookie() {
+        return httpCookie != null && parsedCookie.transform(c -> c.id != null).or(false);
+    }
+
+    public static class Cookie {
+        public String n;
+        public String id;
+        public Object paid;
     }
 
     /**

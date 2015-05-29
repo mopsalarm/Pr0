@@ -3,11 +3,13 @@ package com.pr0gramm.app.feed;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +28,8 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 /**
  */
 public class FeedProxy {
+    private static final Logger logger = LoggerFactory.getLogger(FeedProxy.class);
+
     private final List<FeedItem> items = new ArrayList<>();
 
     private final FeedFilter feedFilter;
@@ -135,15 +139,16 @@ public class FeedProxy {
             return;
 
         long oldest = items.get(items.size() - 1).getId(feedFilter.getFeedType());
-        loadAfter(Optional.of(oldest));
+        load(Optional.of(oldest), Optional.absent());
     }
 
     /**
      * Loads one page of feed items after the given start post.
      *
-     * @param start The post to start at.
+     * @param start  The post to start at.
+     * @param around The id to load around
      */
-    private void loadAfter(Optional<Long> start) {
+    private void load(Optional<Long> start, Optional<Long> around) {
         if (loading || loader == null)
             return;
 
@@ -151,29 +156,27 @@ public class FeedProxy {
         onLoadStart();
 
         // do the loading.
-        bind(loader.getFeedService().getFeedItems(feedFilter, start))
+        bind(loader.getFeedService().getFeedItems(feedFilter, start, around))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
 
-    /**
-     * Clears this adapter and loads the first page of items again.
-     */
-    public void restart() {
-        if (loading)
+    public void restart(Optional<Long> around) {
+        if (loading) {
+            logger.warn("Can not restart, currently loading");
             return;
+        }
 
         // remove all previous items from the adapter.
         int oldSize = items.size();
         items.clear();
-
         if (onChangeListener != null)
             onChangeListener.onItemRangeRemoved(0, oldSize);
 
-        // and start loading the first page
+        // and start loading the next page
         atEnd = false;
-        atStart = true;
-        loadAfter(Optional.<Long>absent());
+        atStart = !around.isPresent();
+        load(Optional.<Long>absent(), around);
     }
 
     public boolean isLoading() {
@@ -195,8 +198,8 @@ public class FeedProxy {
         if (feed.getFeed().isAtStart())
             atStart = true;
 
-        Ordering<Feed.Item> ordering = Ordering.natural().reverse().onResultOf(this::feedTypeId);
-        List<Feed.Item> newItems = ordering.sortedCopy(feed.getFeed().getItems());
+        Ordering<FeedItem> ordering = Ordering.natural().reverse().onResultOf(this::feedTypeId);
+        List<FeedItem> newItems = ordering.sortedCopy(feed.getFeedItems());
 
         if (newItems.size() > 0) {
             // calculate where to insert
@@ -211,26 +214,26 @@ public class FeedProxy {
                 long oldMinId = items.get(items.size() - 1).getId(feedFilter.getFeedType());
 
                 if (newMinId > oldMaxId) {
-                    Log.i("Feed", "Okay, prepending new data to stored feed");
+                    logger.info("Okay, prepending new data to stored feed");
                     index = 0;
 
                 } else if (newMaxId < oldMinId) {
-                    Log.i("Feed", "Okay, appending new data to stored feed");
+                    logger.info("Okay, appending new data to stored feed");
                     index = items.size();
 
                 } else if (newMinId < oldMinId) {
                     // mixed!
-                    Log.w("Feed", "New data is overlapping with old data! Appending new data.");
+                    logger.warn("New data is overlapping with old data! Appending new data.");
                     index = items.size();
 
                 } else if (newMaxId > oldMaxId) {
-                    Log.w("Feed", "New data is overlapping with old data! Prepending new data.");
+                    logger.warn("New data is overlapping with old data! Prepending new data.");
                     index = items.size();
                 }
             }
 
             // insert and notify observers about changes
-            items.addAll(index, feed.getFeedItems());
+            items.addAll(index, newItems);
 
             if (onChangeListener != null)
                 onChangeListener.onItemRangeInserted(index, newItems.size());
@@ -240,16 +243,13 @@ public class FeedProxy {
     }
 
     private void checkFeedOrder() {
-        // lets validate
-        long prev = Integer.MAX_VALUE;
-        for (FeedItem item : items) {
-            long id = item.getId(feedFilter.getFeedType());
-            if (prev <= id) {
-                Log.w("Feed", "feed not in order!!");
-                break;
-            }
+        boolean ordered = Ordering.natural()
+                .onResultOf((FeedItem item) -> item.getId(feedFilter.getFeedType()))
+                .reverse()
+                .isStrictlyOrdered(items);
 
-            prev = id;
+        if (!ordered) {
+            logger.warn("Feed not strictly ordered :/");
         }
     }
 
@@ -257,6 +257,10 @@ public class FeedProxy {
         return feedFilter.getFeedType() == FeedType.PROMOTED
                 ? item.getPromoted()
                 : item.getId();
+    }
+
+    private long feedTypeId(FeedItem item) {
+        return item.getId(feedFilter.getFeedType());
     }
 
     protected void onError(Throwable error) {
@@ -394,7 +398,7 @@ public class FeedProxy {
         @Override
         public void onError(Throwable error) {
             checkMainThread();
-            Log.e("Feed", "Could not load feed", error);
+            logger.error("Could not load feed", error);
         }
 
         @Override

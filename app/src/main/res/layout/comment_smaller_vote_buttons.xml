@@ -19,56 +19,5 @@
         app:defaultColor="@color/grey_700"
         app:markedColor="?colorPrimary"/>
 
-    <TextView
-        style="@style/Base.TextAppearance.AppCompat.Body1"
-        android:id="@+id/comment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_toRightOf="@id/voting"
-        android:layout_alignParentRight="true"
-        android:text="@string/dummy_comment"/>
-
-    <com.pr0gramm.app.ui.views.UsernameView
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:id="@+id/username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/comment"
-        android:layout_below="@id/comment"
-        android:layout_marginTop="2dp"/>
-
-    <TextView
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:id="@+id/points"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/username"
-        android:layout_alignBaseline="@id/username"
-        android:layout_marginLeft="8dp"
-        android:textSize="10sp"
-        android:text="@string/dummy_points"/>
-
-    <TextView
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/username"
-        android:layout_toRightOf="@id/points"
-        android:layout_marginLeft="8dp"
-        android:textSize="10sp"
-        android:text="@string/dummy_post_date"/>
-
-    <TextView
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:id="@+id/answer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/username"
-        android:layout_toRightOf="@id/date"
-        android:layout_marginLeft="8dp"
-        android:textColor="@color/primary"
-        android:text="@string/action_answer"/>
-
+    <include layout="@layout/comment_common"/>
 </RelativeLayout>

@@ -12,6 +12,7 @@ import java.util.List;
 /**
  */
 public class BenisRecord extends SugarRecord<BenisRecord> {
+    private int ownerId;
     private long time;
     private int benis;
 
@@ -19,13 +20,18 @@ public class BenisRecord extends SugarRecord<BenisRecord> {
     public BenisRecord() {
     }
 
-    public BenisRecord(Instant time, int benis) {
+    public BenisRecord(int ownerId, Instant time, int benis) {
+        this.ownerId = ownerId;
         this.time = time.getMillis();
         this.benis = benis;
     }
 
     public long getTimeMillis() {
         return time;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
     }
 
     public Instant getTime() {
@@ -36,18 +42,13 @@ public class BenisRecord extends SugarRecord<BenisRecord> {
         return benis;
     }
 
-    public static List<BenisRecord> getBenisValuesAfter(ReadableInstant time) {
-        List<BenisRecord> records = find(BenisRecord.class, "time >= ?", String.valueOf(time.getMillis()));
+    public static List<BenisRecord> getBenisValuesAfter(int ownerId, ReadableInstant time) {
+        List<BenisRecord> records = find(BenisRecord.class,
+                "time >= ? and (owner_id=? or owner_id=0)",
+                String.valueOf(time.getMillis()), String.valueOf(ownerId));
+
         return Ordering.natural()
                 .onResultOf(BenisRecord::getTimeMillis)
                 .sortedCopy(records);
-    }
-
-    public static Optional<BenisRecord> getFirstBenisRecordBefore(ReadableInstant time) {
-        List<BenisRecord> result = find(BenisRecord.class,
-                "time < ?", new String[]{String.valueOf(time.getMillis())},
-                null, "time DESC", "1");
-
-        return result.isEmpty() ? Optional.<BenisRecord>absent() : Optional.of(result.get(0));
     }
 }

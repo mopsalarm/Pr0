@@ -11,16 +11,10 @@
         android:minHeight="150dp"
         android:scaleType="fitCenter"/>
 
-    <ProgressBar
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+    <com.pr0gramm.app.ui.views.BusyIndicator
         android:id="@+id/progress"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:progress="0"
-        android:max="100"
-        android:layout_marginRight="32dp"
-        android:layout_marginLeft="32dp"/>
+        android:layout_gravity="center"/>
 
 </FrameLayout>

@@ -291,4 +291,7 @@
 
     <color name="white">@color/grey_white_1000</color>
     <color name="black">@color/grey_black_1000</color>
+
+    <color name="message_text_received">@android:color/primary_text_dark</color>
+    <color name="message_text_sent">@color/grey_700</color>
 </resources>

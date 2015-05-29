@@ -5,183 +5,416 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.google.common.base.Throwables;
+import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.services.MediaPlayerService;
+import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.views.BusyIndicator;
+
+import java.io.IOException;
 
 import roboguice.inject.InjectView;
+import rx.functions.Actions;
+import rx.schedulers.Schedulers;
+import rx.util.async.Async;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
+ * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class VideoMediaView extends MediaView {
+public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
+
     @InjectView(R.id.video)
-    private TextureView videoView;
+    private TextureView surfaceView;
 
-    private MediaPlayerService.MediaPlayerHolder holder;
-    private VideoSurfaceTextureListener textureListener;
+    @InjectView(R.id.video_container)
+    private ViewGroup videoContainer;
 
-    public VideoMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_video, url);
+    @Inject
+    private Settings settings;
 
-        Log.i(TAG, "Want to play video at " + this);
-        if (holder != null) {
-            Log.i(TAG, "Holder already exists.");
+    private State targetState = State.IDLE;
+    private State currentState = State.IDLE;
+    private MediaPlayer mediaPlayer;
 
-            videoView.setSurfaceTextureListener(textureListener);
-            tryRestoreSurfaceTexture();
-            return;
-        }
+    private SurfaceTextureListenerImpl surfaceHolder;
+    private boolean mediaPlayerHasTexture;
 
-        Log.i(TAG, "Create new MediaPlayer instance to play video");
+    private int retryCount;
 
-        holder = new MediaPlayerService.MediaPlayerHolder(context, getUrlArgument());
-        textureListener = new VideoSurfaceTextureListener(holder);
-        videoView.setSurfaceTextureListener(textureListener);
+    public VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, R.layout.player_video, url, onViewListener);
+
+        logger.info("Playing webm " + url);
+
+        surfaceHolder = new SurfaceTextureListenerImpl();
+        surfaceView.setSurfaceTextureListener(surfaceHolder);
+
+        moveTo_Idle();
     }
 
+    @Override
     public void onResume() {
-        if (isResumed())
-            return;
-
         super.onResume();
-
-        Log.i(TAG, "onResume called");
-
-        tryRestoreSurfaceTexture();
-
-        holder.setOnPreparedListener(mp -> {
-            Log.i(TAG, "MediaPlayer is prepared");
-
-            // loop 10/10
-            mp.setLooping(true);
-            mp.setVolume(0, 0);
-
-            // size of the video
-            resizeViewerView(videoView, mp.getVideoWidth() / (float) mp.getVideoHeight(), 10);
-
-            // start playback if we are not paused
-            if (isResumed())
-                holder.getPlayer().start();
-
-            hideBusyIndicator();
-        });
-    }
-
-    private void tryRestoreSurfaceTexture() {
-        // if we are recreating the views, we need to re-attach the SurfaceTexture
-        SurfaceTexture texture = textureListener.getTexture();
-        if (textureListener.hasTexture() && videoView.getSurfaceTexture() != texture) {
-            Log.i(TAG, "Restoring SurfaceTexture: " + texture);
-            videoView.setSurfaceTexture(texture);
-        }
+        moveTo(isPlaying() ? State.PLAYING : State.IDLE);
     }
 
     @Override
     public void onPause() {
-        Log.i(TAG, "onPause called");
-
-        holder.setOnPreparedListener(null);
-
-        if (holder.isPrepared()) {
-            MediaPlayer player = holder.getPlayer();
-            if (player.isPlaying())
-                player.pause();
-        }
-
         super.onPause();
+        moveTo(State.IDLE);
     }
 
     @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy called");
-        holder.destroy();
-        textureListener.destroy();
-
-        super.onDestroy();
+    public void playMedia() {
+        super.playMedia();
+        moveTo(State.PLAYING);
     }
 
-    private class VideoSurfaceTextureListener implements TextureView.SurfaceTextureListener {
-        private final MediaPlayerService.MediaPlayerHolder holder;
-        private SurfaceTexture texture;
-        private boolean destroy;
+    @Override
+    public void stopMedia() {
+        super.stopMedia();
+        moveTo(currentState == State.PLAYING ? State.PAUSED : State.IDLE);
+    }
 
-        public VideoSurfaceTextureListener(MediaPlayerService.MediaPlayerHolder holder) {
-            this.holder = holder;
+    private void moveTo(State target) {
+        checkMainThread();
+
+        targetState = target;
+        if (currentState == targetState)
+            return;
+
+        try {
+            logger.info("Moving from state " + currentState + " to " + targetState);
+            switch (targetState) {
+                case IDLE:
+                    moveTo_Idle();
+                    break;
+
+                case PAUSED:
+                    moveTo_Pause();
+                    break;
+
+                case PLAYING:
+                    moveTo_Playing();
+                    break;
+            }
+        } catch (Exception err) {
+            // log this exception
+            defaultOnError().call(err);
+        }
+    }
+
+    private void moveTo_Playing() {
+        if (currentState == State.PAUSED) {
+            if (!mediaPlayerHasTexture && surfaceHolder.hasTexture())
+                setMediaPlayerTexture(surfaceHolder.getTexture());
+
+            if (mediaPlayerHasTexture) {
+                mediaPlayer.setLooping(true);
+                mediaPlayer.start();
+                currentState = State.PLAYING;
+
+                onViewListener.run();
+            }
         }
 
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-            Log.i(TAG, "SurfaceTexture available: " + texture);
-            if (this.texture == null) {
-                this.texture = texture;
-                holder.getPlayer().setSurface(new Surface(texture));
-
-            } else if (this.texture != texture) {
-                Log.w(TAG, "Another TextureSurface became available - switching textures");
-                holder.getPlayer().setSurface(new Surface(texture));
-                this.texture = texture;
-            }
-
-            if (holder.isPrepared() && !holder.getPlayer().isPlaying()) {
-                Log.i(TAG, "Starting playback");
-                holder.getPlayer().start();
-                hideBusyIndicator();
-            }
+        if (currentState == State.IDLE) {
+            openMediaPlayer();
         }
+    }
 
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            if (holder.isPrepared()) {
-                try {
-                    MediaPlayer player = holder.getPlayer();
-                    if (player.isPlaying())
-                        player.pause();
-
-                } catch (IllegalStateException ignored) {
+    private void setMediaPlayerTexture(SurfaceTexture texture) {
+        try {
+            if (texture != null) {
+                if (!mediaPlayerHasTexture && mediaPlayer != null) {
+                    logger.info("Setting surface on MediaPlayer");
+                    mediaPlayer.setSurface(new Surface(texture));
+                    mediaPlayerHasTexture = true;
                 }
-            }
-
-            if (destroy) {
-                Log.i(TAG, "Destroying SurfaceTexture: " + surface);
             } else {
-                Log.i(TAG, "Ignoring destroy of SurfaceTexture: " + surface);
+                if (mediaPlayer != null) {
+                    logger.info("Removing surface from MediaPlayer");
+                    mediaPlayer.setSurface(null);
+                }
+
+                mediaPlayerHasTexture = false;
+            }
+        } catch (Exception err) {
+            defaultOnError().call(err);
+        }
+    }
+
+    private void moveTo_Pause() {
+        if (currentState == State.PLAYING) {
+            mediaPlayer.pause();
+            currentState = State.PAUSED;
+        }
+
+        if (currentState == State.IDLE) {
+            openMediaPlayer();
+        }
+    }
+
+    private void moveTo_Idle() {
+        currentState = State.IDLE;
+
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        setMediaPlayerTexture(null);
+
+        if (surfaceHolder.hasTexture()) {
+            logger.info("Detaching TextureView");
+            videoContainer.removeView(surfaceView);
+        }
+
+        // destroy the previous texture
+        surfaceHolder.destroyTexture();
+
+        surfaceView.setAlpha(0);
+        showBusyIndicator();
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        logger.info("MediaPlayer is prepared");
+
+        currentState = State.PAUSED;
+        if (targetState == State.IDLE) {
+            moveTo(State.IDLE);
+            return;
+        }
+
+        mp.setLooping(true);
+        mp.setVolume(0, 0);
+
+        hideBusyIndicator();
+        surfaceView.setAlpha(1);
+
+        // if we already have a surface, move on
+        if (mediaPlayerHasTexture)
+            moveTo(targetState);
+    }
+
+    @Override
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+        // scale view correctly
+        float aspect = width / (float) height;
+        resizeViewerView(surfaceView, aspect, 10);
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        // release the player now
+        moveTo(State.IDLE);
+
+        final int METHOD_CALLED_IN_INVALID_STATE = -38;
+
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED
+                || what == METHOD_CALLED_IN_INVALID_STATE
+                || extra == METHOD_CALLED_IN_INVALID_STATE) {
+
+            if (retryCount < 3) {
+                retryCount++;
+
+                // try again in a moment
+                if (isPlaying()) {
+                    postDelayed(() -> {
+                        if (isPlaying()) {
+                            moveTo(State.PLAYING);
+                        }
+                    }, 500);
+                }
+
+                return true;
+            }
+        }
+
+        String message = String.format("Error playing this video (%d, %d)", what, extra);
+        logger.info("Could not play video: " + message);
+
+        try {
+            if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
+                DialogBuilder.start(getContext())
+                        .content(R.string.could_not_play_video_io)
+                        .positive(R.string.okay)
+                        .show();
+
+                return true;
             }
 
-            return destroy;
+            DialogBuilder.start(getContext())
+                    .content(R.string.could_not_play_video)
+                    .positive(R.string.okay)
+                    .show();
+
+        } catch (Exception ignored) {
+        }
+
+        return true;
+    }
+
+    private void openMediaPlayer() {
+        moveTo_Idle();
+        currentState = State.PREPARING;
+
+        // re-attach the view, if not yet there.
+        if (surfaceView.getParent() == null) {
+            logger.info("Attaching TextureView back");
+            videoContainer.addView(surfaceView, 0);
+        }
+
+        logger.info("Creating new MediaPlayer");
+        mediaPlayerHasTexture = false;
+        mediaPlayer = new MediaPlayer();
+        Async.fromCallable(() -> {
+            try {
+                // Enable looping for Samsung devices, tested on Galaxy S5 (4.4.4)
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    logger.info("Playback stopped, restarting now.");
+                    mp.pause();
+                    mp.seekTo(0);
+                    mp.start();
+                });
+
+                mediaPlayer.setDataSource(getContext(), Uri.parse(url));
+                mediaPlayer.setOnPreparedListener(this);
+                mediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
+                    View view = getProgressView();
+                    if(view instanceof BusyIndicator) {
+                        BusyIndicator busyIndicator = (BusyIndicator) view;
+                        busyIndicator.setProgress(0.01f * percent);
+                    }
+                });
+
+                mediaPlayer.setOnErrorListener(this);
+                mediaPlayer.setOnVideoSizeChangedListener(this);
+                mediaPlayer.prepareAsync();
+                return mediaPlayer;
+
+            } catch (IOException error) {
+                throw Throwables.propagate(error);
+            }
+        }, Schedulers.io()).subscribe(Actions.empty(), error -> {
+            moveTo(State.IDLE);
+            defaultOnError().call(error);
+        });
+    }
+
+    private class SurfaceTextureListenerImpl implements TextureView.SurfaceTextureListener {
+        private SurfaceTexture texture;
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            logger.info("Texture available at size " + width + "x" + height);
+            if (this.texture == null) {
+                logger.info("Keeping new Texture");
+
+                this.texture = surface;
+                if (mediaPlayer != null) {
+                    setMediaPlayerTexture(texture);
+                }
+
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !settings.dontRestoreSurfaceTexture()) {
+                tryRestoreTexture(this.texture);
+
+            } else if (mediaPlayer != null) {
+                setMediaPlayerTexture(texture);
+            }
+
+            if (currentState.after(State.PREPARING) && isPlaying())
+                moveTo(State.PLAYING);
         }
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-            Log.i(TAG, "onSurfaceTextureSizeChanged");
-            onSurfaceTextureAvailable(surface, width, height);
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            if (currentState.after(State.IDLE)) {
+                // goto pause mode and retain the current surface
+                moveTo(State.PAUSED);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !settings.dontRestoreSurfaceTexture()) {
+                    logger.info("Keeping Texture after onDestroyed-event");
+                    return false;
+                } else {
+                    texture = null;
+
+                    moveTo(State.PAUSED);
+                    setMediaPlayerTexture(null);
+
+                    logger.info("Destroying Texture in onDestroyed-event because of old android.");
+                    return true;
+                }
+
+            } else {
+                logger.info("Destroying Texture in onDestroyed-event");
+
+                texture = null;
+                return true;
+            }
         }
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
 
-        public SurfaceTexture getTexture() {
-            return texture;
-        }
-
         public boolean hasTexture() {
             return texture != null;
         }
 
-        public void destroy() {
-            destroy = true;
+        public SurfaceTexture getTexture() {
+            return texture;
+        }
 
+        public void destroyTexture() {
             if (texture != null) {
+                logger.info("Destroying Texture");
+
                 texture.release();
                 texture = null;
             }
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void tryRestoreTexture(SurfaceTexture texture) {
+        logger.info("Trying to restore texture");
+
+        try {
+            checkNotNull(texture, "Texture must not be null");
+            if (surfaceView.getSurfaceTexture() != texture) {
+                surfaceView.setSurfaceTexture(texture);
+            }
+        } catch (Exception err) {
+            defaultOnError().call(err);
+        }
+    }
+
+    private enum State {
+        IDLE, PREPARING, PAUSED, PLAYING;
+
+        public boolean after(State state) {
+            return ordinal() > state.ordinal();
+        }
+    }
 }

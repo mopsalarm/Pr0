@@ -4,44 +4,65 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Optional;
+import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.services.VoteService;
+
+import java.util.List;
+
+import roboguice.fragment.RoboDialogFragment;
+
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
+import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static rx.android.observables.AndroidObservable.bindActivity;
 
 /**
  */
-public class NewCommentDialogFragment extends DialogFragment {
+public class NewCommentDialogFragment extends RoboDialogFragment {
     private EditText commentInput;
+
+    @Inject
+    private VoteService voteService;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
         Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_comment, null);
         commentInput = (EditText) view.findViewById(R.id.comment);
 
-        return new MaterialDialog.Builder(getActivity())
-                .title(R.string.add_new_comment_title)
-                .customView(view, true)
-                .negativeText(R.string.cancel)
-                .positiveText(R.string.action_add_tag)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        onOkayClicked(dialog);
-                    }
-                })
+        // restore message text on rotation
+        if (savedInstanceState != null) {
+            String text = savedInstanceState.getString("commentText", "");
+            commentInput.setText(text);
+        }
+
+        return DialogBuilder.start(getActivity())
+                .fullWidth()
+                .content(view, true)
+                .negative(R.string.cancel)
+                .positive(R.string.dialog_action_add, this::onOkayClicked)
                 .build();
     }
 
-    private void onOkayClicked(MaterialDialog dialog) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("commentText", commentInput.getText().toString());
+    }
+
+    private void onOkayClicked() {
         String text = commentInput.getText().toString().trim();
 
         // do nothing if the user had not typed a comment
@@ -50,13 +71,29 @@ public class NewCommentDialogFragment extends DialogFragment {
 
         // inform parent
         long parentComment = getArguments().getLong("parentCommentId");
-        ((OnAddNewCommentListener) getParentFragment()).onAddNewCommment(parentComment, text);
+        long itemId = getArguments().getLong("itemId");
+
+        Fragment parentFragment = getParentFragment();
+
+        bindActivity(getActivity(), voteService.postComment(itemId, parentComment, text))
+                .lift(busyDialog(this))
+                .subscribe(comments -> {
+                    if (parentFragment instanceof OnNewCommentsListener) {
+                        ((OnNewCommentsListener) parentFragment).onNewComments(comments);
+                    }
+
+                }, defaultOnError());
     }
 
-    public static NewCommentDialogFragment newInstance(Optional<Post.Comment> parent) {
+    public static NewCommentDialogFragment newInstance(long itemId, Optional<Post.Comment> parent) {
         long parentId = parent.transform(Post.Comment::getId).or(0L);
+        return newInstance(itemId, parentId);
+    }
+
+    public static NewCommentDialogFragment newInstance(long itemId, long parentId) {
         Bundle arguments = new Bundle();
         arguments.putLong("parentCommentId", parentId);
+        arguments.putLong("itemId", itemId);
 
         NewCommentDialogFragment dialog = new NewCommentDialogFragment();
         dialog.setArguments(arguments);
@@ -67,10 +104,10 @@ public class NewCommentDialogFragment extends DialogFragment {
      * The parent fragment must implement this interface.
      * It will be informed by this class if the user added tags.
      */
-    public interface OnAddNewCommentListener {
+    public interface OnNewCommentsListener {
         /**
          * Called when the dialog finishes with new tags.
          */
-        void onAddNewCommment(long parentId, String comment);
+        void onNewComments(List<Post.Comment> comments);
     }
 }

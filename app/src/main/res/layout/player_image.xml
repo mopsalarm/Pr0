@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
 
     <com.pr0gramm.app.ui.views.MaximizeImageView
         android:id="@+id/image"
@@ -9,13 +9,25 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:minHeight="150dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"/>
 
-    <com.pr0gramm.app.ui.views.BusyCircleView
+    <com.pr0gramm.app.ui.views.BusyIndicator
         android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"/>
+
+    <TextView
+        style="@style/TextAppearance.AppCompat"
+        android:id="@+id/error"
+        android:visibility="gone"
+        android:textColor="@color/primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/could_not_load_image"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.3"/>
 
 </FrameLayout>

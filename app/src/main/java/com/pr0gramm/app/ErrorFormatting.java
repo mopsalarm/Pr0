@@ -9,9 +9,11 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +73,8 @@ public class ErrorFormatting {
          * Gets the message for the given exception. You must only call this,
          * if {@link #handles(Throwable)} returned true before.
          */
+        @SuppressWarnings("unchecked")
         public String getMessage(Context context, Throwable thr) {
-            //noinspection unchecked
             return message.call((T) thr, context);
         }
 
@@ -131,21 +133,24 @@ public class ErrorFormatting {
                 R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() / 100 == 500,
+                err -> err.getResponse().getStatus() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
-
-        // could not deserialize. this one i am interested in.
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getKind() == RetrofitError.Kind.CONVERSION,
-                R.string.error_conversion));
-
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof UnknownHostException,
-                R.string.error_host_not_found).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof TimeoutException,
                 R.string.error_timeout).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof SocketTimeoutException,
+                R.string.error_timeout).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getKind() == RetrofitError.Kind.CONVERSION,
+                R.string.error_conversion).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof UnknownHostException,
+                R.string.error_host_not_found).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof ConnectException,
@@ -157,6 +162,13 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof SocketException,
                 R.string.error_socket).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof EOFException,
+                R.string.error_socket).doNotReport());
+
+        formatters.add(new Formatter<>(LoginRequiredException.class,
+                R.string.error_login_required_exception));
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());

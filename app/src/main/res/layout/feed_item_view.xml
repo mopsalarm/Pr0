@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content">
 
     <com.pr0gramm.app.ui.views.SquareImageView
         android:id="@+id/image"
@@ -9,13 +9,14 @@
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
         android:background="#333"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"/>
 
     <ImageView
         android:id="@+id/seen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom|right"
-        android:src="@drawable/ic_black_action_read"
-        android:tint="@color/primary" />
+        android:background="#8000"
+        android:scaleType="center"
+        android:src="@drawable/ic_checked"/>
 </FrameLayout>

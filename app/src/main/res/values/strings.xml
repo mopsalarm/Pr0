@@ -11,7 +11,7 @@
     <string name="banned">You are banned until %1$s. Reason: %2$s</string>
     <string name="cancel">Cancel</string>
     <string name="download">Download</string>
-    <string name="dummy_comment">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
+    <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
     <string name="dummy_content_type">swf</string>
     <string name="dummy_points">4 points</string>
     <string name="dummy_post_date">3 hours ago</string>
@@ -27,7 +27,7 @@
     <string name="error_nullpointer">A programming error occurred. I am very sorry.</string>
     <string name="error_oom">The app ran of memory. I am working on that.</string>
     <string name="error_timeout">A timeout occurred during a network request.</string>
-    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Go and diss cha0os</string>
+    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Send a complaint to cha0s.</string>
     <string name="gif_as_webm_might_be_buggy">You are saving a lot of traffic, but loading of an yet unconverted gif might take a moment longer. If conversion did not work, the app will fall back to loading the gif.</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Your username</string>
@@ -38,14 +38,11 @@
     <string name="menu_logout">Logout</string>
     <string name="menu_settings">Settings</string>
     <string name="must_not_be_empty">Must not be empty</string>
-    <string name="new_update_available">New update available. You can disable automatic checking in the settings. New in this version: %s</string>
+    <string name="new_update_available">New update available. Short overview about what is new: %s</string>
     <string name="okay">OK</string>
     <string name="please_wait">please wait…</string>
     <string name="points">%d points</string>
     <string name="pr0gramm">pr0gramm</string>
-    <string name="pref_check_for_updates">Check for updates</string>
-    <string name="pref_check_for_updates_off">Do not check for updates</string>
-    <string name="pref_check_for_updates_on">Automatically checks for updates</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_convert_gif_to_webm">Convert gif to webm</string>
     <string name="pref_convert_gif_to_webm_off">Download full gif files</string>
@@ -77,7 +74,7 @@
     <string name="type_nsfl">nsfl</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
-    <string name="prefcat_style">Customization</string>
+    <string name="prefcat_behaviour">Behaviour</string>
     <string name="pref_seen_indicator_style">Mark images as seen</string>
 
     <string name="indicator_none">No indicator</string>
@@ -88,12 +85,12 @@
     <string name="pref_animate_vote_view_on">Plays a small animation if you vote something</string>
     <string name="pref_animate_vote_view_off">Plays no animation if you vote something</string>
     <string name="error_out_of_memory_while_decoding_gif">Your system ran out of memory while downloading the gif. You should activate downloading of gifs to a temporary file in the settings.</string>
-    <string name="error_socket">A network error occurred.</string>
+    <string name="error_socket">A network error occurred. Just try again.</string>
     <string name="dummy_tags" translatable="false">würde, Kreiselficker</string>
     <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
     <string name="add_new_tag_title">Add new tag</string>
-    <string name="add_new_comment_summary">Please insert comment below</string>
-    <string name="comment_hint">Your comment here</string>
+    <string name="add_new_comment_summary">Write a comment</string>
+    <string name="comment_hint">Comment...</string>
     <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>
@@ -106,18 +103,16 @@
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
     <string name="logout">Logout</string>
     <string name="are_you_sure_to_logout">Are you sure to logout? Your benis history will be deleted and can not be restored.</string>
-    <string name="pref_pref_hardware_acceleration">Hardware acceleration</string>
-    <string name="pref_pref_hardware_acceleration_summary">Hardware acceleration makes everything more smooth, but might produce \"out of memory\"-errors.</string>
     <string name="need_to_restart_app">You need to restart the app for this setting to take effect.</string>
     <string name="benis_delta_up">(%d up s. yesterday)</string>
     <string name="benis_delta_down">(%d down s. yesterday)</string>
-    <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past 24h.</string>
+    <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past seven days.</string>
     <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
     <string name="pref_comment_view_vote_buttons_small">Smaller vote buttons</string>
     <string name="pref_comment_view_vote_buttons_small_summary">Activate this for smaller vote buttons on comments</string>
     <string name="pref_benis_graph_enabled">Enable benis graph</string>
-    <string name="pref_benis_graph_enabled_summary">The benis graph shows changes to your benis in the last 24 hours.</string>
+    <string name="pref_benis_graph_enabled_summary">The benis graph shows changes to your benis in the last seven days.</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="zoom">Zoom</string>
@@ -125,7 +120,7 @@
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
     <string name="pref_pseudo_changelog">Changelog</string>
-    <string name="pref_pseudo_update">Check for updates</string>
+    <string name="pref_pseudo_update">Check for updates now</string>
     <string name="pref_pseudo_changelog_summary">Tap here to show the changelog dialog</string>
     <string name="pref_pseudo_update_summary">Tap here to check for updates</string>
     <string name="no_new_update">This is the latest version. There is no new update.</string>
@@ -141,4 +136,126 @@
     <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
     <string name="pref_pseudo_feedback">Feedback</string>
     <string name="pref_pseudo_feedback_summary">Click here to give feedback!</string>
+    <string name="pref_use_beta_channel">Beta channel</string>
+    <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
+    <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
+    <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe cha0s changed something at the pr0gramm api level.</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="pref_show_refresh_button">Show refresh action</string>
+    <string name="pref_show_refresh_button_summary">If enabled, a separate button for refresh will be displayed.</string>
+    <string name="action_feed_type_premium">STELZ</string>
+    <string name="filter_format_premium">Stelz</string>
+    <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
+    <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
+    <string name="notify_new_message_title">New message</string>
+    <string name="notify_new_messages_title">New messages</string>
+    <string name="notify_new_message_text">One new message on pr0gramm</string>
+    <string name="notify_new_messages_text">%d new messages on pr0gramm</string>
+    <string name="pref_show_notifications">Notifications</string>
+    <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
+    <string name="badge_op">OP</string>
+    <string name="info_how_to_vote_tags">Tags can now be voted by long pressing the tag! Try it out!</string>
+    <string name="could_not_play_video">Could not play video. Try the compatibility settings and if  you still can\'t play any videos, please report logcat to Mopsalarm (see settings, at the bottom).</string>
+    <string name="logcat_error_occurred">Could not dump logfile.</string>
+    <string name="logcat_logfile_created">Logfile was created at %s. Please send this to Mopsalarm.</string>
+    <string name="could_not_play_video_262">Error 262 occurred during video playback. A logfile was created at %s. Please send this to Mopsalarm to help fix this bug.</string>
+    <string name="could_not_play_video_io">Could not play video because of a network error.</string>
+    <string name="logcat">Logcat</string>
+    <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
+    <string name="pref_dont_restore_surface_title">Video compatibility mode</string>
+    <string name="pref_dont_restore_surface_summary">Activate this if you have problems playing webm videos</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
+    <string name="inbox_activity_title">Inbox</string>
+    <string name="inbox">Inbox</string>
+    <string name="action_inbox">MESSAGES</string>
+    <string name="inbox_message_private">PRIVATE MESSAGE</string>
+    <string name="inbox_message_comment">COMMENT</string>
+    <string name="inbox_type_private">Private</string>
+    <string name="inbox_type_all">Inbox</string>
+    <string name="inbox_type_unread">Unread</string>
+    <string name="inbox_nothing_here">No messages\n¯\\_(ツ)_/¯</string>
+    <string name="write_private_message_summary">New message to user %s.</string>
+    <string name="message_hint">Message text</string>
+    <string name="action_send">Send</string>
+    <string name="prefcat_visual_title">Visual</string>
+    <string name="prefcat_settings_title">Settings</string>
+    <string name="prefcat_behaviour_summary">Behaviour settings like double tap to vote, notifications and other stuff.</string>
+    <string name="prefcat_visual_summary">Customize how some parts of the app should look like.</string>
+    <string name="pref_compatibility_summary">Something is not working? Check here!</string>
+    <string name="prev_privacy_summary">Do you have something to hide?</string>
+    <string name="pref_use_proxy_title">Use caching</string>
+    <string name="pref_use_proxy_summary">Caching is good to save bandwidth and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
+    <string name="rating_not_yet_visible" translatable="false">●●●</string>
+    <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
+    <string name="pref_confirm_play_on_mobile_summary">Confirm playback of videos and gifs on mobile to conserve bandwidth.</string>
+    <string name="prefcat_update">Updates</string>
+    <string name="prefcat_update_summary">Configure updates and betas here</string>
+    <string name="inbox_type_comments">Comments</string>
+    <string name="pref_animate_post_on_vote">Animation on post</string>
+    <string name="pref_animate_post_on_vote_summary">Show an animation on the post while voting</string>
+    <string name="pref_load_hq_image_in_zoomview_title">High quality in zoom view</string>
+    <string name="pref_load_hq_image_in_zoomview_summary">Automatically load hq version of image in zoom view, if available.</string>
+    <string name="share">Share</string>
+    <string name="pref_hide_tag_vote_buttons_title">Hide vote buttons on tag</string>
+    <string name="pref_hide_tag_vote_buttons_summary">Hide the little vote buttons on tags. You can make them visible by long-tapping the tag.</string>
+    <string name="pref_downloadLocation_title">Download folder</string>
+    <string name="pref_downloadLocation_summary">Downloaded files are saved here</string>
+    <string name="downloadLocation_downloads" translatable="false">/Downloads/pr0gramm</string>
+    <string name="downloadLocation_pictures" translatable="false">/Pictures/pr0gramm</string>
+    <string name="downloadLocation_root" translatable="false">/pr0gramm</string>
+    <string name="feedback_name">Your name (optional)</string>
+    <string name="feedback_feedback">Your feedback</string>
+    <string name="feedback_submit">Submit</string>
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_sent">Thank you for your feedback!</string>
+    <string name="pref_tag_cloud_view_title">Show more tags</string>
+    <string name="pref_tag_cloud_view_summary">Show more tags of an image in multiple lines at once.</string>
+    <string name="dummy_text_short" translatable="false">This is a short dummy text that has abou 10 words.</string>
+    <string name="upload_title">Upload</string>
+    <string name="upload_tags">Tags</string>
+
+    <string-array name="upload_small_print">
+        <item>nsfw/nsfl Bilder müssen vor dem Upload entsprechend markiert werden!</item>
+        <item>Keine suggestiven Bilder oder Gore von/mit Minderjährigen/Babys/Föten.</item>
+        <item>Keine Tierpornos. Kein stumpfer Rassismus, kein rechtes Gedankengut, keine Nazi-Nostalgie.</item>
+        <item>Keine Werbung; keine Affiliate Links in den Bildern; kein Spam.</item>
+        <item>Keine Informationen oder Bilder von Privatpersonen; Keine Klarnamen in den Uploads, Tags oder Kommentaren.</item>
+        <item>Ein Mindestmaß an Bildqualität wird erwartet. Bildmaterial mit starken Kompressionsartefakten, übermäßig großen Watermarks oder unsinnig beschnittene/skalierte Bilder werden gelöscht.</item>
+        <item>Keine Bilder mit ähnlichem Inhalt in Reihe.</item>
+        <item>Zugehöriger Content kann in den Kommentaren verlinkt werden.</item>
+        <item>Kommentare wie “Tag deinen Scheiß” und ähnliches gehören nicht in die Tags. Genaueres im FAQ: Was gehört in die Tags?</item>
+        <item>Downvote-Spam, Vote-Manipulation und Tag-Vandalismus werden nicht geduldet.</item>
+        <item>Pro Benutzer ist nur ein Account erlaubt. Indizien für Multiaccounts sind gegenseitige Upvotes oder Spamaktionen.</item>
+        <item>Keine Warez, gestohlene Logins zu Pay Sites o.ä</item>
+    </string-array>
+
+    <string name="upload_small_print_footer" translatable="false">Unfähigkeit, diese Regeln zu befolgen, wird mit einer Sperrung Deines Accounts honoriert. Diskussionen um die Sperrung werden die Sperrung verlängern.</string>
+    <string name="upload_small_print_header" translatable="false">DAS KLEINGEDRUCKTE – LIES ES!</string>
+    <string name="upload_warning">Warning, right now, only uploading images is supported and highly experimental. Please send Feedback.</string>
+    <string name="upload_checking_if_upload_is_allowed">Checking if upload is allowed</string>
+    <string name="upload_not_allowed">Upload not allowed</string>
+    <string name="upload_not_allowed_description">Limit for today is reached. You need to wait until you are allowed to do another upload (a longer benis is required alternatively!)</string>
+    <string name="dummy_date">May 3rd, 2014</string>
+    <string name="user_info_uploads">Goto uploads</string>
+    <string name="userinfo_benis">Benis</string>
+    <string name="userinfo_since">since</string>
+    <string name="userinfo_uploads">Uploads</string>
+    <string name="userinfo_favorites">Favorites</string>
+    <string name="userinfo_tags">Tags</string>
+    <string name="userinfo_comments">Comments</string>
+    <string name="dialog_action_add">Add</string>
+    <string name="upload_error_blacklisted">This image is blacklisted from pr0gramm.</string>
+    <string name="upload_error_internal">Internal error - cha0s fucked up here.</string>
+    <string name="upload_error_invalid">The image is invalid. Maybe too large?</string>
+    <string name="upload_error_download_failed">Download of your image url failed.</string>
+    <string name="upload_error_exists">This upload already exists. I have just saved you from a repost. Say thanks.</string>
+    <string name="upload_error_unknown">An unknown error occurred during upload.</string>
+    <string name="upload_something_went_wrong">Something went wrong</string>
+    <string name="upload_just_try_again">Best thing to do is just to try again.</string>
+    <string name="pref_use_https_title">HTTPS</string>
+    <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
+    <string name="no">No</string>
+    <string name="pref_use_mpeg_decoder_title">Software decoder</string>
+    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you.</string>
 </resources>

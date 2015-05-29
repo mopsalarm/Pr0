@@ -2,16 +2,24 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.mpeg.PictureBuffer;
+import com.pr0gramm.app.mpeg.VideoConsumer;
+import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
+import java.io.FileInputStream;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -24,14 +32,17 @@ public class ImageMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
 
+    @InjectView(R.id.error)
+    private View errorIndicator;
+
     @Inject
     private Settings settings;
 
     @Inject
     private Picasso picasso;
 
-    public ImageMediaView(Context context, Binder binder, String url) {
-        super(context, binder, R.layout.player_image, url);
+    public ImageMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+        super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
     @Override
@@ -45,22 +56,18 @@ public class ImageMediaView extends MediaView {
                     .centerInside()
                     .onlyScaleDown();
 
-            // disable fading if we don't use hardware acceleration.
-            if (!settings.useHardwareAcceleration())
-                requestCreator.noFade();
-
             requestCreator.into(imageView, new HideBusyIndicator(this));
         }
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         picasso.cancelRequest(imageView);
         imageView.setImageDrawable(null);
 
         ((ViewGroup) imageView.getParent()).removeView(imageView);
-
-        super.onDestroy();
     }
 
     /**
@@ -77,14 +84,30 @@ public class ImageMediaView extends MediaView {
         @Override
         public void onSuccess() {
             ImageMediaView player = fragment.get();
-            if (player != null)
+            if (player != null) {
                 player.hideBusyIndicator();
+            }
         }
 
         @Override
         public void onError() {
-            //  just indicate that we are finished.
-            onSuccess();
+            ImageMediaView player = fragment.get();
+            if (player != null) {
+                player.hideBusyIndicator();
+                player.showErrorIndicator();
+            }
         }
+    }
+
+    private void showErrorIndicator() {
+        errorIndicator.setVisibility(VISIBLE);
+        errorIndicator.setAlpha(0);
+        errorIndicator.animate().alpha(1).start();
+    }
+
+    @Override
+    public void playMedia() {
+        super.playMedia();
+        onViewListener.run();
     }
 }

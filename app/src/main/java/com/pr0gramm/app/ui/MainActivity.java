@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,10 +17,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
-import com.google.common.base.Throwables;
-import com.pr0gramm.app.ErrorFormatting;
+import com.google.common.base.Optional;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
@@ -26,6 +27,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
@@ -33,14 +35,18 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import de.cketti.library.changelog.ChangeLog;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
-import rx.Observable;
-import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -56,7 +62,11 @@ public class MainActivity extends RoboActionBarActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler, ErrorDialogFragment.OnErrorDialogHandler {
+        MainActionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final ErrorDialogFragment.OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -80,18 +90,16 @@ public class MainActivity extends RoboActionBarActivity implements
     @Inject
     private SharedPreferences shared;
 
-    private Subscription subscription;
+    @Inject
+    private SingleShotService singleShotService;
+
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
+    private boolean startedWithIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (settings.useHardwareAcceleration()) {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -107,25 +115,28 @@ public class MainActivity extends RoboActionBarActivity implements
         drawerLayout.setDrawerListener(drawerToggle);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
+        //noinspection ConstantConditions
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
 
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        // load feed-fragment into view
         if (savedInstanceState == null) {
             createDrawerFragment();
-            gotoFeedFragment(new FeedFilter(), true);
+
+            Intent intent = getIntent();
+            if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
+                // load feed-fragment into view
+                gotoFeedFragment(new FeedFilter(), true);
+
+            } else {
+                startedWithIntent = true;
+                onNewIntent(intent);
+            }
         }
 
-        // we trigger the update here manually now. this will be done using
-        // the alarm manager later on.
-        Intent intent = new Intent(this, SyncBroadcastReceiver.class);
-        sendBroadcast(intent);
-
-        ChangeLog changelog = new ChangeLog(this);
-        if (changelog.isFirstRun()) {
+        if (singleShotService.isFirstTimeInVersion("changelog")) {
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
 
@@ -133,17 +144,73 @@ public class MainActivity extends RoboActionBarActivity implements
             // start the update check.
             UpdateDialogFragment.checkForUpdates(this, false);
         }
+
+        addOriginalContentBookmarkOnce();
+
+        if (singleShotService.isFirstTime("mpeg_decoder_hint")) {
+            DialogBuilder.start(this)
+                    .content("Wenn du Probleme beim Abspielen von Videos hast, teste die neue Option 'Softwaredekoder' unter Kompatibilität in den Einstellungen! Bitte gib Feedback!")
+                    .positive(R.string.okay)
+                    .show();
+        }
+    }
+
+    /**
+     * Adds a bookmark if there currently are no bookmarks.
+     */
+    private void addOriginalContentBookmarkOnce() {
+        if (!singleShotService.isFirstTime("add_original_content_bookmarks"))
+            return;
+
+        bindActivity(this, bookmarkService.get().first()).subscribe(bookmarks -> {
+            if (bookmarks.isEmpty()) {
+                FeedFilter filter = new FeedFilter()
+                        .withFeedType(FeedType.PROMOTED)
+                        .withTags("original content");
+
+                bookmarkService.create(filter);
+            }
+        }, Actions.empty());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()))
+            return;
+
+        handleUri(intent.getData());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // trigger updates while the activity is running
+        sendSyncRequest.run();
+    }
+
+    @Override
+    protected void onStop() {
+        handler.removeCallbacks(sendSyncRequest);
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
-        super.onDestroy();
+
+        try {
+            super.onDestroy();
+        } catch (RuntimeException ignored) {
+        }
     }
 
     @Override
     public void onBackStackChanged() {
         updateToolbarBackButton();
+        updateActionbarTitle();
 
         DrawerFragment drawer = getDrawerFragment();
         if (drawer != null) {
@@ -152,6 +219,18 @@ public class MainActivity extends RoboActionBarActivity implements
             // show the current item in the drawer
             drawer.updateCurrentFilters(currentFilter);
         }
+    }
+
+    private void updateActionbarTitle() {
+        String title;
+        FeedFilter filter = getCurrentFeedFilter();
+        if (filter == null) {
+            title = getString(R.string.pr0gramm);
+        } else {
+            title = FeedFilterFormatter.format(this, filter);
+        }
+
+        setTitle(title);
     }
 
     /**
@@ -177,7 +256,6 @@ public class MainActivity extends RoboActionBarActivity implements
     private void updateToolbarBackButton() {
         FragmentManager fm = getSupportFragmentManager();
         drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(fm.getBackStackEntryCount() > 0);
         drawerToggle.syncState();
     }
 
@@ -221,8 +299,8 @@ public class MainActivity extends RoboActionBarActivity implements
             return;
         }
 
-        // at the end, go back to the "current" page before stopping everything.
-        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        // at the end, go back to the "top" page before stopping everything.
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0 && !startedWithIntent) {
             FeedFilter filter = getCurrentFeedFilter();
             if (filter != null && !isTopFilter(filter)) {
                 gotoFeedFragment(new FeedFilter(), true);
@@ -240,29 +318,14 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        ErrorDialogFragment.setGlobalErrorDialogHandler(this);
-
-        Observable<UserService.LoginState> state = userService.getLoginStateObservable();
-        subscription = bindActivity(this, state).subscribe(this::onLoginStateChanged, Actions.empty());
-
+        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
         onBackStackChanged();
     }
 
     @Override
     protected void onPause() {
-        ErrorDialogFragment.unsetGlobalErrorDialogHandler(this);
-
-        if (subscription != null)
-            subscription.unsubscribe();
-
+        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
         super.onPause();
-    }
-
-    private void onLoginStateChanged(UserService.LoginState state) {
-        if (state == UserService.LoginState.NOT_AUTHORIZED) {
-            // go back to the "top"-fragment
-            // gotoFeedFragment(new FeedFilter());
-        }
     }
 
     @Override
@@ -292,6 +355,11 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     @Override
+    public void onOtherNavigationItemClicked() {
+        drawerLayout.closeDrawers();
+    }
+
+    @Override
     public void onFeedFilterSelected(FeedFilter filter) {
         gotoFeedFragment(filter, false);
     }
@@ -303,10 +371,18 @@ public class MainActivity extends RoboActionBarActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {
-        if (clear)
-            clearBackStack();
+        gotoFeedFragment(newFilter, clear, Optional.<Long>absent());
+    }
 
-        Fragment fragment = FeedFragment.newInstance(newFilter);
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<Long> start) {
+        if (isFinishing())
+            return;
+
+        if (clear) {
+            clearBackStack();
+        }
+
+        Fragment fragment = FeedFragment.newInstance(newFilter, start);
 
         // and show the fragment
         @SuppressLint("CommitTransaction")
@@ -317,7 +393,10 @@ public class MainActivity extends RoboActionBarActivity implements
         if (!clear)
             transaction.addToBackStack(null);
 
-        transaction.commit();
+        try {
+            transaction.commit();
+        } catch (IllegalStateException ignored) {
+        }
 
         // trigger a back-stack changed after adding the fragment.
         new Handler().post(this::onBackStackChanged);
@@ -338,12 +417,43 @@ public class MainActivity extends RoboActionBarActivity implements
         return scrollHideToolbarListener;
     }
 
-    @Override
-    public void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter) {
-        String message = formatter.handles(error)
-                ? formatter.getMessage(this, error)
-                : Throwables.getStackTraceAsString(error);
+    /**
+     * Handles a uri to something on pr0gramm
+     *
+     * @param uri The uri to handle
+     */
+    private void handleUri(Uri uri) {
+        Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
+        if (result.isPresent()) {
+            FeedFilter filter = result.get().getFilter();
+            Optional<Long> start = result.get().getStart();
 
-        ErrorDialogFragment.showErrorString(getSupportFragmentManager(), message);
+            boolean clear = getSupportFragmentManager().getBackStackEntryCount() == 0;
+            gotoFeedFragment(filter, clear, start);
+
+        } else {
+            gotoFeedFragment(new FeedFilter(), true);
+        }
     }
+
+    @SuppressWarnings("Convert2Lambda")
+    private final Runnable sendSyncRequest = new Runnable() {
+        private Instant lastUpdate = new Instant(0);
+
+        @Override
+        public void run() {
+            Instant now = Instant.now();
+            if (Seconds.secondsBetween(lastUpdate, now).getSeconds() > 45) {
+                Intent intent = new Intent(MainActivity.this, SyncBroadcastReceiver.class);
+                MainActivity.this.sendBroadcast(intent);
+            }
+
+            // reschedule
+            Duration delay = Minutes.minutes(1).toStandardDuration();
+            handler.postDelayed(this, delay.getMillis());
+
+            // and remember the last update time
+            lastUpdate = now;
+        }
+    };
 }

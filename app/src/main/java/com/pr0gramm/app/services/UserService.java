@@ -3,12 +3,10 @@ package com.pr0gramm.app.services;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -19,6 +17,8 @@ import com.pr0gramm.app.orm.BenisRecord;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,13 +37,14 @@ import static org.joda.time.Duration.standardDays;
  */
 @Singleton
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
 
     private final Api api;
     private final VoteService voteService;
     private final SeenService seenService;
     private final LoginCookieHandler cookieHandler;
-    private final Gson gson;
     private final SharedPreferences preferences;
 
     private final BehaviorSubject<LoginState> loginStateObservable
@@ -56,7 +57,6 @@ public class UserService {
                        SharedPreferences preferences) {
 
         this.api = api;
-        this.gson = new Gson();
         this.seenService = seenService;
         this.voteService = voteService;
         this.cookieHandler = cookieHandler;
@@ -68,24 +68,23 @@ public class UserService {
     private void onCookieChanged() {
         Optional<String> cookie = cookieHandler.getLoginCookie();
         if (!cookie.isPresent())
-            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+            logout();
     }
 
     public Observable<Login> login(String username, String password) {
-        return api.login(username, password).map(response -> {
+        return api.login(username, password).flatMap(response -> {
+            Observable<Login> result;
             if (response.isSuccess()) {
                 // wait for the first sync to complete.
-                sync();
+                result = sync().concatMap(ignored -> info())
+                        .ignoreElements()
+                        .cast(Login.class);
 
-                // get info about the current user
-                Optional<Info> info = info();
-                if (!info.isPresent())
-                    throw new IllegalStateException("Login successful, but info could not be loaded");
-
-                loginStateObservable.onNext(createLoginState(info));
+            } else {
+                result = Observable.empty();
             }
 
-            return response;
+            return result.concatWith(Observable.just(response));
         });
     }
 
@@ -93,7 +92,14 @@ public class UserService {
      * Check if we can do authorized requests.
      */
     public boolean isAuthorized() {
-        return cookieHandler.getLoginCookie().isPresent();
+        return cookieHandler.hasCookie();
+    }
+
+    /**
+     * Checks if the user has paid for a pr0mium account
+     */
+    public boolean isPremiumUser() {
+        return cookieHandler.isPaid();
     }
 
     /**
@@ -101,8 +107,10 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
+            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+
             // removing cookie from requests
-            cookieHandler.clearLoginCookie();
+            cookieHandler.clearLoginCookie(false);
 
             // remove sync id
             preferences.edit().remove(KEY_LAST_SYNC_ID).apply();
@@ -112,9 +120,6 @@ public class UserService {
 
             // clear the seen items
             seenService.clear();
-
-            // remove all benis records
-            deleteAll(BenisRecord.class);
 
             return null;
         }, Schedulers.io()).ignoreElements();
@@ -130,32 +135,31 @@ public class UserService {
      * <p>
      * Someone needs to subscribe to the returned observable.
      */
-    public Optional<Sync> sync() {
+    public Observable<Sync> sync() {
         checkNotMainThread();
         if (!isAuthorized())
-            return Optional.absent();
+            return Observable.empty();
 
         // tell the sync request where to start
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
-        Sync response = api.sync(lastSyncId);
+        return api.sync(lastSyncId).map(response -> {
+            // store syncId for next time.
+            if (response.getLastId() > lastSyncId) {
+                preferences.edit()
+                        .putLong(KEY_LAST_SYNC_ID, response.getLastId())
+                        .apply();
+            }
 
-        // store syncId for next time.
-        if (response.getLastId() > lastSyncId) {
-            preferences.edit()
-                    .putLong(KEY_LAST_SYNC_ID, response.getLastId())
-                    .apply();
-        }
-
-        // and apply votes now
-        voteService.applyVoteActions(response.getLog());
-        return Optional.of(response);
+            // and apply votes now
+            voteService.applyVoteActions(response.getLog());
+            return response;
+        });
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    public Info info(String username) {
-        checkNotMainThread();
+    public Observable<Info> info(String username) {
         return api.info(username);
     }
 
@@ -165,44 +169,43 @@ public class UserService {
      *
      * @return The info, if the user is currently signed in.
      */
-    public Optional<Info> info() {
-        checkNotMainThread();
-
-        Optional<Info> info = getName().transform(this::info);
-        if (info.isPresent()) {
-            Info.User user = info.get().getUser();
+    public Observable<Info> info() {
+        return Observable.from(getName().asSet()).flatMap(this::info).map(info -> {
+            Info.User user = info.getUser();
 
             // stores the current benis value
-            BenisRecord record = new BenisRecord(Instant.now(), user.getScore());
+            BenisRecord record = new BenisRecord(user.getId(), Instant.now(), user.getScore());
             record.save();
 
             // updates the login state and ui
-            loginStateObservable.onNext(createLoginState(info));
-        }
-
-        return info;
+            loginStateObservable.onNext(createLoginState(Optional.of(info)));
+            return info;
+        });
     }
 
     private LoginState createLoginState(Optional<Info> info) {
         checkNotMainThread();
 
-        Graph benisHistory = loadBenisHistory();
-
+        int userId = info.get().getUser().getId();
+        Graph benisHistory = loadBenisHistory(userId);
         return new LoginState(info.get(), benisHistory);
     }
 
-    private Graph loadBenisHistory() {
-        Duration historyLength = standardDays(1);
+    private Graph loadBenisHistory(int userId) {
+        Stopwatch watch = Stopwatch.createStarted();
+
+        Duration historyLength = standardDays(7);
         Instant start = Instant.now().minus(historyLength);
 
         // get the values and transform them
         ImmutableList<PointF> points = FluentIterable
-                .from(getBenisValuesAfter(start))
+                .from(getBenisValuesAfter(userId, start))
                 .transform(record -> {
                     float x = record.getTimeMillis() - start.getMillis();
                     return new PointF(x, record.getBenis());
                 }).toList();
 
+        logger.info("Loading benis graph took " + watch);
         return new Graph(0, historyLength.getMillis(), points);
     }
 
@@ -213,16 +216,7 @@ public class UserService {
      * @return The name of the currently signed in user.
      */
     public Optional<String> getName() {
-        return cookieHandler.getLoginCookie().transform(value -> {
-            value = AndroidUtility.urlDecode(value, Charsets.UTF_8);
-            Cookie cookie = gson.fromJson(value, Cookie.class);
-            return cookie.n;
-        });
-    }
-
-
-    private static class Cookie {
-        public String n;
+        return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
     public static class LoginState {

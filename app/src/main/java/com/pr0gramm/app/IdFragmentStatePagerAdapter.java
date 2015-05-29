@@ -13,6 +13,9 @@ import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This implementation has a {@link #getItemId(int)} to identify items
  * and fragments, even if they change places between adapter updates.
@@ -20,6 +23,8 @@ import com.google.common.base.Optional;
  * @see android.support.v4.app.FragmentStatePagerAdapter
  */
 public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(IdFragmentStatePagerAdapter.class);
+
     private static final String TAG = "MyFrgmntStatePgrAdapter";
     private static final boolean DEBUG = false;
 
@@ -189,7 +194,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
                         f.setMenuVisibility(false);
                         mFragments.put(id, f);
                     } else {
-                        Log.w(TAG, "Bad fragment at key " + key);
+                        logger.warn("Bad fragment at key " + key);
                     }
                 }
             }

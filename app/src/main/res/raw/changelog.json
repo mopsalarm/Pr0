@@ -1,0 +1,172 @@
+[
+  {
+    "version": 49,
+    "type": "Neu",
+    "change": "Neue Einstellung 'Softwaredekoder' unter Kompatibilität, die jetzt jegliche Videoprobleme beheben sollte."
+  },
+  {
+    "version": 49,
+    "type": "Fix",
+    "change": "Durch die Statusleiste versteckte Einstellungen wieder sichtbar gemacht"
+  },
+  {
+    "version": 49,
+    "type": "Fix",
+    "change": "Öffne auch https-Links mit der App"
+  },
+  {
+    "version": 49,
+    "type": "Fix",
+    "change": "Dialoge etwas aufgeräumt"
+  },
+  {
+    "version": 48,
+    "type": "Neu",
+    "change": "Transparente Statusleiste für Android Kitkat und neuer."
+  },
+  {
+    "version": 47,
+    "type": "Neu",
+    "change": "Benisgraph bleibt auf dem Gerät gespeichert, wenn man sich aus- und wieder einloggt."
+  },
+  {
+    "version": 47,
+    "type": "Neu",
+    "change": "Bilder können direkt über die Gallerie ins pr0gramm geteilt werden."
+  },
+  {
+    "version": 47,
+    "type": "Neu",
+    "change": "Markierung bereits gesehener Bilder verbessert."
+  },
+  {
+    "version": 47,
+    "type": "Fix",
+    "change": "Fehlerhafte Anzeige korrigiert, wenn man zwischen sfw/nsfw wechselt."
+  },
+  {
+    "version": 47,
+    "type": "Fix",
+    "change": "Posts werden erst als 'gesehen' markiert, wenn sie wirklich angezeigt wurden."
+  },
+  {
+    "version": 47,
+    "type": "Fix",
+    "change": "Deaktivieren der Updateprüfung entfernt. Es gibt immer noch Deppen, die mit ner zwei Monate alten App Version unterwegs sind."
+  },
+  {
+    "version": 46,
+    "type": "Neu",
+    "change": "Support für HTTPS (voll sicher!)"
+  },
+  {
+    "version": 46,
+    "type": "Fix",
+    "change": "Absturz beim schließen eines Tags behoben"
+  },
+  {
+    "version": 46,
+    "type": "Neu",
+    "change": "Klick auf die Anzahl der Favoriten eines Benutzers zeigt diese an."
+  },
+  {
+    "version": 45,
+    "type": "Info",
+    "change": "Dies ist nur ein Bugfixrelease. Entschuldigt. Bitte weiter unten für die Neuigkeiten gucken."
+  },
+  {
+    "version": 45,
+    "type": "Fix",
+    "change": "Absturz beim Voten von Kommentaren gefixt."
+  },
+  {
+    "version": 44,
+    "type": "Neu",
+    "change": "Wenn man nach einem Benutzer in den Tags sucht, bekommt man die Möglichkeit zu dessen Uploads zu gehen."
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Hinzufügen-Button für Tags mit den Tags scrollbar gemacht für mehr Platz!"
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Bessere Fehlerbehandlung bei Uploads."
+  },
+  {
+    "version": 44,
+    "type": "Fix",
+    "change": "Deaktiviere die Ansicht während ein Bild hochgeladen wird."
+  },
+  {
+    "version": 43,
+    "type": "Neu",
+    "change": "Erste Informationen über andere Benutzer werden angezeigt."
+  },
+  {
+    "version": 43,
+    "type": "Fix",
+    "change": "Wenn eine Netzwerkanfrage fehlgeschlagen ist, wird sie bis zu zweimal wiederholt."
+  },
+  {
+    "version": 42,
+    "type": "Fix",
+    "change": "Es wird geprüft, ob das Uploadlimit erreicht ist, bevor der Upload erlaubt wird."
+  },
+  {
+    "version": 42,
+    "type": "Fix",
+    "change": "Wenn das Zeigen mehrerer Zeilen für Tags eingestellt ist, zeige maximal drei Zeilen."
+  },
+  {
+    "version": 42,
+    "type": "Fix",
+    "change": "Hebe die installierte Version im Feedback hervor."
+  },
+  {
+    "version": 41,
+    "type": "Neu",
+    "change": "Unterstützung zum Upload von Bildern!"
+  },
+  {
+    "version": 41,
+    "type": "Neu",
+    "change": "Bei eigenen Uploads wird der Benis sofort angezeigt, nicht erst eine Stunde später."
+  },
+  {
+    "version": 40,
+    "type": "Oops",
+    "change": "Versehentlich übersprungen."
+  },
+  {
+    "version": 39,
+    "type": "Neu",
+    "change": "Tags können mehrzeilig angezeigt werden."
+  },
+  {
+    "version": 39,
+    "type": "Fix",
+    "change": "Abstürze durch Anzeigen des Changelogs hoffentlich behoben"
+  },
+  {
+    "version": 39,
+    "type": "Fix",
+    "change": "Wenn man über einen Link ins pr0gramm gekommen ist, kann man die App mit zweimal Zurück wieder verlassen"
+  },
+  {
+    "version": 38,
+    "type": "Neu",
+    "change": "Downloadordner ist jetzt konfigurierbar (danke an Deathmage)"
+  },
+  {
+    "version": 38,
+    "type": "Neu",
+    "change": "Neues und besseres Feedbackformular in den Einstellungen"
+  },
+  {
+    "version": 37,
+    "type": "Neu",
+    "change": "Videos Loopen nun endlich (Bugfix für Samsung-Untersmartphones)"
+  }
+]

@@ -6,9 +6,10 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UpdateChecker;
@@ -16,7 +17,6 @@ import com.pr0gramm.app.UpdateChecker;
 import org.joda.time.Instant;
 
 import roboguice.RoboGuice;
-import roboguice.activity.RoboActionBarActivity;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
@@ -48,24 +48,18 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 : noNewUpdateDialog();
     }
 
-    private MaterialDialog updateAvailableDialog(final UpdateChecker.Update update) {
-        return new MaterialDialog.Builder(getActivity())
+    private Dialog updateAvailableDialog(final UpdateChecker.Update update) {
+        return DialogBuilder.start(getActivity())
                 .content(getString(R.string.new_update_available, update.getChangelog()))
-                .positiveText(R.string.download)
-                .negativeText(R.string.ignore)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        download(update);
-                    }
-                })
+                .positive(R.string.download, () -> download(update))
+                .negative(R.string.ignore)
                 .build();
     }
 
     private Dialog noNewUpdateDialog() {
-        return new MaterialDialog.Builder(getActivity())
+        return DialogBuilder.start(getActivity())
                 .content(R.string.no_new_update)
-                .positiveText(R.string.okay)
+                .positive(R.string.okay)
                 .show();
     }
 
@@ -97,15 +91,11 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(RoboActionBarActivity activity, boolean interactive) {
+    public static void checkForUpdates(FragmentActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
-        Settings settings = injector.getInstance(Settings.class);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 
-        if(!interactive) {
-            if (!settings.updateCheckEnabled())
-                return;
-
+        if (!interactive) {
             Instant last = new Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0));
             if (last.isAfter(now().minus(standardHours(1))))
                 return;
@@ -127,7 +117,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 .defaultIfEmpty(null)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {
-                    if(interactive || update != null) {
+                    if (interactive || update != null) {
                         UpdateDialogFragment dialog = newInstance(update);
                         dialog.show(activity.getSupportFragmentManager(), null);
                     }

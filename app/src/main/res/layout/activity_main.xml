@@ -1,9 +1,10 @@
 <android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primary"
     tools:context=".MainActivity">
 
     <FrameLayout
@@ -13,7 +14,8 @@
         <FrameLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:background="?android:windowBackground"/>
 
         <include layout="@layout/toolbar"/>
     </FrameLayout>

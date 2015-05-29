@@ -14,6 +14,24 @@
         <item>4096</item>
     </string-array>
 
+    <string name="pref_downloadLocation_value_pictures" translatable="false">pictures</string>
+    <string name="pref_downloadLocation_value_downloads" translatable="false">downloads</string>
+    <string name="pref_downloadLocation_value_root" translatable="false">root</string>
+
+    <string-array name="pref_downloadLocation_values">
+        <item>@string/pref_downloadLocation_value_pictures</item>
+        <item>@string/pref_downloadLocation_value_downloads</item>
+        <item>@string/pref_downloadLocation_value_root</item>
+    </string-array>
+
+    <string-array name="pref_downloadLocation_human">
+        <item>@string/downloadLocation_pictures</item>
+        <item>@string/downloadLocation_downloads</item>
+        <item>@string/downloadLocation_root</item>
+    </string-array>
+
+    <string name="pref_downloadLocation_default" translatable="false">@string/pref_downloadLocation_value_downloads</string>
+
     <string name="pref_max_image_size_default" translatable="false">2048</string>
 
     <string-array name="pref_seen_indicator_style_human">

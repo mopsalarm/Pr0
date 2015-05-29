@@ -1,13 +1,9 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,30 +12,32 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.feed.FeedItem;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
-import static java.lang.System.identityHashCode;
 
 /**
  */
 public abstract class MediaView extends FrameLayout {
-    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
-
-    protected final String TAG = getClass().getSimpleName() + " " + Integer.toString(
-            identityHashCode(this), Character.MAX_RADIX);
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getName()
+            + " " + Integer.toHexString(System.identityHashCode(this)));
 
     private final GestureDetector gestureDetector;
     protected final Binder binder;
     protected final String url;
+    protected final Runnable onViewListener;
 
     private OnDoubleTapListener onDoubleTapListener;
     private boolean started;
@@ -49,21 +47,26 @@ public abstract class MediaView extends FrameLayout {
     @Nullable
     private View progress;
 
-    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url) {
-        this(context, binder, layoutId, R.id.progress, url);
+    @Inject
+    private Settings settings;
+
+    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url, Runnable onViewListener) {
+        this(context, binder, layoutId, R.id.progress, url, onViewListener);
     }
 
     protected MediaView(Context context, Binder binder,
                         @LayoutRes Integer layoutId, @IdRes Integer progressId,
-                        String url) {
+                        String url, Runnable onViewListener) {
 
         super(context);
         this.binder = binder;
         this.url = url;
+        this.onViewListener = onViewListener;
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
             LayoutInflater.from(context).inflate(layoutId, this);
+            setMinimumHeight(AndroidUtility.dp(context, 150));
 
             if (progressId != null)
                 progress = findViewById(progressId);
@@ -110,8 +113,12 @@ public abstract class MediaView extends FrameLayout {
      * this with a call to {@link #hideBusyIndicator()}
      */
     protected void showBusyIndicator() {
-        if (progress != null)
+        if (progress != null) {
+            if (progress.getParent() == null)
+                addView(progress);
+
             progress.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -124,7 +131,6 @@ public abstract class MediaView extends FrameLayout {
             ViewParent parent = progress.getParent();
             if (parent instanceof ViewGroup) {
                 ((ViewGroup) parent).removeView(progress);
-                progress = null;
             }
         }
     }
@@ -189,71 +195,20 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
-     * Instantiates one of the viewer fragments subclasses depending
-     * on the provided url.
-     *
-     * @param url The url that should be displayed.
-     * @return A new {@link MediaView} instance.
-     */
-    public static MediaView newInstance(Context context, Binder binder, String url) {
-        MediaView result;
-        Settings settings = Settings.of(context);
-        if (isVideoUrl(url)) {
-            boolean useCompatVideoPlayer = settings.useCompatVideoPlayer();
-
-            // we use a api that is not available in ICS, so we need to
-            // fallback to the compat player before jelly bean.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-                useCompatVideoPlayer = true;
-
-            // FIXME Always force compat player for now.
-            useCompatVideoPlayer = true;
-
-            result = useCompatVideoPlayer
-                    ? new SimpleVideoMediaView(context, binder, url)
-                    : new VideoMediaView(context, binder, url);
-
-        } else if (url.toLowerCase().endsWith(".gif")) {
-            if (settings.convertGifToWebm()) {
-                result = new Gif2VideoMediaView(context, binder, url);
-            } else {
-                result = new GifMediaView(context, binder, url);
-            }
-
-        } else {
-            result = new ImageMediaView(context, binder, url);
-        }
-
-        return result;
-    }
-
-    private static boolean isVideoUrl(String url) {
-        return url.toLowerCase().matches(".*\\.(webm|mp4|mpg|mpeg)");
-    }
-
-    /**
-     * Creates a new {@link com.pr0gramm.app.ui.views.viewer.MediaView} instance
-     * for the given feed item.
-     *
-     * @param context  The current context
-     * @param feedItem The feed item that is to be displayed.
-     * @return A new {@link com.pr0gramm.app.ui.views.viewer.MediaView} instance.
-     */
-    public static MediaView newInstance(Context context, Binder binder, FeedItem feedItem) {
-        String url = "http://img.pr0gramm.com/" + feedItem.getImage();
-        return newInstance(context, binder, url);
-    }
-
-    /**
      * Resizes the video view while keeping the given aspect ratio.
      */
     protected void resizeViewerView(View view, float aspect, int retries) {
-        Log.i(TAG, "Setting aspect of viewer View to " + aspect);
+        if (Float.isNaN(aspect)) {
+            logger.info("Not setting aspect to NaN!");
+            return;
+        }
+
+        logger.info("Setting aspect of viewer View to " + aspect);
 
         if (view.getWindowToken() == null) {
             if (retries > 0) {
-                Log.i(TAG, "Delay resizing of View for 100ms");
-                HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+                logger.info("Delay resizing of View for 100ms");
+                postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
             }
 
             return;
@@ -265,8 +220,8 @@ public abstract class MediaView extends FrameLayout {
             if (parentWidth == 0) {
                 // relayout again in a short moment
                 if (retries > 0) {
-                    Log.i(TAG, "Delay resizing of View for 100ms");
-                    HANDLER.postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
+                    logger.info("Delay resizing of View for 100ms");
+                    postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
                 }
 
                 return;
@@ -274,34 +229,32 @@ public abstract class MediaView extends FrameLayout {
 
             int newHeight = (int) (parentWidth / aspect);
             if (view.getHeight() == newHeight) {
-                Log.i(TAG, "View already correctly sized at " + parentWidth + "x" + newHeight);
+                logger.info("View already correctly sized at " + parentWidth + "x" + newHeight);
                 return;
             }
 
-            Log.i(TAG, "Setting size of View to " + parentWidth + "x" + newHeight);
+            logger.info("Setting size of View to " + parentWidth + "x" + newHeight);
             ViewGroup.LayoutParams params = view.getLayoutParams();
             params.height = newHeight;
             view.setLayoutParams(params);
 
         } else {
-            Log.w(TAG, "View has no parent, can not set size.");
+            logger.warn("View has no parent, can not set size.");
         }
     }
 
     public void playMedia() {
-        Log.i(TAG, "Should start playing media");
+        logger.info("Should start playing media");
         playing = true;
     }
 
     public void stopMedia() {
-        Log.i(TAG, "Should stop playing media");
+        logger.info("Should stop playing media");
         playing = false;
     }
 
     public interface Binder {
         <T> Observable<T> bind(Observable<T> observable);
-
-        void onError(String text);
     }
 
     public interface OnDoubleTapListener {
