@@ -17,7 +17,7 @@ public interface MessageActionListener {
     /**
      * The user wants to answer to a comment
      */
-    void onAnswerToCommentClicked(long itemId, long commentId);
+    void onAnswerToCommentClicked(long itemId, long commentId, String name);
 
     /**
      * A username was clicked.

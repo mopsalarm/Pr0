@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.widget.EditText;
 
 import com.google.common.base.Optional;
@@ -28,7 +27,12 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 
 /**
  */
-public class NewCommentDialogFragment extends RoboDialogFragment {
+public class ReplyCommentDialogFragment extends RoboDialogFragment {
+
+    public static String ARGUMENT_PARENT_COMMENT_NAME = "parentCommentName";
+    public static String ARGUMENT_PARENT_COMMENT_ID = "parentCommentId";
+    public static String ARGUMENT_ITEM_ID = "itemId";
+
     private EditText commentInput;
 
     @Inject
@@ -50,6 +54,8 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
 
         return DialogBuilder.start(getActivity())
                 .fullWidth()
+                .title(getString(R.string.add_reply_comment_title,
+                                getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME)))
                 .content(view, true)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)
@@ -70,8 +76,8 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
             return;
 
         // inform parent
-        long parentComment = getArguments().getLong("parentCommentId");
-        long itemId = getArguments().getLong("itemId");
+        long parentComment = getArguments().getLong(ARGUMENT_PARENT_COMMENT_ID);
+        long itemId = getArguments().getLong(ARGUMENT_ITEM_ID);
 
         Fragment parentFragment = getParentFragment();
 
@@ -85,17 +91,20 @@ public class NewCommentDialogFragment extends RoboDialogFragment {
                 }, defaultOnError());
     }
 
-    public static NewCommentDialogFragment newInstance(long itemId, Optional<Post.Comment> parent) {
+    public static ReplyCommentDialogFragment newInstance(long itemId, Optional<Post.Comment> parent) {
         long parentId = parent.transform(Post.Comment::getId).or(0L);
-        return newInstance(itemId, parentId);
+        String name = parent.transform(Post.Comment::getName).or("");
+        parent.get().getName();
+        return newInstance(itemId, parentId, name);
     }
 
-    public static NewCommentDialogFragment newInstance(long itemId, long parentId) {
+    public static ReplyCommentDialogFragment newInstance(long itemId, long parentId, String name) {
         Bundle arguments = new Bundle();
-        arguments.putLong("parentCommentId", parentId);
-        arguments.putLong("itemId", itemId);
+        arguments.putLong(ARGUMENT_PARENT_COMMENT_ID, parentId);
+        arguments.putLong(ARGUMENT_ITEM_ID, itemId);
+        arguments.putString(ARGUMENT_PARENT_COMMENT_NAME, name);
 
-        NewCommentDialogFragment dialog = new NewCommentDialogFragment();
+        ReplyCommentDialogFragment dialog = new ReplyCommentDialogFragment();
         dialog.setArguments(arguments);
         return dialog;
     }

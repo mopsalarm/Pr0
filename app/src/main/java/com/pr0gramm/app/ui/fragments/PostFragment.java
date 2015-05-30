@@ -47,7 +47,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
-import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
+import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
@@ -86,7 +86,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
  */
 public class PostFragment extends RoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
-        NewCommentDialogFragment.OnNewCommentsListener,
+        ReplyCommentDialogFragment.OnNewCommentsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
@@ -620,7 +620,7 @@ public class PostFragment extends RoboFragment implements
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorized(this, () -> {
-            NewCommentDialogFragment
+            ReplyCommentDialogFragment
                     .newInstance(feedItem.getId(), Optional.fromNullable(comment))
                     .show(getChildFragmentManager(), null);
 

@@ -88,7 +88,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
             if (isComment) {
                 view.sender.setAnswerClickedListener(v -> {
-                    actionListener.onAnswerToCommentClicked(message.getItemId(), message.getId());
+                    actionListener.onAnswerToCommentClicked(message.getItemId(), message.getId(), message.getName());
                 });
 
                 view.image.setOnClickListener(v -> {

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
@@ -23,7 +24,7 @@ import com.pr0gramm.app.ui.EmptyAdapter;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
-import com.pr0gramm.app.ui.dialogs.NewCommentDialogFragment;
+import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.squareup.picasso.Picasso;
 
@@ -231,8 +232,9 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
 
         @Override
-        public void onAnswerToCommentClicked(long itemId, long commentId) {
-            DialogFragment dialog = NewCommentDialogFragment.newInstance(itemId, commentId);
+        public void onAnswerToCommentClicked(long itemId, long commentId, String name) {
+
+            DialogFragment dialog = ReplyCommentDialogFragment.newInstance(itemId, commentId, name);
             dialog.show(getFragmentManager(), null);
         }
 
