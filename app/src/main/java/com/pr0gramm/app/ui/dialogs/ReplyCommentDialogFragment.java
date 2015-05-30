@@ -55,8 +55,8 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
         return DialogBuilder.start(getActivity())
                 .fullWidth()
                 .title(getArguments().containsKey(ARGUMENT_PARENT_COMMENT_NAME)?
-                        getString(R.string.add_reply_comment_title).concat(" ")
-                                .concat(getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME))
+                        getString(R.string.add_reply_comment_title,
+                                getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME))
                         :getString(R.string.add_new_comment_title))
                 .content(view, true)
                 .negative(R.string.cancel)

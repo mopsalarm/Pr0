@@ -93,7 +93,7 @@
     <string name="action_login">ANMELDEN</string>
     <string name="action_logout">ABMELDEN</string>
     <string name="action_settings">EINSTELLUNGEN</string>
-    <string name="add_reply_comment_title">Antwort an</string>
+    <string name="add_reply_comment_title">Antwort an %s</string>
     <string name="add_new_comment_title">Neuer Kommentar</string>
     <string name="add_new_tag_summary">Mehrere Tags können mit Kommata separiert werden.</string>
     <string name="add_new_tag_title">Neuen Tag hinzufügen</string>
