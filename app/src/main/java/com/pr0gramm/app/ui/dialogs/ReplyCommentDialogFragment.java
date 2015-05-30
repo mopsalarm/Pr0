@@ -54,10 +54,8 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
 
         return DialogBuilder.start(getActivity())
                 .fullWidth()
-                .title(getArguments().containsKey(ARGUMENT_PARENT_COMMENT_NAME)?
-                        getString(R.string.add_reply_comment_title,
-                                getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME))
-                        :getString(R.string.add_new_comment_title))
+                .title(getString(R.string.add_reply_comment_title,
+                                getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME)))
                 .content(view, true)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)
@@ -95,17 +93,16 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
 
     public static ReplyCommentDialogFragment newInstance(long itemId, Optional<Post.Comment> parent) {
         long parentId = parent.transform(Post.Comment::getId).or(0L);
-        Optional<String> name = Optional.of(parent.transform(Post.Comment::getName).or(""));
+        String name = parent.transform(Post.Comment::getName).or("");
         parent.get().getName();
         return newInstance(itemId, parentId, name);
     }
 
-    public static ReplyCommentDialogFragment newInstance(long itemId, long parentId, Optional<String> name) {
+    public static ReplyCommentDialogFragment newInstance(long itemId, long parentId, String name) {
         Bundle arguments = new Bundle();
         arguments.putLong(ARGUMENT_PARENT_COMMENT_ID, parentId);
         arguments.putLong(ARGUMENT_ITEM_ID, itemId);
-        if(name.isPresent())
-            arguments.putString(ARGUMENT_PARENT_COMMENT_NAME, name.get());
+        arguments.putString(ARGUMENT_PARENT_COMMENT_NAME, name);
 
         ReplyCommentDialogFragment dialog = new ReplyCommentDialogFragment();
         dialog.setArguments(arguments);

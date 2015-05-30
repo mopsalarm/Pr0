@@ -232,9 +232,9 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
 
         @Override
-        public void onAnswerToCommentClicked(long itemId, long commentId) {
+        public void onAnswerToCommentClicked(long itemId, long commentId, String name) {
 
-            DialogFragment dialog = ReplyCommentDialogFragment.newInstance(itemId, commentId, Optional.absent());
+            DialogFragment dialog = ReplyCommentDialogFragment.newInstance(itemId, commentId, name);
             dialog.show(getFragmentManager(), null);
         }
 
