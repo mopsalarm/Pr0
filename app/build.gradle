@@ -20,13 +20,13 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "com.pr0gramm.app"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         versionCode appVersion
         versionName "1.${appVersion}"
@@ -47,6 +47,8 @@ android {
     }
     buildTypes {
         debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             versionNameSuffix ".dev"
         }
 
