@@ -207,6 +207,16 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
 
             return result;
         }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(owning);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o == this;
+        }
     }
 
 
