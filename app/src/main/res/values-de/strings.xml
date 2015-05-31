@@ -229,4 +229,9 @@
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
     <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
     <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst.</string>
+    <string name="action_new_message">Neue Nachricht</string>
+    <string name="add_new_comment_summary">Kommentar schreiben</string>
+    <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
+    <string name="receiver">Empfänger</string>
+    <string name="user_not_found">Nicht gefunden</string>
 </resources>

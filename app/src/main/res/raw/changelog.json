@@ -1,5 +1,20 @@
 [
   {
+    "version": 50,
+    "type": "Neu",
+    "change": "Nachrichten können direkt an einen Benutzer (über seinen Namen) geschickt werden"
+  },
+  {
+    "version": 50,
+    "type": "Fix",
+    "change": "Bessere Tabs und Actionbar in der Nachrichtenübersicht"
+  },
+  {
+    "version": 50,
+    "type": "Fix",
+    "change": "Ein weiteres Speicherleak behoben"
+  },
+  {
     "version": 49,
     "type": "Neu",
     "change": "Neue Einstellung 'Softwaredekoder' unter Kompatibilität, die jetzt jegliche Videoprobleme beheben sollte."
