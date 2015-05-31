@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -185,7 +184,7 @@ public class InfoLineView extends LinearLayout {
         int height = addTagView.getMeasuredHeight();
         tagsView.setMinimumHeight(height);
 
-        MergeRecyclerAdapter<RecyclerView.Adapter> adapter = new MergeRecyclerAdapter<>();
+        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
         adapter.addView(addTagView);
         adapter.addAdapter(new TagsAdapter(sorted, tags));
         tagsView.setAdapter(adapter);

@@ -197,17 +197,17 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         recyclerView.addOnScrollListener(onScrollListener);
     }
 
-    private MergeRecyclerAdapter<RecyclerView.Adapter<?>> wrapFeedAdapter(
+    private MergeRecyclerAdapter wrapFeedAdapter(
             int columnCount, FeedAdapter feedAdapter) {
 
-        MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter = new MergeRecyclerAdapter<>();
+        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
         adapter.addView(newFeedStartPaddingView());
         adapter.addAdapter(feedAdapter);
         addUserInfoToAdapter(adapter, columnCount);
         return adapter;
     }
 
-    private void addUserInfoToAdapter(MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter, int columnCount) {
+    private void addUserInfoToAdapter(MergeRecyclerAdapter adapter, int columnCount) {
         if (userInfoObservable == null) {
             FeedFilter filter = getCurrentFilter();
             if (filter.getUsername().isPresent()) {

@@ -4,29 +4,32 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rx.functions.Action1;
+
 /**
  * Adapted from https://gist.github.com/athornz/008edacd1d3b2f1e1836
  */
-public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends RecyclerView.Adapter {
+public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
-    protected ArrayList<LocalAdapter> mAdapters = new ArrayList<>();
+    private final List<LocalAdapter> adapters = new ArrayList<>();
     private int mViewTypeIndex = 0;
 
     /**
      */
     public class LocalAdapter {
-        public final T mAdapter;
+        public final RecyclerView.Adapter mAdapter;
         public int mLocalPosition = 0;
         public int mAdapterIndex = 0;
         public Map<Integer, Integer> mViewTypesMap = new HashMap<>();
 
-        public LocalAdapter(T adapter) {
+        public LocalAdapter(RecyclerView.Adapter adapter) {
             mAdapter = adapter;
         }
 
@@ -50,16 +53,16 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
     /**
      * Append the given adapter to the list of merged adapters.
      */
-    public void addAdapter(T adapter) {
-        addAdapter(mAdapters.size(), adapter);
+    public void addAdapter(RecyclerView.Adapter adapter) {
+        addAdapter(adapters.size(), adapter);
     }
 
     /**
      * Add the given adapter to the list of merged adapters at the given index.
      */
-    public void addAdapter(int index, T adapter) {
-        mAdapters.add(index, new LocalAdapter(adapter));
-        adapter.registerAdapterDataObserver(new ForwardingDataSetObserver(adapter));
+    public void addAdapter(int index, RecyclerView.Adapter adapter) {
+        adapters.add(index, new LocalAdapter(adapter));
+        adapter.registerAdapterDataObserver(new ForwardingDataSetObserver(this, adapter));
         notifyDataSetChanged();
     }
 
@@ -81,13 +84,13 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
      */
     @SuppressWarnings("unchecked")
     public void addViews(List<View> views) {
-        addAdapter((T) new ViewsAdapter(views));
+        addAdapter(new ViewsAdapter(views));
     }
 
     @Override
     public int getItemCount() {
         int count = 0;
-        for (LocalAdapter adapter : mAdapters)
+        for (LocalAdapter adapter : adapters)
             count += adapter.mAdapter.getItemCount();
 
         return count;
@@ -101,12 +104,12 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
      * @return the matching Adapter and local position, or null if not found
      */
     public LocalAdapter getAdapterOffsetForItem(final int position) {
-        final int adapterCount = mAdapters.size();
+        final int adapterCount = adapters.size();
         int i = 0;
         int count = 0;
 
         while (i < adapterCount) {
-            LocalAdapter a = mAdapters.get(i);
+            LocalAdapter a = adapters.get(i);
             int newCount = count + a.mAdapter.getItemCount();
             if (position < newCount) {
                 a.mLocalPosition = position - count;
@@ -147,7 +150,7 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        for (LocalAdapter adapter : mAdapters) {
+        for (LocalAdapter adapter : adapters) {
             if (adapter.mViewTypesMap.containsKey(viewType))
                 return adapter.mAdapter.onCreateViewHolder(viewGroup, adapter.mViewTypesMap.get(viewType));
         }
@@ -161,61 +164,56 @@ public class MergeRecyclerAdapter<T extends RecyclerView.Adapter> extends Recycl
         result.mAdapter.onBindViewHolder(viewHolder, result.mLocalPosition);
     }
 
+    private static class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {
+        private final RecyclerView.Adapter owning;
+        private final WeakReference<MergeRecyclerAdapter> merge;
 
-
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     * forwarding data set observer
-	 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-    private class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {
-        private final T owning;
-
-        private ForwardingDataSetObserver(T owning) {
+        ForwardingDataSetObserver(MergeRecyclerAdapter merge, RecyclerView.Adapter owning) {
             this.owning = owning;
+            this.merge = new WeakReference<>(merge);
         }
 
         @Override
         public void onChanged() {
-            notifyDataSetChanged();
+            withAdapter(MergeRecyclerAdapter::notifyDataSetChanged);
         }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
-            notifyItemRangeChanged(localToMergedIndex(positionStart), itemCount);
+            withAdapter(base -> base.notifyItemRangeChanged(
+                    localToMergedIndex(base, positionStart), itemCount));
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            notifyItemRangeInserted(localToMergedIndex(positionStart), itemCount);
+            withAdapter(base -> base.notifyItemRangeInserted(
+                    localToMergedIndex(base, positionStart), itemCount));
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            notifyItemRangeRemoved(localToMergedIndex(positionStart), itemCount);
+            withAdapter(base -> base.notifyItemRangeRemoved(
+                    localToMergedIndex(base, positionStart), itemCount));
         }
 
         @SuppressWarnings("EqualsBetweenInconvertibleTypes")
-        private int localToMergedIndex(int index) {
+        private int localToMergedIndex(MergeRecyclerAdapter base, int index) {
             int result = index;
-            for (LocalAdapter adapter : mAdapters) {
+            for (LocalAdapter adapter : base.adapters) {
                 if (adapter.equals(owning)) {
                     break;
                 }
 
                 result += adapter.mAdapter.getItemCount();
             }
-
             return result;
         }
 
-        @Override
-        public int hashCode() {
-            return System.identityHashCode(owning);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o == this;
+        private void withAdapter(Action1<MergeRecyclerAdapter> action) {
+            MergeRecyclerAdapter adapter = merge.get();
+            if (adapter != null) {
+                action.call(adapter);
+            }
         }
     }
 

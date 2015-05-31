@@ -12,6 +12,7 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -164,6 +165,11 @@ public class AndroidUtility {
         for (Field field : fields) {
             try {
                 field.setAccessible(true);
+                Object view = field.get(object);
+                if(view instanceof RecyclerView) {
+                    ((RecyclerView) view).setAdapter(null);
+                }
+                
                 field.set(object, null);
                 count++;
             } catch (IllegalAccessException ignored) {
