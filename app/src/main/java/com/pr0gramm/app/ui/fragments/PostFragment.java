@@ -375,7 +375,6 @@ public class PostFragment extends RoboFragment implements
             viewer.onDestroy();
 
         super.onDestroy();
-        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     /**

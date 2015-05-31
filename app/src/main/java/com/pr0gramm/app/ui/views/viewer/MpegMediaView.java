@@ -88,8 +88,6 @@ public class MpegMediaView extends MediaView {
 
         if (mpeg != null) {
             mpeg.stop();
-
-            Pr0grammApplication.getRefWatcher().watch(mpeg);
             mpeg = null;
         }
     }

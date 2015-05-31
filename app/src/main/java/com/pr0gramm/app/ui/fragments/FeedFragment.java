@@ -25,7 +25,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
@@ -273,7 +272,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     private void removeBusyIndicator() {

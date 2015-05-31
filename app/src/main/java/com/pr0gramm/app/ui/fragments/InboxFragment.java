@@ -106,7 +106,6 @@ public abstract class InboxFragment<T> extends RoboFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     private void reloadInboxContent() {

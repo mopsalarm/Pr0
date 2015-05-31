@@ -7,8 +7,6 @@ import android.content.pm.PackageManager;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -23,7 +21,6 @@ import pl.brightinventions.slf4android.LoggerConfiguration;
  */
 public class Pr0grammApplication extends SugarApp {
     private static final Logger logger = LoggerFactory.getLogger(Pr0grammApplication.class);
-    private RefWatcher refWatcher;
 
     public Pr0grammApplication() {
         GLOBAL_CONTEXT = this;
@@ -33,7 +30,6 @@ public class Pr0grammApplication extends SugarApp {
     public void onCreate() {
         super.onCreate();
 
-        refWatcher = LeakCanary.install(this);
         JodaTimeAndroid.init(this);
 
         boolean development = getPackageInfo().versionName.endsWith(".dev");
@@ -60,11 +56,6 @@ public class Pr0grammApplication extends SugarApp {
         } catch (PackageManager.NameNotFoundException err) {
             throw Throwables.propagate(err);
         }
-    }
-
-    public static RefWatcher getRefWatcher() {
-        Pr0grammApplication application = (Pr0grammApplication) GLOBAL_CONTEXT.getApplicationContext();
-        return application.refWatcher;
     }
 
     public static Context GLOBAL_CONTEXT;
