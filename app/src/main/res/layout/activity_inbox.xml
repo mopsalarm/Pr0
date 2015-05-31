@@ -1,45 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/primary"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
-    <TabHost
-        android:id="@android:id/tabhost"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0">
+        android:layout_height="match_parent"
+        android:background="@color/primary"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
 
-        <TabWidget
-            android:id="@android:id/tabs"
-            android:orientation="horizontal"
+        <!--
+        <TabHost
+            android:id="@android:id/tabhost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:showDividers="none"
-            android:background="@color/primary"
-            />
+            android:layout_weight="0">
 
-        <FrameLayout
-            android:id="@android:id/tabcontent"
-            android:layout_width="0dp"
-            android:layout_height="0dp"/>
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:showDividers="none"
+                android:background="@color/primary"
+                />
 
-        <View
-            android:id="@+id/tab_indicator"
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+
+            <View
+                android:id="@+id/tab_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_gravity="bottom"
+                android:background="@color/white"/>
+
+        </TabHost>
+        -->
+
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_gravity="bottom"
-            android:background="@color/white"/>
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
 
-    </TabHost>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                app:layout_scrollFlags="scroll|enterAlways"/>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="?android:windowBackground"/>
-</LinearLayout>
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="?android:windowBackground"/>
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

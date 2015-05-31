@@ -2,14 +2,12 @@ package com.pr0gramm.app.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
@@ -28,26 +26,19 @@ import roboguice.inject.InjectView;
 /**
  * The activity that displays the inbox.
  */
-public class InboxActivity extends RoboActionBarActivity {
+public class InboxActivity extends RoboActionBarActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
 
     private final OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 
-
     @Inject
     private UserService userService;
-
-    @InjectView(android.R.id.tabhost)
-    private TabHost tabHost;
 
     @InjectView(R.id.pager)
     private ViewPager viewPager;
 
-    @InjectView(android.R.id.tabs)
-    private TabWidget tabWidget;
-
-    @InjectView(R.id.tab_indicator)
-    private View indicator;
+    @InjectView(R.id.tabs)
+    private TabLayout tabLayout;
 
     private TabsAdapter tabsAdapter;
 
@@ -63,38 +54,36 @@ public class InboxActivity extends RoboActionBarActivity {
 
         setContentView(R.layout.activity_inbox);
 
-        // put the actionbar down
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setElevation(0);
+        if(actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-        // elevate the tab host, so that it cast a shadow.
-        float elevation = 4 * getResources().getDisplayMetrics().density;
-        ViewCompat.setElevation(tabHost, elevation);
-
-        tabHost.setup();
-
-        tabsAdapter = new TabsAdapter(this, tabHost, tabWidget, viewPager);
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.unread"), R.string.inbox_type_unread, MessageInboxFragment.class,
+        tabsAdapter = new TabsAdapter(this);
+        tabsAdapter.addTab(R.string.inbox_type_unread, MessageInboxFragment.class,
                 MessageInboxFragment.buildArguments(InboxType.UNREAD));
 
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.all"), R.string.inbox_type_all, MessageInboxFragment.class,
+        tabsAdapter.addTab(R.string.inbox_type_all, MessageInboxFragment.class,
                 MessageInboxFragment.buildArguments(InboxType.ALL));
 
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.private"), R.string.inbox_type_private,
-                PrivateMessageInboxFragment.class, null);
+        tabsAdapter.addTab(R.string.inbox_type_private, PrivateMessageInboxFragment.class, null);
 
-        tabsAdapter.addTab(tabHost.newTabSpec("Inbox.comments"), R.string.inbox_type_comments,
-                WrittenCommentFragment.class, null);
+        tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment.class, null);
 
-        tabsAdapter.setOnTabChangedListener(tabId -> onTabChanged());
+        viewPager.setAdapter(tabsAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+
+        viewPager.addOnPageChangeListener(this);
 
         // this is to animate the little line below the tabs
-        viewPager.setOnPageChangeListener(new PageChangeListener());
+        // viewPager.addOnPageChangeListener(new PageChangeListener());
 
         // restore previously selected tab
         if (savedInstanceState != null) {
-            tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+            viewPager.setCurrentItem(savedInstanceState.getInt("tab"));
         } else {
             handleNewIntent(getIntent());
         }
@@ -127,25 +116,25 @@ public class InboxActivity extends RoboActionBarActivity {
 
     private void showInboxType(InboxType type) {
         if (type == InboxType.UNREAD)
-            tabHost.setCurrentTab(0);
+            viewPager.setCurrentItem(0);
 
         else if (type == InboxType.ALL)
-            tabHost.setCurrentTab(1);
+            viewPager.setCurrentItem(1);
 
         else if (type == InboxType.PRIVATE)
-            tabHost.setCurrentTab(2);
+            viewPager.setCurrentItem(2);
     }
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
 
-        if (tabHost != null)
+        if (viewPager != null)
             onTabChanged();
     }
 
     private void onTabChanged() {
-        int index = tabHost.getCurrentTab();
+        int index = viewPager.getCurrentItem();
         if (index >= 0 && index < tabsAdapter.getCount()) {
             setTitle(tabsAdapter.getPageTitle(index));
         }
@@ -164,8 +153,8 @@ public class InboxActivity extends RoboActionBarActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (tabHost != null) {
-            outState.putString("tab", tabHost.getCurrentTabTag());
+        if (viewPager != null) {
+            outState.putInt("tab", viewPager.getCurrentItem());
         }
     }
 
@@ -177,38 +166,53 @@ public class InboxActivity extends RoboActionBarActivity {
         startActivity(intent);
     }
 
-    private class PageChangeListener implements ViewPager.OnPageChangeListener {
-        private int scrollingState = ViewPager.SCROLL_STATE_IDLE;
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-        @Override
-        public void onPageSelected(int position) {
-            if (scrollingState == ViewPager.SCROLL_STATE_IDLE) {
-                updateIndicatorPosition(position, 0);
-            }
-
-            // tabWidget.setCurrentTab(position);
-            tabHost.setCurrentTab(position);
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-            scrollingState = state;
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            updateIndicatorPosition(position, positionOffset);
-        }
-
-        private void updateIndicatorPosition(int position, float positionOffset) {
-            View tabView = tabWidget.getChildTabViewAt(position);
-            int indicatorWidth = tabView.getWidth();
-            int indicatorLeft = (int) ((position + positionOffset) * indicatorWidth);
-
-            final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) indicator.getLayoutParams();
-            layoutParams.width = indicatorWidth;
-            layoutParams.setMargins(indicatorLeft, 0, 0, 0);
-            indicator.setLayoutParams(layoutParams);
-        }
     }
+
+    @Override
+    public void onPageSelected(int position) {
+        onTabChanged();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+//    private class PageChangeListener implements ViewPager.OnPageChangeListener {
+//        private int scrollingState = ViewPager.SCROLL_STATE_IDLE;
+//
+//        @Override
+//        public void onPageSelected(int position) {
+//            if (scrollingState == ViewPager.SCROLL_STATE_IDLE) {
+//                updateIndicatorPosition(position, 0);
+//            }
+//
+//            // tabWidget.setCurrentTab(position);
+//            tabHost.setCurrentTab(position);
+//        }
+//
+//        @Override
+//        public void onPageScrollStateChanged(int state) {
+//            scrollingState = state;
+//        }
+//
+//        @Override
+//        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//            updateIndicatorPosition(position, positionOffset);
+//        }
+//
+//        private void updateIndicatorPosition(int position, float positionOffset) {
+//            View tabView = tabWidget.getChildTabViewAt(position);
+//            int indicatorWidth = tabView.getWidth();
+//            int indicatorLeft = (int) ((position + positionOffset) * indicatorWidth);
+//
+//            final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) indicator.getLayoutParams();
+//            layoutParams.width = indicatorWidth;
+//            layoutParams.setMargins(indicatorLeft, 0, 0, 0);
+//            indicator.setLayoutParams(layoutParams);
+//        }
+//    }
 }
