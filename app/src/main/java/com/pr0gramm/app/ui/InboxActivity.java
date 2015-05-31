@@ -73,10 +73,9 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment.class, null);
 
         viewPager.setAdapter(tabsAdapter);
-        tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setTabMode(TabLayout.MODE_FIXED);
-
         viewPager.addOnPageChangeListener(this);
+
+        tabLayout.setupWithViewPager(viewPager);
 
         // this is to animate the little line below the tabs
         // viewPager.addOnPageChangeListener(new PageChangeListener());
