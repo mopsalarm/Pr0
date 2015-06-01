@@ -30,7 +30,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
@@ -133,7 +132,7 @@ public class PostFragment extends RoboFragment implements
     private InfoLineView infoLineView;
 
     // start with an empty adapter here
-    private MergeRecyclerAdapter<RecyclerView.Adapter> adapter;
+    private MergeRecyclerAdapter adapter;
     private CommentsAdapter commentsAdapter;
     private TextView voteAnimationIndicator;
 
@@ -172,7 +171,7 @@ public class PostFragment extends RoboFragment implements
 
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 
-        adapter = new MergeRecyclerAdapter<>();
+        adapter = new MergeRecyclerAdapter();
         content.setItemAnimator(null);
         content.setLayoutManager(new LinearLayoutManager(getActivity()));
         content.setAdapter(adapter);
@@ -375,7 +374,6 @@ public class PostFragment extends RoboFragment implements
             viewer.onDestroy();
 
         super.onDestroy();
-        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     /**

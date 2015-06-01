@@ -10,6 +10,7 @@
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>
+    <style name="AppTheme.TranslucentStatus" parent="Base.AppTheme"/>
     <style name="AppTheme.TranslucentNavbar" parent="Base.AppTheme"/>
 
     <!-- Base application theme. -->

@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -113,7 +114,7 @@ public class MainActivity extends RoboActionBarActivity implements
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -294,7 +295,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(Gravity.START)) {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
             return;
         }
@@ -367,7 +368,7 @@ public class MainActivity extends RoboActionBarActivity implements
     @Override
     public void pinFeedFilter(FeedFilter filter, String title) {
         bookmarkService.create(filter, title).subscribe(Actions.empty(), defaultOnError());
-        drawerLayout.openDrawer(Gravity.START);
+        drawerLayout.openDrawer(GravityCompat.START);
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {

@@ -90,7 +90,7 @@
     <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
     <string name="add_new_tag_title">Add new tag</string>
     <string name="add_new_comment_summary">Write a comment</string>
-    <string name="comment_hint">Comment...</string>
+    <string name="comment_hint">Comment…</string>
     <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>
@@ -258,4 +258,8 @@
     <string name="no">No</string>
     <string name="pref_use_mpeg_decoder_title">Software decoder</string>
     <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you.</string>
+    <string name="add_reply_comment_title">Answer to %s</string>
+    <string name="action_new_message">New message</string>
+    <string name="receiver">Receiver</string>
+    <string name="user_not_found">No such user</string>
 </resources>

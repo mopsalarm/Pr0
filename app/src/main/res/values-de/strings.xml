@@ -42,9 +42,6 @@
     <string name="please_wait">Bitte warten</string>
     <string name="points">%d Punkte</string>
     <string name="pr0gramm">pr0gramm</string>
-    <string name="pref_check_for_updates">Auf Update prüfen</string>
-    <string name="pref_check_for_updates_off">Nicht auf Updates prüfen</string>
-    <string name="pref_check_for_updates_on">Automatisch auf Updates prüfen</string>
     <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_convert_gif_to_webm">Konvertiere gif zu webm</string>
     <string name="pref_convert_gif_to_webm_off">Gifs herunterladen</string>
@@ -94,14 +91,13 @@
     <string name="action_logout">ABMELDEN</string>
     <string name="action_settings">EINSTELLUNGEN</string>
     <string name="add_reply_comment_title">Antwort an %s</string>
-    <string name="add_new_comment_title">Neuer Kommentar</string>
     <string name="add_new_tag_summary">Mehrere Tags können mit Kommata separiert werden.</string>
     <string name="add_new_tag_title">Neuen Tag hinzufügen</string>
     <string name="are_you_sure_to_logout">Bist du sicher, dass du dich abmelden möchtest? Deine Benis-Historie geht dabei unwiderruflich verloren.</string>
     <string name="benis">Benis:</string>
     <string name="benis_delta_down">(-%d seit gestern)</string>
     <string name="benis_delta_up">(+%d seit gestern)</string>
-    <string name="comment_hint">Kommentar...</string>
+    <string name="comment_hint">Kommentar…</string>
     <string name="error_could_not_create_download_directory">Downloadordner konnte nicht angelegt werden.</string>
     <string name="logout">Abmelden</string>
     <string name="need_to_restart_app">Damit diese Änderung wirksam wird, musst du die App einmal komplett neustarten.</string>
@@ -233,4 +229,9 @@
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
     <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
     <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst.</string>
+    <string name="action_new_message">Neue Nachricht</string>
+    <string name="add_new_comment_summary">Kommentar schreiben</string>
+    <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
+    <string name="receiver">Empfänger</string>
+    <string name="user_not_found">Nicht gefunden</string>
 </resources>

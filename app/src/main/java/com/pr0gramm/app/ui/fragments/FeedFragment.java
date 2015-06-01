@@ -25,7 +25,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
@@ -198,17 +197,17 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         recyclerView.addOnScrollListener(onScrollListener);
     }
 
-    private MergeRecyclerAdapter<RecyclerView.Adapter<?>> wrapFeedAdapter(
+    private MergeRecyclerAdapter wrapFeedAdapter(
             int columnCount, FeedAdapter feedAdapter) {
 
-        MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter = new MergeRecyclerAdapter<>();
+        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
         adapter.addView(newFeedStartPaddingView());
         adapter.addAdapter(feedAdapter);
         addUserInfoToAdapter(adapter, columnCount);
         return adapter;
     }
 
-    private void addUserInfoToAdapter(MergeRecyclerAdapter<RecyclerView.Adapter<?>> adapter, int columnCount) {
+    private void addUserInfoToAdapter(MergeRecyclerAdapter adapter, int columnCount) {
         if (userInfoObservable == null) {
             FeedFilter filter = getCurrentFilter();
             if (filter.getUsername().isPresent()) {
@@ -273,7 +272,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Pr0grammApplication.getRefWatcher().watch(this);
     }
 
     private void removeBusyIndicator() {
