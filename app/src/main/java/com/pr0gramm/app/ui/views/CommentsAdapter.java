@@ -6,6 +6,8 @@ import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -182,8 +184,21 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         public void setCommentDepth(int depth) {
-            MarginLayoutParams params = (MarginLayoutParams) itemView.getLayoutParams();
-            params.leftMargin = baseLeftMargin * depth;
+            LinearLayout commentWrapper = (LinearLayout) itemView.findViewById(R.id.comment_wrapper);
+
+            // Add missing spacers
+            for (int i = commentWrapper.getChildCount(); i < depth; i++) {
+                FrameLayout spacer = new FrameLayout(itemView.getContext());
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(2, ViewGroup.LayoutParams.MATCH_PARENT);
+                layoutParams.leftMargin = baseLeftMargin;
+                spacer.setLayoutParams(layoutParams);
+                spacer.setBackgroundColor(itemView.getResources().getColor(R.color.tag_background));
+                commentWrapper.addView(spacer, 0);
+            }
+            // Remove additional spacers
+            for (int i = commentWrapper.getChildCount(); i > depth; i--) {
+                commentWrapper.removeViewAt(0);
+            }
         }
     }
 
