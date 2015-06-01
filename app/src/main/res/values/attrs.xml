@@ -11,4 +11,11 @@
         <attr name="defaultColor" format="color|reference"/>
         <attr name="textSize" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="CommentSpacerView">
+        <attr name="lineMargin" format="dimension" />
+        <attr name="lineWidth" format="dimension" />
+        <attr name="lineColor" format="color" />
+        <attr name="depth" format="integer" />
+    </declare-styleable>
 </resources>

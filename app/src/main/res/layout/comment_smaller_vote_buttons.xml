@@ -10,6 +10,15 @@
     android:id="@+id/comment_wrapper"
     android:orientation="horizontal">
 
+    <com.pr0gramm.app.ui.views.CommentSpacerView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/comment_spacer"
+        app:lineWidth="2dp"
+        app:lineMargin="8dp"
+        app:depth="3"
+        app:lineColor="@color/comment_line"/>
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
