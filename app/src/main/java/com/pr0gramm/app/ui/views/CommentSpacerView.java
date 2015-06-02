@@ -5,7 +5,9 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.pr0gramm.app.R;
 
@@ -49,14 +51,15 @@ public class CommentSpacerView extends View {
         linePaint = new Paint();
         linePaint.setColor(lineColor);
         linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setStrokeWidth(lineWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        float x = 0;
-        for(int i = 1; i < depth; i++) {
-            x = lineMargin + (i - 1) * (lineMargin + lineWidth);
-            canvas.drawLine(x,0,x,getHeight(), linePaint);
+        float x;
+        for (int i = 1; i < depth; i++) {
+            x = i * lineMargin - lineWidth;
+            canvas.drawLine(x, 0, x, getHeight(), linePaint);
         }
     }
 
@@ -64,7 +67,7 @@ public class CommentSpacerView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
-        float width = (depth - 1) * (lineMargin + lineWidth);
+        float width = (depth - 1) * lineMargin;
 
         setMeasuredDimension((int) width, height);
     }

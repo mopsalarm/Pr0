@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/comment_spacer"
-        app:lineWidth="2dp"
+        app:lineWidth="1dp"
         app:lineMargin="8dp"
         app:depth="3"
         app:lineColor="@color/comment_line"/>
