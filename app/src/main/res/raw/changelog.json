@@ -2,6 +2,11 @@
   {
     "version": 50,
     "type": "Neu",
+    "change": "Kommentarlinien"
+  },
+  {
+    "version": 50,
+    "type": "Neu",
     "change": "Nachrichten können direkt an einen Benutzer (über seinen Namen) geschickt werden"
   },
   {

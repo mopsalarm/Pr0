@@ -1,27 +1,31 @@
 package com.pr0gramm.app.ui.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.pr0gramm.app.R;
 
 /**
- * Created by jakob on 01.06.15.
  */
-public class CommentSpacerView extends View {
+public class CommentSpacerView extends RelativeLayout {
 
-    private float lineMargin;
-    private float lineWidth;
-    private int lineColor;
+    private final float lineMargin;
+    private final float lineWidth;
+    private final int lineColor;
     private int depth;
 
     private Paint linePaint;
+
+    public CommentSpacerView(Context context) {
+        this(context, null);
+    }
 
     public CommentSpacerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -38,11 +42,13 @@ public class CommentSpacerView extends View {
             a.recycle();
         }
 
+        setWillNotDraw(false);
         initDraw();
     }
 
     public void setDepth(int depth) {
         this.depth = depth;
+        setPadding((int) (lineMargin * depth), 0, 0, 0);
         invalidate();
         requestLayout();
     }
@@ -52,23 +58,21 @@ public class CommentSpacerView extends View {
         linePaint.setColor(lineColor);
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeWidth(lineWidth);
+        linePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
     }
 
     @Override
+    @SuppressLint("DrawAllocation")
     protected void onDraw(Canvas canvas) {
-        float x;
+        super.onDraw(canvas);
+        Path path = new Path();
         for (int i = 1; i < depth; i++) {
-            x = i * lineMargin - lineWidth;
-            canvas.drawLine(x, 0, x, getHeight(), linePaint);
+            float x = i * lineMargin - lineWidth;
+
+            path.moveTo(x, 0);
+            path.lineTo(x, getHeight());
         }
-    }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-
-        float width = (depth - 1) * lineMargin;
-
-        setMeasuredDimension((int) width, height);
+        canvas.drawPath(path, linePaint);
     }
 }

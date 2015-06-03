@@ -167,13 +167,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final VoteView vote;
         final SenderInfoView senderInfo;
 
-        private final int baseLeftMargin;
-
         public CommentView(View itemView) {
             super(itemView);
-
-            MarginLayoutParams params = (MarginLayoutParams) itemView.getLayoutParams();
-            baseLeftMargin = params.leftMargin;
 
             // get the subviews
             comment = (TextView) itemView.findViewById(R.id.comment);
@@ -182,7 +177,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         public void setCommentDepth(int depth) {
-            ((CommentSpacerView) itemView.findViewById(R.id.comment_spacer)).setDepth(depth);
+            ((CommentSpacerView) itemView).setDepth(depth);
         }
     }
 
