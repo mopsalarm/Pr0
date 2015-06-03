@@ -287,6 +287,7 @@
     <color name="brighter_background">#ff515158</color>
 
     <color name="tag_background">#2A2E31</color>
+    <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>
 
     <color name="white">@color/grey_white_1000</color>

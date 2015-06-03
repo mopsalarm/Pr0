@@ -182,8 +182,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         public void setCommentDepth(int depth) {
-            MarginLayoutParams params = (MarginLayoutParams) itemView.getLayoutParams();
-            params.leftMargin = baseLeftMargin * depth;
+            ((CommentSpacerView) itemView.findViewById(R.id.comment_spacer)).setDepth(depth);
         }
     }
 

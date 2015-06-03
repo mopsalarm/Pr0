@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="0dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp"
+    android:id="@+id/comment_wrapper"
+    android:orientation="horizontal">
 
-    <com.pr0gramm.app.ui.views.VoteView
-        android:id="@+id/voting"
+    <com.pr0gramm.app.ui.views.CommentSpacerView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        app:orientation="vertical"
-        app:spacing="4dp"
-        app:textSize="18sp"
-        app:defaultColor="@color/grey_700"
-        app:markedColor="?colorPrimary"/>
+        android:layout_height="match_parent"
+        android:id="@+id/comment_spacer"
+        app:lineWidth="1dp"
+        app:lineMargin="8dp"
+        app:depth="3"
+        app:lineColor="@color/comment_line"/>
 
-    <include layout="@layout/comment_common"/>
-</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="0dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp">
+
+        <com.pr0gramm.app.ui.views.VoteView
+            android:id="@+id/voting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:orientation="vertical"
+            app:spacing="4dp"
+            app:textSize="18sp"
+            app:defaultColor="@color/grey_700"
+            app:markedColor="?colorPrimary"/>
+
+        <include layout="@layout/comment_common"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
