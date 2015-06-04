@@ -305,9 +305,17 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private FeedFilter getFilterArgument() {
+
         return getArguments()
                 .<FeedFilter>getParcelable(ARG_FEED_FILTER)
-                .withContentType(settings.getContentType());
+                .withContentType(getSelectedContentType());
+    }
+
+    private EnumSet<ContentType> getSelectedContentType() {
+        EnumSet<ContentType> contentType = settings.getContentType();
+        if(!userService.isAuthorized())
+            contentType = EnumSet.of(ContentType.SFW);
+        return contentType;
     }
 
     @Override
@@ -322,7 +330,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         // check if content type has changed, and reload if necessary
         FeedFilter feedFilter = feedAdapter.getFilter();
-        EnumSet<ContentType> newContentType = settings.getContentType();
+        EnumSet<ContentType> newContentType = getSelectedContentType();
         boolean changed = !equal(feedFilter.getContentTypes(), newContentType);
         if (changed) {
             Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);

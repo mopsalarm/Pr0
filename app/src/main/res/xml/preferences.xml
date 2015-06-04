@@ -7,22 +7,19 @@
         <CheckBoxPreference
             android:key="pref_feed_type_sfw"
             android:title="@string/type_sfw"
-            android:summaryOn="@string/pref_feed_type_sfw_on"
-            android:summaryOff="@string/pref_feed_type_sfw_off"
+            android:summary="@string/pref_feed_type_sfw_on"
             android:defaultValue="true"/>
 
         <CheckBoxPreference
             android:key="pref_feed_type_nsfw"
             android:title="@string/type_nsfw"
-            android:summaryOn="@string/pref_feed_type_nsfw_on"
-            android:summaryOff="@string/pref_feed_type_nsfw_off"
+            android:summary="@string/pref_feed_type_nsfw_on"
             android:defaultValue="false"/>
 
         <CheckBoxPreference
             android:key="pref_feed_type_nsfl"
             android:title="@string/type_nsfl"
-            android:summaryOn="@string/pref_feed_type_nsfl_on"
-            android:summaryOff="@string/pref_feed_type_nsfl_off"
+            android:summary="@string/pref_feed_type_nsfl_on"
             android:defaultValue="false"/>
 
     </PreferenceCategory>
