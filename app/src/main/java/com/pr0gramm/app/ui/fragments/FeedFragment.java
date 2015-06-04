@@ -556,9 +556,13 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 @Override
                 public void onError(Throwable error) {
                     if (getFeedProxy().getItemCount() == 0) {
-                        ErrorDialogFragment.showErrorString(
-                                getFragmentManager(),
-                                getString(R.string.could_not_load_feed));
+                        if(autoOpenOnLoad.isPresent()) {
+                            ErrorDialogFragment.showErrorString(getFragmentManager(),
+                                    getString(R.string.could_not_load_feed_nsfw));
+                        } else {
+                            ErrorDialogFragment.showErrorString(getFragmentManager(),
+                                    getString(R.string.could_not_load_feed));
+                        }
                     }
                 }
             });
