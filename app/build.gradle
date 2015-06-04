@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'io.fabric'
+apply plugin: 'me.tatarka.retrolambda'
 
 apply from: 'version.gradle'
 
@@ -20,13 +20,13 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "com.pr0gramm.app"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         versionCode appVersion
         versionName "1.${appVersion}"
