@@ -15,8 +15,16 @@
         android:id="@+id/seen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom|right"
         android:background="#8000"
         android:scaleType="center"
         android:src="@drawable/ic_checked"/>
+
+    <ImageView
+        android:id="@+id/repost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#8000"
+        android:scaleType="center"
+        android:src="@drawable/ic_repost"/>
+
 </FrameLayout>

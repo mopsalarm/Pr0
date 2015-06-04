@@ -166,6 +166,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_mpeg_decoder", false);
     }
 
+    public boolean useMetaService() {
+        return preferences.getBoolean("pref_use_meta_service", true);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

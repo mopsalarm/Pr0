@@ -234,4 +234,6 @@
     <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
+    <string name="pref_use_meta_service_title">Feed verbessern</string>
+    <string name="pref_use_meta_service_summary">Ergänzt den Feed um weitere Informationen, z.B. zeigt an, wenn es sich um einen Repost handelt.</string>
 </resources>

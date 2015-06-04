@@ -585,10 +585,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             view.itemView.setOnClickListener(v -> onItemClicked(position));
 
             // check if this item was already seen.
-            if (seenIndicatorStyle == IndicatorStyle.ICON) {
-                view.seen.setVisibility(seenService.isSeen(item) ? View.VISIBLE : View.GONE);
+            if(item.isRepost()) {
+                view.setIsRepost();
+            } else if (seenIndicatorStyle == IndicatorStyle.ICON && seenService.isSeen(item)) {
+                view.setIsSeen();
             } else {
-                view.seen.setVisibility(View.GONE);
+                view.clear();
             }
         }
 
@@ -700,15 +702,32 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         }
     };
 
-    private static class FeedItemViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView image;
+    private static final class FeedItemViewHolder extends RecyclerView.ViewHolder {
         private final ImageView seen;
+        private final ImageView repost;
+        final ImageView image;
 
         public FeedItemViewHolder(View itemView) {
             super(itemView);
 
             image = (ImageView) checkNotNull(itemView.findViewById(R.id.image));
             seen = (ImageView) checkNotNull(itemView.findViewById(R.id.seen));
+            repost = (ImageView) checkNotNull(itemView.findViewById(R.id.repost));
+        }
+
+        public void setIsRepost() {
+            repost.setVisibility(View.VISIBLE);
+            seen.setVisibility(View.GONE);
+        }
+
+        public void setIsSeen() {
+            seen.setVisibility(View.VISIBLE);
+            repost.setVisibility(View.GONE);
+        }
+
+        public void clear() {
+            seen.setVisibility(View.GONE);
+            repost.setVisibility(View.GONE);
         }
     }
 }

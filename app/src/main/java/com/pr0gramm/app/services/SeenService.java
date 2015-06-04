@@ -44,10 +44,14 @@ public class SeenService {
     }
 
     public boolean isSeen(FeedItem item) {
+        return isSeen(item.getId());
+    }
+
+    public boolean isSeen(long id) {
         if (!this.buffer.isDone())
             return false;
 
-        int idx = (int) item.getId() / 8;
+        int idx = (int) id / 8;
 
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
@@ -55,7 +59,7 @@ public class SeenService {
             return false;
         }
 
-        int mask = 1 << (7 - item.getId() % 8);
+        int mask = 1 << (7 - id % 8);
         return (buffer.get(idx) & mask) != 0;
     }
 

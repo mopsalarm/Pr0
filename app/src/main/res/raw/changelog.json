@@ -1,5 +1,10 @@
 [
   {
+    "version": 52,
+    "type": "Neu",
+    "change": "Feed wird jetzt ergänzt. Reposts werden im Feed hervorgehoben."
+  },
+  {
     "version": 50,
     "type": "Neu",
     "change": "Kommentarlinien"

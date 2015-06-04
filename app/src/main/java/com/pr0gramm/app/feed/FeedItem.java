@@ -12,30 +12,38 @@ import org.joda.time.Instant;
  * by the data of an {@link com.pr0gramm.app.api.pr0gramm.response.Feed.Item}.
  */
 public class FeedItem implements Parcelable {
-    private final long id;
-    private final long promotedId;
+    private final int id;
+    private final int promotedId;
     private final String thumb;
     private final String image;
     private final String fullsize;
     private final String user;
-    private final int up;
-    private final int down;
-    private final int mark;
+    private final short up;
+    private final short down;
+    private final byte mark;
     private final Instant created;
-    private final int flags;
+    private final byte flags;
 
-    public FeedItem(Feed.Item item) {
-        id = item.getId();
-        promotedId = item.getPromoted();
+    private final boolean repost;
+    private final short mediaWidth;
+    private final short mediaHeight;
+
+    public FeedItem(Feed.Item item, boolean repost, int mediaWidth, int mediaHeight) {
+        id = (int) item.getId();
+        promotedId = (int) item.getPromoted();
         thumb = item.getThumb();
         image = item.getImage();
         fullsize = item.getFullsize();
         user = item.getUser();
-        up = item.getUp();
-        down = item.getDown();
-        mark = item.getMark();
+        up = (short) item.getUp();
+        down = (short) item.getDown();
+        mark = (byte) item.getMark();
         created = item.getCreated();
-        flags = item.getFlags();
+        flags = (byte) item.getFlags();
+
+        this.repost = repost;
+        this.mediaWidth = (short) mediaWidth;
+        this.mediaHeight = (short) mediaHeight;
     }
 
     public long getId() {
@@ -86,6 +94,22 @@ public class FeedItem implements Parcelable {
         return (flags & type.getFlag()) != 0;
     }
 
+    public short getMediaWidth() {
+        return mediaWidth;
+    }
+
+    public short getMediaHeight() {
+        return mediaHeight;
+    }
+
+    public boolean isRepost() {
+        return repost;
+    }
+
+    public ContentType getContentType() {
+        return ContentType.valueOf(flags).get();
+    }
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *
@@ -106,16 +130,20 @@ public class FeedItem implements Parcelable {
         // combine up/down as rating.
         int rating = ((up << 16) & 0xffff0000) | (down & 0xffff);
 
-        dest.writeInt((int) this.id);
-        dest.writeInt((int) this.promotedId);
+        dest.writeInt(this.id);
+        dest.writeInt(this.promotedId);
         dest.writeString(this.thumb);
         dest.writeString(this.image);
         dest.writeString(this.fullsize);
         dest.writeString(this.user);
         dest.writeInt(rating);
-        dest.writeByte((byte) mark);
+        dest.writeByte(mark);
         dest.writeInt((int) (created.getMillis() / 1000));
-        dest.writeByte((byte) this.flags);
+        dest.writeByte(this.flags);
+
+        dest.writeByte((byte) (repost ? 1 : 0));
+        dest.writeInt(mediaWidth);
+        dest.writeInt(mediaHeight);
     }
 
     private FeedItem(Parcel in) {
@@ -130,9 +158,13 @@ public class FeedItem implements Parcelable {
         this.created = new Instant(1000L * in.readInt());
         this.flags = in.readByte();
 
+        this.repost = in.readByte() != 0;
+        this.mediaWidth = (short) in.readInt();
+        this.mediaHeight = (short) in.readInt();
+
         // extract up/down from rating
-        this.up = (rating >> 16) & 0xffff;
-        this.down = rating & 0xffff;
+        this.up = (short) ((rating >> 16) & 0xffff);
+        this.down = (short) (rating & 0xffff);
     }
 
     public static final Parcelable.Creator<FeedItem> CREATOR = new Parcelable.Creator<FeedItem>() {
@@ -144,8 +176,4 @@ public class FeedItem implements Parcelable {
             return new FeedItem[size];
         }
     };
-
-    public ContentType getContentType() {
-        return ContentType.valueOf(flags).get();
-    }
 }

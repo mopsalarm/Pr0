@@ -88,6 +88,12 @@
                 android:summary="@string/pref_load_hq_image_in_zoomview_summary"
                 android:defaultValue="false"/>
 
+            <CheckBoxPreference
+                android:key="pref_use_meta_service"
+                android:title="@string/pref_use_meta_service_title"
+                android:summary="@string/pref_use_meta_service_summary"
+                android:defaultValue="true"/>
+
             <ListPreference
                 android:key="pref_downloadLocation"
                 android:title="@string/pref_downloadLocation_title"
@@ -95,7 +101,7 @@
                 android:entryValues="@array/pref_downloadLocation_values"
                 android:defaultValue="@string/pref_downloadLocation_default"
                 android:summary="@string/pref_downloadLocation_summary"/>
-            
+
         </PreferenceScreen>
 
         <PreferenceScreen
