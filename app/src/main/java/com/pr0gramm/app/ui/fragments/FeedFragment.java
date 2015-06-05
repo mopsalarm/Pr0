@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.primitives.Longs;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
@@ -35,6 +36,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
@@ -52,7 +54,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -114,6 +119,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private MetaService metaService;
 
     private boolean bookmarkable;
     private Optional<Long> autoOpenOnLoad = Optional.absent();
@@ -313,7 +321,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     private EnumSet<ContentType> getSelectedContentType() {
         EnumSet<ContentType> contentType = settings.getContentType();
-        if(!userService.isAuthorized())
+        if (!userService.isAuthorized())
             contentType = EnumSet.of(ContentType.SFW);
         return contentType;
     }
@@ -534,6 +542,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
         private final FeedProxy feedProxy;
+        private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
+        private final Set<Long> reposts = new HashSet<>();
 
         public FeedAdapter(FeedFilter filter, Optional<Long> around) {
             this(new FeedProxy(filter), around);
@@ -556,7 +566,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 @Override
                 public void onError(Throwable error) {
                     if (getFeedProxy().getItemCount() == 0) {
-                        if(autoOpenOnLoad.isPresent()) {
+                        if (autoOpenOnLoad.isPresent()) {
                             ErrorDialogFragment.showErrorString(getFragmentManager(),
                                     getString(R.string.could_not_load_feed_nsfw));
                         } else {
@@ -597,9 +607,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             view.itemView.setOnClickListener(v -> onItemClicked(position));
 
             // check if this item was already seen.
-            if(item.isRepost()) {
+            if (isRepost(item)) {
                 view.setIsRepost();
-            } else if (seenIndicatorStyle == IndicatorStyle.ICON && seenService.isSeen(item)) {
+            } else if (seenIndicatorStyle == IndicatorStyle.ICON && isSeen(item)) {
                 view.setIsSeen();
             } else {
                 view.clear();
@@ -619,6 +629,38 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         @Override
         public void onItemRangeInserted(int start, int count) {
             notifyItemRangeInserted(start, count);
+
+            long[] itemIds = new long[count];
+            for (int idx = 0; idx < count; idx++)
+                itemIds[idx] = getItemId(start + idx);
+
+            bindFragment(FeedFragment.this, metaService.getInfo(Longs.asList(itemIds)))
+                    .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
+                    .subscribe(this::handleMetaServiceResponse, Actions.empty());
+        }
+
+        private void handleMetaServiceResponse(MetaService.InfoResponse infoResponse) {
+            logger.info("merge info about {} reposts and {} sizes",
+                    reposts.size(), infoResponse.getSizes().size());
+
+            for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
+                sizes.put(sizeInfo.getId(), sizeInfo);
+            }
+
+            reposts.addAll(infoResponse.getReposts());
+            notifyDataSetChanged();
+        }
+
+        private boolean isRepost(FeedItem item) {
+            return reposts.contains(item.getId());
+        }
+
+        private boolean isSeen(FeedItem item) {
+            return seenService.isSeen(item);
+        }
+
+        public Optional<MetaService.SizeInfo> getSizeInfo(FeedItem item) {
+            return Optional.fromNullable(sizes.get(item.getId()));
         }
 
         @Override

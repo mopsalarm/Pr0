@@ -54,19 +54,19 @@ public class MetaService {
     @SuppressWarnings("unused")
     public static class InfoResponse {
         private long[] reposts;
-        private List<SizeInfo> sizeInfo;
+        private List<SizeInfo> sizes;
 
         InfoResponse() {
             reposts = new long[0];
-            sizeInfo = Collections.emptyList();
+            sizes = Collections.emptyList();
         }
 
         public List<Long> getReposts() {
             return Longs.asList(reposts);
         }
 
-        public List<SizeInfo> getSizeInfo() {
-            return sizeInfo;
+        public List<SizeInfo> getSizes() {
+            return sizes;
         }
     }
 

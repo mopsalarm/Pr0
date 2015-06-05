@@ -5,28 +5,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import com.pr0gramm.app.Pr0grammApplication;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
-import com.pr0gramm.app.services.MetaService;
-import com.pr0gramm.app.services.SeenService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 import rx.Observable;
 
 import static com.google.common.collect.Iterables.getLast;
@@ -136,49 +124,11 @@ public class FeedProxy {
      * @return The enhanced feed to display
      */
     private EnhancedFeed enhance(Feed feed) {
-        // this is just a hack. FeedProxy needs to be refactored!
-        RoboInjector injector = RoboGuice.getInjector(Pr0grammApplication.GLOBAL_CONTEXT);
-        MetaService metaService = injector.getInstance(MetaService.class);
-        Settings settings = injector.getInstance(Settings.class);
-
-        long lowerId = Long.MAX_VALUE, upperId = 0;
-        for (Feed.Item item : feed.getItems()) {
-            lowerId = Math.min(lowerId, feedTypeId(item));
-            upperId = Math.max(upperId, feedTypeId(item));
-        }
-
-        MetaService.InfoResponse infoResponse = MetaService.EMPTY_INFO;
-        if(settings.useMetaService()) {
-            infoResponse = metaService
-                    .getInfo(FluentIterable.from(feed.getItems()).transform(Feed.Item::getId).toList())
-                    .timeout(5, TimeUnit.SECONDS)
-                    .onErrorResumeNext(Observable.just(MetaService.EMPTY_INFO))
-                    .toBlocking()
-                    .single();
-        }
-
-        Stopwatch watch = Stopwatch.createStarted();
-
-        Collection<Long> reposts = infoResponse.getReposts();
-        Map<Long, MetaService.SizeInfo> sizes = Maps.uniqueIndex(
-                infoResponse.getSizeInfo(), MetaService.SizeInfo::getId);
-
         List<FeedItem> items = new ArrayList<>();
         for (Feed.Item item : feed.getItems()) {
-            int mediaWidth = 0, mediaHeight = 0;
-
-            boolean repost = reposts.contains(item.getId());
-
-            MetaService.SizeInfo sizeInfo = sizes.get(item.getId());
-            if (sizeInfo != null) {
-                mediaWidth = sizeInfo.getWidth();
-                mediaHeight = sizeInfo.getHeight();
-            }
-
-            items.add(new FeedItem(item, repost, mediaWidth, mediaHeight));
+            items.add(new FeedItem(item));
         }
 
-        logger.info("Enhancing {} feed items with metadata took {}", items.size(), watch);
         return new EnhancedFeed(feed, items);
     }
 
@@ -304,12 +254,6 @@ public class FeedProxy {
         }
     }
 
-    private long feedTypeId(Feed.Item item) {
-        return feedFilter.getFeedType() == FeedType.PROMOTED
-                ? item.getPromoted()
-                : item.getId();
-    }
-
     private long feedTypeId(FeedItem item) {
         return item.getId(feedFilter.getFeedType());
     }
@@ -331,16 +275,6 @@ public class FeedProxy {
 
     public void setOnChangeListener(@Nullable OnChangeListener onChangeListener) {
         this.onChangeListener = onChangeListener;
-    }
-
-    @Nullable
-    public OnChangeListener getOnChangeListener() {
-        return onChangeListener;
-    }
-
-    @Nullable
-    public Loader getLoader() {
-        return loader;
     }
 
     public void setLoader(@Nullable Loader loader) {

@@ -24,11 +24,7 @@ public class FeedItem implements Parcelable {
     private final Instant created;
     private final byte flags;
 
-    private final boolean repost;
-    private final short mediaWidth;
-    private final short mediaHeight;
-
-    public FeedItem(Feed.Item item, boolean repost, int mediaWidth, int mediaHeight) {
+    public FeedItem(Feed.Item item) {
         id = (int) item.getId();
         promotedId = (int) item.getPromoted();
         thumb = item.getThumb();
@@ -40,10 +36,6 @@ public class FeedItem implements Parcelable {
         mark = (byte) item.getMark();
         created = item.getCreated();
         flags = (byte) item.getFlags();
-
-        this.repost = repost;
-        this.mediaWidth = (short) mediaWidth;
-        this.mediaHeight = (short) mediaHeight;
     }
 
     public long getId() {
@@ -94,18 +86,6 @@ public class FeedItem implements Parcelable {
         return (flags & type.getFlag()) != 0;
     }
 
-    public short getMediaWidth() {
-        return mediaWidth;
-    }
-
-    public short getMediaHeight() {
-        return mediaHeight;
-    }
-
-    public boolean isRepost() {
-        return repost;
-    }
-
     public ContentType getContentType() {
         return ContentType.valueOf(flags).get();
     }
@@ -140,10 +120,6 @@ public class FeedItem implements Parcelable {
         dest.writeByte(mark);
         dest.writeInt((int) (created.getMillis() / 1000));
         dest.writeByte(this.flags);
-
-        dest.writeByte((byte) (repost ? 1 : 0));
-        dest.writeInt(mediaWidth);
-        dest.writeInt(mediaHeight);
     }
 
     private FeedItem(Parcel in) {
@@ -157,10 +133,6 @@ public class FeedItem implements Parcelable {
         this.mark = in.readByte();
         this.created = new Instant(1000L * in.readInt());
         this.flags = in.readByte();
-
-        this.repost = in.readByte() != 0;
-        this.mediaWidth = (short) in.readInt();
-        this.mediaHeight = (short) in.readInt();
 
         // extract up/down from rating
         this.up = (short) ((rating >> 16) & 0xffff);
