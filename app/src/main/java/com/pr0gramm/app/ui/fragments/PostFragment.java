@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -383,6 +384,9 @@ public class PostFragment extends RoboFragment implements
     private void loadPostDetails() {
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
         bindFragment(this, details).subscribe(this::onPostReceived, defaultOnError());
+
+        // show an empty list of tags first - this displays the 'Add' button.
+        displayTags(Collections.<Tag>emptyList());
     }
 
     @SuppressWarnings("CodeBlock2Expr")

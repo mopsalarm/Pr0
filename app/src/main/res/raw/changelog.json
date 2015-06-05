@@ -1,7 +1,17 @@
 [
   {
+    "version": 53,
+    "type": "Fix",
+    "change": "Tags können jetzt hinzugefügt werden, selbst wenn noch kein Tag existiert."
+  },
+  {
+    "version": 53,
+    "type": "Fix",
+    "change": "Anzeige der Kommentare wieder gefixt. Da stimmten die Abstände nicht wirklich."
+  },
+  {
     "version": 52,
-    "type": "Neu",
+    "type": "Fix",
     "change": "Feed wird jetzt ergänzt. Reposts werden im Feed hervorgehoben."
   },
   {

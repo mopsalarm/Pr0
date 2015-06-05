@@ -19,6 +19,7 @@ import com.pr0gramm.app.orm.CachedVote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +205,7 @@ public class VoteService {
 
     private Observable<Map<Long, Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
         if (ids.isEmpty())
-            return Observable.empty();
+            return Observable.just(Collections.<Long, Vote>emptyMap());
 
         return Async.start(() -> {
             Stopwatch watch = Stopwatch.createStarted();
