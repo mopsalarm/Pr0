@@ -114,10 +114,6 @@ public class VoteView extends LinearLayout {
         setVote((state == Vote.UP || state == Vote.FAVORITE) ? Vote.NEUTRAL : Vote.UP);
     }
 
-    public OnVoteListener getOnVoteListener() {
-        return onVoteListener;
-    }
-
     public void setOnVoteListener(OnVoteListener onVoteListener) {
         this.onVoteListener = onVoteListener;
     }

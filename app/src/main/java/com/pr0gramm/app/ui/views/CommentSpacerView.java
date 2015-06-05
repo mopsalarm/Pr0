@@ -48,7 +48,10 @@ public class CommentSpacerView extends RelativeLayout {
 
     public void setDepth(int depth) {
         this.depth = depth;
-        setPadding((int) (lineMargin * depth), 0, 0, 0);
+
+        int paddingLeft = (int) (lineMargin * depth);
+        setPadding(paddingLeft, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+
         invalidate();
         requestLayout();
     }

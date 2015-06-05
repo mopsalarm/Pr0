@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
     android:paddingBottom="4dp"
     android:paddingTop="4dp"
     app:depth="3"
@@ -21,7 +22,7 @@
         app:markedColor="?colorPrimary"
         app:orientation="vertical"
         app:spacing="4dp"
-        app:textSize="18sp"/>
+        app:textSize="@dimen/normal_comment_vote_view_size"/>
 
     <include layout="@layout/comment_common"/>
 

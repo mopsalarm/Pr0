@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.view.ViewGroup.MarginLayoutParams;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 
@@ -82,12 +81,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         Settings settings = Settings.of(context);
-        int layout = settings.smallerVoteViewsOnComments()
-                ? R.layout.comment_smaller_vote_buttons
-                : R.layout.comment_normal_vote_buttons;
 
-        View view = LayoutInflater.from(context).inflate(layout, parent, false);
-        return new CommentView(view);
+        View view = LayoutInflater.from(context).inflate(R.layout.comment_vote_buttons, parent, false);
+        CommentView commentView = new CommentView(view);
+        if(settings.smallerVoteViewsOnComments()) {
+            int size = context.getResources().getDimensionPixelSize(
+                    R.dimen.smaller_comment_vote_view_size);
+
+            commentView.vote.setSize(size);
+        }
+
+        return commentView;
     }
 
     @Override

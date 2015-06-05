@@ -4,4 +4,6 @@
     <dimen name="tag_gap_size">8dp</dimen>
 
     <dimen name="bullet_list_leading_margin">16sp</dimen>
+    <dimen name="smaller_comment_vote_view_size">18sp</dimen>
+    <dimen name="normal_comment_vote_view_size">24sp</dimen>
 </resources>
