@@ -16,12 +16,15 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.licenses.GnuLesserGeneralPublicLicense3;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.psdev.licensesdialog.LicenseResolver;
+import de.psdev.licensesdialog.LicensesDialog;
 import roboguice.util.RoboContext;
 
 import static com.google.common.base.Strings.emptyToNull;
@@ -118,6 +121,12 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
 
             if ("pref_pseudo_feedback".equals(preference.getKey())) {
                 startActivity(new Intent(getActivity(), FeedbackActivity.class));
+                return true;
+            }
+
+            if ("pref_pseudo_licenses".equals(preference.getKey())) {
+                new LicensesDialog.Builder(getActivity()).setNotices(R.raw.licenses)
+                        .setIncludeOwnLicense(true).build().show();
                 return true;
             }
 
