@@ -244,6 +244,11 @@
             android:summary="@string/pref_pseudo_feedback_summary"/>
 
         <Preference
+            android:key="pref_pseudo_licenses"
+            android:title="@string/pref_pseudo_licenses_title"
+            android:summary="@string/pref_pseudo_licenses_summary"/>
+
+        <Preference
             android:key="pref_pseudo_changelog"
             android:title="@string/pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"/>

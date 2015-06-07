@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<notices>
+    <!--
+    <notice>
+        <name></name>
+        <url></url>
+        <copyright></copyright>
+        <license></license>
+    </notice>
+    -->
+
+    <!--<notice>
+        <name>FindBugs</name>
+        <url>https://code.google.com/p/findbugs/</url>
+        <copyright />
+        <license>GNU Lesser General Public License 3.0</license>
+    </notice>-->
+
+    <notice>
+        <name>Guava</name>
+        <url>https://github.com/google/guava</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Joda-Time</name>
+        <url>https://github.com/dlew/joda-time-android</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>RoboGuice</name>
+        <url>https://github.com/roboguice/roboguice</url>
+        <copyright>Copyright 2009-2014 roboguice committers</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Retrofit</name>
+        <url>https://github.com/square/retrofit</url>
+        <copyright>Copyright 2013 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>OkHttp</name>
+        <url>https://github.com/square/okhttp</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>RxJava</name>
+        <url>https://github.com/ReactiveX/RxJava</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>picasso</name>
+        <url>http://square.github.io/picasso/</url>
+        <copyright>Copyright 2013 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Android Gif Drawable</name>
+        <url>https://github.com/koral--/android-gif-drawable</url>
+        <copyright></copyright>
+        <license>MIT License</license><!-- nochmal checken. -->
+    </notice>
+
+    <notice>
+        <name>Sugar</name>
+        <url>https://github.com/satyan/sugar</url>
+        <copyright>Copyright (C) 2012 by Satya Narayan</copyright>
+        <license>MIT License</license>
+    </notice>
+
+    <notice>
+        <name>ImageViewZoom</name>
+        <url>https://github.com/sephiroth74/ImageViewZoom</url>
+        <copyright />
+        <license>MIT License</license>
+    </notice>
+
+    <notice>
+        <name>named regexp</name>
+        <url>https://github.com/tony19/named-regexp</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Materialish Progress</name>
+        <url>https://github.com/pnikosis/materialish-progress</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>slf4android</name>
+        <url>https://github.com/bright/slf4android</url>
+        <copyright>Copyright (c) 2014 Bright Inventions</copyright>
+        <license>MIT License</license>
+    </notice>
+</notices>

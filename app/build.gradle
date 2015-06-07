@@ -89,6 +89,7 @@ dependencies {
     compile 'com.github.tony19:named-regexp:0.2.3'
     compile 'com.pnikosis:materialish-progress:1.5'
     compile 'com.android.support:design:22.2.0'
+    compile 'de.psdev.licensesdialog:licensesdialog:1.7.0'
 
     compile('pl.brightinventions:slf4android:0.1.0@aar') {
         transitive = true

@@ -234,4 +234,6 @@
     <string name="pref_use_meta_service_title">Feed verbessern</string>
     <string name="pref_use_meta_service_summary">Ergänzt den Feed um weitere Informationen, z.B. zeigt an, wenn es sich um einen Repost handelt.</string>
     <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Vielleicht ist der Post, den du sehen wolltest, mit deiner sfw/nsfw Einstellungen nicht sichtbar?</string>
+    <string name="pref_pseudo_licenses_title">Lizenzen</string>
+    <string name="pref_pseudo_licenses_summary">Die Lizenzen der verwendeten Bibliotheken</string>
 </resources>
