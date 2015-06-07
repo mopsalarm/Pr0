@@ -125,9 +125,9 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
             }
 
             if ("pref_pseudo_licenses".equals(preference.getKey())) {
-                LicenseResolver.registerLicense(new GnuLesserGeneralPublicLicense3());
                 new LicensesDialog.Builder(getActivity()).setNotices(R.raw.licenses)
                         .setIncludeOwnLicense(true).build().show();
+                return true;
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

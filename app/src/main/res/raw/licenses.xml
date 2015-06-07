@@ -10,13 +10,6 @@
     </notice>
     -->
 
-    <!--<notice>
-        <name>FindBugs</name>
-        <url>https://code.google.com/p/findbugs/</url>
-        <copyright />
-        <license>GNU Lesser General Public License 3.0</license>
-    </notice>-->
-
     <notice>
         <name>Guava</name>
         <url>https://github.com/google/guava</url>
