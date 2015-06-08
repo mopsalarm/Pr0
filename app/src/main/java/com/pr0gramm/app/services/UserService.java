@@ -9,6 +9,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.LoginCookieHandler;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -50,17 +51,20 @@ public class UserService {
     private final BehaviorSubject<LoginState> loginStateObservable
             = BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
 
+    private final Settings settings;
+
     @Inject
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, LoginCookieHandler cookieHandler,
-                       SharedPreferences preferences) {
+                       SharedPreferences preferences, Settings settings) {
 
         this.api = api;
         this.seenService = seenService;
         this.voteService = voteService;
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
+        this.settings = settings;
 
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
     }
@@ -120,6 +124,10 @@ public class UserService {
 
             // clear the seen items
             seenService.clear();
+
+            // and reset the content user, because only signed in users can
+            // see the nsfw and nsfl stuff.
+            Settings.resetContentTypeSettings(settings);
 
             return null;
         }, Schedulers.io()).ignoreElements();

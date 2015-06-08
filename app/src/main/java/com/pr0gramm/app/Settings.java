@@ -181,4 +181,13 @@ public class Settings {
     public static Settings of(SharedPreferences preferences) {
         return new Settings(preferences);
     }
+
+    public static void resetContentTypeSettings(Settings settings) {
+        // reset settings.
+        settings.preferences.edit()
+                .putBoolean("pref_feed_type_sfw", true)
+                .putBoolean("pref_feed_type_nsfw", false)
+                .putBoolean("pref_feed_type_nsfl", false)
+                .apply();
+    }
 }

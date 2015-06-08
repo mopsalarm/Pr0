@@ -11,11 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.psdev.licensesdialog.LicensesDialog;
+import roboguice.RoboGuice;
 import roboguice.util.RoboContext;
 
 import static com.google.common.base.Strings.emptyToNull;
@@ -67,9 +70,22 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+        @Inject
+        private UserService userService;
+
+        @Inject
+        private Settings settings;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            RoboGuice.getInjector(getActivity()).injectMembersWithoutViews(this);
+
+            if (!userService.isAuthorized()) {
+                // reset those content types - better be sure!
+                Settings.resetContentTypeSettings(settings);
+            }
+
             addPreferencesFromResource(R.xml.preferences);
 
             String category = getArguments().getString("category");
@@ -153,8 +169,8 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
         }
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {
-            Settings prefs = Settings.of(sharedPreferences);
-            boolean enabled = prefs.getContentType().size() > 1;
+            Settings settings = Settings.of(sharedPreferences);
+            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized();
             List<String> contentTypeKeys = ImmutableList.of(
                     "pref_feed_type_sfw", "pref_feed_type_nsfw", "pref_feed_type_nsfl");
 
@@ -162,6 +178,16 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
                 Preference pref = findPreference(ctKey);
                 if (pref != null && sharedPreferences.getBoolean(ctKey, false))
                     pref.setEnabled(enabled);
+            }
+
+            if(!userService.isAuthorized()) {
+                for (String name : new String[]{"pref_feed_type_nsfw", "pref_feed_type_nsfl"}) {
+                    Preference pref = findPreference(name);
+                    if (pref != null) {
+                        pref.setEnabled(false);
+                        pref.setSummary(R.string.pref_feed_type_login_required);
+                    }
+                }
             }
         }
     }

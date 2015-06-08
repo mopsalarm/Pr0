@@ -264,4 +264,5 @@
     <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
     <string name="pref_pseudo_licenses_title">Licenses</string>
     <string name="pref_pseudo_licenses_summary">Show used libraries\' licenses</string>
+    <string name="pref_feed_type_login_required">You need to login to change this.</string>
 </resources>
