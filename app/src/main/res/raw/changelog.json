@@ -1,6 +1,16 @@
 [
   {
     "version": 53,
+    "type": "Neu",
+    "change": "Lizenzdialog für verwendete Bibliotheken"
+  },
+  {
+    "version": 53,
+    "type": "Fix",
+    "change": "Filtereinstellungen können in den Einstellungen nur noch angemeldet verändert werden"
+  },
+  {
+    "version": 53,
     "type": "Fix",
     "change": "Tags können jetzt hinzugefügt werden, selbst wenn noch kein Tag existiert."
   },
