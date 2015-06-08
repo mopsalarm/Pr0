@@ -227,6 +227,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 userInfoViewSupplier = info -> {
                     UserInfoCell view = new UserInfoCell(getActivity(), info);
                     view.setUserActionListener(FeedFragment.this);
+                    view.setWriteMessageEnabled(!isSelfInfo(info));
                     return view;
                 };
 
@@ -237,6 +238,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                         .cache();
 
                 userInfoViewSupplier = info -> {
+                    if(isSelfInfo(info)) {
+                        return null;
+                    }
+
                     UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
                     view.setUploadsClickedListener((userId, name) -> {
                         FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
@@ -252,13 +257,14 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
             View userView = userInfoViewSupplier.apply(info);
-
-            ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
-                // add views to adapter.
-                List<View> views = Collections.singletonList(userView);
-                adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
-                layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
-            });
+            if(userView != null) {
+                ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
+                    // add views to adapter.
+                    List<View> views = Collections.singletonList(userView);
+                    adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
+                    layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
+                });
+            }
         });
     }
 
@@ -709,6 +715,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             return Optional.absent();
 
         return Optional.fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
+    }
+
+    private boolean isSelfInfo(Info info) {
+        return userService.getName()
+                .transform(info.getUser().getName()::equalsIgnoreCase)
+                .or(false);
     }
 
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {

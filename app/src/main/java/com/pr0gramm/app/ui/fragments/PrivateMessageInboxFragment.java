@@ -4,9 +4,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.PrivateMessageAdapter;
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 
@@ -18,6 +20,9 @@ import rx.Observable;
  */
 public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
         implements SearchUserDialog.Listener {
+
+    @Inject
+    private UserService userService;
 
     public PrivateMessageInboxFragment() {
         setHasOptionsMenu(true);
@@ -52,6 +57,13 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
     @Override
     public void onUserInfo(Info info) {
         Info.User user = info.getUser();
-        actionListener.onAnswerToPrivateMessage(user.getId(), user.getName());
+        boolean isSelfInfo = userService.getName()
+                .transform(user.getName()::equalsIgnoreCase)
+                .or(false);
+
+        if(!isSelfInfo) {
+            // only allow sending to other people
+            actionListener.onAnswerToPrivateMessage(user.getId(), user.getName());
+        }
     }
 }

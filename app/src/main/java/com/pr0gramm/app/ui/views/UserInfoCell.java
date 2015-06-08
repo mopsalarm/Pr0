@@ -72,6 +72,10 @@ public class UserInfoCell extends FrameLayout {
         this.userActionListener = userActionListener;
     }
 
+    public void setWriteMessageEnabled(boolean enabled) {
+        messages.setVisibility(enabled ? VISIBLE : GONE);
+    }
+
     @NonNull
     @SuppressWarnings("unchecked")
     private <T extends View> T findView(@IdRes int id) {
