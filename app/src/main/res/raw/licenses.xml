@@ -62,8 +62,8 @@
     <notice>
         <name>Android Gif Drawable</name>
         <url>https://github.com/koral--/android-gif-drawable</url>
-        <copyright></copyright>
-        <license>MIT License</license><!-- nochmal checken. -->
+        <copyright/>
+        <license>MIT License</license>
     </notice>
 
     <notice>
@@ -99,5 +99,20 @@
         <url>https://github.com/bright/slf4android</url>
         <copyright>Copyright (c) 2014 Bright Inventions</copyright>
         <license>MIT License</license>
+    </notice>
+
+
+    <notice>
+        <name>Android Support Library</name>
+        <url>https://github.com/bright/slf4android</url>
+        <copyright>Copyright (c) 2015 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Android Design Support Library</name>
+        <url>https://github.com/bright/slf4android</url>
+        <copyright>Copyright (c) 2015 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
     </notice>
 </notices>

@@ -16,14 +16,12 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.licenses.GnuLesserGeneralPublicLicense3;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.psdev.licensesdialog.LicenseResolver;
 import de.psdev.licensesdialog.LicensesDialog;
 import roboguice.util.RoboContext;
 
