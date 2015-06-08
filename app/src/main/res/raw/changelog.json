@@ -1,11 +1,16 @@
 [
   {
-    "version": 53,
+    "version": 54,
+    "type": "Fix",
+    "change": "Man kann sich nicht mehr selbst Nachrichten schicken."
+  },
+  {
+    "version": 54,
     "type": "Neu",
     "change": "Lizenzdialog für verwendete Bibliotheken"
   },
   {
-    "version": 53,
+    "version": 54,
     "type": "Fix",
     "change": "Filtereinstellungen können in den Einstellungen nur noch angemeldet verändert werden"
   },
@@ -13,11 +18,6 @@
     "version": 53,
     "type": "Fix",
     "change": "Tags können jetzt hinzugefügt werden, selbst wenn noch kein Tag existiert."
-  },
-  {
-    "version": 53,
-    "type": "Fix",
-    "change": "Anzeige der Kommentare wieder gefixt. Da stimmten die Abstände nicht wirklich."
   },
   {
     "version": 52,
