@@ -66,7 +66,6 @@ public class MainActivity extends RoboActionBarActivity implements
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(MainActivity.class);
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ErrorDialogFragment.OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 
@@ -348,6 +347,9 @@ public class MainActivity extends RoboActionBarActivity implements
         bindActivity(this, userService.logout())
                 .lift(busyDialog(this))
                 .subscribe(Actions.empty(), defaultOnError());
+
+        // reset everything!
+        gotoFeedFragment(new FeedFilter(), true);
     }
 
     @Override

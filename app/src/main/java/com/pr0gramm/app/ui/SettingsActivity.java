@@ -21,6 +21,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
+import java.lang.ref.PhantomReference;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

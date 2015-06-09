@@ -1,5 +1,10 @@
 [
   {
+    "version": 55,
+    "type": "Neu",
+    "change": "Button im Feed zum Wechseln der Filtereinstellung."
+  },
+  {
     "version": 54,
     "type": "Fix",
     "change": "Man kann sich nicht mehr selbst Nachrichten schicken."

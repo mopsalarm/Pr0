@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
@@ -35,6 +36,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
@@ -327,10 +329,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private EnumSet<ContentType> getSelectedContentType() {
-        EnumSet<ContentType> contentType = settings.getContentType();
         if (!userService.isAuthorized())
-            contentType = EnumSet.of(ContentType.SFW);
-        return contentType;
+            return EnumSet.of(ContentType.SFW);
+
+        return settings.getContentType();
     }
 
     @Override
@@ -343,6 +345,16 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
 
+        recheckContentTypes();
+
+        // set new indicator style
+        if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
+            seenIndicatorStyle = settings.seenIndicatorStyle();
+            feedAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void recheckContentTypes() {
         // check if content type has changed, and reload if necessary
         FeedFilter feedFilter = feedAdapter.getFilter();
         EnumSet<ContentType> newContentType = getSelectedContentType();
@@ -356,12 +368,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
 
             getActivity().supportInvalidateOptionsMenu();
-        }
-
-        // set new indicator style
-        if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
-            seenIndicatorStyle = settings.seenIndicatorStyle();
-            feedAdapter.notifyDataSetChanged();
         }
     }
 
@@ -424,7 +430,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         item = menu.findItem(R.id.action_change_content_type);
         if (item != null) {
-            if(userService.isAuthorized()) {
+            if (userService.isAuthorized()) {
                 ContentTypeDrawable icon = new ContentTypeDrawable(
                         getCurrentFilter().getContentTypes());
 
@@ -433,8 +439,29 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
                 item.setIcon(icon);
                 item.setVisible(true);
+
+                updateContentTypeItems(menu);
+
             } else {
                 item.setVisible(false);
+            }
+        }
+    }
+
+    private void updateContentTypeItems(Menu menu) {
+        boolean single = settings.getContentType().size() == 1;
+
+        Map<Integer, Boolean> types = ImmutableMap.<Integer, Boolean>builder()
+                .put(R.id.action_content_type_sfw, settings.getContentTypeSfw())
+                .put(R.id.action_content_type_nsfw, settings.getContentTypeNsfw())
+                .put(R.id.action_content_type_nsfl, settings.getContentTypeNsfl())
+                .build();
+
+        for (Map.Entry<Integer, Boolean> entry : types.entrySet()) {
+            MenuItem item = menu.findItem(entry.getKey());
+            if(item != null) {
+                item.setChecked(entry.getValue());
+                item.setEnabled(!single || !entry.getValue());
             }
         }
     }
@@ -449,6 +476,23 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         if (item.getItemId() == R.id.action_refresh) {
             // refresh feed
             doRefreshWithIndicator();
+            return true;
+        }
+
+        Map<Integer, String> contentTypes = ImmutableMap.<Integer, String>builder()
+                .put(R.id.action_content_type_sfw, "pref_feed_type_sfw")
+                .put(R.id.action_content_type_nsfw, "pref_feed_type_nsfw")
+                .put(R.id.action_content_type_nsfl, "pref_feed_type_nsfl")
+                .build();
+
+        if(contentTypes.containsKey(item.getItemId())) {
+            boolean newState = !item.isChecked();
+            settings.edit()
+                    .putBoolean(contentTypes.get(item.getItemId()), newState)
+                    .apply();
+
+            // this applies the new content types and refreshes the menu.
+            recheckContentTypes();
             return true;
         }
 
