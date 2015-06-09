@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit.RestAdapter;
 import retrofit.http.GET;
 import rx.Observable;
@@ -133,15 +136,18 @@ public class UpdateChecker {
      * Returns the Endpoint-URL that is to be queried
      */
     private static ImmutableList<String> updateUrls(boolean betaChannel) {
+        String flavor = BuildConfig.FLAVOR;
+        List<String> urls = new ArrayList<>();
+
         if (betaChannel) {
-            return ImmutableList.of(
-                    "https://github.com/mopsalarm/pr0gramm-updates/raw/beta",
-                    "http://pr0.wibbly-wobbly.de/beta");
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor);
+            urls.add("http://pr0.wibbly-wobbly.de/beta/" + flavor);
         } else {
-            return ImmutableList.of(
-                    "https://github.com/mopsalarm/pr0gramm-updates/raw/master",
-                    "http://pr0.wibbly-wobbly.de/stable");
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor);
+            urls.add("http://pr0.wibbly-wobbly.de/stable/" + flavor);
         }
+
+        return ImmutableList.copyOf(urls);
     }
 }
 

@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;

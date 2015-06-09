@@ -88,7 +88,7 @@ public class FeedbackActivity extends RoboActionBarActivity {
         String name = vName.getText().toString().trim();
         String feedback = vText.getText().toString().trim();
 
-        bindActivity(this, feedbackService.post(this, name, feedback))
+        bindActivity(this, feedbackService.post(name, feedback))
                 .lift(busyDialog(this))
                 .doOnCompleted(this::onSubmitSuccess)
                 .subscribe(Actions.empty(), defaultOnError());

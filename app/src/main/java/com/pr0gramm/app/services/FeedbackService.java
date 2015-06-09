@@ -1,12 +1,12 @@
 package com.pr0gramm.app.services;
 
-import android.content.Context;
 import android.os.Build;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.feed.Nothing;
 import com.squareup.okhttp.OkHttpClient;
@@ -35,7 +35,7 @@ public class FeedbackService {
                 .build().create(Api.class);
     }
 
-    public Observable<Nothing> post(Context context, String name, String feedback) {
+    public Observable<Nothing> post(String name, String feedback) {
         String version = Pr0grammApplication.getPackageInfo().versionName;
 
         return Async
@@ -52,6 +52,9 @@ public class FeedbackService {
             result.append("Model: ").append(Build.MODEL).append('\n');
             result.append("Display: ").append(Build.DISPLAY).append('\n');
             result.append("Android: ").append(Build.VERSION.RELEASE).append('\n');
+            result.append("Flavor: ").append(BuildConfig.FLAVOR)
+                    .append("(").append(BuildConfig.APPLICATION_ID).append(")\n");
+
             result.append("\n\n");
 
             Process process = Runtime.getRuntime().exec("logcat -d -v threadtime");

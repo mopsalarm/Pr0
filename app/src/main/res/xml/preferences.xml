@@ -36,7 +36,7 @@
             android:persistent="true">
 
             <intent
-                android:targetPackage="com.pr0gramm.app"
+                android:targetPackage="@string/app_id"
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:action="preference://prefcat_behaviour"/>
 
@@ -108,7 +108,7 @@
             android:persistent="true">
 
             <intent
-                android:targetPackage="com.pr0gramm.app"
+                android:targetPackage="@string/app_id"
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:action="preference://prefcat_visual"/>
 
@@ -184,7 +184,7 @@
             android:persistent="true">
 
             <intent
-                android:targetPackage="com.pr0gramm.app"
+                android:targetPackage="@string/app_id"
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:action="preference://prefcat_compatibility"/>
 
@@ -215,7 +215,7 @@
             android:persistent="false">
 
             <intent
-                android:targetPackage="com.pr0gramm.app"
+                android:targetPackage="@string/app_id"
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:action="preference://prefcat_update"/>
 

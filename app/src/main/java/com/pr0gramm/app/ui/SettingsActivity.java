@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -99,6 +100,11 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
 
             // Load the preferences from an XML resource
             updateContentTypeBoxes(getPreferenceManager().getSharedPreferences());
+            updateFlavorSettings();
+        }
+
+        private void updateFlavorSettings() {
+            // customize depending on build flavor.
         }
 
         @Override

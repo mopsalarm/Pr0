@@ -33,11 +33,18 @@ android {
     }
 
     signingConfigs {
-        release {
+        open {
             storeFile file("../release.keystore")
             storePassword "android"
             keyAlias "androiddebugkey"
             keyPassword "android"
+        }
+
+        play {
+            storeFile file("../release.keystore")
+            storePassword "android"
+            keyAlias "playstore"
+            keyPassword "so very secret"
         }
     }
 
@@ -45,6 +52,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     buildTypes {
         debug {
             minifyEnabled true
@@ -55,9 +63,25 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
+
+    productFlavors {
+        def flavorSigningOpen = signingConfigs.open
+        def flavorSigningPlay = signingConfigs.play
+
+        open {
+            signingConfig flavorSigningOpen
+            buildConfigField "boolean", "HAS_AUTO_UPDATE", "true"
+        }
+
+        play {
+            applicationId "io.github.mopsalarm.pr0gramm.gp"
+            signingConfig flavorSigningPlay
+            buildConfigField "boolean", "HAS_AUTO_UPDATE", "false"
+        }
+    }
+
     lintOptions {
         checkReleaseBuilds false
     }
