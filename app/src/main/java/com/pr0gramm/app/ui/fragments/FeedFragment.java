@@ -39,6 +39,7 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -238,7 +239,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                         .cache();
 
                 userInfoViewSupplier = info -> {
-                    if(isSelfInfo(info)) {
+                    if (isSelfInfo(info)) {
                         return null;
                     }
 
@@ -257,7 +258,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
             View userView = userInfoViewSupplier.apply(info);
-            if(userView != null) {
+            if (userView != null) {
                 ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
                     // add views to adapter.
                     List<View> views = Collections.singletonList(userView);
@@ -353,6 +354,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             FeedFilter filter = feedFilter.withContentType(newContentType);
             feedAdapter = new FeedAdapter(filter, autoScrollOnLoad = around);
             recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
+
+            getActivity().supportInvalidateOptionsMenu();
         }
 
         // set new indicator style
@@ -417,6 +420,22 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         item = menu.findItem(R.id.action_pin);
         if (item != null) {
             item.setVisible(bookmarkable);
+        }
+
+        item = menu.findItem(R.id.action_change_content_type);
+        if (item != null) {
+            if(userService.isAuthorized()) {
+                ContentTypeDrawable icon = new ContentTypeDrawable(
+                        getCurrentFilter().getContentTypes());
+
+                icon.setTextSize(getResources().getDimensionPixelSize(
+                        R.dimen.feed_content_type_action_icon_text_size));
+
+                item.setIcon(icon);
+                item.setVisible(true);
+            } else {
+                item.setVisible(false);
+            }
         }
     }
 
@@ -613,7 +632,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             view.itemView.setOnClickListener(v -> onItemClicked(position));
 
             // check if this item was already seen.
-            if (isRepost(item)) {
+            if (isRepost(item) && settings.useMetaService()) {
                 view.setIsRepost();
             } else if (seenIndicatorStyle == IndicatorStyle.ICON && isSeen(item)) {
                 view.setIsSeen();

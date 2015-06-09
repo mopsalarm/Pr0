@@ -265,4 +265,5 @@
     <string name="pref_pseudo_licenses_title">Licenses</string>
     <string name="pref_pseudo_licenses_summary">Show used libraries\' licenses</string>
     <string name="pref_feed_type_login_required">You need to login to change this.</string>
+    <string name="action_change_content_type">Change filter</string>
 </resources>
