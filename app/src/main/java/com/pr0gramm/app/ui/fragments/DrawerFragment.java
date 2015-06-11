@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +71,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.username)
     private TextView usernameView;
+
+    @InjectView(R.id.user_type)
+    private TextView userTypeView;
 
     @InjectView(R.id.benis)
     private TextView benisView;
@@ -300,6 +304,10 @@ public class DrawerFragment extends RoboFragment {
             usernameView.setText(user.getName());
             usernameView.setOnClickListener(v -> onUsernameClicked());
 
+            userTypeView.setVisibility(View.VISIBLE);
+            userTypeView.setTextColor(getResources().getColor(Info.MarkColors.get(user.getMark())));
+            userTypeView.setText(getString(Info.MarkStrings.get(user.getMark())).toUpperCase());
+
             String benisValue = String.valueOf(user.getScore());
 
             benisView.setText(benisValue);
@@ -311,6 +319,9 @@ public class DrawerFragment extends RoboFragment {
         } else {
             usernameView.setText(R.string.pr0gramm);
             usernameView.setOnClickListener(null);
+
+            userTypeView.setText("");
+            userTypeView.setVisibility(View.GONE);
 
             benisContainer.setVisibility(View.GONE);
             benisGraph.setImageDrawable(null);

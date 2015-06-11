@@ -6,5 +6,5 @@
         android:width="@dimen/user_type_circle_diameter"
         android:height="@dimen/user_type_circle_diameter"/>
 
-    <solid android:color="#1cb992"/>
+    <solid android:color="@color/user_type_pr0mium"/>
 </shape>
