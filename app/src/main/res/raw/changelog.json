@@ -1,5 +1,10 @@
 [
   {
+    "version": 56,
+    "type": "Neu",
+    "change": "Aktuellen Accounttyp im Drawer anzeigen."
+  },
+  {
     "version": 55,
     "type": "Neu",
     "change": "Button im Feed zum Wechseln der Filtereinstellung."
