@@ -295,4 +295,16 @@
 
     <color name="message_text_received">@android:color/primary_text_dark</color>
     <color name="message_text_sent">@color/grey_700</color>
+
+    <color name="user_type_admin">#ff9900</color>
+    <color name="user_type_moderator">#008FFF</color>
+    <color name="user_type_pr0mium">#1cb992</color>
+    <color name="user_type_altschwuchtel">#5bb91c</color>
+    <color name="user_type_schwuchtel">#ffffff</color>
+    <color name="user_type_neuschwuchtel">#e108e9</color>
+    <color name="user_type_fliesentisch">#6C432B</color>
+    <color name="user_type_gesperrt">#444444</color>
+    <color name="user_type_legende">#1cb992</color>
+    <color name="user_type_wichtler">#1cb992</color>
+
 </resources>

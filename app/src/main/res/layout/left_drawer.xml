@@ -37,6 +37,17 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/app_name"
                 android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/user_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="10dp"
+                android:textIsSelectable="false" />
+
         </LinearLayout>
 
         <LinearLayout

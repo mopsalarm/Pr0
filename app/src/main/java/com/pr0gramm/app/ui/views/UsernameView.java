@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.Info;
 
 import java.util.List;
 
@@ -33,27 +34,15 @@ public class UsernameView extends TextView {
     }
 
     public void setMark(int mark) {
-        if (mark < 0 || mark >= states.size())
+        if (mark < 0 || mark >= Info.MarkDrawables.size())
             mark = 4;
 
         // get the drawable for that mark
-        setCompoundDrawablesWithIntrinsicBounds(0, 0, states.get(mark), 0);
+        setCompoundDrawablesWithIntrinsicBounds(0, 0, Info.MarkDrawables.get(mark), 0);
     }
 
     public void setUsername(String name, int mark) {
         setText(name + " ");
         setMark(mark);
     }
-
-    private static final List<Integer> states = ImmutableList.of(
-            R.drawable.user_type_schwuchtel_small,
-            R.drawable.user_type_neuschwuchtel_small,
-            R.drawable.user_type_altschwuchtel_small,
-            R.drawable.user_type_admin_small,
-            R.drawable.user_type_gesperrt_small,
-            R.drawable.user_type_moderator_small,
-            R.drawable.user_type_fliesentisch_small,
-            R.drawable.user_type_legende_small,
-            R.drawable.user_type_wichtler_small,
-            R.drawable.user_type_pr0mium_small);
 }
