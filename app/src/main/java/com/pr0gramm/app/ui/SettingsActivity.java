@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,12 +17,12 @@ import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
-import java.lang.ref.PhantomReference;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -156,22 +157,26 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
+            Activity activity = getActivity();
             updateContentTypeBoxes(preferences);
 
             if ("pref_convert_gif_to_webm".equals(key)) {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
-                    DialogBuilder.start(getActivity())
+                    DialogBuilder.start(activity)
                             .content(R.string.gif_as_webm_might_be_buggy)
                             .positive(R.string.okay)
                             .show();
                 }
             }
 
-            if ("pref_hardware_acceleration".equals(key)) {
-                DialogBuilder.start(getActivity())
-                        .content(R.string.need_to_restart_app)
-                        .positive(R.string.okay)
-                        .show();
+            //noinspection PointlessBooleanExpression,ConstantConditions
+            if("pref_use_beta_channel".equals(key) && BuildConfig.IS_PLAYSTORE_RELEASE) {
+                if (preferences.getBoolean("pref_use_beta_channel", true)) {
+                    DialogBuilder.start(activity)
+                            .content(R.string.beta_you_need_to_join_community)
+                            .positive(R.string.okay, di -> Pr0grammApplication.openCommunityWebpage(activity))
+                            .show();
+                }
             }
         }
 

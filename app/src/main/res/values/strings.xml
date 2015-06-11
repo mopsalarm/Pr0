@@ -270,11 +270,13 @@
     <string name="user_type_admin">admin</string>
     <string name="user_type_moderator">moderator</string>
     <string name="user_type_pr0mium">pr0mium</string>
-    <string name="user_type_altschwuchtel">altschwuchtel</string>
-    <string name="user_type_schwuchtel">schwuchtel</string>
-    <string name="user_type_neuschwuchtel">neuschwuchtel</string>
+    <string name="user_type_schwuchtel">fag</string>
     <string name="user_type_fliesentisch">fliesentischbesitzer</string>
-    <string name="user_type_gesperrt">gesperrt</string>
-    <string name="user_type_legende">legende</string>
+    <string name="user_type_gesperrt">banned</string>
+    <string name="user_type_legende">legend</string>
     <string name="user_type_wichtler">wichtler</string>
+    <string name="beta_you_need_to_join_community">You need to join the google community to receive beta updates.</string>
+    <string name="hint_try_mpeg_decoder">If you got problems playing videos, try activating the option "Softwaredecoder" in the settings.</string>
+    <string name="user_type_altschwuchtel">oldfag</string>
+    <string name="user_type_neuschwuchtel">newfag</string>
 </resources>

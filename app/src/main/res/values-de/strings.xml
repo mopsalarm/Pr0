@@ -238,4 +238,16 @@
     <string name="pref_pseudo_licenses_summary">Die Lizenzen der verwendeten Bibliotheken</string>
     <string name="pref_feed_type_login_required">Zum Ändern musst du angemeldet sein.</string>
     <string name="action_change_content_type">Filter ändern</string>
+    <string name="hint_try_mpeg_decoder">Wenn du Probleme beim Abspielen von Videos hast, teste die neue Option \'Softwaredekoder\' unter Kompatibilität in den Einstellungen! Bitte gib Feedback!</string>
+    <string name="beta_you_need_to_join_community">Um an der Beta teilzunehmen, musst du der Beta Community bei Google+ beitreten.</string>
+    <string name="user_type_gesperrt">gesperrt</string>
+    <string name="user_type_legende">legende</string>
+    <string name="user_type_altschwuchtel">altschwuchtel</string>
+    <string name="user_type_neuschwuchtel">neuschwuchtel</string>
+    <string name="user_type_pr0mium">pr0mium</string>
+    <string name="user_type_schwuchtel">schwuchtel</string>
+    <string name="user_type_wichtler">wichtler</string>
+    <string name="user_type_moderator">moderator</string>
+    <string name="user_type_fliesentisch">fliesentischbesitzer</string>
+    <string name="user_type_admin">admin</string>
 </resources>

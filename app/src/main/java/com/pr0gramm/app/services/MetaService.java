@@ -16,7 +16,9 @@ import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
+import retrofit.http.Field;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Query;
 import rx.Observable;
 
@@ -47,8 +49,8 @@ public class MetaService {
     }
 
     private interface Api {
-        @GET("/items")
-        Observable<InfoResponse> info(@Query("ids") String itemIds);
+        @POST("/items")
+        Observable<InfoResponse> info(@Field("ids") String itemIds);
     }
 
     @SuppressWarnings("unused")

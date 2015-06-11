@@ -150,7 +150,7 @@ public class MainActivity extends RoboActionBarActivity implements
 
         if (singleShotService.isFirstTime("mpeg_decoder_hint")) {
             DialogBuilder.start(this)
-                    .content("Wenn du Probleme beim Abspielen von Videos hast, teste die neue Option 'Softwaredekoder' unter Kompatibilität in den Einstellungen! Bitte gib Feedback!")
+                    .content(R.string.hint_try_mpeg_decoder)
                     .positive(R.string.okay)
                     .show();
         }
