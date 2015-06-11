@@ -23,19 +23,16 @@ import static java.util.Arrays.asList;
  */
 public final class FeedFilter implements Parcelable {
     private FeedType feedType;
-    private Set<ContentType> contentTypes;
     private Optional<String> tags = absent();
     private Optional<String> likes = absent();
     private Optional<String> username = absent();
 
     public FeedFilter() {
         feedType = FeedType.PROMOTED;
-        contentTypes = EnumSet.of(ContentType.SFW);
     }
 
     FeedFilter(FeedFilter other) {
         feedType = other.feedType;
-        contentTypes = EnumSet.copyOf(other.contentTypes);
         tags = other.tags;
         likes = other.likes;
         username = other.username;
@@ -71,19 +68,6 @@ public final class FeedFilter implements Parcelable {
 
     public FeedType getFeedType() {
         return feedType;
-    }
-
-    /**
-     * Returns a copy of this filter that filters by content type.
-     */
-    public FeedFilter withContentType(Set<ContentType> types) {
-        FeedFilter feedFilter = new FeedFilter(this);
-        feedFilter.contentTypes = EnumSet.copyOf(types);
-        return feedFilter;
-    }
-
-    public Set<ContentType> getContentTypes() {
-        return contentTypes;
     }
 
     /**
@@ -140,7 +124,6 @@ public final class FeedFilter implements Parcelable {
 
         FeedFilter other = (FeedFilter) obj;
         return this == other || feedType == other.feedType
-                //&& equal(contentTypes, other.contentTypes)
                 && equal(tags, other.tags)
                 && equal(likes, other.likes)
                 && equal(username, other.username);
@@ -154,7 +137,6 @@ public final class FeedFilter implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.feedType == null ? -1 : this.feedType.ordinal());
-        dest.writeParcelableArray(toArray(contentTypes, ContentType.class), flags);
         dest.writeString(tags.orNull());
         dest.writeString(likes.orNull());
         dest.writeString(username.orNull());
@@ -164,9 +146,6 @@ public final class FeedFilter implements Parcelable {
     private FeedFilter(Parcel in) {
         int tmpFeedType = in.readInt();
         this.feedType = tmpFeedType == -1 ? null : FeedType.values()[tmpFeedType];
-        this.contentTypes = EnumSet.copyOf((List) asList(
-                in.readParcelableArray(ContentType.class.getClassLoader())));
-
         this.tags = fromNullable(in.readString());
         this.likes = fromNullable(in.readString());
         this.username = fromNullable(in.readString());

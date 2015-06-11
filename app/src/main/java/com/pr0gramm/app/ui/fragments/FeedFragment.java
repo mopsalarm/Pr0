@@ -322,10 +322,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private FeedFilter getFilterArgument() {
-
-        return getArguments()
-                .<FeedFilter>getParcelable(ARG_FEED_FILTER)
-                .withContentType(getSelectedContentType());
+        return getArguments().<FeedFilter>getParcelable(ARG_FEED_FILTER);
     }
 
     private EnumSet<ContentType> getSelectedContentType() {
@@ -358,13 +355,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         // check if content type has changed, and reload if necessary
         FeedFilter feedFilter = feedAdapter.getFilter();
         EnumSet<ContentType> newContentType = getSelectedContentType();
-        boolean changed = !equal(feedFilter.getContentTypes(), newContentType);
+        boolean changed = !equal(feedAdapter.getContentType(), newContentType);
         if (changed) {
             Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);
 
             // set a new adapter if we have a new content type
-            FeedFilter filter = feedFilter.withContentType(newContentType);
-            feedAdapter = new FeedAdapter(filter, autoScrollOnLoad = around);
+            feedAdapter = new FeedAdapter(feedFilter, autoScrollOnLoad = around);
             recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
 
             getActivity().supportInvalidateOptionsMenu();
@@ -431,8 +427,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         item = menu.findItem(R.id.action_change_content_type);
         if (item != null) {
             if (userService.isAuthorized()) {
-                ContentTypeDrawable icon = new ContentTypeDrawable(
-                        getCurrentFilter().getContentTypes());
+                ContentTypeDrawable icon = new ContentTypeDrawable(getSelectedContentType());
 
                 icon.setTextSize(getResources().getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size));
@@ -615,7 +610,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         private final Set<Long> reposts = new HashSet<>();
 
         public FeedAdapter(FeedFilter filter, Optional<Long> around) {
-            this(new FeedProxy(filter), around);
+            this(new FeedProxy(filter, getSelectedContentType()), around);
         }
 
         public FeedAdapter(FeedProxy feedProxy, Optional<Long> around) {
@@ -735,6 +730,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         @Override
         public void onItemRangeRemoved(int start, int count) {
             notifyItemRangeRemoved(start, count);
+        }
+
+        public Set<ContentType> getContentType() {
+            return feedProxy.getContentType();
         }
     }
 

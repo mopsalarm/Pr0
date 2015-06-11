@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import rx.Observable;
 
@@ -33,6 +34,7 @@ public class FeedProxy {
     private final List<FeedItem> items = new ArrayList<>();
 
     private final FeedFilter feedFilter;
+    private final Set<ContentType> contentType;
     private boolean loading;
     private boolean atEnd;
     private boolean atStart;
@@ -43,12 +45,14 @@ public class FeedProxy {
     @Nullable
     private transient Loader loader;
 
-    public FeedProxy(FeedFilter feedFilter) {
+    public FeedProxy(FeedFilter feedFilter, Set<ContentType> contentType) {
         this.feedFilter = feedFilter;
+        this.contentType = contentType;
     }
 
-    private FeedProxy(FeedFilter feedFilter, List<FeedItem> items) {
+    private FeedProxy(FeedFilter feedFilter, Set<ContentType> contentType, List<FeedItem> items) {
         this.feedFilter = feedFilter;
+        this.contentType = contentType;
         this.items.addAll(items);
 
         checkFeedOrder();
@@ -112,7 +116,7 @@ public class FeedProxy {
 
         // do the loading.
         long newest = items.get(0).getId(feedFilter.getFeedType());
-        bind(loader.getFeedService().getFeedItemsNewer(feedFilter, newest))
+        bind(loader.getFeedService().getFeedItemsNewer(feedFilter, contentType, newest))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
@@ -157,7 +161,7 @@ public class FeedProxy {
         onLoadStart();
 
         // do the loading.
-        bind(loader.getFeedService().getFeedItems(feedFilter, start, around))
+        bind(loader.getFeedService().getFeedItems(feedFilter, contentType, start, around))
                 .map(this::enhance)
                 .subscribe(this::store, this::onError);
     }
@@ -288,6 +292,7 @@ public class FeedProxy {
     public Bundle toBundle(int idx) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("query", feedFilter);
+        bundle.putInt("contentType", ContentType.combine(contentType));
 
         // add a subset of the items
         int start = min(items.size(), max(0, idx - 32));
@@ -302,7 +307,8 @@ public class FeedProxy {
     public static FeedProxy fromBundle(Bundle bundle) {
         FeedFilter feedFilter = bundle.getParcelable("query");
         List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
-        return new FeedProxy(feedFilter, items);
+        Set<ContentType> contentType = ContentType.decompose(bundle.getInt("contentType"));
+        return new FeedProxy(feedFilter, contentType, items);
     }
 
     public Optional<Integer> getPosition(@Nullable FeedItem item) {
@@ -315,6 +321,10 @@ public class FeedProxy {
         }
 
         return Optional.absent();
+    }
+
+    public Set<ContentType> getContentType() {
+        return contentType;
     }
 
     /**

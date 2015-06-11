@@ -7,6 +7,8 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 
+import java.util.Set;
+
 import javax.inject.Inject;
 
 import rx.Observable;
@@ -23,16 +25,17 @@ public class FeedService {
         this.api = api;
     }
 
-    public Observable<Feed> getFeedItems(FeedFilter feedFilter, Optional<Long> start, Optional<Long> around) {
-        return performRequest(feedFilter, start, Optional.<Long>absent(), around);
+    public Observable<Feed> getFeedItems(FeedFilter feedFilter, Set<ContentType> contentTypes, Optional<Long> start, Optional<Long> around) {
+        return performRequest(feedFilter, start, contentTypes, Optional.<Long>absent(), around);
     }
 
-    public Observable<Feed> getFeedItemsNewer(FeedFilter feedFilter, long start) {
-        return performRequest(feedFilter, Optional.<Long>absent(), Optional.of(start), Optional.<Long>absent());
+    public Observable<Feed> getFeedItemsNewer(FeedFilter feedFilter, Set<ContentType> contentTypes, long start) {
+        return performRequest(feedFilter, Optional.<Long>absent(), contentTypes, Optional.of(start), Optional.<Long>absent());
     }
 
     private Observable<Feed> performRequest(FeedFilter feedFilter,
                                             Optional<Long> older,
+                                            Set<ContentType> contentTypes,
                                             Optional<Long> newer,
                                             Optional<Long> around) {
 
@@ -40,7 +43,7 @@ public class FeedService {
         Integer promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : null;
         Integer following = (feedFilter.getFeedType() == FeedType.PREMIUM) ? 1 : null;
 
-        int flags = ContentType.combine(feedFilter.getContentTypes());
+        int flags = ContentType.combine(contentTypes);
         String tags = feedFilter.getTags().orNull();
         String user = feedFilter.getUsername().orNull();
 
