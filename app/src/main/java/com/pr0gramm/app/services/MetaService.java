@@ -17,6 +17,7 @@ import java.util.List;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Query;
@@ -49,6 +50,7 @@ public class MetaService {
     }
 
     private interface Api {
+        @FormUrlEncoded
         @POST("/items")
         Observable<InfoResponse> info(@Field("ids") String itemIds);
     }
