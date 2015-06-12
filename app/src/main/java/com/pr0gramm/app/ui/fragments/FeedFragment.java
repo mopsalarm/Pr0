@@ -36,7 +36,6 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
@@ -55,6 +54,7 @@ import com.squareup.picasso.Picasso;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -68,6 +68,7 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
@@ -132,6 +133,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     private Observable<Info> userInfoObservable;
     private Function<Info, View> userInfoViewSupplier;
+
+    private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
+    private final Set<Long> reposts = new HashSet<>();
 
     /**
      * Initialize a new feed fragment.
@@ -318,7 +322,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         long startAround = getArguments().getLong(ARG_FEED_START, -1);
         Optional<Long> around = Optional.fromNullable(startAround > 0 ? startAround : null);
-        return new FeedAdapter(feedFilter, around);
+        return new FeedAdapter(this, feedFilter, around);
     }
 
     private FeedFilter getFilterArgument() {
@@ -360,7 +364,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);
 
             // set a new adapter if we have a new content type
-            feedAdapter = new FeedAdapter(feedFilter, autoScrollOnLoad = around);
+            feedAdapter = new FeedAdapter(this, feedFilter, autoScrollOnLoad = around);
             recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
 
             getActivity().supportInvalidateOptionsMenu();
@@ -454,7 +458,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         for (Map.Entry<Integer, Boolean> entry : types.entrySet()) {
             MenuItem item = menu.findItem(entry.getKey());
-            if(item != null) {
+            if (item != null) {
                 item.setChecked(entry.getValue());
                 item.setEnabled(!single || !entry.getValue());
             }
@@ -480,7 +484,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 .put(R.id.action_content_type_nsfl, "pref_feed_type_nsfl")
                 .build();
 
-        if(contentTypes.containsKey(item.getItemId())) {
+        if (contentTypes.containsKey(item.getItemId())) {
             boolean newState = !item.isChecked();
             settings.edit()
                     .putBoolean(contentTypes.get(item.getItemId()), newState)
@@ -604,45 +608,74 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
-    private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
-        private final FeedProxy feedProxy;
-        private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
-        private final Set<Long> reposts = new HashSet<>();
+    private void handleMetaServiceResponse(MetaService.InfoResponse infoResponse) {
+        logger.info("merge info about {} reposts and {} sizes",
+                reposts.size(), infoResponse.getSizes().size());
 
-        public FeedAdapter(FeedFilter filter, Optional<Long> around) {
-            this(new FeedProxy(filter, getSelectedContentType()), around);
+        for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
+            sizes.put(sizeInfo.getId(), sizeInfo);
         }
 
-        public FeedAdapter(FeedProxy feedProxy, Optional<Long> around) {
+        reposts.addAll(infoResponse.getReposts());
+        feedAdapter.notifyDataSetChanged();
+    }
+
+    private boolean isRepost(FeedItem item) {
+        return reposts.contains(item.getId());
+    }
+
+    private boolean isSeen(FeedItem item) {
+        return seenService.isSeen(item);
+    }
+
+    public Optional<MetaService.SizeInfo> getSizeInfo(FeedItem item) {
+        return Optional.fromNullable(sizes.get(item.getId()));
+    }
+
+    private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements FeedProxy.OnChangeListener {
+        private final FeedProxy feedProxy;
+        private final WeakReference<FeedFragment> parent;
+
+        public FeedAdapter(FeedFragment fragment, FeedFilter filter, Optional<Long> around) {
+            this(fragment, new FeedProxy(filter, fragment.getSelectedContentType()), around);
+        }
+
+        public FeedAdapter(FeedFragment fragment, FeedProxy feedProxy, Optional<Long> around) {
+            this.parent = new WeakReference<>(fragment);
             this.feedProxy = feedProxy;
 
             this.feedProxy.setOnChangeListener(this);
-            this.feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(FeedFragment.this, feedService) {
+            this.feedProxy.setLoader(new FeedProxy.FragmentFeedLoader(fragment.feedService) {
+                @Override
+                public <T> Observable<T> bind(Observable<T> observable) {
+                    FeedFragment fragment = parent.get();
+                    if (fragment != null) {
+                        return bindFragment(fragment, observable);
+                    } else {
+                        return Observable.empty();
+                    }
+                }
+
                 @Override
                 public void onLoadFinished() {
-                    removeBusyIndicator();
-                    swipeRefreshLayout.setRefreshing(false);
-
-                    performAutoOpen();
-                    updateNoResultsTextView();
+                    with(FeedFragment::onFeedLoadFinished);
                 }
 
                 @Override
                 public void onError(Throwable error) {
-                    if (getFeedProxy().getItemCount() == 0) {
-                        if (autoOpenOnLoad.isPresent()) {
-                            ErrorDialogFragment.showErrorString(getFragmentManager(),
-                                    getString(R.string.could_not_load_feed_nsfw));
-                        } else {
-                            ErrorDialogFragment.showErrorString(getFragmentManager(),
-                                    getString(R.string.could_not_load_feed));
-                        }
-                    }
+                    with(FeedFragment::onFeedError);
                 }
             });
 
             // start the feed
             this.feedProxy.restart(around);
+        }
+
+        private void with(Action1<FeedFragment> action) {
+            FeedFragment fragment = parent.get();
+            if (fragment != null) {
+                action.call(fragment);
+            }
         }
 
         public FeedFilter getFilter() {
@@ -656,7 +689,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         @SuppressLint("InflateParams")
         @Override
         public FeedItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            LayoutInflater inflater = LayoutInflater.from(this.parent.get().getActivity());
             View view = inflater.inflate(R.layout.feed_item_view, null);
             return new FeedItemViewHolder(view);
         }
@@ -665,19 +698,22 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         public void onBindViewHolder(FeedItemViewHolder view, int position) {
             FeedItem item = feedProxy.getItemAt(position);
 
-            picasso.load(Uris.get().thumbnail(item))
-                    .into(view.image);
+            with(fragment -> {
+                fragment.picasso.load(Uris.get().thumbnail(item)).into(view.image);
 
-            view.itemView.setOnClickListener(v -> onItemClicked(position));
+                view.itemView.setOnClickListener(v -> fragment.onItemClicked(position));
 
-            // check if this item was already seen.
-            if (isRepost(item) && settings.useMetaService()) {
-                view.setIsRepost();
-            } else if (seenIndicatorStyle == IndicatorStyle.ICON && isSeen(item)) {
-                view.setIsSeen();
-            } else {
-                view.clear();
-            }
+                // check if this item was already seen.
+                if (fragment.isRepost(item) && fragment.settings.useMetaService()) {
+                    view.setIsRepost();
+
+                } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
+                    view.setIsSeen();
+
+                } else {
+                    view.clear();
+                }
+            });
         }
 
         @Override
@@ -698,33 +734,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             for (int idx = 0; idx < count; idx++)
                 itemIds[idx] = getItemId(start + idx);
 
-            bindFragment(FeedFragment.this, metaService.getInfo(Longs.asList(itemIds)))
-                    .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
-                    .subscribe(this::handleMetaServiceResponse, Actions.empty());
-        }
-
-        private void handleMetaServiceResponse(MetaService.InfoResponse infoResponse) {
-            logger.info("merge info about {} reposts and {} sizes",
-                    reposts.size(), infoResponse.getSizes().size());
-
-            for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
-                sizes.put(sizeInfo.getId(), sizeInfo);
-            }
-
-            reposts.addAll(infoResponse.getReposts());
-            notifyDataSetChanged();
-        }
-
-        private boolean isRepost(FeedItem item) {
-            return reposts.contains(item.getId());
-        }
-
-        private boolean isSeen(FeedItem item) {
-            return seenService.isSeen(item);
-        }
-
-        public Optional<MetaService.SizeInfo> getSizeInfo(FeedItem item) {
-            return Optional.fromNullable(sizes.get(item.getId()));
+            with(fragment -> fragment.loadMetaData(itemIds));
         }
 
         @Override
@@ -735,6 +745,35 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         public Set<ContentType> getContentType() {
             return feedProxy.getContentType();
         }
+    }
+
+    private void loadMetaData(long[] itemIds) {
+        bindFragment(this, metaService.getInfo(Longs.asList(itemIds)))
+                .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
+                .subscribe(this::handleMetaServiceResponse, Actions.empty());
+    }
+
+    private void onFeedError() {
+        if (feedAdapter.getFeedProxy().getItemCount() == 0) {
+            if (autoOpenOnLoad.isPresent()) {
+                ErrorDialogFragment.showErrorString(getFragmentManager(),
+                        getString(R.string.could_not_load_feed_nsfw));
+            } else {
+                ErrorDialogFragment.showErrorString(getFragmentManager(),
+                        getString(R.string.could_not_load_feed));
+            }
+        }
+    }
+
+    /**
+     * Called when loading of feed data finished.
+     */
+    private void onFeedLoadFinished() {
+        removeBusyIndicator();
+        swipeRefreshLayout.setRefreshing(false);
+
+        performAutoOpen();
+        updateNoResultsTextView();
     }
 
     private void updateNoResultsTextView() {

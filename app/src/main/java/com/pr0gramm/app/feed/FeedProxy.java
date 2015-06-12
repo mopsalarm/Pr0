@@ -366,18 +366,11 @@ public class FeedProxy {
         FeedService getFeedService();
     }
 
-    public static class FragmentFeedLoader implements Loader {
-        private final Fragment fragment;
+    public static abstract class FragmentFeedLoader implements Loader {
         private final FeedService feedService;
 
-        public FragmentFeedLoader(Fragment fragment, FeedService feedService) {
-            this.fragment = fragment;
+        public FragmentFeedLoader(FeedService feedService) {
             this.feedService = feedService;
-        }
-
-        @Override
-        public <T> Observable<T> bind(Observable<T> observable) {
-            return bindFragment(fragment, observable);
         }
 
         @Override

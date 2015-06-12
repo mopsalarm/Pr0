@@ -26,9 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
+import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
@@ -62,7 +64,12 @@ public class PostPagerFragment extends RoboFragment {
 
         // create the proxy and use it as the source for the view pager.
         proxy = getArgumentFeedProxy(savedInstanceState);
-        proxy.setLoader(new FeedProxy.FragmentFeedLoader(this, feedService));
+        proxy.setLoader(new FeedProxy.FragmentFeedLoader(feedService) {
+            @Override
+            public <T> Observable<T> bind(Observable<T> observable) {
+                return bindFragment(PostPagerFragment.this, observable);
+            }
+        });
 
         // create the adapter on the view
         adapter = new PostAdapter(getChildFragmentManager(), proxy) {
@@ -78,7 +85,7 @@ public class PostPagerFragment extends RoboFragment {
             ToolbarActivity activity = (ToolbarActivity) getActivity();
             activity.getScrollHideToolbarListener().reset();
 
-            viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                 @Override
                 public void onPageScrollStateChanged(int state) {
                     activity.getScrollHideToolbarListener().reset();
@@ -87,7 +94,6 @@ public class PostPagerFragment extends RoboFragment {
         }
 
         viewPager.setAdapter(adapter);
-        logger.info("state is " + savedInstanceState);
 
         if (savedInstanceState != null) {
             // calculate index of the first item to show if this is the first
