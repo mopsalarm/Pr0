@@ -1,6 +1,16 @@
 [
   {
-    "version": 56,
+    "version": 57,
+    "type": "Neu",
+    "change": "Filter in der Actionbar zu 'alle' zusammengefasst."
+  },
+  {
+    "version": 57,
+    "type": "Intern",
+    "change": "Interne Umbauten."
+  },
+  {
+    "version": 57,
     "type": "Neu",
     "change": "Aktuellen Accounttyp im Drawer anzeigen."
   },
