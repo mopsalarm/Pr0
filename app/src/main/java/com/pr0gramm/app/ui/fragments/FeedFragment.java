@@ -431,7 +431,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         item = menu.findItem(R.id.action_change_content_type);
         if (item != null) {
             if (userService.isAuthorized()) {
-                ContentTypeDrawable icon = new ContentTypeDrawable(getSelectedContentType());
+                ContentTypeDrawable icon = new ContentTypeDrawable(getActivity(), getSelectedContentType());
 
                 icon.setTextSize(getResources().getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size));

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -14,9 +15,12 @@ import android.text.TextPaint;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.ContentType;
 
 import java.util.Collection;
+
+import static java.util.Arrays.asList;
 
 /**
  */
@@ -24,11 +28,16 @@ public class ContentTypeDrawable extends Drawable {
     private final String text;
     private float textSize;
 
-    public ContentTypeDrawable(Collection<ContentType> types) {
+    public ContentTypeDrawable(Context context, Collection<ContentType> types) {
         textSize = 16f;
-        text = FluentIterable.from(types)
-                .transform(type -> type.name().toLowerCase())
-                .join(Joiner.on("\n"));
+
+        if(types.containsAll(asList(ContentType.values()))) {
+            text = context.getString(R.string.all);
+        } else {
+            text = FluentIterable.from(types)
+                    .transform(type -> type.name().toLowerCase())
+                    .join(Joiner.on("\n"));
+        }
     }
 
     @Override

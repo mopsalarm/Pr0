@@ -250,4 +250,5 @@
     <string name="user_type_moderator">moderator</string>
     <string name="user_type_fliesentisch">fliesentischbesitzer</string>
     <string name="user_type_admin">admin</string>
+    <string name="all">alle</string>
 </resources>
