@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,12 +16,10 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.google.common.base.Optional;
-import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -31,6 +30,7 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.base.BaseActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
@@ -41,26 +41,23 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.observables.AndroidObservable.bindActivity;
+import static rx.android.app.AppObservable.bindActivity;
 
 
 /**
  * This is the main class of our pr0gramm app.
  */
-public class MainActivity extends RoboActionBarActivity implements
+public class MainActivity extends BaseActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
@@ -344,12 +341,18 @@ public class MainActivity extends RoboActionBarActivity implements
 
     @Override
     public void onLogoutClicked() {
+        drawerLayout.closeDrawers();
+
         bindActivity(this, userService.logout())
                 .lift(busyDialog(this))
-                .subscribe(Actions.empty(), defaultOnError());
+                .doOnCompleted(() -> {
+                    // show a short information.
+                    Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT).show();
 
-        // reset everything!
-        gotoFeedFragment(new FeedFilter(), true);
+                    // reset everything!
+                    gotoFeedFragment(new FeedFilter(), true);
+                })
+                .subscribe(Actions.empty(), defaultOnError());
     }
 
     @Override

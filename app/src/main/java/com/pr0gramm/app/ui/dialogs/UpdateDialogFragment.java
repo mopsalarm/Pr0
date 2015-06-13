@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentActivity;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UpdateChecker;
 
 import org.joda.time.Instant;
@@ -26,7 +25,7 @@ import rx.functions.Actions;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Instant.now;
-import static rx.android.observables.AndroidObservable.bindActivity;
+import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */

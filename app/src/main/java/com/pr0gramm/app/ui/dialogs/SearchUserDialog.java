@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.fragment.RoboDialogFragment;
 
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */

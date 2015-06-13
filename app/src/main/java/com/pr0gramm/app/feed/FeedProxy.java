@@ -24,7 +24,6 @@ import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Arrays.asList;
-import static rx.android.observables.AndroidObservable.bindFragment;
 
 /**
  */
@@ -60,9 +59,6 @@ public class FeedProxy {
 
     /**
      * Binds the observable to some kind of context.
-     * Use {@link rx.android.observables.AndroidObservable#bindActivity(android.app.Activity, rx.Observable)}
-     * or {@link rx.android.observables.AndroidObservable#bindFragment(Object, rx.Observable)} on
-     * the given observable.
      *
      * @param observable The observable to bind.
      * @return The bound observable.

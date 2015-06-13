@@ -55,7 +55,7 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static java.util.Arrays.asList;
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */

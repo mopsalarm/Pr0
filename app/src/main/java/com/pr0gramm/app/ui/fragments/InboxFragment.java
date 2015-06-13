@@ -40,7 +40,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */

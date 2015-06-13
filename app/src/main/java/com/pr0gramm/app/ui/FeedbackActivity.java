@@ -22,7 +22,7 @@ import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.observables.AndroidObservable.bindActivity;
+import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */

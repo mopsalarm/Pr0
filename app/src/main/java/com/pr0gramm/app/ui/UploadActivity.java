@@ -62,8 +62,8 @@ import rx.util.async.Async;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
-import static rx.android.observables.AndroidObservable.bindActivity;
-import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.app.AppObservable.bindActivity;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */
