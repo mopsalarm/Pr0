@@ -2,6 +2,16 @@
   {
     "version": 57,
     "type": "Neu",
+    "change": "Überarbeiteten Loginscreen"
+  },
+  {
+    "version": 57,
+    "type": "Neu",
+    "change": "Links zu Kommentaren sollten nun in die ungefähre Nähe der Kommentare springen"
+  },
+  {
+    "version": 57,
+    "type": "Neu",
     "change": "Filter in der Actionbar zu 'alle' zusammengefasst."
   },
   {
