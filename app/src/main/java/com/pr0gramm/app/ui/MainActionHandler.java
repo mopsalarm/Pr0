@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui;
 
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
-import com.pr0gramm.app.feed.FeedProxy;
 
 /**
  */
