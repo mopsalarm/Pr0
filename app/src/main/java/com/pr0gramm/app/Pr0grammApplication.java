@@ -10,6 +10,7 @@ import android.net.Uri;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
+import com.pr0gramm.app.ui.ActivityErrorHandler;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -18,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import io.fabric.sdk.android.Fabric;
 import pl.brightinventions.slf4android.LoggerConfiguration;
+
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDialogHandler;
 
 /**
  * Global application class for pr0gramm app.
@@ -49,6 +52,9 @@ public class Pr0grammApplication extends SugarApp {
         } else {
             logger.info("This is a development version.");
         }
+
+        // initialize this to show errors always in the context of the current activity.
+        setGlobalErrorDialogHandler(new ActivityErrorHandler(this));
     }
 
     public static PackageInfo getPackageInfo() {

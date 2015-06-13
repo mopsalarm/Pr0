@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -51,6 +50,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
+import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -82,7 +82,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
-import static com.pr0gramm.app.ui.dialogs.LoginDialogFragment.doIfAuthorized;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.app.AppObservable.bindFragment;
 
@@ -143,6 +142,8 @@ public class PostFragment extends RoboFragment implements
     private TextView voteAnimationIndicator;
     private Optional<Long> autoScrollTo = Optional.absent();
 
+    private LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -201,6 +202,12 @@ public class PostFragment extends RoboFragment implements
         content.removeOnScrollListener(onScrollListener);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
+    }
+
     private void initializeCommentPostLine() {
         CommentPostLine line = new CommentPostLine(getActivity());
         adapter.addView(line);
@@ -222,7 +229,8 @@ public class PostFragment extends RoboFragment implements
 
                 writeComment(text);
             };
-            doIfAuthorized(this, action, action);
+
+            doIfAuthorizedHelper.run(action, action);
         });
     }
 
@@ -441,7 +449,7 @@ public class PostFragment extends RoboFragment implements
             };
 
             Runnable retry = () -> infoLineView.getVoteView().setVote(vote);
-            return doIfAuthorized(PostFragment.this, action, retry);
+            return doIfAuthorizedHelper.run(action, retry);
         });
 
         // and a vote listener vor voting tags.
@@ -451,7 +459,7 @@ public class PostFragment extends RoboFragment implements
                         .subscribe(Actions.empty(), defaultOnError());
             };
 
-            return doIfAuthorized(PostFragment.this, action, action);
+            return doIfAuthorizedHelper.run(action, action);
         });
 
         infoLineView.setOnAddTagClickedListener(() -> {
@@ -639,7 +647,7 @@ public class PostFragment extends RoboFragment implements
     @SuppressWarnings("CodeBlock2Expr")
     @Override
     public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
-        return doIfAuthorized(this, () -> {
+        return doIfAuthorizedHelper.run(() -> {
             bindFragment(this, voteService.vote(comment, vote))
                     .subscribe(Actions.empty(), defaultOnError());
         });
@@ -650,7 +658,7 @@ public class PostFragment extends RoboFragment implements
     public void onAnswerClicked(Post.Comment comment) {
         Runnable retry = () -> onAnswerClicked(comment);
 
-        doIfAuthorized(this, () -> {
+        doIfAuthorizedHelper.run(() -> {
             ReplyCommentDialogFragment
                     .newInstance(feedItem.getId(), Optional.fromNullable(comment))
                     .show(getChildFragmentManager(), null);

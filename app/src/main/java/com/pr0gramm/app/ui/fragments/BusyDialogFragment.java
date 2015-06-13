@@ -112,4 +112,8 @@ public class BusyDialogFragment extends DialogFragment {
     public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity) {
         return new BusyDialogOperator<>(activity.getSupportFragmentManager(), null);
     }
+
+    public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity, String text) {
+        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), text);
+    }
 }

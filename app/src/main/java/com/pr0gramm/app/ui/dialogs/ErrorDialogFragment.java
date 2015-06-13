@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.ActivityErrorHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,32 +58,6 @@ public class ErrorDialogFragment extends DialogFragment {
 
         return GLOBAL_ERROR_DIALOG_HANDLER.get();
     }
-
-//    public static void initRxErrorHandler() {
-//        checkMainThread();
-//
-//        // we want to deliver the error to the main thread
-//        Handler mainHandler = new Handler(Looper.getMainLooper());
-//
-//        // handle exceptions!
-//        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-//            @Override
-//            public void handleError(Throwable error) {
-//                // only handle errors that no one else handled
-//                if (!(error instanceof OnErrorNotImplementedException))
-//                    return;
-//
-//                // get the cause
-//                Throwable cause = error.getCause();
-//
-//                logger.info("The next error occurred somewhere in RxJava");
-//                try {
-//                    mainHandler.post(() -> processError(cause, getGlobalErrorDialogHandler()));
-//                } catch (Throwable ignored) {
-//                }
-//            }
-//        });
-//    }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private static void processError(Throwable error, OnErrorDialogHandler handler) {

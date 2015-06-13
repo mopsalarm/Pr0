@@ -27,8 +27,6 @@ import static rx.android.app.AppObservable.bindActivity;
 /**
  */
 public class FeedbackActivity extends RoboActionBarActivity {
-    private final ActivityErrorHandler errorHandler = new ActivityErrorHandler(this);
-
     @Inject
     private FeedbackService feedbackService;
 
@@ -70,18 +68,6 @@ public class FeedbackActivity extends RoboActionBarActivity {
         if(name.isPresent()) {
             vName.setText(name.get());
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
     }
 
     private void submitClicked() {

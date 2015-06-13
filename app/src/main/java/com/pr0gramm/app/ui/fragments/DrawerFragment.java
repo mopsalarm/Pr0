@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -10,8 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +34,7 @@ import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.LoginDialogFragment;
+import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
 import java.util.ArrayList;
@@ -120,7 +117,6 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_upload)
     private Drawable iconUpload;
 
-
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private static final int ICON_ALPHA = 127;
@@ -129,6 +125,7 @@ public class DrawerFragment extends RoboFragment {
     private Subscription scLoginState;
     private Subscription scNavigationItems;
 
+    private LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -165,8 +162,10 @@ public class DrawerFragment extends RoboFragment {
         });
 
         loginView.setOnClickListener(v -> {
-            LoginDialogFragment dialog = new LoginDialogFragment();
-            dialog.show(getFragmentManager(), null);
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
+            //LoginDialogFragment dialog = new LoginDialogFragment();
+            //dialog.show(getFragmentManager(), null);
         });
 
         logoutView.setOnClickListener(v -> {
@@ -175,6 +174,12 @@ public class DrawerFragment extends RoboFragment {
         });
 
         benisGraph.setOnClickListener(this::onBenisGraphClicked);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
     }
 
     /**
@@ -357,7 +362,7 @@ public class DrawerFragment extends RoboFragment {
         };
 
         return new NavigationItem(getString(R.string.action_inbox), iconInbox, () ->
-                LoginDialogFragment.doIfAuthorized(this, run, run));
+                doIfAuthorizedHelper.run(run, run));
     }
 
     /**
@@ -369,7 +374,7 @@ public class DrawerFragment extends RoboFragment {
         };
 
         return new NavigationItem(getString(R.string.action_upload), iconUpload, () ->
-                LoginDialogFragment.doIfAuthorized(this, run, run));
+                doIfAuthorizedHelper.run(run, run));
     }
 
     public interface OnFeedFilterSelected {

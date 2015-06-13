@@ -125,8 +125,17 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
-            android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.ActionBar.Simple"/>
+            android:theme="@style/AppTheme.ActionBar.Simple">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity"/>
+        </activity>
+
+        <activity
+            android:name=".ui.dialogs.LoginActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
         <activity
             android:name=".ui.ZoomViewActivity"
@@ -135,7 +144,8 @@
         <activity
             android:name=".ui.FeedbackActivity"
             android:label="@string/feedback_title"
-            android:theme="@style/AppTheme.ActionBar.Simple"/>
+            android:theme="@style/AppTheme.ActionBar.Simple"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
         <activity
             android:name=".ui.UploadActivity"

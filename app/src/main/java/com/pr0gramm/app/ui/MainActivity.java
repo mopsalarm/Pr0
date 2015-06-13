@@ -64,7 +64,6 @@ public class MainActivity extends BaseActivity implements
         MainActionHandler {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private final ErrorDialogFragment.OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout drawerLayout;
@@ -316,14 +315,7 @@ public class MainActivity extends BaseActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
         onBackStackChanged();
-    }
-
-    @Override
-    protected void onPause() {
-        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
-        super.onPause();
     }
 
     @Override

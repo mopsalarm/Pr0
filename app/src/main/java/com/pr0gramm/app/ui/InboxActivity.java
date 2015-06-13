@@ -29,8 +29,6 @@ import roboguice.inject.InjectView;
 public class InboxActivity extends RoboActionBarActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
 
-    private final OnErrorDialogHandler errorHandler = new ActivityErrorHandler(this);
-
     @Inject
     private UserService userService;
 
@@ -92,18 +90,6 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleNewIntent(intent);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ErrorDialogFragment.setGlobalErrorDialogHandler(errorHandler);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        ErrorDialogFragment.unsetGlobalErrorDialogHandler(errorHandler);
     }
 
     private void handleNewIntent(Intent intent) {

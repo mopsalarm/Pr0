@@ -1,26 +1,90 @@
 package com.pr0gramm.app.ui;
 
+import android.app.Activity;
+import android.app.Application;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
+import java.lang.ref.WeakReference;
+
 /**
  */
-public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHandler {
-    private final FragmentActivity activity;
+public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHandler, Application.ActivityLifecycleCallbacks {
+    private WeakReference<FragmentActivity> current;
 
-    public ActivityErrorHandler(FragmentActivity activity) {
-        this.activity = activity;
+    private Throwable pendingError;
+    private ErrorFormatting.Formatter<?> pendingFormatter;
+
+    public ActivityErrorHandler(Application application) {
+        application.registerActivityLifecycleCallbacks(this);
     }
 
     @Override
     public void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter) {
-        String message = formatter.handles(error)
-                ? formatter.getMessage(activity, error)
-                : Throwables.getStackTraceAsString(error);
+        FragmentActivity activity = current.get();
+        if (activity != null) {
+            String message = formatter.handles(error)
+                    ? formatter.getMessage(activity, error)
+                    : Throwables.getStackTraceAsString(error);
 
-        ErrorDialogFragment.showErrorString(activity.getSupportFragmentManager(), message);
+            ErrorDialogFragment.showErrorString(activity.getSupportFragmentManager(), message);
+
+            // reset any pending errors
+            pendingError = null;
+            pendingFormatter = null;
+
+        } else {
+            this.pendingError = error;
+            this.pendingFormatter = formatter;
+        }
     }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        if (activity instanceof FragmentActivity) {
+            current = new WeakReference<>((FragmentActivity) activity);
+
+            if (pendingError != null && pendingFormatter != null) {
+                showErrorDialog(pendingError, pendingFormatter);
+            }
+        }
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+        if (current.get() == activity) {
+            current = null;
+        }
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        if (current.get() == activity) {
+            current = new WeakReference<>(null);
+        }
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+        if (current.get() == activity) {
+            current = new WeakReference<>(null);
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    }
+
 }
