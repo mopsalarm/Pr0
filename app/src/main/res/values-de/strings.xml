@@ -252,4 +252,5 @@
     <string name="user_type_admin">admin</string>
     <string name="all">alle</string>
     <string name="logout_successful_hint">Erfolgreich ausgeloggt</string>
+    <string name="comment_written_successful">Kommentar erfolgreich</string>
 </resources>

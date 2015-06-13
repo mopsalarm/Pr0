@@ -5,12 +5,15 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -33,6 +37,7 @@ import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
@@ -46,8 +51,8 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
-import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
+import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -136,6 +141,7 @@ public class PostFragment extends RoboFragment implements
     private MergeRecyclerAdapter adapter;
     private CommentsAdapter commentsAdapter;
     private TextView voteAnimationIndicator;
+    private Optional<Long> autoScrollTo = Optional.absent();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -223,7 +229,25 @@ public class PostFragment extends RoboFragment implements
     private void writeComment(String text) {
         bindFragment(this, voteService.postComment(feedItem, 0, text))
                 .lift(busyDialog(this))
-                .subscribe(this::displayComments, defaultOnError());
+                .subscribe(this::onNewComments, defaultOnError());
+    }
+
+    /**
+     * Scroll the th given comment
+     *
+     * @param commentId The comment id to scroll to
+     */
+    private void scrollToComment(long commentId) {
+        Optional<Integer> offset = adapter.getOffset(commentsAdapter);
+        if (!offset.isPresent())
+            return;
+
+        for (int idx = 0; idx < commentsAdapter.getItemCount(); idx++) {
+            if (commentsAdapter.getItemId(idx) == commentId) {
+                content.smoothScrollToPosition(offset.get() + idx);
+                break;
+            }
+        }
     }
 
     @Override
@@ -276,7 +300,7 @@ public class PostFragment extends RoboFragment implements
             startActivity(intent);
         }
 
-        if(item.getItemId() == R.id.action_share) {
+        if (item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
@@ -302,10 +326,10 @@ public class PostFragment extends RoboFragment implements
         if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-        }else if(settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_pictures))){
+        } else if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_pictures))) {
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-        }else{
+        } else {
             external = Environment.getExternalStorageDirectory();
         }
 
@@ -540,6 +564,11 @@ public class PostFragment extends RoboFragment implements
         bindFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
             commentsAdapter.setOp(Optional.of(feedItem.getUser()));
             commentsAdapter.setComments(comments, votes);
+
+            if (autoScrollTo.isPresent()) {
+                scrollToComment(autoScrollTo.get());
+                autoScrollTo = Optional.absent();
+            }
         }, defaultOnError());
     }
 
@@ -647,8 +676,24 @@ public class PostFragment extends RoboFragment implements
     }
 
     @Override
-    public void onNewComments(List<Post.Comment> comments) {
-        displayComments(comments);
+    public void onNewComments(NewComment response) {
+        autoScrollTo = Optional.of(response.getCommentId());
+        displayComments(response.getComments());
+
+        Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show();
+
+        hideSoftKeyboard();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void hideSoftKeyboard() {
+        try {
+            InputMethodManager imm = (InputMethodManager) getActivity()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        } catch (Exception ignored) {
+        }
     }
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {

@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
@@ -93,9 +94,7 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     public void storeVoteValueInTx(CachedVote.Type type, long itemId, Vote vote) {
-        SugarTransactionHelper.doInTansaction(() -> {
-            storeVoteValue(type, itemId, vote);
-        });
+        SugarTransactionHelper.doInTansaction(() -> storeVoteValue(type, itemId, vote));
     }
 
     /**
@@ -165,17 +164,17 @@ public class VoteService {
     /**
      * Writes a comment to the given post.
      */
-    public Observable<List<Post.Comment>> postComment(long itemId, long parentId, String comment) {
+    public Observable<NewComment> postComment(long itemId, long parentId, String comment) {
         return api.postComment(null, itemId, parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {
                     // store the implicit upvote for the comment.
                     storeVoteValueInTx(CachedVote.Type.COMMENT, response.getCommentId(), Vote.UP);
-                    return response.getComments();
+                    return response;
                 });
     }
 
-    public Observable<List<Post.Comment>> postComment(FeedItem item, long parentId, String comment) {
+    public Observable<NewComment> postComment(FeedItem item, long parentId, String comment) {
         return postComment(item.getId(), parentId, comment);
     }
 

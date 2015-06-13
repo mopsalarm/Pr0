@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.base.Optional;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,7 +132,6 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         return uniq | (0x0fffffffffffffffL & adapter.mAdapter.getItemId(adapter.mLocalPosition));
     }
 
-
     @Override
     public int getItemViewType(int position) {
         LocalAdapter result = getAdapterOffsetForItem(position);
@@ -162,6 +163,24 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         LocalAdapter result = getAdapterOffsetForItem(position);
         result.mAdapter.onBindViewHolder(viewHolder, result.mLocalPosition);
+    }
+
+    /**
+     * Returns the offset of the first item of the given adapter in this one.
+     *
+     * @param query The adapter to get the offset for.
+     */
+    public Optional<Integer> getOffset(RecyclerView.Adapter<?> query) {
+        int offset = 0;
+        for (int idx = 0; idx < adapters.size(); idx++) {
+            RecyclerView.Adapter adapter = adapters.get(idx).mAdapter;
+            if (adapter == query)
+                return Optional.of(offset);
+
+            offset += adapter.getItemCount();
+        }
+
+        return Optional.absent();
     }
 
     private static class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {

@@ -281,4 +281,5 @@
     <string name="user_type_neuschwuchtel">newfag</string>
     <string name="all">all</string>
     <string name="logout_successful_hint">Logout successful</string>
+    <string name="comment_written_successful">Comment added successfully</string>
 </resources>

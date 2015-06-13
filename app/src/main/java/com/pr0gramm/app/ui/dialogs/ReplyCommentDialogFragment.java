@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.VoteService;
 
@@ -117,6 +118,6 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
         /**
          * Called when the dialog finishes with new tags.
          */
-        void onNewComments(List<Post.Comment> comments);
+        void onNewComments(NewComment comments);
     }
 }
