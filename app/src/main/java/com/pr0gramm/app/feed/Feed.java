@@ -115,21 +115,21 @@ public class Feed {
         atEnd |= feed.isAtEnd();
         atStart |= feed.isAtStart();
 
-        add(feed);
+        List<FeedItem> newItems = add(feed);
 
         if (!itemOrdering.isStrictlyOrdered(items)) {
             logger.warn("Feed is not in order after merging!");
         }
 
         if (feedListener != null) {
-            event(FeedListener::onNewItems);
+            event(listener -> listener.onNewItems(newItems));
         }
     }
 
     /**
      * Adds the items from the provided feed to this instance.
      */
-    private void add(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
+    private List<FeedItem> add(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
         ImmutableList<FeedItem> newItems = FluentIterable.from(feed.getItems())
                 .transform(FeedItem::new)
                 .toSortedList(itemOrdering);
@@ -161,6 +161,8 @@ public class Feed {
                 target.add(source.next());
             }
         }
+
+        return newItems;
     }
 
     private long feedTypeId(FeedItem item) {
@@ -234,8 +236,9 @@ public class Feed {
     public interface FeedListener {
         /**
          * Called after new items are added to this feed.
+         * @param newItems
          */
-        void onNewItems();
+        void onNewItems(List<FeedItem> newItems);
 
         /**
          * Called if items are removed from the feed

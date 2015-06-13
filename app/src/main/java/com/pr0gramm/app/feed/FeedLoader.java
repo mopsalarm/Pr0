@@ -94,7 +94,7 @@ public class FeedLoader {
         }
     }
 
-    interface Binder {
+    public interface Binder {
         /**
          * Bind the given observable to some kind of context like a fragment or thread.
          */

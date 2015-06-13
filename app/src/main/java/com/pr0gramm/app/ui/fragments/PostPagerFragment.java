@@ -25,6 +25,8 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -254,7 +256,7 @@ public class PostPagerFragment extends RoboFragment {
         }
 
         @Override
-        public void onNewItems() {
+        public void onNewItems(List<FeedItem> newItems) {
             notifyDataSetChanged();
         }
 
