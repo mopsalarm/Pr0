@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.UpdateChecker;
+import com.pr0gramm.app.ui.base.BaseActivity;
 
 import org.joda.time.Instant;
 
@@ -19,6 +20,9 @@ import roboguice.RoboGuice;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
+import rx.android.AndroidSubscriptions;
+import rx.android.lifecycle.LifecycleEvent;
+import rx.android.lifecycle.LifecycleObservable;
 import rx.functions.Action0;
 import rx.functions.Actions;
 
@@ -90,7 +94,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(FragmentActivity activity, boolean interactive) {
+    public static void checkForUpdates(BaseActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 
@@ -110,7 +114,9 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 interactive ? busyDialog(activity) : NOOP;
 
         // do the check
-        bindActivity(activity, new UpdateChecker(activity).check())
+        bindActivity(activity, LifecycleObservable.bindUntilLifecycleEvent(
+                activity.lifecycle(), new UpdateChecker(activity).check(), LifecycleEvent.DESTROY))
+
                 .onErrorResumeNext(Observable.empty())
                 .lift(busyOperator)
                 .defaultIfEmpty(null)

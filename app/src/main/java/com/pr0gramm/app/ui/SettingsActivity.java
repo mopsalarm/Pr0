@@ -13,7 +13,6 @@ import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
@@ -21,23 +20,19 @@ import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.base.BaseActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import de.psdev.licensesdialog.LicensesDialog;
 import roboguice.RoboGuice;
-import roboguice.util.RoboContext;
 
 import static com.google.common.base.Strings.emptyToNull;
 
 /**
  */
-public class SettingsActivity extends AppCompatActivity implements RoboContext {
-    private final Map<Key<?>, Object> scopedObjectMap = new ConcurrentHashMap<>();
-
+public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,11 +60,6 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public Map<Key<?>, Object> getScopedObjectMap() {
-        return scopedObjectMap;
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -129,7 +119,7 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
             if ("pref_pseudo_update".equals(preference.getKey())) {
-                AppCompatActivity activity = (AppCompatActivity) getActivity();
+                BaseActivity activity = (BaseActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }
@@ -170,7 +160,7 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
             }
 
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if("pref_use_beta_channel".equals(key) && BuildConfig.IS_PLAYSTORE_RELEASE) {
+            if ("pref_use_beta_channel".equals(key) && BuildConfig.IS_PLAYSTORE_RELEASE) {
                 if (preferences.getBoolean("pref_use_beta_channel", true)) {
                     DialogBuilder.start(activity)
                             .content(R.string.beta_you_need_to_join_community)
@@ -192,7 +182,7 @@ public class SettingsActivity extends AppCompatActivity implements RoboContext {
                     pref.setEnabled(enabled);
             }
 
-            if(!userService.isAuthorized()) {
+            if (!userService.isAuthorized()) {
                 for (String name : new String[]{"pref_feed_type_nsfw", "pref_feed_type_nsfl"}) {
                     Preference pref = findPreference(name);
                     if (pref != null) {
