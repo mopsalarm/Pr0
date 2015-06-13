@@ -252,9 +252,17 @@ public class PostFragment extends RoboFragment implements
 
         for (int idx = 0; idx < commentsAdapter.getItemCount(); idx++) {
             if (commentsAdapter.getItemId(idx) == commentId) {
-                content.smoothScrollToPosition(offset.get() + idx);
+                content.scrollToPosition(offset.get() + idx);
                 break;
             }
+        }
+    }
+
+    public void autoScrollToComment(long commentId) {
+        if(commentId > 0) {
+            autoScrollTo = Optional.of(commentId);
+        } else {
+            autoScrollTo = Optional.absent();
         }
     }
 
@@ -685,7 +693,7 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onNewComments(NewComment response) {
-        autoScrollTo = Optional.of(response.getCommentId());
+        autoScrollToComment(response.getCommentId());
         displayComments(response.getComments());
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show();

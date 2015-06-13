@@ -88,7 +88,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
-    private static final String ARG_FEED_START = "FeedFragment.start";
+    private static final String ARG_FEED_START = "FeedFragment.start.id";
 
     @Inject
     private FeedService feedService;
@@ -130,8 +130,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private MetaService metaService;
 
     private boolean bookmarkable;
-    private Optional<Long> autoOpenOnLoad = Optional.absent();
-    private Optional<Long> autoScrollOnLoad = Optional.absent();
+    private ItemWithComment autoOpenOnLoad = null;
+    private Long autoScrollOnLoad = null;
 
     private Observable<Info> userInfoObservable;
     private Function<Info, View> userInfoViewSupplier;
@@ -154,8 +154,11 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         super.onCreate(savedInstanceState);
 
         // initialize auto opening
-        long startId = getArguments().getLong(ARG_FEED_START);
-        autoOpenOnLoad = autoScrollOnLoad = Optional.fromNullable(startId > 0 ? startId : null);
+        ItemWithComment start = getArguments().getParcelable(ARG_FEED_START);
+        if (start != null) {
+            autoScrollOnLoad = start.getItemId();
+            autoOpenOnLoad = start;
+        }
     }
 
     @Override
@@ -324,9 +327,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         logger.info("Restore adapter now");
         FeedFilter feedFilter = getFilterArgument();
 
-        long startAround = getArguments().getLong(ARG_FEED_START, -1);
-        Optional<Long> around = Optional.fromNullable(startAround > 0 ? startAround : null);
-
+        Optional<Long> around = Optional.fromNullable(autoOpenOnLoad).transform(ItemWithComment::getItemId);
         return setupFeedAdapter(feedFilter, around);
     }
 
@@ -350,7 +351,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         // start loading now
         loader.restart(around);
 
-        return new FeedAdapter(this, feed, around);
+        return new FeedAdapter(this, feed);
     }
 
     private FeedFilter getFilterArgument() {
@@ -390,9 +391,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         boolean changed = !equal(feedAdapter.getContentType(), newContentType);
         if (changed) {
             Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);
+            autoScrollOnLoad = around.orNull();
 
             // set a new adapter if we have a new content type
-            feedAdapter = setupFeedAdapter(feedFilter, autoScrollOnLoad = around);
+            feedAdapter = setupFeedAdapter(feedFilter, around);
             recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
 
             getActivity().supportInvalidateOptionsMenu();
@@ -585,9 +587,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
-    private void onItemClicked(int idx) {
+    private void onItemClicked(int idx, Optional<Long> commentId) {
         try {
-            ((MainActionHandler) getActivity()).onPostClicked(feedAdapter.getFeed(), idx);
+            ((MainActionHandler) getActivity()).onPostClicked(feedAdapter.getFeed(), idx, commentId);
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }
@@ -598,14 +600,13 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
      * feed type.
      *
      * @param feedFilter A query to use for getting data
+     * @param start
      * @return The type new fragment that can be shown now.
      */
-    public static FeedFragment newInstance(FeedFilter feedFilter, Optional<Long> start) {
+    public static FeedFragment newInstance(FeedFilter feedFilter, Optional<ItemWithComment> start) {
         Bundle arguments = new Bundle();
         arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
-        if (start.isPresent()) {
-            arguments.putLong(ARG_FEED_START, start.get());
-        }
+        arguments.putParcelable(ARG_FEED_START, start.orNull());
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);
@@ -664,33 +665,11 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         private final WeakReference<FeedFragment> parent;
         private final Feed feed;
 
-        public FeedAdapter(FeedFragment fragment, Feed feed, Optional<Long> around) {
+        public FeedAdapter(FeedFragment fragment, Feed feed) {
             this.parent = new WeakReference<>(fragment);
             this.feed = feed;
 
             this.feed.setFeedListener(this);
-
-//            this.feed.setLoader(new FeedProxy.FragmentFeedLoader(fragment.feedService) {
-//                @Override
-//                public <T> Observable<T> bind(Observable<T> observable) {
-//                    FeedFragment fragment = parent.get();
-//                    if (fragment != null) {
-//                        return bindFragment(fragment, observable);
-//                    } else {
-//                        return Observable.empty();
-//                    }
-//                }
-//
-//                @Override
-//                public void onLoadFinished() {
-//                    with(FeedFragment::onFeedLoadFinished);
-//                }
-//
-//                @Override
-//                public void onError(Throwable error) {
-//                    with(FeedFragment::onFeedError);
-//                }
-//            });
         }
 
         private void with(Action1<FeedFragment> action) {
@@ -723,7 +702,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             with(fragment -> {
                 fragment.picasso.load(Uris.get().thumbnail(item)).into(view.image);
 
-                view.itemView.setOnClickListener(v -> fragment.onItemClicked(position));
+                view.itemView.setOnClickListener(v -> fragment.onItemClicked(
+                        position, Optional.<Long>absent()));
 
                 // check if this item was already seen.
                 if (fragment.isRepost(item) && fragment.settings.useMetaService()) {
@@ -775,7 +755,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     private void onFeedError(Throwable error) {
         if (feedAdapter.getFeed().size() == 0) {
-            if (autoOpenOnLoad.isPresent()) {
+            if (autoOpenOnLoad != null) {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
                         getString(R.string.could_not_load_feed_nsfw));
             } else {
@@ -802,8 +782,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private void performAutoOpen() {
-        if (autoScrollOnLoad.isPresent()) {
-            int idx = findItemIndexById(autoScrollOnLoad.get());
+        if (autoScrollOnLoad != null) {
+            int idx = findItemIndexById(autoScrollOnLoad);
             if (idx >= 0) {
                 // over scroll a bit
                 int scrollTo = max(idx - 3, 0);
@@ -811,15 +791,15 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             }
         }
 
-        if (autoOpenOnLoad.isPresent()) {
-            int idx = findItemIndexById(autoOpenOnLoad.get());
+        if (autoOpenOnLoad != null) {
+            int idx = findItemIndexById(autoOpenOnLoad.getItemId());
             if (idx > 0) {
-                onItemClicked(idx);
+                onItemClicked(idx, autoOpenOnLoad.getCommentId());
             }
         }
 
-        autoOpenOnLoad = Optional.absent();
-        autoScrollOnLoad = Optional.absent();
+        autoOpenOnLoad = null;
+        autoScrollOnLoad = null;
     }
 
     private int findItemIndexById(long id) {

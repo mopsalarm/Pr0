@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.R;
@@ -40,6 +41,7 @@ public class PostPagerFragment extends RoboFragment {
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";
+    private static final String ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment";
 
     @Inject
     private FeedService feedService;
@@ -63,8 +65,8 @@ public class PostPagerFragment extends RoboFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // create the proxy and use it as the source for the view pager.
-        feed = getArgumentFeedProxy(savedInstanceState);
+        // get the feed to show and setup a loader to load more data
+        feed = getArgumentFeed(savedInstanceState);
         FeedLoader loader = new FeedLoader(FeedLoader.bindTo(this, this::onLoadError), feedService, feed);
 
         // create the adapter on the view
@@ -133,8 +135,16 @@ public class PostPagerFragment extends RoboFragment {
 
         // and activate the next one
         activePostFragment = newActiveFragment;
-        if (activePostFragment != null)
+        if (activePostFragment != null) {
             activePostFragment.setActive(true);
+
+            // try scroll to initial comment. This will only work if the comment
+            // is a part of the given post and will otherwise do nothing
+            long startCommentId = getArguments().getLong(ARG_START_ITEM_COMMENT);
+            if(startCommentId > 0) {
+                activePostFragment.autoScrollToComment(startCommentId);
+            }
+        }
     }
 
     /**
@@ -144,7 +154,7 @@ public class PostPagerFragment extends RoboFragment {
      *
      * @param savedState An optional saved state.
      */
-    private Feed getArgumentFeedProxy(@Nullable Bundle savedState) {
+    private Feed getArgumentFeed(@Nullable Bundle savedState) {
         Bundle encoded = null;
         if (savedState != null)
             encoded = savedState.getBundle(ARG_FEED_PROXY);
@@ -156,7 +166,7 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     /**
-     * @see #getArgumentFeedProxy(android.os.Bundle)
+     * @see #getArgumentFeed(android.os.Bundle)
      */
     private FeedItem getArgumentStartItem(@Nullable Bundle saveState) {
         FeedItem result = null;
@@ -267,10 +277,11 @@ public class PostPagerFragment extends RoboFragment {
         }
     }
 
-    public static PostPagerFragment newInstance(Feed feed, int idx) {
+    public static PostPagerFragment newInstance(Feed feed, int idx, Optional<Long> commentId) {
         Bundle arguments = new Bundle();
         arguments.putBundle(ARG_FEED_PROXY, feed.persist(idx));
         arguments.putParcelable(ARG_START_ITEM, feed.at(idx));
+        arguments.putLong(ARG_START_ITEM_COMMENT, commentId.or(-1L));
 
         PostPagerFragment fragment = new PostPagerFragment();
         fragment.setArguments(arguments);

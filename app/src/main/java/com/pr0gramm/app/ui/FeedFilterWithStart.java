@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.ui.fragments.ItemWithComment;
 
 import java.util.List;
 import java.util.Map;
@@ -20,27 +21,30 @@ import static com.google.common.base.MoreObjects.firstNonNull;
  */
 public class FeedFilterWithStart {
     private final FeedFilter filter;
-    private final Optional<Long> start;
+    private final ItemWithComment start;
 
-    FeedFilterWithStart(FeedFilter filter, Long start) {
+    private FeedFilterWithStart(FeedFilter filter, Long start, Long commentId) {
         this.filter = filter;
-        this.start = Optional.fromNullable(start != null && start > 0 ? start : null);
+        this.start = start != null ? new ItemWithComment(start, commentId) : null;
     }
 
     public FeedFilter getFilter() {
         return filter;
     }
 
-    public Optional<Long> getStart() {
-        return start;
+    public Optional<ItemWithComment> getStart() {
+        return Optional.fromNullable(start);
     }
 
 
     public static Optional<FeedFilterWithStart> fromUri(Uri uri) {
         List<Pattern> patterns = ImmutableList.of(pFeed, pFeedId, pUserUploads, pUserUploadsId, pTag, pTagId);
 
+        Long commentId = extractCommentId(uri.getPath());
+
         // get the path without optional comment link
         String path = uri.getPath().replaceFirst(":.*$", "");
+
         for (Pattern pattern : patterns) {
             Matcher matcher = pattern.matcher(path);
             if (!matcher.matches())
@@ -69,11 +73,20 @@ public class FeedFilterWithStart {
             if (!Strings.isNullOrEmpty(tag))
                 filter = filter.withTags(tag);
 
-            Long start = Longs.tryParse(firstNonNull(groups.get("id"), "-1"));
-            return Optional.of(new FeedFilterWithStart(filter, start));
+            Long itemId = Longs.tryParse(firstNonNull(groups.get("id"), "-1"));
+            return Optional.of(new FeedFilterWithStart(filter, itemId, commentId));
         }
 
         return Optional.absent();
+    }
+
+    /**
+     * Returns the comment id from the path or null, if no comment id
+     * is provided.
+     */
+    private static Long extractCommentId(String path) {
+        Matcher matcher = Pattern.compile(":comment([0-9]+)$").matcher(path);
+        return matcher.find() ? Longs.tryParse(matcher.group(1)) : null;
     }
 
     private static final Pattern pFeed = Pattern.compile("^/(?<type>new|top)$");

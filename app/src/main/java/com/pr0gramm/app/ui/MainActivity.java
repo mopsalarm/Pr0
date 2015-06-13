@@ -31,10 +31,10 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseActivity;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
+import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
 import org.joda.time.Duration;
@@ -319,11 +319,11 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
-    public void onPostClicked(Feed feed, int idx) {
+    public void onPostClicked(Feed feed, int idx, Optional<Long> commentId) {
         if (idx < 0 || idx >= feed.size())
             return;
 
-        Fragment fragment = PostPagerFragment.newInstance(feed, idx);
+        Fragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content, fragment)
@@ -370,10 +370,10 @@ public class MainActivity extends BaseActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {
-        gotoFeedFragment(newFilter, clear, Optional.<Long>absent());
+        gotoFeedFragment(newFilter, clear, Optional.absent());
     }
 
-    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<Long> start) {
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<ItemWithComment> start) {
         if (isFinishing())
             return;
 
@@ -425,7 +425,7 @@ public class MainActivity extends BaseActivity implements
         Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
         if (result.isPresent()) {
             FeedFilter filter = result.get().getFilter();
-            Optional<Long> start = result.get().getStart();
+            Optional<ItemWithComment> start = result.get().getStart();
 
             boolean clear = getSupportFragmentManager().getBackStackEntryCount() == 0;
             gotoFeedFragment(filter, clear, start);

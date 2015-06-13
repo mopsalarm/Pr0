@@ -14,7 +14,9 @@ import java.lang.ref.WeakReference;
 /**
  */
 public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHandler, Application.ActivityLifecycleCallbacks {
-    private WeakReference<FragmentActivity> current;
+    private static final WeakReference<FragmentActivity> NULL = new WeakReference<>(null);
+
+    private WeakReference<FragmentActivity> current = NULL;
 
     private Throwable pendingError;
     private ErrorFormatting.Formatter<?> pendingFormatter;
@@ -57,21 +59,21 @@ public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHa
     @Override
     public void onActivityPaused(Activity activity) {
         if (current.get() == activity) {
-            current = null;
+            current = NULL;
         }
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
         if (current.get() == activity) {
-            current = new WeakReference<>(null);
+            current = NULL;
         }
     }
 
     @Override
     public void onActivityDestroyed(Activity activity) {
         if (current.get() == activity) {
-            current = new WeakReference<>(null);
+            current = NULL;
         }
     }
 
