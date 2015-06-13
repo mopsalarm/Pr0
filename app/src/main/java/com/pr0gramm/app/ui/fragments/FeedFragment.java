@@ -32,6 +32,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedProxy;
@@ -559,7 +560,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
     private void onItemClicked(int idx) {
         try {
-            ((MainActionHandler) getActivity()).onPostClicked(feedAdapter.getFeedProxy(), idx);
+            FeedProxy proxy = feedAdapter.getFeedProxy();
+            Feed feed = new Feed(proxy.getFeedFilter(), proxy.getContentType(), proxy.getItems());
+            ((MainActionHandler) getActivity()).onPostClicked(feed, idx);
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }

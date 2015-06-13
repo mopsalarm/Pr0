@@ -1,9 +1,16 @@
 package com.pr0gramm.app.feed;
 
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+
 import com.google.common.base.Optional;
 
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static rx.android.app.AppObservable.bindFragment;
 
 /**
  * This class handles loading of feed data.
@@ -15,10 +22,10 @@ public class FeedLoader {
 
     private Subscription subscription;
 
-    public FeedLoader(Binder binder, FeedService feedService, Feed feed) {
-        this.feedService = feedService;
-        this.feed = feed;
-        this.binder = binder;
+    public FeedLoader(@NonNull Binder binder, @NonNull FeedService feedService, @NonNull Feed feed) {
+        this.feedService = checkNotNull(feedService, "feedService");
+        this.feed = checkNotNull(feed, "feed");
+        this.binder = checkNotNull(binder, "binder");
     }
 
     public Feed getFeed() {
@@ -44,7 +51,7 @@ public class FeedLoader {
 
     public void next() {
         Optional<FeedItem> oldest = feed.oldest();
-        if (isLoading() || !oldest.isPresent())
+        if (feed.isAtEnd() || isLoading() || !oldest.isPresent())
             return;
 
         subscribeTo(feedService.getFeedItems(
@@ -55,7 +62,7 @@ public class FeedLoader {
 
     public void previous() {
         Optional<FeedItem> newest = feed.newest();
-        if (isLoading() || !newest.isPresent())
+        if (feed.isAtStart() || isLoading() || !newest.isPresent())
             return;
 
         subscribeTo(feedService.getFeedItemsNewer(
@@ -97,5 +104,19 @@ public class FeedLoader {
          * Handles error responses while loading feed data
          */
         void onError(Throwable error);
+    }
+
+    public static Binder bindTo(Fragment fragment, Action1<Throwable> onError) {
+        return new Binder() {
+            @Override
+            public <T> Observable<T> bind(Observable<T> observable) {
+                return bindFragment(fragment, observable);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                onError.call(error);
+            }
+        };
     }
 }

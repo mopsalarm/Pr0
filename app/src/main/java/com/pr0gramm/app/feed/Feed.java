@@ -24,6 +24,7 @@ import java.util.Set;
 
 import rx.functions.Action1;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.toArray;
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static java.lang.Math.max;
@@ -34,6 +35,9 @@ import static java.util.Arrays.asList;
  */
 public class Feed {
     private static final Logger logger = LoggerFactory.getLogger(Feed.class);
+    public static final String FIELD_FEED_FILTER = "filter";
+    public static final String FEED_FILTER_ITEMS = "items";
+    public static final String FEED_FILTER_CONTENT_TYPE = "contentType";
 
     private final List<FeedItem> items = new ArrayList<>();
 
@@ -49,14 +53,14 @@ public class Feed {
      * Constructs a new and empty feed
      */
     public Feed(FeedFilter feedFilter, Set<ContentType> contentType) {
-        this.feedFilter = feedFilter;
+        this.feedFilter = checkNotNull(feedFilter, "feedFilter");
         this.contentType = ImmutableSet.copyOf(contentType);
     }
 
     /**
      * Constructs a new feed containing the given items.
      */
-    private Feed(FeedFilter feedFilter, Set<ContentType> contentType, Collection<FeedItem> items) {
+    public Feed(FeedFilter feedFilter, Set<ContentType> contentType, Collection<FeedItem> items) {
         this(feedFilter, contentType);
         this.items.addAll(items);
     }
@@ -138,7 +142,7 @@ public class Feed {
                 FeedItem nextTarget = items.get(target.nextIndex());
 
                 int cmp = itemOrdering.compare(source.peek(), nextTarget);
-                if (cmp > 0) {
+                if (cmp < 0) {
                     // next target should belong behind this source item, so
                     // put source item here.
                     target.add(source.next());
@@ -196,9 +200,9 @@ public class Feed {
 
     @SuppressWarnings("unchecked")
     public static Feed restore(Bundle bundle) {
-        FeedFilter feedFilter = bundle.getParcelable("query");
-        List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray("items"));
-        Set<ContentType> contentType = ContentType.decompose(bundle.getInt("contentType"));
+        FeedFilter feedFilter = bundle.getParcelable(FIELD_FEED_FILTER);
+        List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray(FEED_FILTER_ITEMS));
+        Set<ContentType> contentType = ContentType.decompose(bundle.getInt(FEED_FILTER_CONTENT_TYPE));
         return new Feed(feedFilter, contentType, items);
     }
 
@@ -219,9 +223,9 @@ public class Feed {
     }
 
     private void event(Action1<FeedListener> action) {
-        if(feedListener != null) {
+        if (feedListener != null) {
             FeedListener listener = this.feedListener.get();
-            if(listener != null) {
+            if (listener != null) {
                 action.call(listener);
             }
         }

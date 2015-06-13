@@ -14,9 +14,10 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.feed.FeedProxy;
+import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.ui.MainActionHandler;
@@ -26,11 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
-import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */
@@ -46,7 +45,7 @@ public class PostPagerFragment extends RoboFragment {
     @InjectView(R.id.pager)
     private ViewPager viewPager;
 
-    private FeedProxy proxy;
+    private Feed feed;
     private PostAdapter adapter;
 
     private PostFragment activePostFragment;
@@ -63,16 +62,11 @@ public class PostPagerFragment extends RoboFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // create the proxy and use it as the source for the view pager.
-        proxy = getArgumentFeedProxy(savedInstanceState);
-        proxy.setLoader(new FeedProxy.FragmentFeedLoader(feedService) {
-            @Override
-            public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(PostPagerFragment.this, observable);
-            }
-        });
+        feed = getArgumentFeedProxy(savedInstanceState);
+        FeedLoader loader = new FeedLoader(FeedLoader.bindTo(this, this::onLoadError), feedService, feed);
 
         // create the adapter on the view
-        adapter = new PostAdapter(getChildFragmentManager(), proxy) {
+        adapter = new PostAdapter(getChildFragmentManager(), feed, loader) {
             @Override
             public void setPrimaryItem(ViewGroup container, int position, Object object) {
                 super.setPrimaryItem(container, position, object);
@@ -103,6 +97,10 @@ public class PostPagerFragment extends RoboFragment {
         }
     }
 
+    private void onLoadError(Throwable throwable) {
+
+    }
+
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
@@ -114,7 +112,7 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     private void makeItemCurrent(FeedItem item) {
-        int index = proxy.getPosition(item).or(0);
+        int index = feed.indexOf(item).or(0);
 
         logger.info("Moving to index: " + index);
         viewPager.setCurrentItem(index, false);
@@ -138,13 +136,13 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     /**
-     * Gets the feed proxy from the saved state. If there is no state
+     * Gets the feed from the saved state. If there is no state
      * or it does not contain the feed proxy, the feed proxy is extracted
      * from {@link #getArguments()}
      *
      * @param savedState An optional saved state.
      */
-    private FeedProxy getArgumentFeedProxy(@Nullable Bundle savedState) {
+    private Feed getArgumentFeedProxy(@Nullable Bundle savedState) {
         Bundle encoded = null;
         if (savedState != null)
             encoded = savedState.getBundle(ARG_FEED_PROXY);
@@ -152,7 +150,7 @@ public class PostPagerFragment extends RoboFragment {
         if (encoded == null)
             encoded = getArguments().getBundle(ARG_FEED_PROXY);
 
-        return FeedProxy.fromBundle(checkNotNull(encoded, "No feed-proxy found"));
+        return Feed.restore(checkNotNull(encoded, "No feed-proxy found"));
     }
 
     /**
@@ -181,10 +179,10 @@ public class PostPagerFragment extends RoboFragment {
      */
     public FeedFilter getCurrentFilter() {
         // prevent errors here
-        if (proxy == null)
+        if (feed == null)
             return new FeedFilter();
 
-        return proxy.getFeedFilter();
+        return feed.getFeedFilter();
     }
 
     public void onTagClicked(Tag tag) {
@@ -202,75 +200,75 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     private void saveStateToBundle(Bundle outState) {
-        if (viewPager != null && proxy != null) {
+        if (viewPager != null && feed != null) {
             int position = viewPager.getCurrentItem();
-            FeedItem item = proxy.getItemAt(position);
+            FeedItem item = feed.at(position);
             outState.putParcelable(ARG_START_ITEM, item);
-            outState.putParcelable(ARG_FEED_PROXY, proxy.toBundle(position));
+            outState.putParcelable(ARG_FEED_PROXY, feed.persist(position));
         }
     }
 
-    private static class PostAdapter extends IdFragmentStatePagerAdapter implements FeedProxy.OnChangeListener {
-        private final FeedProxy proxy;
+    private static class PostAdapter extends IdFragmentStatePagerAdapter implements Feed.FeedListener {
+        private final Feed proxy;
+        private final FeedLoader loader;
 
-        public PostAdapter(FragmentManager fragmentManager, FeedProxy proxy) {
+        public PostAdapter(FragmentManager fragmentManager, Feed proxy, FeedLoader loader) {
             super(fragmentManager);
 
             this.proxy = proxy;
-            this.proxy.setOnChangeListener(this);
+            this.proxy.setFeedListener(this);
+            this.loader = loader;
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (!proxy.isLoading()) {
-                if (position > proxy.getItemCount() - 8) {
+            if (!loader.isLoading()) {
+                if (position > proxy.size() - 8) {
                     logger.info("requested pos=" + position + ", load next page");
-                    proxy.loadNextPage();
+                    loader.next();
                 }
 
                 if (position < 8) {
                     logger.info("requested pos=" + position + ", load prev page");
-                    proxy.loadPreviousPage();
+                    loader.previous();
                 }
             }
 
-            return PostFragment.newInstance(proxy.getItemAt(position));
+            return PostFragment.newInstance(proxy.at(position));
         }
 
         @Override
         public int getCount() {
-            return proxy.getItemCount();
-        }
-
-        @Override
-        public void onItemRangeInserted(int start, int count) {
-            logger.info("Insert new posts at " + start);
-            notifyDataSetChanged();
+            return proxy.size();
         }
 
         @Override
         public int getItemPosition(Object object) {
             FeedItem item = ((PostFragment) object).getFeedItem();
-            return proxy.getPosition(item).or(PagerAdapter.POSITION_NONE);
+            return proxy.indexOf(item).or(PagerAdapter.POSITION_NONE);
         }
 
         @Override
         protected long getItemId(int position) {
-            return proxy.getItemAt(position).getId();
+            return proxy.at(position).getId();
         }
 
         @Override
-        public void onItemRangeRemoved(int start, int count) {
+        public void onNewItems() {
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onRemoveItems() {
             // should not happen
             throw new UnsupportedOperationException();
         }
-
     }
 
-    public static PostPagerFragment newInstance(FeedProxy proxy, int idx) {
+    public static PostPagerFragment newInstance(Feed feed, int idx) {
         Bundle arguments = new Bundle();
-        arguments.putBundle(ARG_FEED_PROXY, proxy.toBundle(idx));
-        arguments.putParcelable(ARG_START_ITEM, proxy.getItemAt(idx));
+        arguments.putBundle(ARG_FEED_PROXY, feed.persist(idx));
+        arguments.putParcelable(ARG_START_ITEM, feed.at(idx));
 
         PostPagerFragment fragment = new PostPagerFragment();
         fragment.setArguments(arguments);

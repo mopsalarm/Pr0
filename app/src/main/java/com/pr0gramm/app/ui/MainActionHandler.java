@@ -1,12 +1,13 @@
 package com.pr0gramm.app.ui;
 
+import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedProxy;
 
 /**
  */
 public interface MainActionHandler {
-    void onPostClicked(FeedProxy feed, int idx);
+    void onPostClicked(Feed feed, int idx);
 
     void onLogoutClicked();
 

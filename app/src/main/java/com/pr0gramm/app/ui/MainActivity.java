@@ -24,8 +24,8 @@ import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
+import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
-import com.pr0gramm.app.feed.FeedProxy;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -327,8 +327,8 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
-    public void onPostClicked(FeedProxy feed, int idx) {
-        if (idx < 0 || idx >= feed.getItemCount())
+    public void onPostClicked(Feed feed, int idx) {
+        if (idx < 0 || idx >= feed.size())
             return;
 
         Fragment fragment = PostPagerFragment.newInstance(feed, idx);
