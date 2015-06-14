@@ -51,6 +51,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
+import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static java.util.Arrays.asList;
 import static rx.android.app.AppObservable.bindFragment;
 
@@ -337,14 +338,13 @@ public class DrawerFragment extends RoboFragment {
     }
 
     private void onUsernameClicked() {
-        Optional<String> name = userService.getName();
-        if (name.isPresent()) {
+        ifPresent(userService.getName(), name -> {
             FeedFilter filter = new FeedFilter()
                     .withFeedType(FeedType.NEW)
-                    .withUser(name.get());
+                    .withUser(name);
 
             onFeedFilterClicked(filter);
-        }
+        });
     }
 
     public void updateCurrentFilters(FeedFilter current) {
