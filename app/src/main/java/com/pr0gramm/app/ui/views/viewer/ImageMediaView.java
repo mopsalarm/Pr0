@@ -6,20 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.mpeg.PictureBuffer;
-import com.pr0gramm.app.mpeg.VideoConsumer;
-import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 
-import java.io.FileInputStream;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -50,13 +42,11 @@ public class ImageMediaView extends MediaView {
         super.onStart();
 
         if (imageView.getDrawable() == null) {
-            RequestCreator requestCreator = picasso
-                    .load(getUrlArgument())
+            picasso.load(getUrlArgument())
                     .resize(1052, settings.maxImageSize())
                     .centerInside()
-                    .onlyScaleDown();
-
-            requestCreator.into(imageView, new HideBusyIndicator(this));
+                    .onlyScaleDown()
+                    .into(imageView, new ImageCallback(this));
         }
     }
 
@@ -74,10 +64,10 @@ public class ImageMediaView extends MediaView {
      * We need to wrap the fragment into a weak reference so that the callback
      * will not create a memory leak.
      */
-    private static class HideBusyIndicator implements Callback {
+    private static class ImageCallback implements Callback {
         private final WeakReference<ImageMediaView> fragment;
 
-        public HideBusyIndicator(ImageMediaView fragment) {
+        public ImageCallback(ImageMediaView fragment) {
             this.fragment = new WeakReference<>(fragment);
         }
 
@@ -86,6 +76,7 @@ public class ImageMediaView extends MediaView {
             ImageMediaView player = fragment.get();
             if (player != null) {
                 player.hideBusyIndicator();
+                player.onViewListener.run();
             }
         }
 
@@ -108,6 +99,5 @@ public class ImageMediaView extends MediaView {
     @Override
     public void playMedia() {
         super.playMedia();
-        onViewListener.run();
     }
 }

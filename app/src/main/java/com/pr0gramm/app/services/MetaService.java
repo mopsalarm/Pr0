@@ -18,9 +18,7 @@ import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
 import retrofit.http.POST;
-import retrofit.http.Query;
 import rx.Observable;
 
 /**
@@ -42,7 +40,7 @@ public class MetaService {
     }
 
     public Observable<InfoResponse> getInfo(Collection<Long> items) {
-        if(items.isEmpty()) {
+        if (items.isEmpty()) {
             return Observable.just(EMPTY_INFO);
         }
 

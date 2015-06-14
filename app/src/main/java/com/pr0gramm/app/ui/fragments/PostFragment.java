@@ -7,12 +7,14 @@ import android.animation.PropertyValuesHolder;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Joiner;
@@ -58,6 +61,7 @@ import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
+import com.squareup.picasso.Picasso;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -128,6 +132,9 @@ public class PostFragment extends RoboFragment implements
     @Inject
     private UserService userService;
 
+    @Inject
+    private Picasso picasso;
+
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -143,6 +150,7 @@ public class PostFragment extends RoboFragment implements
     private Optional<Long> autoScrollTo = Optional.absent();
 
     private LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private Drawable preview;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -208,6 +216,10 @@ public class PostFragment extends RoboFragment implements
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
     }
 
+    public void setPreview(Drawable preview) {
+        this.preview = preview;
+    }
+
     private void initializeCommentPostLine() {
         CommentPostLine line = new CommentPostLine(getActivity());
         adapter.addView(line);
@@ -257,10 +269,11 @@ public class PostFragment extends RoboFragment implements
             }
         }
 
-        commentsAdapter.setSelectedCommentId(commentId);}
+        commentsAdapter.setSelectedCommentId(commentId);
+    }
 
     public void autoScrollToComment(long commentId) {
-        if(commentId > 0) {
+        if (commentId > 0) {
             autoScrollTo = Optional.of(commentId);
         } else {
             autoScrollTo = Optional.absent();
@@ -508,6 +521,19 @@ public class PostFragment extends RoboFragment implements
     private void initializeMediaView() {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
+        // wrap into a container before adding
+        FrameLayout viewerContainer = (FrameLayout) inflater
+                .inflate(R.layout.post_player_container, new FrameLayout(getActivity()), false);
+
+        ImageView previewView;
+        if (preview != null) {
+            previewView = (ImageView) viewerContainer.findViewById(R.id.player_container_preview);
+            ViewCompat.setTransitionName(previewView, "TransitionTarget-" + feedItem.getId());
+            previewView.setImageDrawable(preview);
+        } else {
+            previewView = null;
+        }
+
         //noinspection Convert2Lambda
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
@@ -526,16 +552,15 @@ public class PostFragment extends RoboFragment implements
         viewer = MediaViews.newInstance(getActivity(), binder, url, () -> {
             //  mark this item seen. We do that in a background thread
             AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
+            if (previewView != null) {
+                previewView.setVisibility(View.GONE);
+            }
         });
 
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
         // this provides an animation while voting
         voteAnimationIndicator = (TextView) inflater.inflate(R.layout.viewer_vote_indicators, null);
-
-        // wrap into a container before adding
-        FrameLayout viewerContainer = (FrameLayout) inflater
-                .inflate(R.layout.post_player_container, new FrameLayout(getActivity()), false);
 
         viewerContainer.addView(viewer);
         viewerContainer.addView(voteAnimationIndicator);

@@ -7,10 +7,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -587,9 +590,34 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
-    private void onItemClicked(int idx, Optional<Long> commentId) {
+    private void onItemClicked(int idx, Optional<Long> commentId, Optional<ImageView> preview) {
+        Feed feed = feedAdapter.getFeed();
+        if (idx < 0 || idx >= feed.size())
+            return;
+
         try {
-            ((MainActionHandler) getActivity()).onPostClicked(feedAdapter.getFeed(), idx, commentId);
+            boolean doTransition = false;
+            PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
+
+            if (preview.isPresent() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                TransitionInflater inflater = TransitionInflater.from(getActivity());
+                fragment.setSharedElementEnterTransition(
+                        inflater.inflateTransition(android.R.transition.move));
+
+                fragment.setPreviewImage(preview.get().getDrawable());
+                doTransition = true;
+            }
+
+            FragmentTransaction tr = getFragmentManager().beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .addToBackStack(null);
+
+            if (doTransition) {
+                tr.addSharedElement(preview.orNull(), "TransitionTarget-" + feed.at(idx).getId());
+            }
+
+            tr.commitAllowingStateLoss();
+
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }
@@ -600,7 +628,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
      * feed type.
      *
      * @param feedFilter A query to use for getting data
-     * @param start
      * @return The type new fragment that can be shown now.
      */
     public static FeedFragment newInstance(FeedFilter feedFilter, Optional<ItemWithComment> start) {
@@ -702,8 +729,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             with(fragment -> {
                 fragment.picasso.load(Uris.get().thumbnail(item)).into(view.image);
 
-                view.itemView.setOnClickListener(v -> fragment.onItemClicked(
-                        position, Optional.<Long>absent()));
+                view.itemView.setOnClickListener(v -> {
+                    ViewCompat.setTransitionName(view.image, "TransitionTarget");
+                    fragment.onItemClicked(position, Optional.<Long>absent(), Optional.of(view.image));
+                });
 
                 // check if this item was already seen.
                 if (fragment.isRepost(item) && fragment.settings.useMetaService()) {
@@ -754,6 +783,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     }
 
     private void onFeedError(Throwable error) {
+        logger.error("Error loading the feed", error);
+
         if (feedAdapter.getFeed().size() == 0) {
             if (autoOpenOnLoad != null) {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
@@ -794,7 +825,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         if (autoOpenOnLoad != null) {
             int idx = findItemIndexById(autoOpenOnLoad.getItemId());
             if (idx > 0) {
-                onItemClicked(idx, autoOpenOnLoad.getCommentId());
+                onItemClicked(idx, autoOpenOnLoad.getCommentId(), Optional.absent());
             }
         }
 

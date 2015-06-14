@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -54,6 +55,8 @@ public class PostPagerFragment extends RoboFragment {
 
     private PostFragment activePostFragment;
 
+    private Drawable preview;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -102,7 +105,7 @@ public class PostPagerFragment extends RoboFragment {
     }
 
     private void onLoadError(Throwable throwable) {
-
+        logger.warn("Could not load feed.", throwable);
     }
 
     @Override
@@ -141,8 +144,15 @@ public class PostPagerFragment extends RoboFragment {
             // try scroll to initial comment. This will only work if the comment
             // is a part of the given post and will otherwise do nothing
             long startCommentId = getArguments().getLong(ARG_START_ITEM_COMMENT);
-            if(startCommentId > 0) {
+            if (startCommentId > 0) {
                 activePostFragment.autoScrollToComment(startCommentId);
+            }
+
+            if (preview != null) {
+                if (activePostFragment.getFeedItem().getId() == getArgumentStartItem(null).getId()) {
+                    activePostFragment.setPreview(preview);
+                    preview = null;
+                }
             }
         }
     }
@@ -218,6 +228,15 @@ public class PostPagerFragment extends RoboFragment {
             outState.putParcelable(ARG_START_ITEM, item);
             outState.putParcelable(ARG_FEED_PROXY, feed.persist(position));
         }
+    }
+
+    /**
+     * Sets the preview that should be used in the transition.
+     *
+     * @param drawable The preview image to show.
+     */
+    public void setPreviewImage(Drawable drawable) {
+        this.preview = drawable;
     }
 
     private static class PostAdapter extends IdFragmentStatePagerAdapter implements Feed.FeedListener {

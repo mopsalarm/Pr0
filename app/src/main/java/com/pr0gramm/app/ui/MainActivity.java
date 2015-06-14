@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,13 +19,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
-import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
@@ -96,6 +97,11 @@ public class MainActivity extends BaseActivity implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // enable transition on lollipop and above
+            supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        }
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -318,18 +324,6 @@ public class MainActivity extends BaseActivity implements
         onBackStackChanged();
     }
 
-    @Override
-    public void onPostClicked(Feed feed, int idx, Optional<Long> commentId) {
-        if (idx < 0 || idx >= feed.size())
-            return;
-
-        Fragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, fragment)
-                .addToBackStack(null)
-                .commitAllowingStateLoss();
-    }
 
     @Override
     public void onLogoutClicked() {
