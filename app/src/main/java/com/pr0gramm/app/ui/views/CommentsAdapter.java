@@ -37,6 +37,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     private List<Post.Comment> comments = new ArrayList<>();
     private CommentActionListener commentActionListener;
+    private long selectedCommentId;
+
 
     public CommentsAdapter() {
         setHasStableIds(true);
@@ -67,6 +69,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         this.op = op;
     }
 
+    public void setSelectedCommentId(long id) {
+        selectedCommentId = id;
+        notifyDataSetChanged();
+    }
+
     private int getCommentDepth(Post.Comment comment) {
         int depth = 0;
         while (comment != null) {
@@ -84,7 +91,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         View view = LayoutInflater.from(context).inflate(R.layout.comment_vote_buttons, parent, false);
         CommentView commentView = new CommentView(view);
-        if(settings.smallerVoteViewsOnComments()) {
+        if (settings.smallerVoteViewsOnComments()) {
             int size = context.getResources().getDimensionPixelSize(
                     R.dimen.smaller_comment_vote_view_size);
 
@@ -128,6 +135,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.vote.setOnVoteListener(vote -> doVote(comment, vote));
 
         view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
+
+        view.itemView.setBackgroundColor(view.itemView.getContext().getResources().getColor(
+                comment.getId() == selectedCommentId
+                        ? R.color.selected_comment_background
+                        : android.R.color.transparent));
     }
 
     private void doOnAuthorClicked(Post.Comment comment) {

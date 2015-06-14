@@ -256,7 +256,8 @@ public class PostFragment extends RoboFragment implements
                 break;
             }
         }
-    }
+
+        commentsAdapter.setSelectedCommentId(commentId);}
 
     public void autoScrollToComment(long commentId) {
         if(commentId > 0) {
