@@ -13,9 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.FeedType;

@@ -240,6 +240,7 @@ public class Feed {
     public interface FeedListener {
         /**
          * Called after new items are added to this feed.
+         *
          * @param newItems
          */
         void onNewItems(List<FeedItem> newItems);

@@ -338,7 +338,7 @@ public class UploadActivity extends RoboActionBarActivity {
                 }
             });
 
-            if(singleShotService.isFirstTime("upload_is_experimental_warning")) {
+            if (singleShotService.isFirstTime("upload_is_experimental_warning")) {
                 DialogBuilder.start(getActivity())
                         .content(R.string.upload_warning)
                         .positive(R.string.okay)

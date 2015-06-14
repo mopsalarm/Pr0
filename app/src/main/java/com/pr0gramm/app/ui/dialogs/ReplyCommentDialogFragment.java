@@ -18,8 +18,6 @@ import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.VoteService;
 
-import java.util.List;
-
 import roboguice.fragment.RoboDialogFragment;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -56,7 +54,7 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
         return DialogBuilder.start(getActivity())
                 .fullWidth()
                 .title(getString(R.string.add_reply_comment_title,
-                                getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME)))
+                        getArguments().getString(ARGUMENT_PARENT_COMMENT_NAME)))
                 .content(view, true)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)

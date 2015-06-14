@@ -29,7 +29,6 @@ import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
-import static com.orm.SugarRecord.deleteAll;
 import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
 import static org.joda.time.Duration.standardDays;

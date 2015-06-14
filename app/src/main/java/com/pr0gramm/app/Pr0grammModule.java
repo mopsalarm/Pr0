@@ -3,14 +3,9 @@ package com.pr0gramm.app;
 import android.content.Context;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.reflect.Reflection;
-import com.google.common.util.concurrent.Uninterruptibles;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.api.InstantDeserializer;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.GifToVideoService;
 import com.pr0gramm.app.services.HttpProxyService;
@@ -26,28 +21,15 @@ import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
-import org.joda.time.Instant;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
-import retrofit.http.GET;
 import roboguice.inject.SharedPreferencesName;
-import rx.Observable;
 
-import static org.joda.time.Duration.standardMinutes;
 import static org.joda.time.Duration.standardSeconds;
 
 /**

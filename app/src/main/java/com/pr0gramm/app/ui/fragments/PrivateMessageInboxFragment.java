@@ -61,7 +61,7 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
                 .transform(user.getName()::equalsIgnoreCase)
                 .or(false);
 
-        if(!isSelfInfo) {
+        if (!isSelfInfo) {
             // only allow sending to other people
             actionListener.onAnswerToPrivateMessage(user.getId(), user.getName());
         }

@@ -1,7 +1,5 @@
 package com.pr0gramm.app.mpeg;
 
-import android.graphics.Bitmap;
-
 /**
  */
 public class PictureBuffer {

@@ -83,7 +83,6 @@ import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
-import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static rx.android.app.AppObservable.bindFragment;
 
@@ -422,7 +421,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             int offset = adapter.getOffset(feedAdapter).or(0);
 
             // if the first row is visible, skip this stuff.
-            if(layoutManager.findFirstCompletelyVisibleItemPosition() == 0)
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0)
                 return absent();
 
             int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;

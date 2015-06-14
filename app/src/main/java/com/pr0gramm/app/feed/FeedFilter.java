@@ -6,18 +6,12 @@ import android.os.Parcelable;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.annotation.Nonnull;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Strings.emptyToNull;
-import static com.google.common.collect.Iterables.toArray;
-import static java.util.Arrays.asList;
 
 /**
  */

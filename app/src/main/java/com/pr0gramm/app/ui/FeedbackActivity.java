@@ -14,7 +14,6 @@ import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
@@ -65,7 +64,7 @@ public class FeedbackActivity extends RoboActionBarActivity {
         });
 
         Optional<String> name = userService.getName();
-        if(name.isPresent()) {
+        if (name.isPresent()) {
             vName.setText(name.get());
         }
     }

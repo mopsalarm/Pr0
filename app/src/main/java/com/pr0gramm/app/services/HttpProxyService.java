@@ -139,7 +139,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
             if (contentRange != null)
                 result.addHeader("Content-Range", contentRange);
 
-            if(length.isPresent()) {
+            if (length.isPresent()) {
                 result.addHeader("Content-Length", String.valueOf(length.get()));
             }
 

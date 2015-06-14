@@ -7,12 +7,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.OnErrorDialogHandler;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
@@ -55,7 +52,7 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 

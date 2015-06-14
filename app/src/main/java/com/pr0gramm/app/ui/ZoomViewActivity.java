@@ -21,7 +21,6 @@ import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -126,7 +125,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         String url = proxyService.proxy(Uris.get().media(item).toString());
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
 
-        if(Strings.isNullOrEmpty(item.getFullsize())) {
+        if (Strings.isNullOrEmpty(item.getFullsize())) {
             hq.setVisibility(View.GONE);
         } else {
             hq.setOnClickListener(v -> loadHqImage());
@@ -235,7 +234,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
                 ZoomViewActivity.this.maximumBitmapHeight = maximumBitmapHeight;
                 removeCanvasView(this);
 
-                if(loadHqIfAvailable && !Strings.isNullOrEmpty(item.getFullsize())) {
+                if (loadHqIfAvailable && !Strings.isNullOrEmpty(item.getFullsize())) {
                     loadHqImage();
                 } else {
                     loadImage();

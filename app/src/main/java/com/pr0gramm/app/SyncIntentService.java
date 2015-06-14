@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import roboguice.service.RoboIntentService;
-import rx.functions.Actions;
 
 import static com.pr0gramm.app.AndroidUtility.toOptional;
 

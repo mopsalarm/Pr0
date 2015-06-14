@@ -144,10 +144,10 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
         int scroll = dx;
 
         int maxScroll = computeHorizontalScrollRange(state);
-        if(scrollOffset + scroll < 0) {
+        if (scrollOffset + scroll < 0) {
             scroll = -scrollOffset;
 
-        } else if(scrollOffset + scroll > maxScroll) {
+        } else if (scrollOffset + scroll > maxScroll) {
             scroll = -(scrollOffset - maxScroll);
         }
 

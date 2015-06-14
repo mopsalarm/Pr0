@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -31,7 +30,7 @@ public class ContentTypeDrawable extends Drawable {
     public ContentTypeDrawable(Context context, Collection<ContentType> types) {
         textSize = 16f;
 
-        if(types.containsAll(asList(ContentType.values()))) {
+        if (types.containsAll(asList(ContentType.values()))) {
             text = context.getString(R.string.all);
         } else {
             text = FluentIterable.from(types)

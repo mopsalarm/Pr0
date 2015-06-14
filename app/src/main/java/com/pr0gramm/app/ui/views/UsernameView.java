@@ -4,11 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
-
-import java.util.List;
 
 /**
  */

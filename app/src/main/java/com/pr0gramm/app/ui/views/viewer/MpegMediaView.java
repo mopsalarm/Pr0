@@ -8,7 +8,6 @@ import android.widget.ImageView;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.InputStreamCache;
 import com.pr0gramm.app.mpeg.PictureBuffer;
@@ -81,7 +80,7 @@ public class MpegMediaView extends MediaView {
     }
 
     private void stopAndDestroy() {
-        if(loading != null) {
+        if (loading != null) {
             loading.unsubscribe();
             loading = null;
         }

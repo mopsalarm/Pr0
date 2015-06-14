@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
@@ -20,7 +19,6 @@ import roboguice.RoboGuice;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
-import rx.android.AndroidSubscriptions;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
 import rx.functions.Action0;

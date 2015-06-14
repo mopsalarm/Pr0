@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.ui.ActivityErrorHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

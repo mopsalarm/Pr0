@@ -1,6 +1,5 @@
 package com.pr0gramm.app.orm;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.orm.SugarRecord;
 

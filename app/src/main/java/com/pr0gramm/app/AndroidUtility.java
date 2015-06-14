@@ -166,10 +166,10 @@ public class AndroidUtility {
             try {
                 field.setAccessible(true);
                 Object view = field.get(object);
-                if(view instanceof RecyclerView) {
+                if (view instanceof RecyclerView) {
                     ((RecyclerView) view).setAdapter(null);
                 }
-                
+
                 field.set(object, null);
                 count++;
             } catch (IllegalAccessException ignored) {

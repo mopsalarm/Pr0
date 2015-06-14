@@ -142,7 +142,7 @@ public class DrawerFragment extends RoboFragment {
         markedColor = ColorStateList.valueOf(primary);
 
         // add some space on the top for the translucent status bar
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
                     userImageView.getLayoutParams();
 
