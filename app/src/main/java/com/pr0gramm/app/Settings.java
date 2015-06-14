@@ -170,6 +170,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_meta_service", true);
     }
 
+    public boolean sharedElementTransition() {
+        return preferences.getBoolean("pref_shared_element_transition", true);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }
