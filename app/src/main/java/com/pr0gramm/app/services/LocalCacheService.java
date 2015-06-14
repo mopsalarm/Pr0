@@ -3,15 +3,14 @@ package com.pr0gramm.app.services;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * This service helps to locally cache deltas to the pr0gramm. Those
@@ -20,7 +19,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @Singleton
 public class LocalCacheService {
     private final Cache<Long, List<Tag>> tagsCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
     /**
@@ -29,19 +28,19 @@ public class LocalCacheService {
      * @param tags The list with the tags you know about
      * @return A list containing all previously seen tags for this item.
      */
-    public List<Tag> enhanceTags(Long itemId, Iterable<Tag> tags) {
-        ArrayList<Tag> tagList = newArrayList(tags);
+    public ImmutableList<Tag> enhanceTags(Long itemId, Iterable<Tag> tags) {
+        ImmutableList<Tag> result;
 
         List<Tag> cached = tagsCache.getIfPresent(itemId);
         if (cached != null) {
-            for (Tag tag : cached) {
-                if (!tagList.contains(tag)) {
-                    tagList.add(0, tag);
-                }
-            }
+            HashSet<Tag> combined = new HashSet<>(cached);
+            Iterables.addAll(combined, tags);
+            result = ImmutableList.copyOf(combined);
+        } else {
+            result = ImmutableList.copyOf(tags);
         }
 
-        tagsCache.put(itemId, tagList);
-        return ImmutableList.copyOf(tagList);
+        tagsCache.put(itemId, result);
+        return result;
     }
 }
