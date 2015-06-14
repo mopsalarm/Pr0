@@ -139,7 +139,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.itemView.setBackgroundColor(view.itemView.getContext().getResources().getColor(
                 comment.getId() == selectedCommentId
                         ? R.color.selected_comment_background
-                        : android.R.color.transparent));
+                        : R.color.feed_background));
     }
 
     private void doOnAuthorClicked(Post.Comment comment) {

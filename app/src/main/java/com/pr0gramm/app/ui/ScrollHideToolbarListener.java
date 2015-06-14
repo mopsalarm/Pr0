@@ -1,5 +1,8 @@
 package com.pr0gramm.app.ui;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -63,6 +66,19 @@ public class ScrollHideToolbarListener {
             toolbarMarginOffset = 0;
             applyToolbarPosition(true);
         }
+    }
+
+    public void setToolbarAlpha(int alpha) {
+        Drawable background = toolbar.getBackground();
+        if (background instanceof ColorDrawable) {
+            int color = ((ColorDrawable) background).getColor();
+            color = Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+            toolbar.setBackgroundColor(color);
+        }
+    }
+
+    public int getToolbarHeight() {
+        return toolbar.getHeight();
     }
 
     public interface ToolbarActivity {

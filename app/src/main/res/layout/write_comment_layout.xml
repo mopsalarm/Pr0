@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="16dp"
-    tools:showIn="@layout/fragment_post">
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="8dp"
+    android:paddingTop="8dp"
+    android:background="@color/feed_background"
+    android:orientation="horizontal">
 
     <EditText
         android:id="@+id/comment_text"
@@ -18,9 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@color/input_background"
-        android:padding="8dp"
         android:hint="@string/comment_hint"
-        android:maxLines="3"/>
+        android:maxLines="3"
+        android:padding="8dp"/>
 
     <TextView
         android:id="@+id/comment_post"
@@ -28,6 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:padding="8dp"
-        android:textColor="@color/primary"
-        android:text="@string/post_comment"/>
+        android:text="@string/post_comment"
+        android:textColor="@color/primary"/>
 </LinearLayout>

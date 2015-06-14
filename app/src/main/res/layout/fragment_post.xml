@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/refresh"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/content"
+    <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
+        android:id="@+id/player_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:overScrollMode="never"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true"/>
+        android:layout_height="wrap_content">
 
-</android.support.v4.widget.SwipeRefreshLayout>
+        <ImageView
+            android:id="@+id/player_container_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
+            android:overScrollMode="never"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</FrameLayout>

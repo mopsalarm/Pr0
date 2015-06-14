@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,6 +50,7 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
+import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
@@ -138,6 +138,9 @@ public class PostFragment extends RoboFragment implements
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    @InjectView(R.id.player_container)
+    private ViewGroup playerContainer;
+
     @InjectView(R.id.content)
     private RecyclerView content;
 
@@ -208,6 +211,7 @@ public class PostFragment extends RoboFragment implements
         super.onDestroyView();
 
         content.removeOnScrollListener(onScrollListener);
+        adapter = null;
     }
 
     @Override
@@ -521,13 +525,9 @@ public class PostFragment extends RoboFragment implements
     private void initializeMediaView() {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        // wrap into a container before adding
-        FrameLayout viewerContainer = (FrameLayout) inflater
-                .inflate(R.layout.post_player_container, new FrameLayout(getActivity()), false);
-
         ImageView previewView;
         if (preview != null) {
-            previewView = (ImageView) viewerContainer.findViewById(R.id.player_container_preview);
+            previewView = (ImageView) playerContainer.findViewById(R.id.player_container_preview);
             ViewCompat.setTransitionName(previewView, "TransitionTarget-" + feedItem.getId());
             previewView.setImageDrawable(preview);
         } else {
@@ -562,10 +562,33 @@ public class PostFragment extends RoboFragment implements
         // this provides an animation while voting
         voteAnimationIndicator = (TextView) inflater.inflate(R.layout.viewer_vote_indicators, null);
 
-        viewerContainer.addView(viewer);
-        viewerContainer.addView(voteAnimationIndicator);
-        viewerContainer.setPadding(0, AndroidUtility.getActionBarContentOffset(getActivity()), 0, 0);
-        adapter.addView(viewerContainer);
+        int padding = AndroidUtility.getActionBarContentOffset(getActivity());
+        playerContainer.addView(viewer);
+        playerContainer.addView(voteAnimationIndicator);
+        playerContainer.setPadding(0, padding, 0, 0);
+
+        class PlaceholderView extends View {
+            int fixedHeight = AndroidUtility.dp(getActivity(), 200);
+
+            public PlaceholderView(Context context) {
+                super(context);
+            }
+
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                int width = MeasureSpec.getSize(widthMeasureSpec);
+                setMeasuredDimension(width, fixedHeight);
+            }
+        }
+
+        PlaceholderView placeholder = new PlaceholderView(getActivity());
+
+        viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            placeholder.fixedHeight = viewer.getMeasuredHeight() + padding;
+            placeholder.requestLayout();
+        });
+
+        adapter.addView(placeholder);
     }
 
     private void onMediaViewDoubleTapped() {
@@ -644,14 +667,18 @@ public class PostFragment extends RoboFragment implements
      * Called if this fragment becomes the active post fragment.
      */
     protected void onMarkedActive() {
-        viewer.playMedia();
+        if (viewer != null) {
+            viewer.playMedia();
+        }
     }
 
     /**
      * Called if this fragment is not the active post fragment anymore.
      */
     protected void onMarkedInactive() {
-        viewer.stopMedia();
+        if (viewer != null) {
+            viewer.stopMedia();
+        }
     }
 
     /**
@@ -739,10 +766,33 @@ public class PostFragment extends RoboFragment implements
     }
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        int y = 0;
+
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             ToolbarActivity activity = (ToolbarActivity) getActivity();
-            activity.getScrollHideToolbarListener().onScrolled(dy);
+            ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
+            toolbar.onScrolled(dy);
+
+            y += dy;
+
+            // int toolbarHeight = toolbar.getToolbarHeight();
+            // int recyclerHeight = recyclerView.getHeight();
+            int toolbarHeight = Math.max(
+                    toolbar.getToolbarHeight(),
+                    playerContainer.getHeight() - recyclerView.getHeight());
+
+            if (y < toolbarHeight) {
+                playerContainer.setTranslationY(-y);
+//                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) playerContainer.getLayoutParams();
+//                params.topMargin = -y;
+//                playerContainer.setLayoutParams(params);
+            } else {
+                playerContainer.setTranslationY(-(toolbarHeight + 0.5f * (y - toolbarHeight)));
+//                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) playerContainer.getLayoutParams();
+//                params.topMargin = (int) -(toolbarHeight + 0.5f * (y - toolbarHeight));
+//                playerContainer.setLayoutParams(params);
+            }
         }
 
         @Override

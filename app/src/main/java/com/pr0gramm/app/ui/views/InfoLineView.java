@@ -66,6 +66,8 @@ public class InfoLineView extends LinearLayout {
         settings = Settings.of(context);
 
         setOrientation(VERTICAL);
+        setBackgroundColor(context.getResources().getColor(R.color.feed_background));
+
         inflate(context, R.layout.post_info_line, this);
 
         // get the views from the hierarchy
