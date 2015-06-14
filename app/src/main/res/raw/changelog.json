@@ -1,5 +1,10 @@
 [
   {
+    "version": 59,
+    "type": "Neu",
+    "change": "Animation beim Öffnen eines Posts. Kann in den Einstellungen deaktiviert werden."
+  },
+  {
     "version": 58,
     "type": "Neu",
     "change": "Ausgewählter Kommentar mit anderer Hintergrundfarbe hervorheben"

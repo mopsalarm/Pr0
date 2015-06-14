@@ -253,4 +253,6 @@
     <string name="all">alle</string>
     <string name="logout_successful_hint">Erfolgreich ausgeloggt</string>
     <string name="comment_written_successful">Kommentar erfolgreich</string>
+    <string name="pref_shared_element_transition_title">Post öffnen animieren</string>
+    <string name="pref_shared_element_transition_summary">Animiert das Öffnen eines Posts. Android 5+ und kann auf alten Geräten langsam sein.</string>
 </resources>
