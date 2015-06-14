@@ -105,7 +105,7 @@ public class LoginCookieHandler extends CookieHandler {
         return !"null".equals(value);
     }
 
-    public void setLoginCookie(String value) {
+    private void setLoginCookie(String value) {
         logger.info("Set login cookie called: " + value);
 
         // convert to a http cookie

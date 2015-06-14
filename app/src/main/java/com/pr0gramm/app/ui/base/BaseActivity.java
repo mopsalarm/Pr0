@@ -9,7 +9,7 @@ import rx.subjects.BehaviorSubject;
 
 /**
  */
-public class BaseActivity extends RoboActionBarActivity {
+public abstract class BaseActivity extends RoboActionBarActivity {
 
     private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
 

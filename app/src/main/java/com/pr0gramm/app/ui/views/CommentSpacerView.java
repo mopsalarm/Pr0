@@ -56,7 +56,7 @@ public class CommentSpacerView extends RelativeLayout {
         requestLayout();
     }
 
-    public void initDraw() {
+    private void initDraw() {
         linePaint = new Paint();
         linePaint.setColor(lineColor);
         linePaint.setStyle(Paint.Style.STROKE);

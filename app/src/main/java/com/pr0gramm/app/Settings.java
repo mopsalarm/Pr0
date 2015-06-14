@@ -87,6 +87,8 @@ public class Settings {
 
     public IndicatorStyle seenIndicatorStyle() {
         String value = preferences.getString("pref_seen_indicator_style", IndicatorStyle.NONE.toString());
+
+        assert value != null;
         return Enums.getIfPresent(IndicatorStyle.class, value).or(IndicatorStyle.NONE);
     }
 

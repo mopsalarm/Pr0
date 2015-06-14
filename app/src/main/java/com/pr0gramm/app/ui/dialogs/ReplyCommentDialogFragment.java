@@ -28,9 +28,9 @@ import static rx.android.app.AppObservable.bindActivity;
  */
 public class ReplyCommentDialogFragment extends RoboDialogFragment {
 
-    public static String ARGUMENT_PARENT_COMMENT_NAME = "parentCommentName";
-    public static String ARGUMENT_PARENT_COMMENT_ID = "parentCommentId";
-    public static String ARGUMENT_ITEM_ID = "itemId";
+    private static final String ARGUMENT_PARENT_COMMENT_NAME = "parentCommentName";
+    private static final String ARGUMENT_PARENT_COMMENT_ID = "parentCommentId";
+    private static final String ARGUMENT_ITEM_ID = "itemId";
 
     private EditText commentInput;
 

@@ -23,9 +23,4 @@ public class BusyIndicator extends ProgressWheel {
         setBarColor(getContext().getResources().getColor(R.color.primary));
         spin();
     }
-
-    @Override
-    public void setProgress(float progress) {
-        super.setProgress(progress);
-    }
 }

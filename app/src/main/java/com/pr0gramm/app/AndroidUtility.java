@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.support.v7.widget.RecyclerView;
@@ -113,7 +114,7 @@ public class AndroidUtility {
     public static void logToCrashlytics(Throwable error) {
         try {
             // log to crashlytics for fast error reporting.
-            Crashlytics.logException(error);
+            Crashlytics.getInstance().core.logException(error);
 
         } catch (IllegalStateException ignored) {
             // most certainly crashlytics was not activated.
@@ -146,7 +147,7 @@ public class AndroidUtility {
      */
     public static Drawable getTintentDrawable(Context context, @DrawableRes int drawableId, @ColorRes int colorId) {
         Resources resources = context.getResources();
-        Drawable icon = DrawableCompat.wrap(resources.getDrawable(drawableId));
+        Drawable icon = DrawableCompat.wrap(ResourcesCompat.getDrawable(resources, drawableId, null));
         DrawableCompat.setTint(icon, resources.getColor(colorId));
         return icon;
     }

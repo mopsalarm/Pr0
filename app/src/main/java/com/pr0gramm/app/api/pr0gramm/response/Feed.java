@@ -26,6 +26,7 @@ public class Feed {
         return items;
     }
 
+    @SuppressWarnings("unused")
     public static class Item {
         private long id;
         private long promoted;

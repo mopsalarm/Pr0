@@ -9,7 +9,7 @@ import rx.Observable;
 public interface GifToVideoService {
     Observable<Result> toVideo(String url);
 
-    public class Result {
+    class Result {
         private final String gifUrl;
         private final String videoUrl;
 

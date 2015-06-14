@@ -23,7 +23,6 @@ import com.squareup.picasso.Picasso;
 @SuppressLint("ViewConstructor")
 public class DelayedMediaView extends ProxyMediaView {
     private final View overlay;
-    private final View playNow;
     private final ImageView thumbnail;
 
     @Inject
@@ -34,8 +33,8 @@ public class DelayedMediaView extends ProxyMediaView {
         hideBusyIndicator();
 
         overlay = LayoutInflater.from(context).inflate(R.layout.play_now, this, false);
-        playNow = overlay.findViewById(R.id.play_now);
-        playNow.setOnClickListener(v -> playNow());
+
+        overlay.findViewById(R.id.play_now).setOnClickListener(v -> playNow());
 
         thumbnail = (ImageView) overlay.findViewById(R.id.thumbnail);
         loadThumbnailImage();

@@ -26,10 +26,10 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     /**
      */
     public class LocalAdapter {
+        public final Map<Integer, Integer> mViewTypesMap = new HashMap<>();
         public final RecyclerView.Adapter mAdapter;
         public int mLocalPosition = 0;
         public int mAdapterIndex = 0;
-        public Map<Integer, Integer> mViewTypesMap = new HashMap<>();
 
         public LocalAdapter(RecyclerView.Adapter adapter) {
             mAdapter = adapter;

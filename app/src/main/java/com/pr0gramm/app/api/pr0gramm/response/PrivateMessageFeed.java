@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  */
+@SuppressWarnings("unused")
 public class PrivateMessageFeed {
     private boolean hasNewer;
     private boolean hasOlder;

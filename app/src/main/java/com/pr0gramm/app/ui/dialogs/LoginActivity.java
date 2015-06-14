@@ -185,17 +185,14 @@ public class LoginActivity extends RoboActionBarActivity {
         private DoIfAuthorizedHelper() {
         }
 
-        public boolean onActivityResult(int requestCode, int resultCode) {
+        public void onActivityResult(int requestCode, int resultCode) {
             if (requestCode == REQUEST_CODE) {
                 if (resultCode == RESULT_OK && retry != null) {
                     retry.run();
                 }
 
                 retry = null;
-                return true;
             }
-
-            return false;
         }
 
         /**

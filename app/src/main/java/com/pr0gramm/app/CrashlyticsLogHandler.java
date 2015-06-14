@@ -9,8 +9,8 @@ import pl.brightinventions.slf4android.MessageValueSupplier;
 
 /**
  */
-public class CrashlyticsLogHandler extends Handler {
-    final MessageValueSupplier messageValueSupplier = new MessageValueSupplier();
+class CrashlyticsLogHandler extends Handler {
+    private final MessageValueSupplier messageValueSupplier = new MessageValueSupplier();
 
     @Override
     public void publish(java.util.logging.LogRecord record) {
@@ -20,7 +20,7 @@ public class CrashlyticsLogHandler extends Handler {
 
         String tag = record.getLoggerName();
         int androidLogLevel = logRecord.getLogLevel().getAndroidLevel();
-        Crashlytics.log(androidLogLevel, tag, messageBuilder.toString());
+        Crashlytics.getInstance().core.log(androidLogLevel, tag, messageBuilder.toString());
     }
 
     @Override

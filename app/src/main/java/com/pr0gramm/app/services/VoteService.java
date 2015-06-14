@@ -93,7 +93,7 @@ public class VoteService {
      * @param itemId The id of the item to vote
      * @param vote   The vote to store for that item
      */
-    public void storeVoteValueInTx(CachedVote.Type type, long itemId, Vote vote) {
+    private void storeVoteValueInTx(CachedVote.Type type, long itemId, Vote vote) {
         SugarTransactionHelper.doInTansaction(() -> storeVoteValue(type, itemId, vote));
     }
 
@@ -106,7 +106,7 @@ public class VoteService {
      * @param itemId The id of the item to vote
      * @param vote   The vote to store for that item
      */
-    public void storeVoteValue(CachedVote.Type type, long itemId, Vote vote) {
+    private void storeVoteValue(CachedVote.Type type, long itemId, Vote vote) {
         // check for a previous item
         CachedVote cachedVote = CachedVote.find(type, itemId).orNull();
         if (cachedVote == null) {
@@ -220,8 +220,8 @@ public class VoteService {
     }
 
     private static class VoteAction {
-        CachedVote.Type type;
-        Vote vote;
+        final CachedVote.Type type;
+        final Vote vote;
 
         VoteAction(CachedVote.Type type, Vote vote) {
             this.type = type;

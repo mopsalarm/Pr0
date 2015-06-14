@@ -95,9 +95,4 @@ public class ImageMediaView extends MediaView {
         errorIndicator.setAlpha(0);
         errorIndicator.animate().alpha(1).start();
     }
-
-    @Override
-    public void playMedia() {
-        super.playMedia();
-    }
 }

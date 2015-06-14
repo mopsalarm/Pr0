@@ -149,7 +149,7 @@ public class PostFragment extends RoboFragment implements
     private TextView voteAnimationIndicator;
     private Optional<Long> autoScrollTo = Optional.absent();
 
-    private LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private Drawable preview;
 
     @Override

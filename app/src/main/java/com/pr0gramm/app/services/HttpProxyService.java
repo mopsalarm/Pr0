@@ -102,7 +102,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
             if (length.isPresent()) {
                 stream = ByteStreams.limit(new FilterInputStream(response.body().byteStream()) {
                     int read = 0;
-                    int _length = length.get();
+                    final int _length = length.get();
 
                     @Override
                     public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {

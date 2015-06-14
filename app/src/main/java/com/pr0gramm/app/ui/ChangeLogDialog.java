@@ -192,7 +192,7 @@ public class ChangeLogDialog extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    public static List<Change> changelog(Context context) {
+    private static List<Change> changelog(Context context) {
         try {
             try (InputStream input = context.getResources().openRawResource(R.raw.changelog)) {
                 InputStreamReader reader = new InputStreamReader(input, Charsets.UTF_8);

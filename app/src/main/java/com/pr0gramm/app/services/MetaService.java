@@ -91,5 +91,5 @@ public class MetaService {
         }
     }
 
-    public static final InfoResponse EMPTY_INFO = new InfoResponse();
+    private static final InfoResponse EMPTY_INFO = new InfoResponse();
 }

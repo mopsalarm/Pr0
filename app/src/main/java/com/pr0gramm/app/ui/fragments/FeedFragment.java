@@ -301,11 +301,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         AndroidUtility.uninjectViews(this);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     private void removeBusyIndicator() {
         if (busyIndicator != null) {
             ViewParent parent = busyIndicator.getParent();
@@ -874,7 +869,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 .or(false);
     }
 
-    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             if (getActivity() instanceof ToolbarActivity) {

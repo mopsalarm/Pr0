@@ -16,7 +16,7 @@ import java.util.Set;
 public class SingleShotService {
     private static final String KEY_ACTIONS = "SingleShotService.actions";
 
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
     @Inject
     public SingleShotService(SharedPreferences preferences) {

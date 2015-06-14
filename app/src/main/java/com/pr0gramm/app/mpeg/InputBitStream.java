@@ -5,14 +5,14 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class InputBitStream {
+class InputBitStream {
     private static final int BUFFER_SIZE = 4096;
 
-    private InputStream stream;
+    private final InputStream stream;
 
     // General stuff
 
-    private byte[] buffer = new byte[BUFFER_SIZE];
+    private final byte[] buffer = new byte[BUFFER_SIZE];
     private int bufferHead = 0;
     private int bytesLeft = 0;
     private int bitsLeft = 0;

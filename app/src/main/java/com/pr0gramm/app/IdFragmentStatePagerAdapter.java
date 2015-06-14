@@ -1,5 +1,6 @@
 package com.pr0gramm.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -31,8 +32,8 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
 
-    private LongSparseArray<Fragment.SavedState> mSavedState = new LongSparseArray<>();
-    private LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
+    private final LongSparseArray<Fragment.SavedState> mSavedState = new LongSparseArray<>();
+    private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
     private Fragment mCurrentPrimaryItem = null;
 
     public IdFragmentStatePagerAdapter(FragmentManager fm) {
@@ -58,6 +59,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         return Optional.fromNullable(mFragments.get(itemId));
     }
 
+    @SuppressLint("CommitTransaction")
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         long id = getItemId(position);

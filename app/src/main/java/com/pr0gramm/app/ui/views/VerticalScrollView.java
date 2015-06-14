@@ -84,7 +84,7 @@ public class VerticalScrollView extends ScrollView {
     }
 
     public interface OnScrollListener {
-        public void onScrollChanged(int oldTop, int top);
+        void onScrollChanged(int oldTop, int top);
     }
 
     public interface TouchInterceptor {

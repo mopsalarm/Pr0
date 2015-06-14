@@ -67,7 +67,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
     private Observable<List<T>> messages;
 
-    boolean overrideLazyLoading;
+    private boolean overrideLazyLoading;
 
     public InboxFragment() {
         setRetainInstance(true);
@@ -99,11 +99,6 @@ public abstract class InboxFragment<T> extends RoboFragment {
     public void onDestroyView() {
         super.onDestroyView();
         AndroidUtility.uninjectViews(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     private void reloadInboxContent() {

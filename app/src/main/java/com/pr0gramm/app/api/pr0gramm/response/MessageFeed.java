@@ -4,9 +4,10 @@ import java.util.List;
 
 /**
  */
+@SuppressWarnings("unused")
 public class MessageFeed {
-    boolean hasNewer;
-    boolean hasOlder;
+    private boolean hasNewer;
+    private boolean hasOlder;
     private List<Message> messages;
 
     public boolean hasNewer() {

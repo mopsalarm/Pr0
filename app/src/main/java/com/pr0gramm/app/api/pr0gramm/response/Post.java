@@ -20,6 +20,7 @@ public class Post {
         return comments;
     }
 
+    @SuppressWarnings("unused")
     public static class Comment {
         private long id;
         private float confidence;

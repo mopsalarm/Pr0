@@ -121,12 +121,12 @@ public class DrawerFragment extends RoboFragment {
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private static final int ICON_ALPHA = 127;
-    private ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
+    private final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
     private Subscription scLoginState;
     private Subscription scNavigationItems;
 
-    private LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -354,7 +354,7 @@ public class DrawerFragment extends RoboFragment {
     /**
      * Returns the menu item that takes the user to the inbox.
      */
-    public NavigationItem getInboxNavigationItem() {
+    private NavigationItem getInboxNavigationItem() {
         Runnable run = () -> {
             Intent intent = new Intent(getActivity(), InboxActivity.class);
             intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.ALL.ordinal());
@@ -368,13 +368,9 @@ public class DrawerFragment extends RoboFragment {
     /**
      * Returns the menu item that takes the user to the upload activity.
      */
-    public NavigationItem getUploadNavigationItem() {
-        Runnable run = () -> {
-            startActivity(new Intent(getActivity(), UploadActivity.class));
-        };
-
-        return new NavigationItem(getString(R.string.action_upload), iconUpload, () ->
-                doIfAuthorizedHelper.run(run, run));
+    private NavigationItem getUploadNavigationItem() {
+        Runnable run = () -> startActivity(new Intent(getActivity(), UploadActivity.class));
+        return new NavigationItem(getString(R.string.action_upload), iconUpload, () -> doIfAuthorizedHelper.run(run, run));
     }
 
     public interface OnFeedFilterSelected {

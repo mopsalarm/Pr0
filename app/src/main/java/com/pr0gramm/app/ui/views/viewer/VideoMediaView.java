@@ -50,7 +50,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
     private State currentState = State.IDLE;
     private MediaPlayer mediaPlayer;
 
-    private SurfaceTextureListenerImpl surfaceHolder;
+    private final SurfaceTextureListenerImpl surfaceHolder;
     private boolean mediaPlayerHasTexture;
 
     private int retryCount;

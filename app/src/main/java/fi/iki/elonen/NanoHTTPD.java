@@ -33,6 +33,8 @@ package fi.iki.elonen;
  * #L%
  */
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -1137,12 +1139,12 @@ public abstract class NanoHTTPD {
             }
 
             @Override
-            public void write(byte[] b) throws IOException {
+            public void write(@NonNull byte[] b) throws IOException {
                 write(b, 0, b.length);
             }
 
             @Override
-            public void write(byte[] b, int off, int len) throws IOException {
+            public void write(@NonNull byte[] b, int off, int len) throws IOException {
                 if (len == 0)
                     return;
                 out.write(String.format("%x\r\n", len).getBytes());
@@ -1587,7 +1589,7 @@ public abstract class NanoHTTPD {
         return res;
     }
 
-    private static final void safeClose(Object closeable) {
+    private static void safeClose(Object closeable) {
         try {
             if (closeable != null) {
                 if (closeable instanceof Closeable) {
