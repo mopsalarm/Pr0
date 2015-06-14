@@ -393,7 +393,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         EnumSet<ContentType> newContentType = getSelectedContentType();
         boolean changed = !equal(feedAdapter.getContentType(), newContentType);
         if (changed) {
-            Optional<Long> around = findFirstVisibleItem(newContentType).transform(FeedItem::getId);
+            Optional<Long> around = autoOpenOnLoad != null
+                    ? Optional.of(autoOpenOnLoad.getItemId())
+                    : findFirstVisibleItem(newContentType).transform(FeedItem::getId);
+
             autoScrollOnLoad = around.orNull();
 
             // set a new adapter if we have a new content type
@@ -413,7 +416,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         List<FeedItem> items = feedAdapter.getFeed().getItems();
 
         return getRecyclerViewLayoutManager().<Optional<FeedItem>>transform(layoutManager -> {
-            int idx = layoutManager.findFirstVisibleItemPosition();
+            MergeRecyclerAdapter adapter = (MergeRecyclerAdapter) recyclerView.getAdapter();
+            int offset = adapter.getOffset(feedAdapter).or(0);
+
+            int idx = layoutManager.findFirstVisibleItemPosition() - offset;
             if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
                 for (FeedItem item : items.subList(idx, items.size() - 1)) {
                     if (contentType.contains(item.getContentType())) {
@@ -421,6 +427,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                     }
                 }
             }
+
 
             return Optional.absent();
         }).get();
@@ -599,7 +606,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             boolean doTransition = false;
             PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
 
-            if(settings.sharedElementTransition()) {
+            if (settings.sharedElementTransition()) {
                 if (preview.isPresent() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     TransitionInflater inflater = TransitionInflater.from(getActivity());
                     fragment.setSharedElementEnterTransition(
@@ -770,6 +777,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             // load meta data for the items.
             List<Long> itemIds = Lists.transform(newItems, FeedItem::getId);
             with(fragment -> fragment.loadMetaData(itemIds));
+            with(FeedFragment::performAutoOpen);
         }
 
         @Override
@@ -804,8 +812,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private void onFeedLoadFinished() {
         removeBusyIndicator();
         swipeRefreshLayout.setRefreshing(false);
-
-        performAutoOpen();
         updateNoResultsTextView();
     }
 
@@ -835,12 +841,18 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         autoScrollOnLoad = null;
     }
 
+    /**
+     * Returns the item id of the index in the recycler views adapter.
+     */
     private int findItemIndexById(long id) {
+        int offset = ((MergeRecyclerAdapter) recyclerView.getAdapter()).getOffset(feedAdapter).or(0);
+
         // look for the index of the item with the given id
         return FluentIterable
                 .from(feedAdapter.getFeed().getItems())
                 .firstMatch(item -> item.getId() == id)
                 .transform(item -> feedAdapter.getFeed().indexOf(item).or(-1))
+                .transform(idx -> idx + offset)
                 .or(-1);
     }
 
