@@ -1,6 +1,11 @@
 [
   {
     "version": 58,
+    "type": "Neu",
+    "change": "Ausgewählter Kommentar mit anderer Hintergrundfarbe hervorheben"
+  },
+  {
+    "version": 58,
     "type": "Fix",
     "change": "Workaround im Logindialog für dreckige Samsung Geräte :/"
   },
