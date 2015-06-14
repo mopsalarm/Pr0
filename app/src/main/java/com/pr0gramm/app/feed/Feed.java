@@ -177,8 +177,12 @@ public class Feed {
         if (item == null)
             return Optional.absent();
 
+        return indexOf(item.getId());
+    }
+
+    public Optional<Integer> indexOf(long itemId) {
         for (int idx = 0; idx < items.size(); idx++) {
-            if (item.getId() == items.get(idx).getId()) {
+            if (itemId == items.get(idx).getId()) {
                 return Optional.of(idx);
             }
         }

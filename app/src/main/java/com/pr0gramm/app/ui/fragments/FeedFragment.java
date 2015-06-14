@@ -76,12 +76,14 @@ import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
+import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static rx.android.app.AppObservable.bindFragment;
 
@@ -395,7 +397,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         if (changed) {
             Optional<Long> around = autoOpenOnLoad != null
                     ? Optional.of(autoOpenOnLoad.getItemId())
-                    : findFirstVisibleItem(newContentType).transform(FeedItem::getId);
+                    : findLastVisibleFeedItem(newContentType).transform(FeedItem::getId);
 
             autoScrollOnLoad = around.orNull();
 
@@ -412,16 +414,20 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
      *
      * @param contentType The target-content type.
      */
-    private Optional<FeedItem> findFirstVisibleItem(Set<ContentType> contentType) {
+    private Optional<FeedItem> findLastVisibleFeedItem(Set<ContentType> contentType) {
         List<FeedItem> items = feedAdapter.getFeed().getItems();
 
         return getRecyclerViewLayoutManager().<Optional<FeedItem>>transform(layoutManager -> {
             MergeRecyclerAdapter adapter = (MergeRecyclerAdapter) recyclerView.getAdapter();
             int offset = adapter.getOffset(feedAdapter).or(0);
 
-            int idx = layoutManager.findFirstVisibleItemPosition() - offset;
-            if (idx != RecyclerView.NO_POSITION && idx < items.size()) {
-                for (FeedItem item : items.subList(idx, items.size() - 1)) {
+            // if the first row is visible, skip this stuff.
+            if(layoutManager.findFirstCompletelyVisibleItemPosition() == 0)
+                return absent();
+
+            int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;
+            if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size()) {
+                for (FeedItem item : Lists.reverse(items.subList(0, idx))) {
                     if (contentType.contains(item.getContentType())) {
                         return Optional.of(item);
                     }
@@ -429,7 +435,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             }
 
 
-            return Optional.absent();
+            return absent();
         }).get();
     }
 
@@ -820,21 +826,22 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
     private void performAutoOpen() {
+        Feed feed = feedAdapter.getFeed();
+
         if (autoScrollOnLoad != null) {
-            int idx = findItemIndexById(autoScrollOnLoad);
-            if (idx >= 0) {
+            ifPresent(findItemIndexById(autoScrollOnLoad), idx -> {
                 // over scroll a bit
-                int scrollTo = max(idx - 3, 0);
+                int scrollTo = max(idx + getThumbnailColumns(), 0);
                 recyclerView.scrollToPosition(scrollTo);
-            }
+            });
         }
 
         if (autoOpenOnLoad != null) {
-            int idx = findItemIndexById(autoOpenOnLoad.getItemId());
-            if (idx > 0) {
-                onItemClicked(idx, autoOpenOnLoad.getCommentId(), Optional.absent());
-            }
+            ifPresent(feed.indexOf(autoOpenOnLoad.getItemId()), idx -> {
+                onItemClicked(idx, autoOpenOnLoad.getCommentId(), absent());
+            });
         }
 
         autoOpenOnLoad = null;
@@ -844,7 +851,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     /**
      * Returns the item id of the index in the recycler views adapter.
      */
-    private int findItemIndexById(long id) {
+    private Optional<Integer> findItemIndexById(long id) {
         int offset = ((MergeRecyclerAdapter) recyclerView.getAdapter()).getOffset(feedAdapter).or(0);
 
         // look for the index of the item with the given id
@@ -852,13 +859,12 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                 .from(feedAdapter.getFeed().getItems())
                 .firstMatch(item -> item.getId() == id)
                 .transform(item -> feedAdapter.getFeed().indexOf(item).or(-1))
-                .transform(idx -> idx + offset)
-                .or(-1);
+                .transform(idx -> idx + offset);
     }
 
     private Optional<GridLayoutManager> getRecyclerViewLayoutManager() {
         if (recyclerView == null)
-            return Optional.absent();
+            return absent();
 
         return Optional.fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
     }
