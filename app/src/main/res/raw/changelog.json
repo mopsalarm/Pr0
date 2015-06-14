@@ -1,5 +1,10 @@
 [
   {
+    "version": 58,
+    "type": "Fix",
+    "change": "Workaround im Logindialog für dreckige Samsung Geräte :/"
+  },
+  {
     "version": 57,
     "type": "Neu",
     "change": "Überarbeiteten Loginscreen"
