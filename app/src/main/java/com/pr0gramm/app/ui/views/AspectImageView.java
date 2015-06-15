@@ -8,17 +8,23 @@ import android.widget.ImageView;
  * A image that measures it height to the same value
  * as its width.
  */
-public class SquareImageView extends ImageView {
-    public SquareImageView(Context context) {
+public class AspectImageView extends ImageView {
+    private float aspect = 1.f;
+
+    public AspectImageView(Context context) {
         super(context);
     }
 
-    public SquareImageView(Context context, AttributeSet attrs) {
+    public AspectImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SquareImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AspectImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    public void setAspect(float aspect) {
+        this.aspect = aspect;
     }
 
     @Override
@@ -26,8 +32,6 @@ public class SquareImageView extends ImageView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int width = getMeasuredWidth();
-
-        //noinspection SuspiciousNameCombination
-        setMeasuredDimension(width, width);
+        setMeasuredDimension(width, (int) (width / aspect));
     }
 }

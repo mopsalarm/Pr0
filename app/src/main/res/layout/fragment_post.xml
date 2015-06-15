@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
     <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
         android:id="@+id/player_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <ImageView
+        <com.pr0gramm.app.ui.views.AspectImageView
             android:id="@+id/player_container_preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="ContentDescription"/>
+
+        <com.pr0gramm.app.ui.views.Pr0grammFontTextView
+            android:id="@+id/vote_indicator"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-48dp"
+            android:gravity="center"
+            android:text="*"
+            android:textColor="@color/primary"
+            android:textSize="64dp"
+            android:visibility="gone"
+            tools:ignore="HardcodedText,SpUsage"/>
     </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

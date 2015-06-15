@@ -81,6 +81,10 @@ public class ScrollHideToolbarListener {
         return toolbar.getHeight();
     }
 
+    public int getVisibleHeight() {
+        return (int) (toolbar.getHeight() + toolbar.getTranslationY());
+    }
+
     public interface ToolbarActivity {
         ScrollHideToolbarListener getScrollHideToolbarListener();
     }

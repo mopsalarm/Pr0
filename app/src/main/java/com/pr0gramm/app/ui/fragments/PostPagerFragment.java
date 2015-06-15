@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.fragments;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -55,7 +54,7 @@ public class PostPagerFragment extends RoboFragment {
 
     private PostFragment activePostFragment;
 
-    private Drawable preview;
+    private PostFragment.PreviewInfo previewInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -148,10 +147,10 @@ public class PostPagerFragment extends RoboFragment {
                 activePostFragment.autoScrollToComment(startCommentId);
             }
 
-            if (preview != null) {
+            if (previewInfo != null) {
                 if (activePostFragment.getFeedItem().getId() == getArgumentStartItem(null).getId()) {
-                    activePostFragment.setPreview(preview);
-                    preview = null;
+                    activePostFragment.setPreviewInfo(previewInfo);
+                    previewInfo = null;
                 }
             }
         }
@@ -232,11 +231,9 @@ public class PostPagerFragment extends RoboFragment {
 
     /**
      * Sets the preview that should be used in the transition.
-     *
-     * @param drawable The preview image to show.
      */
-    public void setPreviewImage(Drawable drawable) {
-        this.preview = drawable;
+    public void setPreviewInfo(PostFragment.PreviewInfo previewInfo) {
+        this.previewInfo = previewInfo;
     }
 
     private static class PostAdapter extends IdFragmentStatePagerAdapter implements Feed.FeedListener {

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.fragments;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -612,7 +613,10 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                     fragment.setSharedElementEnterTransition(
                             inflater.inflateTransition(android.R.transition.move));
 
-                    fragment.setPreviewImage(preview.get().getDrawable());
+                    // pass preview info to target fragment.
+                    Drawable image = preview.get().getDrawable();
+                    fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
+
                     doTransition = true;
                 }
             }
@@ -630,6 +634,13 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }
+    }
+
+    private PostFragment.PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
+        Optional<MetaService.SizeInfo> sizeInfo = getSizeInfo(item);
+        int sizeWidth = sizeInfo.transform(MetaService.SizeInfo::getWidth).or(-1);
+        int sizeHeight = sizeInfo.transform(MetaService.SizeInfo::getHeight).or(-1);
+        return new PostFragment.PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
     }
 
     /**

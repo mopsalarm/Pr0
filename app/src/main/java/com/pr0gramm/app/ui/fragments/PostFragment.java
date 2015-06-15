@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
@@ -23,11 +25,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Joiner;
@@ -56,6 +58,7 @@ import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
+import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -144,16 +147,20 @@ public class PostFragment extends RoboFragment implements
     @InjectView(R.id.content)
     private RecyclerView content;
 
+    @InjectView(R.id.vote_indicator)
+    private TextView voteAnimationIndicator;
+
     private InfoLineView infoLineView;
 
     // start with an empty adapter here
     private MergeRecyclerAdapter adapter;
     private CommentsAdapter commentsAdapter;
-    private TextView voteAnimationIndicator;
+
     private Optional<Long> autoScrollTo = Optional.absent();
+    private RecyclerView.OnScrollListener scrollHandler;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
-    private Drawable preview;
+    private PreviewInfo previewInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -175,12 +182,12 @@ public class PostFragment extends RoboFragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (getActivity() instanceof ToolbarActivity) {
-            ToolbarActivity activity = (ToolbarActivity) getActivity();
-            activity.getScrollHideToolbarListener().reset();
-
-            content.addOnScrollListener(onScrollListener);
+        if (!(getActivity() instanceof ToolbarActivity)) {
+            throw new IllegalStateException("Fragment must be child of a ToolbarActivity.");
         }
+
+        ToolbarActivity activity = (ToolbarActivity) getActivity();
+        activity.getScrollHideToolbarListener().reset();
 
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
@@ -203,14 +210,25 @@ public class PostFragment extends RoboFragment implements
         commentsAdapter.setCommentActionListener(this);
         adapter.addAdapter(commentsAdapter);
 
-        loadPostDetails();
+        scrollHandler = new ScrollHandler(activity, viewer, voteAnimationIndicator);
+        content.addOnScrollListener(scrollHandler);
+
+        if(settings.sharedElementTransition()) {
+            view.postDelayed(this::loadPostDetails, 500);
+        } else {
+            loadPostDetails();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
 
-        content.removeOnScrollListener(onScrollListener);
+        if (scrollHandler != null) {
+            content.removeOnScrollListener(scrollHandler);
+            scrollHandler = null;
+        }
+
         adapter = null;
     }
 
@@ -220,8 +238,8 @@ public class PostFragment extends RoboFragment implements
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
     }
 
-    public void setPreview(Drawable preview) {
-        this.preview = preview;
+    public void setPreviewInfo(PreviewInfo previewInfo) {
+        this.previewInfo = previewInfo;
     }
 
     private void initializeCommentPostLine() {
@@ -499,6 +517,9 @@ public class PostFragment extends RoboFragment implements
             return;
 
         if (settings.animatePostOnVote()) {
+            // quickly center the vote button
+            scrollHandler.onScrolled(content, 0, 0);
+
             String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
             voteAnimationIndicator.setText(text);
 
@@ -523,13 +544,21 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void initializeMediaView() {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        int padding = AndroidUtility.getActionBarContentOffset(getActivity());
+        float aspect = 0;
 
-        ImageView previewView;
-        if (preview != null) {
-            previewView = (ImageView) playerContainer.findViewById(R.id.player_container_preview);
+        AspectImageView previewView;
+        if (previewInfo != null) {
+            previewView = (AspectImageView) playerContainer.findViewById(R.id.player_container_preview);
             ViewCompat.setTransitionName(previewView, "TransitionTarget-" + feedItem.getId());
-            previewView.setImageDrawable(preview);
+            previewView.setImageDrawable(previewInfo.getPreview());
+            previewView.setTranslationY(padding);
+
+            if (previewInfo.getWidth() > 0 && previewInfo.getHeight() > 0) {
+                aspect = previewInfo.getWidth() / (float) previewInfo.getHeight();
+                previewView.setAspect(aspect);
+            }
+
         } else {
             previewView = null;
         }
@@ -559,33 +588,41 @@ public class PostFragment extends RoboFragment implements
 
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
 
-        // this provides an animation while voting
-        voteAnimationIndicator = (TextView) inflater.inflate(R.layout.viewer_vote_indicators, null);
-
-        int padding = AndroidUtility.getActionBarContentOffset(getActivity());
-        playerContainer.addView(viewer);
-        playerContainer.addView(voteAnimationIndicator);
-        playerContainer.setPadding(0, padding, 0, 0);
+        // add views in the correct order
+        int idx = playerContainer.indexOfChild(voteAnimationIndicator);
+        playerContainer.addView(viewer, idx);
 
         class PlaceholderView extends View {
-            int fixedHeight = AndroidUtility.dp(getActivity(), 200);
+            private final float aspect;
+            int fixedHeight;
 
-            public PlaceholderView(Context context) {
+            public PlaceholderView(Context context, float initialAspect) {
                 super(context);
+                this.aspect = initialAspect;
             }
 
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 int width = MeasureSpec.getSize(widthMeasureSpec);
-                setMeasuredDimension(width, fixedHeight);
+                int height = aspect <= 0 ? fixedHeight : (int) (width / aspect + padding);
+                setMeasuredDimension(width, height);
+            }
+
+            @Override
+            public boolean onTouchEvent(@NonNull MotionEvent event) {
+                return viewer.onTouchEvent(event);
             }
         }
 
-        PlaceholderView placeholder = new PlaceholderView(getActivity());
+        PlaceholderView placeholder = new PlaceholderView(getActivity(), aspect);
 
+        viewer.setPadding(0, padding, 0, 0);
         viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            placeholder.fixedHeight = viewer.getMeasuredHeight() + padding;
-            placeholder.requestLayout();
+            int newHeight = viewer.getMeasuredHeight();
+            if (newHeight != placeholder.fixedHeight) {
+                placeholder.fixedHeight = newHeight;
+                placeholder.requestLayout();
+            }
         });
 
         adapter.addView(placeholder);
@@ -765,44 +802,86 @@ public class PostFragment extends RoboFragment implements
         }
     }
 
-    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-        int y = 0;
+    private static class ScrollHandler extends RecyclerView.OnScrollListener {
+        private final ToolbarActivity activity;
+        private final View viewer;
+        private final View voteAnimationIndicator;
+
+        // private Integer y;
+
+        public ScrollHandler(ToolbarActivity activity, View viewer, View voteAnimationIndicator) {
+            this.activity = activity;
+            this.viewer = viewer;
+            this.voteAnimationIndicator = voteAnimationIndicator;
+        }
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            ToolbarActivity activity = (ToolbarActivity) getActivity();
             ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
             toolbar.onScrolled(dy);
 
-            y += dy;
+            // get our facts straight
+            int scrollY = estimateRecyclerViewScrollY(recyclerView);
+            int toolbarHeight = toolbar.getToolbarHeight();
 
-            // int toolbarHeight = toolbar.getToolbarHeight();
-            // int recyclerHeight = recyclerView.getHeight();
-            int toolbarHeight = Math.max(
-                    toolbar.getToolbarHeight(),
-                    playerContainer.getHeight() - recyclerView.getHeight());
+            int recyclerHeight = recyclerView.getHeight();
+            int viewerHeight = viewer.getHeight();
+            boolean doFancyScroll = viewerHeight < recyclerHeight;
 
-            if (y < toolbarHeight) {
-                playerContainer.setTranslationY(-y);
-//                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) playerContainer.getLayoutParams();
-//                params.topMargin = -y;
-//                playerContainer.setLayoutParams(params);
-            } else {
-                playerContainer.setTranslationY(-(toolbarHeight + 0.5f * (y - toolbarHeight)));
-//                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) playerContainer.getLayoutParams();
-//                params.topMargin = (int) -(toolbarHeight + 0.5f * (y - toolbarHeight));
-//                playerContainer.setLayoutParams(params);
-            }
+            float scroll = scrollY < toolbarHeight || !doFancyScroll
+                    ? scrollY
+                    : toolbarHeight + 0.5f * (scrollY - toolbarHeight);
+
+            // finally position the viewer
+            viewer.setTranslationY(-scroll);
+
+            // position the vote indicator
+            float remaining = viewerHeight - scrollY;
+            int tbVisibleHeight = toolbar.getVisibleHeight();
+            float voteIndicatorY = Math.min(
+                    (remaining - tbVisibleHeight) / 2,
+                    (recyclerHeight - tbVisibleHeight) / 2) + tbVisibleHeight;
+
+            voteAnimationIndicator.setTranslationY(voteIndicatorY);
+
         }
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 int y = estimateRecyclerViewScrollY(recyclerView);
-
-                ToolbarActivity activity = (ToolbarActivity) getActivity();
                 activity.getScrollHideToolbarListener().onScrollFinished(y);
             }
         }
-    };
+    }
+
+    public static final class PreviewInfo {
+        private final Drawable preview;
+        private final long itemId;
+        private final int width;
+        private final int height;
+
+        public PreviewInfo(long itemId, Drawable preview, int width, int height) {
+            this.itemId = itemId;
+            this.preview = preview;
+            this.width = width;
+            this.height = height;
+        }
+
+        public long getItemId() {
+            return itemId;
+        }
+
+        public Drawable getPreview() {
+            return preview;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+    }
 }

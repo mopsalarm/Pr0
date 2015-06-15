@@ -2,6 +2,7 @@ package com.pr0gramm.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.google.common.base.Enums;
@@ -173,7 +174,8 @@ public class Settings {
     }
 
     public boolean sharedElementTransition() {
-        return preferences.getBoolean("pref_shared_element_transition", true);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                preferences.getBoolean("pref_shared_element_transition", true);
     }
 
     public SharedPreferences.Editor edit() {

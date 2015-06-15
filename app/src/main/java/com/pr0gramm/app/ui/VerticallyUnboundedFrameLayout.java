@@ -6,9 +6,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  */
 public class VerticallyUnboundedFrameLayout extends FrameLayout {
+    private static final Logger logger = LoggerFactory.getLogger(VerticallyUnboundedFrameLayout.class);
+
     public VerticallyUnboundedFrameLayout(Context context) {
         super(context);
     }
