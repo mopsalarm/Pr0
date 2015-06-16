@@ -607,15 +607,16 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             boolean doTransition = false;
             PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
 
-            if (settings.sharedElementTransition()) {
-                if (preview.isPresent() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (preview.isPresent()) {
+                // pass preview info to target fragment.
+                Drawable image = preview.get().getDrawable();
+                fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
+
+                // enable transition, if possible
+                if (settings.sharedElementTransition()) {
                     TransitionInflater inflater = TransitionInflater.from(getActivity());
                     fragment.setSharedElementEnterTransition(
                             inflater.inflateTransition(android.R.transition.move));
-
-                    // pass preview info to target fragment.
-                    Drawable image = preview.get().getDrawable();
-                    fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
 
                     doTransition = true;
                 }
