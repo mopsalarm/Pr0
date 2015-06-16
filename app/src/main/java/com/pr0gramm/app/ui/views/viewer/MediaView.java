@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,9 +14,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.views.AspectImageView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ public abstract class MediaView extends FrameLayout {
     protected final String url;
     protected final Runnable onViewListener;
 
+
     private OnDoubleTapListener onDoubleTapListener;
     private boolean started;
     private boolean resumed;
@@ -46,6 +49,9 @@ public abstract class MediaView extends FrameLayout {
 
     @Nullable
     private View progress;
+
+    @Nullable
+    protected AspectImageView preview;
 
     @Inject
     private Settings settings;
@@ -66,10 +72,13 @@ public abstract class MediaView extends FrameLayout {
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
             LayoutInflater.from(context).inflate(layoutId, this);
-            setMinimumHeight(AndroidUtility.dp(context, 150));
 
             if (progressId != null)
                 progress = findViewById(progressId);
+
+            preview = (AspectImageView) findViewById(R.id.preview);
+        } else {
+            preview = null;
         }
 
         RoboInjector injector = RoboGuice.getInjector(context);
@@ -80,6 +89,35 @@ public abstract class MediaView extends FrameLayout {
         gestureDetector = new GestureDetector(context, gestureListener);
 
         showBusyIndicator();
+    }
+
+    /**
+     * Sets the preview image for this media view. You need to provide a width and height.
+     * Those values will be used to place the preview image correctly.
+     */
+    public void setPreviewImage(Drawable drawable, int imageWidth, int imageHeight,
+                                String transitionName) {
+
+        if (preview != null) {
+            if (imageWidth > 0 && imageHeight > 0) {
+                float aspect = (float) imageWidth / (float) imageHeight;
+                preview.setAspect(aspect);
+            }
+
+            preview.setImageDrawable(drawable);
+            ViewCompat.setTransitionName(preview, transitionName);
+        }
+    }
+
+    /**
+     * Removes the preview drawable.
+     */
+    public void removePreviewImage() {
+        if (preview != null) {
+            ViewParent parent = preview.getParent();
+            ((ViewGroup) parent).removeView(preview);
+            preview = null;
+        }
     }
 
     @Override

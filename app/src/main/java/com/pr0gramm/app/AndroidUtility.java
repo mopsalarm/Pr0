@@ -22,6 +22,8 @@ import android.text.style.BulletSpan;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Optional;
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -237,6 +239,25 @@ public class AndroidUtility {
     public static <T> void ifPresent(Optional<T> optional, Action1<T> action) {
         if (optional.isPresent()) {
             action.call(optional.get());
+        }
+    }
+
+    /**
+     * Measures the runtime of the given runnable and log it to the provided logger.
+     */
+    public static void time(Logger logger, String name, Runnable runnable) {
+        time(logger, name, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    public static <T> T time(Logger logger, String name, Supplier<T> supplier) {
+        Stopwatch watch = Stopwatch.createStarted();
+        try {
+            return supplier.get();
+        } finally {
+            logger.info("{} took {}", name, watch);
         }
     }
 }

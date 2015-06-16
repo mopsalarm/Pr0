@@ -10,13 +10,11 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -58,7 +56,6 @@ import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
-import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -75,6 +72,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -210,14 +208,13 @@ public class PostFragment extends RoboFragment implements
         commentsAdapter.setCommentActionListener(this);
         adapter.addAdapter(commentsAdapter);
 
-        scrollHandler = new ScrollHandler(activity, viewer, voteAnimationIndicator);
+        scrollHandler = new ScrollHandler(activity);
         content.addOnScrollListener(scrollHandler);
 
-        if(settings.sharedElementTransition()) {
-            view.postDelayed(this::loadPostDetails, 500);
-        } else {
-            loadPostDetails();
-        }
+        loadPostDetails();
+
+        // show an empty list of tags first - this displays the 'Add' button.
+        displayTags(Collections.<Tag>emptyList());
     }
 
     @Override
@@ -459,10 +456,8 @@ public class PostFragment extends RoboFragment implements
      */
     private void loadPostDetails() {
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        bindFragment(this, details).subscribe(this::onPostReceived, defaultOnError());
-
-        // show an empty list of tags first - this displays the 'Add' button.
-        displayTags(Collections.<Tag>emptyList());
+        bindFragment(this, details.delay(500, TimeUnit.MILLISECONDS))
+                .subscribe(this::onPostReceived, defaultOnError());
     }
 
     @SuppressWarnings("CodeBlock2Expr")
@@ -547,22 +542,6 @@ public class PostFragment extends RoboFragment implements
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
         float aspect = 0;
 
-        AspectImageView previewView;
-        if (previewInfo != null) {
-            previewView = (AspectImageView) playerContainer.findViewById(R.id.player_container_preview);
-            ViewCompat.setTransitionName(previewView, "TransitionTarget-" + feedItem.getId());
-            previewView.setImageDrawable(previewInfo.getPreview());
-            previewView.setTranslationY(padding);
-
-            if (previewInfo.getWidth() > 0 && previewInfo.getHeight() > 0) {
-                aspect = previewInfo.getWidth() / (float) previewInfo.getHeight();
-                previewView.setAspect(aspect);
-            }
-
-        } else {
-            previewView = null;
-        }
-
         //noinspection Convert2Lambda
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
@@ -575,37 +554,38 @@ public class PostFragment extends RoboFragment implements
         String url = Uris.get().media(feedItem).toString();
 
         // delay playback on mobile
-        if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity()))
+        if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
             url = MediaViews.delay(url);
+        }
 
         viewer = MediaViews.newInstance(getActivity(), binder, url, () -> {
             //  mark this item seen. We do that in a background thread
             AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
-            if (previewView != null) {
-                previewView.setVisibility(View.GONE);
-            }
         });
 
         viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
+
+        if (previewInfo != null) {
+            viewer.setPreviewImage(previewInfo.getPreview(),
+                    previewInfo.getWidth(), previewInfo.getHeight(),
+                    "TransitionTarget-" + feedItem.getId());
+        }
 
         // add views in the correct order
         int idx = playerContainer.indexOfChild(voteAnimationIndicator);
         playerContainer.addView(viewer, idx);
 
         class PlaceholderView extends View {
-            private final float aspect;
-            int fixedHeight;
+            int fixedHeight = AndroidUtility.dp(getActivity(), 150);
 
-            public PlaceholderView(Context context, float initialAspect) {
+            public PlaceholderView(Context context) {
                 super(context);
-                this.aspect = initialAspect;
             }
 
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 int width = MeasureSpec.getSize(widthMeasureSpec);
-                int height = aspect <= 0 ? fixedHeight : (int) (width / aspect + padding);
-                setMeasuredDimension(width, height);
+                setMeasuredDimension(width, fixedHeight);
             }
 
             @Override
@@ -614,7 +594,7 @@ public class PostFragment extends RoboFragment implements
             }
         }
 
-        PlaceholderView placeholder = new PlaceholderView(getActivity(), aspect);
+        PlaceholderView placeholder = new PlaceholderView(getActivity());
 
         viewer.setPadding(0, padding, 0, 0);
         viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -802,35 +782,33 @@ public class PostFragment extends RoboFragment implements
         }
     }
 
-    private static class ScrollHandler extends RecyclerView.OnScrollListener {
+    private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
-        private final View viewer;
-        private final View voteAnimationIndicator;
 
         // private Integer y;
 
-        public ScrollHandler(ToolbarActivity activity, View viewer, View voteAnimationIndicator) {
+        public ScrollHandler(ToolbarActivity activity) {
             this.activity = activity;
-            this.viewer = viewer;
-            this.voteAnimationIndicator = voteAnimationIndicator;
         }
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
-            toolbar.onScrolled(dy);
-
             // get our facts straight
             int scrollY = estimateRecyclerViewScrollY(recyclerView);
-            int toolbarHeight = toolbar.getToolbarHeight();
-
             int recyclerHeight = recyclerView.getHeight();
             int viewerHeight = viewer.getHeight();
+
             boolean doFancyScroll = viewerHeight < recyclerHeight;
 
-            float scroll = scrollY < toolbarHeight || !doFancyScroll
+            ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
+            if(!doFancyScroll || dy < 0 || scrollY > 2 * toolbar.getToolbarHeight()) {
+                toolbar.onScrolled(dy);
+            }
+
+            int halfScrollOffset = 0; // toolbar.getToolbarHeight();
+            float scroll = scrollY < halfScrollOffset || !doFancyScroll
                     ? scrollY
-                    : toolbarHeight + 0.5f * (scrollY - toolbarHeight);
+                    : halfScrollOffset + 0.5f * (scrollY - halfScrollOffset);
 
             // finally position the viewer
             viewer.setTranslationY(-scroll);

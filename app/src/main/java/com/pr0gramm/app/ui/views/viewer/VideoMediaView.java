@@ -40,9 +40,6 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
     @InjectView(R.id.video)
     private TextureView surfaceView;
 
-    @InjectView(R.id.video_container)
-    private ViewGroup videoContainer;
-
     @Inject
     private Settings settings;
 
@@ -182,7 +179,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
         if (surfaceHolder.hasTexture()) {
             logger.info("Detaching TextureView");
-            videoContainer.removeView(surfaceView);
+            removeView(surfaceView);
         }
 
         // destroy the previous texture
@@ -278,7 +275,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
         // re-attach the view, if not yet there.
         if (surfaceView.getParent() == null) {
             logger.info("Attaching TextureView back");
-            videoContainer.addView(surfaceView, 0);
+            addView(surfaceView, 0);
         }
 
         logger.info("Creating new MediaPlayer");

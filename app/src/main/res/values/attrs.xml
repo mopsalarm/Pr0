@@ -13,9 +13,13 @@
     </declare-styleable>
 
     <declare-styleable name="CommentSpacerView">
-        <attr name="lineMargin" format="dimension" />
-        <attr name="lineWidth" format="dimension" />
-        <attr name="lineColor" format="color" />
-        <attr name="depth" format="integer" />
+        <attr name="lineMargin" format="dimension"/>
+        <attr name="lineWidth" format="dimension"/>
+        <attr name="lineColor" format="color"/>
+        <attr name="depth" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="AspectImageView">
+        <attr name="aspect" format="float"/>
     </declare-styleable>
 </resources>

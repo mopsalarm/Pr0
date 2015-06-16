@@ -9,13 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.pr0gramm.app.ui.views.AspectImageView
-            android:id="@+id/player_container_preview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            tools:ignore="ContentDescription"/>
-
         <com.pr0gramm.app.ui.views.Pr0grammFontTextView
             android:id="@+id/vote_indicator"
             android:layout_width="96dp"

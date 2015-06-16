@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.pr0gramm.app.ui.views.AspectImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/preview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:scaleType="fitCenter"
+    app:aspect="2"
+    tools:showIn="@layout/player_gif"/>
+    
+    

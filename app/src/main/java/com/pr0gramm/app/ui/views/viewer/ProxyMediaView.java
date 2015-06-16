@@ -21,7 +21,7 @@ public class ProxyMediaView extends MediaView {
         unsetChild();
         hideBusyIndicator();
 
-        addView(child = viewer);
+        addProxiedChild(child = viewer);
         bootupChild();
 
         // forward double clicks
@@ -30,6 +30,18 @@ public class ProxyMediaView extends MediaView {
             if (listener != null)
                 listener.onDoubleTap();
         });
+    }
+
+    /**
+     * Adds the proxied child above the preview.
+     */
+    protected void addProxiedChild(MediaView mediaView) {
+        int idx = getChildCount();
+        if (preview != null && preview.getParent() == this) {
+            idx = indexOfChild(preview) + 1;
+        }
+
+        addView(mediaView, idx);
     }
 
     public void unsetChild() {

@@ -5,12 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.ImageView;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
@@ -18,52 +16,67 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  */
 @SuppressLint("ViewConstructor")
 public class DelayedMediaView extends ProxyMediaView {
     private final View overlay;
-    private final ImageView thumbnail;
 
     @Inject
     private Picasso picasso;
+
+    private AtomicBoolean childCreated = new AtomicBoolean();
 
     public DelayedMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
         super(context, binder, url, onViewListener);
         hideBusyIndicator();
 
-        overlay = LayoutInflater.from(context).inflate(R.layout.play_now, this, false);
+        overlay = LayoutInflater.from(context).inflate(R.layout.player_delayed_overlay, this, false);
+        overlay.setOnClickListener(v -> playNow());
 
-        overlay.findViewById(R.id.play_now).setOnClickListener(v -> playNow());
-
-        thumbnail = (ImageView) overlay.findViewById(R.id.thumbnail);
-        loadThumbnailImage();
+        // Display the overlay in a smooth animation
+        overlay.setAlpha(0);
+        overlay.setScaleX(0.8f);
+        overlay.setScaleY(0.8f);
+        overlay.animate()
+                .alpha(1).scaleX(1).scaleY(1)
+                .setStartDelay(300).start();
 
         addView(overlay);
-    }
 
-    @Override
-    public void addView(@NonNull View child) {
-        // prepend children, don't append them
-        super.addView(child, 0);
+        loadThumbnailImage();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        picasso.cancelRequest(thumbnail);
+
+        if (preview != null) {
+            // stop request if still loading
+            picasso.cancelRequest(preview);
+        }
     }
 
     private void loadThumbnailImage() {
-        String url = getUrlArgument();
-
-        String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
-        Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
-        picasso.load(image).into(thumbnail);
+        if (preview != null) {
+            String url = getUrlArgument();
+            String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
+            Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
+            picasso.load(image).into(preview);
+        }
     }
 
     private void playNow() {
-        setChild(MediaViews.newInstance(getContext(), binder, url, onViewListener));
+        // call this function only exactly once!
+        if (!childCreated.compareAndSet(false, true))
+            return;
+
+        // create the real view as a child.
+        MediaView mediaView = MediaViews.newInstance(getContext(), binder, url, onViewListener);
+        mediaView.removePreviewImage();
+        setChild(mediaView);
 
         // transfer the current height from the thumbnail to the video.
         setMinimumHeight(overlay.getMeasuredHeight());
