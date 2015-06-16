@@ -456,8 +456,10 @@ public class PostFragment extends RoboFragment implements
      * tags and the comments.
      */
     private void loadPostDetails() {
+        int delay = settings.sharedElementTransition() ? 500 : 100;
+
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        bindFragment(this, details.delay(500, TimeUnit.MILLISECONDS))
+        bindFragment(this, details.delay(delay, TimeUnit.MILLISECONDS))
                 .subscribe(this::onPostReceived, defaultOnError());
     }
 

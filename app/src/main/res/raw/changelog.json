@@ -2,7 +2,7 @@
   {
     "version": 59,
     "type": "Neu",
-    "change": "Animation beim Öffnen eines Posts. Kann in den Einstellungen deaktiviert werden."
+    "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
   },
   {
     "version": 58,
