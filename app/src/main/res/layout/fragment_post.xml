@@ -11,14 +11,15 @@
 
         <com.pr0gramm.app.ui.views.Pr0grammFontTextView
             android:id="@+id/vote_indicator"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-48dp"
+            android:layout_marginTop="-80dp"
             android:gravity="center"
-            android:text="*"
+            android:text="M"
             android:textColor="@color/primary"
-            android:textSize="64dp"
+            android:textSize="150dp"
+            android:includeFontPadding="false"
             android:visibility="gone"
             tools:ignore="HardcodedText,SpUsage"/>
     </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>

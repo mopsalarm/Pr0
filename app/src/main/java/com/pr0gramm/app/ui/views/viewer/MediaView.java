@@ -42,7 +42,7 @@ public abstract class MediaView extends FrameLayout {
     protected final Runnable onViewListener;
 
 
-    private OnDoubleTapListener onDoubleTapListener;
+    private TapListener tapListener;
     private boolean started;
     private boolean resumed;
     private boolean playing;
@@ -126,6 +126,14 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
+     * This method must be called after a shared element
+     * transition for the preview image ends.
+     */
+    public void onTransitionEnds() {
+        // do nothing, override as needed
+    }
+
+    /**
      * The listener that handles double tapping
      */
     @SuppressWarnings("FieldCanBeLocal")
@@ -137,14 +145,23 @@ public abstract class MediaView extends FrameLayout {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if (onDoubleTapListener != null) {
-                onDoubleTapListener.onDoubleTap();
-                return true;
-            }
+            return MediaView.this.onDoubleTap();
+        }
 
-            return false;
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            return onSingleTap();
         }
     };
+
+    protected boolean onDoubleTap() {
+        return tapListener != null && tapListener.onDoubleTap();
+
+    }
+
+    protected boolean onSingleTap() {
+        return tapListener != null && tapListener.onSingleTap();
+    }
 
     /**
      * Displays an indicator that something is loading. You need to pair
@@ -217,12 +234,12 @@ public abstract class MediaView extends FrameLayout {
             onStop();
     }
 
-    public OnDoubleTapListener getOnDoubleTapListener() {
-        return onDoubleTapListener;
+    public TapListener getTapListener() {
+        return tapListener;
     }
 
-    public void setOnDoubleTapListener(OnDoubleTapListener onDoubleTapListener) {
-        this.onDoubleTapListener = onDoubleTapListener;
+    public void setTapListener(TapListener tapListener) {
+        this.tapListener = tapListener;
     }
 
     /**
@@ -295,8 +312,22 @@ public abstract class MediaView extends FrameLayout {
         <T> Observable<T> bind(Observable<T> observable);
     }
 
-    public interface OnDoubleTapListener {
-        void onDoubleTap();
+    public interface TapListener {
+        boolean onSingleTap();
+
+        boolean onDoubleTap();
+    }
+
+    public static class TapListenerAdapter implements TapListener {
+        @Override
+        public boolean onSingleTap() {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap() {
+            return false;
+        }
     }
 
     private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(

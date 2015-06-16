@@ -25,11 +25,7 @@ public class ProxyMediaView extends MediaView {
         bootupChild();
 
         // forward double clicks
-        child.setOnDoubleTapListener(() -> {
-            OnDoubleTapListener listener = getOnDoubleTapListener();
-            if (listener != null)
-                listener.onDoubleTap();
-        });
+        child.setTapListener(new ForwardingTapListener());
     }
 
     /**
@@ -124,5 +120,17 @@ public class ProxyMediaView extends MediaView {
     private void propagate(Action1<MediaView> action) {
         if (child != null)
             action.call(child);
+    }
+
+    private class ForwardingTapListener implements TapListener {
+        @Override
+        public boolean onSingleTap() {
+            return getTapListener() != null && getTapListener().onSingleTap();
+        }
+
+        @Override
+        public boolean onDoubleTap() {
+            return getTapListener() != null && getTapListener().onDoubleTap();
+        }
     }
 }

@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -540,7 +541,6 @@ public class PostFragment extends RoboFragment implements
 
     private void initializeMediaView() {
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
-        float aspect = 0;
 
         //noinspection Convert2Lambda
         MediaView.Binder binder = new MediaView.Binder() {
@@ -563,12 +563,16 @@ public class PostFragment extends RoboFragment implements
             AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
         });
 
-        viewer.setOnDoubleTapListener(this::onMediaViewDoubleTapped);
+        registerDoubleTapListener(viewer);
 
         if (previewInfo != null) {
             viewer.setPreviewImage(previewInfo.getPreview(),
                     previewInfo.getWidth(), previewInfo.getHeight(),
                     "TransitionTarget-" + feedItem.getId());
+
+            viewer.postDelayed(viewer::onTransitionEnds, 500);
+        } else {
+            viewer.onTransitionEnds();
         }
 
         // add views in the correct order
@@ -608,9 +612,21 @@ public class PostFragment extends RoboFragment implements
         adapter.addView(placeholder);
     }
 
-    private void onMediaViewDoubleTapped() {
+    /**
+     * Registers a tap listener on the given viewer instance. The listener is used
+     * to handle double-tap-to-vote events from the view.
+     *
+     * @param viewer The viewer to register the tap listener to.
+     */
+    private void registerDoubleTapListener(MediaView viewer) {
         if (settings.doubleTapToUpvote()) {
-            infoLineView.getVoteView().triggerUpVoteClicked();
+            viewer.setTapListener(new MediaView.TapListenerAdapter() {
+                @Override
+                public boolean onDoubleTap() {
+                    infoLineView.getVoteView().triggerUpVoteClicked();
+                    return true;
+                }
+            });
         }
     }
 
@@ -801,7 +817,7 @@ public class PostFragment extends RoboFragment implements
             boolean doFancyScroll = viewerHeight < recyclerHeight;
 
             ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
-            if(!doFancyScroll || dy < 0 || scrollY > 2 * toolbar.getToolbarHeight()) {
+            if (!doFancyScroll || dy < 0 || scrollY > 2 * toolbar.getToolbarHeight()) {
                 toolbar.onScrolled(dy);
             }
 
