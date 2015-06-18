@@ -3,11 +3,9 @@ package com.pr0gramm.app.services;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -18,25 +16,30 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class LocalCacheService {
-    private final Cache<Long, List<Tag>> tagsCache = CacheBuilder.newBuilder()
+    private final Cache<Long, ImmutableList<Tag>> tagsCache = CacheBuilder.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
     /**
      * Caches (or enhanced) a list of tags for the given itemId.
      *
-     * @param tags The list with the tags you know about
+     * @param tags_ The list with the tags you know about
      * @return A list containing all previously seen tags for this item.
      */
-    public ImmutableList<Tag> enhanceTags(Long itemId, Iterable<Tag> tags) {
-        ImmutableList<Tag> result;
+    public ImmutableList<Tag> enhanceTags(Long itemId, Iterable<Tag> tags_) {
+        ImmutableList<Tag> tags = ImmutableList.copyOf(tags_);
 
-        List<Tag> cached = tagsCache.getIfPresent(itemId);
-        if (cached != null) {
-            HashSet<Tag> combined = new HashSet<>(cached);
-            Iterables.addAll(combined, tags);
-            result = ImmutableList.copyOf(combined);
+        ImmutableList<Tag> result = tagsCache.getIfPresent(itemId);
+        if (result != null) {
+            if(tags.size() > 0) {
+                // combine only, if we have input tags
+                HashSet<Tag> merged = new HashSet<>(result);
+                merged.removeAll(tags);
+                merged.addAll(tags);
+                result = ImmutableList.copyOf(merged);
+            }
         } else {
+            // no cached, use the newly provided value
             result = ImmutableList.copyOf(tags);
         }
 
