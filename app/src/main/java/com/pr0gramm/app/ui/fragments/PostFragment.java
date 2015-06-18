@@ -36,6 +36,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
@@ -449,6 +450,15 @@ public class PostFragment extends RoboFragment implements
             viewer.onDestroy();
 
         super.onDestroy();
+
+        // check that this fragment is removed!
+        Pr0grammApplication.getRefWatcher().watch(this);
+
+        // check that the viewer is removed too
+        if(viewer != null) {
+            Pr0grammApplication.getRefWatcher().watch(viewer);
+            viewer = null;
+        }
     }
 
     /**
