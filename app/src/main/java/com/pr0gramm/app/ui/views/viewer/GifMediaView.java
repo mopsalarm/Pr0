@@ -60,6 +60,7 @@ public class GifMediaView extends MediaView {
 
                 gif = state.getDrawable();
                 imageView.setImageDrawable(this.gif);
+                setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
 
                 if (isPlaying()) {
                     onViewListener.run();

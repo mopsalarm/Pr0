@@ -56,6 +56,8 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     private Settings settings;
 
+    private float viewAspect = -1;
+
     protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url, Runnable onViewListener) {
         this(context, binder, layoutId, R.id.progress, url, onViewListener);
     }
@@ -102,10 +104,28 @@ public abstract class MediaView extends FrameLayout {
             if (imageWidth > 0 && imageHeight > 0) {
                 float aspect = (float) imageWidth / (float) imageHeight;
                 preview.setAspect(aspect);
+                setViewAspect(aspect);
             }
 
             preview.setImageDrawable(drawable);
             ViewCompat.setTransitionName(preview, transitionName);
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (viewAspect <= 0) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        } else {
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            int height = (int) (width / viewAspect) + getPaddingTop() + getPaddingBottom();
+            setMeasuredDimension(width, height);
+
+            measureChildren(
+                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         }
     }
 
@@ -243,59 +263,26 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
+     * Sets the aspect ratio of this view. Will be ignored, if not positive and size
+     * is then estimated from the children. If aspect is provided, the size of
+     * the view is estimated from its parents width.
+     */
+    public void setViewAspect(float viewAspect) {
+        if(this.viewAspect != viewAspect) {
+            this.viewAspect = viewAspect;
+            requestLayout();
+        }
+    }
+
+    public float getViewAspect() {
+        return viewAspect;
+    }
+
+    /**
      * Returns the url that this view should display.
      */
     protected String getUrlArgument() {
         return url;
-    }
-
-    /**
-     * Resizes the video view while keeping the given aspect ratio.
-     */
-    protected void resizeViewerView(View view, float aspect, int retries) {
-        if (Float.isNaN(aspect)) {
-            logger.info("Not setting aspect to NaN!");
-            return;
-        }
-
-        logger.info("Setting aspect of viewer View to " + aspect);
-
-        if (view.getWindowToken() == null) {
-            if (retries > 0) {
-                logger.info("Delay resizing of View for 100ms");
-                postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
-            }
-
-            return;
-        }
-
-        ViewParent parent = view.getParent();
-        if (parent instanceof View) {
-            int parentWidth = ((View) parent).getWidth();
-            if (parentWidth == 0) {
-                // relayout again in a short moment
-                if (retries > 0) {
-                    logger.info("Delay resizing of View for 100ms");
-                    postDelayed(() -> resizeViewerView(view, aspect, retries - 1), 100);
-                }
-
-                return;
-            }
-
-            int newHeight = (int) (parentWidth / aspect);
-            if (view.getHeight() == newHeight) {
-                logger.info("View already correctly sized at " + parentWidth + "x" + newHeight);
-                return;
-            }
-
-            logger.info("Setting size of View to " + parentWidth + "x" + newHeight);
-            ViewGroup.LayoutParams params = view.getLayoutParams();
-            params.height = newHeight;
-            view.setLayoutParams(params);
-
-        } else {
-            logger.warn("View has no parent, can not set size.");
-        }
     }
 
     public void playMedia() {

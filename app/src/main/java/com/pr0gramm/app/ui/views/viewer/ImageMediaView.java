@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -75,6 +76,10 @@ public class ImageMediaView extends MediaView {
         public void onSuccess() {
             ImageMediaView player = fragment.get();
             if (player != null) {
+                Drawable drawable = player.imageView.getDrawable();
+                float imageAspect = (float) drawable.getIntrinsicWidth() / drawable.getIntrinsicHeight();
+                player.setViewAspect(imageAspect);
+
                 player.hideBusyIndicator();
                 player.onViewListener.run();
             }

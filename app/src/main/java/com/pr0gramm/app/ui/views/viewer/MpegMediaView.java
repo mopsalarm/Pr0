@@ -54,10 +54,9 @@ public class MpegMediaView extends MediaView {
             return;
         }
 
-        WeakReference<ImageView> imageView = new WeakReference<>(this.imageView);
         Observable<Mpeg> loader = binder.bind(Async.fromCallable(() -> {
             Downloader.Response response = downloader.load(Uri.parse(url), 0);
-            return new Mpeg(imageView, response.getInputStream());
+            return new Mpeg(imageView, response.getInputStream(), this::onSizeChanged);
         }, Schedulers.io()));
 
         loading = loader.finallyDo(() -> loading = null).subscribe(mpeg -> {
@@ -69,6 +68,11 @@ public class MpegMediaView extends MediaView {
             }
 
         }, defaultOnError());
+    }
+
+    private void onSizeChanged(Integer width, Integer height) {
+        float viewAspect = (float) width / height;
+        setViewAspect(viewAspect);
     }
 
     private void loadAndPlay() {
@@ -135,13 +139,15 @@ public class MpegMediaView extends MediaView {
         private final AtomicBoolean running = new AtomicBoolean();
         private final AtomicBoolean paused = new AtomicBoolean();
         private final WeakReference<ImageView> imageView;
+        private final WeakReference<OnSizeCallback> sizeCallback;
 
         private final InputStreamCache cache;
         private volatile Bitmap visible, backbuffer;
         private PictureBuffer buffer;
 
-        public Mpeg(WeakReference<ImageView> imageView, InputStream inputStream) {
-            this.imageView = imageView;
+        public Mpeg(ImageView imageView, InputStream inputStream, OnSizeCallback sizeCallback) {
+            this.imageView = new WeakReference<>(imageView);
+            this.sizeCallback = new WeakReference<>(sizeCallback);
             this.cache = new InputStreamCache(inputStream);
         }
 
@@ -212,7 +218,7 @@ public class MpegMediaView extends MediaView {
             }
 
             // logger.info("picture decoded, ready to show", picture);
-            ImageView imageView = Mpeg.this.imageView.get();
+            ImageView imageView = this.imageView.get();
             if (imageView != null) {
                 if (backbuffer == null) {
                     backbuffer = Bitmap.createBitmap(
@@ -226,6 +232,10 @@ public class MpegMediaView extends MediaView {
                     // logger.info("show picture in ui now");
                     if (imageView.getWindowToken() != null) {
                         imageView.setImageBitmap(backbuffer);
+
+                        // set the aspect
+                        OnSizeCallback sizeCallback = this.sizeCallback.get();
+                        sizeCallback.onSizeChanged(backbuffer.getWidth(), backbuffer.getHeight());
 
                         // switch back & front buffer
                         Bitmap previous = visible;
@@ -270,6 +280,10 @@ public class MpegMediaView extends MediaView {
         }
 
         private static class VideoPlaybackStoppedException extends RuntimeException {
+        }
+
+        public interface OnSizeCallback {
+            void onSizeChanged(int width, int height);
         }
     }
 }

@@ -10,7 +10,7 @@
     <TextureView
         android:id="@+id/video"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center"/>
 
     <com.pr0gramm.app.ui.views.BusyIndicator

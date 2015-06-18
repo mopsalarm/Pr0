@@ -21,6 +21,9 @@ public class ProxyMediaView extends MediaView {
         unsetChild();
         hideBusyIndicator();
 
+        // disable view aspect, let the child determine our size
+        setViewAspect(-1);
+
         addProxiedChild(child = viewer);
         bootupChild();
 

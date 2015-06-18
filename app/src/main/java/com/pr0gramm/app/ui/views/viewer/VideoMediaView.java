@@ -10,7 +10,6 @@ import android.os.Build;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
@@ -212,9 +211,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        // scale view correctly
-        float aspect = width / (float) height;
-        resizeViewerView(surfaceView, aspect, 10);
+        setViewAspect((float) width / height);
     }
 
     @Override
