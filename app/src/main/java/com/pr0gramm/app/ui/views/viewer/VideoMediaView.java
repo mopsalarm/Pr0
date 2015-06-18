@@ -124,7 +124,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                 mediaPlayer.start();
                 currentState = State.PLAYING;
 
-                onViewListener.run();
+                onMediaShown();
             }
         }
 

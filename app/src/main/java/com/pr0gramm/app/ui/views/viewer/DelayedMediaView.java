@@ -74,7 +74,7 @@ public class DelayedMediaView extends ProxyMediaView {
             return false;
 
         // create the real view as a child.
-        MediaView mediaView = MediaViews.newInstance(getContext(), binder, url, onViewListener);
+        MediaView mediaView = MediaViews.newInstance(getContext(), binder, url, this::onMediaShown);
         mediaView.removePreviewImage();
         setChild(mediaView);
 

@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.IdRes;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.AspectImageView;
@@ -37,10 +40,12 @@ public abstract class MediaView extends FrameLayout {
             + " " + Integer.toHexString(System.identityHashCode(this)));
 
     private final GestureDetector gestureDetector;
+    private boolean mediaShown;
+
     protected final Binder binder;
     protected final String url;
-    protected final Runnable onViewListener;
 
+    private Runnable onViewListener;
 
     private TapListener tapListener;
     private boolean started;
@@ -58,7 +63,9 @@ public abstract class MediaView extends FrameLayout {
 
     private float viewAspect = -1;
 
-    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url, Runnable onViewListener) {
+    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url,
+                        Runnable onViewListener) {
+
         this(context, binder, layoutId, R.id.progress, url, onViewListener);
     }
 
@@ -133,10 +140,9 @@ public abstract class MediaView extends FrameLayout {
      * Removes the preview drawable.
      */
     public void removePreviewImage() {
-        if (preview != null) {
-            ViewParent parent = preview.getParent();
-            ((ViewGroup) parent).removeView(preview);
-            preview = null;
+        if (this.preview != null) {
+            AndroidUtility.removeView(preview);
+            this.preview = null;
         }
     }
 
@@ -268,7 +274,7 @@ public abstract class MediaView extends FrameLayout {
      * the view is estimated from its parents width.
      */
     public void setViewAspect(float viewAspect) {
-        if(this.viewAspect != viewAspect) {
+        if (this.viewAspect != viewAspect) {
             this.viewAspect = viewAspect;
             requestLayout();
         }
@@ -288,11 +294,24 @@ public abstract class MediaView extends FrameLayout {
     public void playMedia() {
         logger.info("Should start playing media");
         playing = true;
+
+        if (mediaShown) {
+            onMediaShown();
+        }
     }
 
     public void stopMedia() {
         logger.info("Should stop playing media");
         playing = false;
+    }
+
+    protected void onMediaShown() {
+        removePreviewImage();
+
+        if (isPlaying() && onViewListener != null) {
+            onViewListener.run();
+            onViewListener = null;
+        }
     }
 
     public interface Binder {
@@ -315,6 +334,7 @@ public abstract class MediaView extends FrameLayout {
         public boolean onDoubleTap() {
             return false;
         }
+
     }
 
     private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(

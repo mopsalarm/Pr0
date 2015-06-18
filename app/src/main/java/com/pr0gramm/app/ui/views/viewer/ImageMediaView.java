@@ -81,7 +81,7 @@ public class ImageMediaView extends MediaView {
                 player.setViewAspect(imageAspect);
 
                 player.hideBusyIndicator();
-                player.onViewListener.run();
+                player.onMediaShown();
             }
         }
 

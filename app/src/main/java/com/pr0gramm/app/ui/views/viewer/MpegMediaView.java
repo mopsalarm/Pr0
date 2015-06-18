@@ -65,6 +65,7 @@ public class MpegMediaView extends MediaView {
             this.mpeg = mpeg;
             if (isPlaying()) {
                 this.mpeg.play();
+                onMediaShown();
             }
 
         }, defaultOnError());
@@ -80,6 +81,7 @@ public class MpegMediaView extends MediaView {
             asyncLoadVideo();
         } else if (mpeg != null) {
             mpeg.play();
+            onMediaShown();
         }
     }
 
@@ -100,7 +102,6 @@ public class MpegMediaView extends MediaView {
         super.onResume();
         if (isPlaying()) {
             loadAndPlay();
-            onViewListener.run();
         }
     }
 

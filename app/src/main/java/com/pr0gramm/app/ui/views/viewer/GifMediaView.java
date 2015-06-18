@@ -63,7 +63,7 @@ public class GifMediaView extends MediaView {
                 setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
 
                 if (isPlaying()) {
-                    onViewListener.run();
+                    onMediaShown();
                 } else {
                     gif.stop();
                 }
@@ -88,7 +88,7 @@ public class GifMediaView extends MediaView {
         super.onResume();
         if (gif != null && isPlaying()) {
             gif.start();
-            onViewListener.run();
+            onMediaShown();
         }
     }
 

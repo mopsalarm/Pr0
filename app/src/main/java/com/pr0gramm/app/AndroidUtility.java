@@ -19,6 +19,9 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Optional;
@@ -258,6 +261,15 @@ public class AndroidUtility {
             return supplier.get();
         } finally {
             logger.info("{} took {}", name, watch);
+        }
+    }
+
+    public static void removeView(View view) {
+        if (view != null) {
+            ViewParent parent = view.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(view);
+            }
         }
     }
 }
