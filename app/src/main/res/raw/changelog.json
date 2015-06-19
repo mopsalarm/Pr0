@@ -1,5 +1,15 @@
 [
   {
+    "version": 60,
+    "type": "Fix",
+    "change": "Oberfläche an vielen Stellen überarbeitet. Mehr Performance!"
+  },
+  {
+    "version": 60,
+    "type": "Fix",
+    "change": "Softwaredekoder bescheunigt - Darstellung dürfte nun schneller sein"
+  },
+  {
     "version": 59,
     "type": "Neu",
     "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
