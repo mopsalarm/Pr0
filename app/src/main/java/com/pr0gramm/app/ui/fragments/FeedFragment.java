@@ -2,7 +2,9 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -748,7 +750,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             FeedItem item = feed.at(position);
 
             with(fragment -> {
-                fragment.picasso.load(Uris.get().thumbnail(item)).into(view.image);
+                fragment.picasso.load(Uris.get().thumbnail(item))
+                        .placeholder(new ColorDrawable(0xff333333))
+                        .into(view.image);
 
                 view.itemView.setOnClickListener(v -> {
                     ViewCompat.setTransitionName(view.image, "TransitionTarget");

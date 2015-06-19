@@ -8,7 +8,6 @@
 
     <it.sephiroth.android.library.imagezoom.ImageViewTouch
         android:id="@+id/image"
-        android:background="@color/feed_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
