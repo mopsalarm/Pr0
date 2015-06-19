@@ -34,6 +34,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -172,9 +173,13 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             unscheduleSelf(this);
         }
 
-        public void push(Bitmap frame) throws InterruptedException {
+        public boolean push(Bitmap frame) {
             checkNotMainThread();
-            next.put(frame);
+            try {
+                return next.offer(frame, delay, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException err) {
+                return false;
+            }
         }
 
         public Optional<Bitmap> pull() {
@@ -254,7 +259,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         private final MpegVideoDrawable drawable = new MpegVideoDrawable();
 
         private PictureBuffer buffer;
-        private int bitmaps;
+        private AtomicInteger bitmapCount = new AtomicInteger();
 
         public VideoPlayer(InputStream inputStream, OnSizeCallback sizeCallback) {
             this.sizeCallback = new WeakReference<>(sizeCallback);
@@ -334,12 +339,10 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         @Override
         public void pictureDecoded(PictureBuffer picture) {
             Bitmap bitmap;
-            if (bitmaps < 2) {
+            if (bitmapCount.incrementAndGet() <= 2) {
                 ensureStillRunning();
                 bitmap = Bitmap.createBitmap(
                         picture.width, picture.height, Bitmap.Config.ARGB_8888);
-
-                bitmaps += 1;
 
             } else {
                 do {
@@ -357,11 +360,10 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
                     picture.width, picture.height);
 
-            try {
-                drawable.push(bitmap);
-            } catch (InterruptedException err) {
-                stop();
-                throw new VideoPlaybackStoppedException();
+            if (!drawable.push(bitmap)) {
+                // couldn't push this bitmap, drop that the frame.
+                bitmapCount.decrementAndGet();
+                bitmap.recycle();
             }
         }
 
