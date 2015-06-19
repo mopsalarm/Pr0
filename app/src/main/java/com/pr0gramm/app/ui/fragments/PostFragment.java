@@ -81,6 +81,7 @@ import javax.inject.Inject;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.Subscription;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -161,6 +162,8 @@ public class PostFragment extends RoboFragment implements
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private PreviewInfo previewInfo;
+
+    private Subscription rxDetails;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -449,6 +452,9 @@ public class PostFragment extends RoboFragment implements
         if (viewer != null)
             viewer.onDestroy();
 
+        if(rxDetails != null)
+            rxDetails.unsubscribe();
+
         super.onDestroy();
 
         // check that this fragment is removed!
@@ -469,7 +475,7 @@ public class PostFragment extends RoboFragment implements
         int delay = settings.sharedElementTransition() ? 500 : 100;
 
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        bindFragment(this, details.delay(delay, TimeUnit.MILLISECONDS))
+        rxDetails = bindFragment(this, details.delay(delay, TimeUnit.MILLISECONDS))
                 .subscribe(this::onPostReceived, defaultOnError());
     }
 
