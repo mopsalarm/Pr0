@@ -339,7 +339,9 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         @Override
         public void pictureDecoded(PictureBuffer picture) {
             Bitmap bitmap;
-            if (bitmapCount.incrementAndGet() <= 2) {
+            if (bitmapCount.get() <= 2) {
+                bitmapCount.incrementAndGet();
+
                 ensureStillRunning();
                 bitmap = Bitmap.createBitmap(
                         picture.width, picture.height, Bitmap.Config.ARGB_8888);
