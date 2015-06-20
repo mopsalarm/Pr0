@@ -21,6 +21,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.ui.MainActionHandler;
 
 import org.slf4j.Logger;

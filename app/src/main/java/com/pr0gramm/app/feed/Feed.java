@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.PeekingIterator;
 
@@ -20,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import rx.functions.Action1;
@@ -235,6 +237,10 @@ public class Feed {
                 action.call(listener);
             }
         }
+    }
+
+    public Map<Long, FeedItem> asMap() {
+        return Maps.uniqueIndex(items, FeedItem::getId);
     }
 
     public interface FeedListener {

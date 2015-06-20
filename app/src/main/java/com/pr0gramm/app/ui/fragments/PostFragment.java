@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.SharedElementCallback;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -453,7 +452,7 @@ public class PostFragment extends RoboFragment implements
         if (viewer != null)
             viewer.onDestroy();
 
-        if(rxDetails != null)
+        if (rxDetails != null)
             rxDetails.unsubscribe();
 
         super.onDestroy();
@@ -462,7 +461,7 @@ public class PostFragment extends RoboFragment implements
         Pr0grammApplication.getRefWatcher().watch(this);
 
         // check that the viewer is removed too
-        if(viewer != null) {
+        if (viewer != null) {
             Pr0grammApplication.getRefWatcher().watch(viewer);
             viewer = null;
         }
@@ -584,11 +583,11 @@ public class PostFragment extends RoboFragment implements
 
         registerDoubleTapListener(viewer);
 
-        if (previewInfo != null) {
-            viewer.setPreviewImage(previewInfo.getPreview(),
-                    previewInfo.getWidth(), previewInfo.getHeight(),
-                    "TransitionTarget-" + feedItem.getId());
+        PreviewInfo previewInfo = this.previewInfo != null
+                ? this.previewInfo : getPreviewInfoFromCache();
 
+        if (previewInfo != null) {
+            viewer.setPreviewImage(previewInfo, "TransitionTarget-" + feedItem.getId());
             viewer.postDelayed(viewer::onTransitionEnds, 500);
         } else {
             viewer.onTransitionEnds();
@@ -625,7 +624,7 @@ public class PostFragment extends RoboFragment implements
             if (newHeight != placeholder.fixedHeight) {
                 placeholder.fixedHeight = newHeight;
 
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     placeholder.requestLayout();
                 } else {
                     // it looks like a requestLayout is not honored on pre kitkat devices
@@ -824,6 +823,14 @@ public class PostFragment extends RoboFragment implements
         }
     }
 
+    @Nullable
+    public PreviewInfo getPreviewInfoFromCache() {
+        Uri previewUri = Uris.of(settings).thumbnail(feedItem);
+        return localCacheService.getSizeInfo(feedItem.getId())
+                .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
+                .orNull();
+    }
+
     private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
 
@@ -876,16 +883,27 @@ public class PostFragment extends RoboFragment implements
     }
 
     public static final class PreviewInfo {
-        private final Drawable preview;
         private final long itemId;
         private final int width;
         private final int height;
+        private Drawable preview;
+        private Uri previewUri;
 
-        public PreviewInfo(long itemId, Drawable preview, int width, int height) {
+
+        public PreviewInfo(long itemId, int width, int height) {
             this.itemId = itemId;
-            this.preview = preview;
             this.width = width;
             this.height = height;
+        }
+
+        public PreviewInfo(long itemId, Drawable preview, int width, int height) {
+            this(itemId, width, height);
+            this.preview = preview;
+        }
+
+        public PreviewInfo(long itemId, Uri previewUri, int width, int height) {
+            this(itemId, width, height);
+            this.previewUri = previewUri;
         }
 
         public long getItemId() {
@@ -902,6 +920,10 @@ public class PostFragment extends RoboFragment implements
 
         public int getHeight() {
             return height;
+        }
+
+        public Uri getPreviewUri() {
+            return previewUri;
         }
     }
 }

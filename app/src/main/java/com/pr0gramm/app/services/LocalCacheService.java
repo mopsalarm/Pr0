@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -20,6 +21,10 @@ public class LocalCacheService {
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
+    private final Cache<Long, MetaService.SizeInfo> thumbCache = CacheBuilder.newBuilder()
+            .maximumSize(10_000)
+            .build();
+
     /**
      * Caches (or enhanced) a list of tags for the given itemId.
      *
@@ -31,7 +36,7 @@ public class LocalCacheService {
 
         ImmutableList<Tag> result = tagsCache.getIfPresent(itemId);
         if (result != null) {
-            if(tags.size() > 0) {
+            if (tags.size() > 0) {
                 // combine only, if we have input tags
                 HashSet<Tag> merged = new HashSet<>(result);
                 merged.removeAll(tags);
@@ -45,5 +50,13 @@ public class LocalCacheService {
 
         tagsCache.put(itemId, result);
         return result;
+    }
+
+    public void putSizeInfo(MetaService.SizeInfo info) {
+        thumbCache.put(info.getId(), info);
+    }
+
+    public Optional<MetaService.SizeInfo> getSizeInfo(long itemId) {
+        return Optional.fromNullable(thumbCache.getIfPresent(itemId));
     }
 }

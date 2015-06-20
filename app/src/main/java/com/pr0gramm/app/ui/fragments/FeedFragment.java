@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -44,6 +43,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.UserService;
@@ -136,6 +136,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     @Inject
     private MetaService metaService;
 
+    @Inject
+    private LocalCacheService localCacheService;
+
     private boolean bookmarkable;
     private ItemWithComment autoOpenOnLoad = null;
     private Long autoScrollOnLoad = null;
@@ -147,6 +150,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private final Set<Long> reposts = new HashSet<>();
 
     private FeedLoader loader;
+    private Map<Long, FeedItem> feed;
 
     /**
      * Initialize a new feed fragment.
@@ -693,6 +697,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
 
         for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
             sizes.put(sizeInfo.getId(), sizeInfo);
+
+            localCacheService.putSizeInfo(sizeInfo);
         }
 
         reposts.addAll(infoResponse.getReposts());

@@ -1,9 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -19,7 +16,9 @@ import android.widget.FrameLayout;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.views.AspectImageView;
+import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +59,9 @@ public abstract class MediaView extends FrameLayout {
 
     @Inject
     private Settings settings;
+
+    @Inject
+    private Picasso picasso;
 
     private float viewAspect = -1;
 
@@ -104,17 +106,26 @@ public abstract class MediaView extends FrameLayout {
      * Sets the preview image for this media view. You need to provide a width and height.
      * Those values will be used to place the preview image correctly.
      */
-    public void setPreviewImage(Drawable drawable, int imageWidth, int imageHeight,
-                                String transitionName) {
-
+    public void setPreviewImage(PostFragment.PreviewInfo info, String transitionName) {
         if (preview != null) {
-            if (imageWidth > 0 && imageHeight > 0) {
-                float aspect = (float) imageWidth / (float) imageHeight;
+            if (info.getWidth() > 0 && info.getHeight() > 0) {
+                float aspect = (float) info.getWidth() / (float) info.getHeight();
                 preview.setAspect(aspect);
                 setViewAspect(aspect);
             }
 
-            preview.setImageDrawable(drawable);
+            if (info.getPreview() != null) {
+                preview.setImageDrawable(info.getPreview());
+
+            } else if (info.getPreviewUri() != null) {
+                // quickly load the preview into this view
+                picasso.load(info.getPreviewUri()).into(preview);
+
+            } else {
+                // no preview for this item, remove the view
+                removePreviewImage();
+            }
+
             ViewCompat.setTransitionName(preview, transitionName);
         }
     }
@@ -141,6 +152,9 @@ public abstract class MediaView extends FrameLayout {
      */
     public void removePreviewImage() {
         if (this.preview != null) {
+            // cancel loading of preview, if there is still a request pending.
+            picasso.cancelRequest(preview);
+
             AndroidUtility.removeView(preview);
             this.preview = null;
         }
