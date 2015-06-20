@@ -30,6 +30,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.api.pr0gramm.response.Login;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,6 +277,14 @@ public class AndroidUtility {
             if (parent instanceof ViewGroup) {
                 ((ViewGroup) parent).removeView(view);
             }
+        }
+    }
+
+    public static <R> Observable<R> toObservable(Optional<R> optional) {
+        if(optional.isPresent()) {
+            return Observable.just(optional.get());
+        } else {
+            return Observable.empty();
         }
     }
 }

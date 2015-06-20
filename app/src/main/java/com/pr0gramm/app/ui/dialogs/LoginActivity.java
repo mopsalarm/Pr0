@@ -32,7 +32,10 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Func1;
+import rx.internal.operators.OperatorMap;
 
+import static com.pr0gramm.app.AndroidUtility.toObservable;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
@@ -100,7 +103,8 @@ public class LoginActivity extends RoboActionBarActivity {
         prefs.edit().putString(PREF_USERNAME, username).apply();
 
         subscription = bindActivity(this, userService.login(username, password))
-                .lift(busyDialog(this, getString(R.string.login_please_wait)))
+                .lift(busyDialog(this, getString(R.string.login_please_wait), UserService.LoginProgress::getProgress))
+                .flatMap(progress -> toObservable(progress.getLogin()))
                 .lift(new LoginErrorInterceptor())
                 .doOnError(err -> enableView(true))
                 .subscribe(this::onLoginResponse, defaultOnError());

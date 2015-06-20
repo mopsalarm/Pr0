@@ -13,15 +13,19 @@ import android.widget.TextView;
 
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 
 /**
  */
 public class BusyDialogFragment extends DialogFragment {
+    private BusyIndicator progress;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -29,6 +33,8 @@ public class BusyDialogFragment extends DialogFragment {
 
         TextView text = (TextView) view.findViewById(R.id.text);
         text.setText(getDialogText());
+
+        this.progress = (BusyIndicator) view.findViewById(R.id.progress);
 
         return DialogBuilder.start(getActivity())
                 .content(view)
@@ -46,12 +52,22 @@ public class BusyDialogFragment extends DialogFragment {
         return getString(R.string.please_wait);
     }
 
+    private void updateProgressValue(float progress) {
+        if (this.progress != null) {
+            this.progress.setProgress(progress);
+        }
+    }
+
     private static class BusyDialogOperator<T> implements Observable.Operator<T, T> {
         private final String tag = "BusyDialog-" + System.identityHashCode(this);
         private final FragmentManager fragmentManager;
+        private final Func1<T, Float> progressMapper;
 
-        public BusyDialogOperator(FragmentManager fragmentManager, String text) {
+        public BusyDialogOperator(FragmentManager fragmentManager, String text,
+                                  Func1<T, Float> progressMapper) {
+
             this.fragmentManager = fragmentManager;
+            this.progressMapper = progressMapper;
 
             BusyDialogFragment dialog = new BusyDialogFragment();
             if (text != null) {
@@ -94,26 +110,44 @@ public class BusyDialogFragment extends DialogFragment {
                 }
 
                 @Override
-                public void onNext(T t) {
-                    subscriber.onNext(t);
+                public void onNext(T value) {
+                    if (progressMapper != null) {
+                        float progress = progressMapper.call(value);
+                        if (progress >= 0 && progress <= 1) {
+
+                            // get the dialog and show the progress value!
+                            Fragment dialog = fragmentManager.findFragmentByTag(tag);
+                            if (dialog instanceof BusyDialogFragment) {
+                                ((BusyDialogFragment) dialog).updateProgressValue(progress);
+                            }
+                        }
+                    }
+
+                    subscriber.onNext(value);
                 }
             };
         }
     }
 
     static public <T> BusyDialogOperator<T> busyDialog(Fragment fragment) {
-        return new BusyDialogOperator<>(fragment.getFragmentManager(), null);
+        return new BusyDialogOperator<>(fragment.getFragmentManager(), null, null);
     }
 
     static public <T> BusyDialogOperator<T> busyDialog(Fragment fragment, String text) {
-        return new BusyDialogOperator<>(fragment.getFragmentManager(), text);
+        return new BusyDialogOperator<>(fragment.getFragmentManager(), text, null);
     }
 
     public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity) {
-        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), null);
+        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), null, null);
     }
 
     public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity, String text) {
-        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), text);
+        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), text, null);
+    }
+
+    public static <T> BusyDialogOperator<T> busyDialog(FragmentActivity activity, String text,
+                                                       Func1<T, Float> progressMapper) {
+
+        return new BusyDialogOperator<>(activity.getSupportFragmentManager(), text, progressMapper);
     }
 }

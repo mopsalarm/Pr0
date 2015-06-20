@@ -21,6 +21,8 @@ import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -74,20 +76,23 @@ public class UserService {
             logout();
     }
 
-    public Observable<Login> login(String username, String password) {
-        return api.login(username, password).flatMap(response -> {
-            Observable<Login> result;
-            if (response.isSuccess()) {
-                // wait for the first sync to complete.
-                result = sync().concatMap(ignored -> info())
-                        .ignoreElements()
-                        .cast(Login.class);
+    public Observable<LoginProgress> login(String username, String password) {
+        return api.login(username, password).flatMap(login -> {
+            Observable<LoginProgress> syncState;
+            if (login.isSuccess()) {
+                // perform initial sync.
+                syncState = syncWithProgress()
+                        .filter(val -> val instanceof Float)
+                        .cast(Float.class)
+                        .map(LoginProgress::new)
+                        .mergeWith(info().ignoreElements().cast(LoginProgress.class));
 
             } else {
-                result = Observable.empty();
+                syncState = Observable.empty();
             }
 
-            return result.concatWith(Observable.just(response));
+            // wait for sync to complete before emitting login result.
+            return syncState.concatWith(Observable.just(new LoginProgress(login)));
         });
     }
 
@@ -138,18 +143,28 @@ public class UserService {
 
     /**
      * Performs a sync. This updates the vote cache with all the votes that
-     * where performed since the last call to sync. This operation is blocking.
-     * <p>
-     * Someone needs to subscribe to the returned observable.
+     * where performed since the last call to sync.
      */
     public Observable<Sync> sync() {
+        return syncWithProgress().filter(val -> val instanceof Sync).cast(Sync.class);
+    }
+
+    /**
+     * Performs a sync. If values need to be stored in the database, a sequence
+     * of float values between 0 and 1 will be emitted. At the end, the sync
+     * object is appended to the stream of values.
+     */
+    public Observable<Object> syncWithProgress() {
         checkNotMainThread();
         if (!isAuthorized())
             return Observable.empty();
 
+        BehaviorSubject<Float> progressSubject = BehaviorSubject.create();
+
         // tell the sync request where to start
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
-        return api.sync(lastSyncId).map(response -> {
+
+        Observable<Sync> sync = api.sync(lastSyncId).map(response -> {
             // store syncId for next time.
             if (response.getLastId() > lastSyncId) {
                 preferences.edit()
@@ -158,9 +173,13 @@ public class UserService {
             }
 
             // and apply votes now
-            voteService.applyVoteActions(response.getLog());
+            voteService.applyVoteActions(response.getLog(), progressSubject::onNext);
+            progressSubject.onCompleted();
+
             return response;
-        });
+        }).finallyDo(progressSubject::onCompleted);
+
+        return sync.cast(Object.class).mergeWith(progressSubject.throttleFirst(50, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -226,7 +245,7 @@ public class UserService {
         return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
-    public static class LoginState {
+    public static final class LoginState {
         private final Info info;
         private final Graph benisHistory;
 
@@ -252,5 +271,28 @@ public class UserService {
         }
 
         public static final LoginState NOT_AUTHORIZED = new LoginState();
+    }
+
+    public static final class LoginProgress {
+        private Optional<Login> login;
+        private float progress;
+
+        public LoginProgress(float progress) {
+            this.progress = progress;
+            this.login = Optional.absent();
+        }
+
+        public LoginProgress(Login login) {
+            this.progress = 1.f;
+            this.login = Optional.of(login);
+        }
+
+        public float getProgress() {
+            return progress;
+        }
+
+        public Optional<Login> getLogin() {
+            return login;
+        }
     }
 }

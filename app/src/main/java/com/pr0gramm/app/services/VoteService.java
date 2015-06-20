@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
@@ -124,7 +125,7 @@ public class VoteService {
      *
      * @param actions The actions from the log to apply.
      */
-    public void applyVoteActions(List<Integer> actions) {
+    public void applyVoteActions(List<Integer> actions, Action1<Float> progressListener) {
         checkArgument(actions.size() % 2 == 0, "not an even number of items");
 
         Stopwatch watch = Stopwatch.createStarted();
@@ -138,6 +139,7 @@ public class VoteService {
 
                 long id = actions.get(idx);
                 storeVoteValue(action.type, id, action.vote);
+                progressListener.call((float) idx / actions.size());
             }
         });
 
