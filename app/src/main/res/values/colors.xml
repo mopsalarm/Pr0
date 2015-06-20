@@ -307,5 +307,7 @@
     <color name="user_type_gesperrt">#444444</color>
     <color name="user_type_legende">#1cb992</color>
     <color name="user_type_wichtler">#1cb992</color>
+    <color name="benis_delta_positive">@color/green_500</color>
+    <color name="benis_delta_negative">@color/red_500</color>
 
 </resources>

@@ -6,6 +6,11 @@
   },
   {
     "version": 60,
+    "type": "Neu",
+    "change": "Benisgraph zeigt ein Delta zum Benis vor sieben Tagen"
+  },
+  {
+    "version": 60,
     "type": "Fix",
     "change": "Oberfläche an vielen Stellen überarbeitet. Mehr Performance!"
   },

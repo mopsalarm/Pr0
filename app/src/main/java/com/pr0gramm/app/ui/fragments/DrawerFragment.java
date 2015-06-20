@@ -19,6 +19,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.DialogBuilder;
+import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -75,6 +76,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.benis)
     private TextView benisView;
+
+    @InjectView(R.id.benis_delta)
+    private TextView benisDeltaView;
 
     @InjectView(R.id.benis_container)
     private View benisContainer;
@@ -314,11 +318,14 @@ public class DrawerFragment extends RoboFragment {
             userTypeView.setTextColor(getResources().getColor(Info.MarkColors.get(user.getMark())));
             userTypeView.setText(getString(Info.MarkStrings.get(user.getMark())).toUpperCase());
 
-            String benisValue = String.valueOf(user.getScore());
+            Graph benis = state.getBenisHistory();
 
-            benisView.setText(benisValue);
+            benisView.setText(String.valueOf(user.getScore()));
             benisContainer.setVisibility(View.VISIBLE);
-            benisGraph.setImageDrawable(new GraphDrawable(state.getBenisHistory()));
+            benisGraph.setImageDrawable(new GraphDrawable(benis));
+
+            if (benis.points().size() > 2)
+                updateBenisDeltaForGraph(benis);
 
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
@@ -334,6 +341,21 @@ public class DrawerFragment extends RoboFragment {
 
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateBenisDeltaForGraph(Graph benis) {
+        int delta = (int) (benis.last().y - benis.first().y);
+        if (delta == 0) {
+            benisDeltaView.setVisibility(View.GONE);
+
+        } else {
+            benisDeltaView.setVisibility(View.VISIBLE);
+            benisDeltaView.setTextColor(delta < 0
+                    ? getResources().getColor(R.color.benis_delta_negative)
+                    : getResources().getColor(R.color.benis_delta_positive));
+
+            benisDeltaView.setText(String.format("%s%d", delta < 0 ? "↓" : "↑", delta));
         }
     }
 
