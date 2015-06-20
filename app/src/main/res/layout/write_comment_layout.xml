@@ -17,7 +17,6 @@
         android:layout_weight="1"
         android:background="@color/input_background"
         android:hint="@string/comment_hint"
-        android:maxLines="3"
         android:padding="8dp"/>
 
     <TextView
