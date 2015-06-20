@@ -10,6 +10,11 @@
     "change": "Softwaredekoder bescheunigt - Darstellung dürfte nun schneller sein"
   },
   {
+    "version": 60,
+    "type": "Fix",
+    "change": "Layoutfehler für Jellybean und ICS behoben"
+  },
+  {
     "version": 59,
     "type": "Neu",
     "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
