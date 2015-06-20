@@ -130,7 +130,11 @@ public class ShareProvider extends RoboContentProvider {
                 // do nothing
                 try {
                     logger.warn("Could not stream data to client", error);
-                    output.closeWithError(error.toString());
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        output.closeWithError(error.toString());
+                    } else {
+                        output.close();
+                    }
 
                 } catch (IOException err) {
                     logger.warn("Error trying to close the stream");
