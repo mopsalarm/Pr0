@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.PixelFormat;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -44,15 +46,6 @@ public class GraphDrawable extends Drawable {
         if (graph.isEmpty())
             return;
 
-        canvas.save();
-        canvas.translate(bounds.left, bounds.top);
-
-        // draw in a bright color. This should be customizable
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(2);
-        paint.setAntiAlias(true);
-
         float padding = 0.1f * (graph.maxValue() - graph.minValue());
         float minY = graph.minValue() - padding;
         float maxY = graph.maxValue() + padding;
@@ -68,24 +61,35 @@ public class GraphDrawable extends Drawable {
                 graph.points(),
                 singleton(new PointF(maxX, graph.last().y)));
 
-        PointF previous = graph.first();
-        for (PointF current : Iterables.skip(points, 1)) {
-            float x1 = (previous.x - minX) / scaleX;
-            float y1 = scaleY > 0
-                    ? bounds.height() - (previous.y - minY) / scaleY
-                    : bounds.height() * 0.5f;
+        Path path = new Path();
 
-            float x2 = (current.x - minX) / scaleX;
-            float y2 = scaleY > 0
+        Float previous = null;
+        for (PointF current : points) {
+            float x = (current.x - minX) / scaleX;
+            float y = scaleY > 0
                     ? bounds.height() - (current.y - minY) / scaleY
                     : bounds.height() * 0.5f;
 
+            if (previous == null) {
+                path.moveTo(x, y);
+                previous = x;
 
-            canvas.drawLine(x1, y1, x2, y2, paint);
-            previous = current;
+            } else if (x - previous > 1) {
+                path.lineTo(x, y);
+                previous = x;
+            }
         }
 
+        // draw in a bright color. This should be customizable
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setStrokeWidth(2);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+
+        canvas.save();
+        canvas.translate(bounds.left, bounds.top);
+        canvas.drawPath(path, paint);
         canvas.restore();
     }
-
 }
