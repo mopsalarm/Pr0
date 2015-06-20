@@ -8,12 +8,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
+import com.pr0gramm.app.NotificationService;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
+
+import java.io.NotSerializableException;
 
 import javax.inject.Inject;
 
@@ -28,6 +31,9 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private NotificationService notificationService;
 
     @InjectView(R.id.pager)
     private ViewPager viewPager;
@@ -72,15 +78,20 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
 
         tabLayout.setupWithViewPager(viewPager);
 
-        // this is to animate the little line below the tabs
-        // viewPager.addOnPageChangeListener(new PageChangeListener());
-
         // restore previously selected tab
         if (savedInstanceState != null) {
             viewPager.setCurrentItem(savedInstanceState.getInt("tab"));
         } else {
             handleNewIntent(getIntent());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // remove pending notifications.
+        notificationService.cancelForInbox();
     }
 
     @Override
@@ -162,39 +173,4 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
     public void onPageScrollStateChanged(int state) {
 
     }
-
-//    private class PageChangeListener implements ViewPager.OnPageChangeListener {
-//        private int scrollingState = ViewPager.SCROLL_STATE_IDLE;
-//
-//        @Override
-//        public void onPageSelected(int position) {
-//            if (scrollingState == ViewPager.SCROLL_STATE_IDLE) {
-//                updateIndicatorPosition(position, 0);
-//            }
-//
-//            // tabWidget.setCurrentTab(position);
-//            tabHost.setCurrentTab(position);
-//        }
-//
-//        @Override
-//        public void onPageScrollStateChanged(int state) {
-//            scrollingState = state;
-//        }
-//
-//        @Override
-//        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//            updateIndicatorPosition(position, positionOffset);
-//        }
-//
-//        private void updateIndicatorPosition(int position, float positionOffset) {
-//            View tabView = tabWidget.getChildTabViewAt(position);
-//            int indicatorWidth = tabView.getWidth();
-//            int indicatorLeft = (int) ((position + positionOffset) * indicatorWidth);
-//
-//            final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) indicator.getLayoutParams();
-//            layoutParams.width = indicatorWidth;
-//            layoutParams.setMargins(indicatorLeft, 0, 0, 0);
-//            indicator.setLayoutParams(layoutParams);
-//        }
-//    }
 }
