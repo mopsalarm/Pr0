@@ -245,6 +245,12 @@ public class AndroidUtility {
         }
     }
 
+    public static <T> void ifNotNull(T value, Action1<T> action) {
+        if (value != null) {
+            action.call(value);
+        }
+    }
+
     /**
      * Measures the runtime of the given runnable and log it to the provided logger.
      */

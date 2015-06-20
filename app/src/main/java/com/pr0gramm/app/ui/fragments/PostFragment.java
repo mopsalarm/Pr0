@@ -39,12 +39,14 @@ import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ShareProvider;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.ProxyService;
@@ -86,6 +88,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.AndroidUtility.ifNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -312,16 +315,14 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem refresh = menu.findItem(R.id.action_refresh);
-        if (refresh != null) {
-            refresh.setVisible(settings.showRefreshButton());
-        }
+        ifNotNull(menu.findItem(R.id.action_refresh),
+                item -> item.setVisible(settings.showRefreshButton()));
 
-        MenuItem item = menu.findItem(R.id.action_zoom);
-        if (item != null) {
-            item.setVisible(isStaticImage(feedItem.getImage()));
-        }
+        ifNotNull(menu.findItem(R.id.action_zoom),
+                item -> item.setVisible(isStaticImage(feedItem.getImage())));
 
+        ifNotNull(menu.findItem(R.id.action_share_image),
+                item -> item.setVisible(ShareProvider.canShare(feedItem)));
     }
 
     /**
@@ -336,7 +337,6 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         if (item.getItemId() == R.id.action_refresh) {
             doRefreshWithIndicator();
             return true;
@@ -354,10 +354,30 @@ public class PostFragment extends RoboFragment implements
             startActivity(intent);
         }
 
-        if (item.getItemId() == R.id.action_share) {
+        if (item.getItemId() == R.id.action_share_image) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
+            startActivity(intent);
+        }
+
+        if (item.getItemId() == R.id.action_share_direct_link) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
+            startActivity(intent);
+        }
+
+        if (item.getItemId() == R.id.action_share_post) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            if (feedItem.getPromotedId() > 0) {
+                intent.putExtra(Intent.EXTRA_TEXT,
+                        Uris.get().post(FeedType.PROMOTED, feedItem.getPromotedId()).toString());
+            } else {
+                intent.putExtra(Intent.EXTRA_TEXT,
+                        Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
+            }
             startActivity(intent);
         }
 

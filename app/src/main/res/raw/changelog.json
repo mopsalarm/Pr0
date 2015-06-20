@@ -1,6 +1,11 @@
 [
   {
     "version": 60,
+    "type": "Neu",
+    "change": "Teilen nun wahlweise direkt als Bild, als Link zum Post oder zum Bild"
+  },
+  {
+    "version": 60,
     "type": "Fix",
     "change": "Oberfläche an vielen Stellen überarbeitet. Mehr Performance!"
   },

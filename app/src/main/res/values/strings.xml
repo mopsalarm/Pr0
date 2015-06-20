@@ -284,4 +284,7 @@
     <string name="comment_written_successful">Comment added successfully</string>
     <string name="pref_shared_element_transition_title">Animate open post</string>
     <string name="pref_shared_element_transition_summary">Animate opening a post. Might be slow on older devices. Android 5+ only.</string>
+    <string name="share_post">Link to post</string>
+    <string name="share_direct_link">Link to image</string>
+    <string name="share_image">As image</string>
 </resources>

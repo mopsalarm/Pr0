@@ -52,6 +52,12 @@
         <service
             android:name=".SyncIntentService"
             android:exported="false"/>
+        
+        <provider
+            android:name="com.pr0gramm.app.ShareProvider"
+            android:authorities="com.pr0gramm.app.ShareProvider"
+            android:grantUriPermissions="true"
+            android:exported="true"/>
 
         <activity
             android:name=".ui.MainActivity"

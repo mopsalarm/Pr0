@@ -6,26 +6,40 @@
 
     <item
         android:id="@+id/action_zoom"
-        android:title="@string/zoom"
         android:icon="@drawable/ic_white_action_fullscreen"
+        android:title="@string/zoom"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_share"
-        android:title="@string/share"
         android:icon="@drawable/ic_white_action_share"
-        app:showAsAction="ifRoom" />
+        android:title="@string/share"
+        app:showAsAction="ifRoom">
+
+        <menu>
+            <item
+                android:id="@+id/action_share_post"
+                android:title="@string/share_post"/>
+
+            <item
+                android:id="@+id/action_share_direct_link"
+                android:title="@string/share_direct_link"/>
+
+            <item
+                android:id="@+id/action_share_image"
+                android:title="@string/share_image"/>
+        </menu>
+    </item>
 
     <item
         android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_white_action_refresh"
         android:title="@string/action_refresh"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_white_action_refresh"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_download"
-        android:title="@string/action_download"
         android:icon="@drawable/ic_white_action_save"
+        android:title="@string/action_download"
         app:showAsAction="ifRoom"/>
 
 </menu>
