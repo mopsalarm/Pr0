@@ -21,6 +21,12 @@
         <item name="android:windowBackground">@color/feed_background</item>
     </style>
 
+    <style name="AppTheme.LoginScreen.WhiteAccent" parent="AppTheme">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
     <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar"/>
     <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar" />
 
