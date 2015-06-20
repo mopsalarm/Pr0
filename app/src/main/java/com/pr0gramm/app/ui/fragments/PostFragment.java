@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -623,7 +624,14 @@ public class PostFragment extends RoboFragment implements
             int newHeight = viewer.getMeasuredHeight();
             if (newHeight != placeholder.fixedHeight) {
                 placeholder.fixedHeight = newHeight;
-                placeholder.requestLayout();
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    placeholder.requestLayout();
+                } else {
+                    // it looks like a requestLayout is not honored on pre kitkat devices
+                    // if already in a layout pass.
+                    placeholder.post(placeholder::requestLayout);
+                }
             }
         });
 
