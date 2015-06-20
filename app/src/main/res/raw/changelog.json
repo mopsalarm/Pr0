@@ -25,6 +25,11 @@
     "change": "Layoutfehler für Jellybean und ICS behoben"
   },
   {
+    "version": 60,
+    "type": "Fix",
+    "change": "Benachrichtigung über neue Nachrichten verschwindet, wenn man auf 'Nachrichten' in der App klickt."
+  },
+  {
     "version": 59,
     "type": "Neu",
     "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
