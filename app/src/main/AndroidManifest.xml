@@ -107,12 +107,12 @@
 
                 <data
                     android:host="pr0gramm.com"
-                    android:pathPattern="/user/*"
+                    android:pathPrefix="/user"
                     android:scheme="http"/>
 
                 <data
                     android:host="pr0gramm.com"
-                    android:pathPattern="/user/*"
+                    android:pathPrefix="/user"
                     android:scheme="https"/>
 
             </intent-filter>

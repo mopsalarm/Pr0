@@ -38,7 +38,7 @@ public class FeedFilterWithStart {
 
 
     public static Optional<FeedFilterWithStart> fromUri(Uri uri) {
-        List<Pattern> patterns = ImmutableList.of(pFeed, pFeedId, pUserUploads, pUserUploadsId, pTag, pTagId);
+        List<Pattern> patterns = ImmutableList.of(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pTag, pTagId);
 
         Long commentId = extractCommentId(uri.getPath());
 
@@ -61,10 +61,10 @@ public class FeedFilterWithStart {
             String user = groups.get("user");
             if (!Strings.isNullOrEmpty(user)) {
                 String subcategory = groups.get("subcategory");
-                if ("uploads".equals(subcategory)) {
-                    filter = filter.withUser(user);
-                } else {
+                if ("likes".equals(subcategory)) {
                     filter = filter.withLikes(user);
+                } else {
+                    filter = filter.withUser(user);
                 }
             }
 
@@ -73,7 +73,7 @@ public class FeedFilterWithStart {
             if (!Strings.isNullOrEmpty(tag))
                 filter = filter.withTags(tag);
 
-            Long itemId = Longs.tryParse(firstNonNull(groups.get("id"), "-1"));
+            Long itemId = Longs.tryParse(firstNonNull(groups.get("id"), ""));
             return Optional.of(new FeedFilterWithStart(filter, itemId, commentId));
         }
 
@@ -91,6 +91,7 @@ public class FeedFilterWithStart {
 
     private static final Pattern pFeed = Pattern.compile("^/(?<type>new|top)$");
     private static final Pattern pFeedId = Pattern.compile("^/(?<type>new|top)/(?<id>[0-9]+)$");
+    private static final Pattern pUser = Pattern.compile("^/user/(?<user>[^/]+)/?$");
     private static final Pattern pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/?$");
     private static final Pattern pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<id>[0-9]+)$");
     private static final Pattern pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$");
