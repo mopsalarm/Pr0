@@ -3,12 +3,11 @@
 
     <include layout="@layout/player_preview_image"/>
 
-    <com.pr0gramm.app.ui.views.MaximizeImageView
+    <ImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
-        android:minHeight="150dp"
         android:scaleType="fitCenter"/>
 
     <com.pr0gramm.app.ui.views.BusyIndicator

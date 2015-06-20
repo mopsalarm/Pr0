@@ -8,5 +8,6 @@
     android:layout_gravity="top"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
+    android:paddingRight="8dp"
     android:text="@string/action_add_tag"
     android:textColor="@color/primary"/>

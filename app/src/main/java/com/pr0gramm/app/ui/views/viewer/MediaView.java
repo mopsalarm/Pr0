@@ -110,6 +110,10 @@ public abstract class MediaView extends FrameLayout {
         if (preview != null) {
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
+
+                // clamp while loading the preview.
+                aspect = Math.max(aspect, 1 / 3.0f);
+
                 preview.setAspect(aspect);
                 setViewAspect(aspect);
             }

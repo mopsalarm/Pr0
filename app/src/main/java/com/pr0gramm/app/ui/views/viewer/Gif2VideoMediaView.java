@@ -28,7 +28,6 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     public Gif2VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
         super(context, binder, url, onViewListener);
         startWebmConversion(binder, url);
-        setViewAspect(2);
     }
 
     private void startWebmConversion(Binder binder, String url) {
