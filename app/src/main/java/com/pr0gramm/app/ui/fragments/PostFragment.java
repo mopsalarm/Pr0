@@ -373,7 +373,7 @@ public class PostFragment extends RoboFragment implements
             intent.setType("text/plain");
             if (feedItem.getPromotedId() > 0) {
                 intent.putExtra(Intent.EXTRA_TEXT,
-                        Uris.get().post(FeedType.PROMOTED, feedItem.getPromotedId()).toString());
+                        Uris.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
             } else {
                 intent.putExtra(Intent.EXTRA_TEXT,
                         Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
