@@ -258,4 +258,5 @@
     <string name="share_direct_link">Link zum Bild</string>
     <string name="share_image">Als Bild</string>
     <string name="share_post">Link zum Post</string>
+    <string name="prefcat_misc">Verschiedenes</string>
 </resources>

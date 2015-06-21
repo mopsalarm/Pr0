@@ -197,15 +197,15 @@
                 android:action="preference://prefcat_compatibility"/>
 
             <CheckBoxPreference
-                android:key="pref_dont_restore_surface"
-                android:title="@string/pref_dont_restore_surface_title"
-                android:summary="@string/pref_dont_restore_surface_summary"
-                android:defaultValue="false"/>
-
-            <CheckBoxPreference
                 android:key="pref_use_mpeg_decoder"
                 android:title="@string/pref_use_mpeg_decoder_title"
                 android:summary="@string/pref_use_mpeg_decoder_summary"
+                android:defaultValue="false"/>
+
+            <CheckBoxPreference
+                android:key="pref_dont_restore_surface"
+                android:title="@string/pref_dont_restore_surface_title"
+                android:summary="@string/pref_dont_restore_surface_summary"
                 android:defaultValue="false"/>
 
             <CheckBoxPreference
@@ -243,7 +243,7 @@
 
     <PreferenceCategory
         android:key="prefcat_misc"
-        android:title="Miscellaneous"
+        android:title="@string/prefcat_misc"
         android:persistent="false">
 
         <Preference
