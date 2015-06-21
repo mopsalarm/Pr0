@@ -2,6 +2,7 @@
 <manifest
     package="com.pr0gramm.app"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     >
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -52,12 +53,13 @@
         <service
             android:name=".SyncIntentService"
             android:exported="false"/>
-        
+
         <provider
             android:name="com.pr0gramm.app.ShareProvider"
-            android:authorities="com.pr0gramm.app.ShareProvider"
+            android:authorities="${applicationId}.ShareProvider"
+            android:exported="true"
             android:grantUriPermissions="true"
-            android:exported="true"/>
+            tools:ignore="ExportedContentProvider"/>
 
         <activity
             android:name=".ui.MainActivity"

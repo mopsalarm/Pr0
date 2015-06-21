@@ -156,7 +156,7 @@ public class ShareProvider extends RoboContentProvider {
         String path = BaseEncoding.base64Url().encode(uri.getBytes(Charsets.UTF_8));
         return new Uri.Builder()
                 .scheme("content")
-                .authority("com.pr0gramm.app.ShareProvider")
+                .authority(BuildConfig.APPLICATION_ID + ".ShareProvider")
                 .path(path)
                 .build();
     }
