@@ -87,5 +87,15 @@
         "change": "Aktuellen Accounttyp im Drawer anzeigen."
       }
     ]
+  },
+  {
+    "version": 55,
+    "release": true,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Button im Feed zum Wechseln der Filtereinstellung."
+      }
+    ]
   }
 ]

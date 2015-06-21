@@ -127,6 +127,12 @@
             android:text="@string/action_settings"/>
 
         <TextView
+            android:id="@+id/action_feedback"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_feedback_black_24dp"
+            android:text="@string/action_feedback"/>
+
+        <TextView
             android:id="@+id/action_logout"
             style="@style/AppStyle.DrawerItem"
             android:drawableLeft="@drawable/ic_black_action_exit"

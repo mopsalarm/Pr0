@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="16dp"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/feedback_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/input_background"
             android:hint="@string/feedback_name"
-            android:inputType="textPersonName"/>
+            android:inputType="textPersonName"
+            android:padding="8sp"/>
+    </android.support.design.widget.TextInputLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp">
 
         <EditText
             android:id="@+id/feedback_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="8dp"
+            android:background="@color/input_background"
             android:gravity="start|top"
             android:hint="@string/feedback_feedback"
             android:inputType="textMultiLine"
-            android:maxLines="8"
-            android:minLines="8"/>
+            android:padding="8sp">
 
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="8dp"
-            android:enabled="false"
-            android:text="@string/feedback_submit"/>
-    </LinearLayout>
-</ScrollView>
+            <requestFocus/>
+        </EditText>
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:enabled="false"
+        android:text="@string/feedback_submit"/>
+</LinearLayout>

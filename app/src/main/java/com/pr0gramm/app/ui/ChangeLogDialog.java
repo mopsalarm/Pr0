@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
@@ -23,6 +22,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.Pr0grammApplication;
@@ -35,9 +35,14 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
+import roboguice.fragment.RoboDialogFragment;
+
 /**
  */
-public class ChangeLogDialog extends DialogFragment {
+public class ChangeLogDialog extends RoboDialogFragment {
+    @Inject
+    private Settings settings;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -48,7 +53,7 @@ public class ChangeLogDialog extends DialogFragment {
         List<ChangeGroup> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         RecyclerView recycler = (RecyclerView) inflater.inflate(R.layout.changelog, null);
-        recycler.setAdapter(new ChangeAdapter(changes));
+        recycler.setAdapter(new ChangeAdapter(settings.useBetaChannel(), changes));
         recycler.setLayoutManager(new LinearLayoutManager(context));
 
         return DialogBuilder.start(context)
@@ -71,12 +76,19 @@ public class ChangeLogDialog extends DialogFragment {
 
     private static class ChangeAdapter extends RecyclerView.Adapter<ChangeViewHolder> {
         private final List<Object> items;
-        private final int currentVersion = Pr0grammApplication.getPackageInfo().versionCode;
 
-        ChangeAdapter(List<ChangeGroup> changeGroups) {
+        ChangeAdapter(boolean betaVersion, List<ChangeGroup> changeGroups) {
+            boolean current = true;
             ImmutableList.Builder<Object> items = ImmutableList.builder();
-            for (ChangeGroup group : changeGroups) {
-                items.add(Version.of(group.version));
+            for (int idx = 0; idx < changeGroups.size(); idx++) {
+                ChangeGroup group = changeGroups.get(idx);
+
+                current &= !group.release;
+
+                if(idx == 0 || !current || betaVersion) {
+                    items.add(Version.of(group.version, current));
+                }
+
                 items.addAll(group.changes);
             }
 
@@ -116,7 +128,7 @@ public class ChangeLogDialog extends DialogFragment {
             if (item instanceof Version) {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
-                holder.setTextColorId(version.number == currentVersion
+                holder.setTextColorId(version.current
                         ? R.color.primary : R.color.primary_dark_material_light);
             }
         }
@@ -173,20 +185,23 @@ public class ChangeLogDialog extends DialogFragment {
 
     private static final class ChangeGroup {
         int version;
+        boolean release;
         List<Change> changes;
     }
 
     private static final class Version {
         final int number;
         final String formatted;
+        final boolean current;
 
-        public Version(int number, String formatted) {
+        private Version(int number, String formatted, boolean current) {
             this.number = number;
             this.formatted = formatted;
+            this.current = current;
         }
 
-        public static Version of(int number) {
-            return new Version(number, "Version 1." + number);
+        public static Version of(int number, boolean current) {
+            return new Version(number, "Version 1." + number, current);
         }
     }
 

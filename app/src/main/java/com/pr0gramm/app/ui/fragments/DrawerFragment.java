@@ -30,6 +30,7 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.SettingsActivity;
@@ -52,6 +53,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
+import static com.pr0gramm.app.AndroidUtility.getTintentDrawable;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static java.util.Arrays.asList;
 import static rx.android.app.AppObservable.bindFragment;
@@ -91,6 +93,9 @@ public class DrawerFragment extends RoboFragment {
 
     @InjectView(R.id.action_logout)
     private View logoutView;
+
+    @InjectView(R.id.action_feedback)
+    private TextView feedbackView;
 
     @InjectView(R.id.action_settings)
     private View settingsView;
@@ -169,8 +174,6 @@ public class DrawerFragment extends RoboFragment {
         loginView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
-            //LoginDialogFragment dialog = new LoginDialogFragment();
-            //dialog.show(getFragmentManager(), null);
         });
 
         logoutView.setOnClickListener(v -> {
@@ -179,6 +182,12 @@ public class DrawerFragment extends RoboFragment {
         });
 
         benisGraph.setOnClickListener(this::onBenisGraphClicked);
+
+        changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
+        feedbackView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), FeedbackActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
