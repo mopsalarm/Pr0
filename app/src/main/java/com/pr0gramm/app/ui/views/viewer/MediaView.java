@@ -325,6 +325,7 @@ public abstract class MediaView extends FrameLayout {
 
     protected void onMediaShown() {
         removePreviewImage();
+        mediaShown = true;
 
         if (isPlaying() && onViewListener != null) {
             onViewListener.run();
