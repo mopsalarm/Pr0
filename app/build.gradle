@@ -29,7 +29,7 @@ android {
         targetSdkVersion 22
 
         versionCode appVersion
-        versionName "1.${appVersion}"
+        versionName "1.${(int)(appVersion / 10)}"
     }
 
     signingConfigs {
