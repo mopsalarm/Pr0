@@ -7,4 +7,5 @@
           android:paddingLeft="16dp"
           android:paddingRight="16dp"
           android:paddingTop="16dp"
+          android:textStyle="bold"
           android:text="@string/dummy_user_name"/>

@@ -45,7 +45,7 @@ public class ChangeLogDialog extends DialogFragment {
 
         ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), DialogBuilder.DEFAULT_THEME);
 
-        List<Change> changes = changelog(context);
+        List<ChangeGroup> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         RecyclerView recycler = (RecyclerView) inflater.inflate(R.layout.changelog, null);
         recycler.setAdapter(new ChangeAdapter(changes));
@@ -53,6 +53,7 @@ public class ChangeLogDialog extends DialogFragment {
 
         return DialogBuilder.start(context)
                 .content(recycler, false)
+                .fullWidth()
                 .positive(R.string.okay, () -> {
                     if (settings.useBetaChannel()) {
                         showFeedbackReminderDialog();
@@ -72,17 +73,11 @@ public class ChangeLogDialog extends DialogFragment {
         private final List<Object> items;
         private final int currentVersion = Pr0grammApplication.getPackageInfo().versionCode;
 
-        ChangeAdapter(List<Change> changes) {
-            int lastVersion = -1;
-
+        ChangeAdapter(List<ChangeGroup> changeGroups) {
             ImmutableList.Builder<Object> items = ImmutableList.builder();
-            for (Change change : changes) {
-                if (change.version != lastVersion) {
-                    items.add(Version.of(change.version));
-                    lastVersion = change.version;
-                }
-
-                items.add(change);
+            for (ChangeGroup group : changeGroups) {
+                items.add(Version.of(group.version));
+                items.addAll(group.changes);
             }
 
             this.items = items.build();
@@ -172,9 +167,13 @@ public class ChangeLogDialog extends DialogFragment {
     }
 
     private static final class Change {
-        int version;
         String type;
         String change;
+    }
+
+    private static final class ChangeGroup {
+        int version;
+        List<Change> changes;
     }
 
     private static final class Version {
@@ -192,11 +191,11 @@ public class ChangeLogDialog extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private static List<Change> changelog(Context context) {
+    private static List<ChangeGroup> changelog(Context context) {
         try {
             try (InputStream input = context.getResources().openRawResource(R.raw.changelog)) {
                 InputStreamReader reader = new InputStreamReader(input, Charsets.UTF_8);
-                return new Gson().fromJson(reader, listOfChangeTypeToken.getType());
+                return new Gson().fromJson(reader, LIST_OF_CHANGE_GROUPS.getType());
             }
 
         } catch (IOException error) {
@@ -205,6 +204,6 @@ public class ChangeLogDialog extends DialogFragment {
         }
     }
 
-    private static final TypeToken<List<Change>> listOfChangeTypeToken = new TypeToken<List<Change>>() {
+    private static final TypeToken<List<ChangeGroup>> LIST_OF_CHANGE_GROUPS = new TypeToken<List<ChangeGroup>>() {
     };
 }

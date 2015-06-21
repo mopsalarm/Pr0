@@ -1,292 +1,91 @@
 [
   {
-    "version": 60,
-    "type": "Neu",
-    "change": "Teilen nun wahlweise direkt als Bild, als Link zum Post oder zum Bild"
+    "version": 61,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Links wurden nicht mehr richtig in der App geöffnet"
+      },
+      {
+        "type": "Fix",
+        "change": "Bilder wurden nicht korrekt als 'gelesen' markiert."
+      }
+    ]
   },
   {
     "version": 60,
-    "type": "Neu",
-    "change": "Benisgraph zeigt ein Delta zum Benis vor sieben Tagen"
-  },
-  {
-    "version": 60,
-    "type": "Fix",
-    "change": "Oberfläche an vielen Stellen überarbeitet. Mehr Performance!"
-  },
-  {
-    "version": 60,
-    "type": "Fix",
-    "change": "Softwaredekoder bescheunigt - Darstellung dürfte nun schneller sein"
-  },
-  {
-    "version": 60,
-    "type": "Fix",
-    "change": "Layoutfehler für Jellybean und ICS behoben"
-  },
-  {
-    "version": 60,
-    "type": "Fix",
-    "change": "Benachrichtigung über neue Nachrichten verschwindet, wenn man auf 'Nachrichten' in der App klickt."
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Teilen nun wahlweise direkt als Bild, als Link zum Post oder zum Bild"
+      },
+      {
+        "type": "Neu",
+        "change": "Benisgraph zeigt ein Delta zum Benis vor sieben Tagen"
+      },
+      {
+        "type": "Fix",
+        "change": "Oberfläche an vielen Stellen überarbeitet. Mehr Performance!"
+      },
+      {
+        "type": "Fix",
+        "change": "Softwaredekoder bescheunigt - Darstellung dürfte nun schneller sein"
+      },
+      {
+        "type": "Fix",
+        "change": "Layoutfehler für Jellybean und ICS behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Benachrichtigung über neue Nachrichten verschwindet, wenn man auf 'Nachrichten' in der App klickt."
+      }
+    ]
   },
   {
     "version": 59,
-    "type": "Neu",
-    "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Animation beim Öffnen eines Posts und sofortige Vorschau des Bildes, das geladen wird."
+      }
+    ]
   },
   {
     "version": 58,
-    "type": "Neu",
-    "change": "Ausgewählter Kommentar mit anderer Hintergrundfarbe hervorheben"
-  },
-  {
-    "version": 58,
-    "type": "Fix",
-    "change": "Workaround im Logindialog für dreckige Samsung Geräte :/"
-  },
-  {
-    "version": 57,
-    "type": "Neu",
-    "change": "Überarbeiteten Loginscreen"
-  },
-  {
-    "version": 57,
-    "type": "Neu",
-    "change": "Links zu Kommentaren sollten nun in die ungefähre Nähe der Kommentare springen"
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Ausgewählter Kommentar mit anderer Hintergrundfarbe hervorheben"
+      },
+      {
+        "type": "Fix",
+        "change": "Workaround im Logindialog für dreckige Samsung Geräte :/"
+      }
+    ]
   },
   {
     "version": 57,
-    "type": "Neu",
-    "change": "Filter in der Actionbar zu 'alle' zusammengefasst."
-  },
-  {
-    "version": 57,
-    "type": "Intern",
-    "change": "Interne Umbauten."
-  },
-  {
-    "version": 57,
-    "type": "Neu",
-    "change": "Aktuellen Accounttyp im Drawer anzeigen."
-  },
-  {
-    "version": 55,
-    "type": "Neu",
-    "change": "Button im Feed zum Wechseln der Filtereinstellung."
-  },
-  {
-    "version": 54,
-    "type": "Fix",
-    "change": "Man kann sich nicht mehr selbst Nachrichten schicken."
-  },
-  {
-    "version": 54,
-    "type": "Neu",
-    "change": "Lizenzdialog für verwendete Bibliotheken"
-  },
-  {
-    "version": 54,
-    "type": "Fix",
-    "change": "Filtereinstellungen können in den Einstellungen nur noch angemeldet verändert werden"
-  },
-  {
-    "version": 53,
-    "type": "Fix",
-    "change": "Tags können jetzt hinzugefügt werden, selbst wenn noch kein Tag existiert."
-  },
-  {
-    "version": 52,
-    "type": "Fix",
-    "change": "Feed wird jetzt ergänzt. Reposts werden im Feed hervorgehoben."
-  },
-  {
-    "version": 50,
-    "type": "Neu",
-    "change": "Kommentarlinien"
-  },
-  {
-    "version": 50,
-    "type": "Neu",
-    "change": "Nachrichten können direkt an einen Benutzer (über seinen Namen) geschickt werden"
-  },
-  {
-    "version": 50,
-    "type": "Fix",
-    "change": "Bessere Tabs und Actionbar in der Nachrichtenübersicht"
-  },
-  {
-    "version": 50,
-    "type": "Fix",
-    "change": "Ein weiteres Speicherleak behoben"
-  },
-  {
-    "version": 49,
-    "type": "Neu",
-    "change": "Neue Einstellung 'Softwaredekoder' unter Kompatibilität, die jetzt jegliche Videoprobleme beheben sollte."
-  },
-  {
-    "version": 49,
-    "type": "Fix",
-    "change": "Durch die Statusleiste versteckte Einstellungen wieder sichtbar gemacht"
-  },
-  {
-    "version": 49,
-    "type": "Fix",
-    "change": "Öffne auch https-Links mit der App"
-  },
-  {
-    "version": 49,
-    "type": "Fix",
-    "change": "Dialoge etwas aufgeräumt"
-  },
-  {
-    "version": 48,
-    "type": "Neu",
-    "change": "Transparente Statusleiste für Android Kitkat und neuer."
-  },
-  {
-    "version": 47,
-    "type": "Neu",
-    "change": "Benisgraph bleibt auf dem Gerät gespeichert, wenn man sich aus- und wieder einloggt."
-  },
-  {
-    "version": 47,
-    "type": "Neu",
-    "change": "Bilder können direkt über die Gallerie ins pr0gramm geteilt werden."
-  },
-  {
-    "version": 47,
-    "type": "Neu",
-    "change": "Markierung bereits gesehener Bilder verbessert."
-  },
-  {
-    "version": 47,
-    "type": "Fix",
-    "change": "Fehlerhafte Anzeige korrigiert, wenn man zwischen sfw/nsfw wechselt."
-  },
-  {
-    "version": 47,
-    "type": "Fix",
-    "change": "Posts werden erst als 'gesehen' markiert, wenn sie wirklich angezeigt wurden."
-  },
-  {
-    "version": 47,
-    "type": "Fix",
-    "change": "Deaktivieren der Updateprüfung entfernt. Es gibt immer noch Deppen, die mit ner zwei Monate alten App Version unterwegs sind."
-  },
-  {
-    "version": 46,
-    "type": "Neu",
-    "change": "Support für HTTPS (voll sicher!)"
-  },
-  {
-    "version": 46,
-    "type": "Fix",
-    "change": "Absturz beim schließen eines Tags behoben"
-  },
-  {
-    "version": 46,
-    "type": "Neu",
-    "change": "Klick auf die Anzahl der Favoriten eines Benutzers zeigt diese an."
-  },
-  {
-    "version": 45,
-    "type": "Info",
-    "change": "Dies ist nur ein Bugfixrelease. Entschuldigt. Bitte weiter unten für die Neuigkeiten gucken."
-  },
-  {
-    "version": 45,
-    "type": "Fix",
-    "change": "Absturz beim Voten von Kommentaren gefixt."
-  },
-  {
-    "version": 44,
-    "type": "Neu",
-    "change": "Wenn man nach einem Benutzer in den Tags sucht, bekommt man die Möglichkeit zu dessen Uploads zu gehen."
-  },
-  {
-    "version": 44,
-    "type": "Fix",
-    "change": "Hinzufügen-Button für Tags mit den Tags scrollbar gemacht für mehr Platz!"
-  },
-  {
-    "version": 44,
-    "type": "Fix",
-    "change": "Bessere Fehlerbehandlung bei Uploads."
-  },
-  {
-    "version": 44,
-    "type": "Fix",
-    "change": "Deaktiviere die Ansicht während ein Bild hochgeladen wird."
-  },
-  {
-    "version": 43,
-    "type": "Neu",
-    "change": "Erste Informationen über andere Benutzer werden angezeigt."
-  },
-  {
-    "version": 43,
-    "type": "Fix",
-    "change": "Wenn eine Netzwerkanfrage fehlgeschlagen ist, wird sie bis zu zweimal wiederholt."
-  },
-  {
-    "version": 42,
-    "type": "Fix",
-    "change": "Es wird geprüft, ob das Uploadlimit erreicht ist, bevor der Upload erlaubt wird."
-  },
-  {
-    "version": 42,
-    "type": "Fix",
-    "change": "Wenn das Zeigen mehrerer Zeilen für Tags eingestellt ist, zeige maximal drei Zeilen."
-  },
-  {
-    "version": 42,
-    "type": "Fix",
-    "change": "Hebe die installierte Version im Feedback hervor."
-  },
-  {
-    "version": 41,
-    "type": "Neu",
-    "change": "Unterstützung zum Upload von Bildern!"
-  },
-  {
-    "version": 41,
-    "type": "Neu",
-    "change": "Bei eigenen Uploads wird der Benis sofort angezeigt, nicht erst eine Stunde später."
-  },
-  {
-    "version": 40,
-    "type": "Oops",
-    "change": "Versehentlich übersprungen."
-  },
-  {
-    "version": 39,
-    "type": "Neu",
-    "change": "Tags können mehrzeilig angezeigt werden."
-  },
-  {
-    "version": 39,
-    "type": "Fix",
-    "change": "Abstürze durch Anzeigen des Changelogs hoffentlich behoben"
-  },
-  {
-    "version": 39,
-    "type": "Fix",
-    "change": "Wenn man über einen Link ins pr0gramm gekommen ist, kann man die App mit zweimal Zurück wieder verlassen"
-  },
-  {
-    "version": 38,
-    "type": "Neu",
-    "change": "Downloadordner ist jetzt konfigurierbar (danke an Deathmage)"
-  },
-  {
-    "version": 38,
-    "type": "Neu",
-    "change": "Neues und besseres Feedbackformular in den Einstellungen"
-  },
-  {
-    "version": 37,
-    "type": "Neu",
-    "change": "Videos Loopen nun endlich (Bugfix für Samsung-Untersmartphones)"
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Überarbeiteten Loginscreen"
+      },
+      {
+        "type": "Neu",
+        "change": "Links zu Kommentaren sollten nun in die ungefähre Nähe der Kommentare springen"
+      },
+      {
+        "type": "Neu",
+        "change": "Filter in der Actionbar zu 'alle' zusammengefasst."
+      },
+      {
+        "type": "Intern",
+        "change": "Interne Umbauten."
+      },
+      {
+        "type": "Neu",
+        "change": "Aktuellen Accounttyp im Drawer anzeigen."
+      }
+    ]
   }
 ]
