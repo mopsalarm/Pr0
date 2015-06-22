@@ -66,7 +66,7 @@ public class RestAdapterProvider implements Provider<Api> {
         return new RestAdapter.Builder()
                 .setEndpoint(host)
                 .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
                 .setClient(new OkClient(client))
                 .build()

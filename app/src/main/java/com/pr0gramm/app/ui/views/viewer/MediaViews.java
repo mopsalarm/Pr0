@@ -3,9 +3,6 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.content.Context;
 
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.services.ProxyService;
-
-import roboguice.RoboGuice;
 
 /**
  * This class provides static methods to create a new
@@ -19,53 +16,45 @@ public class MediaViews {
      * Instantiates one of the viewer fragments subclasses depending
      * on the provided url.
      *
-     * @param url The url that should be displayed.
+     * @param uri The url that should be displayed.
      * @return A new {@link MediaView} instance.
      */
-    public static MediaView newInstance(Context context, MediaView.Binder binder, String url, Runnable onViewListener) {
-        ProxyService proxyService = RoboGuice.getInjector(context).getInstance(ProxyService.class);
+    public static MediaView newInstance(Context context, MediaView.Binder binder, MediaUri uri, Runnable onViewListener) {
+        Settings settings = Settings.of(context);
 
-        // handle delay: urls.
-        if (url.startsWith("delay:")) {
-            String realUrl = url.substring("delay:".length());
-            return new DelayedMediaView(context, binder, realUrl, onViewListener);
+        // handle delay urls first.
+        if (uri.hasDelayFlag()) {
+            return new DelayedMediaView(context, binder, uri.withDelay(false), onViewListener);
+        }
+
+        if(settings.useProxy()) {
+            uri = uri.withProxy(true);
         }
 
         MediaView result;
-        Settings settings = Settings.of(context);
-        if (isVideoUrl(url)) {
-            if (url.matches("^.*pr0gramm.*\\.webm$") && settings.useMpegDecoder()) {
-                result = new MpegMediaView(context, binder, proxyService.proxy(url.replace(".webm", ".mpg")), onViewListener);
+        if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
+            if (shouldUseSoftwareDecoder(uri, settings)) {
+                MediaUri mpeg = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
+                result = new MpegMediaView(context, binder, mpeg.withProxy(true), onViewListener);
             } else {
-                result = new VideoMediaView(context, binder, proxyService.proxy(url), onViewListener);
+                result = new VideoMediaView(context, binder, uri, onViewListener);
             }
 
-        } else if (url.toLowerCase().endsWith(".gif")) {
+        } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
             if (settings.convertGifToWebm()) {
-                result = new Gif2VideoMediaView(context, binder, url, onViewListener);
+                result = new Gif2VideoMediaView(context, binder, uri, onViewListener);
             } else {
-                result = new GifMediaView(context, binder, proxyService.proxy(url), onViewListener);
+                result = new GifMediaView(context, binder, uri, onViewListener);
             }
 
         } else {
-            result = new ImageMediaView(context, binder, proxyService.proxy(url), onViewListener);
+            result = new ImageMediaView(context, binder, uri, onViewListener);
         }
 
         return result;
     }
 
-    private static boolean isVideoUrl(String url) {
-        return url != null && url.toLowerCase().matches(".*\\.(?:webm|mp4|mpg|mpeg|avi)");
-    }
-
-    private static boolean isGifUrl(String url) {
-        return url != null && url.toLowerCase().endsWith(".gif");
-    }
-
-    public static String delay(String url) {
-        if (isVideoUrl(url) || isGifUrl(url))
-            return "delay:" + url;
-
-        return url;
+    private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
+        return uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm") && settings.useMpegDecoder();
     }
 }

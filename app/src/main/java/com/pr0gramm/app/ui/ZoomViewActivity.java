@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -122,7 +123,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
     }
 
     private void loadImage() {
-        String url = proxyService.proxy(Uris.get().media(item).toString());
+        Uri url = proxyService.proxy(Uris.get().media(item));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
 
         if (Strings.isNullOrEmpty(item.getFullsize())) {
@@ -138,7 +139,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         hq.setImageDrawable(getColoredHqIcon(R.color.primary));
         hq.animate().alpha(1).start();
 
-        String url = proxyService.proxy(Uris.get().media(item, true).toString());
+        Uri url = proxyService.proxy(Uris.get().media(item, true));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
     }
 
@@ -146,7 +147,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         return getTintentDrawable(this, R.drawable.ic_action_high_quality, colorId);
     }
 
-    private void loadImageWithUrl(String url, int maximumBitmapWidth, int maximumBitmapHeight) {
+    private void loadImageWithUrl(Uri url, int maximumBitmapWidth, int maximumBitmapHeight) {
         showBusyIndicator();
 
         picasso.cancelRequest(imageView);

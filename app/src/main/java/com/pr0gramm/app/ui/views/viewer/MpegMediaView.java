@@ -58,7 +58,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
     private VideoPlayer videoPlayer;
     private Subscription loading;
 
-    public MpegMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public MpegMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
@@ -68,7 +68,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         }
 
         Observable<VideoPlayer> loader = binder.bind(Async.fromCallable(() -> {
-            Downloader.Response response = downloader.load(Uri.parse(url), 0);
+            Downloader.Response response = downloader.load(getEffectiveUri(), 0);
             return new VideoPlayer(response.getInputStream(), this);
         }, Schedulers.io()));
 

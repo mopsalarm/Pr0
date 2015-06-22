@@ -4,22 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import com.google.inject.Inject;
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -28,12 +20,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DelayedMediaView extends ProxyMediaView {
     private final View overlay;
     private final AtomicBoolean childCreated = new AtomicBoolean();
-    private final Target previewTarget = new PreviewTarget(this);
 
     @Inject
     private Picasso picasso;
 
-    public DelayedMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public DelayedMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, url, onViewListener);
         hideBusyIndicator();
 
@@ -53,18 +44,6 @@ public class DelayedMediaView extends ProxyMediaView {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        picasso.cancelRequest(previewTarget);
-    }
-
-    @Override
-    public void onTransitionEnds() {
-        if (preview != null) {
-            String url = getUrlArgument();
-            String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
-            Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
-
-            picasso.load(image).noPlaceholder().into(previewTarget);
-        }
     }
 
     @Override
@@ -74,7 +53,9 @@ public class DelayedMediaView extends ProxyMediaView {
             return false;
 
         // create the real view as a child.
-        MediaView mediaView = MediaViews.newInstance(getContext(), binder, url, this::onMediaShown);
+        MediaView mediaView = MediaViews.newInstance(getContext(),
+                binder, mediaUri.withDelay(false), this::onMediaShown);
+
         mediaView.removePreviewImage();
         setChild(mediaView);
 
@@ -86,45 +67,10 @@ public class DelayedMediaView extends ProxyMediaView {
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        removeViewFromParent(overlay);
+                        AndroidUtility.removeView(overlay);
                     }
                 }).start();
 
         return true;
-    }
-
-    private static void removeViewFromParent(View view) {
-        ViewParent parent = view.getParent();
-        if (parent instanceof ViewGroup) {
-            ((ViewGroup) parent).removeView(view);
-        }
-    }
-
-    /**
-     * Puts the loaded image into the preview container, if there
-     * still is a preview container.
-     */
-    private static class PreviewTarget implements Target {
-        private final WeakReference<DelayedMediaView> mediaView;
-
-        public PreviewTarget(DelayedMediaView mediaView) {
-            this.mediaView = new WeakReference<>(mediaView);
-        }
-
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            DelayedMediaView mediaView = this.mediaView.get();
-            if (mediaView != null && mediaView.preview != null) {
-                mediaView.preview.setImageBitmap(bitmap);
-            }
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
     }
 }

@@ -21,6 +21,7 @@ import com.pr0gramm.app.ui.views.BusyIndicator;
 import java.io.IOException;
 
 import roboguice.inject.InjectView;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
@@ -51,7 +52,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     private int retryCount;
 
-    public VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public VideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_video, url, onViewListener);
 
         logger.info("Playing webm " + url);
@@ -288,7 +289,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
                     mp.start();
                 });
 
-                mediaPlayer.setDataSource(getContext(), Uri.parse(url));
+                mediaPlayer.setDataSource(getContext(), getEffectiveUri());
                 mediaPlayer.setOnPreparedListener(this);
                 mediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
                     View view = getProgressView();
@@ -306,10 +307,12 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
             } catch (IOException error) {
                 throw Throwables.propagate(error);
             }
-        }, Schedulers.io()).subscribe(Actions.empty(), error -> {
-            moveTo(State.IDLE);
-            defaultOnError().call(error);
-        });
+        }, Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread()).subscribe(
+                Actions.empty(),
+                error -> {
+                    moveTo(State.IDLE);
+                    defaultOnError().call(error);
+                });
     }
 
     private class SurfaceTextureListenerImpl implements TextureView.SurfaceTextureListener {

@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge>
 
     <include layout="@layout/player_preview_image"/>
-
-    <com.pr0gramm.app.ui.views.BusyIndicator
-        android:id="@+id/proxy_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+    <include layout="@layout/player_progress"/>
 
 </merge>

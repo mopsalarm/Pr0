@@ -63,6 +63,7 @@ import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
+import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.squareup.picasso.Picasso;
@@ -394,7 +395,7 @@ public class PostFragment extends RoboFragment implements
 
     private void downloadPostMedia() {
         // download over proxy to use caching
-        Uri url = Uri.parse(proxyService.proxy(Uris.get().media(feedItem).toString()));
+        Uri url = proxyService.proxy(Uris.get().media(feedItem));
 
         File external;
         if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
@@ -589,14 +590,14 @@ public class PostFragment extends RoboFragment implements
         };
 
         // initialize a new viewer fragment
-        String url = Uris.get().media(feedItem).toString();
+        MediaUri uri = MediaUri.of(Uris.get().media(feedItem));
 
         // delay playback on mobile
         if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
-            url = MediaViews.delay(url);
+            uri = uri.withDelay(true);
         }
 
-        viewer = MediaViews.newInstance(getActivity(), binder, url, () -> {
+        viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
             //  mark this item seen. We do that in a background thread
             AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
         });

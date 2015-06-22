@@ -34,7 +34,7 @@ public class ImageMediaView extends MediaView {
     @Inject
     private Picasso picasso;
 
-    public ImageMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public ImageMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
@@ -43,7 +43,7 @@ public class ImageMediaView extends MediaView {
         super.onStart();
 
         if (imageView.getDrawable() == null) {
-            picasso.load(getUrlArgument())
+            picasso.load(getEffectiveUri())
                     .resize(1052, settings.maxImageSize())
                     .centerInside()
                     .onlyScaleDown()

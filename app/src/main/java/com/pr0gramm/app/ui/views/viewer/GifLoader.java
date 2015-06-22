@@ -26,9 +26,9 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
     private final Downloader downloader;
     private final File temporaryPath;
-    private final String url;
+    private final Uri url;
 
-    GifLoader(Downloader downloader, File temporaryPath, String url) {
+    GifLoader(Downloader downloader, File temporaryPath, Uri url) {
         this.downloader = downloader;
         this.temporaryPath = temporaryPath;
         this.url = url;
@@ -38,7 +38,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
     public void call(Subscriber<? super GifLoader.DownloadStatus> subscriber) {
         try {
             // request the gif file
-            Downloader.Response response = downloader.load(Uri.parse(url), 0);
+            Downloader.Response response = downloader.load(url, 0);
 
             // and load + parse it
             loadGifUsingTempFile(subscriber, response);
@@ -113,7 +113,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
     }
 
     public static Observable<DownloadStatus> loader(
-            Downloader downloader, File temporaryPath, String url) {
+            Downloader downloader, File temporaryPath, Uri url) {
 
         return Observable.create(new GifLoader(downloader, temporaryPath, url));
     }

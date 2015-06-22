@@ -1,7 +1,9 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
-import android.support.annotation.IdRes;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
@@ -13,15 +15,21 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.ref.WeakReference;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -42,7 +50,7 @@ public abstract class MediaView extends FrameLayout {
     private boolean mediaShown;
 
     protected final Binder binder;
-    protected final String url;
+    protected final MediaUri mediaUri;
 
     private Runnable onViewListener;
 
@@ -50,6 +58,8 @@ public abstract class MediaView extends FrameLayout {
     private boolean started;
     private boolean resumed;
     private boolean playing;
+
+    private PreviewTarget previewTarget;
 
     @Nullable
     private View progress;
@@ -63,31 +73,26 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     private Picasso picasso;
 
+    @Inject
+    private ProxyService proxyService;
+
     private float viewAspect = -1;
 
-    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, String url,
+    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
-
-        this(context, binder, layoutId, R.id.progress, url, onViewListener);
-    }
-
-    protected MediaView(Context context, Binder binder,
-                        @LayoutRes Integer layoutId, @IdRes Integer progressId,
-                        String url, Runnable onViewListener) {
 
         super(context);
         this.binder = binder;
-        this.url = url;
+        this.mediaUri = mediaUri;
         this.onViewListener = onViewListener;
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
             LayoutInflater.from(context).inflate(layoutId, this);
 
-            if (progressId != null)
-                progress = findViewById(progressId);
-
+            progress = findViewById(R.id.progress);
             preview = (AspectImageView) findViewById(R.id.preview);
+            previewTarget = new PreviewTarget(this);
         } else {
             preview = null;
         }
@@ -174,7 +179,25 @@ public abstract class MediaView extends FrameLayout {
      * transition for the preview image ends.
      */
     public void onTransitionEnds() {
-        // do nothing, override as needed
+        if (preview != null && previewTarget != null) {
+
+            if (isEligibleForThumbyPreview(mediaUri)) {
+                String url = mediaUri.getBaseUri().toString();
+                String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
+
+                Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
+                picasso.load(image).noPlaceholder().into(previewTarget);
+            }
+        }
+    }
+
+    /**
+     * Return true, if the thumby service can produce a preview for this url.
+     * This is currently possible for gifs and videos.
+     */
+    private static boolean isEligibleForThumbyPreview(MediaUri url) {
+        MediaUri.MediaType type = url.getMediaType();
+        return type == MediaUri.MediaType.VIDEO || type == MediaUri.MediaType.GIF;
     }
 
     /**
@@ -268,6 +291,8 @@ public abstract class MediaView extends FrameLayout {
     }
 
     public void onDestroy() {
+        picasso.cancelRequest(previewTarget);
+
         if (playing)
             stopMedia();
 
@@ -305,8 +330,19 @@ public abstract class MediaView extends FrameLayout {
     /**
      * Returns the url that this view should display.
      */
-    protected String getUrlArgument() {
-        return url;
+    protected MediaUri getMediaUri() {
+        return mediaUri;
+    }
+
+    /**
+     * Gets the effective uri that should be downloaded
+     */
+    public Uri getEffectiveUri() {
+        if (mediaUri.hasProxyFlag()) {
+            return proxyService.proxy(mediaUri.getBaseUri());
+        } else {
+            return mediaUri.getBaseUri();
+        }
     }
 
     public void playMedia() {
@@ -356,7 +392,37 @@ public abstract class MediaView extends FrameLayout {
 
     }
 
+
+    /**
+     * Puts the loaded image into the preview container, if there
+     * still is a preview container.
+     */
+    private static class PreviewTarget implements Target {
+        private final WeakReference<MediaView> mediaView;
+
+        public PreviewTarget(MediaView mediaView) {
+            this.mediaView = new WeakReference<>(mediaView);
+        }
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            MediaView mediaView = this.mediaView.get();
+            if (mediaView != null && mediaView.preview != null) {
+                mediaView.preview.setImageBitmap(bitmap);
+            }
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+        }
+    }
+
     private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT);
+
 }

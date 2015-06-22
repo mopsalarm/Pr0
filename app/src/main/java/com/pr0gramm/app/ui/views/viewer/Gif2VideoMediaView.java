@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 
 import com.pr0gramm.app.services.GifToVideoService;
 import com.pr0gramm.app.services.ProxyService;
@@ -25,27 +26,26 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     private ProxyService proxyService;
 
-    public Gif2VideoMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public Gif2VideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, url, onViewListener);
         startWebmConversion(binder, url);
     }
 
-    private void startWebmConversion(Binder binder, String url) {
+    private void startWebmConversion(Binder binder, MediaUri url) {
         logger.info("Start converting gif to webm");
-        conversion = binder.bind(gifToVideoService.toVideo(url)).subscribe(result -> {
+        conversion = binder.bind(gifToVideoService.toVideo(url.toString())).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer
             MediaView mediaView;
             if (result.getVideoUrl().isPresent()) {
                 logger.info("Converted successfully, replace with video player");
-                String webm = result.getVideoUrl().get();
+                MediaUri webm = url.withUri(Uri.parse(result.getVideoUrl().get()), MediaUri.MediaType.VIDEO);
                 mediaView = MediaViews.newInstance(getContext(), binder, webm, this::onMediaShown);
 
             } else {
                 logger.info("Conversion did not work, showing gif");
-                mediaView = new GifMediaView(getContext(), binder,
-                        proxyService.proxy(result.getGifUrl()), this::onMediaShown);
+                mediaView = new GifMediaView(getContext(), binder, url, this::onMediaShown);
             }
 
             mediaView.removePreviewImage();

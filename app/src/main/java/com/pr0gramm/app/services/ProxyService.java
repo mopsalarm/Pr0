@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services;
 
+import android.net.Uri;
+
 /**
  */
 public interface ProxyService {
@@ -8,5 +10,5 @@ public interface ProxyService {
      *
      * @param url The url to proxy
      */
-    String proxy(String url);
+    Uri proxy(Uri url);
 }

@@ -56,18 +56,23 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
     }
 
     @Override
-    public String proxy(String url) {
+    public Uri proxy(Uri uri) {
         // do not proxy twice!
-        if (url.contains(nonce) && url.contains("127.0.0.1"))
-            return url;
+        String uriString = uri.toString();
+        if (uriString.contains(nonce) && uriString.contains("127.0.0.1"))
+            return uri;
 
-        String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
+        // append the name at the end of the generated uri.
+        String name = firstNonNull(uri.getLastPathSegment(), "name");
+
+        String encoded = BaseEncoding.base64Url().encode(uriString.getBytes(Charsets.UTF_8));
         return new Uri.Builder()
                 .scheme("http")
                 .encodedAuthority("127.0.0.1:" + getMyPort())
                 .appendPath(nonce)
                 .appendPath(encoded)
-                .toString();
+                .appendPath(name)
+                .build();
     }
 
     @Override
@@ -82,7 +87,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
 
         String decodedUrl = null;
         try {
-            String encodedUrl = uri.getLastPathSegment();
+            String encodedUrl = uri.getPathSegments().get(1);
 
             logger.info("Decode {} as utf8 string now", encodedUrl);
             String url = decodedUrl = new String(

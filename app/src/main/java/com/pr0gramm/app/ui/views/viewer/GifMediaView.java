@@ -39,7 +39,7 @@ public class GifMediaView extends MediaView {
 
     private Subscription dlGifSubscription;
 
-    public GifMediaView(Context context, Binder binder, String url, Runnable onViewListener) {
+    public GifMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_gif, url, onViewListener);
 
         loadGif();
@@ -47,7 +47,7 @@ public class GifMediaView extends MediaView {
 
     private void loadGif() {
         Observable<GifLoader.DownloadStatus> loader = GifLoader
-                .loader(downloader, getContext().getCacheDir(), url)
+                .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
                 .subscribeOn(Schedulers.io());
 
         dlGifSubscription = binder.bind(loader).subscribe(state -> {
