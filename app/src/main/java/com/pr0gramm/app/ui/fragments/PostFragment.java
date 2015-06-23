@@ -395,7 +395,7 @@ public class PostFragment extends RoboFragment implements
 
     private void downloadPostMedia() {
         // download over proxy to use caching
-        Uri url = proxyService.proxy(Uris.get().media(feedItem));
+        Uri url = proxyService.proxy(Uris.get().media(feedItem, true));
 
         File external;
         if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
