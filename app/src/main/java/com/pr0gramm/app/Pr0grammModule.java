@@ -62,7 +62,7 @@ public class Pr0grammModule extends AbstractModule {
         client.setReadTimeout(15, TimeUnit.SECONDS);
         client.setWriteTimeout(15, TimeUnit.SECONDS);
         client.setConnectTimeout(10, TimeUnit.SECONDS);
-        client.setConnectionPool(new ConnectionPool(4, standardSeconds(6).getMillis()));
+        client.setConnectionPool(new ConnectionPool(4, standardSeconds(2).getMillis()));
         client.setRetryOnConnectionFailure(true);
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);

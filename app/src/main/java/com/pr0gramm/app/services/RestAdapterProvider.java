@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
@@ -115,10 +117,17 @@ public class RestAdapterProvider implements Provider<Api> {
 
             if (method.getReturnType() == Observable.class) {
                 // check if this is a get for retry.
-                GET get = method.getAnnotation(GET.class);
-                final int retryCount = get != null ? 2 : 0;
-
-                return invokeWithRetry(getRestAdapter(), method, args, retryCount);
+                int retryCount = 2;
+                if (method.getAnnotation(GET.class) != null) {
+                    return invokeWithRetry(getRestAdapter(), method, args,
+                            RestAdapterProvider::isNetworkError, retryCount);
+                } else {
+                    return invokeWithRetry(getRestAdapter(), method, args,
+                            Predicates.or(
+                                    RestAdapterProvider::isServiceNotAvailableError,
+                                    RestAdapterProvider::isServiceNotAvailableError),
+                            retryCount);
+                }
             }
 
             try {
@@ -130,13 +139,16 @@ public class RestAdapterProvider implements Provider<Api> {
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})
-    private static Observable<Object> invokeWithRetry(Api api, Method method, Object[] args, int retryCount)
+    private static Observable<Object> invokeWithRetry(
+            Api api, Method method, Object[] args,
+            Predicate<Throwable> shouldRetryTest, int retryCount)
+
             throws IllegalAccessException, InvocationTargetException {
 
         Observable<Object> result = (Observable<Object>) method.invoke(api, args);
         for (int i = 0; i < retryCount; i++) {
             result = result.onErrorResumeNext(err -> {
-                if (isNetworkError(err)) {
+                if (shouldRetryTest.apply(err)) {
                     try {
                         // give the server a small grace period before trying again.
                         Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
@@ -160,9 +172,19 @@ public class RestAdapterProvider implements Provider<Api> {
     private static boolean isNetworkError(Throwable error) {
         if (error instanceof RetrofitError) {
             RetrofitError httpError = (RetrofitError) error;
-
             RetrofitError.Kind kind = httpError.getKind();
             return kind == RetrofitError.Kind.HTTP || kind == RetrofitError.Kind.NETWORK;
+        }
+
+        return false;
+    }
+
+    private static boolean isServiceNotAvailableError(Throwable error) {
+        if (error instanceof RetrofitError) {
+            RetrofitError httpError = (RetrofitError) error;
+            return httpError.getKind() == RetrofitError.Kind.HTTP
+                    && httpError.getResponse() != null
+                    && httpError.getResponse().getStatus() == 503;
         }
 
         return false;
