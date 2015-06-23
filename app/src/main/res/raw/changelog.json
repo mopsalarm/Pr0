@@ -1,5 +1,14 @@
 [
   {
+    "version": 63,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Text in Kommentaren und Nachrichten kann markiert werden."
+      }
+    ]
+  },
+  {
     "version": 61,
     "changes": [
       {
