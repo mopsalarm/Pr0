@@ -12,6 +12,7 @@
         android:layout_marginRight="8dp"
         android:layout_toRightOf="@+id/voting"
         android:layout_alignParentRight="true"
+        android:textIsSelectable="true"
         android:text="@string/dummy_text"/>
 
     <com.pr0gramm.app.ui.views.SenderInfoView

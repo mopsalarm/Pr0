@@ -7,6 +7,7 @@
         <item name="colorAccent">@color/accent</item>
         <item name="android:windowBackground">@color/feed_background</item>
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>

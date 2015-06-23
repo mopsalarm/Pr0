@@ -38,6 +38,7 @@
         android:singleLine="false"
         android:layout_marginLeft="16dp"
         android:text="@string/dummy_text"
+        android:textIsSelectable="true"
         />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
