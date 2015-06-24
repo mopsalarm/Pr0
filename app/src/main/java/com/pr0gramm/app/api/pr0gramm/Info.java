@@ -2,9 +2,11 @@ package com.pr0gramm.app.api.pr0gramm;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 
 import org.joda.time.Instant;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,6 +17,7 @@ public class Info {
     private int uploadCount;
     private int commentCount;
     private int tagCount;
+    private List<UserComments.Comment> comments = Collections.emptyList();
 
     public User getUser() {
         return user;
@@ -34,6 +37,10 @@ public class Info {
 
     public int getTagCount() {
         return tagCount;
+    }
+
+    public List<UserComments.Comment> getComments() {
+        return comments;
     }
 
     public static class User {

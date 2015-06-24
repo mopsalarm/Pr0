@@ -21,24 +21,9 @@ public class WrittenCommentFragment extends MessageInboxFragment {
         String name = userService.getName().get();
         return getInboxService().getUserComments(name).map(userComments -> {
             //noinspection CodeBlock2Expr
-            return Lists.transform(userComments.getComments(), comment -> {
-                UserComments.User sender = userComments.getUser();
-                return commentToMessage(sender, comment);
-            });
+            return Lists.transform(userComments.getComments(),
+                    comment -> Message.of(userComments.getUser(), comment));
         });
     }
 
-    private static Message commentToMessage(UserComments.User sender, UserComments.Comment comment) {
-        return new Message.Builder()
-                .withId((int) comment.getId())
-                .withCreated(comment.getCreated())
-                .withScore(comment.getUp() - comment.getDown())
-                .withItemId((int) comment.getItemId())
-                .withMark(sender.getMark())
-                .withName(sender.getName())
-                .withSenderId(sender.getId())
-                .withMessage(comment.getContent())
-                .withThumb(comment.getThumb())
-                .build();
-    }
 }

@@ -1,5 +1,8 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.ui.views.UserInfoCell;
+
 import org.joda.time.Instant;
 
 /**
@@ -144,5 +147,27 @@ public class Message {
         public Message build() {
             return new Message(this);
         }
+    }
+
+    public static Message of(UserComments.User sender, UserComments.Comment comment) {
+        return of(sender.getId(), sender.getName(), sender.getMark(), comment);
+    }
+
+    public static Message of(Info.User sender, UserComments.Comment comment) {
+        return of(sender.getId(), sender.getName(), sender.getMark(), comment);
+    }
+
+    private static Message of(int senderId, String name, int mark, UserComments.Comment comment) {
+        return new Builder()
+                .withId((int) comment.getId())
+                .withCreated(comment.getCreated())
+                .withScore(comment.getUp() - comment.getDown())
+                .withItemId((int) comment.getItemId())
+                .withMark(mark)
+                .withName(name)
+                .withSenderId(senderId)
+                .withMessage(comment.getContent())
+                .withThumb(comment.getThumb())
+                .build();
     }
 }
