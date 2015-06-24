@@ -594,7 +594,9 @@ public class PostFragment extends RoboFragment implements
 
         // delay playback on mobile
         if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
-            uri = uri.withDelay(true);
+            if(uri.getMediaType() != MediaUri.MediaType.IMAGE) {
+                uri = uri.withDelay(true);
+            }
         }
 
         viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
