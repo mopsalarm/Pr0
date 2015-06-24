@@ -25,7 +25,7 @@
         android:layout_marginTop="8dp"
         android:background="?android:selectableItemBackground"
         android:padding="8dp"
-        android:src="@drawable/ic_black_action_mail"
+        android:src="@drawable/ic_action_email"
         android:tint="@color/grey_400"/>
 
     <LinearLayout
@@ -175,4 +175,18 @@
         android:layout_below="@id/user_info_last_row"
         android:layout_marginTop="4dp"
         android:background="@drawable/dropshadow_reverse"/>
+
+    <ImageButton
+        android:id="@+id/action_comments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@id/user_info_last_row"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="-4dp"
+        android:background="?android:selectableItemBackground"
+        android:padding="8dp"
+        android:src="@drawable/ic_black_action_mail"
+        android:tint="@color/grey_400"/>
+
 </RelativeLayout>

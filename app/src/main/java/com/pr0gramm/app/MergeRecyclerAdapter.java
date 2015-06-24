@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -66,6 +68,12 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         adapters.add(index, new LocalAdapter(adapter));
         adapter.registerAdapterDataObserver(new ForwardingDataSetObserver(this, adapter));
         notifyDataSetChanged();
+    }
+
+    public ImmutableList<? extends RecyclerView.Adapter<?>> getAdapters() {
+        return FluentIterable.from(adapters)
+                .transform(a -> (RecyclerView.Adapter<?>) a.mAdapter)
+                .toList();
     }
 
     /**
@@ -251,6 +259,10 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         public ViewsAdapter(List<View> views) {
             super();
             this.views = views;
+        }
+
+        public ViewsAdapter(View view) {
+            this(Collections.singletonList(view));
         }
 
         /**

@@ -22,6 +22,7 @@ public class UserInfoCell extends FrameLayout {
     private final UsernameView username;
     private final TextView benis, favorites, comments, tags, uploads, date;
     private final View messages;
+    private final View showComments;
     private UserActionListener userActionListener;
 
     public UserInfoCell(Context context, Info userInfo) {
@@ -36,6 +37,7 @@ public class UserInfoCell extends FrameLayout {
         comments = findView(R.id.comments);
         date = findView(R.id.date);
         messages = findView(R.id.action_messages);
+        showComments = findView(R.id.action_comments);
 
         set(userInfo);
     }
@@ -66,6 +68,12 @@ public class UserInfoCell extends FrameLayout {
                 userActionListener.onUserFavoritesClicked(user.getName());
             }
         });
+
+        showComments.setOnClickListener(view -> {
+            if(userActionListener != null) {
+                userActionListener.onShowCommentsClicked();
+            }
+        });
     }
 
     public void setUserActionListener(UserActionListener userActionListener) {
@@ -74,6 +82,10 @@ public class UserInfoCell extends FrameLayout {
 
     public void setWriteMessageEnabled(boolean enabled) {
         messages.setVisibility(enabled ? VISIBLE : GONE);
+    }
+
+    public void setShowCommentsEnabled(boolean enabled) {
+        showComments.setVisibility(enabled ? VISIBLE : GONE);
     }
 
     @NonNull
@@ -87,5 +99,7 @@ public class UserInfoCell extends FrameLayout {
         void onWriteMessageClicked(int userId, String name);
 
         void onUserFavoritesClicked(String name);
+
+        void onShowCommentsClicked();
     }
 }

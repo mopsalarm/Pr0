@@ -10,14 +10,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.RoboGuice;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  */
@@ -34,10 +38,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener) {
         this.context = context;
         this.actionListener = actionListener;
-        this.messages = ImmutableList.copyOf(messages);
+        this.messages = new ArrayList<>(messages);
         this.picasso = RoboGuice.getInjector(context).getInstance(Picasso.class);
 
         setHasStableIds(true);
+    }
+
+    /**
+     * Replace all the messages with the new messages from the given iterable.
+     */
+    public void setMessages(Iterable<Message> messages) {
+        this.messages.clear();
+        Iterables.addAll(this.messages, messages);
+        notifyDataSetChanged();
     }
 
     @Override

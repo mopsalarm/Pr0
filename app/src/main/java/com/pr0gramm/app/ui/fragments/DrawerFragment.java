@@ -121,7 +121,7 @@ public class DrawerFragment extends RoboFragment {
     @InjectResource(R.drawable.ic_black_action_bookmark)
     private Drawable iconBookmark;
 
-    @InjectResource(R.drawable.ic_black_action_mail)
+    @InjectResource(R.drawable.ic_action_email)
     private Drawable iconInbox;
 
     @InjectResource(R.drawable.ic_black_action_upload)

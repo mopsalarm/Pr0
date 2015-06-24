@@ -25,9 +25,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.AndroidUtility;
@@ -36,6 +36,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -50,6 +51,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -77,6 +79,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Actions;
+import rx.functions.Func2;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
@@ -87,11 +90,13 @@ import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
  */
-public class FeedFragment extends RoboFragment implements UserInfoCell.UserActionListener {
+public class FeedFragment extends RoboFragment {
     private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
@@ -144,7 +149,7 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
     private Long autoScrollOnLoad = null;
 
     private Observable<Info> userInfoObservable;
-    private Function<Info, View> userInfoViewSupplier;
+    private Func2<Info, Runnable, List<RecyclerView.Adapter<?>>> userInfoViewSupplier;
 
     private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
     private final Set<Long> reposts = new HashSet<>();
@@ -249,11 +254,40 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                         .onErrorResumeNext(Observable.<Info>empty())
                         .cache();
 
-                userInfoViewSupplier = info -> {
+                userInfoViewSupplier = (info, update) -> {
+                    MessageAdapter messages = new MessageAdapter(getActivity(), emptyList());
+
+                    List<Message> comments = FluentIterable.from(info.getComments())
+                            .transform(c -> Message.of(info.getUser(), c))
+                            .toList();
+
                     UserInfoCell view = new UserInfoCell(getActivity(), info);
-                    view.setUserActionListener(FeedFragment.this);
+                    view.setUserActionListener(new UserInfoCell.UserActionListener() {
+                        @Override
+                        public void onWriteMessageClicked(int userId, String name) {
+                            DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
+                            dialog.show(getFragmentManager(), null);
+                        }
+
+                        @Override
+                        public void onUserFavoritesClicked(String name) {
+                            FeedFilter filter1 = getCurrentFilter().basic().withLikes(name);
+                            ((MainActionHandler) getActivity()).onFeedFilterSelected(filter1);
+                        }
+
+                        @Override
+                        public void onShowCommentsClicked() {
+                            messages.setMessages(messages.getItemCount() == 0 ? comments : emptyList());
+                            update.run();
+                        }
+                    });
+
                     view.setWriteMessageEnabled(!isSelfInfo(info));
-                    return view;
+                    view.setShowCommentsEnabled(!comments.isEmpty());
+
+                    return ImmutableList.of(
+                            new MergeRecyclerAdapter.ViewsAdapter(view),
+                            messages);
                 };
 
             } else if (filter.getTags().isPresent()) {
@@ -262,9 +296,9 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                         .onErrorResumeNext(Observable.<Info>empty())
                         .cache();
 
-                userInfoViewSupplier = info -> {
+                userInfoViewSupplier = (info, update) -> {
                     if (isSelfInfo(info)) {
-                        return null;
+                        return Collections.emptyList();
                     }
 
                     UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
@@ -272,7 +306,8 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
                         FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
                         ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
                     });
-                    return view;
+
+                    return singletonList(new MergeRecyclerAdapter.ViewsAdapter(view));
                 };
 
             } else {
@@ -280,15 +315,29 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             }
         }
 
+        Runnable updateSpanSizeLookup = () -> ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
+            int itemCount = 0;
+            ImmutableList<? extends RecyclerView.Adapter<?>> adapters = adapter.getAdapters();
+            for (int idx = 0; idx < adapters.size(); idx++) {
+                if (adapters.get(idx) instanceof FeedAdapter)
+                    break;
+
+                itemCount += adapters.get(idx).getItemCount();
+            }
+
+            // skip items!
+            layoutManager.setSpanSizeLookup(
+                    new NMatchParentSpanSizeLookup(itemCount, columnCount));
+        });
+
         bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
-            View userView = userInfoViewSupplier.apply(info);
-            if (userView != null) {
-                ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
-                    // add views to adapter.
-                    List<View> views = Collections.singletonList(userView);
-                    adapter.addAdapter(1, new MergeRecyclerAdapter.ViewsAdapter(views));
-                    layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(2, columnCount));
-                });
+            List<RecyclerView.Adapter<?>> adapters = userInfoViewSupplier.call(info, updateSpanSizeLookup);
+            if (adapters != null && adapters.size() > 0) {
+                for (int idx = 0; idx < adapters.size(); idx++) {
+                    adapter.addAdapter(idx + 1, adapters.get(idx));
+                }
+
+                updateSpanSizeLookup.run();
             }
         });
     }
@@ -677,18 +726,6 @@ public class FeedFragment extends RoboFragment implements UserInfoCell.UserActio
             return new FeedFilter();
 
         return feedAdapter.getFilter();
-    }
-
-    @Override
-    public void onWriteMessageClicked(int userId, String name) {
-        DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
-        dialog.show(getFragmentManager(), null);
-    }
-
-    @Override
-    public void onUserFavoritesClicked(String name) {
-        FeedFilter filter = getCurrentFilter().basic().withLikes(name);
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
     private void handleMetaServiceResponse(MetaService.InfoResponse infoResponse) {

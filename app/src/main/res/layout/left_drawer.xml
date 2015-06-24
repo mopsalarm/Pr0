@@ -104,13 +104,6 @@
             android:layout_marginTop="8dp"
             android:overScrollMode="never"/>
 
-        <TextView
-            android:id="@+id/action_messages"
-            style="@style/AppStyle.DrawerItem"
-            android:drawableLeft="@drawable/ic_black_action_mail"
-            android:text="@string/action_messages"
-            android:visibility="gone"/>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
