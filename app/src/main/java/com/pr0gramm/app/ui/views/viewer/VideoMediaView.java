@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.view.Surface;
 import android.view.TextureView;
@@ -88,7 +87,13 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
     }
 
     private void moveTo(State target) {
-        checkMainThread();
+        try {
+            checkMainThread();
+        } catch (Exception ignored) {
+            // try again in main thread.
+            post(() -> moveTo(target));
+            return;
+        }
 
         targetState = target;
         if (currentState == targetState)
