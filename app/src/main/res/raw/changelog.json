@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Die letzten Kommentare von anderen Usern können nun betrachtet werden (noch nicht fertig!)"
+        "change": "Die letzten Kommentare von anderen Usern können nun betrachtet werden (noch nicht ganz fertig!)"
       },
       {
         "type": "Neu",
@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Der 'Antworten' Button wurde teilweise fehlerhafterweise angezeigt"
+      },
+      {
+        "type": "Fix",
+        "change": "Absturz beim Videos abspielen behoben"
       }
     ]
   },
