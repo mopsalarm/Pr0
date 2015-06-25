@@ -52,6 +52,7 @@ import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MessageAdapter;
+import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -239,7 +240,7 @@ public class FeedFragment extends RoboFragment {
             int columnCount, FeedAdapter feedAdapter) {
 
         MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
-        adapter.addView(newFeedStartPaddingView());
+        adapter.addAdapter(SingleViewAdapter.of(context -> newFeedStartPaddingView()));
         adapter.addAdapter(feedAdapter);
         addUserInfoToAdapter(adapter, columnCount);
         return adapter;
@@ -286,7 +287,7 @@ public class FeedFragment extends RoboFragment {
                     view.setShowCommentsEnabled(!comments.isEmpty());
 
                     return ImmutableList.of(
-                            new MergeRecyclerAdapter.ViewsAdapter(view),
+                            SingleViewAdapter.ofView(view),
                             messages);
                 };
 
@@ -307,7 +308,7 @@ public class FeedFragment extends RoboFragment {
                         ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
                     });
 
-                    return singletonList(new MergeRecyclerAdapter.ViewsAdapter(view));
+                    return singletonList(SingleViewAdapter.ofView(view));
                 };
 
             } else {

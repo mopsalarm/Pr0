@@ -19,6 +19,8 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.ui.SingleValueAdapter;
+import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.TagCloudLayoutManager;
 
 import org.joda.time.Duration;
@@ -187,7 +189,7 @@ public class InfoLineView extends LinearLayout {
         tagsView.setMinimumHeight(height);
 
         MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
-        adapter.addView(addTagView);
+        adapter.addAdapter(SingleViewAdapter.ofView(addTagView));
         adapter.addAdapter(new TagsAdapter(sorted, tags));
         tagsView.setAdapter(adapter);
     }

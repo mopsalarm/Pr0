@@ -56,6 +56,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
+import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
@@ -250,7 +251,7 @@ public class PostFragment extends RoboFragment implements
 
     private void initializeCommentPostLine() {
         CommentPostLine line = new CommentPostLine(getActivity());
-        adapter.addView(line);
+        adapter.addAdapter(SingleViewAdapter.ofView(line));
 
         line.getCommentTextView().addTextChangedListener(new SimpleTextWatcher() {
             @Override
@@ -506,7 +507,7 @@ public class PostFragment extends RoboFragment implements
         Observable<Vote> cachedVote = voteService.getVote(feedItem);
 
         infoLineView = new InfoLineView(getActivity());
-        adapter.addView(infoLineView);
+        adapter.addAdapter(SingleViewAdapter.ofView(infoLineView));
 
 
         boolean isSelfPost = userService.getName()
@@ -657,7 +658,7 @@ public class PostFragment extends RoboFragment implements
             }
         });
 
-        adapter.addView(placeholder);
+        adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
     }
 
     /**

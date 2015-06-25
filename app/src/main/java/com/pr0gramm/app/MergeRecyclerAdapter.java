@@ -1,7 +1,6 @@
 package com.pr0gramm.app;
 
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
@@ -10,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,27 +72,6 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         return FluentIterable.from(adapters)
                 .transform(a -> (RecyclerView.Adapter<?>) a.mAdapter)
                 .toList();
-    }
-
-    /**
-     * Adds a new View to the roster of things to appear in
-     * the aggregate list.
-     *
-     * @param view Single view to add
-     */
-    public void addView(View view) {
-        addViews(Collections.singletonList(view));
-    }
-
-    /**
-     * Adds a list of views to the roster of things to appear
-     * in the aggregate list.
-     *
-     * @param views List of views to add
-     */
-    @SuppressWarnings("unchecked")
-    public void addViews(List<View> views) {
-        addAdapter(new ViewsAdapter(views));
     }
 
     @Override
@@ -241,75 +218,6 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
             if (adapter != null) {
                 action.call(adapter);
             }
-        }
-    }
-
-
-    /**
-     * ViewsAdapter, ported from CommonsWare SackOfViews adapter.
-     */
-    public static class ViewsAdapter extends RecyclerView.Adapter {
-        private List<View> views = null;
-
-        /**
-         * Constructor wrapping a supplied list of views.
-         * Subclasses must override newView() if any of the elements
-         * in the list are null.
-         */
-        public ViewsAdapter(List<View> views) {
-            super();
-            this.views = views;
-        }
-
-        public ViewsAdapter(View view) {
-            this(Collections.singletonList(view));
-        }
-
-        /**
-         * How many items are in the data set represented by this
-         * Adapter.
-         */
-        @Override
-        public int getItemCount() {
-            return views.size();
-        }
-
-        /**
-         * Get the type of View that will be created by getView()
-         * for the specified item.
-         *
-         * @param position Position of the item whose data we want
-         */
-        @Override
-        public int getItemViewType(int position) {
-            return position;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            //view type is equal to the position in this adapter.
-            return new ViewsViewHolder(views.get(viewType));
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        }
-
-        /**
-         * Get the row id associated with the specified position
-         * in the list.
-         *
-         * @param position Position of the item whose data we want
-         */
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-    }
-
-    public static class ViewsViewHolder extends RecyclerView.ViewHolder {
-        public ViewsViewHolder(View itemView) {
-            super(itemView);
         }
     }
 }
