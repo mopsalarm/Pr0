@@ -595,7 +595,7 @@ public class PostFragment extends RoboFragment implements
 
         // delay playback on mobile
         if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
-            if(uri.getMediaType() != MediaUri.MediaType.IMAGE) {
+            if (uri.getMediaType() != MediaUri.MediaType.IMAGE) {
                 uri = uri.withDelay(true);
             }
         }
@@ -874,14 +874,14 @@ public class PostFragment extends RoboFragment implements
             boolean doFancyScroll = viewerHeight < recyclerHeight;
 
             ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
-            if (!doFancyScroll || dy < 0 || scrollY > 2 * toolbar.getToolbarHeight()) {
+            if (!doFancyScroll || dy < 0 || scrollY > 1f * toolbar.getToolbarHeight()) {
                 toolbar.onScrolled(dy);
             }
 
             int halfScrollOffset = 0; // toolbar.getToolbarHeight();
             float scroll = scrollY < halfScrollOffset || !doFancyScroll
                     ? scrollY
-                    : halfScrollOffset + 0.5f * (scrollY - halfScrollOffset);
+                    : halfScrollOffset + 0.7f * (scrollY - halfScrollOffset);
 
             // finally position the viewer
             viewer.setTranslationY(-scroll);
