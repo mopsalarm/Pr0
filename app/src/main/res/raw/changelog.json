@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Die letzten Kommentare von anderen Usern können nun betrachtet werden (noch nicht fertig!)"
+      },
+      {
+        "type": "Neu",
         "change": "Text in Kommentaren und Nachrichten kann markiert werden."
       }
     ]
