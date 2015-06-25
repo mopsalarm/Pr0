@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
@@ -65,7 +66,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,7 +80,6 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Actions;
-import rx.functions.Func2;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
@@ -92,7 +91,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static rx.android.app.AppObservable.bindFragment;
 
 /**
@@ -149,14 +147,12 @@ public class FeedFragment extends RoboFragment {
     private ItemWithComment autoOpenOnLoad = null;
     private Long autoScrollOnLoad = null;
 
-    private Observable<Info> userInfoObservable;
-    private Func2<Info, Runnable, List<RecyclerView.Adapter<?>>> userInfoViewSupplier;
+    private Observable<Info> userInfo;
 
     private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
     private final Set<Long> reposts = new HashSet<>();
 
     private FeedLoader loader;
-    private Map<Long, FeedItem> feed;
 
     /**
      * Initialize a new feed fragment.
@@ -176,6 +172,9 @@ public class FeedFragment extends RoboFragment {
             autoScrollOnLoad = start.getItemId();
             autoOpenOnLoad = start;
         }
+
+        // load the user info
+        userInfo = queryUserInfo();
     }
 
     @Override
@@ -209,7 +208,7 @@ public class FeedFragment extends RoboFragment {
         layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(1, columnCount));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
-        recyclerView.setAdapter(wrapFeedAdapter(columnCount, feedAdapter));
+        setFeedAdapter(feedAdapter);
 
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.setCanSwipeUpPredicate(() -> !feedAdapter.getFeed().isAtStart());
@@ -236,87 +235,109 @@ public class FeedFragment extends RoboFragment {
         recyclerView.addOnScrollListener(onScrollListener);
     }
 
-    private MergeRecyclerAdapter wrapFeedAdapter(
-            int columnCount, FeedAdapter feedAdapter) {
-
-        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
-        adapter.addAdapter(SingleViewAdapter.of(context -> newFeedStartPaddingView()));
-        adapter.addAdapter(feedAdapter);
-        addUserInfoToAdapter(adapter, columnCount);
-        return adapter;
+    private void setFeedAdapter(FeedAdapter adapter) {
+        feedAdapter = adapter;
+        recyclerView.setAdapter(wrapFeedAdapter(adapter));
+        bindUserInfo();
     }
 
-    private void addUserInfoToAdapter(MergeRecyclerAdapter adapter, int columnCount) {
-        if (userInfoObservable == null) {
-            FeedFilter filter = getCurrentFilter();
-            if (filter.getUsername().isPresent()) {
-                String username = filter.getUsername().get();
-                userInfoObservable = userService.info(username)
-                        .onErrorResumeNext(Observable.<Info>empty())
-                        .cache();
+    public void presentUserInfoCell(Info info) {
+        MessageAdapter messages = new MessageAdapter(getActivity(), emptyList());
 
-                userInfoViewSupplier = (info, update) -> {
-                    MessageAdapter messages = new MessageAdapter(getActivity(), emptyList());
+        List<Message> comments = FluentIterable.from(info.getComments())
+                .transform(c -> Message.of(info.getUser(), c))
+                .toList();
 
-                    List<Message> comments = FluentIterable.from(info.getComments())
-                            .transform(c -> Message.of(info.getUser(), c))
-                            .toList();
-
-                    UserInfoCell view = new UserInfoCell(getActivity(), info);
-                    view.setUserActionListener(new UserInfoCell.UserActionListener() {
-                        @Override
-                        public void onWriteMessageClicked(int userId, String name) {
-                            DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
-                            dialog.show(getFragmentManager(), null);
-                        }
-
-                        @Override
-                        public void onUserFavoritesClicked(String name) {
-                            FeedFilter filter1 = getCurrentFilter().basic().withLikes(name);
-                            ((MainActionHandler) getActivity()).onFeedFilterSelected(filter1);
-                        }
-
-                        @Override
-                        public void onShowCommentsClicked() {
-                            messages.setMessages(messages.getItemCount() == 0 ? comments : emptyList());
-                            update.run();
-                        }
-                    });
-
-                    view.setWriteMessageEnabled(!isSelfInfo(info));
-                    view.setShowCommentsEnabled(!comments.isEmpty());
-
-                    return ImmutableList.of(
-                            SingleViewAdapter.ofView(view),
-                            messages);
-                };
-
-            } else if (filter.getTags().isPresent()) {
-                String query = filter.getTags().get();
-                userInfoObservable = userService.info(query)
-                        .onErrorResumeNext(Observable.<Info>empty())
-                        .cache();
-
-                userInfoViewSupplier = (info, update) -> {
-                    if (isSelfInfo(info)) {
-                        return Collections.emptyList();
-                    }
-
-                    UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
-                    view.setUploadsClickedListener((userId, name) -> {
-                        FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
-                        ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
-                    });
-
-                    return singletonList(SingleViewAdapter.ofView(view));
-                };
-
-            } else {
-                userInfoObservable = Observable.empty();
+        UserInfoCell view = new UserInfoCell(getActivity(), info);
+        view.setUserActionListener(new UserInfoCell.UserActionListener() {
+            @Override
+            public void onWriteMessageClicked(int userId, String name) {
+                DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
+                dialog.show(getFragmentManager(), null);
             }
+
+            @Override
+            public void onUserFavoritesClicked(String name) {
+                FeedFilter filter1 = getCurrentFilter().basic().withLikes(name);
+                ((MainActionHandler) getActivity()).onFeedFilterSelected(filter1);
+            }
+
+            @Override
+            public void onShowCommentsClicked() {
+                messages.setMessages(messages.getItemCount() == 0 ? comments : emptyList());
+                updateSpanSizeLookup();
+            }
+        });
+
+        view.setWriteMessageEnabled(!isSelfInfo(info));
+        view.setShowCommentsEnabled(!comments.isEmpty());
+        appendUserInfoAdapters(SingleViewAdapter.ofView(view), messages);
+    }
+
+    public void presentUserUploadsHint(Info info) {
+        if (isSelfInfo(info))
+            return;
+
+        UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
+        view.setUploadsClickedListener((userId, name) -> {
+            FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
+            ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
+        });
+
+        appendUserInfoAdapters(SingleViewAdapter.ofView(view));
+    }
+
+    private void appendUserInfoAdapters(RecyclerView.Adapter... adapters) {
+        if (adapters.length == 0) {
+            return;
         }
 
-        Runnable updateSpanSizeLookup = () -> ifPresent(getRecyclerViewLayoutManager(), layoutManager -> {
+        ifPresent(getMainAdapter(), adapter -> {
+            for (int idx = 0; idx < adapters.length; idx++) {
+                adapter.addAdapter(1 + idx, adapters[idx]);
+            }
+
+            updateSpanSizeLookup();
+        });
+    }
+
+    private void bindUserInfo() {
+        if (userInfo != null) {
+            FeedFilter filter = getCurrentFilter();
+            if (filter.getUsername().isPresent()) {
+                bindFragment(this, userInfo).subscribe(this::presentUserInfoCell);
+
+            } else if (filter.getTags().isPresent()) {
+                bindFragment(this, userInfo).subscribe(this::presentUserUploadsHint);
+            }
+        }
+    }
+
+    /**
+     * Starts a query to for the user info.
+     */
+    private Observable<Info> queryUserInfo() {
+        String queryString = null;
+
+        FeedFilter filter = getFilterArgument();
+        if (filter.getUsername().isPresent()) {
+            queryString = filter.getUsername().get();
+
+        } else if (filter.getTags().isPresent()) {
+            queryString = filter.getTags().get();
+        }
+
+        if (queryString != null) {
+            return userService.info(queryString)
+                    .onErrorResumeNext(Observable.<Info>empty())
+                    .limit(1).cache();
+        } else {
+            return Observable.empty();
+        }
+    }
+
+    private void updateSpanSizeLookup() {
+        ifPresent(getMainAdapter(), getRecyclerViewLayoutManager(), (adapter, layout) -> {
             int itemCount = 0;
             ImmutableList<? extends RecyclerView.Adapter<?>> adapters = adapter.getAdapters();
             for (int idx = 0; idx < adapters.size(); idx++) {
@@ -327,28 +348,35 @@ public class FeedFragment extends RoboFragment {
             }
 
             // skip items!
-            layoutManager.setSpanSizeLookup(
-                    new NMatchParentSpanSizeLookup(itemCount, columnCount));
-        });
-
-        bindFragment(this, userInfoObservable.limit(1)).subscribe(info -> {
-            List<RecyclerView.Adapter<?>> adapters = userInfoViewSupplier.call(info, updateSpanSizeLookup);
-            if (adapters != null && adapters.size() > 0) {
-                for (int idx = 0; idx < adapters.size(); idx++) {
-                    adapter.addAdapter(idx + 1, adapters.get(idx));
-                }
-
-                updateSpanSizeLookup.run();
-            }
+            int columnCount = layout.getSpanCount();
+            layout.setSpanSizeLookup(new NMatchParentSpanSizeLookup(itemCount, columnCount));
         });
     }
 
-    private View newFeedStartPaddingView() {
-        int height = AndroidUtility.getActionBarContentOffset(getActivity());
+    private static MergeRecyclerAdapter wrapFeedAdapter(
+            FeedAdapter feedAdapter) {
 
-        View view = new View(getActivity());
+        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
+        adapter.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
+        adapter.addAdapter(feedAdapter);
+        return adapter;
+    }
+
+    private static View newFeedStartPaddingView(Context context) {
+        int height = AndroidUtility.getActionBarContentOffset(context);
+
+        View view = new View(context);
         view.setLayoutParams(new ViewGroup.LayoutParams(1, height));
         return view;
+    }
+
+    private Optional<MergeRecyclerAdapter> getMainAdapter() {
+        if (recyclerView != null) {
+            RecyclerView.Adapter adapter = recyclerView.getAdapter();
+            return Optional.fromNullable((MergeRecyclerAdapter) adapter);
+        }
+
+        return Optional.absent();
     }
 
     @Override
@@ -384,10 +412,10 @@ public class FeedFragment extends RoboFragment {
         FeedFilter feedFilter = getFilterArgument();
 
         Optional<Long> around = Optional.fromNullable(autoOpenOnLoad).transform(ItemWithComment::getItemId);
-        return setupFeedAdapter(feedFilter, around);
+        return newFeedAdapter(feedFilter, around);
     }
 
-    private FeedAdapter setupFeedAdapter(FeedFilter feedFilter, Optional<Long> around) {
+    private FeedAdapter newFeedAdapter(FeedFilter feedFilter, Optional<Long> around) {
         Feed feed = new Feed(feedFilter, getSelectedContentType());
 
         loader = new FeedLoader(new FeedLoader.Binder() {
@@ -453,8 +481,7 @@ public class FeedFragment extends RoboFragment {
             autoScrollOnLoad = around.orNull();
 
             // set a new adapter if we have a new content type
-            feedAdapter = setupFeedAdapter(feedFilter, around);
-            recyclerView.setAdapter(wrapFeedAdapter(getThumbnailColumns(), feedAdapter));
+            setFeedAdapter(newFeedAdapter(feedFilter, around));
 
             getActivity().supportInvalidateOptionsMenu();
         }
@@ -669,7 +696,9 @@ public class FeedFragment extends RoboFragment {
                 fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
 
                 // enable transition, if possible
-                if (settings.sharedElementTransition()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                        && settings.sharedElementTransition()) {
+
                     TransitionInflater inflater = TransitionInflater.from(getActivity());
                     fragment.setSharedElementEnterTransition(
                             inflater.inflateTransition(android.R.transition.move));
@@ -678,6 +707,7 @@ public class FeedFragment extends RoboFragment {
                 }
             }
 
+            @SuppressLint("CommitTransaction")
             FragmentTransaction tr = getFragmentManager().beginTransaction()
                     .replace(R.id.content, fragment)
                     .addToBackStack(null);

@@ -30,7 +30,6 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.api.pr0gramm.response.Login;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ import java.util.Map;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Action2;
 
 /**
  */
@@ -246,6 +246,12 @@ public class AndroidUtility {
         }
     }
 
+    public static <T, U> void ifPresent(Optional<T> first, Optional<U> second, Action2<T, U> action) {
+        if (first.isPresent() && second.isPresent()) {
+            action.call(first.get(), second.get());
+        }
+    }
+
     public static <T> void ifNotNull(T value, Action1<T> action) {
         if (value != null) {
             action.call(value);
@@ -281,7 +287,7 @@ public class AndroidUtility {
     }
 
     public static <R> Observable<R> toObservable(Optional<R> optional) {
-        if(optional.isPresent()) {
+        if (optional.isPresent()) {
             return Observable.just(optional.get());
         } else {
             return Observable.empty();
