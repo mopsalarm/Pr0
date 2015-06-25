@@ -60,7 +60,6 @@ public class SenderInfoView extends LinearLayout {
         pointsView.setVisibility(visible ? VISIBLE : GONE);
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends View> T findView(int id) {
         return checkNotNull((T) findViewById(id));
     }

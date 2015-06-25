@@ -2,10 +2,12 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -44,6 +46,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.MetaService;
@@ -52,6 +55,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -142,6 +146,8 @@ public class FeedFragment extends RoboFragment {
 
     @Inject
     private LocalCacheService localCacheService;
+
+    private boolean userInfoCommentsOpen;
 
     private boolean bookmarkable;
     private ItemWithComment autoOpenOnLoad = null;
@@ -242,11 +248,28 @@ public class FeedFragment extends RoboFragment {
     }
 
     public void presentUserInfoCell(Info info) {
-        MessageAdapter messages = new MessageAdapter(getActivity(), emptyList());
+        MessageAdapter messages = new MessageAdapter(getActivity(), emptyList(), null, R.layout.user_info_comment) {
+            @Override
+            public void onBindViewHolder(MessageAdapter.MessageViewHolder view, int position) {
+                super.onBindViewHolder(view, position);
+                view.itemView.setOnClickListener(v -> {
+                    Message message = this.messages.get(position);
+                    Uri uri = Uris.of(getActivity()).post(FeedType.NEW,
+                            message.getItemId(), message.getId());
+
+                    startActivity(new Intent(Intent.ACTION_VIEW, uri,
+                            getActivity(), MainActivity.class));
+                });
+            }
+        };
 
         List<Message> comments = FluentIterable.from(info.getComments())
                 .transform(c -> Message.of(info.getUser(), c))
                 .toList();
+
+        if (userInfoCommentsOpen) {
+            messages.setMessages(comments);
+        }
 
         UserInfoCell view = new UserInfoCell(getActivity(), info);
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
@@ -264,14 +287,19 @@ public class FeedFragment extends RoboFragment {
 
             @Override
             public void onShowCommentsClicked() {
-                messages.setMessages(messages.getItemCount() == 0 ? comments : emptyList());
+                userInfoCommentsOpen = messages.getItemCount() == 0;
+                messages.setMessages(userInfoCommentsOpen ? comments : emptyList());
                 updateSpanSizeLookup();
             }
         });
 
         view.setWriteMessageEnabled(!isSelfInfo(info));
         view.setShowCommentsEnabled(!comments.isEmpty());
-        appendUserInfoAdapters(SingleViewAdapter.ofView(view), messages);
+
+        appendUserInfoAdapters(
+                SingleViewAdapter.ofView(view),
+                messages,
+                SingleViewAdapter.ofLayout(R.layout.user_info_footer));
     }
 
     public void presentUserUploadsHint(Info info) {

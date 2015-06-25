@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,6 +30,10 @@ public class SingleViewAdapter<V extends View> extends SingleValueAdapter<Void, 
 
     public static <V extends View> SingleViewAdapter<V> ofView(V view) {
         return new SingleViewAdapter<>(context -> view);
+    }
+
+    public static SingleViewAdapter<View> ofLayout(@LayoutRes int layoutId) {
+        return of(context -> View.inflate(context, layoutId, null));
     }
 
     public static <V extends View> SingleViewAdapter<V> of(ViewFactory<V> factory) {

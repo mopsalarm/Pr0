@@ -169,13 +169,6 @@
             tools:ignore="HardcodedText"/>
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_below="@id/user_info_last_row"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/dropshadow_reverse"/>
-
     <ImageButton
         android:id="@+id/action_comments"
         android:layout_width="wrap_content"

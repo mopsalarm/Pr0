@@ -42,7 +42,6 @@
         />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
-        layout="@layout/sender_info"
         android:id="@+id/sender_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

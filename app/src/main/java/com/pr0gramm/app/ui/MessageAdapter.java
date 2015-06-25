@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -21,25 +20,21 @@ import java.util.List;
 
 import roboguice.RoboGuice;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
-    private final List<Message> messages;
+    protected final List<Message> messages;
     private final Context context;
     private final Picasso picasso;
     private final MessageActionListener actionListener;
+    private final int itemLayout;
 
-    public MessageAdapter(Context context, List<Message> messages) {
-        this(context, messages, null);
-    }
-
-    public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener) {
+    public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener, int layout) {
         this.context = context;
         this.actionListener = actionListener;
         this.messages = new ArrayList<>(messages);
         this.picasso = RoboGuice.getInjector(context).getInstance(Picasso.class);
+        this.itemLayout = layout;
 
         setHasStableIds(true);
     }
@@ -60,7 +55,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.inbox_message, parent, false);
+        View view = LayoutInflater.from(context).inflate(itemLayout, parent, false);
         return new MessageViewHolder(view);
     }
 
@@ -71,7 +66,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         // set the type. if we have an item, we  have a comment
         boolean isComment = message.getItemId() != 0;
-        view.type.setText(isComment ? context.getString(R.string.inbox_message_comment) : context.getString(R.string.inbox_message_private));
+        if (view.type != null) {
+            view.type.setText(isComment ? context.getString(R.string.inbox_message_comment) : context.getString(R.string.inbox_message_private));
+        }
 
         // the text of the message
         view.text.setText(message.getMessage());
@@ -124,7 +121,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return messages.size();
     }
 
-    static class MessageViewHolder extends RecyclerView.ViewHolder {
+    protected static class MessageViewHolder extends RecyclerView.ViewHolder {
         final TextView text;
         final TextView type;
         final ImageView image;
@@ -139,5 +136,4 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             sender = (SenderInfoView) itemView.findViewById(R.id.sender_info);
         }
     }
-
 }

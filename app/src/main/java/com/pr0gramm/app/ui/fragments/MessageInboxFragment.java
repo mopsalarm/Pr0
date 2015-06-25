@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.os.Bundle;
 
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MessageAdapter;
@@ -27,7 +28,7 @@ public class MessageInboxFragment extends InboxFragment<Message> {
 
     @Override
     protected MessageAdapter newAdapter(List<Message> messages) {
-        return new MessageAdapter(getActivity(), messages, actionListener);
+        return new MessageAdapter(getActivity(), messages, actionListener, R.layout.inbox_message);
     }
 
     /**
