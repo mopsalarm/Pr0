@@ -9,6 +9,10 @@
       {
         "type": "Neu",
         "change": "Text in Kommentaren und Nachrichten kann markiert werden."
+      },
+      {
+        "type": "Fix",
+        "change": "Der 'Antworten' Button wurde teilweise fehlerhafterweise angezeigt"
       }
     ]
   },
