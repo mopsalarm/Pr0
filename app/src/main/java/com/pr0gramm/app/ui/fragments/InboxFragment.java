@@ -155,7 +155,6 @@ public abstract class InboxFragment<T> extends RoboFragment {
                 viewBusyIndicator = null;
             }
 
-            logger.info("hiding swipe layout on {}", swipeRefreshLayout);
             swipeRefreshLayout.setRefreshing(false);
         }
     }
