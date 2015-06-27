@@ -134,7 +134,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             text.append(Character.toLowerCase(name.charAt(1)));
         }
 
-        int color = ColorGenerator.MATERIAL.getColor(text);
+        int color = ColorGenerator.MATERIAL.getColor(message.getSenderId());
         return textShapeBuilder.buildRect(text.toString(), color);
     }
 
