@@ -59,10 +59,8 @@ public abstract class LoaderHelper<T> {
         } else if (cachedError != null) {
             errorCallback.call(cachedError);
 
-        } else {
-            if (startLoading) {
-                reload();
-            }
+        } else if (subscription == null && startLoading) {
+            reload();
         }
     }
 
@@ -111,6 +109,10 @@ public abstract class LoaderHelper<T> {
                 return supplier.get();
             }
         };
+    }
+
+    public static <T> LoaderHelper<T> of(Observable<T> staticObservable) {
+        return of(() -> staticObservable);
     }
 
     private static <T> Action1<T> doFinally(Action1<T> firstAction, Action0 finallyAction) {

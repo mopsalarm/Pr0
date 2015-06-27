@@ -71,7 +71,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +152,7 @@ public class FeedFragment extends RoboFragment {
     private ItemWithComment autoOpenOnLoad = null;
     private Long autoScrollOnLoad = null;
 
-    private Observable<Info> userInfo;
+    private LoaderHelper<Info> userInfo;
 
     private final Set<Long> reposts = new HashSet<>();
 
@@ -179,7 +178,8 @@ public class FeedFragment extends RoboFragment {
         }
 
         // load the user info
-        userInfo = queryUserInfo();
+        userInfo = LoaderHelper.of(queryUserInfo());
+        userInfo.reload();
     }
 
     @Override
@@ -243,7 +243,14 @@ public class FeedFragment extends RoboFragment {
     private void setFeedAdapter(FeedAdapter adapter) {
         feedAdapter = adapter;
         recyclerView.setAdapter(wrapFeedAdapter(adapter));
-        bindUserInfo();
+    }
+
+    private void presentUserInfo(Info info) {
+        if (getCurrentFilter().getUsername().isPresent()) {
+            presentUserInfoCell(info);
+        } else {
+            presentUserUploadsHint(info);
+        }
     }
 
     public void presentUserInfoCell(Info info) {
@@ -328,21 +335,6 @@ public class FeedFragment extends RoboFragment {
         });
     }
 
-    private void bindUserInfo() {
-        if (userInfo != null) {
-            FeedFilter filter = getCurrentFilter();
-            if (filter.getUsername().isPresent()) {
-                bindFragment(this, userInfo).subscribe(this::presentUserInfoCell);
-
-            } else if (filter.getTags().isPresent()) {
-                bindFragment(this, userInfo).subscribe(this::presentUserUploadsHint);
-            }
-        }
-    }
-
-    /**
-     * Starts a query to for the user info.
-     */
     private Observable<Info> queryUserInfo() {
         String queryString = null;
 
@@ -355,9 +347,7 @@ public class FeedFragment extends RoboFragment {
         }
 
         if (queryString != null) {
-            return userService.info(queryString)
-                    .onErrorResumeNext(Observable.<Info>empty())
-                    .limit(1).cache();
+            return userService.info(queryString).onErrorResumeNext(Observable.<Info>empty());
         } else {
             return Observable.empty();
         }
@@ -380,12 +370,15 @@ public class FeedFragment extends RoboFragment {
         });
     }
 
-    private static MergeRecyclerAdapter wrapFeedAdapter(
+    private MergeRecyclerAdapter wrapFeedAdapter(
             FeedAdapter feedAdapter) {
 
         MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
         adapter.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
         adapter.addAdapter(feedAdapter);
+
+        userInfo.register(this::presentUserInfo, Actions.empty());
+
         return adapter;
     }
 
@@ -410,6 +403,7 @@ public class FeedFragment extends RoboFragment {
     public void onDestroyView() {
         super.onDestroyView();
         recyclerView.removeOnScrollListener(onScrollListener);
+        userInfo.detach();
         AndroidUtility.uninjectViews(this);
     }
 
