@@ -96,8 +96,8 @@ public class SimplifiedAndroidVideoView extends TextureView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = getDefaultSize(mVideoWidth, widthMeasureSpec);
         int height = getDefaultSize(mVideoHeight, heightMeasureSpec);
-        if (mVideoWidth > 0 && mVideoHeight > 0) {
 
+        if (mVideoWidth > 0 && mVideoHeight > 0) {
             int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
             int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
             int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -150,6 +150,7 @@ public class SimplifiedAndroidVideoView extends TextureView {
                 }
             }
         }
+
         setMeasuredDimension(width, height);
     }
 
