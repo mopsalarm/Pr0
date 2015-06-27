@@ -155,7 +155,6 @@ public class FeedFragment extends RoboFragment {
 
     private Observable<Info> userInfo;
 
-    private final Map<Long, MetaService.SizeInfo> sizes = new HashMap<>();
     private final Set<Long> reposts = new HashSet<>();
 
     private FeedLoader loader;
@@ -792,8 +791,6 @@ public class FeedFragment extends RoboFragment {
                 reposts.size(), infoResponse.getSizes().size());
 
         for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
-            sizes.put(sizeInfo.getId(), sizeInfo);
-
             localCacheService.putSizeInfo(sizeInfo);
         }
 
@@ -810,7 +807,7 @@ public class FeedFragment extends RoboFragment {
     }
 
     public Optional<MetaService.SizeInfo> getSizeInfo(FeedItem item) {
-        return Optional.fromNullable(sizes.get(item.getId()));
+        return localCacheService.getSizeInfo(item.getId());
     }
 
     private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
@@ -820,8 +817,9 @@ public class FeedFragment extends RoboFragment {
         public FeedAdapter(FeedFragment fragment, Feed feed) {
             this.parent = new WeakReference<>(fragment);
             this.feed = feed;
-
             this.feed.setFeedListener(this);
+
+            setHasStableIds(true);
         }
 
         private void with(Action1<FeedFragment> action) {
