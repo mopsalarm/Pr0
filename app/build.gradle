@@ -90,6 +90,7 @@ android {
 repositories {
     maven { url "https://maven.fabric.io/public" }
     maven { url "http://bright.github.io/maven-repo/" }
+    maven { url 'http://dl.bintray.com/amulyakhare/maven' }
 }
 
 dependencies {
@@ -115,6 +116,7 @@ dependencies {
     compile 'com.pnikosis:materialish-progress:1.5'
     compile 'com.android.support:design:22.2.0'
     compile 'de.psdev.licensesdialog:licensesdialog:1.7.0'
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     compile('pl.brightinventions:slf4android:0.1.1@aar') {
         transitive = true

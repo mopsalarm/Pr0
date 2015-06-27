@@ -9,7 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
@@ -29,12 +33,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private final MessageActionListener actionListener;
     private final int itemLayout;
 
+    private final TextDrawable.IShapeBuilder textShapeBuilder;
+
     public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener, int layout) {
         this.context = context;
         this.actionListener = actionListener;
         this.messages = new ArrayList<>(messages);
         this.picasso = RoboGuice.getInjector(context).getInstance(Picasso.class);
         this.itemLayout = layout;
+
+        this.textShapeBuilder = TextDrawable.builder().beginConfig()
+                .textColor(context.getResources().getColor(R.color.feed_background))
+                .fontSize(AndroidUtility.dp(context, 24))
+                .bold()
+                .endConfig();
 
         setHasStableIds(true);
     }
@@ -76,13 +88,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         // draw the image for this post
         if (isComment) {
-            view.image.setVisibility(View.VISIBLE);
-
             String url = "http://thumb.pr0gramm.com/" + message.getThumb();
             picasso.load(url).into(view.image);
         } else {
-            view.image.setVisibility(View.GONE);
             picasso.cancelRequest(view.image);
+
+            // set a colored drawable with the first two letters of the user
+            view.image.setImageDrawable(makeSenderDrawable(message));
         }
 
         // sender info
@@ -111,6 +123,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 view.image.setOnClickListener(null);
             }
         }
+    }
+
+    private TextDrawable makeSenderDrawable(Message message) {
+        String name = message.getName();
+
+        StringBuilder text = new StringBuilder();
+        text.append(Character.toUpperCase(name.charAt(0)));
+        if(name.length() > 1) {
+            text.append(Character.toLowerCase(name.charAt(1)));
+        }
+
+        int color = ColorGenerator.MATERIAL.getColor(text);
+        return textShapeBuilder.buildRect(text.toString(), color);
     }
 
     @Override
