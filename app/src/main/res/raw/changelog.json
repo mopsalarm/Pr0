@@ -26,6 +26,7 @@
   },
   {
     "version": 61,
+    "release": true,
     "changes": [
       {
         "type": "Fix",
