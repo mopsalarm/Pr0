@@ -79,6 +79,9 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
             view.sender.setAnswerClickedListener(v -> {
                 actionListener.onAnswerToPrivateMessage(item.partner.id, item.partner.name);
             });
+        } else {
+            // reset the answer click listener
+            view.sender.setAnswerClickedListener(null);
         }
     }
 

@@ -91,9 +91,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         view.sender.setPoints(message.getScore());
         view.sender.setDate(message.getCreated());
 
-        // reset the answer click listener
-        view.sender.setAnswerClickedListener(null);
-
         if (actionListener != null) {
             view.sender.setOnSenderClickedListener(v -> {
                 actionListener.onUserClicked(message.getSenderId(), message.getName());

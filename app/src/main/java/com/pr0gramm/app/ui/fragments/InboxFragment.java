@@ -18,7 +18,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
-import com.pr0gramm.app.ui.EmptyAdapter;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
@@ -26,6 +25,7 @@ import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,9 @@ import javax.inject.Inject;
 
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
-import rx.Observable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static rx.android.app.AppObservable.bindFragment;
+import static org.joda.time.Duration.standardMinutes;
 
 /**
  */
@@ -65,12 +64,19 @@ public abstract class InboxFragment<T> extends RoboFragment {
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private Observable<List<T>> messages;
-
-    private boolean overrideLazyLoading;
+    private LoaderHelper<List<T>> loader;
+    private Instant loadStartedTimestamp;
 
     public InboxFragment() {
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        this.loader = newLoaderHelper();
+        this.loader.reload();
     }
 
     @Override
@@ -90,29 +96,33 @@ public abstract class InboxFragment<T> extends RoboFragment {
         swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
-        if (messages != null || !isLazyLoading()) {
-            loadInboxContent();
+        showBusyIndicator();
+
+        // load the messages
+        loadStartedTimestamp = Instant.now();
+        loader.load(this::onMessagesLoaded, defaultOnError(), this::hideBusyIndicator);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // reload if re-started after one minute
+        if (loadStartedTimestamp.plus(standardMinutes(1)).isBeforeNow()) {
+            loadStartedTimestamp = Instant.now();
+            reloadInboxContent();
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        loader.detach();
         AndroidUtility.uninjectViews(this);
     }
 
     private void reloadInboxContent() {
-        messages = null;
-
-        if (hasView()) {
-            messagesView.setAdapter(new EmptyAdapter());
-        }
-
-        loadInboxContent();
-    }
-
-    private boolean isLazyLoading() {
-        return !overrideLazyLoading;// && getInboxType() == InboxType.UNREAD;
+        loader.reload();
     }
 
     private void hideNothingHereIndicator() {
@@ -145,52 +155,29 @@ public abstract class InboxFragment<T> extends RoboFragment {
                 viewBusyIndicator = null;
             }
 
+            logger.info("hiding swipe layout on {}", swipeRefreshLayout);
             swipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    private void loadInboxContent() {
-        hideNothingHereIndicator();
-
-        // initialize the message observable
-        if (messages == null) {
-            logger.info("Query messages of type {}", getInboxType());
-            messages = newMessageObservable().cache();
-        }
-
-        // only bind if we have a ui.
-        if (hasView()) {
-            showBusyIndicator();
-
-            logger.info("Subscribe to the messages of type {}", getInboxType());
-            bindFragment(this, messages).subscribe(this::onMessagesLoaded, defaultOnError());
-        }
-    }
-
-    protected abstract Observable<List<T>> newMessageObservable();
+    protected abstract LoaderHelper<List<T>> newLoaderHelper();
 
     private boolean hasView() {
         return messagesView != null;
     }
 
-    public void loadIfLazy() {
-        if (inboxService == null) {
-            overrideLazyLoading = true;
-
-        } else if (messages == null && isLazyLoading()) {
-            loadInboxContent();
-        }
-    }
-
     private void onMessagesLoaded(List<T> messages) {
         hideBusyIndicator();
-        messagesView.setAdapter(newAdapter(messages));
+        hideNothingHereIndicator();
+
+        // replace previous adapter with new values
+        displayMessages(messagesView, messages);
 
         if (messages.isEmpty())
             showNothingHereIndicator();
     }
 
-    protected abstract RecyclerView.Adapter<?> newAdapter(List<T> messages);
+    protected abstract void displayMessages(RecyclerView recyclerView, List<T> messages);
 
     protected InboxType getInboxType() {
         InboxType type = InboxType.ALL;

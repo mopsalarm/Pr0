@@ -116,6 +116,9 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
 
         else if (type == InboxType.PRIVATE)
             viewPager.setCurrentItem(2);
+
+        else if (type == InboxType.COMMENTS)
+            viewPager.setCurrentItem(3);
     }
 
     @Override
@@ -130,15 +133,6 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         int index = viewPager.getCurrentItem();
         if (index >= 0 && index < tabsAdapter.getCount()) {
             setTitle(tabsAdapter.getPageTitle(index));
-        }
-
-        InboxFragment fragment = tabsAdapter.getTabFragment(index)
-                .transform(f -> (InboxFragment) f)
-                .orNull();
-
-        if (fragment != null) {
-            // now perform the load on the inbox
-            fragment.loadIfLazy();
         }
     }
 

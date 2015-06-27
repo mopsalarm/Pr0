@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,8 +14,6 @@ import com.pr0gramm.app.ui.PrivateMessageAdapter;
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 
 import java.util.List;
-
-import rx.Observable;
 
 /**
  */
@@ -45,13 +44,13 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
     }
 
     @Override
-    protected Observable<List<PrivateMessage>> newMessageObservable() {
-        return getInboxService().getPrivateMessages();
+    protected LoaderHelper<List<PrivateMessage>> newLoaderHelper() {
+        return LoaderHelper.of(() -> getInboxService().getPrivateMessages());
     }
 
     @Override
-    protected PrivateMessageAdapter newAdapter(List<PrivateMessage> messages) {
-        return new PrivateMessageAdapter(getActivity(), messages, actionListener);
+    protected void displayMessages(RecyclerView recyclerView, List<PrivateMessage> messages) {
+        recyclerView.setAdapter(new PrivateMessageAdapter(getActivity(), messages, actionListener));
     }
 
     @Override
