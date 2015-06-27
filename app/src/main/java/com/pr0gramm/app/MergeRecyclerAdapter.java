@@ -210,7 +210,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
                 result += adapter.mAdapter.getItemCount();
             }
-            return result;
+            return result + index;
         }
 
         private void withAdapter(Action1<MergeRecyclerAdapter> action) {

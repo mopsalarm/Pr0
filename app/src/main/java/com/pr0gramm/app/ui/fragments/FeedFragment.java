@@ -882,7 +882,19 @@ public class FeedFragment extends RoboFragment {
 
         @Override
         public void onNewItems(List<FeedItem> newItems) {
-            notifyDataSetChanged();
+            // check if we prepended items to the list.
+            int prependCount = 0;
+            for (int idx = 0; idx < newItems.size(); idx++) {
+                if(newItems.get(idx).getId() == getItemId(idx)) {
+                    prependCount++;
+                }
+            }
+
+            if(prependCount == 0) {
+                notifyDataSetChanged();
+            } else {
+                notifyItemRangeInserted(0, prependCount);
+            }
 
             // load meta data for the items.
             List<Long> itemIds = Lists.transform(newItems, FeedItem::getId);
