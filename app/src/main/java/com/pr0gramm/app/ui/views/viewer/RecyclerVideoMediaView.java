@@ -33,7 +33,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
  * Plays videos in a not optimal but compatible way.
  */
 @SuppressLint("ViewConstructor")
-public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
+public class RecyclerVideoMediaView extends MediaView implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnVideoSizeChangedListener {
 
     @InjectView(R.id.video)
@@ -51,7 +51,7 @@ public class VideoMediaView extends MediaView implements MediaPlayer.OnPreparedL
 
     private int retryCount;
 
-    public VideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public RecyclerVideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_video, url, onViewListener);
 
         logger.info("Playing webm " + url);
