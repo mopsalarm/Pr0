@@ -8,7 +8,11 @@
       },
       {
         "type": "Neu",
-        "change": "Text in Kommentaren und Nachrichten kann markiert werden."
+        "change": "Text in Kommentaren und Nachrichten kann markiert werden"
+      },
+      {
+        "type": "Neu",
+        "change": "Text-Bildchen in der Inbox Übersicht für die Absender"
       },
       {
         "type": "Fix",
