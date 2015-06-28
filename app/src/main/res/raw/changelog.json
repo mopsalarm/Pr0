@@ -23,6 +23,10 @@
         "change": "Text-Bildchen in der Inbox Übersicht für die Absender"
       },
       {
+        "type": "Neu",
+        "change": "Langes dücken auf den Benis eines Posts zeigt up/down votes."
+      },
+      {
         "type": "Fix",
         "change": "Der 'Antworten' Button wurde teilweise fehlerhafterweise angezeigt"
       },

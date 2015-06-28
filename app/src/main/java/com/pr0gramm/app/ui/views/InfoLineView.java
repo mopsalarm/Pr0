@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -19,7 +20,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
-import com.pr0gramm.app.ui.SingleValueAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.TagCloudLayoutManager;
 
@@ -153,8 +153,17 @@ public class InfoLineView extends LinearLayout {
         if (isOneHourOld() || isSelfPost) {
             int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
             ratingView.setText(String.valueOf(rating));
+            ratingView.setOnLongClickListener(v -> {
+                Toast.makeText(getContext(),
+                        String.format("%d up, %d down", feedItem.getUp(), feedItem.getDown()),
+                        Toast.LENGTH_SHORT).show();
+
+                return true;
+            });
+
         } else {
             ratingView.setText(R.string.rating_not_yet_visible);
+            ratingView.setOnLongClickListener(null);
         }
 
         voteFavoriteView.setTextColor(vote == Vote.FAVORITE
