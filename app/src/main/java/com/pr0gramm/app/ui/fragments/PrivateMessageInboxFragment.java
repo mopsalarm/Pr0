@@ -6,6 +6,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
+import com.pr0gramm.app.OptionMenuHelper;
+import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
@@ -34,13 +36,14 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_new_message) {
-            SearchUserDialog dialog = new SearchUserDialog();
-            dialog.show(getChildFragmentManager(), null);
-            return true;
-        }
+        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+    }
 
-        return super.onOptionsItemSelected(item);
+    @OnOptionsItemSelected(R.id.action_new_message)
+    public boolean showNewMessageDialog() {
+        SearchUserDialog dialog = new SearchUserDialog();
+        dialog.show(getChildFragmentManager(), null);
+        return true;
     }
 
     @Override
