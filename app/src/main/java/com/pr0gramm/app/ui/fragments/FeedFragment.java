@@ -35,6 +35,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
+import com.pr0gramm.app.OptionMenuHelper;
+import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
@@ -612,17 +614,6 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_pin) {
-            pinCurrentFeedFilter();
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_refresh) {
-            // refresh feed
-            doRefreshWithIndicator();
-            return true;
-        }
-
         Map<Integer, String> contentTypes = ImmutableMap.<Integer, String>builder()
                 .put(R.id.action_content_type_sfw, "pref_feed_type_sfw")
                 .put(R.id.action_content_type_nsfw, "pref_feed_type_nsfw")
@@ -640,10 +631,11 @@ public class FeedFragment extends RoboFragment {
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
     }
 
-    private void doRefreshWithIndicator() {
+    @OnOptionsItemSelected(R.id.action_refresh)
+    public void refreshWithIndicator() {
         if (swipeRefreshLayout.isRefreshing())
             return;
 
@@ -654,7 +646,8 @@ public class FeedFragment extends RoboFragment {
         }, 500);
     }
 
-    private void pinCurrentFeedFilter() {
+    @OnOptionsItemSelected(R.id.action_pin)
+    public void pinCurrentFeedFilter() {
         // not bookmarkable anymore.
         onBookmarkableStateChanged(false);
 

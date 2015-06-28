@@ -36,6 +36,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
+import com.pr0gramm.app.OptionMenuHelper;
+import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -342,68 +344,64 @@ public class PostFragment extends RoboFragment implements
         return image.toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
-            doRefreshWithIndicator();
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_download) {
-            logger.info("Request download of post #" + feedItem.getId());
-            downloadPostMedia();
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_zoom) {
-            boolean hq = settings.loadHqInZoomView();
-            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, hq);
-            startActivity(intent);
-        }
-
-        if (item.getItemId() == R.id.action_share_image) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("image/*");
-            intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
-            startActivity(intent);
-        }
-
-        if (item.getItemId() == R.id.action_share_direct_link) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
-            startActivity(intent);
-        }
-
-        if (item.getItemId() == R.id.action_share_post) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            if (feedItem.getPromotedId() > 0) {
-                intent.putExtra(Intent.EXTRA_TEXT,
-                        Uris.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
-            } else {
-                intent.putExtra(Intent.EXTRA_TEXT,
-                        Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
-            }
-            startActivity(intent);
-        }
-
-        if (item.getItemId() == R.id.action_search_image) {
-            Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
-                    .appendQueryParameter("hl", "en")
-                    .appendQueryParameter("safe", "off")
-                    .appendQueryParameter("site", "search")
-                    .appendQueryParameter("image_url", Uris.get().media(feedItem).toString().replace("https://", "http://"))
-                    .build();
-
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(intent);
-        }
-
-        return super.onOptionsItemSelected(item);
+    @OnOptionsItemSelected(R.id.action_zoom)
+    public void openImageInFullscreen() {
+        boolean hq = settings.loadHqInZoomView();
+        Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, hq);
+        startActivity(intent);
     }
 
-    private void doRefreshWithIndicator() {
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+    }
+
+    @OnOptionsItemSelected(R.id.action_search_image)
+    public void searchImage() {
+        Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
+                .appendQueryParameter("hl", "en")
+                .appendQueryParameter("safe", "off")
+                .appendQueryParameter("site", "search")
+                .appendQueryParameter("image_url", Uris.get().media(feedItem).toString().replace("https://", "http://"))
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
+    @OnOptionsItemSelected(R.id.action_share_post)
+    public void sharePost() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        if (feedItem.getPromotedId() > 0) {
+            intent.putExtra(Intent.EXTRA_TEXT,
+                    Uris.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
+        } else {
+            intent.putExtra(Intent.EXTRA_TEXT,
+                    Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
+        }
+        startActivity(intent);
+    }
+
+    @OnOptionsItemSelected(R.id.action_share_direct_link)
+    public void shareDirectLink() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
+        startActivity(intent);
+    }
+
+    @OnOptionsItemSelected(R.id.action_share_image)
+    public void shareImage() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
+        startActivity(intent);
+    }
+
+    @OnOptionsItemSelected(R.id.action_refresh)
+    public void refreshWithIndicator() {
         if (swipeRefreshLayout.isRefreshing())
             return;
 
@@ -411,7 +409,8 @@ public class PostFragment extends RoboFragment implements
         swipeRefreshLayout.postDelayed(this::loadPostDetails, 500);
     }
 
-    private void downloadPostMedia() {
+    @OnOptionsItemSelected(R.id.action_download)
+    public void downloadPostMedia() {
         // download over proxy to use caching
         Uri url = proxyService.proxy(Uris.get().media(feedItem, true));
 
