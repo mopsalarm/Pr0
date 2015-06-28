@@ -169,6 +169,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_meta_service", true);
     }
 
+    public boolean showGoogleImageButton() {
+        return preferences.getBoolean("pref_show_google_image_button", true);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

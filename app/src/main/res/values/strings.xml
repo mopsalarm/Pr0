@@ -291,5 +291,8 @@
     <string name="prefcat_misc">Miscellaneous</string>
     <string name="action_feedback">Feedback</string>
     <string name="muzei_source_name">pr0gramm</string>
-    <string name="muzei_source_description">Queries pr0gramm for new images</string>
+    <string name="muzei_source_description">images from pr0gramm</string>
+    <string name="action_search_image">Search on Google</string>
+    <string name="pref_show_google_image_button_title">Show search on google</string>
+    <string name="pref_show_google_image_button_summary">Show the \"search on google\" button for image posts</string>
 </resources>

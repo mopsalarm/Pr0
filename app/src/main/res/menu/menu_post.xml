@@ -42,4 +42,10 @@
         android:title="@string/action_download"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/action_search_image"
+        android:icon="@drawable/ic_white_search_image"
+        android:title="@string/action_search_image"
+        app:showAsAction="ifRoom"/>
+
 </menu>

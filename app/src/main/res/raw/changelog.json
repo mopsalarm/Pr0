@@ -4,11 +4,15 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Button zum Googlen vom aktuellen Bild"
+      },
+      {
+        "type": "Neu",
         "change": "Muzei-Plugin - Noch nicht konfigurierbar, aber läuft"
       },
       {
         "type": "Neu",
-        "change": "Neuer Videoplayer (schon wieder? - Ja, und bei Problemen bitte die Feedback Funktion nutzen!"
+        "change": "Neuer Videoplayer (schon wieder? - Ja, und bei Problemen bitte die Feedback Funktion nutzen!)"
       },
       {
         "type": "Neu",

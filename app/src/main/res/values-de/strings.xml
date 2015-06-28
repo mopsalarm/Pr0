@@ -259,4 +259,10 @@
     <string name="share_image">Als Bild</string>
     <string name="share_post">Link zum Post</string>
     <string name="prefcat_misc">Verschiedenes</string>
+    <string name="action_search_image">Bild googlen</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="muzei_source_description">Bilder aus dem pr0gramm</string>
+    <string name="muzei_source_name">pr0gramm</string>
+    <string name="pref_show_google_image_button_summary">Zeigt den Bild googlen Button im Post-Menü</string>
+    <string name="pref_show_google_image_button_title">Zeige Bild googlen</string>
 </resources>

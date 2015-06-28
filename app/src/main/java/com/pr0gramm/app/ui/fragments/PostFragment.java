@@ -317,14 +317,19 @@ public class PostFragment extends RoboFragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        boolean isImage = isStaticImage(feedItem.getImage());
+
         ifNotNull(menu.findItem(R.id.action_refresh),
                 item -> item.setVisible(settings.showRefreshButton()));
 
         ifNotNull(menu.findItem(R.id.action_zoom),
-                item -> item.setVisible(isStaticImage(feedItem.getImage())));
+                item -> item.setVisible(isImage));
 
         ifNotNull(menu.findItem(R.id.action_share_image),
                 item -> item.setVisible(ShareProvider.canShare(feedItem)));
+
+        ifNotNull(menu.findItem(R.id.action_search_image),
+                item -> item.setVisible(isImage && settings.showGoogleImageButton()));
     }
 
     /**
@@ -380,6 +385,18 @@ public class PostFragment extends RoboFragment implements
                 intent.putExtra(Intent.EXTRA_TEXT,
                         Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
             }
+            startActivity(intent);
+        }
+
+        if (item.getItemId() == R.id.action_search_image) {
+            Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
+                    .appendQueryParameter("hl", "en")
+                    .appendQueryParameter("safe", "off")
+                    .appendQueryParameter("site", "search")
+                    .appendQueryParameter("image_url", Uris.get().media(feedItem).toString().replace("https://", "http://"))
+                    .build();
+
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
         }
 
