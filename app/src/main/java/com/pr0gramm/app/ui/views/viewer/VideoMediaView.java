@@ -95,6 +95,9 @@ public class VideoMediaView extends MediaView {
         videoView.setAlpha(1.f);
         hideBusyIndicator();
 
-        // setViewAspect((float) player.getVideoWidth() / player.getVideoHeight());
+        if(isPlaying()) {
+            // mark media as viewed
+            onMediaShown();
+        }
     }
 }

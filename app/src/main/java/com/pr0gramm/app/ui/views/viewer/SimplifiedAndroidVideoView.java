@@ -187,6 +187,7 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
 //                            getSurfaceTexture().setDefaultBufferSize(mVideoWidth, mVideoHeight);
 //                        }
 
+                        logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
                         setAspect((float) mVideoWidth / mVideoHeight);
                         requestLayout();
                     }
@@ -209,12 +210,9 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
                 seekTo(seekToPosition);
             }
             if (mVideoWidth != 0 && mVideoHeight != 0) {
-                //Log.i("@@@@", "video size: " + mVideoWidth +"/"+ mVideoHeight);
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-//                    getSurfaceTexture().setDefaultBufferSize(mVideoWidth, mVideoHeight);
-//                }
-
+                logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
                 setAspect((float) mVideoWidth / mVideoHeight);
+                requestLayout();
 
                 if (mSurfaceWidth != 0 && mSurfaceHeight != 0) {
                     // We didn't actually change the size (it was already at the size
