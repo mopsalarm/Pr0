@@ -174,15 +174,6 @@
                 android:title="@string/pref_tag_cloud_view_title"
                 android:summary="@string/pref_tag_cloud_view_summary"
                 android:defaultValue="false"/>
-
-            <!--
-            <CheckBoxPreference
-                android:key="pref_shared_element_transition"
-                android:title="@string/pref_shared_element_transition_title"
-                android:summary="@string/pref_shared_element_transition_summary"
-                android:defaultValue="true"/>
-            -->
-
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -200,12 +191,6 @@
                 android:key="pref_use_mpeg_decoder"
                 android:title="@string/pref_use_mpeg_decoder_title"
                 android:summary="@string/pref_use_mpeg_decoder_summary"
-                android:defaultValue="false"/>
-
-            <CheckBoxPreference
-                android:key="pref_dont_restore_surface"
-                android:title="@string/pref_dont_restore_surface_title"
-                android:summary="@string/pref_dont_restore_surface_summary"
                 android:defaultValue="false"/>
 
             <CheckBoxPreference

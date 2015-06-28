@@ -717,9 +717,7 @@ public class FeedFragment extends RoboFragment {
                 fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
 
                 // enable transition, if possible
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                        && settings.sharedElementTransition()) {
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     TransitionInflater inflater = TransitionInflater.from(getActivity());
                     fragment.setSharedElementEnterTransition(
                             inflater.inflateTransition(android.R.transition.move));

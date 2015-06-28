@@ -133,10 +133,6 @@ public class Settings {
         return preferences.getBoolean("pref_show_notifications", true);
     }
 
-    public boolean dontRestoreSurfaceTexture() {
-        return preferences.getBoolean("pref_dont_restore_surface", false);
-    }
-
     public boolean useProxy() {
         return preferences.getBoolean("pref_use_proxy", true);
     }
@@ -171,11 +167,6 @@ public class Settings {
 
     public boolean useMetaService() {
         return preferences.getBoolean("pref_use_meta_service", true);
-    }
-
-    public boolean sharedElementTransition() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                preferences.getBoolean("pref_shared_element_transition", true);
     }
 
     public SharedPreferences.Editor edit() {

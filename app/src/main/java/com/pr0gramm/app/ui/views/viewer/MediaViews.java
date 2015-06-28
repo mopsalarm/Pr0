@@ -37,7 +37,7 @@ public class MediaViews {
                 MediaUri mpeg = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
                 result = new MpegMediaView(context, binder, mpeg.withProxy(true), onViewListener);
             } else {
-                result = new SimpleVideoMediaView(context, binder, uri, onViewListener);
+                result = new VideoMediaView(context, binder, uri, onViewListener);
             }
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
