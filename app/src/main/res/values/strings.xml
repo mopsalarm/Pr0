@@ -148,7 +148,7 @@
     <string name="notify_new_messages_title">New messages</string>
     <string name="notify_new_message_text">One new message on pr0gramm</string>
     <string name="notify_new_messages_text">%d new messages on pr0gramm</string>
-    <string name="pref_show_notifications">Notifications</string>
+    <string name="pref_show_notifications_title">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
     <string name="info_how_to_vote_tags">Tags can now be voted by long pressing the tag! Try it out!</string>
@@ -259,8 +259,8 @@
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
-    <string name="pref_use_meta_service_title">Enhance feed</string>
-    <string name="pref_use_meta_service_summary">Enable this option to enhance your feed. This enables for example the \"repost\" hint in the feed.</string>
+    <string name="pref_use_meta_service_title">Repost hints</string>
+    <string name="pref_use_meta_service_summary">Enable this option to hint reposts in your feed.</string>
     <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
     <string name="pref_pseudo_licenses_title">Licenses</string>
     <string name="pref_pseudo_licenses_summary">Show used libraries\' licenses</string>
@@ -287,7 +287,7 @@
     <string name="share_post">Link to post</string>
     <string name="share_direct_link">Link to image</string>
     <string name="share_image">As image</string>
-    <string name="dummy_benis_delta">↑100</string>
+    <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
     <string name="action_feedback">Feedback</string>
     <string name="muzei_source_name">pr0gramm</string>
@@ -295,4 +295,9 @@
     <string name="action_search_image">Search on Google</string>
     <string name="pref_show_google_image_button_title">Show search on google</string>
     <string name="pref_show_google_image_button_summary">Show the \"search on google\" button for image posts</string>
+    <string name="prefcat_visual__menu_items_title">Menu items</string>
+    <string name="prefcat_visual__animations_title">Animations</string>
+    <string name="prefcat_visual__tags">Tags</string>
+    <string name="prefcat_behaviour__datausage_title">Data usage</string>
+    <string name="prefcat_behaviour__notificatons_title">Notifications</string>
 </resources>

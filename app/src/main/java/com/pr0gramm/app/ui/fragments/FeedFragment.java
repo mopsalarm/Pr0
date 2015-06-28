@@ -828,7 +828,7 @@ public class FeedFragment extends RoboFragment {
                 });
 
                 // check if this item was already seen.
-                if (fragment.localCacheService.isRepost(item.getId()) && fragment.settings.useMetaService()) {
+                if (fragment.localCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
                     view.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {

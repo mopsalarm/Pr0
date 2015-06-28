@@ -165,7 +165,7 @@ public class Settings {
         return preferences.getBoolean("pref_use_mpeg_decoder", false);
     }
 
-    public boolean useMetaService() {
+    public boolean markRepostsInFeed() {
         return preferences.getBoolean("pref_use_meta_service", true);
     }
 

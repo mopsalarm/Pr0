@@ -40,65 +40,74 @@
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:targetPackage="@string/app_id"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_double_tap_to_upvote"
-                android:summary="@string/pref_double_tap_to_upvote_summary"
-                android:title="@string/pref_double_tap_to_upvote"/>
+            <PreferenceCategory
+                android:key="prefcat_behaviour__datausage"
+                android:title="@string/prefcat_behaviour__datausage_title">
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_convert_gif_to_webm"
-                android:summaryOff="@string/pref_convert_gif_to_webm_off"
-                android:summaryOn="@string/pref_convert_gif_to_webm_on"
-                android:title="@string/pref_convert_gif_to_webm"/>
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_convert_gif_to_webm"
+                    android:summaryOff="@string/pref_convert_gif_to_webm_off"
+                    android:summaryOn="@string/pref_convert_gif_to_webm_on"
+                    android:title="@string/pref_convert_gif_to_webm"/>
 
-            <ListPreference
-                android:defaultValue="@string/pref_seen_indicator_style_default"
-                android:entries="@array/pref_seen_indicator_style_human"
-                android:entryValues="@array/pref_seen_indicator_style_values"
-                android:key="pref_seen_indicator_style"
-                android:summary="@string/pref_seen_indicator_style_summary"
-                android:title="@string/pref_seen_indicator_style"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_confirm_play_on_mobile"
+                    android:summary="@string/pref_confirm_play_on_mobile_summary"
+                    android:title="@string/pref_confirm_play_on_mobile_title"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_show_notifications"
-                android:summary="@string/pref_show_notifications_summary"
-                android:title="@string/pref_show_notifications"/>
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_load_hq_image_in_zoomview"
+                    android:summary="@string/pref_load_hq_image_in_zoomview_summary"
+                    android:title="@string/pref_load_hq_image_in_zoomview_title"/>
+            </PreferenceCategory>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_keep_screen_on"
-                android:summary="@string/pref_keep_screen_on_summary"
-                android:title="@string/pref_keep_screen_on"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_confirm_play_on_mobile"
-                android:summary="@string/pref_confirm_play_on_mobile_summary"
-                android:title="@string/pref_confirm_play_on_mobile_title"/>
+            <PreferenceCategory
+                android:key="prefcat_behaviour__misc"
+                android:title="@string/prefcat_misc">
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_load_hq_image_in_zoomview"
-                android:summary="@string/pref_load_hq_image_in_zoomview_summary"
-                android:title="@string/pref_load_hq_image_in_zoomview_title"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_double_tap_to_upvote"
+                    android:summary="@string/pref_double_tap_to_upvote_summary"
+                    android:title="@string/pref_double_tap_to_upvote"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_use_meta_service"
-                android:summary="@string/pref_use_meta_service_summary"
-                android:title="@string/pref_use_meta_service_title"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_keep_screen_on"
+                    android:summary="@string/pref_keep_screen_on_summary"
+                    android:title="@string/pref_keep_screen_on"/>
 
-            <ListPreference
-                android:defaultValue="@string/pref_downloadLocation_default"
-                android:entries="@array/pref_downloadLocation_human"
-                android:entryValues="@array/pref_downloadLocation_values"
-                android:key="pref_downloadLocation"
-                android:summary="@string/pref_downloadLocation_summary"
-                android:title="@string/pref_downloadLocation_title"/>
+                <!-- This is not really "use meta service" now, its "show reposts" -->
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_use_meta_service"
+                    android:summary="@string/pref_use_meta_service_summary"
+                    android:title="@string/pref_use_meta_service_title"/>
 
+                <ListPreference
+                    android:defaultValue="@string/pref_downloadLocation_default"
+                    android:entries="@array/pref_downloadLocation_human"
+                    android:entryValues="@array/pref_downloadLocation_values"
+                    android:key="pref_downloadLocation"
+                    android:summary="@string/pref_downloadLocation_summary"
+                    android:title="@string/pref_downloadLocation_title"/>
+            </PreferenceCategory>
+
+            <PreferenceCategory
+                android:key="prefcat_behaviour__notifications"
+                android:title="@string/prefcat_behaviour__notificatons_title">
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_notifications"
+                    android:summary="@string/pref_show_notifications_summary"
+                    android:title="@string/pref_show_notifications_title"/>
+
+            </PreferenceCategory>
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -112,74 +121,105 @@
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:targetPackage="@string/app_id"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_benis_graph_enabled"
-                android:summary="@string/pref_benis_graph_enabled_summary"
-                android:title="@string/pref_benis_graph_enabled"/>
+            <PreferenceCategory
+                android:key="prefcat_visual__menu_items"
+                android:title="@string/prefcat_visual__menu_items_title">
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_animate_vote_view"
-                android:summaryOff="@string/pref_animate_vote_view_off"
-                android:summaryOn="@string/pref_animate_vote_view_on"
-                android:title="@string/pref_animate_vote_view"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_fullscreen_zoom_view"
+                    android:summary="@string/pref_fullscreen_zoom_view_summary"
+                    android:title="@string/pref_fullscreen_zoom_view"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_animate_post_on_vote"
-                android:summary="@string/pref_animate_post_on_vote_summary"
-                android:title="@string/pref_animate_post_on_vote"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_pin_button"
+                    android:summary="@string/pref_show_pin_button_summary"
+                    android:title="@string/pref_show_pin_button"/>
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_comment_view_vote_buttons_small"
-                android:summary="@string/pref_comment_view_vote_buttons_small_summary"
-                android:title="@string/pref_comment_view_vote_buttons_small"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_refresh_button"
+                    android:summary="@string/pref_show_refresh_button_summary"
+                    android:title="@string/pref_show_refresh_button"/>
 
-            <ListPreference
-                android:defaultValue="@string/pref_max_image_size_default"
-                android:entries="@array/pref_max_image_size_human"
-                android:entryValues="@array/pref_max_image_size_values"
-                android:key="pref_max_image_size"
-                android:summary="@string/pref_max_image_size_summary"
-                android:title="@string/pref_max_image_size"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_google_image_button"
+                    android:summary="@string/pref_show_google_image_button_summary"
+                    android:title="@string/pref_show_google_image_button_title"/>
+            </PreferenceCategory>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_fullscreen_zoom_view"
-                android:summary="@string/pref_fullscreen_zoom_view_summary"
-                android:title="@string/pref_fullscreen_zoom_view"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_show_pin_button"
-                android:summary="@string/pref_show_pin_button_summary"
-                android:title="@string/pref_show_pin_button"/>
+            <PreferenceCategory
+                android:key="prefcat_visual__animations"
+                android:title="@string/prefcat_visual__animations_title">
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_show_refresh_button"
-                android:summary="@string/pref_show_refresh_button_summary"
-                android:title="@string/pref_show_refresh_button"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_animate_vote_view"
+                    android:summaryOff="@string/pref_animate_vote_view_off"
+                    android:summaryOn="@string/pref_animate_vote_view_on"
+                    android:title="@string/pref_animate_vote_view"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_show_google_image_button"
-                android:summary="@string/pref_show_google_image_button_summary"
-                android:title="@string/pref_show_google_image_button_title"/>
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_animate_post_on_vote"
+                    android:summary="@string/pref_animate_post_on_vote_summary"
+                    android:title="@string/pref_animate_post_on_vote"/>
+            </PreferenceCategory>
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_hide_tag_vote_buttons"
-                android:summary="@string/pref_hide_tag_vote_buttons_summary"
-                android:title="@string/pref_hide_tag_vote_buttons_title"/>
+            <PreferenceCategory
+                android:key="prefcat_visual__tags"
+                android:title="@string/prefcat_visual__tags">
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_tag_cloud_view"
-                android:summary="@string/pref_tag_cloud_view_summary"
-                android:title="@string/pref_tag_cloud_view_title"/>
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_hide_tag_vote_buttons"
+                    android:summary="@string/pref_hide_tag_vote_buttons_summary"
+                    android:title="@string/pref_hide_tag_vote_buttons_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_tag_cloud_view"
+                    android:summary="@string/pref_tag_cloud_view_summary"
+                    android:title="@string/pref_tag_cloud_view_title"/>
+            </PreferenceCategory>
+
+            <PreferenceCategory
+                android:key="prefcat_visual__misc"
+                android:title="@string/prefcat_misc">
+
+                <ListPreference
+                    android:defaultValue="@string/pref_seen_indicator_style_default"
+                    android:entries="@array/pref_seen_indicator_style_human"
+                    android:entryValues="@array/pref_seen_indicator_style_values"
+                    android:key="pref_seen_indicator_style"
+                    android:summary="@string/pref_seen_indicator_style_summary"
+                    android:title="@string/pref_seen_indicator_style"/>
+
+                <ListPreference
+                    android:defaultValue="@string/pref_max_image_size_default"
+                    android:entries="@array/pref_max_image_size_human"
+                    android:entryValues="@array/pref_max_image_size_values"
+                    android:key="pref_max_image_size"
+                    android:summary="@string/pref_max_image_size_summary"
+                    android:title="@string/pref_max_image_size"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_benis_graph_enabled"
+                    android:summary="@string/pref_benis_graph_enabled_summary"
+                    android:title="@string/pref_benis_graph_enabled"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_comment_view_vote_buttons_small"
+                    android:summary="@string/pref_comment_view_vote_buttons_small_summary"
+                    android:title="@string/pref_comment_view_vote_buttons_small"/>
+
+            </PreferenceCategory>
+
         </PreferenceScreen>
 
         <PreferenceScreen

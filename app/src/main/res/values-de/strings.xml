@@ -142,7 +142,7 @@
     <string name="notify_new_message_title">Neue Nachricht</string>
     <string name="notify_new_messages_text">%d neue Nachrichten auf pr0gramm</string>
     <string name="notify_new_messages_title">Neue Nachrichten</string>
-    <string name="pref_show_notifications">Benachrichtigungen</string>
+    <string name="pref_show_notifications_title">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
     <string name="badge_op">OP</string>
@@ -231,8 +231,8 @@
     <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
-    <string name="pref_use_meta_service_title">Feed verbessern</string>
-    <string name="pref_use_meta_service_summary">Ergänzt den Feed um weitere Informationen, z.B. zeigt an, wenn es sich um einen Repost handelt.</string>
+    <string name="pref_use_meta_service_title">Reposts markieren</string>
+    <string name="pref_use_meta_service_summary">Zeigt direkt im Feed an, ob es sich bei einem Post um einen Repost handelt.</string>
     <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Vielleicht ist der Post, den du sehen wolltest, mit deiner sfw/nsfw Einstellungen nicht sichtbar?</string>
     <string name="pref_pseudo_licenses_title">Lizenzen</string>
     <string name="pref_pseudo_licenses_summary">Die Lizenzen der verwendeten Bibliotheken</string>
@@ -265,4 +265,9 @@
     <string name="muzei_source_name">pr0gramm</string>
     <string name="pref_show_google_image_button_summary">Zeigt den Bild googlen Button im Post-Menü</string>
     <string name="pref_show_google_image_button_title">Zeige Bild googlen</string>
+    <string name="prefcat_behaviour__datausage_title">Datenverbrauch</string>
+    <string name="prefcat_behaviour__notificatons_title">Benachrichtigungen</string>
+    <string name="prefcat_visual__animations_title">Animationen</string>
+    <string name="prefcat_visual__menu_items_title">Menueinträge</string>
+    <string name="prefcat_visual__tags">Tags</string>
 </resources>
