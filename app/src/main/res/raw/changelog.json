@@ -36,7 +36,7 @@
       },
       {
         "type": "Fix",
-        "change": "Absturz beim Videos abspielen behoben"
+        "change": "Repost-Markierungen im Feed fehlten unter bestimmten Bedingungen"
       }
     ]
   },
