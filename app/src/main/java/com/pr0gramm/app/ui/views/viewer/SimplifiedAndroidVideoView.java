@@ -25,9 +25,9 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Surface;
-import android.view.TextureView;
+
+import com.pr0gramm.app.ui.views.AspectTextureView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +38,8 @@ import java.util.Map;
 /**
  * Stripped down version of {@link android.widget.VideoView}.
  */
-public class SimplifiedAndroidVideoView extends TextureView {
+public class SimplifiedAndroidVideoView extends AspectTextureView {
     private static final Logger logger = LoggerFactory.getLogger(SimplifiedAndroidVideoView.class);
-
-    private String TAG = "SimVideoView";
 
     // settable by the client
     private Uri mUri;
@@ -91,69 +89,6 @@ public class SimplifiedAndroidVideoView extends TextureView {
         super(context, attrs, defStyleAttr);
         initVideoView();
     }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = getDefaultSize(mVideoWidth, widthMeasureSpec);
-        int height = getDefaultSize(mVideoHeight, heightMeasureSpec);
-
-        if (mVideoWidth > 0 && mVideoHeight > 0) {
-            int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
-            int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
-            int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
-            int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
-
-            if (widthSpecMode == MeasureSpec.EXACTLY && heightSpecMode == MeasureSpec.EXACTLY) {
-                // the size is fixed
-                width = widthSpecSize;
-                height = heightSpecSize;
-
-                // for compatibility, we adjust size based on aspect ratio
-                if (mVideoWidth * height < width * mVideoHeight) {
-                    width = height * mVideoWidth / mVideoHeight;
-                } else if (mVideoWidth * height > width * mVideoHeight) {
-                    height = width * mVideoHeight / mVideoWidth;
-                }
-            } else if (widthSpecMode == MeasureSpec.EXACTLY) {
-                // only the width is fixed, adjust the height to match aspect ratio if possible
-                width = widthSpecSize;
-                height = width * mVideoHeight / mVideoWidth;
-                if (heightSpecMode == MeasureSpec.AT_MOST && height > heightSpecSize) {
-                    // couldn't match aspect ratio within the constraints
-                    height = heightSpecSize;
-                }
-            } else if (heightSpecMode == MeasureSpec.EXACTLY) {
-                // only the height is fixed, adjust the width to match aspect ratio if possible
-                height = heightSpecSize;
-                width = height * mVideoWidth / mVideoHeight;
-                if (widthSpecMode == MeasureSpec.AT_MOST && width > widthSpecSize) {
-                    // couldn't match aspect ratio within the constraints
-                    width = widthSpecSize;
-                }
-            } else {
-                // neither the width nor the height are fixed, try to use actual video size
-                width = mVideoWidth;
-                height = mVideoHeight;
-                if (heightSpecMode == MeasureSpec.AT_MOST) {
-                    if (widthSpecMode == MeasureSpec.UNSPECIFIED || height > heightSpecSize) {
-                        // too tall, decrease both width and height
-                        height = heightSpecSize;
-                        width = height * mVideoWidth / mVideoHeight;
-                    }
-                }
-                if (widthSpecMode == MeasureSpec.AT_MOST) {
-                    if(heightSpecMode == MeasureSpec.UNSPECIFIED || width > widthSpecSize) {
-                        // too wide, decrease both width and height
-                        width = widthSpecSize;
-                        height = width * mVideoHeight / mVideoWidth;
-                    }
-                }
-            }
-        }
-
-        setMeasuredDimension(width, height);
-    }
-
 
     private void initVideoView() {
         mVideoWidth = 0;
@@ -252,6 +187,7 @@ public class SimplifiedAndroidVideoView extends TextureView {
 //                            getSurfaceTexture().setDefaultBufferSize(mVideoWidth, mVideoHeight);
 //                        }
 
+                        setAspect((float) mVideoWidth / mVideoHeight);
                         requestLayout();
                     }
                 }
@@ -277,6 +213,8 @@ public class SimplifiedAndroidVideoView extends TextureView {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 //                    getSurfaceTexture().setDefaultBufferSize(mVideoWidth, mVideoHeight);
 //                }
+
+                setAspect((float) mVideoWidth / mVideoHeight);
 
                 if (mSurfaceWidth != 0 && mSurfaceHeight != 0) {
                     // We didn't actually change the size (it was already at the size

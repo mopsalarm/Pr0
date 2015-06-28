@@ -73,6 +73,7 @@ public class SimpleVideoMediaView extends MediaView {
         player.setLooping(true);
         videoView.setAlpha(1.f);
         hideBusyIndicator();
-        setViewAspect((float) player.getVideoWidth() / player.getVideoHeight());
+
+        // setViewAspect((float) player.getVideoWidth() / player.getVideoHeight());
     }
 }

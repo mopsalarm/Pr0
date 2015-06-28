@@ -19,7 +19,7 @@
         <attr name="depth" format="integer"/>
     </declare-styleable>
 
-    <declare-styleable name="AspectImageView">
+    <declare-styleable name="AspectView">
         <attr name="aspect" format="float"/>
     </declare-styleable>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.TextureView;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.R;
@@ -12,18 +13,18 @@ import com.pr0gramm.app.R;
  * A image that measures it height to the same value
  * as its width.
  */
-public class AspectImageView extends ImageView {
+public class AspectTextureView extends TextureView {
     private float aspect;
 
-    public AspectImageView(Context context) {
+    public AspectTextureView(Context context) {
         this(context, null, 0);
     }
 
-    public AspectImageView(Context context, AttributeSet attrs) {
+    public AspectTextureView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AspectImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AspectTextureView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         // apply attributes
