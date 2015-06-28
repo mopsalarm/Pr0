@@ -73,7 +73,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -155,8 +154,6 @@ public class FeedFragment extends RoboFragment {
     private Long autoScrollOnLoad = null;
 
     private LoaderHelper<Info> userInfo;
-
-    private final Set<Long> reposts = new HashSet<>();
 
     private FeedLoader loader;
 
@@ -765,20 +762,12 @@ public class FeedFragment extends RoboFragment {
         return feedAdapter.getFilter();
     }
 
-    private void handleMetaServiceResponse(MetaService.InfoResponse infoResponse) {
-        logger.info("merge info about {} reposts and {} sizes",
-                reposts.size(), infoResponse.getSizes().size());
-
-        for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes()) {
-            localCacheService.putSizeInfo(sizeInfo);
+    private void onMetaServiceResponse(MetaService.InfoResponse infoResponse) {
+        if (!infoResponse.getReposts().isEmpty()) {
+            // we need to tell the recycler view to rebind the items, because
+            // some items might now be reposts.
+            feedAdapter.notifyDataSetChanged();
         }
-
-        reposts.addAll(infoResponse.getReposts());
-        feedAdapter.notifyDataSetChanged();
-    }
-
-    private boolean isRepost(FeedItem item) {
-        return reposts.contains(item.getId());
     }
 
     private boolean isSeen(FeedItem item) {
@@ -839,7 +828,7 @@ public class FeedFragment extends RoboFragment {
                 });
 
                 // check if this item was already seen.
-                if (fragment.isRepost(item) && fragment.settings.useMetaService()) {
+                if (fragment.localCacheService.isRepost(item.getId()) && fragment.settings.useMetaService()) {
                     view.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
@@ -870,12 +859,12 @@ public class FeedFragment extends RoboFragment {
             // check if we prepended items to the list.
             int prependCount = 0;
             for (int idx = 0; idx < newItems.size(); idx++) {
-                if(newItems.get(idx).getId() == getItemId(idx)) {
+                if (newItems.get(idx).getId() == getItemId(idx)) {
                     prependCount++;
                 }
             }
 
-            if(prependCount == 0) {
+            if (prependCount == 0) {
                 notifyDataSetChanged();
             } else {
                 notifyItemRangeInserted(0, prependCount);
@@ -894,9 +883,25 @@ public class FeedFragment extends RoboFragment {
     }
 
     private void loadMetaData(List<Long> items) {
-        bindFragment(this, metaService.getInfo(items))
+        Observable<MetaService.InfoResponse> metaData = metaService
+                .getInfo(items)
+                .doOnNext(this::cacheInfoResponse);
+
+        bindFragment(this, metaData)
                 .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
-                .subscribe(this::handleMetaServiceResponse, Actions.empty());
+                .subscribe(this::onMetaServiceResponse, Actions.empty());
+    }
+
+    private void cacheInfoResponse(MetaService.InfoResponse infoResponse) {
+        logger.info("merge info about {} reposts and {} sizes",
+                infoResponse.getReposts().size(),
+                infoResponse.getSizes().size());
+
+        for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes())
+            localCacheService.putSizeInfo(sizeInfo);
+
+        // cache the items as reposts
+        localCacheService.cacheReposts(infoResponse.getReposts());
     }
 
     private void onFeedError(Throwable error) {
