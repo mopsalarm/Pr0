@@ -117,6 +117,7 @@ dependencies {
     compile 'com.android.support:design:22.2.0'
     compile 'de.psdev.licensesdialog:licensesdialog:1.7.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    compile 'com.google.android.apps.muzei:muzei-api:2.0'
 
     compile('pl.brightinventions:slf4android:0.1.1@aar') {
         transitive = true

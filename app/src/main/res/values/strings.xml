@@ -290,4 +290,6 @@
     <string name="dummy_benis_delta">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
     <string name="action_feedback">Feedback</string>
+    <string name="muzei_source_name">pr0gramm</string>
+    <string name="muzei_source_description">Queries pr0gramm for new images</string>
 </resources>
