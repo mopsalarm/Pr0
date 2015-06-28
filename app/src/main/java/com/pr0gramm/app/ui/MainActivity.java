@@ -437,8 +437,7 @@ public class MainActivity extends BaseActivity implements
         public void run() {
             Instant now = Instant.now();
             if (Seconds.secondsBetween(lastUpdate, now).getSeconds() > 45) {
-                Intent intent = new Intent(MainActivity.this, SyncBroadcastReceiver.class);
-                MainActivity.this.sendBroadcast(intent);
+                SyncBroadcastReceiver.syncNow(MainActivity.this);
             }
 
             // reschedule
