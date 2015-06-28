@@ -45,7 +45,7 @@ public class LoginCookieHandler extends CookieHandler {
 
         String restored = preferences.getString(PREF_LOGIN_COOKIE, null);
         if (restored != null && !"null".equals(restored)) {
-            logger.info("restoring cookie value from prefs: " + restored);
+            // logger.info("restoring cookie value from prefs: " + restored);
             setLoginCookie(restored);
         }
     }
@@ -106,7 +106,7 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     private void setLoginCookie(String value) {
-        logger.info("Set login cookie called: " + value);
+        // logger.info("Set login cookie called: " + value);
 
         // convert to a http cookie
         HttpCookie cookie = new HttpCookie("me", value);
