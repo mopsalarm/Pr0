@@ -244,7 +244,13 @@ public class FeedFragment extends RoboFragment {
 
     private void setFeedAdapter(FeedAdapter adapter) {
         feedAdapter = adapter;
-        recyclerView.setAdapter(wrapFeedAdapter(adapter));
+
+        MergeRecyclerAdapter merged = new MergeRecyclerAdapter();
+        merged.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
+        merged.addAdapter(adapter);
+        recyclerView.setAdapter(merged);
+
+        userInfo.register(this::presentUserInfo, Actions.empty());
     }
 
     private void presentUserInfo(Info info) {
@@ -370,18 +376,6 @@ public class FeedFragment extends RoboFragment {
             int columnCount = layout.getSpanCount();
             layout.setSpanSizeLookup(new NMatchParentSpanSizeLookup(itemCount, columnCount));
         });
-    }
-
-    private MergeRecyclerAdapter wrapFeedAdapter(
-            FeedAdapter feedAdapter) {
-
-        MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
-        adapter.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
-        adapter.addAdapter(feedAdapter);
-
-        userInfo.register(this::presentUserInfo, Actions.empty());
-
-        return adapter;
     }
 
     private static View newFeedStartPaddingView(Context context) {
