@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
@@ -66,7 +67,11 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
         List<Feed.Item> items;
         try {
             logger.info("fetching feed");
-            items = feed.map(Feed::getItems).toBlocking().singleOrDefault(emptyList());
+            items = feed
+                    .map(this::extractValidItem)
+                    .toBlocking()
+                    .singleOrDefault(emptyList());
+
         } catch (Exception error) {
             logger.warn("could not get feed", error);
             throw new RemoteMuzeiArtSource.RetryException(error);
@@ -95,6 +100,12 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
         scheduleUpdate(System.currentTimeMillis() + ROTATE_TIME_MILLIS);
     }
 
+    private List<Feed.Item> extractValidItem(Feed f) {
+        return FluentIterable.from(f.getItems())
+                .filter(MuzeiSupport::isImageItem)
+                .toList();
+    }
+
     private Feed.Item findRandomItem(List<Feed.Item> items, String currentToken) {
         Random random = new Random();
 
@@ -105,6 +116,11 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
                 return item;
             }
         }
+    }
+
+    private static boolean isImageItem(Feed.Item item) {
+        String image = item.getImage();
+        return image != null && image.toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 
     @Override
