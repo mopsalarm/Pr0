@@ -270,4 +270,5 @@
     <string name="prefcat_visual__animations_title">Animationen</string>
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
+    <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
 </resources>

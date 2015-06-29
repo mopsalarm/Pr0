@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -155,6 +156,14 @@ public class MainActivity extends BaseActivity implements
                     .content(R.string.hint_try_mpeg_decoder)
                     .positive(R.string.okay)
                     .show();
+        } else if(AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
+            if(!settings.convertGifToWebm()) {
+                DialogBuilder.start(this)
+                        .content(getString(R.string.hint_use_gif_to_webm_service))
+                        .positive(R.string.yes, di -> settings.edit().putBoolean("pref_convert_gif_to_webm", true).apply())
+                        .negative(R.string.no)
+                        .show();
+            }
         }
     }
 
