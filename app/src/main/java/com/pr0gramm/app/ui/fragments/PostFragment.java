@@ -874,8 +874,6 @@ public class PostFragment extends RoboFragment implements
     private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
 
-        // private Integer y;
-
         public ScrollHandler(ToolbarActivity activity) {
             this.activity = activity;
         }
