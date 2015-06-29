@@ -146,7 +146,7 @@
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
     <string name="badge_op">OP</string>
-    <string name="could_not_play_video">Video kann nicht abgespielt werden. Probiere die Video-Kompatibilitätseinstellung oder, wenn du keine Videos sehen kannst, melde das bitte Mopsalarm zusammen mit deinem Log (Einstellungen, ganz unten: Logcat).</string>
+    <string name="could_not_play_video">Video kann nicht abgespielt werden. Probiere die Video-Kompatibilitätseinstellung oder, wenn du keine Videos sehen kannst, sende bitte Feedback.</string>
     <string name="logcat_error_occurred">Logdatei konnte nicht angelegt werden.</string>
     <string name="logcat_logfile_created">Logdatei unter %s angelegt. Bitte sende diese an Mopsalarm.</string>
     <string name="could_not_play_video_262">Fehler 262 ist aufgetreten. Ein Logfile wurde unter %s angelegt. Bitte schicke es an Mopsalarm, damit er den Fehler beheben kann.</string>

@@ -2,11 +2,13 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.view.View;
 
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import roboguice.inject.InjectView;
 
@@ -37,6 +39,8 @@ public class VideoMediaView extends MediaView {
             videoView.setVideoURI(getEffectiveUri());
             videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
             videoView.setOnErrorListener(this::onMediaPlayerError);
+            videoView.setOnBufferingUpdateListener(this::onBufferingUpdate);
+            videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
 
             // hide player at first
             videoView.setAlpha(0.01f);
@@ -56,6 +60,18 @@ public class VideoMediaView extends MediaView {
         }
 
         videoView.start();
+    }
+
+    private void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
+        setViewAspect(width / (float) height);
+    }
+
+    private void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        View view = getProgressView();
+        if (view instanceof BusyIndicator) {
+            BusyIndicator busyIndicator = (BusyIndicator) view;
+            busyIndicator.setProgress(0.01f * percent);
+        }
     }
 
     @Override
@@ -84,18 +100,39 @@ public class VideoMediaView extends MediaView {
                         }
                     }, 500);
                 }
+
+                return true;
             }
+        }
+
+        try {
+            if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
+                DialogBuilder.start(getContext())
+                        .content(R.string.could_not_play_video_io)
+                        .positive(R.string.okay)
+                        .show();
+
+                return true;
+            }
+
+            DialogBuilder.start(getContext())
+                    .content(R.string.could_not_play_video)
+                    .positive(R.string.okay)
+                    .show();
+
+        } catch (Exception ignored) {
         }
 
         return true;
     }
+
 
     private void onMediaPlayerPrepared(MediaPlayer player) {
         player.setLooping(true);
         videoView.setAlpha(1.f);
         hideBusyIndicator();
 
-        if(isPlaying()) {
+        if (isPlaying()) {
             // mark media as viewed
             onMediaShown();
         }

@@ -72,9 +72,11 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
     private int mSurfaceWidth;
     private int mSurfaceHeight;
     private OnCompletionListener mOnCompletionListener;
-    private MediaPlayer.OnPreparedListener mOnPreparedListener;
     private OnErrorListener mOnErrorListener;
     private OnInfoListener mOnInfoListener;
+    private MediaPlayer.OnPreparedListener mOnPreparedListener;
+    private MediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener;
+    private MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener;
     private int mSeekWhenPrepared;  // recording the seek position while preparing
 
     public SimplifiedAndroidVideoView(Context context) {
@@ -164,6 +166,7 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
             mMediaPlayer.setSurface(new Surface(mSurface));
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
+            mMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
             mMediaPlayer.prepareAsync();
 
             // we don't set the target state here either, but preserve the
@@ -190,6 +193,10 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
                         logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
                         setAspect((float) mVideoWidth / mVideoHeight);
                         requestLayout();
+                    }
+
+                    if(mOnVideoSizeChangedListener != null) {
+                        mOnVideoSizeChangedListener.onVideoSizeChanged(mp, width, height);
                     }
                 }
             };
@@ -308,6 +315,14 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
      */
     public void setOnErrorListener(OnErrorListener l) {
         mOnErrorListener = l;
+    }
+
+    public void setOnBufferingUpdateListener(MediaPlayer.OnBufferingUpdateListener listener) {
+        mOnBufferingUpdateListener= listener;
+    }
+
+    public void setOnVideoSizeChangedListener(MediaPlayer.OnVideoSizeChangedListener listener) {
+        this.mOnVideoSizeChangedListener = listener;
     }
 
     /**
