@@ -35,6 +35,10 @@
         "change": "Häufigeres Testen auf neue Nachrichten mit exponential backoff"
       },
       {
+        "type": "Neu",
+        "change": "'Gif zu Webm'-Konverter auf Mobile etwas beworben"
+      },
+      {
         "type": "Fix",
         "change": "Der 'Antworten' Button wurde teilweise fehlerhafterweise angezeigt"
       },
