@@ -36,7 +36,7 @@ public class FeedbackService {
     }
 
     public Observable<Nothing> post(String name, String feedback) {
-        String version = Pr0grammApplication.getPackageInfo().versionName;
+        String version = String.valueOf(Pr0grammApplication.getPackageInfo().versionCode);
 
         return Async
                 .start(FeedbackService::logcat, Schedulers.io())
