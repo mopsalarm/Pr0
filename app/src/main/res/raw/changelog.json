@@ -1,6 +1,7 @@
 [
   {
     "version": 63,
+    "release": true,
     "changes": [
       {
         "type": "Neu",
