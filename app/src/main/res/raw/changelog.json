@@ -4,6 +4,10 @@
     "release": true,
     "changes": [
       {
+        "type": "Info",
+        "change": "Wie du vielleicht schon mitbekommen hast, ist die App aktuell aus Google Play entfernt worden (Google der Huhrensohn). Wir arbeiten dran, sie dort demnächst wieder verfügbar zu machen. Wenn du die App trotzdem weiter empfehlen möchtest, gibt es in den Einstellungen Link zur Download Website."
+      },
+      {
         "type": "Neu",
         "change": "Bufferindicator beim Abspielen von Videos über langsame Verbindungen"
       },

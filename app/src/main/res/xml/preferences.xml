@@ -277,10 +277,12 @@
         android:persistent="false"
         android:title="@string/prefcat_misc">
 
+        <!--
         <Preference
             android:key="pref_pseudo_feedback"
             android:summary="@string/pref_pseudo_feedback_summary"
             android:title="@string/pref_pseudo_feedback"/>
+        -->
 
         <Preference
             android:key="pref_pseudo_licenses"
@@ -292,6 +294,16 @@
             android:summary="@string/pref_pseudo_changelog_summary"
             android:title="@string/pref_pseudo_changelog"/>
 
+        <Preference
+            android:persistent="false"
+            android:title="@string/pref_website_title"
+            android:summary="@string/pref_website_summary">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://mopsalarm.github.io/Pr0/"/>
+
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory
