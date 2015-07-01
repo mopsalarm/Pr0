@@ -41,6 +41,7 @@ public class VideoMediaView extends MediaView {
             videoView.setOnErrorListener(this::onMediaPlayerError);
             videoView.setOnBufferingUpdateListener(this::onBufferingUpdate);
             videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
+            videoView.setOnInfoListener(this::onVideoInfoEvent);
 
             // hide player at first
             videoView.setAlpha(0.01f);
@@ -60,6 +61,18 @@ public class VideoMediaView extends MediaView {
         }
 
         videoView.start();
+    }
+
+    private boolean onVideoInfoEvent(MediaPlayer mediaPlayer, int event, int i) {
+        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+            showBusyIndicator();
+        }
+
+        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+            hideBusyIndicator();
+        }
+
+        return false;
     }
 
     private void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {

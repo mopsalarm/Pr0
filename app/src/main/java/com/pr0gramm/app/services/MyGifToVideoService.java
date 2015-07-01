@@ -17,7 +17,7 @@ import rx.Observable;
  * Converts a gif to a webm using my own conversion service.
  */
 public class MyGifToVideoService implements GifToVideoService {
-    private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de:5000";
+    private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de/api/gif-to-webm/v1";
 
     private final Api api;
 

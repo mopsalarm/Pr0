@@ -31,7 +31,7 @@ public class FeedbackService {
     public FeedbackService(OkHttpClient okHttpClient) {
         this.api = new RestAdapter.Builder()
                 .setClient(new OkClient(okHttpClient))
-                .setEndpoint("http://pr0.wibbly-wobbly.de:5002")
+                .setEndpoint("http://pr0.wibbly-wobbly.de/api/feedback/v1")
                 .build().create(Api.class);
     }
 

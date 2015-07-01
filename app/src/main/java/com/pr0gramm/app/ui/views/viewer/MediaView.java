@@ -185,7 +185,7 @@ public abstract class MediaView extends FrameLayout {
                 String url = mediaUri.getBaseUri().toString();
                 String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
 
-                Uri image = Uri.parse("http://pr0.wibbly-wobbly.de:5001/" + encoded + "/thumb.jpg");
+                Uri image = Uri.parse("http://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");
                 picasso.load(image).noPlaceholder().into(previewTarget);
             }
         }

@@ -32,7 +32,7 @@ public class MetaService {
     public MetaService() {
         api = new RestAdapter.Builder()
                 .setLog(new LoggerAdapter(logger))
-                .setEndpoint("http://pr0.wibbly-wobbly.de:5003")
+                .setEndpoint("http://pr0.wibbly-wobbly.de/api/meta/v1")
                 .setConverter(new GsonConverter(new Gson()))
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build()
