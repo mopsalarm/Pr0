@@ -4,7 +4,7 @@
     "release": true,
     "changes": [
       {
-        "type": "Fix",
+        "type": "Neu",
         "change": "Bufferindicator beim Abspielen von Videos über langsame Verbindungen"
       },
       {
