@@ -39,7 +39,6 @@ public class VideoMediaView extends MediaView {
             videoView.setVideoURI(getEffectiveUri());
             videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
             videoView.setOnErrorListener(this::onMediaPlayerError);
-            videoView.setOnBufferingUpdateListener(this::onBufferingUpdate);
             videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
             videoView.setOnInfoListener(this::onVideoInfoEvent);
 
@@ -77,14 +76,6 @@ public class VideoMediaView extends MediaView {
 
     private void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
         setViewAspect(width / (float) height);
-    }
-
-    private void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
-        View view = getProgressView();
-        if (view instanceof BusyIndicator) {
-            BusyIndicator busyIndicator = (BusyIndicator) view;
-            busyIndicator.setProgress(0.01f * percent);
-        }
     }
 
     @Override

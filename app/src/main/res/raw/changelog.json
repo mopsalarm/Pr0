@@ -1,5 +1,19 @@
 [
   {
+    "version": 64,
+    "release": true,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Bufferindicator beim Abspielen von Videos über langsame Verbindungen"
+      },
+      {
+        "type": "Fix",
+        "change": "Einige Benutzer konnten nicht voten - das geht nun wieder."
+      }
+    ]
+  },
+  {
     "version": 63,
     "release": true,
     "changes": [
