@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.pr0gramm.app.ui.views.viewer;
+package com.pr0gramm.app.ui.views.viewer.video;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -25,25 +24,23 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.view.Surface;
+import android.view.View;
 
-import com.pr0gramm.app.ui.views.AspectTextureView;
+import com.pr0gramm.app.ui.views.AspectLayout;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Stripped down version of {@link android.widget.VideoView}.
  */
-public class SimplifiedAndroidVideoView extends AspectTextureView {
-    private static final Logger logger = LoggerFactory.getLogger(SimplifiedAndroidVideoView.class);
+public class CustomVideoView extends AspectLayout {
+    private static final Logger logger = LoggerFactory.getLogger(CustomVideoView.class);
 
     // settable by the client
     private Uri mUri;
-    private Map<String, String> mHeaders;
 
     // all possible internal states
     private static final int STATE_ERROR = -1;
@@ -62,11 +59,7 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
     private int mCurrentState = STATE_IDLE;
     private int mTargetState = STATE_IDLE;
 
-    // All the stuff we need for playing and showing a video
-    private SurfaceTexture mSurface;
-
     private MediaPlayer mMediaPlayer = null;
-    private int mAudioSession;
     private int mVideoWidth;
     private int mVideoHeight;
     private int mSurfaceWidth;
@@ -75,19 +68,21 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
     private OnErrorListener mOnErrorListener;
     private OnInfoListener mOnInfoListener;
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
-    private MediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener;
     private MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener;
     private int mSeekWhenPrepared;  // recording the seek position while preparing
 
-    public SimplifiedAndroidVideoView(Context context) {
+    // the backend view.
+    private ViewBackend mBackendView;
+
+    public CustomVideoView(Context context) {
         this(context, null);
     }
 
-    public SimplifiedAndroidVideoView(Context context, AttributeSet attrs) {
+    public CustomVideoView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SimplifiedAndroidVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CustomVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initVideoView();
     }
@@ -95,12 +90,22 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
     private void initVideoView() {
         mVideoWidth = 0;
         mVideoHeight = 0;
-        setSurfaceTextureListener(mTextureListener);
         setFocusable(true);
         setFocusableInTouchMode(true);
         requestFocus();
         mCurrentState = STATE_IDLE;
         mTargetState = STATE_IDLE;
+
+        this.mBackendView = new SurfaceViewBackend(getContext(), backendViewCallbacks);
+
+        View view = mBackendView.getView();
+        view.setAlpha(0.01f);
+        addView(view);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        mBackendView.getView().layout(0, 0, right - left, bottom - top);
     }
 
     /**
@@ -109,22 +114,7 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
      * @param uri the URI of the video.
      */
     public void setVideoURI(Uri uri) {
-        setVideoURI(uri, null);
-    }
-
-    /**
-     * Sets video URI using specific headers.
-     *
-     * @param uri     the URI of the video.
-     * @param headers the headers for the URI request.
-     *                Note that the cross domain redirection is allowed by default, but that can be
-     *                changed with key/value pairs through the headers parameter with
-     *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
-     *                to disallow or allow cross domain redirection.
-     */
-    public void setVideoURI(Uri uri, Map<String, String> headers) {
         mUri = uri;
-        mHeaders = headers;
         mSeekWhenPrepared = 0;
         openVideo();
         requestLayout();
@@ -142,7 +132,7 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
     }
 
     private void openVideo() {
-        if (mUri == null || mSurface == null) {
+        if (mUri == null || !mBackendView.hasSurface()) {
             // not ready for playback just yet, will try again later
             return;
         }
@@ -152,21 +142,16 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
         release(false);
         try {
             mMediaPlayer = new MediaPlayer();
-            if (mAudioSession != 0) {
-                mMediaPlayer.setAudioSessionId(mAudioSession);
-            } else {
-                mAudioSession = mMediaPlayer.getAudioSessionId();
-            }
+
+            mBackendView.setSurface(mMediaPlayer);
+            mMediaPlayer.setVolume(0, 0);
             mMediaPlayer.setOnPreparedListener(mPreparedListener);
             mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);
             mMediaPlayer.setOnCompletionListener(mCompletionListener);
             mMediaPlayer.setOnErrorListener(mErrorListener);
             mMediaPlayer.setOnInfoListener(mInfoListener);
-            mMediaPlayer.setDataSource(getContext(), mUri, mHeaders);
-            mMediaPlayer.setSurface(new Surface(mSurface));
+            mMediaPlayer.setDataSource(getContext(), mUri);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setScreenOnWhilePlaying(true);
-            mMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
             mMediaPlayer.prepareAsync();
 
             // we don't set the target state here either, but preserve the
@@ -186,16 +171,13 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
                     mVideoWidth = mp.getVideoWidth();
                     mVideoHeight = mp.getVideoHeight();
                     if (mVideoWidth != 0 && mVideoHeight != 0) {
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-//                            getSurfaceTexture().setDefaultBufferSize(mVideoWidth, mVideoHeight);
-//                        }
+                        mBackendView.setSize(mVideoWidth, mVideoHeight);
 
                         logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
                         setAspect((float) mVideoWidth / mVideoHeight);
-                        requestLayout();
                     }
 
-                    if(mOnVideoSizeChangedListener != null) {
+                    if (mOnVideoSizeChangedListener != null) {
                         mOnVideoSizeChangedListener.onVideoSizeChanged(mp, width, height);
                     }
                 }
@@ -218,8 +200,8 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
             }
             if (mVideoWidth != 0 && mVideoHeight != 0) {
                 logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
+                mBackendView.setSize(mVideoWidth, mVideoHeight);
                 setAspect((float) mVideoWidth / mVideoHeight);
-                requestLayout();
 
                 if (mSurfaceWidth != 0 && mSurfaceHeight != 0) {
                     // We didn't actually change the size (it was already at the size
@@ -317,10 +299,11 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
         mOnErrorListener = l;
     }
 
-    public void setOnBufferingUpdateListener(MediaPlayer.OnBufferingUpdateListener listener) {
-        mOnBufferingUpdateListener= listener;
-    }
-
+    /**
+     * This listener will be called whenever the size of the video changes.
+     *
+     * @param listener The listener to be called.
+     */
     public void setOnVideoSizeChangedListener(MediaPlayer.OnVideoSizeChangedListener listener) {
         this.mOnVideoSizeChangedListener = listener;
     }
@@ -335,16 +318,14 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
         mOnInfoListener = l;
     }
 
-    final private SurfaceTextureListener mTextureListener = new SurfaceTextureListener() {
+    final private ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
         @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            mSurface = surface;
+        public void onAvailable(ViewBackend backend) {
             openVideo();
-            onSurfaceTextureSizeChanged(surface, width, height);
         }
 
         @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        public void onSizeChanged(ViewBackend backend, int width, int height) {
             mSurfaceWidth = width;
             mSurfaceHeight = height;
             boolean isValidState = (mTargetState == STATE_PLAYING);
@@ -359,14 +340,8 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
         }
 
         @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            mSurface = null;
+        public void onDestroy(ViewBackend backend) {
             release(false);
-            return true;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
     };
 
@@ -374,6 +349,8 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
      * release the media player in any state
      */
     private void release(boolean clearTargetState) {
+        mBackendView.getView().setAlpha(0.01f);
+
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
             mMediaPlayer.release();
@@ -387,6 +364,8 @@ public class SimplifiedAndroidVideoView extends AspectTextureView {
 
     public void start() {
         if (isInPlaybackState()) {
+            mBackendView.getView().setAlpha(1f);
+
             mMediaPlayer.start();
             mCurrentState = STATE_PLAYING;
         }

@@ -2,13 +2,12 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.view.View;
 
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.ui.views.BusyIndicator;
+import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 
 import roboguice.inject.InjectView;
 
@@ -16,7 +15,7 @@ import roboguice.inject.InjectView;
  */
 public class VideoMediaView extends MediaView {
     @InjectView(R.id.video)
-    private SimplifiedAndroidVideoView videoView;
+    private CustomVideoView videoView;
 
     @Inject
     private SingleShotService singleShotService;
@@ -41,9 +40,6 @@ public class VideoMediaView extends MediaView {
             videoView.setOnErrorListener(this::onMediaPlayerError);
             videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
             videoView.setOnInfoListener(this::onVideoInfoEvent);
-
-            // hide player at first
-            videoView.setAlpha(0.01f);
         }
 
 
@@ -133,7 +129,6 @@ public class VideoMediaView extends MediaView {
 
     private void onMediaPlayerPrepared(MediaPlayer player) {
         player.setLooping(true);
-        videoView.setAlpha(1.f);
         hideBusyIndicator();
 
         if (isPlaying()) {

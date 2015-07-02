@@ -4,27 +4,26 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.TextureView;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 
 import com.pr0gramm.app.R;
 
 /**
- * A image that measures it height to the same value
- * as its width.
+ * A {@link FrameLayout} that keeps a aspect ratio and calculates it height
+ * from the width.
  */
-public class AspectTextureView extends TextureView {
+public class AspectLayout extends FrameLayout {
     private float aspect;
 
-    public AspectTextureView(Context context) {
+    public AspectLayout(Context context) {
         this(context, null, 0);
     }
 
-    public AspectTextureView(Context context, AttributeSet attrs) {
+    public AspectLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AspectTextureView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AspectLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         // apply attributes
