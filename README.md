@@ -1,6 +1,6 @@
 # pr0gramm Android App
 
-Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https://github.com/mopsalarm/pr0gramm-updates
+Die aktuelle Version der pr0gramm-App gibt es unter: https://mopsalarm.github.io/Pr0
 
 ## Features
 * Anschauen des Feeds und einzelner Posts
@@ -24,13 +24,11 @@ Die aktuelle Version der pr0gramm-App gibt in dem Begleitrepository unter: https
 * Nachrichten lesen und schreiben können
 * Eine Einstellung die Festlegt, dass *gif*s und *webm*s erst nach einem Knopfdruck geladen werden.
 * OP Anzeige in den Kommentaren
-
-## Geplante Features
 * Hochladen neuer Bilder direkt vom Handy
-* Cleanups + Kommentare.
+* mehr
 
 ## Geplante Features zum Datensparen
-* Bilder auf einem Server neu komprimieren (http://bellard.org/bpg/ bietet sich da an)
+* Thumbnails auf einem Server in besserer Qualität neu komprimieren (http://bellard.org/bpg/ bietet sich da an)
 
 ## Benötigt
 * Hilfe beim Testen, Bugs, etc
