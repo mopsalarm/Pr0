@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 
@@ -19,6 +20,9 @@ public class VideoMediaView extends MediaView {
 
     @Inject
     private SingleShotService singleShotService;
+
+    @Inject
+    private Settings settings;
 
     private int retryCount;
     private boolean videoViewInitialized;
@@ -45,12 +49,21 @@ public class VideoMediaView extends MediaView {
 
         // if this is the first time we start the media, tell the
         // user about the changes!
-        if (singleShotService.isFirstTime("new_media_player_initialize_first_time")) {
+        if (!settings.useSurfaceView() && singleShotService.isFirstTime("hint_video_media_view_compatibility")) {
             DialogBuilder.start(getContext())
-                    .content("Der Videoplayer wurde überarbeitet. Falls Videos nicht mehr spielen, " +
-                            "sende bitte *sofort* Feedback über die Seitenleiste. Als Workaround " +
-                            "kannst du dann temporär den Softwaredecoder in den Einstellungen " +
-                            "unter Kompatibilität aktivieren.")
+                    .content("Falls Videos nicht ordentlich spielen oder falsche Farben zeigen, " +
+                            "probiere die Option 'SurfaceView' in den Einstellungen. Falls das " +
+                            "keine Verbesserung bringt, kannst du als Notlösung den Software " +
+                            "Dekoder aktivieren")
+                    .positive(R.string.okay)
+                    .show();
+        }
+        
+        if (settings.useSurfaceView() && singleShotService.isFirstTime("hint_video_media_view_mpeg_decoder")) {
+            DialogBuilder.start(getContext())
+                    .content("Wenn die 'SurfaceView' Einstellung nichts gebracht hast, kannst du " +
+                            "als Notlösung den Software Dekoder in den Einstellungen aktivieren, " +
+                            "der sollte immer funktionieren!")
                     .positive(R.string.okay)
                     .show();
         }

@@ -83,7 +83,7 @@ public interface Api {
     Observable<Sync> sync(@Query("lastId") long lastId);
 
     @GET("/api/profile/info")
-    Observable<Info> info(@Query("name") String name);
+    Observable<Info> info(@Query("name") String name, @Query("flags") Integer flags);
 
     @GET("/api/inbox/all")
     Observable<MessageFeed> inboxAll();
@@ -95,7 +95,9 @@ public interface Api {
     Observable<PrivateMessageFeed> inboxPrivateMessages();
 
     @GET("/api/profile/comments")
-    Observable<UserComments> userComments(@Query("name") String user, @Query("before") long before);
+    Observable<UserComments> userComments(@Query("name") String user,
+                                          @Query("before")
+                                          long before, @Query("flags") Integer flags);
 
     @FormUrlEncoded
     @POST("/api/inbox/post")

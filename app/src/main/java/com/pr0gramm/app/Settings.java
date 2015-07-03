@@ -2,7 +2,6 @@ package com.pr0gramm.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.google.common.base.Enums;
@@ -171,6 +170,10 @@ public class Settings {
 
     public boolean showGoogleImageButton() {
         return preferences.getBoolean("pref_show_google_image_button", true);
+    }
+
+    public boolean useSurfaceView() {
+        return preferences.getBoolean("pref_use_surface_view", false);
     }
 
     public SharedPreferences.Editor edit() {

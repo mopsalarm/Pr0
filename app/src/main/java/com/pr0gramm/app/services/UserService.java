@@ -186,7 +186,7 @@ public class UserService {
      * Retrieves the user data and stores part of the data in the database.
      */
     public Observable<Info> info(String username) {
-        return api.info(username);
+        return api.info(username, null);
     }
 
     /**

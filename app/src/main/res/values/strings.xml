@@ -254,7 +254,7 @@
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
     <string name="no">No</string>
     <string name="pref_use_mpeg_decoder_title">Software decoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you.</string>
+    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you, but use it only as a last resort.</string>
     <string name="add_reply_comment_title">Answer to %s</string>
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
@@ -302,5 +302,8 @@
     <string name="prefcat_behaviour__notificatons_title">Notifications</string>
     <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%. Would you like to activate it now? You can always change it back in the settings later.</string>
     <string name="pref_website_title">Website</string>
-    <string name="pref_website_summary">https://mopsalarm.github.io/Pr0/</string>
+    <string name="pref_website_summary">Recommend https://mopsalarm.github.io/Pr0/ to your friends</string>
+    <string name="pref_use_surface_view_title">SurfaceView</string>
+    <string name="pref_use_surface_view_summary">Try this workaround if videos are not playing without corruption on your devices without software decoder.</string>
+    <string name="hint_use_surface_view">If you have problems playing videos without activating the software decoder (like green lines or color corruption), try activating the new SurfaceView option. Tap on \"yes\" to let me activate that for you.</string>
 </resources>

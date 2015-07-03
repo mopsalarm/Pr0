@@ -225,7 +225,7 @@
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
     <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst.</string>
+    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst. Bitte nur aktivieren, wenn wirklich nötig!</string>
     <string name="action_new_message">Neue Nachricht</string>
     <string name="add_new_comment_summary">Kommentar schreiben</string>
     <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
@@ -271,4 +271,9 @@
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
+    <string name="pref_use_surface_view_summary">Probiere diesen Workaround, wenn Videos nicht sauber abgespielt werden.</string>
+    <string name="pref_use_surface_view_title">SurfaceView</string>
+    <string name="pref_website_summary">Empfehle https://mopsalarm.github.io/Pr0/ deinen Freunden</string>
+    <string name="pref_website_title">Webseite</string>
+    <string name="hint_use_surface_view">Wenn du ohne den Softwaredekoder zu aktivieren Probleme bei der Wiedergabe von Videos hast (grüne Linien oder Verfärbungen), probiere die neue Option "SurfaceView". Drück auf "Ja" um die neue EInstellung direkt zu aktivieren.</string>
 </resources>

@@ -235,6 +235,12 @@
 
             <CheckBoxPreference
                 android:defaultValue="false"
+                android:key="pref_use_surface_view"
+                android:summary="@string/pref_use_surface_view_summary"
+                android:title="@string/pref_use_surface_view_title"/>
+
+            <CheckBoxPreference
+                android:defaultValue="false"
                 android:key="pref_use_mpeg_decoder"
                 android:summary="@string/pref_use_mpeg_decoder_summary"
                 android:title="@string/pref_use_mpeg_decoder_title"/>
@@ -276,13 +282,6 @@
         android:key="prefcat_misc"
         android:persistent="false"
         android:title="@string/prefcat_misc">
-
-        <!--
-        <Preference
-            android:key="pref_pseudo_feedback"
-            android:summary="@string/pref_pseudo_feedback_summary"
-            android:title="@string/pref_pseudo_feedback"/>
-        -->
 
         <Preference
             android:key="pref_pseudo_licenses"

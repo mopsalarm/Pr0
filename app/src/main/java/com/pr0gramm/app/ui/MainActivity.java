@@ -151,20 +151,34 @@ public class MainActivity extends BaseActivity implements
 
         addOriginalContentBookmarkOnce();
 
-        if (singleShotService.isFirstTime("mpeg_decoder_hint")) {
-            DialogBuilder.start(this)
-                    .content(R.string.hint_try_mpeg_decoder)
-                    .positive(R.string.okay)
-                    .show();
-        } else if(AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
-            if(!settings.convertGifToWebm()) {
-                DialogBuilder.start(this)
-                        .content(getString(R.string.hint_use_gif_to_webm_service))
-                        .positive(R.string.yes, di -> settings.edit().putBoolean("pref_convert_gif_to_webm", true).apply())
-                        .negative(R.string.no)
-                        .show();
-            }
+        if (singleShotService.isFirstTime("use_surface_view_hint")) {
+            showActivateSurfaceViewPopup();
+        } else if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
+            showActivateGifToWebmPopup();
         }
+    }
+
+    private void showActivateGifToWebmPopup() {
+        if (!settings.convertGifToWebm()) {
+            DialogBuilder.start(this)
+                    .content(R.string.hint_use_gif_to_webm_service)
+                    .positive(R.string.yes, di -> settings.edit().putBoolean("pref_convert_gif_to_webm", true).apply())
+                    .negative(R.string.no)
+                    .show();
+        }
+    }
+
+    private void showActivateSurfaceViewPopup() {
+        DialogBuilder.start(this)
+                .content(R.string.hint_use_surface_view)
+                .positive(R.string.yes, di -> {
+                    settings.edit()
+                            .putBoolean("pref_use_mpeg_decoder", false)
+                            .putBoolean("pref_use_surface_view", true)
+                            .apply();
+                })
+                .negative(R.string.no)
+                .show();
     }
 
     /**
