@@ -254,7 +254,7 @@
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
     <string name="no">No</string>
     <string name="pref_use_mpeg_decoder_title">Software decoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you, but use it only as a last resort.</string>
+    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you. CAUTION: Use this only as a last resort. Video quality will be low and you need more battery to decode videos. Your phone could even be too slow to decode videos.</string>
     <string name="add_reply_comment_title">Answer to %s</string>
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
@@ -304,6 +304,10 @@
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://mopsalarm.github.io/Pr0/ to your friends</string>
     <string name="pref_use_surface_view_title">SurfaceView</string>
-    <string name="pref_use_surface_view_summary">Try this workaround if videos are not playing without corruption on your devices without software decoder.</string>
     <string name="hint_use_surface_view">If you have problems playing videos without activating the software decoder (like green lines or color corruption), try activating the new SurfaceView option. Tap on \"yes\" to let me activate that for you.</string>
+    <string name="pref_compatibility_active_title">Activate compatibility</string>
+    <string name="pref_compatibility_active_summary">You need to check this to change compatibility settings. Please read the descriptions of preferences before changing any value.</string>
+    <string name="pref_use_surface_view_summary">Use a SurfaceView instead of a TextureView to display videos. CAUTION: This might completly corrupt the rendering of the app while scrolling comments and also slow down scrollnig performance. Deactivate if it did not bring any positive effect.</string>
+    <string name="pref_pseudo_green_video_title">Green lines on video</string>
+    <string name="pref_pseudo_green_video_summary">If you have green lines and color corruption, thats most certainly a bug in your phones system. Try downloading the video and playing it with the system movie player, it looks the same. You could activate the software decoder, but you need to live with the cavats.</string>
 </resources>

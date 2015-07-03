@@ -34,6 +34,11 @@ public class VideoMediaView extends MediaView {
     }
 
     @Override
+    public boolean isTransformable() {
+        return videoView.isTransformable();
+    }
+
+    @Override
     public void playMedia() {
         super.playMedia();
 
@@ -49,25 +54,15 @@ public class VideoMediaView extends MediaView {
 
         // if this is the first time we start the media, tell the
         // user about the changes!
-        if (!settings.useSurfaceView() && singleShotService.isFirstTime("hint_video_media_view_compatibility")) {
+        if (!settings.useMpegDecoder() && singleShotService.isFirstTime("hint_check_compatibility_settings")) {
             DialogBuilder.start(getContext())
-                    .content("Falls Videos nicht ordentlich spielen oder falsche Farben zeigen, " +
-                            "probiere die Option 'SurfaceView' in den Einstellungen. Falls das " +
-                            "keine Verbesserung bringt, kannst du als Notlösung den Software " +
-                            "Dekoder aktivieren")
+                    .content("Falls Videos nicht spielen, prüfe Kompatibilität unter" +
+                            " Einstellungen. Da diese Einstellungen 'Risiken und Nebenwirkungen'" +
+                            " haben, lies die Beschreibungen genau durch und aktiviere sie nur," +
+                            " wenn sie wirklich was bringen!")
                     .positive(R.string.okay)
                     .show();
         }
-        
-        if (settings.useSurfaceView() && singleShotService.isFirstTime("hint_video_media_view_mpeg_decoder")) {
-            DialogBuilder.start(getContext())
-                    .content("Wenn die 'SurfaceView' Einstellung nichts gebracht hast, kannst du " +
-                            "als Notlösung den Software Dekoder in den Einstellungen aktivieren, " +
-                            "der sollte immer funktionieren!")
-                    .positive(R.string.okay)
-                    .show();
-        }
-
         videoView.start();
     }
 

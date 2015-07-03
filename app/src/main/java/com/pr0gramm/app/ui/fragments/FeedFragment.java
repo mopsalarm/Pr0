@@ -1018,7 +1018,7 @@ public class FeedFragment extends RoboFragment {
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 if (getActivity() instanceof ToolbarActivity) {
-                    int y = estimateRecyclerViewScrollY(recyclerView);
+                    int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MIN_VALUE);
 
                     ToolbarActivity activity = (ToolbarActivity) getActivity();
                     activity.getScrollHideToolbarListener().onScrollFinished(y);

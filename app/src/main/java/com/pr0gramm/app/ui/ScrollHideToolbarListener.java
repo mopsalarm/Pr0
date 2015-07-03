@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 
+import com.google.common.base.Optional;
+
 /**
  */
 public class ScrollHideToolbarListener {
@@ -96,13 +98,13 @@ public class ScrollHideToolbarListener {
      *
      * @param recyclerView The recycler view to estimate scrolling of
      */
-    public static int estimateRecyclerViewScrollY(RecyclerView recyclerView) {
-        int scrollY = Integer.MAX_VALUE;
+    public static Optional<Integer> estimateRecyclerViewScrollY(RecyclerView recyclerView) {
+        Integer scrollY = null;
         View view = recyclerView.getLayoutManager().findViewByPosition(0);
         if (view != null) {
             scrollY = -(int) view.getY();
         }
 
-        return scrollY;
+        return Optional.fromNullable(scrollY);
     }
 }

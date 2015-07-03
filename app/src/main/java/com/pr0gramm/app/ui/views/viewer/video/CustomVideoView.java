@@ -430,4 +430,8 @@ public class CustomVideoView extends AspectLayout {
                 mCurrentState != STATE_IDLE &&
                 mCurrentState != STATE_PREPARING);
     }
+
+    public boolean isTransformable() {
+        return !(mBackendView instanceof SurfaceViewBackend);
+    }
 }

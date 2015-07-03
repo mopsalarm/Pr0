@@ -881,10 +881,10 @@ public class PostFragment extends RoboFragment implements
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             // get our facts straight
-            int scrollY = estimateRecyclerViewScrollY(recyclerView);
             int recyclerHeight = recyclerView.getHeight();
-            int viewerHeight = viewer.getHeight();
+            int scrollY = estimateRecyclerViewScrollY(recyclerView).or(-recyclerHeight);
 
+            int viewerHeight = viewer.getHeight();
             boolean doFancyScroll = viewerHeight < recyclerHeight;
 
             ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
@@ -897,8 +897,8 @@ public class PostFragment extends RoboFragment implements
                     ? scrollY
                     : halfScrollOffset + 0.7f * (scrollY - halfScrollOffset);
 
-            // finally position the viewer
-            viewer.setTranslationY(-scroll);
+            offsetMediaView(scroll);
+
 
             // position the vote indicator
             float remaining = viewerHeight - scrollY;
@@ -914,9 +914,31 @@ public class PostFragment extends RoboFragment implements
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                int y = estimateRecyclerViewScrollY(recyclerView);
+                int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MIN_VALUE);
                 activity.getScrollHideToolbarListener().onScrollFinished(y);
             }
+        }
+    }
+
+    /**
+     * Positions the media view using the given offset (on the y axis)
+     */
+    private void offsetMediaView(float offset) {
+        ViewGroup.MarginLayoutParams layout = (ViewGroup.MarginLayoutParams) viewer.getLayoutParams();
+
+        // finally position the viewer
+        if(viewer.isTransformable()) {
+            viewer.setTranslationY(-offset);
+
+            if(layout.topMargin != 0) {
+                layout.topMargin = 0;
+                viewer.requestLayout();
+            }
+        } else {
+            viewer.setTranslationY(0);
+
+            layout.topMargin = -(int)offset;
+            viewer.requestLayout();
         }
     }
 

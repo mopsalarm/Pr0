@@ -150,10 +150,9 @@ public class MainActivity extends BaseActivity implements
         }
 
         addOriginalContentBookmarkOnce();
+        deactivateSurfaceViewOnce();
 
-        if (singleShotService.isFirstTime("use_surface_view_hint")) {
-            showActivateSurfaceViewPopup();
-        } else if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
+        if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
             showActivateGifToWebmPopup();
         }
     }
@@ -168,17 +167,12 @@ public class MainActivity extends BaseActivity implements
         }
     }
 
-    private void showActivateSurfaceViewPopup() {
-        DialogBuilder.start(this)
-                .content(R.string.hint_use_surface_view)
-                .positive(R.string.yes, di -> {
-                    settings.edit()
-                            .putBoolean("pref_use_mpeg_decoder", false)
-                            .putBoolean("pref_use_surface_view", true)
-                            .apply();
-                })
-                .negative(R.string.no)
-                .show();
+    private void deactivateSurfaceViewOnce() {
+        if(singleShotService.isFirstTime("auto_deactivate_surface_view_again")) {
+            settings.edit()
+                    .putBoolean("pref_use_surface_view", false)
+                    .apply();
+        }
     }
 
     /**
@@ -188,7 +182,7 @@ public class MainActivity extends BaseActivity implements
         if (!singleShotService.isFirstTime("add_original_content_bookmarks"))
             return;
 
-        bindActivity(this, bookmarkService.get().first()).subscribe(bookmarks -> {
+        bookmarkService.get().first().subscribe(bookmarks -> {
             if (bookmarks.isEmpty()) {
                 FeedFilter filter = new FeedFilter()
                         .withFeedType(FeedType.PROMOTED)

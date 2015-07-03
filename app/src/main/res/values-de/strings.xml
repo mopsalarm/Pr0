@@ -178,7 +178,7 @@
     <string name="pref_confirm_play_on_mobile_summary">Abspielen von Videos und Gifs müssen bestätigt werden, wenn du dich nicht im WLAN befindest.</string>
     <string name="pref_confirm_play_on_mobile_title">Bestätigung im Mobilnetz</string>
     <string name="pref_use_proxy_title">Zwischenspeicher</string>
-    <string name="pref_use_proxy_summary">Wenn das Zwischenspeichern aktiviert ist, werden Anfragen über einen lokalen Proxyserver geleitet. Deaktiviere, falls du keine Bilder mehr sehen kannst. </string>
+    <string name="pref_use_proxy_summary">Zwischenspeichern sparten Daten und beschleunigt das zweite Ansehen des gleichen Posts. Deaktiviere, falls du keine Bilder mehr sehen kannst. </string>
     <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
@@ -225,7 +225,7 @@
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
     <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. Diese Option sollte helfen, wenn du sonst keine Videos ansehen kannst. Bitte nur aktivieren, wenn wirklich nötig!</string>
+    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. ACHTUNG: Bitte nur aktivieren, wenn du sonst keine Videos sehen kannst, da die Videoqualität leidet und viel mehr Akku beim Abspielen von Videos benötigt wird. Eventuell ist dein Telefon sogar zu langsam um die Videos korrekt abzuspielen.</string>
     <string name="action_new_message">Neue Nachricht</string>
     <string name="add_new_comment_summary">Kommentar schreiben</string>
     <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
@@ -271,9 +271,13 @@
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
-    <string name="pref_use_surface_view_summary">Probiere diesen Workaround, wenn Videos nicht sauber abgespielt werden.</string>
+    <string name="pref_use_surface_view_summary">SurfaceView statt TextureView. ACHTUNG: Diese Option kann dazu führen, dass die Darstellung der kompletten App in die Hose geht oder wenigstens die Performance sinkt, sobald du die Kommentare scrollst. Bitte wieder deaktivieren, wenn kein positiver Effekt festgestellt werden kann.</string>
     <string name="pref_use_surface_view_title">SurfaceView</string>
     <string name="pref_website_summary">Empfehle https://mopsalarm.github.io/Pr0/ deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
     <string name="hint_use_surface_view">Wenn du ohne den Softwaredekoder zu aktivieren Probleme bei der Wiedergabe von Videos hast (grüne Linien oder Verfärbungen), probiere die neue Option "SurfaceView". Drück auf "Ja" um die neue EInstellung direkt zu aktivieren.</string>
+    <string name="pref_compatibility_active_title">Einstellungen aktivieren</string>
+    <string name="pref_compatibility_active_summary">Bitte lies die Beschreibungen zu den einzelnen Einstellungen genau, bevor du sie aktivierst! </string>
+    <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren, aber musst mit den Nachteilen leben.</string>
+    <string name="pref_pseudo_green_video_title">Grüne Linien in Videos</string>
 </resources>
