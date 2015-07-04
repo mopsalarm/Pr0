@@ -38,6 +38,10 @@
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="com.pr0gramm.app.orm"/>
 
+        <!-- activate multi window for samsung -->
+        <uses-library android:required="false" android:name="com.sec.android.app.multiwindow" />
+        <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
+
         <receiver android:name=".SyncBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -86,6 +90,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
 
             <intent-filter>
