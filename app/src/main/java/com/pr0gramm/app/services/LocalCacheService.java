@@ -6,6 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.feed.FeedItem;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -85,5 +86,9 @@ public class LocalCacheService {
      */
     public boolean isRepost(long itemId) {
         return Arrays.binarySearch(repostCache.get(), itemId) >= 0;
+    }
+
+    public boolean isRepost(FeedItem item) {
+        return isRepost(item.getId());
     }
 }

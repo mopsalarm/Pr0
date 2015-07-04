@@ -7,6 +7,14 @@
         "change": "Option um 'Neu' zur Standardansicht nach dem Starten der App zu machen"
       },
       {
+        "type": "Neu",
+        "change": "Repost Markierung auch direkt in einem Post"
+      },
+      {
+        "type": "Fix",
+        "change": "Beim Bewerten eines Kommentars wird dessen Benis aktualisiert"
+      }
+      {
         "type": "Fix",
         "change": "'gif to webm'-Hinweis wurde nie angezeigt sondern hat die App zum Absturz gebracht."
       }

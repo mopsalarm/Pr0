@@ -309,5 +309,5 @@
     <color name="user_type_wichtler">#1cb992</color>
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
-
+    <color name="transparent_black">#8000</color>
 </resources>

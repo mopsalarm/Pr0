@@ -16,12 +16,30 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="-80dp"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="M"
             android:textColor="@color/primary"
             android:textSize="150dp"
-            android:includeFontPadding="false"
             android:visibility="gone"
             tools:ignore="HardcodedText,SpUsage"/>
+
+        <TextView
+            android:id="@+id/repost_hint"
+            android:layout_width="200dp"
+            android:layout_height="32dp"
+            android:layout_gravity="right|top"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:background="@color/transparent_black"
+            android:rotation="45"
+            android:text="@string/repost"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:transformPivotY="-32sp"
+            android:transformPivotX="100dp"
+            android:translationX="100dp"/>
+
     </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

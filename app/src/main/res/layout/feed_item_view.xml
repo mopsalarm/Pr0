@@ -14,7 +14,7 @@
         android:id="@+id/seen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#8000"
+        android:background="@color/transparent_black"
         android:scaleType="center"
         android:src="@drawable/ic_checked"/>
 

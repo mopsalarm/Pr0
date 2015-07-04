@@ -93,8 +93,8 @@ public class ScrollHideToolbarListener {
 
     /**
      * This method estimates scrolling based on y value of the first element
-     * in this recycler view. If scrolling could not be estimated, it will
-     * return {@link Integer#MAX_VALUE} as estimate.
+     * in this recycler view. If scrolling could not be estimated, an empty optional
+     * will be returned.
      *
      * @param recyclerView The recycler view to estimate scrolling of
      */

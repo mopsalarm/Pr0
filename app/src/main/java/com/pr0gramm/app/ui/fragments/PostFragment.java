@@ -158,6 +158,9 @@ public class PostFragment extends RoboFragment implements
     @InjectView(R.id.vote_indicator)
     private TextView voteAnimationIndicator;
 
+    @InjectView(R.id.repost_hint)
+    private View repostHint;
+
     private InfoLineView infoLineView;
 
     // start with an empty adapter here
@@ -227,6 +230,11 @@ public class PostFragment extends RoboFragment implements
 
         // show an empty list of tags first - this displays the 'Add' button.
         displayTags(Collections.<Tag>emptyList());
+
+        // show the repost badge if this is a repost
+        if(localCacheService.isRepost(feedItem)) {
+            repostHint.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -628,9 +636,9 @@ public class PostFragment extends RoboFragment implements
 
         if (previewInfo != null) {
             viewer.setPreviewImage(previewInfo, "TransitionTarget-" + feedItem.getId());
-            viewer.postDelayed(viewer::onTransitionEnds, 500);
+            viewer.postDelayed(this::onTransitionEnds, 350);
         } else {
-            viewer.onTransitionEnds();
+            onTransitionEnds();
         }
 
         // add views in the correct order
@@ -675,6 +683,13 @@ public class PostFragment extends RoboFragment implements
         });
 
         adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
+    }
+
+    private void onTransitionEnds() {
+        if(viewer != null && scrollHandler != null && content != null) {
+            viewer.onTransitionEnds();
+            scrollHandler.onScrolled(content, 0, 0);
+        }
     }
 
     /**
@@ -899,7 +914,6 @@ public class PostFragment extends RoboFragment implements
 
             offsetMediaView(scroll);
 
-
             // position the vote indicator
             float remaining = viewerHeight - scrollY;
             int tbVisibleHeight = toolbar.getVisibleHeight();
@@ -908,13 +922,12 @@ public class PostFragment extends RoboFragment implements
                     (recyclerHeight - tbVisibleHeight) / 2) + tbVisibleHeight;
 
             voteAnimationIndicator.setTranslationY(voteIndicatorY);
-
         }
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MIN_VALUE);
+                int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE);
                 activity.getScrollHideToolbarListener().onScrollFinished(y);
             }
         }
@@ -927,18 +940,24 @@ public class PostFragment extends RoboFragment implements
         ViewGroup.MarginLayoutParams layout = (ViewGroup.MarginLayoutParams) viewer.getLayoutParams();
 
         // finally position the viewer
-        if(viewer.isTransformable()) {
+        if (viewer.isTransformable()) {
             viewer.setTranslationY(-offset);
 
-            if(layout.topMargin != 0) {
+            if (layout.topMargin != 0) {
                 layout.topMargin = 0;
                 viewer.requestLayout();
             }
         } else {
             viewer.setTranslationY(0);
 
-            layout.topMargin = -(int)offset;
+            layout.topMargin = -(int) offset;
             viewer.requestLayout();
+        }
+
+        // position the repost badge, if it is visible
+        if(repostHint.getVisibility() == View.VISIBLE) {
+            repostHint.setRotation(45);
+            repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
         }
     }
 
