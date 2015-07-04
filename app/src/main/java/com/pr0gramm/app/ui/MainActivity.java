@@ -132,7 +132,7 @@ public class MainActivity extends BaseActivity implements
             Intent intent = getIntent();
             if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
                 // load feed-fragment into view
-                gotoFeedFragment(new FeedFilter(), true);
+                gotoFeedFragment(newDefaultFeedFilter(), true);
 
             } else {
                 startedWithIntent = true;
@@ -329,8 +329,8 @@ public class MainActivity extends BaseActivity implements
         // at the end, go back to the "top" page before stopping everything.
         if (getSupportFragmentManager().getBackStackEntryCount() == 0 && !startedWithIntent) {
             FeedFilter filter = getCurrentFeedFilter();
-            if (filter != null && !isTopFilter(filter)) {
-                gotoFeedFragment(new FeedFilter(), true);
+            if (filter != null && !isDefaultFilter(filter)) {
+                gotoFeedFragment(newDefaultFeedFilter(), true);
                 return;
             }
         }
@@ -338,8 +338,8 @@ public class MainActivity extends BaseActivity implements
         super.onBackPressed();
     }
 
-    private boolean isTopFilter(FeedFilter filter) {
-        return filter.isBasic() && filter.getFeedType() == FeedType.PROMOTED;
+    private boolean isDefaultFilter(FeedFilter filter) {
+        return newDefaultFeedFilter().equals(filter);
     }
 
     @Override
@@ -360,9 +360,14 @@ public class MainActivity extends BaseActivity implements
                     Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT).show();
 
                     // reset everything!
-                    gotoFeedFragment(new FeedFilter(), true);
+                    gotoFeedFragment(newDefaultFeedFilter(), true);
                 })
                 .subscribe(Actions.empty(), defaultOnError());
+    }
+
+    private FeedFilter newDefaultFeedFilter() {
+        FeedType type = settings.feedStartAtNew() ? FeedType.NEW : FeedType.PROMOTED;
+        return new FeedFilter().withFeedType(type);
     }
 
     @Override
@@ -449,7 +454,7 @@ public class MainActivity extends BaseActivity implements
             gotoFeedFragment(filter, clear, start);
 
         } else {
-            gotoFeedFragment(new FeedFilter(), true);
+            gotoFeedFragment(newDefaultFeedFilter(), true);
         }
     }
 

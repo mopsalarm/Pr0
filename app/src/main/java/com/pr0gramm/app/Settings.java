@@ -176,6 +176,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_surface_view", false);
     }
 
+    public boolean feedStartAtNew() {
+        return preferences.getBoolean("pref_feed_start_at_new", false);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

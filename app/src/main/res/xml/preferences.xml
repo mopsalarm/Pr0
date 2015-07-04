@@ -66,6 +66,24 @@
 
 
             <PreferenceCategory
+                android:key="prefcat_behaviour__feed"
+                android:title="@string/prefcat_behaviour__feed_title">
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_repost_hint"
+                    android:summary="@string/pref_show_repost_hint_summary"
+                    android:title="@string/pref_show_repost_hint_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_feed_start_at_new"
+                    android:summary="@string/pref_feed_start_at_new_summary"
+                    android:title="@string/pref_feed_start_at_new_title"/>
+
+            </PreferenceCategory>
+
+            <PreferenceCategory
                 android:key="prefcat_behaviour__misc"
                 android:title="@string/prefcat_misc">
 
@@ -80,13 +98,6 @@
                     android:key="pref_keep_screen_on"
                     android:summary="@string/pref_keep_screen_on_summary"
                     android:title="@string/pref_keep_screen_on"/>
-
-                <!-- This is not really "use meta service" now, its "show reposts" -->
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_show_repost_hint"
-                    android:summary="@string/pref_show_repost_hint_summary"
-                    android:title="@string/pref_show_repost_hint_title"/>
 
                 <ListPreference
                     android:defaultValue="@string/pref_downloadLocation_default"

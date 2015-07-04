@@ -1,14 +1,23 @@
 [
   {
+    "version": 66,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Option um 'Neu' zur Standardansicht nach dem Starten der App zu machen"
+      },
+      {
+        "type": "Fix",
+        "change": "'gif to webm'-Hinweis wurde nie angezeigt sondern hat die App zum Absturz gebracht."
+      }
+    ]
+  },
+  {
     "version": 65,
     "changes": [
       {
         "type": "Neu",
         "change": "Eine neue 'SurfaceView'-Einstellung unter Kompatibilität, die *vielleicht* bei Videoproblemen hilft."
-      },
-      {
-        "type": "Fix",
-        "change": "'gif to webm'-Hinweis wurde nie angezeigt sondern hat die App zum Absturz gebracht."
       },
       {
         "type": "Fix",
