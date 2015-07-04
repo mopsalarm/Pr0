@@ -26,6 +26,7 @@
   },
   {
     "version": 65,
+    "release": true,
     "changes": [
       {
         "type": "Neu",
