@@ -155,6 +155,13 @@ public class MainActivity extends BaseActivity implements
         if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint_2")) {
             showActivateGifToWebmPopup();
         }
+
+        // migrate the repost setting name.
+        if(singleShotService.isFirstTime("migrate_meta_service_to_repost_hint")) {
+            if(!settings.raw().getBoolean("pref_use_meta_service", true)) {
+                settings.edit().putBoolean("pref_show_repost_hint", false).apply();
+            }
+        }
     }
 
     private void showActivateGifToWebmPopup() {

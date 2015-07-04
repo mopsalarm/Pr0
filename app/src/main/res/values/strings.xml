@@ -259,8 +259,8 @@
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
-    <string name="pref_use_meta_service_title">Repost hints</string>
-    <string name="pref_use_meta_service_summary">Enable this option to hint reposts in your feed.</string>
+    <string name="pref_show_repost_hint_title">Repost hints</string>
+    <string name="pref_show_repost_hint_summary">Enable this option to hint reposts in your feed.</string>
     <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
     <string name="pref_pseudo_licenses_title">Licenses</string>
     <string name="pref_pseudo_licenses_summary">Show used libraries\' licenses</string>

@@ -165,7 +165,7 @@ public class Settings {
     }
 
     public boolean markRepostsInFeed() {
-        return preferences.getBoolean("pref_use_meta_service", true);
+        return preferences.getBoolean("pref_show_repost_hint", true);
     }
 
     public boolean showGoogleImageButton() {
@@ -178,6 +178,10 @@ public class Settings {
 
     public SharedPreferences.Editor edit() {
         return preferences.edit();
+    }
+
+    public SharedPreferences raw() {
+        return preferences;
     }
 
     public static Settings of(Context context) {

@@ -84,9 +84,9 @@
                 <!-- This is not really "use meta service" now, its "show reposts" -->
                 <CheckBoxPreference
                     android:defaultValue="true"
-                    android:key="pref_use_meta_service"
-                    android:summary="@string/pref_use_meta_service_summary"
-                    android:title="@string/pref_use_meta_service_title"/>
+                    android:key="pref_show_repost_hint"
+                    android:summary="@string/pref_show_repost_hint_summary"
+                    android:title="@string/pref_show_repost_hint_title"/>
 
                 <ListPreference
                     android:defaultValue="@string/pref_downloadLocation_default"
