@@ -302,7 +302,7 @@
     <string name="prefcat_behaviour__notificatons_title">Notifications</string>
     <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%%. Would you like to activate it now? You can always change it back in the settings later.</string>
     <string name="pref_website_title">Website</string>
-    <string name="pref_website_summary">Recommend https://mopsalarm.github.io/Pr0/ to your friends</string>
+    <string name="pref_website_summary">Recommend https://mopsalarm.github.io to your friends</string>
     <string name="pref_use_surface_view_title">SurfaceView</string>
     <string name="hint_use_surface_view">If you have problems playing videos without activating the software decoder (like green lines or color corruption), try activating the new SurfaceView option. Tap on \"yes\" to let me activate that for you.</string>
     <string name="pref_compatibility_active_title">Activate compatibility</string>
