@@ -188,7 +188,9 @@ public class PostFragment extends RoboFragment implements
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_post, container, false);
+        ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_post, container, false);
+        addWarnOverlayIfNecessary(inflater, view);
+        return view;
     }
 
     @Override
@@ -247,6 +249,18 @@ public class PostFragment extends RoboFragment implements
         }
 
         adapter = null;
+    }
+
+    private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
+        // add a view over the main view, if the post is not visible now
+        if (!settings.getContentType().contains(feedItem.getContentType())) {
+            View overlay = inflater.inflate(R.layout.warn_post_can_not_be_viewed, view, false);
+            view.addView(overlay);
+
+            // link the hide button
+            View button = overlay.findViewById(R.id.hide_warning_button);
+            button.setOnClickListener(v -> AndroidUtility.removeView(overlay));
+        }
     }
 
     @Override

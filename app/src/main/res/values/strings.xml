@@ -317,4 +317,6 @@
     <string name="pref_single_tap_for_fullscreen_title">Tap for fullscreen</string>
     <string name="pref_single_tap_for_fullscreen_summary">Tap on the image for fullscreen.</string>
     <string name="prefcat_post">Post view</string>
+    <string name="warn_post_can_not_be_viewed">This post is not visible with your current filter settings.</string>
+    <string name="warn_show_post_anyways">Show anyways</string>
 </resources>
