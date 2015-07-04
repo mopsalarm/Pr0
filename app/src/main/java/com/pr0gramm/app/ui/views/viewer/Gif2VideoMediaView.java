@@ -33,7 +33,12 @@ public class Gif2VideoMediaView extends ProxyMediaView {
 
     private void startWebmConversion(Binder binder, MediaUri url) {
         logger.info("Start converting gif to webm");
-        conversion = binder.bind(gifToVideoService.toVideo(url.toString())).subscribe(result -> {
+
+        // normalize to http://
+        String gifUrl = url.toString().replace("https://", "http://");
+
+        // and start conversion!
+        conversion = binder.bind(gifToVideoService.toVideo(gifUrl)).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer

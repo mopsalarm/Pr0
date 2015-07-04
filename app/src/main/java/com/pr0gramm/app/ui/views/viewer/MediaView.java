@@ -186,7 +186,11 @@ public abstract class MediaView extends FrameLayout {
         if (preview != null && previewTarget != null) {
 
             if (isEligibleForThumbyPreview(mediaUri)) {
-                String url = mediaUri.getBaseUri().toString();
+                // normalize url before fetching generating thumbnail
+                String url = mediaUri.getBaseUri().toString()
+                        .replace("https://", "http://")
+                        .replace(".mpg", ".webm");
+
                 String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
 
                 Uri image = Uri.parse("http://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");
