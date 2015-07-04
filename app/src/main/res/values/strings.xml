@@ -300,7 +300,7 @@
     <string name="prefcat_visual__tags">Tags</string>
     <string name="prefcat_behaviour__datausage_title">Data usage</string>
     <string name="prefcat_behaviour__notificatons_title">Notifications</string>
-    <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%. Would you like to activate it now? You can always change it back in the settings later.</string>
+    <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%%. Would you like to activate it now? You can always change it back in the settings later.</string>
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://mopsalarm.github.io/Pr0/ to your friends</string>
     <string name="pref_use_surface_view_title">SurfaceView</string>

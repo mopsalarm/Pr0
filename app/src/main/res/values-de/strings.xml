@@ -270,7 +270,7 @@
     <string name="prefcat_visual__animations_title">Animationen</string>
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
-    <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
+    <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90%% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
     <string name="pref_use_surface_view_summary">SurfaceView statt TextureView. ACHTUNG: Diese Option kann dazu führen, dass die Darstellung der kompletten App in die Hose geht oder wenigstens die Performance sinkt, sobald du die Kommentare scrollst. Bitte wieder deaktivieren, wenn kein positiver Effekt festgestellt werden kann.</string>
     <string name="pref_use_surface_view_title">SurfaceView</string>
     <string name="pref_website_summary">Empfehle https://mopsalarm.github.io/Pr0/ deinen Freunden</string>

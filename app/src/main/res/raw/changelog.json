@@ -3,16 +3,16 @@
     "version": 65,
     "changes": [
       {
-        "type":"Neu",
-        "change": "Eine neue 'SurfaceView'-Einstellung unter Kompatibilität, die vielleicht bei Videoproblemen hilft."
+        "type": "Neu",
+        "change": "Eine neue 'SurfaceView'-Einstellung unter Kompatibilität, die *vielleicht* bei Videoproblemen hilft."
       },
       {
-        "type":"Fix",
+        "type": "Fix",
+        "change": "'gif to webm'-Hinweis wurde nie angezeigt sondern hat die App zum Absturz gebracht."
+      },
+      {
+        "type": "Fix",
         "change": "Es werden wieder alle Kommentare unter Nachrichten angezeigt, auch Kommentare unter nsfw/nsfl Posts"
-      },
-      {
-        "type": "Info",
-        "change": "Wie du vielleicht schon mitbekommen hast, ist die App aktuell aus Google Play entfernt worden (Google der Hurensohn). Wir arbeiten dran, sie dort demnächst wieder verfügbar zu machen. Wenn du die App trotzdem weiter empfehlen möchtest, gibt es in den Einstellungen Link zur Download Website."
       }
     ]
   },
@@ -27,6 +27,10 @@
       {
         "type": "Fix",
         "change": "Einige Benutzer konnten nicht voten - das geht nun wieder."
+      },
+      {
+        "type": "Info",
+        "change": "Wie du vielleicht schon mitbekommen hast, ist die App aktuell aus Google Play entfernt worden (Google der Hurensohn). Wir arbeiten dran, sie dort demnächst wieder verfügbar zu machen. Wenn du die App trotzdem weiter empfehlen möchtest, gibt es in den Einstellungen Link zur Download Website."
       }
     ]
   },

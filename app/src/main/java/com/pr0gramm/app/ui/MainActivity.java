@@ -152,7 +152,7 @@ public class MainActivity extends BaseActivity implements
         addOriginalContentBookmarkOnce();
         deactivateSurfaceViewOnce();
 
-        if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint")) {
+        if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint_2")) {
             showActivateGifToWebmPopup();
         }
     }
