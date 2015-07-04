@@ -314,4 +314,7 @@
     <string name="pref_feed_start_at_new_summary">Default to showing the \'new\' feed instead of \'top\' on starting the app.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
     <string name="repost">repost</string>
+    <string name="pref_single_tap_for_fullscreen_title">Tap for fullscreen</string>
+    <string name="pref_single_tap_for_fullscreen_summary">Tap on the image for fullscreen.</string>
+    <string name="prefcat_post">Post view</string>
 </resources>

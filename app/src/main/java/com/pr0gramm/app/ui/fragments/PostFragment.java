@@ -232,7 +232,7 @@ public class PostFragment extends RoboFragment implements
         displayTags(Collections.<Tag>emptyList());
 
         // show the repost badge if this is a repost
-        if(localCacheService.isRepost(feedItem)) {
+        if (localCacheService.isRepost(feedItem)) {
             repostHint.setVisibility(View.VISIBLE);
         }
     }
@@ -629,7 +629,7 @@ public class PostFragment extends RoboFragment implements
             AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
         });
 
-        registerDoubleTapListener(viewer);
+        registerTabListener(viewer);
 
         PreviewInfo previewInfo = this.previewInfo != null
                 ? this.previewInfo : getPreviewInfoFromCache();
@@ -686,7 +686,7 @@ public class PostFragment extends RoboFragment implements
     }
 
     private void onTransitionEnds() {
-        if(viewer != null && scrollHandler != null && content != null) {
+        if (viewer != null && scrollHandler != null && content != null) {
             viewer.onTransitionEnds();
             scrollHandler.onScrolled(content, 0, 0);
         }
@@ -698,16 +698,28 @@ public class PostFragment extends RoboFragment implements
      *
      * @param viewer The viewer to register the tap listener to.
      */
-    private void registerDoubleTapListener(MediaView viewer) {
-        if (settings.doubleTapToUpvote()) {
-            viewer.setTapListener(new MediaView.TapListenerAdapter() {
-                @Override
-                public boolean onDoubleTap() {
-                    infoLineView.getVoteView().triggerUpVoteClicked();
-                    return true;
+    private void registerTabListener(MediaView viewer) {
+        viewer.setTapListener(new MediaView.TapListener() {
+            boolean isImage = isStaticImage(feedItem.getImage());
+
+            @Override
+            public boolean onSingleTap() {
+                if (isImage && settings.singleTapForFullscreen()) {
+                    openImageInFullscreen();
                 }
-            });
-        }
+
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTap() {
+                if (settings.doubleTapToUpvote()) {
+                    infoLineView.getVoteView().triggerUpVoteClicked();
+                }
+
+                return true;
+            }
+        });
     }
 
     /**
@@ -955,7 +967,7 @@ public class PostFragment extends RoboFragment implements
         }
 
         // position the repost badge, if it is visible
-        if(repostHint.getVisibility() == View.VISIBLE) {
+        if (repostHint.getVisibility() == View.VISIBLE) {
             repostHint.setRotation(45);
             repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
         }

@@ -284,4 +284,7 @@
     <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
     <string name="repost">repost</string>
+    <string name="pref_single_tap_for_fullscreen_title">Klick für Vollbild</string>
+    <string name="pref_single_tap_for_fullscreen_summary">Auf ein Bild klicken für Vollbild</string>
+    <string name="prefcat_post">Postansicht</string>
 </resources>

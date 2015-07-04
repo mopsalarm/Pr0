@@ -180,6 +180,10 @@ public class Settings {
         return preferences.getBoolean("pref_feed_start_at_new", false);
     }
 
+    public boolean singleTapForFullscreen() {
+        return preferences.getBoolean("pref_single_tap_for_fullscreen", false);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }
