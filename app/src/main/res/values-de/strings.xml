@@ -287,4 +287,6 @@
     <string name="pref_single_tap_for_fullscreen_title">Klick für Vollbild</string>
     <string name="pref_single_tap_for_fullscreen_summary">Auf ein Bild klicken für Vollbild</string>
     <string name="prefcat_post">Postansicht</string>
+    <string name="warn_show_post_anyways">Trotzdem zeigen</string>
+    <string name="warn_post_can_not_be_viewed">Dieser Post ist aufgrund deiner  Filtereinstellungen nicht sichtbar.</string>
 </resources>

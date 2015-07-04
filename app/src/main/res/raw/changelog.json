@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Zeige Posts nicht an, wenn es deren Filtereinstellungen zulassen"
+      },
+      {
+        "type": "Fix",
         "change": "Beim Bewerten eines Kommentars wird dessen Benis aktualisiert"
       }
       {
