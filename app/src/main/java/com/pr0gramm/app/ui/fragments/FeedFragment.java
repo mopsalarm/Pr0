@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -112,28 +111,10 @@ public class FeedFragment extends RoboFragment {
     private Picasso picasso;
 
     @Inject
-    private SharedPreferences sharedPreferences;
-
-    @Inject
     private SeenService seenService;
 
     @Inject
     private Settings settings;
-
-    @InjectView(R.id.list)
-    private RecyclerView recyclerView;
-
-    @InjectView(R.id.progress)
-    private BusyIndicator busyIndicator;
-
-    @InjectView(R.id.refresh)
-    private CustomSwipeRefreshLayout swipeRefreshLayout;
-
-    @InjectView(R.id.empty)
-    private View noResultsView;
-
-    private FeedAdapter feedAdapter;
-    private IndicatorStyle seenIndicatorStyle;
 
     @Inject
     private BookmarkService bookmarkService;
@@ -147,14 +128,26 @@ public class FeedFragment extends RoboFragment {
     @Inject
     private LocalCacheService localCacheService;
 
+    @InjectView(R.id.list)
+    private RecyclerView recyclerView;
+
+    @InjectView(R.id.progress)
+    private BusyIndicator busyIndicator;
+
+    @InjectView(R.id.refresh)
+    private CustomSwipeRefreshLayout swipeRefreshLayout;
+
+    @InjectView(R.id.empty)
+    private View noResultsView;
+
     private boolean userInfoCommentsOpen;
-
     private boolean bookmarkable;
-    private ItemWithComment autoOpenOnLoad = null;
+    private IndicatorStyle seenIndicatorStyle;
     private Long autoScrollOnLoad = null;
+    private ItemWithComment autoOpenOnLoad = null;
 
+    private FeedAdapter feedAdapter;
     private LoaderHelper<Info> userInfo;
-
     private FeedLoader loader;
 
     /**
