@@ -97,12 +97,16 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             if (subscriber.isUnsubscribed())
                 return;
 
-            GifDrawable drawable = new GifDrawable(storage.getFD());
+            try {
+                GifDrawable drawable = new GifDrawable(storage.getFD());
 
-            // closing is now delegated to the drawable.
-            close = false;
+                // closing is now delegated to the drawable.
+                close = false;
+                subscriber.onNext(new DownloadStatus(drawable));
+            } catch(Exception error) {
+                subscriber.onError(error);
+            }
 
-            subscriber.onNext(new DownloadStatus(drawable));
             subscriber.onCompleted();
 
         } finally {
