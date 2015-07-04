@@ -281,6 +281,6 @@
     <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren, aber musst mit den Nachteilen leben.</string>
     <string name="pref_pseudo_green_video_title">Grüne Linien in Videos</string>
     <string name="pref_feed_start_at_new_title">Starte mit Neu</string>
-    <string name="pref_feed_start_at_new_summary">Zeige 'neu' statt 'top' an, wenn die App startet.</string>
+    <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
 </resources>

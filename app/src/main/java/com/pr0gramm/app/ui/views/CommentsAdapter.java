@@ -109,6 +109,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(CommentView view, int position) {
         Post.Comment comment = comments.get(position);
+        Vote vote = firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL);
 
         view.setCommentDepth(getCommentDepth(comment));
         view.senderInfo.setSenderName(comment.getName(), comment.getMark());
@@ -119,7 +120,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
-        int points = comment.getUp() - comment.getDown();
+        int points = comment.getUp() - comment.getDown() + vote.getVoteValue();
         view.senderInfo.setPoints(points);
         view.senderInfo.setPointsVisible(true);
 
@@ -131,8 +132,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setBadgeOpVisible(badge);
 
         // and register a vote handler
-        view.vote.setVote(firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL), true);
-        view.vote.setOnVoteListener(vote -> doVote(comment, vote));
+        view.vote.setVote(vote, true);
+        view.vote.setOnVoteListener(v -> {
+            int delta = v.getVoteValue() - vote.getVoteValue();
+            view.senderInfo.setPoints(points + delta);
+            return doVote(comment, v);
+        });
 
         view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
 
