@@ -14,6 +14,7 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
 
 import org.joda.time.Duration;
@@ -21,6 +22,7 @@ import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -187,6 +189,13 @@ public class UserService {
      */
     public Observable<Info> info(String username) {
         return api.info(username, null);
+    }
+
+    /**
+     * Retrieves the user data and stores part of the data in the database.
+     */
+    public Observable<Info> info(String username, Set<ContentType> contentTypes) {
+        return api.info(username, ContentType.combine(contentTypes));
     }
 
     /**

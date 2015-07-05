@@ -345,7 +345,7 @@ public class FeedFragment extends RoboFragment {
         }
 
         if (queryString != null) {
-            return userService.info(queryString).onErrorResumeNext(Observable.<Info>empty());
+            return userService.info(queryString, getSelectedContentType()).onErrorResumeNext(Observable.<Info>empty());
         } else {
             return Observable.empty();
         }
