@@ -286,7 +286,7 @@
     <string name="pref_shared_element_transition_summary">Animate opening a post. Might be slow on older devices. Android 5+ only.</string>
     <string name="share_post">Link to post</string>
     <string name="share_direct_link">Link to image</string>
-    <string name="share_image">As image</string>
+    <string name="share_direct">As file</string>
     <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
     <string name="action_feedback">Feedback</string>

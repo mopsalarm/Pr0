@@ -256,7 +256,7 @@
     <string name="pref_shared_element_transition_title">Post öffnen animieren</string>
     <string name="pref_shared_element_transition_summary">Animiert das Öffnen eines Posts. Android 5+ und kann auf alten Geräten langsam sein.</string>
     <string name="share_direct_link">Link zum Bild</string>
-    <string name="share_image">Als Bild</string>
+    <string name="share_direct">Als Datei</string>
     <string name="share_post">Link zum Post</string>
     <string name="prefcat_misc">Verschiedenes</string>
     <string name="action_search_image">Bild googlen</string>

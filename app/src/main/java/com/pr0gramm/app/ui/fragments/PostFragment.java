@@ -93,6 +93,7 @@ import rx.functions.Actions;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.AndroidUtility.ifNotNull;
+import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -350,7 +351,7 @@ public class PostFragment extends RoboFragment implements
                 item -> item.setVisible(isImage));
 
         ifNotNull(menu.findItem(R.id.action_share_image),
-                item -> item.setVisible(ShareProvider.canShare(feedItem)));
+                item -> item.setVisible(ShareProvider.canShare(getActivity(), feedItem)));
 
         ifNotNull(menu.findItem(R.id.action_search_image),
                 item -> item.setVisible(isImage && settings.showGoogleImageButton()));
@@ -416,10 +417,12 @@ public class PostFragment extends RoboFragment implements
 
     @OnOptionsItemSelected(R.id.action_share_image)
     public void shareImage() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
-        startActivity(intent);
+        ifPresent(ShareProvider.guessMimetype(getActivity(), feedItem), mimetype -> {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType(mimetype);
+            intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
+            startActivity(intent);
+        });
     }
 
     @OnOptionsItemSelected(R.id.action_refresh)
