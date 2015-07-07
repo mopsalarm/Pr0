@@ -56,7 +56,7 @@ import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.getTintentDrawable;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static java.util.Arrays.asList;
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  */
@@ -241,10 +241,10 @@ public class DrawerFragment extends RoboFragment {
     public void onResume() {
         super.onResume();
 
-        scLoginState = bindFragment(this, userService.getLoginStateObservable())
+        scLoginState = bindSupportFragment(this, userService.getLoginStateObservable())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
-        scNavigationItems = bindFragment(this, newNavigationItemsObservable())
+        scNavigationItems = bindSupportFragment(this, newNavigationItemsObservable())
                 .subscribe(navigationAdapter::setNavigationItems, ErrorDialogFragment.defaultOnError());
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);

@@ -10,7 +10,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  * This class handles loading of feed data.
@@ -110,7 +110,7 @@ public class FeedLoader {
         return new Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(fragment, observable);
+                return bindSupportFragment(fragment, observable);
             }
 
             @Override

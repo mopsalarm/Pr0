@@ -94,7 +94,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  */
@@ -428,7 +428,7 @@ public class FeedFragment extends RoboFragment {
         loader = new FeedLoader(new FeedLoader.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindFragment(FeedFragment.this, observable)
+                return bindSupportFragment(FeedFragment.this, observable)
                         .finallyDo(FeedFragment.this::onFeedLoadFinished);
             }
 
@@ -462,7 +462,7 @@ public class FeedFragment extends RoboFragment {
 
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
-            bindFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
+            bindSupportFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
 
@@ -880,7 +880,7 @@ public class FeedFragment extends RoboFragment {
                 .getInfo(items)
                 .doOnNext(this::cacheInfoResponse);
 
-        bindFragment(this, metaData)
+        bindSupportFragment(this, metaData)
                 .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
                 .subscribe(this::onMetaServiceResponse, Actions.empty());
     }

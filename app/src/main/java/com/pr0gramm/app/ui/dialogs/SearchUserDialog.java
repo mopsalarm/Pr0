@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.fragment.RoboDialogFragment;
 
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  */
@@ -54,7 +54,7 @@ public class SearchUserDialog extends RoboDialogFragment {
     private void onSearchClicked() {
         String username = inputView.getEditText().getText().toString().trim();
 
-        bindFragment(this, userService.info(username))
+        bindSupportFragment(this, userService.info(username))
                 .lift(BusyDialogFragment.busyDialog(this))
                 .subscribe(this::onSearchSuccess, this::onSearchFailure);
     }

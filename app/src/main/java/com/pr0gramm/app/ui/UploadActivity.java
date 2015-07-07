@@ -63,7 +63,7 @@ import rx.util.async.Async;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static rx.android.app.AppObservable.bindActivity;
-import static rx.android.app.AppObservable.bindFragment;
+import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  */
@@ -231,7 +231,7 @@ public class UploadActivity extends RoboActionBarActivity {
                     .split(this.tags.getText().toString()));
 
             logger.info("Start upload of type {} with tags {}", type, tags);
-            bindFragment(this, uploadService.upload(file, type, tags)).subscribe(status -> {
+            bindSupportFragment(this, uploadService.upload(file, type, tags)).subscribe(status -> {
                 if (status.isFinished()) {
                     logger.info("finished! item id is {}", status.getId());
                     onUploadComplete(status.getId());
@@ -292,7 +292,7 @@ public class UploadActivity extends RoboActionBarActivity {
             busyIndicator.setVisibility(View.VISIBLE);
 
             logger.info("copy image to private memory");
-            bindFragment(this, copy(getActivity(), image)).subscribe(this::onImageFile, this::onError);
+            bindSupportFragment(this, copy(getActivity(), image)).subscribe(this::onImageFile, this::onError);
         }
 
         private void onError(Throwable throwable) {
