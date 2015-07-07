@@ -10,8 +10,8 @@ import android.support.annotation.NonNull;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.UpdateChecker;
-import com.pr0gramm.app.ui.base.BaseActivity;
 
 import org.joda.time.Instant;
 
@@ -92,7 +92,7 @@ public class UpdateDialogFragment extends RoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(BaseActivity activity, boolean interactive) {
+    public static void checkForUpdates(RxRoboAppCompatActivity activity, boolean interactive) {
         RoboInjector injector = RoboGuice.getInjector(activity);
         SharedPreferences shared = injector.getInstance(SharedPreferences.class);
 

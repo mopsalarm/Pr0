@@ -1,16 +1,18 @@
-package com.pr0gramm.app.ui.base;
+package com.pr0gramm.app;
 
 import android.os.Bundle;
 
 import roboguice.activity.RoboActionBarActivity;
+import roboguice.activity.RoboFragmentActivity;
 import rx.Observable;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.subjects.BehaviorSubject;
 
 /**
+ * A {@link RoboFragmentActivity} that is an {@link android.support.v7.app.AppCompatActivity}
+ * with roboguice functionality and its lifecycle exposed as an observable.
  */
-public abstract class BaseActivity extends RoboActionBarActivity {
-
+public class RxRoboAppCompatActivity extends RoboActionBarActivity {
     private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
 
     public Observable<LifecycleEvent> lifecycle() {

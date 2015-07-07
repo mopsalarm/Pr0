@@ -18,9 +18,9 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.base.BaseActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import static com.google.common.base.Strings.emptyToNull;
 
 /**
  */
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends RxRoboAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +119,7 @@ public class SettingsActivity extends BaseActivity {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
             if ("pref_pseudo_update".equals(preference.getKey())) {
-                BaseActivity activity = (BaseActivity) getActivity();
+                RxRoboAppCompatActivity activity = (RxRoboAppCompatActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }

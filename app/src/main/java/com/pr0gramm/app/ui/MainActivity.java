@@ -25,6 +25,7 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -32,7 +33,6 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.base.BaseActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
@@ -59,7 +59,7 @@ import static rx.android.app.AppObservable.bindActivity;
 /**
  * This is the main class of our pr0gramm app.
  */
-public class MainActivity extends BaseActivity implements
+public class MainActivity extends RxRoboAppCompatActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
@@ -157,8 +157,8 @@ public class MainActivity extends BaseActivity implements
         }
 
         // migrate the repost setting name.
-        if(singleShotService.isFirstTime("migrate_meta_service_to_repost_hint")) {
-            if(!settings.raw().getBoolean("pref_use_meta_service", true)) {
+        if (singleShotService.isFirstTime("migrate_meta_service_to_repost_hint")) {
+            if (!settings.raw().getBoolean("pref_use_meta_service", true)) {
                 settings.edit().putBoolean("pref_show_repost_hint", false).apply();
             }
         }
@@ -175,7 +175,7 @@ public class MainActivity extends BaseActivity implements
     }
 
     private void deactivateSurfaceViewOnce() {
-        if(singleShotService.isFirstTime("auto_deactivate_surface_view_again")) {
+        if (singleShotService.isFirstTime("auto_deactivate_surface_view_again")) {
             settings.edit()
                     .putBoolean("pref_use_surface_view", false)
                     .apply();
