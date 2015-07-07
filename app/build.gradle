@@ -24,12 +24,13 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.pr0gramm.app"
         minSdkVersion 14
         targetSdkVersion 22
 
         versionCode appVersion
         versionName "1.${(int)(appVersion / 10)}"
+
+        resConfigs "en", "de"
     }
 
     signingConfigs {
@@ -56,12 +57,14 @@ android {
     buildTypes {
         debug {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             versionNameSuffix ".dev"
         }
 
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -71,6 +74,7 @@ android {
         def flavorSigningPlay = signingConfigs.play
 
         open {
+            applicationId "com.pr0gramm.app"
             signingConfig flavorSigningOpen
             buildConfigField "boolean", "IS_PLAYSTORE_RELEASE", "false"
         }
@@ -84,6 +88,21 @@ android {
 
     lintOptions {
         checkReleaseBuilds false
+    }
+}
+
+android.applicationVariants.all { variant ->
+    // rename apk after we assemble the application
+    variant.mergeResources.doLast {
+        def filesToDelete = fileTree(variant.mergeResources.outputDir) {
+            // remove timezone data
+            include "raw/joda_time_android_tzdata_*"
+            exclude "raw/joda_time_android_tzdata_etc_utc"
+            exclude "raw/joda_time_android_tzdata_europe_berlin"
+            exclude "raw/joda_time_android_tzdata_zoneinfomap"
+        }
+
+        filesToDelete.each { it.delete() }
     }
 }
 
