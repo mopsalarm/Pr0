@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import retrofit.RetrofitError;
 import rx.functions.Func2;
 
@@ -151,6 +153,10 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof UnknownHostException,
                 R.string.error_host_not_found).doNotReport());
+
+        formatters.add(new Formatter<>(RetrofitError.class,
+                err -> err.getCause() instanceof SSLHandshakeException,
+                R.string.error_ssl_error).doNotReport());
 
         formatters.add(new Formatter<>(RetrofitError.class,
                 err -> err.getCause() instanceof ConnectException,

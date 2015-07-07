@@ -319,4 +319,5 @@
     <string name="prefcat_post">Post view</string>
     <string name="warn_post_can_not_be_viewed">This post is not visible with your current filter settings.</string>
     <string name="warn_show_post_anyways">Show anyways</string>
+    <string name="error_ssl_error">Could not perform ssl handshake, maybe you should deactivate https?</string>
 </resources>

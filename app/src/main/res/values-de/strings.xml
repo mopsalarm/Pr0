@@ -289,4 +289,5 @@
     <string name="prefcat_post">Postansicht</string>
     <string name="warn_show_post_anyways">Trotzdem zeigen</string>
     <string name="warn_post_can_not_be_viewed">Dieser Post ist aufgrund deiner  Filtereinstellungen nicht sichtbar.</string>
+    <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden. Passiert das öfter, deaktiviere mal HTTPS.</string>
 </resources>

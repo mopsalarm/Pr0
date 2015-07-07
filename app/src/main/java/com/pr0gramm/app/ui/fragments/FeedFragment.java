@@ -549,6 +549,9 @@ public class FeedFragment extends RoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        if(getActivity() == null)
+            return;
+
         MenuItem item = menu.findItem(R.id.action_refresh);
         if (item != null) {
             item.setVisible(settings.showRefreshButton());
