@@ -89,6 +89,14 @@ android {
     lintOptions {
         checkReleaseBuilds false
     }
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 android.applicationVariants.all { variant ->
@@ -99,6 +107,9 @@ android.applicationVariants.all { variant ->
             exclude "raw/joda_time_android_tzdata_etc_utc"
             exclude "raw/joda_time_android_tzdata_europe_berlin"
             exclude "raw/joda_time_android_tzdata_zoneinfomap"
+
+            // remove left-to-right drawables
+            include "drawable-ldrtl-*/*"
         }
 
         filesToDelete.each { it.delete() }
