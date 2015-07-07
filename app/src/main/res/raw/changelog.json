@@ -5,6 +5,14 @@
       {
         "type": "Neu",
         "change": "Videos können nun direkt als Datei über WhatsApp und co geteilt werden (funktioniert nicht mit jeder App, ist dann aber oft nicht meine Schuld!)"
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Bugfixes"
+      },
+      {
+        "type": "Fix",
+        "change": "Größe der App um 500kb verringert"
       }
     ]
   },
