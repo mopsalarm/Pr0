@@ -7,6 +7,10 @@
         "change": "Videos können nun direkt als Datei über WhatsApp und co geteilt werden (funktioniert nicht mit jeder App, ist dann aber oft nicht meine Schuld!)"
       },
       {
+        "type": "Neu",
+        "change": "Neue Animation beim Wechseln von Posts"
+      },
+      {
         "type": "Fix",
         "change": "Verschiedene Bugfixes"
       },

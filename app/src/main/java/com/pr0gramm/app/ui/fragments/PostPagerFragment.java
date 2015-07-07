@@ -21,7 +21,6 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
-import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.ui.MainActionHandler;
 
 import org.slf4j.Logger;
@@ -93,6 +92,21 @@ public class PostPagerFragment extends RoboFragment {
                 }
             });
         }
+
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                logger.info("pos is {}, offset is {} ({})", position, positionOffset, positionOffsetPixels);
+
+                Optional<Fragment> prev = adapter.getFragment(position);
+                Optional<Fragment> next = adapter.getFragment(position + 1);
+                if(prev.isPresent() && next.isPresent()) {
+                    ((PostFragment) prev.get()).mediaHorizontalOffset(positionOffsetPixels/2);
+                    ((PostFragment) next.get()).mediaHorizontalOffset(
+                            -viewPager.getWidth() / 2 + positionOffsetPixels / 2);
+                }
+            }
+        });
 
         viewPager.setAdapter(adapter);
 

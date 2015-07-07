@@ -915,6 +915,12 @@ public class PostFragment extends RoboFragment implements
                 .orNull();
     }
 
+    public void mediaHorizontalOffset(int offset) {
+        if(viewer != null && viewer.isTransformable()) {
+            viewer.setTranslationX(offset);
+        }
+    }
+
     private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
 
