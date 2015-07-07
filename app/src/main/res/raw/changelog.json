@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Neue Nachrichten-Benachrichtigung verstecken, wenn Nachrichten gelesen wurden"
+      },
+      {
+        "type": "Fix",
         "change": "Verschiedene Bugfixes"
       },
       {

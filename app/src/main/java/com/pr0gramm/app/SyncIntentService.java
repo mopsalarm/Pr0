@@ -48,8 +48,13 @@ public class SyncIntentService extends RoboIntentService {
             logger.info("finished without error after " + watch);
 
             // now show results, if any
-            if (sync.isPresent() && sync.get().getInboxCount() > 0) {
-                notificationService.showForInbox(sync.get());
+            if (sync.isPresent()) {
+                if (sync.get().getInboxCount() > 0) {
+                    notificationService.showForInbox(sync.get());
+                } else {
+                    // remove if no messages are found
+                    notificationService.cancelForInbox();
+                }
             }
 
         } catch (Throwable thr) {
