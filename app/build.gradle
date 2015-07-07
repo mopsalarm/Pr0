@@ -92,7 +92,6 @@ android {
 }
 
 android.applicationVariants.all { variant ->
-    // rename apk after we assemble the application
     variant.mergeResources.doLast {
         def filesToDelete = fileTree(variant.mergeResources.outputDir) {
             // remove timezone data
