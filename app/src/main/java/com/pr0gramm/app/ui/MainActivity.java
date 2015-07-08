@@ -38,6 +38,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
+import com.pr0gramm.app.webm.WebmJNI;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -162,6 +163,8 @@ public class MainActivity extends RxRoboAppCompatActivity implements
                 settings.edit().putBoolean("pref_show_repost_hint", false).apply();
             }
         }
+
+        WebmJNI.loadNativeLibrary();
     }
 
     private void showActivateGifToWebmPopup() {

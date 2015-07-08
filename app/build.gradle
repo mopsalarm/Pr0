@@ -31,6 +31,15 @@ android {
         versionName "1.${(int)(appVersion / 10)}"
 
         resConfigs "en", "de"
+
+        ndk {
+            moduleName "pr0-webm-jni"
+        }
+    }
+
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir 'src/main/libs'
     }
 
     signingConfigs {
