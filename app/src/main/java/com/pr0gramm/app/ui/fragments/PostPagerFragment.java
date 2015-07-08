@@ -98,12 +98,14 @@ public class PostPagerFragment extends RoboFragment {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 logger.info("pos is {}, offset is {} ({})", position, positionOffset, positionOffsetPixels);
 
-                Optional<Fragment> prev = adapter.getFragment(position);
-                Optional<Fragment> next = adapter.getFragment(position + 1);
-                if(prev.isPresent() && next.isPresent()) {
-                    ((PostFragment) prev.get()).mediaHorizontalOffset(positionOffsetPixels/2);
-                    ((PostFragment) next.get()).mediaHorizontalOffset(
-                            -viewPager.getWidth() / 2 + positionOffsetPixels / 2);
+                if(position >= 0 && position + 1 < adapter.getCount()) {
+                    Optional<Fragment> prev = adapter.getFragment(position);
+                    Optional<Fragment> next = adapter.getFragment(position + 1);
+                    if (prev.isPresent() && next.isPresent()) {
+                        ((PostFragment) prev.get()).mediaHorizontalOffset(positionOffsetPixels / 2);
+                        ((PostFragment) next.get()).mediaHorizontalOffset(
+                                -viewPager.getWidth() / 2 + positionOffsetPixels / 2);
+                    }
                 }
             }
         });
