@@ -14,10 +14,8 @@ import org.ebml.matroska.MatroskaFileTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Callable;
@@ -44,8 +42,12 @@ public class WebmTest extends IntentService {
 
     @SuppressLint("NewApi")
     public void parse() throws Exception {
+        WebmJNI.loadNativeLibrary();
+
         byte[] bytes = Files.toByteArray(new File("/sdcard/test.webm"));
 
+        logger.info("create new vpx wrapper");
+        long vpx = WebmJNI.newVpxWrapper();
 
         Stopwatch watch = Stopwatch.createStarted();
         try (InputStream input = new ByteArrayInputStream(bytes)) {
@@ -68,7 +70,23 @@ public class WebmTest extends IntentService {
             MatroskaFileFrame frame;
             while ((frame = mkv.getNextFrame(trackIndex)) != null) {
                 frameCount += 1;
+
+                logger.info("push data to vpx wrapper {}", vpx);
+                ByteBuffer data = frame.getData();
+                int offset = data.arrayOffset() + data.position();
+                int length = data.remaining();
+                WebmJNI.vpxPutData(vpx, data.array(), offset, length);
+
+
+                logger.info("start getting frames from the wrapper");
+                int videoFrames = 0;
+                while(WebmJNI.vpxGetFrame(vpx))
+                    videoFrames++;
+
+                logger.info("got {} images for this mkv frame", videoFrames);
             }
+
+            WebmJNI.freeVpxWrapper(vpx);
 
             logger.info("read {} frames", frameCount);
         }

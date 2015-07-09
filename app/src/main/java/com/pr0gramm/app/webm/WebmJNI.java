@@ -12,6 +12,11 @@ public class WebmJNI {
 
     public static native String getVpxString();
 
+    public static native long newVpxWrapper();
+    public static native void freeVpxWrapper(long vpx);
+    public static native void vpxPutData(long vpx, byte[] data, int offset, int length);
+    public static native boolean vpxGetFrame(long vpx);
+
     private static boolean hasNativeLibrary;
 
     public static void loadNativeLibrary() {
