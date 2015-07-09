@@ -11,7 +11,7 @@ case $COMMAND in
   build)
     # configure the library to build
     ./libvpx/configure --target=armv7-android-gcc \
-      --disable-examples --disable-docs --enable-webm-io \
+      --disable-examples --disable-docs --disable-webm-io \
       --disable-vp9 --disable-vp8-encoder --enable-static \
       --sdk-path=$NDK
 

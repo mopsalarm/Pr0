@@ -12,8 +12,6 @@ public class WebmJNI {
 
     public static native String getVpxString();
 
-    public static native String getWebmString();
-
     private static boolean hasNativeLibrary;
 
     public static void loadNativeLibrary() {
@@ -29,7 +27,6 @@ public class WebmJNI {
 
             logger.info("Native library loaded in {}", watch);
             logger.info("  vpx version: {}", getVpxString());
-            logger.info("  webm version: {}", getWebmString());
 
         } catch (Throwable error) {
             logger.info("Could not load library", error);
