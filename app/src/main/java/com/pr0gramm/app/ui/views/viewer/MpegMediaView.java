@@ -3,28 +3,18 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.VideoDrawable;
-import com.pr0gramm.app.mpeg.InputStreamCache;
 import com.pr0gramm.app.mpeg.PictureBuffer;
 import com.pr0gramm.app.mpeg.VideoConsumer;
 import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.squareup.picasso.Downloader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import roboguice.inject.InjectView;
@@ -38,14 +28,14 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class MpegMediaView extends MediaView implements OnSizeCallback {
+public class MpegMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
 
     @Inject
     private Downloader downloader;
 
-    private VideoPlayer videoPlayer;
+    private SoftwareMediaPlayer videoPlayer;
     private Subscription loading;
 
     public MpegMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
@@ -57,37 +47,41 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             return;
         }
 
-        Observable<VideoPlayer> loader = binder.bind(Async.fromCallable(() -> {
-            Downloader.Response response = downloader.load(getEffectiveUri(), 0);
-            return new VideoPlayer(response.getInputStream(), this);
-        }, Schedulers.io()));
-
-        loading = loader.finallyDo(() -> loading = null).subscribe(mpeg -> {
+        binder.bind(newVideoPlayer()).finallyDo(() -> loading = null).subscribe(mpeg -> {
             hideBusyIndicator();
 
-            this.videoPlayer = mpeg;
-            imageView.setImageDrawable(this.videoPlayer.getVideoDrawable());
+            videoPlayer = mpeg;
+            imageView.setImageDrawable(videoPlayer.drawable());
+            binder.bind(videoPlayer.videoSize()).subscribe(this::onSizeChanged);
 
             if (isPlaying()) {
-                this.videoPlayer.play();
+                videoPlayer.start();
                 onMediaShown();
             }
-
         }, defaultOnError());
     }
 
+    /**
+     * Creates a new video player for the current url asynchronously and returns
+     * an observable that produces the player when it is initialize.
+     */
+    private Observable<MpegSoftwareMediaPlayer> newVideoPlayer() {
+        return Async.fromCallable(() -> {
+            Downloader.Response response = downloader.load(getEffectiveUri(), 0);
+            return new MpegSoftwareMediaPlayer(response.getInputStream());
+        }, Schedulers.io());
+    }
 
-    @Override
-    public void onSizeChanged(int width, int height) {
-        float viewAspect = (float) width / height;
-        post(() -> setViewAspect(viewAspect));
+
+    private void onSizeChanged(SoftwareMediaPlayer.Size size) {
+        setViewAspect(size.getAspectRatio());
     }
 
     private void loadAndPlay() {
         if (videoPlayer == null && loading == null) {
             asyncLoadVideo();
         } else if (videoPlayer != null) {
-            videoPlayer.play();
+            videoPlayer.start();
             onMediaShown();
         }
     }
@@ -142,76 +136,23 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         super.onDestroy();
     }
 
-    private static class VideoPlayer implements VideoConsumer {
-        private static final Logger logger = LoggerFactory.getLogger(VideoPlayer.class);
-
-        private final AtomicBoolean running = new AtomicBoolean();
-        private final AtomicBoolean paused = new AtomicBoolean();
-        private final WeakReference<OnSizeCallback> sizeCallback;
-
-        private final InputStreamCache cache;
-        private final VideoDrawable drawable = new VideoDrawable();
-
+    private static class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements VideoConsumer {
         private PictureBuffer buffer;
         private AtomicInteger bitmapCount = new AtomicInteger();
 
-        public VideoPlayer(InputStream inputStream, OnSizeCallback sizeCallback) {
-            this.sizeCallback = new WeakReference<>(sizeCallback);
-            this.cache = new InputStreamCache(inputStream);
+        public MpegSoftwareMediaPlayer(InputStream inputStream) {
+            super(inputStream);
         }
 
-        public Drawable getVideoDrawable() {
-            return drawable;
-        }
+        @Override
+        protected void playOnce(InputStream stream) throws Exception {
+            logger.info("creating video decoder instance");
+            VideoDecoder decoder = new VideoDecoder(this, stream);
 
-        public void play() {
-            paused.set(false);
-            if (running.compareAndSet(false, true)) {
-                Thread thread = new Thread(this::playLoop);
-                thread.setDaemon(true);
-                thread.setName("MpegPlayerThread:" + this);
-                thread.setPriority(3);
-                thread.start();
-            }
-        }
+            logger.info("start decoding mpeg file now");
+            decoder.decodeSequence();
 
-        private void playLoop() {
-            while (running.get()) {
-                try {
-                    playOnce();
-                } catch (IOException error) {
-                    running.set(false);
-                    break;
-                }
-            }
-        }
-
-        @SuppressLint("NewApi")
-        private void playOnce() throws IOException {
-            try (InputStream stream = cache.get()) {
-                logger.info("creating video decoder instance");
-                VideoDecoder decoder = new VideoDecoder(this, stream);
-
-                logger.info("start decoding mpeg file now");
-                try {
-                    decoder.decodeSequence();
-
-                } catch (IOException error) {
-                    logger.error("io error occurred during playback");
-
-                } catch (InterruptedException | VideoPlaybackStoppedException ignored) {
-                }
-
-                logger.info("decoding mepg stream finished");
-            }
-        }
-
-        public void stop() {
-            running.set(false);
-        }
-
-        public void pause() {
-            paused.set(true);
+            logger.info("decoding mepg stream finished");
         }
 
         @Override
@@ -247,10 +188,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             }
 
             // post information about the newly received size info
-            OnSizeCallback callback = sizeCallback.get();
-            if (callback != null) {
-                callback.onSizeChanged(picture.width, picture.height);
-            }
+            reportSize(picture.width, picture.height);
 
             bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
                     picture.width, picture.height);
@@ -269,10 +207,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             drawable.setFrameDelay((long) (1000 / decoder.getPictureRate()));
 
             // do nothing while paused.
-            while (paused.get()) {
-                ensureStillRunning();
-                Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
-            }
+            blockWhilePaused();
 
             if (buffer == null) {
                 int width = decoder.getWidth();
@@ -285,15 +220,6 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             }
 
             return buffer;
-        }
-
-        private void ensureStillRunning() {
-            if (!running.get()) {
-                throw new VideoPlaybackStoppedException();
-            }
-        }
-
-        private static class VideoPlaybackStoppedException extends RuntimeException {
         }
     }
 }
