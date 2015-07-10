@@ -35,12 +35,18 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         reportSize(videoInfo.getDisplayWidth(), videoInfo.getDisplayHeight());
 
         try (VpxWrapper vpx = VpxWrapper.newInstance()) {
+            long previousTimecode = 0;
             while (true) {
                 // load the next data frame from the container
                 ensureStillRunning();
                 MatroskaFileFrame mkvFrame = mkv.getNextFrame(track.getTrackNo());
                 if (mkvFrame == null)
                     break;
+
+                // estimate fps
+                long duration = mkvFrame.getTimecode() - previousTimecode;
+                previousTimecode = mkvFrame.getTimecode();
+                publishFrameDelay(duration);
 
                 // fill the decoder with data
                 ensureStillRunning();

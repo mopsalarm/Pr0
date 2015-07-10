@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -27,6 +28,8 @@ public class VideoDrawable extends Drawable {
 
     private long frameDelay = 1000L / 30;
     private Bitmap current;
+
+    private final FrameCounter fpsCounter = new FrameCounter();
 
     /**
      * Pushes a new frame to this drawable to be drawn later.
@@ -84,6 +87,8 @@ public class VideoDrawable extends Drawable {
             current = next;
             invalidateSelf();
             ensureScheduled();
+
+            fpsCounter.update();
         }
     }
 
@@ -97,6 +102,19 @@ public class VideoDrawable extends Drawable {
         // draw the current frame
         Rect bounds = getBounds();
         canvas.drawBitmap(current, null, bounds, null);
+
+        drawCurrentFps(canvas, bounds);
+    }
+
+    private void drawCurrentFps(Canvas canvas, Rect bounds) {
+        String fpsString = String.format("%1.2ffps", fpsCounter.fps());
+
+        Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+
+        int size = bounds.width() / 10;
+        paint.setTextSize(size);
+        canvas.drawText(fpsString, bounds.left + size, bounds.bottom - size, paint);
     }
 
     @Override
@@ -110,5 +128,26 @@ public class VideoDrawable extends Drawable {
     @Override
     public int getOpacity() {
         return PixelFormat.OPAQUE;
+    }
+
+
+    private static class FrameCounter {
+        private final long[] durations = new long[50];
+        private int position = 0;
+        private long previousTimestamp;
+
+        public void update() {
+            long now = SystemClock.elapsedRealtime();
+            durations[position++ % durations.length] = now - previousTimestamp;
+            previousTimestamp = now;
+        }
+
+        public float fps() {
+            long total = 0;
+            for (long duration : durations)
+                total += duration;
+
+            return (1000 * durations.length) / (float) total;
+        }
     }
 }
