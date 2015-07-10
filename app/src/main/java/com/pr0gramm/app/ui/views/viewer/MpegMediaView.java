@@ -3,20 +3,14 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.SystemClock;
 import android.widget.ImageView;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.inject.Inject;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.VideoDrawable;
 import com.pr0gramm.app.mpeg.InputStreamCache;
 import com.pr0gramm.app.mpeg.PictureBuffer;
 import com.pr0gramm.app.mpeg.VideoConsumer;
@@ -29,9 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +33,6 @@ import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
-import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
@@ -152,102 +142,6 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         super.onDestroy();
     }
 
-
-    private static class MpegVideoDrawable extends Drawable implements Runnable {
-        private final Object lock = new Object();
-
-        private long delay = 1000 / 30;
-
-        private volatile boolean running;
-        private volatile Bitmap current;
-        private final BlockingQueue<Bitmap> next = new SynchronousQueue<>();
-        private final BlockingQueue<Bitmap> previous = new ArrayBlockingQueue<>(4);
-
-        public void start() {
-            running = true;
-            scheduleSelf(this, SystemClock.uptimeMillis() + delay);
-        }
-
-        public void stop() {
-            running = false;
-            unscheduleSelf(this);
-        }
-
-        public boolean push(Bitmap frame) {
-            checkNotMainThread();
-            try {
-                return next.offer(frame, delay, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException err) {
-                return false;
-            }
-        }
-
-        public Optional<Bitmap> pull() {
-            checkNotMainThread();
-
-            try {
-                return Optional.fromNullable(previous.poll(100, TimeUnit.MILLISECONDS));
-            } catch (InterruptedException e) {
-                return Optional.absent();
-            }
-        }
-
-        public void setPictureDelay(long delay) {
-            this.delay = delay;
-        }
-
-        @Override
-        public void run() {
-            moveToNextFrame();
-
-            if (current != null) {
-                invalidateSelf();
-            }
-
-            if (running) {
-                start();
-            }
-        }
-
-        private void moveToNextFrame() {
-            Bitmap frame = this.next.poll();
-            if (frame != null) {
-                if (current != null) {
-                    previous.add(current);
-                }
-
-                synchronized (lock) {
-                    current = frame;
-                }
-            }
-        }
-
-        @Override
-        public void draw(Canvas canvas) {
-            synchronized (lock) {
-                if (current != null) {
-                    Rect bounds = getBounds();
-                    canvas.drawBitmap(current, null, bounds, null);
-                }
-            }
-        }
-
-        @Override
-        public void setAlpha(int alpha) {
-            // do nothing
-        }
-
-        @Override
-        public void setColorFilter(ColorFilter cf) {
-            // do nothing
-        }
-
-        @Override
-        public int getOpacity() {
-            return PixelFormat.OPAQUE;
-        }
-    }
-
     private static class VideoPlayer implements VideoConsumer {
         private static final Logger logger = LoggerFactory.getLogger(VideoPlayer.class);
 
@@ -256,7 +150,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
         private final WeakReference<OnSizeCallback> sizeCallback;
 
         private final InputStreamCache cache;
-        private final MpegVideoDrawable drawable = new MpegVideoDrawable();
+        private final VideoDrawable drawable = new VideoDrawable();
 
         private PictureBuffer buffer;
         private AtomicInteger bitmapCount = new AtomicInteger();
@@ -278,23 +172,17 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
                 thread.setName("MpegPlayerThread:" + this);
                 thread.setPriority(3);
                 thread.start();
-
-                drawable.start();
             }
         }
 
         private void playLoop() {
-            try {
-                while (running.get()) {
-                    try {
-                        playOnce();
-                    } catch (IOException error) {
-                        running.set(false);
-                        break;
-                    }
+            while (running.get()) {
+                try {
+                    playOnce();
+                } catch (IOException error) {
+                    running.set(false);
+                    break;
                 }
-            } finally {
-                drawable.stop();
             }
         }
 
@@ -347,9 +235,14 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
                         picture.width, picture.height, Bitmap.Config.ARGB_8888);
 
             } else {
+                bitmap = null;
                 do {
                     ensureStillRunning();
-                    bitmap = drawable.pull().orNull();
+
+                    try {
+                        bitmap = drawable.pop(100, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException ignored) {
+                    }
                 } while (bitmap == null);
             }
 
@@ -362,10 +255,9 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
                     picture.width, picture.height);
 
-            if (!drawable.push(bitmap)) {
-                // couldn't push this bitmap, drop that the frame.
-                bitmapCount.decrementAndGet();
-                bitmap.recycle();
+            try {
+                drawable.push(bitmap);
+            } catch (InterruptedException ignored) {
             }
         }
 
@@ -374,7 +266,7 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
             ensureStillRunning();
 
             // set the current delay
-            drawable.setPictureDelay((long) (1000 / decoder.getPictureRate()));
+            drawable.setFrameDelay((long) (1000 / decoder.getPictureRate()));
 
             // do nothing while paused.
             while (paused.get()) {
@@ -397,7 +289,6 @@ public class MpegMediaView extends MediaView implements OnSizeCallback {
 
         private void ensureStillRunning() {
             if (!running.get()) {
-                drawable.stop();
                 throw new VideoPlaybackStoppedException();
             }
         }
