@@ -1,4 +1,4 @@
-package com.pr0gramm.app.webm;
+package com.pr0gramm.app.vpx;
 
 import android.annotation.SuppressLint;
 import android.app.IntentService;
@@ -42,15 +42,14 @@ public class WebmTest extends IntentService {
 
     @SuppressLint("NewApi")
     public void parse() throws Exception {
-        WebmJNI.loadNativeLibrary();
-
         byte[] bytes = Files.toByteArray(new File("/sdcard/test.webm"));
 
         logger.info("create new vpx wrapper");
-        long vpx = WebmJNI.newVpxWrapper();
 
         Stopwatch watch = Stopwatch.createStarted();
-        try (InputStream input = new ByteArrayInputStream(bytes)) {
+        try (InputStream input = new ByteArrayInputStream(bytes);
+             VpxWrapper vpx = VpxWrapper.newInstance()) {
+
             MatroskaFile mkv = new MatroskaFile(new InputStreamDataSource(input));
             logger.info("time after open: {}", watch);
 
@@ -75,18 +74,16 @@ public class WebmTest extends IntentService {
                 ByteBuffer data = frame.getData();
                 int offset = data.arrayOffset() + data.position();
                 int length = data.remaining();
-                WebmJNI.vpxPutData(vpx, data.array(), offset, length);
+                vpx.put(data.array(), offset, length);
 
 
                 logger.info("start getting frames from the wrapper");
                 int videoFrames = 0;
-                while(WebmJNI.vpxGetFrame(vpx))
+                while (vpx.get(null))
                     videoFrames++;
 
                 logger.info("got {} images for this mkv frame", videoFrames);
             }
-
-            WebmJNI.freeVpxWrapper(vpx);
 
             logger.info("read {} frames", frameCount);
         }

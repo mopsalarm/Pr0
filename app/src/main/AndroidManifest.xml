@@ -59,7 +59,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".webm.WebmTest"
+            android:name=".vpx.WebmTest"
             android:exported="true"/>
 
         <service

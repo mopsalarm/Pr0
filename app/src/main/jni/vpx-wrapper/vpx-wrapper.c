@@ -54,13 +54,13 @@ static bool vpx_wrapper_put_data(struct vpx_wrapper* wrapper, const char *data, 
   return true;
 }
 
-static jint throw_RuntimeException(JNIEnv *env, const char *message) {
-    jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
+static jint throw_VpxException(JNIEnv *env, const char *message) {
+    jclass exClass = (*env)->FindClass(env, "com/pr0gramm/app/vpx/VpxException");
     return (*env)->ThrowNew(env, exClass, message);
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_pr0gramm_app_webm_WebmJNI_getVpxString(JNIEnv *env) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_getVpxString(JNIEnv *env) {
   vpx_codec_ctx_t codec;
   const vpx_codec_iface_t *decoder = vpx_codec_vp8_dx();
   if(!decoder) {
@@ -72,10 +72,10 @@ Java_com_pr0gramm_app_webm_WebmJNI_getVpxString(JNIEnv *env) {
 
 
 JNIEXPORT jlong JNICALL
-Java_com_pr0gramm_app_webm_WebmJNI_newVpxWrapper(JNIEnv *env) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxNewWrapper(JNIEnv *env) {
   struct vpx_wrapper *wrapper = vpx_wrapper_init();
   if(wrapper->error) {
-    throw_RuntimeException(env, wrapper->error);
+    throw_VpxException(env, wrapper->error);
     vpx_wrapper_destroy(wrapper);
     return 0;
   }
@@ -84,13 +84,13 @@ Java_com_pr0gramm_app_webm_WebmJNI_newVpxWrapper(JNIEnv *env) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_pr0gramm_app_webm_WebmJNI_freeVpxWrapper(JNIEnv *env, jlong wrapper_addr) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxFreeWrapper(JNIEnv *env, jlong wrapper_addr) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
   vpx_wrapper_destroy(wrapper);
 }
 
 JNIEXPORT void JNICALL
-Java_com_pr0gramm_app_webm_WebmJNI_vpxPutData(JNIEnv *env,
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
     jlong wrapper_addr, jbyteArray array, jint offset, jint length) {
 
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
@@ -98,7 +98,7 @@ Java_com_pr0gramm_app_webm_WebmJNI_vpxPutData(JNIEnv *env,
   jbyte* bytes = (*env)->GetByteArrayElements(env, array, NULL);
 
   if(!vpx_wrapper_put_data(wrapper, bytes + offset, length)) {
-    throw_RuntimeException(env, wrapper->error);
+    throw_VpxException(env, wrapper->error);
   }
 
   (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
@@ -106,7 +106,7 @@ Java_com_pr0gramm_app_webm_WebmJNI_vpxPutData(JNIEnv *env,
 
 
 JNIEXPORT jboolean JNICALL
-Java_com_pr0gramm_app_webm_WebmJNI_vpxGetFrame(JNIEnv *env, jlong wrapper_addr) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
   return vpx_wrapper_next_frame(wrapper) != NULL;
 }

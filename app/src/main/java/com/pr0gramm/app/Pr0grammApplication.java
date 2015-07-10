@@ -11,7 +11,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
-import com.pr0gramm.app.webm.WebmJNI;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
