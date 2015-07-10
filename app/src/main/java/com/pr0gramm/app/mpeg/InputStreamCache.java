@@ -7,6 +7,7 @@ import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,26 +38,53 @@ public class InputStreamCache {
     }
 
     private class CachingInputStream extends InputStream {
+        private ByteBuffer current;
+
+        private void freeze() {
+            ByteBuffer buffer = current;
+            if (buffer != null && buffer.position() > 0) {
+                buffer.flip();
+
+                byte[] copy = Arrays.copyOf(buffer.array(), buffer.remaining());
+                cache.add(ByteSource.wrap(copy));
+            }
+
+            current = null;
+        }
+
+        private ByteBuffer get(int space) {
+            if (current != null && current.remaining() < space) {
+                freeze();
+            }
+
+            if (current == null) {
+                current = ByteBuffer.allocate(Math.max(space, 64 * 1024));
+            }
+
+            return current;
+        }
+
         @Override
         public int read() throws IOException {
             checkIfOpen();
 
             int result = backend.read();
-            if(result != -1) {
-                byte[] bytes = {(byte) result};
-                cache.add(ByteSource.wrap(bytes));
+            if(result >= 0) {
+                ByteBuffer buffer = get(1);
+                buffer.put((byte) result);
             }
 
             return result;
         }
 
         @Override
-        public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
-
+        public int read(@NonNull byte[] bytes, int byteOffset, int byteCount) throws IOException {
             checkIfOpen();
-            int result = ByteStreams.read(backend, buffer, byteOffset, byteCount);
-            if (result > 0) {
-                cache.add(ByteSource.wrap(Arrays.copyOfRange(buffer, byteOffset, byteOffset + result)));
+
+            int result = ByteStreams.read(backend, bytes, byteOffset, byteCount);
+            if(result > 0) {
+                ByteBuffer buffer = get(result);
+                buffer.put(bytes, byteOffset, result);
             }
 
             return result;
@@ -69,6 +97,7 @@ public class InputStreamCache {
 
         @Override
         public void close() throws IOException {
+            freeze();
             closed = true;
             backend.close();
         }
