@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.nio.ByteBuffer;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -27,9 +28,19 @@ class VpxWrapper implements Closeable {
         vpxPutData(vpx, data, offset, length);
     }
 
+    /**
+     * Convenience method to push data directly from buffer.
+     */
+    public final void put(ByteBuffer data) {
+        int offset = data.arrayOffset() + data.position();
+        int length = data.remaining();
+        put(data.array(), offset, length);
+        data.position(data.limit());
+    }
+
     public boolean get(Bitmap bitmap) {
         checkValid();
-        return vpxGetFrame(vpx);
+        return vpxGetFrame(vpx, bitmap);
     }
 
     private void checkValid() {
@@ -45,7 +56,7 @@ class VpxWrapper implements Closeable {
     }
 
     public static VpxWrapper newInstance() {
-        checkState(hasNativeLibrary, "Native library not loaded");
+        checkState(hasNativeLibrary, "Native library not loaded. Software decoder is not available");
         return new VpxWrapper(vpxNewWrapper());
     }
 
@@ -61,7 +72,7 @@ class VpxWrapper implements Closeable {
 
     private static native void vpxPutData(long vpx, byte[] data, int offset, int length);
 
-    private static native boolean vpxGetFrame(long vpx);
+    private static native boolean vpxGetFrame(long vpx, Bitmap bitmap);
 
     private static boolean hasNativeLibrary;
 

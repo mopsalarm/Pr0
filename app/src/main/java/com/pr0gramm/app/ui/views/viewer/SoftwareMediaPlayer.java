@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -11,8 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -26,8 +30,11 @@ public abstract class SoftwareMediaPlayer {
     private final AtomicBoolean paused = new AtomicBoolean();
     private final InputStreamCache inputCache;
 
-    protected final BehaviorSubject<Size> videoSize = BehaviorSubject.create();
-    protected final VideoDrawable drawable = new VideoDrawable();
+    private final BehaviorSubject<Size> videoSize = BehaviorSubject.create();
+    private final VideoDrawable drawable = new VideoDrawable();
+    private final AtomicInteger bitmapCount = new AtomicInteger();
+
+    private Queue<Bitmap> returned = new LinkedList<>();
 
     public SoftwareMediaPlayer(InputStream inputStream) {
         this.inputCache = new InputStreamCache(inputStream);
@@ -63,7 +70,6 @@ public abstract class SoftwareMediaPlayer {
 
     protected void reportSize(int width, int height) {
         videoSize.onNext(new Size(width, height));
-
     }
 
     protected void blockWhilePaused() {
@@ -73,10 +79,12 @@ public abstract class SoftwareMediaPlayer {
         }
     }
 
-    protected void ensureStillRunning() {
+    protected boolean ensureStillRunning() {
         if (!running.get()) {
             throw new VideoPlaybackStoppedException();
         }
+
+        return true;
     }
 
     @SuppressLint("NewApi")
@@ -84,6 +92,7 @@ public abstract class SoftwareMediaPlayer {
         while (running.get()) {
             try (InputStream stream = inputCache.get()) {
                 playOnce(stream);
+
             } catch (VideoPlaybackStoppedException | InterruptedException ignored) {
             } catch (Exception error) {
                 logger.warn("io error occurred during playback", error);
@@ -94,6 +103,59 @@ public abstract class SoftwareMediaPlayer {
     }
 
     protected abstract void playOnce(InputStream stream) throws Exception;
+
+    protected Bitmap requestBitmap(int width, int height) {
+        if (bitmapCount.get() <= 2) {
+            bitmapCount.incrementAndGet();
+
+            ensureStillRunning();
+            return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        } else {
+            Bitmap bitmap = dequeBitmap();
+            if (bitmap.getWidth() != width || bitmap.getHeight() != height) {
+                // remove this bitmap and try again!
+                bitmap.recycle();
+                bitmapCount.decrementAndGet();
+                return requestBitmap(width, height);
+            }
+
+            return bitmap;
+        }
+    }
+
+    private Bitmap dequeBitmap() {
+        Bitmap bitmap = returned.poll();
+
+        while(bitmap == null) {
+            ensureStillRunning();
+
+            try {
+                bitmap = drawable.pop(100, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ignored) {
+            }
+        }
+
+        return bitmap;
+    }
+
+    protected void returnBitmap(Bitmap bitmap) {
+        returned.offer(bitmap);
+    }
+
+    protected void publishBitmap(Bitmap bitmap) {
+        while (ensureStillRunning()) {
+            try {
+                drawable.push(bitmap);
+                return;
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    protected void publishFrameDelay(long delay) {
+        drawable.setFrameDelay(delay);
+    }
 
     private static class VideoPlaybackStoppedException extends RuntimeException {
     }

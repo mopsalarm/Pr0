@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <vp8dx.h>
-#include <vpx_decoder.h>
+#include <vpx/vp8dx.h>
+#include <vpx/vpx_decoder.h>
+#include <android/bitmap.h>
+#include <libyuv/convert_argb.h>
 
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
@@ -104,9 +106,49 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
   (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
 }
 
-
 JNIEXPORT jboolean JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
-  return vpx_wrapper_next_frame(wrapper) != NULL;
+
+  // get the next image from codec
+  vpx_image_t *image = vpx_wrapper_next_frame(wrapper);
+  if(!image)
+    return false;
+
+  if(!bitmap)
+    return true;
+
+  // get info about the target bitmap
+  AndroidBitmapInfo bitmap_info;
+  if(AndroidBitmap_getInfo(env, bitmap, &bitmap_info)) {
+    throw_VpxException(env, "Could not get bitmap info");
+    return false;
+  }
+
+  unsigned char *target;
+  AndroidBitmap_lockPixels(env, bitmap, (void **) &target);
+
+  #define min(a, b) (((a) < (b)) ? a : b)
+  int width = min(bitmap_info.width, image->w);
+  int height = min(bitmap_info.height, image->h);
+
+  char *source = image->planes[VPX_PLANE_Y];
+  int x, y;
+  for(y = 0; y < height; y++) {
+    for(x = 0; x < width; x++) {
+        unsigned char lu = source[x];
+
+        target[4*x+0] = lu;
+        target[4*x+1] = lu;
+        target[4*x+2] = lu;
+        target[4*x+3] = 255;
+    }
+
+    target += bitmap_info.stride;
+    source += image->stride[VPX_PLANE_Y];
+  }
+
+  AndroidBitmap_unlockPixels(env, bitmap);
+
+  return true;
 }

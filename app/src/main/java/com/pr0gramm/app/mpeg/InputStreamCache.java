@@ -3,6 +3,7 @@ package com.pr0gramm.app.mpeg;
 import android.support.annotation.NonNull;
 
 import com.google.common.io.ByteSource;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,23 +39,32 @@ public class InputStreamCache {
     private class CachingInputStream extends InputStream {
         @Override
         public int read() throws IOException {
-            throw new UnsupportedOperationException("Never called anyways");
-        }
+            checkIfOpen();
 
-        @Override
-        public int read(@NonNull byte[] buffer) throws IOException {
-            return this.read(buffer, 0, buffer.length);
+            int result = backend.read();
+            if(result != -1) {
+                byte[] bytes = {(byte) result};
+                cache.add(ByteSource.wrap(bytes));
+            }
+
+            return result;
         }
 
         @Override
         public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
+
             checkIfOpen();
-            int result = backend.read(buffer, byteOffset, byteCount);
+            int result = ByteStreams.read(backend, buffer, byteOffset, byteCount);
             if (result > 0) {
                 cache.add(ByteSource.wrap(Arrays.copyOfRange(buffer, byteOffset, byteOffset + result)));
             }
 
             return result;
+        }
+
+        @Override
+        public long skip(long byteCount) throws IOException {
+            return read(new byte[(int) byteCount]);
         }
 
         @Override

@@ -34,7 +34,8 @@ public class MediaViews {
         MediaView result;
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
             if (shouldUseSoftwareDecoder(uri, settings)) {
-                MediaUri mpeg = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
+                // MediaUri mpeg = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
+                MediaUri mpeg = uri;
                 result = new MpegMediaView(context, binder, mpeg.withProxy(true), onViewListener);
             } else {
                 result = new VideoMediaView(context, binder, uri, onViewListener);

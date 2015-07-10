@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
@@ -11,11 +12,10 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.PictureBuffer;
 import com.pr0gramm.app.mpeg.VideoConsumer;
 import com.pr0gramm.app.mpeg.VideoDecoder;
+import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
 
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -47,7 +47,7 @@ public class MpegMediaView extends MediaView {
             return;
         }
 
-        binder.bind(newVideoPlayer()).finallyDo(() -> loading = null).subscribe(mpeg -> {
+        loading = binder.bind(newVideoPlayer()).finallyDo(() -> loading = null).subscribe(mpeg -> {
             hideBusyIndicator();
 
             videoPlayer = mpeg;
@@ -65,10 +65,18 @@ public class MpegMediaView extends MediaView {
      * Creates a new video player for the current url asynchronously and returns
      * an observable that produces the player when it is initialize.
      */
-    private Observable<MpegSoftwareMediaPlayer> newVideoPlayer() {
+    private Observable<SoftwareMediaPlayer> newVideoPlayer() {
         return Async.fromCallable(() -> {
             Downloader.Response response = downloader.load(getEffectiveUri(), 0);
-            return new MpegSoftwareMediaPlayer(response.getInputStream());
+
+            String urlString = getMediaUri().toString();
+            if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg"))
+                return new MpegSoftwareMediaPlayer(response.getInputStream());
+
+            if (urlString.endsWith(".webm"))
+                return new WebmMediaPlayer(response.getInputStream());
+
+            throw new RuntimeException("Unknown video type");
         }, Schedulers.io());
     }
 
@@ -80,6 +88,7 @@ public class MpegMediaView extends MediaView {
     private void loadAndPlay() {
         if (videoPlayer == null && loading == null) {
             asyncLoadVideo();
+
         } else if (videoPlayer != null) {
             videoPlayer.start();
             onMediaShown();
@@ -138,7 +147,6 @@ public class MpegMediaView extends MediaView {
 
     private static class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements VideoConsumer {
         private PictureBuffer buffer;
-        private AtomicInteger bitmapCount = new AtomicInteger();
 
         public MpegSoftwareMediaPlayer(InputStream inputStream) {
             super(inputStream);
@@ -167,36 +175,19 @@ public class MpegMediaView extends MediaView {
 
         @Override
         public void pictureDecoded(PictureBuffer picture) {
-            Bitmap bitmap;
-            if (bitmapCount.get() <= 2) {
-                bitmapCount.incrementAndGet();
-
-                ensureStillRunning();
-                bitmap = Bitmap.createBitmap(
-                        picture.width, picture.height, Bitmap.Config.ARGB_8888);
-
-            } else {
-                bitmap = null;
-                do {
-                    ensureStillRunning();
-
-                    try {
-                        bitmap = drawable.pop(100, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException ignored) {
-                    }
-                } while (bitmap == null);
-            }
-
-            // post information about the newly received size info
-            reportSize(picture.width, picture.height);
-
-            bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
-                    picture.width, picture.height);
-
+            Bitmap bitmap = requestBitmap(picture.width, picture.height);
             try {
-                drawable.push(bitmap);
-            } catch (InterruptedException ignored) {
+                // post information about the newly received size info
+                reportSize(picture.width, picture.height);
+
+                bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
+                        picture.width, picture.height);
+            } catch (Exception error) {
+                returnBitmap(bitmap);
+                throw error;
             }
+
+            publishBitmap(bitmap);
         }
 
         @Override
@@ -204,7 +195,7 @@ public class MpegMediaView extends MediaView {
             ensureStillRunning();
 
             // set the current delay
-            drawable.setFrameDelay((long) (1000 / decoder.getPictureRate()));
+            publishFrameDelay((long) (1000 / decoder.getPictureRate()));
 
             // do nothing while paused.
             blockWhilePaused();

@@ -59,7 +59,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".vpx.WebmTest"
+            android:name=".vpx.WebmMediaPlayer"
             android:exported="true"/>
 
         <service
