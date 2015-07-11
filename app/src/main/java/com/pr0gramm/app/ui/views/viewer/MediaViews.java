@@ -36,7 +36,7 @@ public class MediaViews {
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
             if (shouldUseSoftwareDecoder(uri, settings)) {
                 MediaUri videoUrl = uri;
-                if (!WebmMediaPlayer.isAvailable())
+                if (settings.forceMpegDecoder() || !WebmMediaPlayer.isAvailable())
                     videoUrl = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
 
                 result = new SoftwareVideoMediaView(context, binder,
@@ -60,6 +60,6 @@ public class MediaViews {
     }
 
     private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
-        return uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm") && settings.useMpegDecoder();
+        return uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm") && settings.useSoftwareDecoder();
     }
 }

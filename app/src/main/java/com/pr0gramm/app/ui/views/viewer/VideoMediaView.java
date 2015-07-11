@@ -54,7 +54,7 @@ public class VideoMediaView extends MediaView {
 
         // if this is the first time we start the media, tell the
         // user about the changes!
-        if (!settings.useMpegDecoder() && singleShotService.isFirstTime("hint_check_compatibility_settings")) {
+        if (!settings.useSoftwareDecoder() && singleShotService.isFirstTime("hint_check_compatibility_settings")) {
             DialogBuilder.start(getContext())
                     .content("Falls Videos nicht spielen, prüfe Kompatibilität unter" +
                             " Einstellungen. Da diese Einstellungen 'Risiken und Nebenwirkungen'" +

@@ -224,8 +224,8 @@
     <string name="no">Nein</string>
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
-    <string name="pref_use_mpeg_decoder_title">Softwaredekoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. ACHTUNG: Bitte nur aktivieren, wenn du sonst keine Videos sehen kannst, da die Videoqualität leidet und viel mehr Akku beim Abspielen von Videos benötigt wird. Eventuell ist dein Telefon sogar zu langsam um die Videos korrekt abzuspielen.</string>
+    <string name="pref_use_software_decoder_title">Softwaredekoder</string>
+    <string name="pref_use_software_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. ACHTUNG: Bitte nur aktivieren, wenn du sonst keine Videos sehen kannst, da mehr Leistung benötigt wird. Eventuell ist dein Telefon sogar zu langsam um Abspielen einiger Videos.</string>
     <string name="action_new_message">Neue Nachricht</string>
     <string name="add_new_comment_summary">Kommentar schreiben</string>
     <string name="add_new_comment_title">Neuen Kommentar schreiben</string>
@@ -278,7 +278,7 @@
     <string name="hint_use_surface_view">Wenn du ohne den Softwaredekoder zu aktivieren Probleme bei der Wiedergabe von Videos hast (grüne Linien oder Verfärbungen), probiere die neue Option "SurfaceView". Drück auf "Ja" um die neue EInstellung direkt zu aktivieren.</string>
     <string name="pref_compatibility_active_title">Einstellungen aktivieren</string>
     <string name="pref_compatibility_active_summary">Bitte lies die Beschreibungen zu den einzelnen Einstellungen genau, bevor du sie aktivierst! </string>
-    <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren, aber musst mit den Nachteilen leben.</string>
+    <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren.</string>
     <string name="pref_pseudo_green_video_title">Grüne Linien in Videos</string>
     <string name="pref_feed_start_at_new_title">Starte mit Neu</string>
     <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet.</string>
@@ -290,4 +290,6 @@
     <string name="warn_show_post_anyways">Trotzdem zeigen</string>
     <string name="warn_post_can_not_be_viewed">Dieser Post ist aufgrund deiner  Filtereinstellungen nicht sichtbar.</string>
     <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden. Passiert das öfter, deaktiviere mal HTTPS.</string>
+    <string name="pref_force_mpeg_decoder_title">Erzwinge Java-Decoder</string>
+    <string name="pref_force_mpeg_decoder_summary">Erzwingt die Verwendung eines puren Java Dekoders. ACHTUNG: Reduziert die Qualität der abgespielten Videos. </string>
 </resources>

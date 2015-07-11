@@ -253,8 +253,8 @@
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
     <string name="no">No</string>
-    <string name="pref_use_mpeg_decoder_title">Software decoder</string>
-    <string name="pref_use_mpeg_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you. CAUTION: Use this only as a last resort. Video quality will be low and you need more battery to decode videos. Your phone could even be too slow to decode videos.</string>
+    <string name="pref_use_software_decoder_title">Software decoder</string>
+    <string name="pref_use_software_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you. CAUTION: Your phone might not be fast enough. The software decoder might even increase battery usage if playing many videos.</string>
     <string name="add_reply_comment_title">Answer to %s</string>
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
@@ -320,4 +320,6 @@
     <string name="warn_post_can_not_be_viewed">This post is not visible with your current filter settings.</string>
     <string name="warn_show_post_anyways">Show anyways</string>
     <string name="error_ssl_error">Could not perform ssl handshake, maybe you should deactivate https?</string>
+    <string name="pref_force_mpeg_decoder_title">Force java decoder</string>
+    <string name="pref_force_mpeg_decoder_summary">This forces the usage of a pure java mpeg decoder. The decoder is most compatible. CAUTION: Quality is lower and it might run too slow on old hardware.</string>
 </resources>
