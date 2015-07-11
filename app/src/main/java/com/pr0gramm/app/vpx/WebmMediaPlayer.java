@@ -30,7 +30,12 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         // get video info
         MatroskaFileTrack track = findFirstVideoTrack(mkv).get();
         MatroskaFileTrack.MatroskaVideoTrack videoInfo = track.getVideo();
-        reportSize(videoInfo.getDisplayWidth(), videoInfo.getDisplayHeight());
+
+        // report size
+        int width = firstNotZero(videoInfo.getDisplayWidth(), videoInfo.getPixelWidth());
+        int height = firstNotZero(videoInfo.getDisplayHeight(), videoInfo.getPixelHeight());
+        reportSize(width, height);
+        logger.info("found video track, size is {}x{}", width, height);
 
         try (VpxWrapper vpx = VpxWrapper.newInstance()) {
             int frameIndex = 0;
@@ -82,6 +87,10 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
                 } while (true);
             }
         }
+    }
+
+    private int firstNotZero(int first, int second) {
+        return first != 0 ? first : second;
     }
 
     private static Optional<MatroskaFileTrack> findFirstVideoTrack(MatroskaFile mkv) {
