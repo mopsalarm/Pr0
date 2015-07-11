@@ -11,6 +11,7 @@ import com.pr0gramm.app.mpeg.InputStreamCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -37,7 +38,7 @@ public abstract class SoftwareMediaPlayer {
     private Queue<Bitmap> returned = new LinkedList<>();
 
     public SoftwareMediaPlayer(InputStream inputStream) {
-        this.inputCache = new InputStreamCache(inputStream);
+        this.inputCache = new InputStreamCache(new BufferedInputStream(inputStream));
     }
 
     public void start() {

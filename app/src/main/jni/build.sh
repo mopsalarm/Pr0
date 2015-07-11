@@ -13,7 +13,7 @@ case $COMMAND in
     ./libvpx/configure --target=armv7-android-gcc \
       --disable-examples --disable-docs --disable-webm-io \
       --disable-vp9 --disable-vp8-encoder --enable-static \
-      --sdk-path=$NDK
+      --disable-libyuv --sdk-path=$NDK
 
     # and build it
     export NDK_PROJECT_PATH=$PWD/..
