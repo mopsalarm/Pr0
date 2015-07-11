@@ -44,10 +44,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         set(emptyList(), emptyMap());
     }
 
-    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
+    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes, String op) {
         ImmutableMap<Long, Post.Comment> byId = Maps.uniqueIndex(comments, Post.Comment::getId);
 
-        this.comments = FluentIterable.from(sort(comments)).transform(comment -> {
+        this.op = Optional.fromNullable(op);
+        this.comments = FluentIterable.from(sort(comments, op)).transform(comment -> {
             int depth = getCommentDepth(byId, comment);
             Vote baseVote = firstNonNull(votes.get(comment.getId()), Vote.NEUTRAL);
             return new CommentEntry(comment, baseVote, depth);
@@ -56,9 +57,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         notifyDataSetChanged();
     }
 
-    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes, String op) {
-        this.op = Optional.fromNullable(op);
-        set(comments, votes);
+    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
+        set(comments, votes, null);
     }
 
     public void setSelectedCommentId(long id) {
@@ -207,22 +207,30 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      *
      * @param comments The comments to sort
      */
-    private static List<Post.Comment> sort(Collection<Post.Comment> comments) {
+    private static List<Post.Comment> sort(Collection<Post.Comment> comments, String op) {
         ImmutableListMultimap<Long, Post.Comment> byParent =
                 Multimaps.index(comments, Post.Comment::getParent);
 
         ArrayList<Post.Comment> result = new ArrayList<>();
-        appendChildComments(result, byParent, 0);
+        appendChildComments(result, byParent, 0, op);
         return result;
     }
 
     private static void appendChildComments(List<Post.Comment> target,
-                                            ListMultimap<Long, Post.Comment> byParent, long id) {
+                                            ListMultimap<Long, Post.Comment> byParent,
+                                            long id, String op) {
 
-        List<Post.Comment> children = COMMENT_BY_CONFIDENCE.sortedCopy(byParent.get(id));
+        Ordering<Post.Comment> ordering = COMMENT_BY_CONFIDENCE;
+        if (id == 0 && op != null) {
+            ordering = Ordering.natural().reverse()
+                    .onResultOf((Post.Comment c) -> op.equalsIgnoreCase(c.getName()))
+                    .compound(ordering);
+        }
+
+        List<Post.Comment> children = ordering.sortedCopy(byParent.get(id));
         for (Post.Comment child : children) {
             target.add(child);
-            appendChildComments(target, byParent, (int) child.getId());
+            appendChildComments(target, byParent, (int) child.getId(), op);
         }
     }
 
