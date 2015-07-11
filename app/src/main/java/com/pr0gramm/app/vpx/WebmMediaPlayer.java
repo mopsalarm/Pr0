@@ -33,6 +33,7 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         reportSize(videoInfo.getDisplayWidth(), videoInfo.getDisplayHeight());
 
         try (VpxWrapper vpx = VpxWrapper.newInstance()) {
+            int frameIndex = 0;
             long previousTimecode = 0;
             while (true) {
                 // load the next data frame from the container
@@ -44,11 +45,21 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
                 // estimate fps
                 long duration = mkvFrame.getTimecode() - previousTimecode;
                 previousTimecode = mkvFrame.getTimecode();
-                publishFrameDelay(duration);
 
                 // fill the decoder with data
                 ensureStillRunning();
                 vpx.put(mkvFrame.getData());
+
+                // skip images on high frame rate.
+                boolean skipThisFrame = false;
+                if (duration < 1000 / 40) {
+                    duration *= 2;
+                    skipThisFrame = ++frameIndex % 2 == 0;
+                }
+
+                publishFrameDelay(duration);
+                if (skipThisFrame)
+                    continue;
 
                 do {
                     blockWhilePaused();

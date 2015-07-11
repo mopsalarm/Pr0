@@ -103,13 +103,18 @@ public abstract class SoftwareMediaPlayer {
         }
     }
 
+    /**
+     * Play the video from the given input stream.
+     */
     protected abstract void playOnce(InputStream stream) throws Exception;
 
+    /**
+     * Gets an image that has the provided size.
+     */
     protected Bitmap requestBitmap(int width, int height) {
         if (bitmapCount.get() <= 2) {
-            bitmapCount.incrementAndGet();
-
             ensureStillRunning();
+            bitmapCount.incrementAndGet();
             return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         } else {
@@ -125,10 +130,14 @@ public abstract class SoftwareMediaPlayer {
         }
     }
 
+    /**
+     * Gets a bitmap from the queue. This method will first look for returned bitmaps.
+     * If no bitmap was returned, it will ask the drawable for a previously painted image.
+     */
     private Bitmap dequeBitmap() {
         Bitmap bitmap = returned.poll();
 
-        while(bitmap == null) {
+        while (bitmap == null) {
             ensureStillRunning();
 
             try {
@@ -140,18 +149,33 @@ public abstract class SoftwareMediaPlayer {
         return bitmap;
     }
 
+    /**
+     * Returns the bitmap to the returned-queue. If this is not possible,
+     * the image will be recycled.
+     */
     protected void returnBitmap(Bitmap bitmap) {
-        returned.offer(bitmap);
+        if (!returned.offer(bitmap)) {
+            bitmap.recycle();
+            bitmapCount.decrementAndGet();
+        }
     }
 
+    /**
+     * Publishes an image to be drawn later. If the player has already
+     * stopped playback, the bitmap will be forwarded to {@link #returnBitmap(Bitmap)}
+     * and not be drawn.
+     */
     protected void publishBitmap(Bitmap bitmap) {
-        while (ensureStillRunning()) {
+        while (running.get()) {
             try {
                 drawable.push(bitmap);
                 return;
             } catch (InterruptedException ignored) {
             }
         }
+
+        returnBitmap(bitmap);
+        ensureStillRunning();
     }
 
     protected void publishFrameDelay(long delay) {
