@@ -47,6 +47,7 @@ public class SoftwareVideoMediaView extends MediaView {
             videoPlayer = mpeg;
             imageView.setImageDrawable(videoPlayer.drawable());
             binder.bind(videoPlayer.videoSize()).subscribe(this::onSizeChanged);
+            binder.bind(videoPlayer.errors()).subscribe(defaultOnError());
 
             if (isPlaying()) {
                 videoPlayer.start();

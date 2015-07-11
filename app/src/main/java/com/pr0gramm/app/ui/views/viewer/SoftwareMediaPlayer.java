@@ -32,6 +32,7 @@ public abstract class SoftwareMediaPlayer {
     private final InputStreamCache inputCache;
 
     private final BehaviorSubject<Size> videoSize = BehaviorSubject.create();
+    private final BehaviorSubject<Throwable> errors = BehaviorSubject.create();
     private final VideoDrawable drawable = new VideoDrawable();
     private final AtomicInteger bitmapCount = new AtomicInteger();
 
@@ -69,6 +70,10 @@ public abstract class SoftwareMediaPlayer {
         return videoSize.asObservable();
     }
 
+    public final Observable<Throwable> errors() {
+        return errors.asObservable();
+    }
+
     protected void reportSize(int width, int height) {
         videoSize.onNext(new Size(width, height));
     }
@@ -94,9 +99,11 @@ public abstract class SoftwareMediaPlayer {
             try (InputStream stream = inputCache.get()) {
                 playOnce(stream);
 
-            } catch (VideoPlaybackStoppedException | InterruptedException ignored) {
-            } catch (Exception error) {
-                logger.warn("io error occurred during playback", error);
+            } catch (VideoPlaybackStoppedException ignored) {
+                // ignore this one
+
+            } catch (Throwable error) {
+                errors.onNext(error);
                 stop();
                 break;
             }

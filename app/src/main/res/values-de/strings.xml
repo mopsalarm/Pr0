@@ -25,8 +25,8 @@
     <string name="error_not_authorized">Schaut so aus, als wärst du nicht angemeldet oder gebannt.</string>
     <string name="error_not_found">Das konnte ich leider nicht finden (Error 404)</string>
     <string name="error_nullpointer">Hoppla, da ist etwas schiefgelaufen</string>
-    <string name="error_oom">Die App verwendet zu viel Speicher. Wir Arbeiten daran</string>
-    <string name="error_service_unavailable">Pr0gramm ist gerade nicht verfügbar. Beschwere dich bei cha0s.</string>
+    <string name="error_oom">Die App verwendet zu viel Speicher. Eventuell ist es dein altes Smartphone oder ein Bug in der App.</string>
+    <string name="error_service_unavailable">Pr0gramm ist gerade nicht verfügbar. Beschwere dich bei Gamb.</string>
     <string name="gif_as_webm_might_be_buggy">Achtung: Du sparst damit sehr viel Traffic, aber es könnte etwas länger dauern.</string>
     <string name="hint_password">Passwort</string>
     <string name="hint_username">Benutzername</string>
@@ -216,7 +216,7 @@
     <string name="upload_error_blacklisted">Dieses Bild ist auf pr0gramm nicht (mehr) erlaubt.</string>
     <string name="upload_error_download_failed">Download über die URL ist fehlgeschlagen.</string>
     <string name="upload_error_exists">Dieser Upload existiert bereits und einen Repost möchtest du doch nicht machen, oder? </string>
-    <string name="upload_error_internal">Interner Fehler - cha0s hat vermutlich versagt.</string>
+    <string name="upload_error_internal">Interner Fehler - Gamb hat vermutlich versagt.</string>
     <string name="upload_error_invalid">Das Bild ist ungültig. Vielleicht ist es zu groß?</string>
     <string name="upload_error_unknown">Ein mir unbekannter Fehler ist beim Upload aufgetreten.</string>
     <string name="upload_just_try_again">Am besten probierst du es jetzt einfach nochmal.</string>

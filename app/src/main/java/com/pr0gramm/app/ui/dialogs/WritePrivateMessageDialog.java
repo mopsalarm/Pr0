@@ -54,6 +54,7 @@ public class WritePrivateMessageDialog extends RoboDialogFragment {
                 .content(view, true)
                 .negative(R.string.cancel, this::dismiss)
                 .positive(R.string.action_send, this::onOkayClicked)
+                .cancelable(false)
                 .noAutoDismiss()
                 .build();
     }

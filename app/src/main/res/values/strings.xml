@@ -25,9 +25,9 @@
     <string name="error_not_authorized">Looks like you are not signed in (or banned)</string>
     <string name="error_not_found">The request returned not found (404)</string>
     <string name="error_nullpointer">A programming error occurred. I am very sorry.</string>
-    <string name="error_oom">The app ran of memory. I am working on that.</string>
+    <string name="error_oom">The app ran of memory. This might be your old smartphone or a bug in the app.</string>
     <string name="error_timeout">A timeout occurred during a network request.</string>
-    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Send a complaint to cha0s.</string>
+    <string name="error_service_unavailable">Looks like pr0gramm is not available right now. Send a complaint to Gamb.</string>
     <string name="gif_as_webm_might_be_buggy">You are saving a lot of traffic, but loading of an yet unconverted gif might take a moment longer. If conversion did not work, the app will fall back to loading the gif.</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Your username</string>
@@ -136,7 +136,7 @@
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
     <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
-    <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe cha0s changed something at the pr0gramm api level.</string>
+    <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe Gamb changed something at the pr0gramm api level.</string>
     <string name="action_refresh">Refresh</string>
     <string name="pref_show_refresh_button">Show refresh action</string>
     <string name="pref_show_refresh_button_summary">If enabled, a separate button for refresh will be displayed.</string>
@@ -243,7 +243,7 @@
     <string name="userinfo_comments">Comments</string>
     <string name="dialog_action_add">Add</string>
     <string name="upload_error_blacklisted">This image is blacklisted from pr0gramm.</string>
-    <string name="upload_error_internal">Internal error - cha0s fucked up here.</string>
+    <string name="upload_error_internal">Internal error - Gamb fucked up here.</string>
     <string name="upload_error_invalid">The image is invalid. Maybe too large?</string>
     <string name="upload_error_download_failed">Download of your image url failed.</string>
     <string name="upload_error_exists">This upload already exists. I have just saved you from a repost. Say thanks.</string>

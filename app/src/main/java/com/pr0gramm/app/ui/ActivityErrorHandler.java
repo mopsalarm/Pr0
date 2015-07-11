@@ -33,7 +33,9 @@ public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHa
                     ? formatter.getMessage(activity, error)
                     : Throwables.getStackTraceAsString(error);
 
-            ErrorDialogFragment.showErrorString(activity.getSupportFragmentManager(), message);
+            if(message != null) {
+                ErrorDialogFragment.showErrorString(activity.getSupportFragmentManager(), message);
+            }
 
             // reset any pending errors
             pendingError = null;

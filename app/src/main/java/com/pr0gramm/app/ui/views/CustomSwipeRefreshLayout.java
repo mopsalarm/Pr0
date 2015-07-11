@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 
+import com.pr0gramm.app.AndroidUtility;
+
 /**
  */
 public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
@@ -24,6 +26,17 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
 
     public void setCanSwipeUpPredicate(CanSwipeUpPredicate canSwipeUpPredicate) {
         this.canSwipeUpPredicate = canSwipeUpPredicate;
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        try {
+            super.onLayout(changed, left, top, right, bottom);
+        } catch (Exception err) {
+            // I found crashlytics reports during layout,
+            // lets just catch everything inside this layout.
+            AndroidUtility.logToCrashlytics(err);
+        }
     }
 
     public CanSwipeUpPredicate getCanSwipeUpPredicate() {

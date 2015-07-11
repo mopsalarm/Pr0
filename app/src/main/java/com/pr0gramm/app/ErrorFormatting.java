@@ -53,6 +53,10 @@ public class ErrorFormatting {
             this(errorType, Predicates.alwaysTrue(), (err, ctx) -> ctx.getString(message));
         }
 
+        private Formatter(Class<T> errorType, Predicate<T> check) {
+            this(errorType, check, (err, ctx) -> null);
+        }
+
         private Formatter(Class<T> errorType, Predicate<T> check, @StringRes int message) {
             this(errorType, check, (err, ctx) -> ctx.getString(message));
         }
@@ -175,6 +179,9 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(LoginRequiredException.class,
                 R.string.error_login_required_exception));
+
+        formatters.add(new Formatter<>(IllegalStateException.class,
+                err -> err.toString().contains("onSaveInstanceState")).doNotReport());
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());

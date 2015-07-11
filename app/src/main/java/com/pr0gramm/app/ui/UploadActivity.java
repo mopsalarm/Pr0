@@ -318,7 +318,9 @@ public class UploadActivity extends RoboActionBarActivity {
                 AndroidUtility.logToCrashlytics(throwable);
 
                 String str = ErrorFormatting.getFormatter(throwable).getMessage(getActivity(), throwable);
-                ErrorDialogFragment.showErrorString(getFragmentManager(), str);
+                if(str != null) {
+                    ErrorDialogFragment.showErrorString(getFragmentManager(), str);
+                }
             }
         }
 
