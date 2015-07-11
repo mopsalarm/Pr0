@@ -165,7 +165,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
         // migrate the software-decoder/mpeg settings name
         if (singleShotService.isFirstTime("migrate_settings_mpeg_decoder")) {
-            if (settings.raw().getBoolean("pref_use_mpeg_decoder", true)) {
+            if (settings.raw().getBoolean("pref_use_mpeg_decoder", false)) {
                 settings.edit().putBoolean("pref_use_software_decoder", true).apply();
             }
         }
