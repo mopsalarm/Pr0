@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
@@ -28,7 +27,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class MpegMediaView extends MediaView {
+public class SoftwareVideoMediaView extends MediaView {
     @InjectView(R.id.image)
     private ImageView imageView;
 
@@ -38,7 +37,7 @@ public class MpegMediaView extends MediaView {
     private SoftwareMediaPlayer videoPlayer;
     private Subscription loading;
 
-    public MpegMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public SoftwareVideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
