@@ -645,7 +645,7 @@ public class PostFragment extends RxRoboFragment implements
 
         viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
             //  mark this item seen. We do that in a background thread
-            AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
+            seenService.markAsSeen(feedItem);
         });
 
         registerTabListener(viewer);
