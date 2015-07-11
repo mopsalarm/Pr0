@@ -35,6 +35,8 @@ package fi.iki.elonen;
 
 import android.support.annotation.NonNull;
 
+import com.pr0gramm.app.AndroidUtility;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -777,6 +779,9 @@ public abstract class NanoHTTPD {
             } catch (ResponseException re) {
                 Response r = newFixedLengthResponse(re.getStatus(), NanoHTTPD.MIME_PLAINTEXT, re.getMessage());
                 r.send(this.outputStream);
+                safeClose(this.outputStream);
+            } catch(Throwable error) {
+                AndroidUtility.logToCrashlytics(error);
                 safeClose(this.outputStream);
             } finally {
                 this.tempFileManager.clear();

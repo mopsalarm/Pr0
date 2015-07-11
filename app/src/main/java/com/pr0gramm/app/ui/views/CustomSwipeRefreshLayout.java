@@ -39,10 +39,6 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
         }
     }
 
-    public CanSwipeUpPredicate getCanSwipeUpPredicate() {
-        return canSwipeUpPredicate;
-    }
-
     public interface CanSwipeUpPredicate {
         boolean canSwipeUp();
     }

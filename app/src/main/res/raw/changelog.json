@@ -20,11 +20,15 @@
       },
       {
         "type": "Fix",
-        "change": "Verschiedene Bugfixes"
+        "change": "Neue Kommentare haben nicht mehr sofort einen Benis von Zwei"
       },
       {
         "type": "Fix",
-        "change": "Größe der App um 500kb verringert"
+        "change": "Verschiedene Bugfixes und Crashes behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Größe der App um 200kb verringert"
       }
     ]
   },
