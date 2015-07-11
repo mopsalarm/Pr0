@@ -59,10 +59,6 @@
             android:exported="false"/>
 
         <service
-            android:name=".vpx.WebmMediaPlayer"
-            android:exported="true"/>
-
-        <service
             android:name=".MuzeiSupport"
             android:description="@string/muzei_source_description"
             android:icon="@drawable/ic_app"
