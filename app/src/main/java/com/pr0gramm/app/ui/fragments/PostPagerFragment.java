@@ -96,8 +96,6 @@ public class PostPagerFragment extends RoboFragment {
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                logger.info("pos is {}, offset is {} ({})", position, positionOffset, positionOffsetPixels);
-
                 if(position >= 0 && position + 1 < adapter.getCount()) {
                     Optional<Fragment> prev = adapter.getFragment(position);
                     Optional<Fragment> next = adapter.getFragment(position + 1);
