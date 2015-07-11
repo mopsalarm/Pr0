@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -771,8 +770,7 @@ public class PostFragment extends RxRoboFragment implements
      */
     private void displayComments(List<Post.Comment> comments) {
         bindSupportFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
-            commentsAdapter.setOp(Optional.of(feedItem.getUser()));
-            commentsAdapter.setComments(comments, votes);
+            commentsAdapter.set(comments, votes, feedItem.getUser());
 
             if (autoScrollTo.isPresent()) {
                 scrollToComment(autoScrollTo.get());
@@ -894,7 +892,6 @@ public class PostFragment extends RxRoboFragment implements
         displayComments(response.getComments());
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show();
-
         hideSoftKeyboard();
     }
 

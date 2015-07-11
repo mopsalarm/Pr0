@@ -27,7 +27,7 @@ public class Post {
         private String name;
         private String content;
         private Instant created;
-        private int parent;
+        private long parent;
         private int up, down;
         private int mark;
 
@@ -51,7 +51,7 @@ public class Post {
             return created;
         }
 
-        public int getParent() {
+        public long getParent() {
             return parent;
         }
 

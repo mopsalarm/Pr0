@@ -9,7 +9,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
@@ -21,67 +24,46 @@ import com.pr0gramm.app.feed.Vote;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
-    private final Map<Integer, Post.Comment> byId = new HashMap<>();
-    private final Map<Long, Vote> voteCache = new HashMap<>();
+    private ImmutableList<CommentEntry> comments;
     private Optional<String> op;
-
-    private List<Post.Comment> comments = new ArrayList<>();
     private CommentActionListener commentActionListener;
     private long selectedCommentId;
 
-
     public CommentsAdapter() {
         setHasStableIds(true);
+        set(emptyList(), emptyMap());
     }
 
-    public void setComments(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
-        this.comments = sort(comments);
+    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
+        ImmutableMap<Long, Post.Comment> byId = Maps.uniqueIndex(comments, Post.Comment::getId);
 
-        this.byId.clear();
-        this.byId.putAll(Maps.uniqueIndex(this.comments, c -> (int) c.getId()));
-
-        this.voteCache.clear();
-        this.voteCache.putAll(votes);
+        this.comments = FluentIterable.from(sort(comments)).transform(comment -> {
+            int depth = getCommentDepth(byId, comment);
+            Vote baseVote = firstNonNull(votes.get(comment.getId()), Vote.NEUTRAL);
+            return new CommentEntry(comment, baseVote, depth);
+        }).toList();
 
         notifyDataSetChanged();
     }
 
-    public void clear() {
-        comments = emptyList();
-        voteCache.clear();
-        byId.clear();
-        op = Optional.absent();
-
-        notifyDataSetChanged();
-    }
-
-    public void setOp(Optional<String> op) {
-        this.op = op;
+    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes, String op) {
+        this.op = Optional.fromNullable(op);
+        set(comments, votes);
     }
 
     public void setSelectedCommentId(long id) {
         selectedCommentId = id;
         notifyDataSetChanged();
-    }
-
-    private int getCommentDepth(Post.Comment comment) {
-        int depth = 0;
-        while (comment != null) {
-            depth++;
-            comment = byId.get(comment.getParent());
-        }
-
-        return depth;
     }
 
     @Override
@@ -108,10 +90,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public void onBindViewHolder(CommentView view, int position) {
-        Post.Comment comment = comments.get(position);
-        Vote vote = firstNonNull(voteCache.get(comment.getId()), Vote.NEUTRAL);
+        CommentEntry entry = comments.get(position);
+        Post.Comment comment = entry.comment;
 
-        view.setCommentDepth(getCommentDepth(comment));
+        view.setCommentDepth(entry.depth);
         view.senderInfo.setSenderName(comment.getName(), comment.getMark());
         view.senderInfo.setOnSenderClickedListener(v -> doOnAuthorClicked(comment));
 
@@ -120,8 +102,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
-        int points = comment.getUp() - comment.getDown() + vote.getVoteValue();
-        view.senderInfo.setPoints(points);
+        view.senderInfo.setPoints(getCommentScore(entry));
         view.senderInfo.setPointsVisible(true);
 
         // and the date of the post
@@ -132,11 +113,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setBadgeOpVisible(badge);
 
         // and register a vote handler
-        view.vote.setVote(vote, true);
+        view.vote.setVote(entry.vote, true);
         view.vote.setOnVoteListener(v -> {
-            int delta = v.getVoteValue() - vote.getVoteValue();
-            view.senderInfo.setPoints(points + delta);
-            return doVote(comment, v);
+            boolean changed = doVote(entry, v);
+            notifyItemChanged(position);
+            // view.senderInfo.setPoints(getCommentScore(entry));
+            return changed;
         });
 
         view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
@@ -145,6 +127,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 comment.getId() == selectedCommentId
                         ? R.color.selected_comment_background
                         : R.color.feed_background));
+    }
+
+    private int getCommentScore(CommentEntry entry) {
+        int score = entry.comment.getUp() - entry.comment.getDown();
+        score += entry.vote.getVoteValue() - entry.baseVote.getVoteValue();
+        return score;
     }
 
     private void doOnAuthorClicked(Post.Comment comment) {
@@ -157,13 +145,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             commentActionListener.onAnswerClicked(comment);
     }
 
-    private boolean doVote(Post.Comment comment, Vote vote) {
+    private boolean doVote(CommentEntry entry, Vote vote) {
         if (commentActionListener == null)
             return false;
 
-        boolean performVote = commentActionListener.onCommentVoteClicked(comment, vote);
+        boolean performVote = commentActionListener.onCommentVoteClicked(entry.comment, vote);
         if (performVote) {
-            voteCache.put(comment.getId(), vote);
+            entry.vote = vote;
         }
 
         return performVote;
@@ -176,7 +164,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public long getItemId(int position) {
-        return comments.get(position).getId();
+        return comments.get(position).comment.getId();
     }
 
     public void setCommentActionListener(CommentActionListener commentActionListener) {
@@ -184,6 +172,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
+
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
@@ -200,14 +189,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         public void setCommentDepth(int depth) {
             ((CommentSpacerView) itemView).setDepth(depth);
         }
+
     }
 
     public interface CommentActionListener {
+
         boolean onCommentVoteClicked(Post.Comment comment, Vote vote);
 
         void onAnswerClicked(Post.Comment comment);
 
         void onCommentAuthorClicked(Post.Comment comment);
+
     }
 
     /**
@@ -216,7 +208,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      * @param comments The comments to sort
      */
     private static List<Post.Comment> sort(Collection<Post.Comment> comments) {
-        ImmutableListMultimap<Integer, Post.Comment> byParent =
+        ImmutableListMultimap<Long, Post.Comment> byParent =
                 Multimaps.index(comments, Post.Comment::getParent);
 
         ArrayList<Post.Comment> result = new ArrayList<>();
@@ -225,7 +217,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     private static void appendChildComments(List<Post.Comment> target,
-                                            ListMultimap<Integer, Post.Comment> byParent, int id) {
+                                            ListMultimap<Long, Post.Comment> byParent, long id) {
 
         List<Post.Comment> children = COMMENT_BY_CONFIDENCE.sortedCopy(byParent.get(id));
         for (Post.Comment child : children) {
@@ -234,6 +226,31 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
+    private static int getCommentDepth(Map<Long, Post.Comment> byId, Post.Comment comment) {
+        int depth = 0;
+        while (comment != null) {
+            depth++;
+            comment = byId.get(comment.getParent());
+        }
+
+        return depth;
+    }
+
     private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =
             Ordering.natural().reverse().onResultOf(Post.Comment::getConfidence);
+
+    private static class CommentEntry {
+        final Post.Comment comment;
+        final Vote baseVote;
+        final int depth;
+
+        Vote vote;
+
+        public CommentEntry(Post.Comment comment, Vote baseVote, int depth) {
+            this.comment = comment;
+            this.baseVote = baseVote;
+            this.depth = depth;
+            this.vote = baseVote;
+        }
+    }
 }
