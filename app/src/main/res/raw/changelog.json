@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Neuer Softwaredekoder, der direkt die WEBMs abspielt. Im Notfall kann auf den alten MPEG Dekoder zurückgegriffen werden."
+      },
+      {
+        "type": "Neu",
         "change": "Videos können nun direkt als Datei über WhatsApp und co geteilt werden"
       },
       {

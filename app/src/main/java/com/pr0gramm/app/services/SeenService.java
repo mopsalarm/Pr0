@@ -34,7 +34,7 @@ public class SeenService {
     public SeenService(Context context) {
         File file = new File(context.getCacheDir(), "seen-posts.bits");
 
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+        AsyncTask.execute(() -> {
             try {
                 buffer.set(mapByteBuffer(file));
             } catch (IOException error) {

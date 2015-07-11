@@ -33,6 +33,11 @@ android {
         resConfigs "en", "de"
     }
 
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir 'src/main/libs'
+    }
+
     signingConfigs {
         open {
             storeFile file("../release.keystore")
@@ -123,7 +128,7 @@ repositories {
 }
 
 dependencies {
-    // compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'com.android.support:appcompat-v7:22.2.0'

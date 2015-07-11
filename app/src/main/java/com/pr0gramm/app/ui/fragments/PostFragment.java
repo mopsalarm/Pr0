@@ -40,6 +40,7 @@ import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ShareProvider;
 import com.pr0gramm.app.Uris;
@@ -84,10 +85,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.lifecycle.LifecycleObservable;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -104,7 +105,7 @@ import static rx.android.app.AppObservable.bindSupportFragment;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends RoboFragment implements
+public class PostFragment extends RxRoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         ReplyCommentDialogFragment.OnNewCommentsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
@@ -627,7 +628,8 @@ public class PostFragment extends RoboFragment implements
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindSupportFragment(PostFragment.this, observable);
+                return LifecycleObservable.bindFragmentLifecycle(lifecycle(),
+                        bindSupportFragment(PostFragment.this, observable));
             }
         };
 
@@ -643,7 +645,7 @@ public class PostFragment extends RoboFragment implements
 
         viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
             //  mark this item seen. We do that in a background thread
-            AsyncTask.execute(() -> seenService.markAsSeen(feedItem));
+            seenService.markAsSeen(feedItem);
         });
 
         registerTabListener(viewer);
@@ -916,7 +918,7 @@ public class PostFragment extends RoboFragment implements
     }
 
     public void mediaHorizontalOffset(int offset) {
-        if(viewer != null && viewer.isTransformable()) {
+        if (viewer != null && viewer.isTransformable()) {
             viewer.setTranslationX(offset);
         }
     }

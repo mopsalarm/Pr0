@@ -160,8 +160,12 @@ public class Settings {
         return preferences.getBoolean("pref_use_https", false);
     }
 
-    public boolean useMpegDecoder() {
-        return preferences.getBoolean("pref_use_mpeg_decoder", false);
+    public boolean useSoftwareDecoder() {
+        return preferences.getBoolean("pref_use_software_decoder", false);
+    }
+
+    public boolean forceMpegDecoder() {
+        return preferences.getBoolean("pref_force_mpeg_decoder", false);
     }
 
     public boolean markRepostsInFeed() {

@@ -266,9 +266,16 @@
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:dependency="pref_compatibility_active"
-                android:key="pref_use_mpeg_decoder"
-                android:summary="@string/pref_use_mpeg_decoder_summary"
-                android:title="@string/pref_use_mpeg_decoder_title"/>
+                android:key="pref_use_software_decoder"
+                android:summary="@string/pref_use_software_decoder_summary"
+                android:title="@string/pref_use_software_decoder_title"/>
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="pref_use_software_decoder"
+                android:key="pref_force_mpeg_decoder"
+                android:summary="@string/pref_force_mpeg_decoder_summary"
+                android:title="@string/pref_force_mpeg_decoder_title"/>
 
             <Preference
                 android:defaultValue="false"
