@@ -16,6 +16,10 @@
       },
       {
         "type": "Neu",
+        "change": "Anzahl der ungelesenen Nachrichten wird im Drawer angezeigt"
+      },
+      {
+        "type": "Neu",
         "change": "Neue Animation beim Wechseln von Posts"
       },
       {

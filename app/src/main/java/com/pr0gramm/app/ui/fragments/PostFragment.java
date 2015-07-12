@@ -88,6 +88,7 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -539,7 +540,7 @@ public class PostFragment extends RxRoboFragment implements
 
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
         bindUntilLifecycleEvent(lifecycle(),
-                bindSupportFragment(this, details.delay(delay, TimeUnit.MILLISECONDS)),
+                bindSupportFragment(this, details.delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())),
                 LifecycleEvent.DESTROY
         ).subscribe(this::onPostReceived, defaultOnError());
     }
