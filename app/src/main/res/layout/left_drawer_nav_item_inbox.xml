@@ -23,6 +23,10 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
         android:background="@drawable/rounded_corner_background"
+        android:paddingRight="3dp"
+        android:paddingLeft="3dp"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
         android:textColor="@color/white"
         android:textSize="12sp"/>
 </LinearLayout>

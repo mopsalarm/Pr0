@@ -247,7 +247,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             comment = byId.get(comment.getParent());
         }
 
-        return depth;
+        return Math.min(8, depth);
     }
 
     private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =

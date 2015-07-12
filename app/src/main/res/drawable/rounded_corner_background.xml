@@ -7,10 +7,4 @@
         android:height="16dp"/>
 
     <solid android:color="@color/primary"/>
-
-    <padding
-        android:bottom="2dp"
-        android:left="3dp"
-        android:right="3dp"
-        android:top="2dp"/>
 </shape>
