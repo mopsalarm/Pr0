@@ -12,6 +12,10 @@
       },
       {
         "type": "Neu",
+        "change": "Kommentare von OP werden nach oben sortiert"
+      },
+      {
+        "type": "Neu",
         "change": "Neue Animation beim Wechseln von Posts"
       },
       {
