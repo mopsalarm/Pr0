@@ -33,6 +33,8 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
+import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
@@ -53,10 +55,9 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
 
-import roboguice.activity.RoboActionBarActivity;
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.android.lifecycle.LifecycleEvent;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
@@ -64,10 +65,11 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static rx.android.app.AppObservable.bindActivity;
 import static rx.android.app.AppObservable.bindSupportFragment;
+import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  */
-public class UploadActivity extends RoboActionBarActivity {
+public class UploadActivity extends RxRoboAppCompatActivity {
     private static final Logger logger = LoggerFactory.getLogger(UploadActivity.class);
 
     @Inject
@@ -145,7 +147,7 @@ public class UploadActivity extends RoboActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class UploadFragment extends RoboFragment {
+    public static class UploadFragment extends RxRoboFragment {
         public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
 
         private final int REQ_SELECT_IMAGE = 1;
@@ -231,7 +233,10 @@ public class UploadActivity extends RoboActionBarActivity {
                     .split(this.tags.getText().toString()));
 
             logger.info("Start upload of type {} with tags {}", type, tags);
-            bindSupportFragment(this, uploadService.upload(file, type, tags)).subscribe(status -> {
+            bindUntilLifecycleEvent(lifecycle(),
+                    bindSupportFragment(this, uploadService.upload(file, type, tags)),
+                    LifecycleEvent.DESTROY_VIEW).subscribe(status -> {
+
                 if (status.isFinished()) {
                     logger.info("finished! item id is {}", status.getId());
                     onUploadComplete(status.getId());
@@ -318,7 +323,7 @@ public class UploadActivity extends RoboActionBarActivity {
                 AndroidUtility.logToCrashlytics(throwable);
 
                 String str = ErrorFormatting.getFormatter(throwable).getMessage(getActivity(), throwable);
-                if(str != null) {
+                if (str != null) {
                     ErrorDialogFragment.showErrorString(getFragmentManager(), str);
                 }
             }

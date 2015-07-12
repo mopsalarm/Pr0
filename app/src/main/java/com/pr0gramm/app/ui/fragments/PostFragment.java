@@ -86,7 +86,7 @@ import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.Subscription;
+import rx.android.lifecycle.LifecycleEvent;
 import rx.android.lifecycle.LifecycleObservable;
 import rx.functions.Actions;
 
@@ -100,6 +100,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static rx.android.app.AppObservable.bindSupportFragment;
+import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  * This fragment shows the content of one post.
@@ -173,8 +174,6 @@ public class PostFragment extends RxRoboFragment implements
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private PreviewInfo previewInfo;
-
-    private Subscription rxDetails;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -518,9 +517,6 @@ public class PostFragment extends RxRoboFragment implements
         if (viewer != null)
             viewer.onDestroy();
 
-        if (rxDetails != null)
-            rxDetails.unsubscribe();
-
         super.onDestroy();
 
         // check that this fragment is removed!
@@ -541,8 +537,10 @@ public class PostFragment extends RxRoboFragment implements
         int delay = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 500 : 100;
 
         Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        rxDetails = bindSupportFragment(this, details.delay(delay, TimeUnit.MILLISECONDS))
-                .subscribe(this::onPostReceived, defaultOnError());
+        bindUntilLifecycleEvent(lifecycle(),
+                bindSupportFragment(this, details.delay(delay, TimeUnit.MILLISECONDS)),
+                LifecycleEvent.DESTROY
+        ).subscribe(this::onPostReceived, defaultOnError());
     }
 
     @SuppressWarnings("CodeBlock2Expr")

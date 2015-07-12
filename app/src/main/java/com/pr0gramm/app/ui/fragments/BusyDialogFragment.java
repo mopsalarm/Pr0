@@ -83,7 +83,7 @@ public class BusyDialogFragment extends DialogFragment {
 
             Fragment dialog = fragmentManager.findFragmentByTag(tag);
             if (dialog instanceof BusyDialogFragment)
-                ((BusyDialogFragment) dialog).dismiss();
+                ((BusyDialogFragment) dialog).dismissAllowingStateLoss();
         }
 
         @Override

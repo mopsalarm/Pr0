@@ -37,6 +37,7 @@ import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.Info;
@@ -78,9 +79,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.android.lifecycle.LifecycleEvent;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
@@ -95,10 +96,11 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 import static rx.android.app.AppObservable.bindSupportFragment;
+import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  */
-public class FeedFragment extends RoboFragment {
+public class FeedFragment extends RxRoboFragment {
     private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
@@ -428,8 +430,9 @@ public class FeedFragment extends RoboFragment {
         loader = new FeedLoader(new FeedLoader.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return bindSupportFragment(FeedFragment.this, observable)
-                        .finallyDo(FeedFragment.this::onFeedLoadFinished);
+                Observable<T> bound = bindSupportFragment(FeedFragment.this, observable);
+                Observable<T> guarded = bindUntilLifecycleEvent(lifecycle(), bound, LifecycleEvent.DESTROY_VIEW);
+                return guarded.finallyDo(FeedFragment.this::onFeedLoadFinished);
             }
 
             @Override
