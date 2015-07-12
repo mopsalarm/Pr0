@@ -54,6 +54,8 @@ public class UserService {
     private final BehaviorSubject<LoginState> loginStateObservable
             = BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
 
+    private final BehaviorSubject<Integer> unreadMessages = BehaviorSubject.create(0);
+
     private final Settings settings;
 
     @Inject
@@ -143,6 +145,10 @@ public class UserService {
         return loginStateObservable.asObservable();
     }
 
+    public Observable<Integer> getUnreadMessageCountObservable() {
+        return unreadMessages.asObservable();
+    }
+
     /**
      * Performs a sync. This updates the vote cache with all the votes that
      * where performed since the last call to sync.
@@ -157,7 +163,6 @@ public class UserService {
      * object is appended to the stream of values.
      */
     public Observable<Object> syncWithProgress() {
-        checkNotMainThread();
         if (!isAuthorized())
             return Observable.empty();
 

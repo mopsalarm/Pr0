@@ -22,6 +22,7 @@ import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.api.pr0gramm.Info;
@@ -44,23 +45,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.Subscription;
+import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
-import static com.pr0gramm.app.AndroidUtility.getTintentDrawable;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static java.util.Arrays.asList;
 import static rx.android.app.AppObservable.bindSupportFragment;
+import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
 
 /**
  */
-public class DrawerFragment extends RoboFragment {
+public class DrawerFragment extends RxRoboFragment {
     @Inject
     private UserService userService;
 
@@ -132,8 +132,6 @@ public class DrawerFragment extends RoboFragment {
     private static final int ICON_ALPHA = 127;
     private final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
-    private Subscription scLoginState;
-    private Subscription scNavigationItems;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
@@ -241,13 +239,18 @@ public class DrawerFragment extends RoboFragment {
     public void onResume() {
         super.onResume();
 
-        scLoginState = bindSupportFragment(this, userService.getLoginStateObservable())
+        bind(userService.getLoginStateObservable())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
-        scNavigationItems = bindSupportFragment(this, newNavigationItemsObservable())
-                .subscribe(navigationAdapter::setNavigationItems, ErrorDialogFragment.defaultOnError());
+        bind(newNavigationItemsObservable()).subscribe(
+                navigationAdapter::setNavigationItems,
+                ErrorDialogFragment.defaultOnError());
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
+    }
+
+    private <T> Observable<T> bind(Observable<T> observable) {
+        return bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, observable));
     }
 
     @SuppressWarnings("unchecked")
@@ -262,9 +265,11 @@ public class DrawerFragment extends RoboFragment {
                         .flatMap(ignored -> bookmarkService.get())
                         .map(this::bookmarksToNavItem),
 
-                Observable.just(ImmutableList.of(
-                        getInboxNavigationItem(),
-                        getUploadNavigationItem()))
+                userService.getUnreadMessageCountObservable()
+                        .map(this::getInboxNavigationItem)
+                        .map(ImmutableList::of),
+
+                Observable.just(ImmutableList.of(getUploadNavigationItem()))
         ), args -> {
 
             ArrayList<NavigationItem> result = new ArrayList<>();
@@ -285,17 +290,6 @@ public class DrawerFragment extends RoboFragment {
                     return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
                 })
                 .toList();
-    }
-
-    @Override
-    public void onPause() {
-        if (scLoginState != null)
-            scLoginState.unsubscribe();
-
-        if (scNavigationItems != null)
-            scNavigationItems.unsubscribe();
-
-        super.onPause();
     }
 
     /**
@@ -385,15 +379,21 @@ public class DrawerFragment extends RoboFragment {
     /**
      * Returns the menu item that takes the user to the inbox.
      */
-    private NavigationItem getInboxNavigationItem() {
+    private NavigationItem getInboxNavigationItem(Integer unreadCount) {
         Runnable run = () -> {
             Intent intent = new Intent(getActivity(), InboxActivity.class);
             intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.ALL.ordinal());
             startActivity(intent);
         };
 
-        return new NavigationItem(getString(R.string.action_inbox), iconInbox, () ->
-                doIfAuthorizedHelper.run(run, run));
+        return new NavigationItem(getString(R.string.action_inbox), iconInbox)
+                .withClickAction(() -> doIfAuthorizedHelper.run(run, run))
+                .withLayout(R.layout.left_drawer_nav_item_inbox)
+                .withExtraBind(holder -> {
+                    TextView unread = (TextView) holder.itemView.findViewById(R.id.unread_count);
+                    unread.setText(String.valueOf(unreadCount));
+                    unread.setVisibility(unreadCount > 0 ? View.VISIBLE : View.GONE);
+                });
     }
 
     /**
@@ -401,7 +401,8 @@ public class DrawerFragment extends RoboFragment {
      */
     private NavigationItem getUploadNavigationItem() {
         Runnable run = () -> startActivity(new Intent(getActivity(), UploadActivity.class));
-        return new NavigationItem(getString(R.string.action_upload), iconUpload, () -> doIfAuthorizedHelper.run(run, run));
+        return new NavigationItem(getString(R.string.action_upload), iconUpload)
+                .withClickAction(() -> doIfAuthorizedHelper.run(run, run));
     }
 
     public interface OnFeedFilterSelected {
@@ -438,14 +439,15 @@ public class DrawerFragment extends RoboFragment {
 
         @Override
         public NavigationItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater
-                    .from(parent.getContext())
-                    .inflate(R.layout.left_drawer_nav_item, parent, false);
-
+            View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
             return new NavigationItemViewHolder(view);
         }
 
         @Override
+        public int getItemViewType(int position) {
+            return allItems.get(position).layout;
+        }
+
         public void onBindViewHolder(NavigationItemViewHolder holder, int position) {
             NavigationItem item = allItems.get(position);
             holder.text.setText(item.title);
@@ -463,8 +465,8 @@ public class DrawerFragment extends RoboFragment {
                 if (item.hasFilter()) {
                     onFeedFilterClicked(item.filter);
 
-                } else if (item.callback != null) {
-                    item.callback.run();
+                } else if (item.action != null) {
+                    item.action.run();
                     onOtherNavigationItemClicked();
                 }
             });
@@ -476,6 +478,8 @@ public class DrawerFragment extends RoboFragment {
 
                 return true;
             });
+
+            item.bind.call(holder);
         }
 
         @Override
@@ -525,7 +529,8 @@ public class DrawerFragment extends RoboFragment {
 
         public NavigationItemViewHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView;
+            text = (TextView) (itemView instanceof TextView ?
+                    itemView : itemView.findViewById(R.id.title));
         }
     }
 
@@ -534,13 +539,14 @@ public class DrawerFragment extends RoboFragment {
         final FeedFilter filter;
         final Drawable icon;
         final Bookmark bookmark;
-        final Runnable callback;
 
-        NavigationItem(String title, Drawable icon, Runnable callback) {
+        Runnable action;
+        Action1<NavigationItemViewHolder> bind = Actions.empty();
+        int layout = R.layout.left_drawer_nav_item;
+
+        NavigationItem(String title, Drawable icon) {
             this.title = title;
             this.icon = icon;
-            this.callback = callback;
-
             this.filter = null;
             this.bookmark = null;
         }
@@ -554,7 +560,22 @@ public class DrawerFragment extends RoboFragment {
             this.filter = filter;
             this.icon = icon;
             this.bookmark = bookmark;
-            this.callback = null;
+            this.action = null;
+        }
+
+        public NavigationItem withLayout(int layout) {
+            this.layout = layout;
+            return this;
+        }
+
+        public NavigationItem withExtraBind(Action1<NavigationItemViewHolder> bind) {
+            this.bind = bind;
+            return this;
+        }
+
+        public NavigationItem withClickAction(Runnable action) {
+            this.action = action;
+            return this;
         }
 
         public boolean hasFilter() {
