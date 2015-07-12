@@ -324,11 +324,6 @@
         android:title="@string/prefcat_misc">
 
         <Preference
-            android:key="pref_pseudo_licenses"
-            android:summary="@string/pref_pseudo_licenses_summary"
-            android:title="@string/pref_pseudo_licenses_title"/>
-
-        <Preference
             android:key="pref_pseudo_changelog"
             android:summary="@string/pref_pseudo_changelog_summary"
             android:title="@string/pref_pseudo_changelog"/>
@@ -343,6 +338,12 @@
                 android:data="https://mopsalarm.github.io/Pr0/"/>
 
         </Preference>
+
+        <Preference
+            android:key="pref_pseudo_licenses"
+            android:summary="@string/pref_pseudo_licenses_summary"
+            android:title="@string/pref_pseudo_licenses_title"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
