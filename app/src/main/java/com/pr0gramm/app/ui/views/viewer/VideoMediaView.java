@@ -49,12 +49,9 @@ public class VideoMediaView extends MediaView {
 
         // if this is the first time we start the media, tell the
         // user about the changes!
-        if (!settings.useSoftwareDecoder() && singleShotService.isFirstTime("hint_check_compatibility_settings")) {
+        if (!settings.useSoftwareDecoder() && singleShotService.isFirstTimeInVersion("hint_check_compatibility_settings")) {
             DialogBuilder.start(getContext())
-                    .content("Falls Videos nicht spielen, prüfe Kompatibilität unter" +
-                            " Einstellungen. Da diese Einstellungen 'Risiken und Nebenwirkungen'" +
-                            " haben, lies die Beschreibungen genau durch und aktiviere sie nur," +
-                            " wenn sie wirklich was bringen!")
+                    .content(R.string.hint_check_compatibility_if_videos_dont_play)
                     .positive(R.string.okay)
                     .show();
         }
