@@ -30,6 +30,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.InboxActivity;
@@ -54,7 +55,6 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
-import static java.util.Arrays.asList;
 import static rx.android.app.AppObservable.bindSupportFragment;
 import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
 
@@ -63,6 +63,9 @@ import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
 public class DrawerFragment extends RxRoboFragment {
     @Inject
     private UserService userService;
+
+    @Inject
+    private InboxService inboxService;
 
     @Inject
     private Settings settings;
@@ -239,7 +242,7 @@ public class DrawerFragment extends RxRoboFragment {
     public void onResume() {
         super.onResume();
 
-        bind(userService.getLoginStateObservable())
+        bind(userService.loginState())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
         bind(newNavigationItemsObservable()).subscribe(
@@ -256,16 +259,16 @@ public class DrawerFragment extends RxRoboFragment {
     @SuppressWarnings("unchecked")
     private Observable<List<NavigationItem>> newNavigationItemsObservable() {
         // observe and merge the menu items from different sources
-        return Observable.combineLatest(asList(
-                userService.getLoginStateObservable().map(st -> st.getInfo() != null
+        return Observable.combineLatest(ImmutableList.of(
+                userService.loginState().map(st -> st.getInfo() != null
                         ? getFixedNavigationItems(Optional.of(st.getInfo().getUser()))
                         : getFixedNavigationItems(Optional.<Info.User>absent())),
 
-                userService.getLoginStateObservable()
+                userService.loginState()
                         .flatMap(ignored -> bookmarkService.get())
                         .map(this::bookmarksToNavItem),
 
-                userService.getUnreadMessageCountObservable()
+                inboxService.unreadMessagesCount()
                         .map(this::getInboxNavigationItem)
                         .map(ImmutableList::of),
 

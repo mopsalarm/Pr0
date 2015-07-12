@@ -48,25 +48,25 @@ public class UserService {
     private final Api api;
     private final VoteService voteService;
     private final SeenService seenService;
+    private final InboxService inboxService;
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
 
     private final BehaviorSubject<LoginState> loginStateObservable
             = BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
 
-    private final BehaviorSubject<Integer> unreadMessages = BehaviorSubject.create(0);
-
     private final Settings settings;
 
     @Inject
     public UserService(Api api,
                        VoteService voteService,
-                       SeenService seenService, LoginCookieHandler cookieHandler,
+                       SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
                        SharedPreferences preferences, Settings settings) {
 
         this.api = api;
         this.seenService = seenService;
         this.voteService = voteService;
+        this.inboxService = inboxService;
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
         this.settings = settings;
@@ -141,12 +141,8 @@ public class UserService {
         }, Schedulers.io()).ignoreElements();
     }
 
-    public Observable<LoginState> getLoginStateObservable() {
+    public Observable<LoginState> loginState() {
         return loginStateObservable.asObservable();
-    }
-
-    public Observable<Integer> getUnreadMessageCountObservable() {
-        return unreadMessages.asObservable();
     }
 
     /**
@@ -172,6 +168,8 @@ public class UserService {
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
 
         Observable<Sync> sync = api.sync(lastSyncId).map(response -> {
+            inboxService.publishUnreadMessagesCount(response.getInboxCount());
+
             // store syncId for next time.
             if (response.getLastId() > lastSyncId) {
                 preferences.edit()

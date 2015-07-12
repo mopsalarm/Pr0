@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 /**
  * Service for receiving and sending private messages
@@ -27,6 +28,8 @@ import rx.Observable;
 @Singleton
 public class InboxService {
     private final Api api;
+
+    private final BehaviorSubject<Integer> unreadMessagesCount = BehaviorSubject.create(0);
 
     @Inject
     public InboxService(Api api) {
@@ -38,6 +41,7 @@ public class InboxService {
      * it will mark the messages as read immediately.
      */
     public Observable<List<Message>> getUnreadMessages() {
+        publishUnreadMessagesCount(0);
         return api.inboxUnread().map(MessageFeed::getMessages);
     }
 
@@ -62,6 +66,17 @@ public class InboxService {
         return api.userComments(user,
                 Instant.now().plus(Duration.standardDays(1)).getMillis() / 1000L,
                 ContentType.combine(contentTypes));
+    }
+
+    /**
+     * Returns an observable that produces the number of unread messages.
+     */
+    public Observable<Integer> unreadMessagesCount() {
+        return unreadMessagesCount.asObservable();
+    }
+
+    void publishUnreadMessagesCount(int unreadCount) {
+        unreadMessagesCount.onNext(unreadCount);
     }
 
     /**
