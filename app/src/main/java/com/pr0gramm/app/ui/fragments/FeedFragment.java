@@ -552,7 +552,7 @@ public class FeedFragment extends RxRoboFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if(getActivity() == null)
+        if (getActivity() == null)
             return;
 
         MenuItem item = menu.findItem(R.id.action_refresh);
@@ -929,6 +929,13 @@ public class FeedFragment extends RxRoboFragment {
     private void updateNoResultsTextView() {
         boolean empty = feedAdapter.getItemCount() == 0;
         noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
+
+        if (empty) {
+            ImageView imageView = (ImageView) noResultsView.findViewById(R.id.empty_image);
+            if (imageView != null && imageView.getDrawable() == null) {
+                picasso.load(R.drawable.minion).into(imageView);
+            }
+        }
     }
 
     @SuppressWarnings("CodeBlock2Expr")
