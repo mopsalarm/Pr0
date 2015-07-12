@@ -79,11 +79,6 @@ public class ProxyMediaView extends MediaView {
     }
 
     @Override
-    public boolean isTransformable() {
-        return child == null || child.isTransformable();
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         propagate(MediaView::onStart);

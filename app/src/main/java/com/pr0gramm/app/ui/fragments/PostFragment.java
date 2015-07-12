@@ -236,6 +236,7 @@ public class PostFragment extends RxRoboFragment implements
         // show the repost badge if this is a repost
         if (localCacheService.isRepost(feedItem)) {
             repostHint.setVisibility(View.VISIBLE);
+            repostHint.setRotation(45);
         }
     }
 
@@ -916,9 +917,7 @@ public class PostFragment extends RxRoboFragment implements
     }
 
     public void mediaHorizontalOffset(int offset) {
-        if (viewer != null && viewer.isTransformable()) {
-            viewer.setTranslationX(offset);
-        }
+        viewer.setTranslationX(offset);
     }
 
     private class ScrollHandler extends RecyclerView.OnScrollListener {
@@ -975,23 +974,10 @@ public class PostFragment extends RxRoboFragment implements
         ViewGroup.MarginLayoutParams layout = (ViewGroup.MarginLayoutParams) viewer.getLayoutParams();
 
         // finally position the viewer
-        if (viewer.isTransformable()) {
-            viewer.setTranslationY(-offset);
-
-            if (layout.topMargin != 0) {
-                layout.topMargin = 0;
-                viewer.requestLayout();
-            }
-        } else {
-            viewer.setTranslationY(0);
-
-            layout.topMargin = -(int) offset;
-            viewer.requestLayout();
-        }
+        viewer.setTranslationY(-offset);
 
         // position the repost badge, if it is visible
         if (repostHint.getVisibility() == View.VISIBLE) {
-            repostHint.setRotation(45);
             repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
         }
     }

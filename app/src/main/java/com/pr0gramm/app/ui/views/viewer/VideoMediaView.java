@@ -34,11 +34,6 @@ public class VideoMediaView extends MediaView {
     }
 
     @Override
-    public boolean isTransformable() {
-        return videoView.isTransformable();
-    }
-
-    @Override
     public void playMedia() {
         super.playMedia();
 

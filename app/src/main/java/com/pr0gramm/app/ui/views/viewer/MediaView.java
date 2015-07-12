@@ -139,10 +139,6 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    public boolean isTransformable() {
-        return true;
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

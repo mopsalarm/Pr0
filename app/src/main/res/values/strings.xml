@@ -159,8 +159,6 @@
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
     <string name="logcat">Logcat</string>
     <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
-    <string name="pref_dont_restore_surface_title">Video compatibility mode</string>
-    <string name="pref_dont_restore_surface_summary">Activate this if you have problems playing webm videos</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
     <string name="inbox_activity_title">Inbox</string>
@@ -303,11 +301,8 @@
     <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%%. Would you like to activate it now? You can always change it back in the settings later.</string>
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://mopsalarm.github.io to your friends</string>
-    <string name="pref_use_surface_view_title">SurfaceView</string>
-    <string name="hint_use_surface_view">If you have problems playing videos without activating the software decoder (like green lines or color corruption), try activating the new SurfaceView option. Tap on \"yes\" to let me activate that for you.</string>
     <string name="pref_compatibility_active_title">Activate compatibility</string>
     <string name="pref_compatibility_active_summary">You need to check this to change compatibility settings. Please read the descriptions of preferences before changing any value.</string>
-    <string name="pref_use_surface_view_summary">Use a SurfaceView instead of a TextureView to display videos. CAUTION: This might completly corrupt the rendering of the app while scrolling comments and also slow down scrollnig performance. Deactivate if it did not bring any positive effect.</string>
     <string name="pref_pseudo_green_video_title">Green lines on video</string>
     <string name="pref_pseudo_green_video_summary">If you have green lines and color corruption, thats most certainly a bug in your phones system. Try downloading the video and playing it with the system movie player, it looks the same. You could activate the software decoder, but you need to live with the cavats.</string>
     <string name="pref_feed_start_at_new_title">Default to new</string>

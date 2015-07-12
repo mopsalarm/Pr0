@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.AspectLayout;
 
 import org.slf4j.Logger;
@@ -97,12 +96,8 @@ public class CustomVideoView extends AspectLayout {
         mCurrentState = STATE_IDLE;
         mTargetState = STATE_IDLE;
 
-        Settings settings = Settings.of(getContext());
-        if(settings.useSurfaceView()) {
-            mBackendView = new SurfaceViewBackend(getContext(), backendViewCallbacks);
-        } else {
-            mBackendView = new TextureViewBackend(getContext(), backendViewCallbacks);
-        }
+        // always use surface view.
+        mBackendView = new TextureViewBackend(getContext(), backendViewCallbacks);
 
         View view = mBackendView.getView();
         view.setAlpha(0.01f);
@@ -432,6 +427,6 @@ public class CustomVideoView extends AspectLayout {
     }
 
     public boolean isTransformable() {
-        return !(mBackendView instanceof SurfaceViewBackend);
+        return true;
     }
 }

@@ -153,8 +153,6 @@
     <string name="could_not_play_video_io">Video konnte nicht abgespielt werden, da ein Netzwerkfehler aufgetreten ist.</string>
     <string name="logcat_summary">Speichere LOGCAT unter /sdcard/pr0gramm.log</string>
     <string name="logcat">Logcat</string>
-    <string name="pref_dont_restore_surface_title">Video Kompatibilitätsmodus</string>
-    <string name="pref_dont_restore_surface_summary">Aktiviere diese Option, wenn Videos bei dir nicht abgespielt werden</string>
     <string name="pref_keep_screen_on">Bildschirm anlassen</string>
     <string name="pref_keep_screen_on_summary">Der Bildschirm geht nicht aus, während du dir einen Post anguckst.</string>
     <string name="action_inbox">NACHRICHTEN</string>
@@ -271,11 +269,8 @@
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="hint_use_gif_to_webm_service">Du bist mobil unterwegs und hast nicht den gif-zu-webm Service aktiviert. Dieser konvertiert gifs zu webms und spart so gut 90%% der Dateigröße ein. Willst du den Service jetzt aktivieren? (Jederzeit in den Einstellungen wieder deaktivierbar)</string>
-    <string name="pref_use_surface_view_summary">SurfaceView statt TextureView. ACHTUNG: Diese Option kann dazu führen, dass die Darstellung der kompletten App in die Hose geht oder wenigstens die Performance sinkt, sobald du die Kommentare scrollst. Bitte wieder deaktivieren, wenn kein positiver Effekt festgestellt werden kann.</string>
-    <string name="pref_use_surface_view_title">SurfaceView</string>
     <string name="pref_website_summary">Empfehle https://mopsalarm.github.io deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
-    <string name="hint_use_surface_view">Wenn du ohne den Softwaredekoder zu aktivieren Probleme bei der Wiedergabe von Videos hast (grüne Linien oder Verfärbungen), probiere die neue Option "SurfaceView". Drück auf "Ja" um die neue EInstellung direkt zu aktivieren.</string>
     <string name="pref_compatibility_active_title">Einstellungen aktivieren</string>
     <string name="pref_compatibility_active_summary">Bitte lies die Beschreibungen zu den einzelnen Einstellungen genau, bevor du sie aktivierst! </string>
     <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren.</string>
