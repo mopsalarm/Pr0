@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Neuer Softwaredekoder, der direkt die WEBMs abspielt. Im Notfall kann auf den alten MPEG Dekoder zurückgegriffen werden."
+        "change": "Neuer Softwaredekoder, der direkt die WEBMs abspielt. Im Notfall kann auf den alten MPEG Dekoder zurückgegriffen werden"
       },
       {
         "type": "Neu",
@@ -21,6 +21,10 @@
       {
         "type": "Neu",
         "change": "Neue Animation beim Wechseln von Posts"
+      },
+      {
+        "type": "Fix",
+        "change": "Die Postansicht merkt sich nun, wo du hingescrollt hast"
       },
       {
         "type": "Fix",

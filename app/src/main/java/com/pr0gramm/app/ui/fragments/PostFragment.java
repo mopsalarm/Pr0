@@ -32,7 +32,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.OptionMenuHelper;
@@ -43,6 +42,7 @@ import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ShareProvider;
 import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -77,7 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +93,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Maps.toMap;
 import static com.pr0gramm.app.AndroidUtility.ifNotNull;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -100,6 +101,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static java.util.Collections.emptyMap;
 import static rx.android.app.AppObservable.bindSupportFragment;
 import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
@@ -176,6 +178,9 @@ public class PostFragment extends RxRoboFragment implements
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private PreviewInfo previewInfo;
 
+    private ArrayList<Tag> tags;
+    private ArrayList<Comment> comments;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,6 +188,11 @@ public class PostFragment extends RxRoboFragment implements
 
         // get the item that is to be displayed.
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
+
+        if (savedInstanceState != null) {
+            tags = savedInstanceState.getParcelableArrayList("PostFragment.tags");
+            comments = savedInstanceState.getParcelableArrayList("PostFragment.comments");
+        }
     }
 
     @Override
@@ -224,15 +234,19 @@ public class PostFragment extends RxRoboFragment implements
 
         commentsAdapter = new CommentsAdapter();
         commentsAdapter.setCommentActionListener(this);
+        commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         adapter.addAdapter(commentsAdapter);
 
         scrollHandler = new ScrollHandler(activity);
         content.addOnScrollListener(scrollHandler);
 
-        loadPostDetails();
+        // restore the postInfo, if possible.
+        if (tags != null && comments != null) {
+            displayTags(tags);
+            displayComments(comments);
+        }
 
-        // show an empty list of tags first - this displays the 'Add' button.
-        displayTags(Collections.<Tag>emptyList());
+        loadPostDetails();
 
         // show the repost badge if this is a repost
         if (localCacheService.isRepost(feedItem)) {
@@ -251,6 +265,13 @@ public class PostFragment extends RxRoboFragment implements
         }
 
         adapter = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("PostFragment.tags", tags);
+        outState.putParcelableArrayList("PostFragment.comments", comments);
     }
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
@@ -751,19 +772,24 @@ public class PostFragment extends RxRoboFragment implements
     private void onPostReceived(Post post) {
         swipeRefreshLayout.setRefreshing(false);
 
-        // update tags from post
+        // update from post
         displayTags(post.getTags());
         displayComments(post.getComments());
     }
 
     private void displayTags(List<Tag> tags_) {
         List<Tag> tags = localCacheService.enhanceTags(feedItem.getId(), tags_);
-        bindSupportFragment(this, voteService.getTagVotes(tags)).subscribe(votes_ -> {
-            Map<Tag, Vote> votes = Maps.toMap(tags,
-                    tag -> firstNonNull(votes_.get((long) tag.getId()), Vote.NEUTRAL));
+        this.tags = new ArrayList<>(tags);
 
-            infoLineView.setTags(votes);
-        }, Actions.empty());
+        // show tags now
+        infoLineView.setTags(toMap(tags, tag -> Vote.NEUTRAL));
+
+        // and update tags with votes later.
+        bindSupportFragment(this, voteService.getTagVotes(tags))
+                .filter(votes -> !votes.isEmpty())
+                .onErrorResumeNext(Observable.<Map<Long, Vote>>empty())
+                .subscribe(votes -> infoLineView.setTags(toMap(tags,
+                        tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
     }
 
     /**
@@ -771,15 +797,22 @@ public class PostFragment extends RxRoboFragment implements
      *
      * @param comments The list of comments to display.
      */
-    private void displayComments(List<Post.Comment> comments) {
-        bindSupportFragment(this, voteService.getCommentVotes(comments)).subscribe(votes -> {
-            commentsAdapter.set(comments, votes, feedItem.getUser());
+    private void displayComments(List<Comment> comments) {
+        this.comments = new ArrayList<>(comments);
 
-            if (autoScrollTo.isPresent()) {
-                scrollToComment(autoScrollTo.get());
-                autoScrollTo = Optional.absent();
-            }
-        }, defaultOnError());
+        // show now
+        commentsAdapter.set(comments, emptyMap(), feedItem.getUser());
+
+        if (autoScrollTo.isPresent()) {
+            scrollToComment(autoScrollTo.get());
+            autoScrollTo = Optional.absent();
+        }
+
+        // load the votes for the comments and update, when we found any
+        bindSupportFragment(this, voteService.getCommentVotes(comments))
+                .filter(votes -> !votes.isEmpty())
+                .onErrorResumeNext(Observable.empty())
+                .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.getUser()));
     }
 
     /**
@@ -852,7 +885,7 @@ public class PostFragment extends RxRoboFragment implements
 
     @SuppressWarnings("CodeBlock2Expr")
     @Override
-    public boolean onCommentVoteClicked(Post.Comment comment, Vote vote) {
+    public boolean onCommentVoteClicked(Comment comment, Vote vote) {
         return doIfAuthorizedHelper.run(() -> {
             bindSupportFragment(this, voteService.vote(comment, vote))
                     .subscribe(Actions.empty(), defaultOnError());
@@ -861,7 +894,7 @@ public class PostFragment extends RxRoboFragment implements
 
     @SuppressWarnings("CodeBlock2Expr")
     @Override
-    public void onAnswerClicked(Post.Comment comment) {
+    public void onAnswerClicked(Comment comment) {
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorizedHelper.run(() -> {
@@ -873,7 +906,7 @@ public class PostFragment extends RxRoboFragment implements
     }
 
     @Override
-    public void onCommentAuthorClicked(Post.Comment comment) {
+    public void onCommentAuthorClicked(Comment comment) {
         onUserClicked(comment.getName());
     }
 

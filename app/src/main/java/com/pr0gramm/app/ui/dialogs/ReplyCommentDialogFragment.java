@@ -14,8 +14,8 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.VoteService;
 
 import roboguice.fragment.RoboDialogFragment;
@@ -90,9 +90,9 @@ public class ReplyCommentDialogFragment extends RoboDialogFragment {
                 }, defaultOnError());
     }
 
-    public static ReplyCommentDialogFragment newInstance(long itemId, Optional<Post.Comment> parent) {
-        long parentId = parent.transform(Post.Comment::getId).or(0L);
-        String name = parent.transform(Post.Comment::getName).or("");
+    public static ReplyCommentDialogFragment newInstance(long itemId, Optional<Comment> parent) {
+        long parentId = parent.transform(Comment::getId).or(0L);
+        String name = parent.transform(Comment::getName).or("");
         parent.get().getName();
         return newInstance(itemId, parentId, name);
     }

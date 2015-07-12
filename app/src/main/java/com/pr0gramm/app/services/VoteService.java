@@ -9,8 +9,8 @@ import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
@@ -62,7 +62,7 @@ public class VoteService {
         return api.vote(null, item.getId(), vote.getVoteValue());
     }
 
-    public Observable<Nothing> vote(Post.Comment comment, Vote vote) {
+    public Observable<Nothing> vote(Comment comment, Vote vote) {
         logger.info("Voting comment {} {}", comment.getId(), vote);
 
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
@@ -194,8 +194,8 @@ public class VoteService {
      * @param comments A list of comments to get the votes for.
      * @return A map containing the vote from commentId to vote
      */
-    public Observable<Map<Long, Vote>> getCommentVotes(List<Post.Comment> comments) {
-        List<Long> ids = transform(comments, Post.Comment::getId);
+    public Observable<Map<Long, Vote>> getCommentVotes(List<Comment> comments) {
+        List<Long> ids = transform(comments, Comment::getId);
         return findCachedVotes(CachedVote.Type.COMMENT, ids);
     }
 

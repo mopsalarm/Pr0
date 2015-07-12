@@ -13,9 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.google.common.base.Predicates.alwaysTrue;
+import static com.google.common.collect.Iterators.limit;
+import static com.google.common.collect.Iterators.removeIf;
 
 /**
  * This implementation has a {@link #getItemId(int)} to identify items
@@ -32,7 +40,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
     private final FragmentManager mFragmentManager;
     private FragmentTransaction mCurTransaction = null;
 
-    private final LongSparseArray<Fragment.SavedState> mSavedState = new LongSparseArray<>();
+    private final LinkedHashMap<Long, Fragment.SavedState> mSavedState = new LinkedHashMap<>();
     private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
     private Fragment mCurrentPrimaryItem = null;
 
@@ -94,6 +102,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
 
     protected abstract long getItemId(int position);
 
+    @SuppressLint("CommitTransaction")
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment) object;
@@ -105,7 +114,14 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         if (DEBUG) Log.v(TAG, "Removing item #" + position + ": f=" + object
                 + " v=" + ((Fragment) object).getView());
 
+        mSavedState.remove(id);
         mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment));
+
+        // remove the oldest items
+        if (mSavedState.size() > 10) {
+            removeIf(limit(mSavedState.values().iterator(), mSavedState.size() - 10), alwaysTrue());
+        }
+
         mFragments.remove(id);
 
         mCurTransaction.remove(fragment);
@@ -149,9 +165,11 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
 
             long[] ids = new long[mSavedState.size()];
             Parcelable[] states = new Parcelable[mSavedState.size()];
-            for (int idx = 0; idx < mSavedState.size(); idx++) {
-                ids[idx] = mSavedState.keyAt(idx);
-                states[idx] = mSavedState.valueAt(idx);
+
+            ImmutableList<Map.Entry<Long, Fragment.SavedState>> entries = ImmutableList.copyOf(mSavedState.entrySet());
+            for (int idx = 0; idx < entries.size(); idx++) {
+                ids[idx] = entries.get(idx).getKey();
+                states[idx] = entries.get(idx).getValue();
             }
             state.putLongArray("ids", ids);
             state.putParcelableArray("states", states);

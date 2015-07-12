@@ -19,7 +19,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
 
 import java.util.ArrayList;
@@ -42,11 +42,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     public CommentsAdapter() {
         setHasStableIds(true);
-        set(emptyList(), emptyMap());
+        set(emptyList(), emptyMap(), null);
     }
 
-    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes, String op) {
-        ImmutableMap<Long, Post.Comment> byId = Maps.uniqueIndex(comments, Post.Comment::getId);
+    public void set(Collection<Comment> comments, Map<Long, Vote> votes, String op) {
+        ImmutableMap<Long, Comment> byId = Maps.uniqueIndex(comments, Comment::getId);
 
         this.op = Optional.fromNullable(op);
         this.comments = FluentIterable.from(sort(comments, op)).transform(comment -> {
@@ -58,18 +58,22 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         notifyDataSetChanged();
     }
 
-    public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
-        set(comments, votes, null);
-    }
-
     public void setPrioritizeOpComments(boolean enabled) {
-        prioritizeOpComments = enabled;
-        notifyDataSetChanged();
+        if(prioritizeOpComments != enabled) {
+            prioritizeOpComments = enabled;
+            notifyDataSetChanged();
+        }
     }
 
     public void setSelectedCommentId(long id) {
-        selectedCommentId = id;
-        notifyDataSetChanged();
+        if(selectedCommentId != id) {
+            selectedCommentId = id;
+            notifyDataSetChanged();
+        }
+    }
+
+    public List<Comment> getComments() {
+        return FluentIterable.from(comments).transform(c -> c.comment).toList();
     }
 
     @Override
@@ -97,7 +101,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(CommentView view, int position) {
         CommentEntry entry = comments.get(position);
-        Post.Comment comment = entry.comment;
+        Comment comment = entry.comment;
 
         view.setCommentDepth(entry.depth);
         view.senderInfo.setSenderName(comment.getName(), comment.getMark());
@@ -141,12 +145,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return score;
     }
 
-    private void doOnAuthorClicked(Post.Comment comment) {
+    private void doOnAuthorClicked(Comment comment) {
         if (commentActionListener != null)
             commentActionListener.onCommentAuthorClicked(comment);
     }
 
-    private void doAnswer(Post.Comment comment) {
+    private void doAnswer(Comment comment) {
         if (commentActionListener != null)
             commentActionListener.onAnswerClicked(comment);
     }
@@ -200,11 +204,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     public interface CommentActionListener {
 
-        boolean onCommentVoteClicked(Post.Comment comment, Vote vote);
+        boolean onCommentVoteClicked(Comment comment, Vote vote);
 
-        void onAnswerClicked(Post.Comment comment);
+        void onAnswerClicked(Comment comment);
 
-        void onCommentAuthorClicked(Post.Comment comment);
+        void onCommentAuthorClicked(Comment comment);
 
     }
 
@@ -213,34 +217,34 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      *
      * @param comments The comments to sort
      */
-    private List<Post.Comment> sort(Collection<Post.Comment> comments, String op) {
-        ImmutableListMultimap<Long, Post.Comment> byParent =
-                Multimaps.index(comments, Post.Comment::getParent);
+    private List<Comment> sort(Collection<Comment> comments, String op) {
+        ImmutableListMultimap<Long, Comment> byParent =
+                Multimaps.index(comments, Comment::getParent);
 
-        ArrayList<Post.Comment> result = new ArrayList<>();
+        ArrayList<Comment> result = new ArrayList<>();
         appendChildComments(result, byParent, 0, op);
         return result;
     }
 
-    private void appendChildComments(List<Post.Comment> target,
-                                            ListMultimap<Long, Post.Comment> byParent,
+    private void appendChildComments(List<Comment> target,
+                                            ListMultimap<Long, Comment> byParent,
                                             long id, String op) {
 
-        Ordering<Post.Comment> ordering = COMMENT_BY_CONFIDENCE;
+        Ordering<Comment> ordering = COMMENT_BY_CONFIDENCE;
         if (op != null && prioritizeOpComments) {
             ordering = Ordering.natural().reverse()
-                    .onResultOf((Post.Comment c) -> op.equalsIgnoreCase(c.getName()))
+                    .onResultOf((Comment c) -> op.equalsIgnoreCase(c.getName()))
                     .compound(ordering);
         }
 
-        List<Post.Comment> children = ordering.sortedCopy(byParent.get(id));
-        for (Post.Comment child : children) {
+        List<Comment> children = ordering.sortedCopy(byParent.get(id));
+        for (Comment child : children) {
             target.add(child);
             appendChildComments(target, byParent, (int) child.getId(), op);
         }
     }
 
-    private static int getCommentDepth(Map<Long, Post.Comment> byId, Post.Comment comment) {
+    private static int getCommentDepth(Map<Long, Comment> byId, Comment comment) {
         int depth = 0;
         while (comment != null) {
             depth++;
@@ -250,21 +254,23 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return Math.min(8, depth);
     }
 
-    private static final Ordering<Post.Comment> COMMENT_BY_CONFIDENCE =
-            Ordering.natural().reverse().onResultOf(Post.Comment::getConfidence);
+    private static final Ordering<Comment> COMMENT_BY_CONFIDENCE =
+            Ordering.natural().reverse().onResultOf(Comment::getConfidence);
 
     private static class CommentEntry {
-        final Post.Comment comment;
+        final Comment comment;
         final Vote baseVote;
         final int depth;
 
         Vote vote;
 
-        public CommentEntry(Post.Comment comment, Vote baseVote, int depth) {
+        public CommentEntry(Comment comment, Vote baseVote, int depth) {
             this.comment = comment;
             this.baseVote = baseVote;
             this.depth = depth;
             this.vote = baseVote;
         }
     }
+
+
 }

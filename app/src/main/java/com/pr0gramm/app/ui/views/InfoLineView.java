@@ -26,6 +26,7 @@ import com.pr0gramm.app.ui.TagCloudLayoutManager;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +109,8 @@ public class InfoLineView extends LinearLayout {
                 voteView.setVote(Vote.FAVORITE);
             }
         });
+
+        setTags(Collections.<Tag, Vote>emptyMap());
     }
 
     /**

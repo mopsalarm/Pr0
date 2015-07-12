@@ -6,13 +6,13 @@ import java.util.List;
  */
 public class NewComment {
     private long commentId;
-    private List<Post.Comment> comments;
+    private List<Comment> comments;
 
     public long getCommentId() {
         return commentId;
     }
 
-    public List<Post.Comment> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 }
