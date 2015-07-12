@@ -60,6 +60,14 @@ public class MediaViews {
     }
 
     private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
-        return uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm") && settings.useSoftwareDecoder();
+        if (!settings.useSoftwareDecoder())
+            return false;
+
+        boolean canUseWebmDecoder = uri.getBaseUri().getPath().endsWith(".webm") &&
+            WebmMediaPlayer.isAvailable() && !settings.forceMpegDecoder();
+
+        boolean canUseMpegDecoder = uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm");
+        return canUseWebmDecoder || canUseMpegDecoder;
+
     }
 }
