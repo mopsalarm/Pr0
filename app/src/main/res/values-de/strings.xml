@@ -290,4 +290,6 @@
     <string name="pref_prioritize_op_comments_title">Priorisiere OP</string>
     <string name="pref_prioritize_op_comments_summary">Kommentare von OP werden nach oben einsortiert.</string>
     <string name="hint_check_compatibility_if_videos_dont_play">Wenn Videos in dieser App-Version nicht richtig abgespielt werden, prüfe bitte die Seite "Kompatibilität" in den Einstellungen.</string>
+    <string name="action_recommend">Weiter empfehlen</string>
+    <string name="share_using">Teilen mit</string>
 </resources>

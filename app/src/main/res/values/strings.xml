@@ -320,4 +320,6 @@
     <string name="pref_prioritize_op_comments_title">Prioritize op comments</string>
     <string name="pref_prioritize_op_comments_summary">Put comments of the OP at the top</string>
     <string name="hint_check_compatibility_if_videos_dont_play">If videos are not playing in this version, please check the page \"Compatibility\" in the settings.</string>
+    <string name="action_recommend">Recommend</string>
+    <string name="share_using">Share using</string>
 </resources>
