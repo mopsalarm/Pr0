@@ -188,6 +188,11 @@ public class Settings {
         return preferences.getBoolean("pref_single_tap_for_fullscreen", false);
     }
 
+    public boolean prioritizeOpComments() {
+        return preferences.getBoolean("pref_prioritize_op_comments", true);
+    }
+
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

@@ -492,6 +492,9 @@ public class PostFragment extends RxRoboFragment implements
         super.onResume();
         if (viewer != null)
             viewer.onResume();
+
+        // set ordering
+        commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
     }
 
     @Override

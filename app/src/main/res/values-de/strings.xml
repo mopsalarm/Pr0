@@ -292,4 +292,6 @@
     <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden. Passiert das öfter, deaktiviere mal HTTPS.</string>
     <string name="pref_force_mpeg_decoder_title">Erzwinge Java-Decoder</string>
     <string name="pref_force_mpeg_decoder_summary">Erzwingt die Verwendung eines puren Java Dekoders. ACHTUNG: Reduziert die Qualität der abgespielten Videos. </string>
+    <string name="pref_prioritize_op_comments_title">Priorisiere OP</string>
+    <string name="pref_prioritize_op_comments_summary">Kommentare von OP werden nach oben einsortiert.</string>
 </resources>

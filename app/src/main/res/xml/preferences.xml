@@ -112,6 +112,13 @@
                     android:key="pref_downloadLocation"
                     android:summary="@string/pref_downloadLocation_summary"
                     android:title="@string/pref_downloadLocation_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_prioritize_op_comments"
+                    android:summary="@string/pref_prioritize_op_comments_summary"
+                    android:title="@string/pref_prioritize_op_comments_title"/>
+
             </PreferenceCategory>
 
             <PreferenceCategory

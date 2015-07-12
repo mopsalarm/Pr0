@@ -38,6 +38,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private Optional<String> op;
     private CommentActionListener commentActionListener;
     private long selectedCommentId;
+    private boolean prioritizeOpComments;
 
     public CommentsAdapter() {
         setHasStableIds(true);
@@ -59,6 +60,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     public void set(Collection<Post.Comment> comments, Map<Long, Vote> votes) {
         set(comments, votes, null);
+    }
+
+    public void setPrioritizeOpComments(boolean enabled) {
+        prioritizeOpComments = enabled;
+        notifyDataSetChanged();
     }
 
     public void setSelectedCommentId(long id) {
@@ -207,7 +213,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      *
      * @param comments The comments to sort
      */
-    private static List<Post.Comment> sort(Collection<Post.Comment> comments, String op) {
+    private List<Post.Comment> sort(Collection<Post.Comment> comments, String op) {
         ImmutableListMultimap<Long, Post.Comment> byParent =
                 Multimaps.index(comments, Post.Comment::getParent);
 
@@ -216,12 +222,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return result;
     }
 
-    private static void appendChildComments(List<Post.Comment> target,
+    private void appendChildComments(List<Post.Comment> target,
                                             ListMultimap<Long, Post.Comment> byParent,
                                             long id, String op) {
 
         Ordering<Post.Comment> ordering = COMMENT_BY_CONFIDENCE;
-        if (id == 0 && op != null) {
+        if (op != null && prioritizeOpComments) {
             ordering = Ordering.natural().reverse()
                     .onResultOf((Post.Comment c) -> op.equalsIgnoreCase(c.getName()))
                     .compound(ordering);
