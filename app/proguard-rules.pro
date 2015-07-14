@@ -13,6 +13,7 @@
 -dontwarn org.joda.**
 -dontwarn org.codehaus.**.**
 -dontwarn org.slf4j.**
+-dontwarn com.google.gson.**
 
 # keep annotations
 -keepattributes *Annotation*

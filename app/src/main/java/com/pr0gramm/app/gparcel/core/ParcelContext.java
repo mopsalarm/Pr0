@@ -1,7 +1,11 @@
 package com.pr0gramm.app.gparcel.core;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.Lazy;
+import com.pr0gramm.app.api.InstantTypeAdapter;
+
+import org.joda.time.Instant;
 
 /**
  */
@@ -16,7 +20,12 @@ class ParcelContext {
     private final Gson gson;
 
     private ParcelContext() {
-        gson = new Gson();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed())
+                .create();
     }
 
     public static Gson gson() {

@@ -13,7 +13,7 @@ import com.pr0gramm.app.LoggerAdapter;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
-import com.pr0gramm.app.api.InstantDeserializer;
+import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -57,7 +57,10 @@ public class RestAdapterProvider implements Provider<Api> {
 
     private Api newRestAdapter() {
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new InstantDeserializer())
+                .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment())
+                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed())
                 .create();
 
         String host = Uris.of(settings).base().toString();

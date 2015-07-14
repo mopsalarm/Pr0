@@ -1,5 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.joda.time.Instant;
 
 import java.util.List;
@@ -8,79 +10,38 @@ import java.util.List;
  * Feed class maps the json returned for a call to the
  * api endpoint <code>/api/items/get</code>.
  */
-public class Feed {
-    boolean atStart;
-    boolean atEnd;
+@Value.Immutable
+@Value.Style(get = {"is*", "get*"})
+@Gson.TypeAdapters
+public interface Feed {
+    boolean isAtStart();
 
-    private List<Item> items;
+    boolean isAtEnd();
 
-    public boolean isAtStart() {
-        return atStart;
-    }
+    List<Item> getItems();
 
-    public boolean isAtEnd() {
-        return atEnd;
-    }
+    @Value.Immutable
+    interface Item {
+        long getId();
 
-    public List<Item> getItems() {
-        return items;
-    }
+        long getPromoted();
 
-    @SuppressWarnings("unused")
-    public static class Item {
-        private long id;
-        private long promoted;
-        private String image;
-        private String thumb;
-        private String fullsize;
-        private String user;
-        private int up, down;
-        private int mark;
-        private int flags;
-        private Instant created;
+        String getImage();
 
-        public long getId() {
-            return id;
-        }
+        String getThumb();
 
-        public long getPromoted() {
-            return promoted;
-        }
+        String getFullsize();
 
-        public String getImage() {
-            return image;
-        }
+        String getUser();
 
-        public String getThumb() {
-            return thumb;
-        }
+        int getUp();
 
-        public String getFullsize() {
-            return fullsize;
-        }
+        int getDown();
 
-        public String getUser() {
-            return user;
-        }
+        int getMark();
 
-        public int getUp() {
-            return up;
-        }
+        int getFlags();
 
-        public int getDown() {
-            return down;
-        }
-
-        public int getMark() {
-            return mark;
-        }
-
-        public int getFlags() {
-            return flags;
-        }
-
-        public Instant getCreated() {
-            return created;
-        }
+        Instant getCreated();
     }
 }
