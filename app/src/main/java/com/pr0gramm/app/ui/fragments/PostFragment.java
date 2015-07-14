@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.OptionMenuHelper;
@@ -50,6 +51,9 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.gparcel.CommentListParcelAdapter;
+import com.pr0gramm.app.gparcel.TagListParcelAdapter;
+import com.pr0gramm.app.gparcel.core.ParcelAdapter;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.SeenService;
@@ -77,7 +81,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -178,20 +181,20 @@ public class PostFragment extends RxRoboFragment implements
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private PreviewInfo previewInfo;
 
-    private ArrayList<Tag> tags;
-    private ArrayList<Comment> comments;
+    private List<Tag> tags;
+    private List<Comment> comments;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
         setHasOptionsMenu(true);
 
         // get the item that is to be displayed.
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
 
-        if (savedInstanceState != null) {
-            tags = savedInstanceState.getParcelableArrayList("PostFragment.tags");
-            comments = savedInstanceState.getParcelableArrayList("PostFragment.comments");
+        if (savedState != null) {
+            tags = ParcelAdapter.get(TagListParcelAdapter.class, savedState, "PostFragment.tags");
+            comments = ParcelAdapter.get(CommentListParcelAdapter.class, savedState, "PostFragment.comments");
         }
     }
 
@@ -270,8 +273,8 @@ public class PostFragment extends RxRoboFragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("PostFragment.tags", tags);
-        outState.putParcelableArrayList("PostFragment.comments", comments);
+        outState.putParcelable("PostFragment.tags", new TagListParcelAdapter(tags));
+        outState.putParcelable("PostFragment.comments", new CommentListParcelAdapter(comments));
     }
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
@@ -779,7 +782,7 @@ public class PostFragment extends RxRoboFragment implements
 
     private void displayTags(List<Tag> tags_) {
         List<Tag> tags = localCacheService.enhanceTags(feedItem.getId(), tags_);
-        this.tags = new ArrayList<>(tags);
+        this.tags = ImmutableList.copyOf(tags);
 
         // show tags now
         infoLineView.setTags(toMap(tags, tag -> Vote.NEUTRAL));
@@ -798,7 +801,7 @@ public class PostFragment extends RxRoboFragment implements
      * @param comments The list of comments to display.
      */
     private void displayComments(List<Comment> comments) {
-        this.comments = new ArrayList<>(comments);
+        this.comments = ImmutableList.copyOf(comments);
 
         // show now
         commentsAdapter.set(comments, emptyMap(), feedItem.getUser());
