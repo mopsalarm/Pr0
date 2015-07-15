@@ -132,6 +132,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
