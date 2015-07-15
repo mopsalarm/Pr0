@@ -15,6 +15,9 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
 import com.squareup.okhttp.OkHttpClient;
 
 import org.joda.time.Instant;
@@ -58,9 +61,9 @@ public class RestAdapterProvider implements Provider<Api> {
     private Api newRestAdapter() {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed())
+                .registerTypeAdapterFactory(new GsonAdaptersTag())
+                .registerTypeAdapterFactory(new GsonAdaptersComment())
+                .registerTypeAdapterFactory(new GsonAdaptersFeed())
                 .create();
 
         String host = Uris.of(settings).base().toString();

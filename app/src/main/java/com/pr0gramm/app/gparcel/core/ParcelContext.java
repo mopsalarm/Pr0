@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.Lazy;
 import com.pr0gramm.app.api.InstantTypeAdapter;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
 
 import org.joda.time.Instant;
 
@@ -22,9 +25,9 @@ class ParcelContext {
     private ParcelContext() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment())
-                .registerTypeAdapterFactory(new com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed())
+                .registerTypeAdapterFactory(new GsonAdaptersTag())
+                .registerTypeAdapterFactory(new GsonAdaptersComment())
+                .registerTypeAdapterFactory(new GsonAdaptersFeed())
                 .create();
     }
 
