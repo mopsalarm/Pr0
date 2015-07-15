@@ -7,11 +7,14 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  */
 class ParcelWriter extends JsonWriter {
     private final Parcel parcel;
+    private Map<String, Byte> nameCache = new HashMap<>();
 
     public ParcelWriter(Parcel dest) {
         super(new StringWriter());
@@ -50,7 +53,19 @@ class ParcelWriter extends JsonWriter {
     @Override
     public JsonWriter name(String name) throws IOException {
         token(JsonToken.NAME);
-        parcel.writeString(name);
+
+        Byte ref = nameCache.get(name);
+        if (ref == null) {
+            parcel.writeByte(ParcelContext.NAME_FOLLOWING);
+            parcel.writeString(name);
+
+            // cache for next time
+            nameCache.put(name, (byte) nameCache.size());
+        } else {
+            parcel.writeByte(ParcelContext.NAME_REFERENCE);
+            parcel.writeByte(ref);
+        }
+
         return this;
     }
 

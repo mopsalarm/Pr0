@@ -8,12 +8,16 @@ import com.google.gson.stream.JsonToken;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  */
 class ParcelReader extends JsonReader {
     private final Parcel parcel;
     private JsonToken next;
+
+    private List<String> nameCache = new ArrayList<>();
 
     /**
      * Creates a new instance that reads a JSON-encoded stream from {@code in}.
@@ -67,7 +71,18 @@ class ParcelReader extends JsonReader {
     @Override
     public String nextName() throws IOException {
         consume(JsonToken.NAME);
-        return parcel.readString();
+        switch (parcel.readByte()) {
+            case ParcelContext.NAME_FOLLOWING:
+                String name = parcel.readString();
+                nameCache.add(name);
+                return name;
+
+            case ParcelContext.NAME_REFERENCE:
+                return nameCache.get(parcel.readByte() & 0xff);
+
+            default:
+                throw new IOException("Invalid name command");
+        }
     }
 
     @Override
