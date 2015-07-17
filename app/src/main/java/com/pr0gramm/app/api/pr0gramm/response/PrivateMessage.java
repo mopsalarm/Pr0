@@ -1,58 +1,32 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.joda.time.Instant;
 
 /**
  */
-public class PrivateMessage {
-    private int id;
-    private Instant created;
-    private int recipientId;
-    private int recipientMark;
-    private String recipientName;
-    private int senderId;
-    private int senderMark;
-    private String senderName;
-    private boolean sent;
-    private String message;
+@Value.Immutable
+@Value.Style(get = {"is*", "get*"})
+@Gson.TypeAdapters
+public interface PrivateMessage {
+    int getId();
 
-    public int getId() {
-        return id;
-    }
+    Instant getCreated();
 
-    public Instant getCreated() {
-        return created;
-    }
+    int getRecipientId();
 
-    public int getRecipientId() {
-        return recipientId;
-    }
+    int getRecipientMark();
 
-    public int getRecipientMark() {
-        return recipientMark;
-    }
+    String getRecipientName();
 
-    public String getRecipientName() {
-        return recipientName;
-    }
+    int getSenderId();
 
-    public int getSenderId() {
-        return senderId;
-    }
+    int getSenderMark();
 
-    public int getSenderMark() {
-        return senderMark;
-    }
+    String getSenderName();
 
-    public String getSenderName() {
-        return senderName;
-    }
+    boolean isSent();
 
-    public boolean isSent() {
-        return sent;
-    }
-
-    public String getMessage() {
-        return message;
-    }
+    String getMessage();
 }

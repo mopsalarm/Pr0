@@ -1,20 +1,33 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import android.support.annotation.Nullable;
+
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
+
 /**
  */
-public class Posted {
-    private String error;
-    private Item item;
-
+@Value.Immutable
+@Value.Enclosing
+@Gson.TypeAdapters
+public abstract class Posted {
+    @Value.Derived
+    @Gson.Ignore
     public long getItemId() {
-        return item.id;
+        //noinspection ConstantConditions
+        return getItem() != null
+                ? getItem().getId()
+                : null;
     }
 
-    public String getError() {
-        return error;
-    }
+    @Nullable
+    public abstract String getError();
 
-    private static class Item {
-        long id;
+    @Nullable
+    public abstract Item getItem();
+
+    @Value.Immutable
+    public interface Item {
+        long getId();
     }
 }

@@ -1,43 +1,30 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import android.support.annotation.Nullable;
+
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.joda.time.Instant;
 
 /**
  */
-public class Login {
-    private boolean success;
-    private BanInfo ban;
+@Value.Immutable
+@Value.Style(get = {"is*", "get*"})
+@Gson.TypeAdapters
+public interface Login {
+    boolean isSuccess();
 
-    Login() {
-    }
+    @Gson.Named("ban")
+    @Nullable
+    BanInfo getBanInfo();
 
-    public Login(boolean success) {
-        this.success = success;
-    }
+    @Value.Immutable
+    @Value.Style(get = {"is*", "get*"})
+    interface BanInfo {
+        boolean isBanned();
 
-    public boolean isSuccess() {
-        return success;
-    }
+        Instant getTill();
 
-    public BanInfo getBan() {
-        return ban;
-    }
-
-    public static class BanInfo {
-        private boolean banned;
-        private Instant till;
-        private String reason;
-
-        public boolean isBanned() {
-            return banned;
-        }
-
-        public Instant getTill() {
-            return till;
-        }
-
-        public String getReason() {
-            return reason;
-        }
+        String getReason();
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
  * api endpoint <code>/api/items/get</code>.
  */
 @Value.Immutable
+@Value.Enclosing
 @Value.Style(get = {"is*", "get*"})
 @Gson.TypeAdapters
 public interface Feed {

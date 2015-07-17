@@ -1,26 +1,18 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
-import com.google.common.primitives.Ints;
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
 import java.util.List;
 
 /**
  */
-@SuppressWarnings("UnusedDeclaration")
-public class Sync {
-    private long lastId;
-    private int inboxCount;
-    private int[] log;
+@Value.Immutable
+@Gson.TypeAdapters
+public interface Sync {
+    List<Integer> getLog();
 
-    public List<Integer> getLog() {
-        return Ints.asList(log);
-    }
+    long getLastId();
 
-    public long getLastId() {
-        return lastId;
-    }
-
-    public int getInboxCount() {
-        return inboxCount;
-    }
+    int getInboxCount();
 }

@@ -5,7 +5,6 @@ import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.pr0gramm.app.AndroidUtility;
@@ -13,14 +12,10 @@ import com.pr0gramm.app.LoggerAdapter;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
-import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
+import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 
-import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +54,7 @@ public class RestAdapterProvider implements Provider<Api> {
     }
 
     private Api newRestAdapter() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
-                .registerTypeAdapterFactory(new GsonAdaptersTag())
-                .registerTypeAdapterFactory(new GsonAdaptersComment())
-                .registerTypeAdapterFactory(new GsonAdaptersFeed())
-                .create();
+        Gson gson = ApiGsonBuilder.builder().create();
 
         String host = Uris.of(settings).base().toString();
 

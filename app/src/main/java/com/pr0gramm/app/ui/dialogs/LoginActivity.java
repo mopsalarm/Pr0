@@ -15,6 +15,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.SyncBroadcastReceiver;
+import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.services.UserService;
 
@@ -32,8 +33,6 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Func1;
-import rx.internal.operators.OperatorMap;
 
 import static com.pr0gramm.app.AndroidUtility.toObservable;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -132,7 +131,7 @@ public class LoginActivity extends RoboActionBarActivity {
                         RetrofitError err = (RetrofitError) err_;
                         if (err.getResponse() != null && err.getResponse().getStatus() == 403) {
                             try {
-                                subscriber.onNext(new Login(false));
+                                subscriber.onNext(ImmutableLogin.builder().success(false).build());
                                 subscriber.onCompleted();
 
                             } catch (Throwable forward) {
@@ -162,7 +161,7 @@ public class LoginActivity extends RoboActionBarActivity {
             finish();
 
         } else {
-            Login.BanInfo ban = response.getBan();
+            Login.BanInfo ban = response.getBanInfo();
             if (ban != null && ban.isBanned()) {
                 CharSequence date = DateUtils.getRelativeDateTimeString(this,
                         ban.getTill().toDateTime(DateTimeZone.getDefault()),

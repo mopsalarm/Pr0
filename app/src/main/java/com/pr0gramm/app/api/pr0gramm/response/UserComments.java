@@ -1,76 +1,44 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.joda.time.Instant;
 
 import java.util.List;
 
 /**
  */
-public class UserComments {
-    private User user;
-    private List<Comment> comments;
+@Value.Immutable
+@Value.Enclosing
+@Gson.TypeAdapters
+public interface UserComments {
+    User getUser();
 
-    public User getUser() {
-        return user;
+    List<Comment> getComments();
+
+    @Value.Immutable
+    interface Comment {
+        long getId();
+
+        long getItemId();
+
+        Instant getCreated();
+
+        String getThumb();
+
+        int getUp();
+
+        int getDown();
+
+        String getContent();
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
+    @Value.Immutable
+    interface User {
+        int getId();
 
-    public static class Comment {
-        private long id;
-        private long itemId;
-        private Instant created;
-        private String thumb;
-        private int up;
-        private int down;
-        private String content;
+        int getMark();
 
-        public long getId() {
-            return id;
-        }
-
-        public long getItemId() {
-            return itemId;
-        }
-
-        public Instant getCreated() {
-            return created;
-        }
-
-        public String getThumb() {
-            return thumb;
-        }
-
-        public int getUp() {
-            return up;
-        }
-
-        public int getDown() {
-            return down;
-        }
-
-        public String getContent() {
-            return content;
-        }
-    }
-
-    public static class User {
-        private int id;
-        private int mark;
-        private String name;
-
-        public int getId() {
-            return id;
-        }
-
-        public int getMark() {
-            return mark;
-        }
-
-        public String getName() {
-            return name;
-        }
+        String getName();
     }
 }

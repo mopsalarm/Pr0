@@ -1,20 +1,16 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
-import com.google.common.primitives.Longs;
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
 import java.util.List;
 
 /**
  */
-public class NewTag {
-    private long[] tagIds;
-    private List<Tag> tags;
+@Value.Immutable
+@Gson.TypeAdapters
+public interface NewTag {
+    List<Long> getTagIds();
 
-    public List<Long> getTagIds() {
-        return Longs.asList(tagIds);
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
+    List<Tag> getTags();
 }

@@ -1,14 +1,8 @@
 package com.pr0gramm.app.gparcel.core;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.Lazy;
-import com.pr0gramm.app.api.InstantTypeAdapter;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
-import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
-
-import org.joda.time.Instant;
+import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 
 /**
  */
@@ -23,12 +17,7 @@ class ParcelContext {
     private final Gson gson;
 
     private ParcelContext() {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
-                .registerTypeAdapterFactory(new GsonAdaptersTag())
-                .registerTypeAdapterFactory(new GsonAdaptersComment())
-                .registerTypeAdapterFactory(new GsonAdaptersFeed())
-                .create();
+        gson = ApiGsonBuilder.builder().create();
     }
 
     public static Gson gson() {

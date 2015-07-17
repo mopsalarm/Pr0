@@ -1,20 +1,16 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
-import java.util.List;
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
-import static java.util.Collections.emptyList;
+import java.util.List;
 
 /**
  */
-public class Post {
-    private List<Tag> tags = emptyList();
-    private List<Comment> comments = emptyList();
+@Value.Immutable
+@Gson.TypeAdapters
+public interface Post {
+    List<Tag> getTags();
 
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
+    List<Comment> getComments();
 }
