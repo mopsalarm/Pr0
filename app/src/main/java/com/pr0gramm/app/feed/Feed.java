@@ -151,6 +151,7 @@ public class Feed {
 
                 } else if (cmp == 0) {
                     // replace target with new source
+                    target.next();
                     target.set(source.next());
 
                 } else {
