@@ -80,7 +80,7 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectView(R.id.user_type)
     private TextView userTypeView;
 
-    @InjectView(R.id.benis)
+    @InjectView(R.id.kpi_benis)
     private TextView benisView;
 
     @InjectView(R.id.benis_delta)

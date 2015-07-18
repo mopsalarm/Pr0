@@ -931,6 +931,8 @@ public class FeedFragment extends RxRoboFragment {
             } else {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
                         getString(R.string.could_not_load_feed));
+
+                showMinionImage();
             }
         }
     }
@@ -949,10 +951,17 @@ public class FeedFragment extends RxRoboFragment {
         noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
 
         if (empty) {
-            ImageView imageView = (ImageView) noResultsView.findViewById(R.id.empty_image);
-            if (imageView != null && imageView.getDrawable() == null) {
-                picasso.load(R.drawable.minion).into(imageView);
-            }
+            showMinionImage();
+        }
+    }
+
+    /**
+     * Displays the minion!
+     */
+    private void showMinionImage() {
+        ImageView imageView = (ImageView) noResultsView.findViewById(R.id.empty_image);
+        if (imageView != null && imageView.getDrawable() == null) {
+            picasso.load(R.drawable.minion).into(imageView);
         }
     }
 

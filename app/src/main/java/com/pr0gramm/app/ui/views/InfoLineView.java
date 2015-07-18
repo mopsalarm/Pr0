@@ -78,7 +78,7 @@ public class InfoLineView extends LinearLayout {
         usernameView = (UsernameView) findViewById(R.id.username);
         dateView = (TextView) findViewById(R.id.date);
         voteView = (VoteView) findViewById(R.id.voting);
-        voteFavoriteView = (TextView) findViewById(R.id.favorite);
+        voteFavoriteView = (TextView) findViewById(R.id.action_favorite);
 
         tagsView = (RecyclerView) findViewById(R.id.tags);
 

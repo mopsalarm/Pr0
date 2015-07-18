@@ -66,7 +66,7 @@ public class MetaService {
 
     public Observable<Graph> getBenisHistory(String username) {
         return getUserInfo(username)
-                .filter(info -> info.getBenisHistory().size() > 3)
+                .filter(info -> info.getBenisHistory().size() > 10)
                 .map(info -> {
                     List<UserInfo.BenisHistoryEntry> history = Ordering.natural()
                             .onResultOf(UserInfo.BenisHistoryEntry::getTimestamp)

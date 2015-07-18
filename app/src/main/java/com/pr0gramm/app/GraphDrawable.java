@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
 import android.graphics.PixelFormat;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -19,6 +18,9 @@ import static java.util.Collections.singleton;
  */
 public class GraphDrawable extends Drawable {
     private final Graph graph;
+
+    private int lineColor = Color.WHITE;
+    private int fillColor = Color.TRANSPARENT;
 
     public GraphDrawable(Graph graph) {
         this.graph = graph;
@@ -46,6 +48,31 @@ public class GraphDrawable extends Drawable {
         if (graph.isEmpty())
             return;
 
+        Path path = newGraphPath(bounds);
+
+        canvas.save();
+        canvas.translate(bounds.left, bounds.top);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+
+        if (fillColor != Color.TRANSPARENT) {
+            paint.setColor(fillColor);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(path, paint);
+        }
+
+        if (lineColor != Color.TRANSPARENT) {
+            paint.setColor(lineColor);
+            paint.setStrokeWidth(2);
+            paint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(path, paint);
+        }
+
+        canvas.restore();
+    }
+
+    private Path newGraphPath(Rect bounds) {
         float padding = 0.1f * (graph.maxValue() - graph.minValue());
         float minY = graph.minValue() - padding;
         float maxY = graph.maxValue() + padding;
@@ -80,16 +107,27 @@ public class GraphDrawable extends Drawable {
             }
         }
 
-        // draw in a bright color. This should be customizable
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(2);
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
+        // now close the path
+        path.rLineTo(10, 0);
+        path.rLineTo(0, bounds.height());
+        path.rLineTo(-bounds.width() - 20, 0);
+        path.close();
+        return path;
+    }
 
-        canvas.save();
-        canvas.translate(bounds.left, bounds.top);
-        canvas.drawPath(path, paint);
-        canvas.restore();
+    public void setLineColor(int lineColor) {
+        this.lineColor = lineColor;
+    }
+
+    public void setFillColor(int fillColor) {
+        this.fillColor = fillColor;
+    }
+
+    public void noLineColor() {
+        setLineColor(Color.TRANSPARENT);
+    }
+
+    public void noFillColor() {
+        setFillColor(Color.TRANSPARENT);
     }
 }

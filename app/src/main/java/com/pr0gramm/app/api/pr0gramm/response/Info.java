@@ -22,6 +22,8 @@ public interface Info {
 
     int getTagCount();
 
+    boolean likesArePublic();
+
     List<UserComments.Comment> getComments();
 
     @Value.Immutable

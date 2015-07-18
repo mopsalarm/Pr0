@@ -1,6 +1,20 @@
 [
   {
+    "version": 68,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Begonnen die Anzeige der Userdetails zu überarbeiten, außerdem wird ein Benisgraph der letzten sieben Tage angezeigt"
+      },
+      {
+        "type": "Fix",
+        "change": "Bei einigen ist die Login-Seite direkt abgeschmiert. Sollte nun funktionieren (@lolita)"
+      }
+    ]
+  },
+  {
     "version": 67,
+    "release": true,
     "changes": [
       {
         "type": "Neu",

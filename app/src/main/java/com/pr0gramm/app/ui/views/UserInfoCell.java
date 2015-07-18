@@ -5,16 +5,15 @@ import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
-
-import net.danlew.android.joda.DateUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,26 +22,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @SuppressLint("ViewConstructor")
 public class UserInfoCell extends FrameLayout {
     private final UsernameView username;
-    private final TextView benis, favorites, comments, tags, uploads, date;
+    private final TextView benis, favorites, comments, tags, uploads;
     private final View messages;
     private final View showComments;
-    private final ImageView benisGraph;
+    private final View container;
     private UserActionListener userActionListener;
 
     public UserInfoCell(Context context, Info userInfo) {
         super(context);
-        inflate(context, R.layout.user_info_cell, this);
+        inflate(context, R.layout.user_info_cell_v2, this);
 
         username = findView(R.id.username);
-        benis = findView(R.id.benis);
-        favorites = findView(R.id.favorites);
-        uploads = findView(R.id.uploads);
-        tags = findView(R.id.tags);
-        comments = findView(R.id.comments);
-        date = findView(R.id.date);
-        messages = findView(R.id.action_messages);
-        showComments = findView(R.id.action_comments);
-        benisGraph = findView(R.id.benis_graph);
+        benis = findView(R.id.kpi_benis);
+        favorites = findView(R.id.kpi_favorites);
+        uploads = findView(R.id.kpi_uploads);
+        comments = findView(R.id.kpi_comments);
+        tags = findView(R.id.kpi_tags);
+        messages = findView(R.id.action_new_message);
+        showComments = (View) findView(R.id.kpi_comments).getParent();
+
+        container = findView(R.id.user_cell_container);
 
         set(userInfo);
     }
@@ -52,14 +51,11 @@ public class UserInfoCell extends FrameLayout {
         Info.User user = info.getUser();
         username.setUsername(user.getName(), user.getMark());
         benis.setText(String.valueOf(user.getScore()));
-        date.setText(DateUtils.formatDateTime(getContext(),
-                user.getRegistered(), DateUtils.FORMAT_SHOW_DATE));
 
         // counts
         tags.setText(String.valueOf(info.getTagCount()));
         comments.setText(String.valueOf(info.getCommentCount()));
         uploads.setText(String.valueOf(info.getUploadCount()));
-        favorites.setText(String.valueOf(info.getLikeCount()));
 
         // open message dialog for user
         messages.setOnClickListener(view -> {
@@ -68,22 +64,36 @@ public class UserInfoCell extends FrameLayout {
             }
         });
 
-        favorites.setOnClickListener(view -> {
-            if (userActionListener != null) {
-                userActionListener.onUserFavoritesClicked(user.getName());
-            }
-        });
-
-        showComments.setOnClickListener(view -> {
+        ((View) comments.getParent()).setOnClickListener(view -> {
             if (userActionListener != null) {
                 userActionListener.onShowCommentsClicked();
             }
         });
+
+        if(info.likesArePublic()) {
+            favorites.setText(String.valueOf(info.getLikeCount()));
+
+            ((View) favorites.getParent()).setOnClickListener(view -> {
+                if (userActionListener != null) {
+                    userActionListener.onUserFavoritesClicked(user.getName());
+                }
+            });
+        } else {
+            // remove the view
+            ViewParent parent = favorites.getParent();
+            ((View) parent).setVisibility(GONE);
+        }
     }
 
     public void setBenisGraph(Graph graph) {
-        benisGraph.setVisibility(VISIBLE);
-        benisGraph.setImageDrawable(new GraphDrawable(graph));
+        int fillColor = getResources().getColor(R.color.public_benis_graph_background);
+        int lineColor = getResources().getColor(R.color.public_benis_graph_stroke);
+
+        GraphDrawable drawable = new GraphDrawable(graph);
+        drawable.setFillColor(fillColor);
+        drawable.setLineColor(lineColor);
+
+        AndroidUtility.setViewBackground(container, drawable);
     }
 
     public void setUserActionListener(UserActionListener userActionListener) {

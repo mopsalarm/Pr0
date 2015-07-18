@@ -284,8 +284,8 @@
     <color name="accent">@color/blue_grey_500</color>
 
     <color name="feed_background">#161618</color>
-    <color name="brighter_background">#ff515158</color>
-    <color name="selected_comment_background">#ff222226</color>
+    <color name="brighter_background">#515158</color>
+    <color name="selected_comment_background">#222226</color>
 
     <color name="tag_background">#2A2E31</color>
     <color name="comment_line">#2A2E31</color>
@@ -310,4 +310,7 @@
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>
+
+    <color name="public_benis_graph_background">@color/grey_800</color>
+    <color name="public_benis_graph_stroke">@color/grey_700</color>
 </resources>
