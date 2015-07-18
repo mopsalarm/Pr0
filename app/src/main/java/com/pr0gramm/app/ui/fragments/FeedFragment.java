@@ -87,7 +87,6 @@ import javax.inject.Inject;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.android.lifecycle.LifecycleEvent;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
@@ -248,7 +247,6 @@ public class FeedFragment extends RxRoboFragment {
 
         bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, queryUserInfo()))
                 .first()
-                .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::presentUserInfo, Actions.empty());
     }
 
