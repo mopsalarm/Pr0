@@ -139,9 +139,9 @@ dependencies {
 
     compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.android.support:design:22.2.1'
     compile 'com.google.guava:guava:18.0'
 
     compile 'net.danlew:android.joda:2.8.1'
