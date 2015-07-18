@@ -6,10 +6,13 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.pr0gramm.app.Graph;
+import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 
 import net.danlew.android.joda.DateUtils;
 
@@ -23,6 +26,7 @@ public class UserInfoCell extends FrameLayout {
     private final TextView benis, favorites, comments, tags, uploads, date;
     private final View messages;
     private final View showComments;
+    private final ImageView benisGraph;
     private UserActionListener userActionListener;
 
     public UserInfoCell(Context context, Info userInfo) {
@@ -38,6 +42,7 @@ public class UserInfoCell extends FrameLayout {
         date = findView(R.id.date);
         messages = findView(R.id.action_messages);
         showComments = findView(R.id.action_comments);
+        benisGraph = findView(R.id.benis_graph);
 
         set(userInfo);
     }
@@ -70,10 +75,15 @@ public class UserInfoCell extends FrameLayout {
         });
 
         showComments.setOnClickListener(view -> {
-            if(userActionListener != null) {
+            if (userActionListener != null) {
                 userActionListener.onShowCommentsClicked();
             }
         });
+    }
+
+    public void setBenisGraph(Graph graph) {
+        benisGraph.setVisibility(VISIBLE);
+        benisGraph.setImageDrawable(new GraphDrawable(graph));
     }
 
     public void setUserActionListener(UserActionListener userActionListener) {

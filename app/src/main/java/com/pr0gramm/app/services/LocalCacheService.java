@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.meta.SizeInfo;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,7 +28,7 @@ public class LocalCacheService {
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
-    private final Cache<Long, MetaService.SizeInfo> thumbCache = CacheBuilder.newBuilder()
+    private final Cache<Long, SizeInfo> thumbCache = CacheBuilder.newBuilder()
             .maximumSize(10_000)
             .build();
 
@@ -60,11 +61,11 @@ public class LocalCacheService {
         return result;
     }
 
-    public void putSizeInfo(MetaService.SizeInfo info) {
+    public void putSizeInfo(SizeInfo info) {
         thumbCache.put(info.getId(), info);
     }
 
-    public Optional<MetaService.SizeInfo> getSizeInfo(long itemId) {
+    public Optional<SizeInfo> getSizeInfo(long itemId) {
         return Optional.fromNullable(thumbCache.getIfPresent(itemId));
     }
 

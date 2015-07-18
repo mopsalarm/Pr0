@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

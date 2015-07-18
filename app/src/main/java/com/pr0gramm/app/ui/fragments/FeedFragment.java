@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
@@ -40,7 +41,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Uris;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Feed;
@@ -51,9 +52,11 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.LocalCacheService;
-import com.pr0gramm.app.services.MetaService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.meta.ItemsInfo;
+import com.pr0gramm.app.services.meta.MetaService;
+import com.pr0gramm.app.services.meta.SizeInfo;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.MainActionHandler;
@@ -68,6 +71,7 @@ import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.squareup.picasso.Picasso;
 
+import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +153,7 @@ public class FeedFragment extends RxRoboFragment {
     private ItemWithComment autoOpenOnLoad = null;
 
     private FeedAdapter feedAdapter;
-    private LoaderHelper<Info> userInfo;
+    private LoaderHelper<EnhancedUserInfo> userInfo;
     private FeedLoader loader;
 
     /**
@@ -245,15 +249,15 @@ public class FeedFragment extends RxRoboFragment {
         userInfo.register(this::presentUserInfo, Actions.empty());
     }
 
-    private void presentUserInfo(Info info) {
+    private void presentUserInfo(EnhancedUserInfo value) {
         if (getCurrentFilter().getUsername().isPresent()) {
-            presentUserInfoCell(info);
+            presentUserInfoCell(value);
         } else {
-            presentUserUploadsHint(info);
+            presentUserUploadsHint(value.getInfo());
         }
     }
 
-    public void presentUserInfoCell(Info info) {
+    public void presentUserInfoCell(EnhancedUserInfo info) {
         MessageAdapter messages = new MessageAdapter(getActivity(), emptyList(), null, R.layout.user_info_comment) {
             @Override
             public void onBindViewHolder(MessageAdapter.MessageViewHolder view, int position) {
@@ -269,15 +273,18 @@ public class FeedFragment extends RxRoboFragment {
             }
         };
 
-        List<Message> comments = FluentIterable.from(info.getComments())
-                .transform(c -> Message.of(info.getUser(), c))
+        List<Message> comments = FluentIterable.from(info.getInfo().getComments())
+                .transform(c -> Message.of(info.getInfo().getUser(), c))
                 .toList();
 
         if (userInfoCommentsOpen) {
             messages.setMessages(comments);
         }
 
-        UserInfoCell view = new UserInfoCell(getActivity(), info);
+        UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo());
+        if(info.getBenisGraph().isPresent())
+            view.setBenisGraph(info.getBenisGraph().get());
+
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
             @Override
             public void onWriteMessageClicked(int userId, String name) {
@@ -299,7 +306,7 @@ public class FeedFragment extends RxRoboFragment {
             }
         });
 
-        view.setWriteMessageEnabled(!isSelfInfo(info));
+        view.setWriteMessageEnabled(!isSelfInfo(info.getInfo()));
         view.setShowCommentsEnabled(!comments.isEmpty());
 
         appendUserInfoAdapters(
@@ -335,7 +342,7 @@ public class FeedFragment extends RxRoboFragment {
         });
     }
 
-    private Observable<Info> queryUserInfo() {
+    private Observable<EnhancedUserInfo> queryUserInfo() {
         String queryString = null;
 
         FeedFilter filter = getFilterArgument();
@@ -347,7 +354,18 @@ public class FeedFragment extends RxRoboFragment {
         }
 
         if (queryString != null) {
-            return userService.info(queryString, getSelectedContentType()).onErrorResumeNext(Observable.<Info>empty());
+            Observable<Info> first = userService
+                    .info(queryString, getSelectedContentType())
+                    .onErrorResumeNext(Observable.empty());
+
+            Observable<Optional<Graph>> second = metaService
+                    .getBenisHistory(queryString)
+                    .firstOrDefault(null)
+                    .map(Optional::fromNullable)
+                    .onErrorResumeNext(Observable.just(Optional.absent()));
+
+            return Observable.zip(first, second, ImmutableEnhancedUserInfo::of);
+
         } else {
             return Observable.empty();
         }
@@ -726,9 +744,9 @@ public class FeedFragment extends RxRoboFragment {
     }
 
     private PostFragment.PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
-        Optional<MetaService.SizeInfo> sizeInfo = getSizeInfo(item);
-        int sizeWidth = sizeInfo.transform(MetaService.SizeInfo::getWidth).or(-1);
-        int sizeHeight = sizeInfo.transform(MetaService.SizeInfo::getHeight).or(-1);
+        Optional<SizeInfo> sizeInfo = getSizeInfo(item);
+        int sizeWidth = sizeInfo.transform(SizeInfo::getWidth).or(-1);
+        int sizeHeight = sizeInfo.transform(SizeInfo::getHeight).or(-1);
         return new PostFragment.PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
     }
 
@@ -761,8 +779,8 @@ public class FeedFragment extends RxRoboFragment {
         return feedAdapter.getFilter();
     }
 
-    private void onMetaServiceResponse(MetaService.InfoResponse infoResponse) {
-        if (!infoResponse.getReposts().isEmpty()) {
+    private void onMetaServiceResponse(ItemsInfo itemsInfo) {
+        if (!itemsInfo.getReposts().isEmpty()) {
             // we need to tell the recycler view to rebind the items, because
             // some items might now be reposts.
             feedAdapter.notifyDataSetChanged();
@@ -773,7 +791,7 @@ public class FeedFragment extends RxRoboFragment {
         return seenService.isSeen(item);
     }
 
-    public Optional<MetaService.SizeInfo> getSizeInfo(FeedItem item) {
+    public Optional<SizeInfo> getSizeInfo(FeedItem item) {
         return localCacheService.getSizeInfo(item.getId());
     }
 
@@ -882,25 +900,25 @@ public class FeedFragment extends RxRoboFragment {
     }
 
     private void loadMetaData(List<Long> items) {
-        Observable<MetaService.InfoResponse> metaData = metaService
-                .getInfo(items)
+        Observable<ItemsInfo> metaData = metaService
+                .getItemsInfo(items)
                 .doOnNext(this::cacheInfoResponse);
 
         bindSupportFragment(this, metaData)
-                .onErrorResumeNext(Observable.<MetaService.InfoResponse>empty())
+                .onErrorResumeNext(Observable.<ItemsInfo>empty())
                 .subscribe(this::onMetaServiceResponse, Actions.empty());
     }
 
-    private void cacheInfoResponse(MetaService.InfoResponse infoResponse) {
+    private void cacheInfoResponse(ItemsInfo itemsInfo) {
         logger.info("merge info about {} reposts and {} sizes",
-                infoResponse.getReposts().size(),
-                infoResponse.getSizes().size());
+                itemsInfo.getReposts().size(),
+                itemsInfo.getSizes().size());
 
-        for (MetaService.SizeInfo sizeInfo : infoResponse.getSizes())
+        for (SizeInfo sizeInfo : itemsInfo.getSizes())
             localCacheService.putSizeInfo(sizeInfo);
 
         // cache the items as reposts
-        localCacheService.cacheReposts(infoResponse.getReposts());
+        localCacheService.cacheReposts(itemsInfo.getReposts());
     }
 
     private void onFeedError(Throwable error) {
@@ -1060,5 +1078,14 @@ public class FeedFragment extends RxRoboFragment {
             seen.setVisibility(View.GONE);
             repost.setVisibility(View.GONE);
         }
+    }
+
+    @Value.Immutable(builder = false)
+    interface EnhancedUserInfo {
+        @Value.Parameter(order = 1)
+        Info getInfo();
+
+        @Value.Parameter(order = 2)
+        Optional<Graph> getBenisGraph();
     }
 }

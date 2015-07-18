@@ -24,8 +24,9 @@ import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.UserClasses;
 import com.pr0gramm.app.WrapContentLinearLayoutManager;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
@@ -335,8 +336,8 @@ public class DrawerFragment extends RxRoboFragment {
             usernameView.setOnClickListener(v -> onUsernameClicked());
 
             userTypeView.setVisibility(View.VISIBLE);
-            userTypeView.setTextColor(getResources().getColor(Info.MarkColors.get(user.getMark())));
-            userTypeView.setText(getString(Info.MarkStrings.get(user.getMark())).toUpperCase());
+            userTypeView.setTextColor(getResources().getColor(UserClasses.MarkColors.get(user.getMark())));
+            userTypeView.setText(getString(UserClasses.MarkStrings.get(user.getMark())).toUpperCase());
 
             Graph benis = state.getBenisHistory();
 

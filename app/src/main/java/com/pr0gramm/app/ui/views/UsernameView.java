@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.UserClasses;
 
 /**
  */
@@ -30,11 +30,11 @@ public class UsernameView extends TextView {
     }
 
     public void setMark(int mark) {
-        if (mark < 0 || mark >= Info.MarkDrawables.size())
+        if (mark < 0 || mark >= UserClasses.MarkDrawables.size())
             mark = 4;
 
         // get the drawable for that mark
-        setCompoundDrawablesWithIntrinsicBounds(0, 0, Info.MarkDrawables.get(mark), 0);
+        setCompoundDrawablesWithIntrinsicBounds(0, 0, UserClasses.MarkDrawables.get(mark), 0);
     }
 
     public void setUsername(String name, int mark) {

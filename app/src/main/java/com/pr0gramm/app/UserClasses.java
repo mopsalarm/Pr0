@@ -1,74 +1,13 @@
-package com.pr0gramm.app.api.pr0gramm;
+package com.pr0gramm.app;
 
 import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 
-import org.joda.time.Instant;
-
-import java.util.Collections;
 import java.util.List;
 
 /**
  */
-public class Info {
-    private User user;
-    private int likeCount;
-    private int uploadCount;
-    private int commentCount;
-    private int tagCount;
-    private List<UserComments.Comment> comments = Collections.emptyList();
-
-    public User getUser() {
-        return user;
-    }
-
-    public int getLikeCount() {
-        return likeCount;
-    }
-
-    public int getUploadCount() {
-        return uploadCount;
-    }
-
-    public int getCommentCount() {
-        return commentCount;
-    }
-
-    public int getTagCount() {
-        return tagCount;
-    }
-
-    public List<UserComments.Comment> getComments() {
-        return comments;
-    }
-
-    public static class User {
-        private int id;
-        private int mark;
-        private int score;
-        private String name;
-        private Instant registered;
-
-        public int getId() {
-            return id;
-        }
-
-        public int getMark() {
-            return mark;
-        }
-
-        public int getScore() {
-            return score;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Instant getRegistered() {
-            return registered;
-        }
+public class UserClasses {
+    private UserClasses() {
     }
 
     public static final List<Integer> MarkDrawables = ImmutableList.of(

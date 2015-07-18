@@ -2,8 +2,6 @@ package com.pr0gramm.app.api.pr0gramm.response;
 
 import android.support.annotation.Nullable;
 
-import com.pr0gramm.app.api.pr0gramm.Info;
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 import org.joda.time.Instant;

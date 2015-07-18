@@ -11,7 +11,7 @@ import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.ContentType;

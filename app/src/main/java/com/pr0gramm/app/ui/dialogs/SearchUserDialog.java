@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 

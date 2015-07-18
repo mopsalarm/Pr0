@@ -1,6 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;

@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.PrivateMessageAdapter;

@@ -122,7 +122,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/user_info_last_row"
+        android:id="@+id/user_info_third_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/username"
@@ -168,6 +168,21 @@
             android:textColor="@color/primary"
             tools:ignore="HardcodedText"/>
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/user_info_last_row"
+        android:layout_below="@id/user_info_third_row"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="48dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/benis_graph"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:visibility="gone"/>
+    </FrameLayout>
 
     <ImageButton
         android:id="@+id/action_comments"
