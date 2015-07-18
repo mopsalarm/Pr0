@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Häufige Speicherfehler auf Android 4.0 Geräten hoffentlich behoben"
+      },
+      {
+        "type": "Fix",
         "change": "Bei einigen ist die Login-Seite direkt abgeschmiert. Sollte nun funktionieren (@lolita)"
       }
     ]

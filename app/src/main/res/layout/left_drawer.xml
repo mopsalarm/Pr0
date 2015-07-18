@@ -120,12 +120,6 @@
             android:text="@string/action_settings"/>
 
         <TextView
-            android:id="@+id/action_recommend"
-            style="@style/AppStyle.DrawerItem"
-            android:drawableLeft="@drawable/ic_white_action_share"
-            android:text="@string/action_recommend"/>
-
-        <TextView
             android:id="@+id/action_feedback"
             style="@style/AppStyle.DrawerItem"
             android:drawableLeft="@drawable/ic_feedback_black_24dp"

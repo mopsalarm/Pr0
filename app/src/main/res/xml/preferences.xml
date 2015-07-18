@@ -331,11 +331,8 @@
         <Preference
             android:persistent="false"
             android:summary="@string/pref_website_summary"
-            android:title="@string/pref_website_title">
-
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://mopsalarm.github.io/Pr0/"/>
+            android:title="@string/pref_website_title"
+            android:key="pref_pseudo_recommend">
 
         </Preference>
 

@@ -142,6 +142,15 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
                 return true;
             }
 
+            if ("pref_pseudo_recommend".equals(preference.getKey())) {
+                String text = "Probiere mal die pr0gramm App aus: https://mopsalarm.github.io/";
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_SUBJECT, "pr0gramm app");
+                intent.putExtra(Intent.EXTRA_TEXT, text);
+                startActivity(Intent.createChooser(intent, getString(R.string.share_using)));
+            }
+
             return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
 

@@ -43,13 +43,21 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         int pixelWidth = videoInfo.getPixelWidth();
         int pixelHeight = videoInfo.getPixelHeight();
 
+        int maxPixelWidth, maxPixelHeight;
+
         // on kitkat we'll activate low quality mode!
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            while (pixelWidth > 512 || pixelHeight > 512) {
-                pixelSkip += 1;
-                pixelWidth = videoInfo.getPixelWidth() / (pixelSkip + 1);
-                pixelHeight = videoInfo.getPixelHeight() / (pixelSkip + 1);
-            }
+            maxPixelWidth = 512;
+            maxPixelHeight = 512;
+        } else {
+            maxPixelWidth = 1024;
+            maxPixelHeight = 1024;
+        }
+
+        while (pixelWidth > maxPixelWidth || pixelHeight > maxPixelHeight) {
+            pixelSkip += 1;
+            pixelWidth = videoInfo.getPixelWidth() / (pixelSkip + 1);
+            pixelHeight = videoInfo.getPixelHeight() / (pixelSkip + 1);
         }
 
         logger.info("will use image buffers with size {}x{} and pixelSkip {}",

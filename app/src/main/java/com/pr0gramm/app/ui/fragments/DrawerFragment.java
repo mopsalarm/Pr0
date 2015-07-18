@@ -101,9 +101,6 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectView(R.id.action_feedback)
     private TextView feedbackView;
 
-    @InjectView(R.id.action_recommend)
-    private TextView recommendView;
-
     @InjectView(R.id.action_settings)
     private View settingsView;
 
@@ -189,20 +186,10 @@ public class DrawerFragment extends RxRoboFragment {
         benisGraph.setOnClickListener(this::onBenisGraphClicked);
 
         changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
-        changeCompoundDrawableColor(recommendView, defaultColor.withAlpha(ICON_ALPHA));
 
         feedbackView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), FeedbackActivity.class);
             startActivity(intent);
-        });
-
-        recommendView.setOnClickListener(v -> {
-            String text = "Probiere mal die pr0gramm App aus: https://mopsalarm.github.io/";
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_SUBJECT, "pr0gramm app");
-            intent.putExtra(Intent.EXTRA_TEXT, text);
-            startActivity(Intent.createChooser(intent, getString(R.string.share_using)));
         });
     }
 
