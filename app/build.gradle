@@ -125,7 +125,7 @@ android.applicationVariants.all { variant ->
 }
 
 retrolambda {
-    defaultMethods true
+    incremental false
 }
 
 repositories {

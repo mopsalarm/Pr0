@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import io.fabric.sdk.android.Fabric;
 import pl.brightinventions.slf4android.LoggerConfiguration;
+import rx.Scheduler;
+import rx.android.plugins.RxAndroidPlugins;
+import rx.android.plugins.RxAndroidSchedulersHook;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDialogHandler;
 
@@ -60,6 +63,13 @@ public class Pr0grammApplication extends SugarApp {
 
         // initialize this to show errors always in the context of the current activity.
         setGlobalErrorDialogHandler(new ActivityErrorHandler(this));
+
+        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
+            @Override
+            public Scheduler getMainThreadScheduler() {
+                return HandlerThreadScheduler.INSTANCE;
+            }
+        });
     }
 
     public static PackageInfo getPackageInfo() {

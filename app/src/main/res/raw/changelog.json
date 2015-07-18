@@ -4,7 +4,11 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Begonnen die Anzeige der Userdetails zu überarbeiten, außerdem wird ein Benisgraph der letzten sieben Tage angezeigt"
+        "change": "Benisgraph anderer Benutzer"
+      },
+      {
+        "type": "Neu",
+        "change": "Begonnen die Anzeige der Userdetails zu überarbeiten - ist noch nicht fertig!"
       },
       {
         "type": "Fix",

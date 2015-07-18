@@ -70,6 +70,12 @@ public class UserInfoCell extends FrameLayout {
             }
         });
 
+        ((View) uploads.getParent()).setOnClickListener(view -> {
+            if (userActionListener != null) {
+                userActionListener.onShowUploadsClicked(user.getId(), user.getName());
+            }
+        });
+
         if(info.likesArePublic()) {
             favorites.setText(String.valueOf(info.getLikeCount()));
 
@@ -121,5 +127,7 @@ public class UserInfoCell extends FrameLayout {
         void onUserFavoritesClicked(String name);
 
         void onShowCommentsClicked();
+
+        void onShowUploadsClicked(int id, String name);
     }
 }

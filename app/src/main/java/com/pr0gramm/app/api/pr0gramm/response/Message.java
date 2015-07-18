@@ -12,35 +12,35 @@ import org.joda.time.Instant;
 @Value.Immutable
 @Value.Style(init = "with*")
 @Gson.TypeAdapters
-public interface Message {
-    int getId();
+public abstract class Message {
+    public abstract int getId();
 
-    Instant getCreated();
+    public abstract Instant getCreated();
 
-    int getItemId();
+    public abstract int getItemId();
 
-    int getMark();
+    public abstract int getMark();
 
-    String getMessage();
+    public abstract String getMessage();
 
-    String getName();
+    public abstract String getName();
 
-    int getScore();
+    public abstract int getScore();
 
-    int getSenderId();
+    public abstract int getSenderId();
 
     @Nullable
-    String getThumb();
+    public abstract String getThumb();
 
-    static Message of(UserComments.User sender, UserComments.Comment comment) {
+    public static Message of(UserComments.User sender, UserComments.Comment comment) {
         return of(sender.getId(), sender.getName(), sender.getMark(), comment);
     }
 
-    static Message of(Info.User sender, UserComments.Comment comment) {
+    public static Message of(Info.User sender, UserComments.Comment comment) {
         return of(sender.getId(), sender.getName(), sender.getMark(), comment);
     }
 
-    static Message of(int senderId, String name, int mark, UserComments.Comment comment) {
+    public static Message of(int senderId, String name, int mark, UserComments.Comment comment) {
         return ImmutableMessage.builder()
                 .withId((int) comment.getId())
                 .withCreated(comment.getCreated())

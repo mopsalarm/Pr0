@@ -33,7 +33,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.EnhancedUserInfo;
 import com.pr0gramm.app.Graph;
+import com.pr0gramm.app.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
@@ -71,7 +73,6 @@ import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.squareup.picasso.Picasso;
 
-import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,7 @@ import javax.inject.Inject;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.android.lifecycle.LifecycleEvent;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
@@ -100,6 +102,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 import static rx.android.app.AppObservable.bindSupportFragment;
+import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
 import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
@@ -153,7 +156,6 @@ public class FeedFragment extends RxRoboFragment {
     private ItemWithComment autoOpenOnLoad = null;
 
     private FeedAdapter feedAdapter;
-    private LoaderHelper<EnhancedUserInfo> userInfo;
     private FeedLoader loader;
 
     /**
@@ -175,9 +177,7 @@ public class FeedFragment extends RxRoboFragment {
             autoOpenOnLoad = start;
         }
 
-        // load the user info
-        userInfo = LoaderHelper.of(queryUserInfo());
-        userInfo.reload();
+
     }
 
     @Override
@@ -246,14 +246,17 @@ public class FeedFragment extends RxRoboFragment {
         merged.addAdapter(adapter);
         recyclerView.setAdapter(merged);
 
-        userInfo.register(this::presentUserInfo, Actions.empty());
+        bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, queryUserInfo()))
+                .first()
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::presentUserInfo, Actions.empty());
     }
 
     private void presentUserInfo(EnhancedUserInfo value) {
-        if (getCurrentFilter().getUsername().isPresent()) {
-            presentUserInfoCell(value);
-        } else {
+        if (getCurrentFilter().getTags().isPresent()) {
             presentUserUploadsHint(value.getInfo());
+        } else {
+            presentUserInfoCell(value);
         }
     }
 
@@ -282,7 +285,7 @@ public class FeedFragment extends RxRoboFragment {
         }
 
         UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo());
-        if(info.getBenisGraph().isPresent())
+        if (info.getBenisGraph().isPresent())
             view.setBenisGraph(info.getBenisGraph().get());
 
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
@@ -294,8 +297,18 @@ public class FeedFragment extends RxRoboFragment {
 
             @Override
             public void onUserFavoritesClicked(String name) {
-                FeedFilter filter1 = getCurrentFilter().basic().withLikes(name);
-                ((MainActionHandler) getActivity()).onFeedFilterSelected(filter1);
+                FeedFilter filter = getCurrentFilter().basic().withLikes(name);
+                if (!filter.equals(getCurrentFilter())) {
+                    ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+                }
+            }
+
+            @Override
+            public void onShowUploadsClicked(int id, String name) {
+                FeedFilter filter = getCurrentFilter().basic().withUser(name);
+                if (!filter.equals(getCurrentFilter())) {
+                    ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+                }
             }
 
             @Override
@@ -351,9 +364,17 @@ public class FeedFragment extends RxRoboFragment {
 
         } else if (filter.getTags().isPresent()) {
             queryString = filter.getTags().get();
+
+        } else if (filter.getLikes().isPresent()) {
+            queryString = filter.getLikes().get();
         }
 
         if (queryString != null) {
+            Optional<EnhancedUserInfo> cached = localCacheService.getUserInfo(queryString);
+            if (cached.isPresent()) {
+                return Observable.just(cached.get());
+            }
+
             Observable<Info> first = userService
                     .info(queryString, getSelectedContentType())
                     .onErrorResumeNext(Observable.empty());
@@ -364,7 +385,9 @@ public class FeedFragment extends RxRoboFragment {
                     .map(Optional::fromNullable)
                     .onErrorResumeNext(Observable.just(Optional.absent()));
 
-            return Observable.zip(first, second, ImmutableEnhancedUserInfo::of);
+            return Observable.zip(first, second, ImmutableEnhancedUserInfo::of)
+                    .cast(EnhancedUserInfo.class)
+                    .doOnNext(localCacheService::cacheUserInfo);
 
         } else {
             return Observable.empty();
@@ -409,7 +432,6 @@ public class FeedFragment extends RxRoboFragment {
     public void onDestroyView() {
         super.onDestroyView();
         recyclerView.removeOnScrollListener(onScrollListener);
-        userInfo.detach();
         AndroidUtility.uninjectViews(this);
     }
 
@@ -915,7 +937,7 @@ public class FeedFragment extends RxRoboFragment {
                 itemsInfo.getSizes().size());
 
         for (SizeInfo sizeInfo : itemsInfo.getSizes())
-            localCacheService.putSizeInfo(sizeInfo);
+            localCacheService.cacheSizeInfo(sizeInfo);
 
         // cache the items as reposts
         localCacheService.cacheReposts(itemsInfo.getReposts());
@@ -1089,12 +1111,4 @@ public class FeedFragment extends RxRoboFragment {
         }
     }
 
-    @Value.Immutable(builder = false)
-    interface EnhancedUserInfo {
-        @Value.Parameter(order = 1)
-        Info getInfo();
-
-        @Value.Parameter(order = 2)
-        Optional<Graph> getBenisGraph();
-    }
 }

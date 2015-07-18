@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
+import com.pr0gramm.app.EnhancedUserInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.meta.SizeInfo;
@@ -30,6 +31,10 @@ public class LocalCacheService {
 
     private final Cache<Long, SizeInfo> thumbCache = CacheBuilder.newBuilder()
             .maximumSize(10_000)
+            .build();
+
+    private final Cache<String, EnhancedUserInfo> userInfoCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
 
     private final AtomicReference<long[]> repostCache = new AtomicReference<>(new long[0]);
@@ -61,7 +66,7 @@ public class LocalCacheService {
         return result;
     }
 
-    public void putSizeInfo(SizeInfo info) {
+    public void cacheSizeInfo(SizeInfo info) {
         thumbCache.put(info.getId(), info);
     }
 
@@ -91,5 +96,20 @@ public class LocalCacheService {
 
     public boolean isRepost(FeedItem item) {
         return isRepost(item.getId());
+    }
+
+    /**
+     * Stores the given entry for a few minutes in the cache
+     */
+    public void cacheUserInfo(EnhancedUserInfo info) {
+        String name = info.getInfo().getUser().getName().toLowerCase();
+        userInfoCache.put(name, info);
+    }
+
+    /**
+     * Gets a cached instance, if there is one.
+     */
+    public Optional<EnhancedUserInfo> getUserInfo(String name) {
+        return Optional.fromNullable(userInfoCache.getIfPresent(name.trim().toLowerCase()));
     }
 }
