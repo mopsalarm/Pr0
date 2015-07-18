@@ -3,10 +3,10 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@drawable/login_background"
               android:orientation="vertical"
               android:paddingLeft="64dp"
-              android:paddingRight="64dp">
+              android:paddingRight="64dp"
+              android:id="@+id/content">
 
     <ImageView
         android:layout_width="match_parent"

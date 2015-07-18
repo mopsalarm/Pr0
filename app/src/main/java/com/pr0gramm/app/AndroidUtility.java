@@ -293,4 +293,12 @@ public class AndroidUtility {
             return Observable.empty();
         }
     }
+
+    public static void setViewBackground(View view, Drawable drawable) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setBackground(drawable);
+        } else {
+            view.setBackgroundDrawable(drawable);
+        }
+    }
 }

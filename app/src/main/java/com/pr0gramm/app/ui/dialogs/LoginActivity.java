@@ -4,15 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
@@ -74,6 +80,16 @@ public class LoginActivity extends RoboActionBarActivity {
         }
 
         submitView.setOnClickListener(v -> onLoginClicked());
+
+        updateActivityBackground();
+    }
+
+    private void updateActivityBackground() {
+        int fallbackColor = getResources().getColor(R.color.primary_dark);
+        Drawable background = new WrapCrashingDrawable(fallbackColor,
+                ResourcesCompat.getDrawable(getResources(), R.drawable.login_background, getTheme()));
+
+        AndroidUtility.setViewBackground(findViewById(R.id.content), background);
     }
 
     private void enableView(boolean enable) {
@@ -263,5 +279,25 @@ public class LoginActivity extends RoboActionBarActivity {
                 fragment.startActivityForResult(intent, requestCode);
             }
         };
+    }
+
+    private static class WrapCrashingDrawable extends LevelListDrawable {
+        @ColorInt
+        private final int fallbackColor;
+
+        public WrapCrashingDrawable(@ColorInt int fallbackColor, Drawable drawable) {
+            this.fallbackColor = fallbackColor;
+            addLevel(0, 2, drawable);
+            setLevel(1);
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            try {
+                super.draw(canvas);
+            } catch (Exception ignored) {
+                canvas.drawColor(fallbackColor);
+            }
+        }
     }
 }
