@@ -181,13 +181,13 @@ class ParcelReader extends JsonReader {
     }
 
     private void skipObject() throws IOException {
-        beginArray();
+        beginObject();
         while (hasNext()) {
             nextName();
             skipValue();
         }
 
-        endArray();
+        endObject();
     }
 
     private void skipArray() throws IOException {
