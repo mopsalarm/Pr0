@@ -12,7 +12,7 @@ import static com.google.common.collect.Iterables.getFirst;
 
 /**
  */
-public class CachedVote extends SugarRecord<CachedVote> {
+public class CachedVote extends SugarRecord {
     public long itemId;
     public Type type;
     public Vote vote;

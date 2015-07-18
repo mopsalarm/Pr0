@@ -9,7 +9,7 @@ import static com.google.common.base.Objects.equal;
 
 /**
  */
-public final class Bookmark extends SugarRecord<Bookmark> {
+public final class Bookmark extends SugarRecord {
     private String title;
     private String filterTags;
     private String filterUsername;

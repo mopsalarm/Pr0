@@ -95,7 +95,7 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     private void storeVoteValueInTx(CachedVote.Type type, long itemId, Vote vote) {
-        SugarTransactionHelper.doInTansaction(() -> storeVoteValue(type, itemId, vote));
+        SugarTransactionHelper.doInTransaction(() -> storeVoteValue(type, itemId, vote));
     }
 
     /**
@@ -129,7 +129,7 @@ public class VoteService {
         checkArgument(actions.size() % 2 == 0, "not an even number of items");
 
         Stopwatch watch = Stopwatch.createStarted();
-        SugarTransactionHelper.doInTansaction(() -> {
+        SugarTransactionHelper.doInTransaction(() -> {
             logger.info("Applying {} vote actions", actions.size() / 2);
 
             for (int idx = 0; idx < actions.size(); idx += 2) {
@@ -153,7 +153,7 @@ public class VoteService {
     public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
         return api.addTags(null, feedItem.getId(), tagString).map(response -> {
-            SugarTransactionHelper.doInTansaction(() -> {
+            SugarTransactionHelper.doInTransaction(() -> {
                 // auto-apply up-vote to newly created tags
                 for (long tagId : response.getTagIds())
                     storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP);

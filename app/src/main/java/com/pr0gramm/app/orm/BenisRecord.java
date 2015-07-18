@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  */
-public class BenisRecord extends SugarRecord<BenisRecord> {
+public class BenisRecord extends SugarRecord {
     private int ownerId;
     private long time;
     private int benis;
