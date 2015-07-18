@@ -2,6 +2,7 @@ package com.pr0gramm.app.vpx;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.os.Build;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
@@ -37,6 +38,23 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         reportSize(width, height);
         logger.info("found video track, size is {}x{}", width, height);
 
+        // now calculate the size of our image buffers
+        int pixelSkip = 0;
+        int pixelWidth = videoInfo.getPixelWidth();
+        int pixelHeight = videoInfo.getPixelHeight();
+
+        // on kitkat we'll activate low quality mode!
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            while (pixelWidth > 512 || pixelHeight > 512) {
+                pixelSkip += 1;
+                pixelWidth = videoInfo.getPixelWidth() / (pixelSkip + 1);
+                pixelHeight = videoInfo.getPixelHeight() / (pixelSkip + 1);
+            }
+        }
+
+        logger.info("will use image buffers with size {}x{} and pixelSkip {}",
+                pixelWidth, pixelHeight, pixelSkip);
+
         try (VpxWrapper vpx = VpxWrapper.newInstance()) {
             int frameIndex = 0;
             long previousTimecode = 0;
@@ -69,10 +87,10 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
                 do {
                     blockWhilePaused();
 
-                    Bitmap bitmap = requestBitmap(videoInfo.getPixelWidth(), videoInfo.getPixelHeight());
+                    Bitmap bitmap = requestBitmap(pixelWidth, pixelHeight);
                     boolean success;
                     try {
-                        success = vpx.get(bitmap);
+                        success = vpx.get(bitmap, pixelSkip);
                     } catch (Exception error) {
                         returnBitmap(bitmap);
                         throw error;

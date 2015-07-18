@@ -6,6 +6,7 @@
 #include <vpx/vpx_decoder.h>
 #include <android/bitmap.h>
 #include <libyuv/convert_argb.h>
+#include <libyuv/scale.h>
 
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
@@ -106,8 +107,9 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
   (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
 }
 
+
 JNIEXPORT jboolean JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
 
   // get the next image from codec
@@ -125,69 +127,75 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr
     return false;
   }
 
+  // get the planes and strides
+  bool planes_need_free;
+  unsigned char *plane_y, *plane_u, *plane_v;
+  int stride_y, stride_u, stride_v;
+  int image_width, image_height;
+
+  if(pixel_skip && image->fmt == VPX_IMG_FMT_I420) {
+    planes_need_free = true;
+
+    int factor = pixel_skip + 1;
+    image_width = image->w / factor;
+    image_height = image->h / factor;
+
+    stride_y = (image->stride[VPX_PLANE_Y] / factor + 7) / 8 * 8;
+    stride_u = (image->stride[VPX_PLANE_U] / factor + 7) / 8 * 8;
+    stride_v = (image->stride[VPX_PLANE_V] / factor + 7) / 8 * 8;
+
+    plane_y = malloc(stride_y * image_height);
+    plane_u = malloc(stride_u * image_height);
+    plane_v = malloc(stride_v * image_height);
+
+    I420Scale(
+      image->planes[VPX_PLANE_Y], image->stride[VPX_PLANE_Y],
+      image->planes[VPX_PLANE_U], image->stride[VPX_PLANE_U],
+      image->planes[VPX_PLANE_V], image->stride[VPX_PLANE_V],
+      image->w, image->h,
+      plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
+      image_width, image_height,
+      kFilterNone);
+
+  } else {
+    planes_need_free = false;
+
+    image_width = image->w;
+    image_height = image->h;
+
+    stride_y = image->stride[VPX_PLANE_Y];
+    stride_u = image->stride[VPX_PLANE_U];
+    stride_v = image->stride[VPX_PLANE_V];
+
+    plane_y = image->planes[VPX_PLANE_Y];
+    plane_u = image->planes[VPX_PLANE_U];
+    plane_v = image->planes[VPX_PLANE_V];
+  }
+
   unsigned char *target;
   AndroidBitmap_lockPixels(env, bitmap, (void **) &target);
 
   #define min(a, b) (((a) < (b)) ? a : b)
-  int width = min(bitmap_info.width, image->w);
-  int height = min(bitmap_info.height, image->h);
+  int width = min(bitmap_info.width, image_width);
+  int height = min(bitmap_info.height, image_height);
 
   int y, x;
   switch (image->fmt) {
     case VPX_IMG_FMT_I420:
-      I420ToABGR(image->planes[VPX_PLANE_Y], image->stride[VPX_PLANE_Y],
-        image->planes[VPX_PLANE_U], image->stride[VPX_PLANE_U],
-        image->planes[VPX_PLANE_V], image->stride[VPX_PLANE_V],
-        target, bitmap_info.stride, width, height);
-      break;
-
-    case VPX_IMG_FMT_I422:
-    case VPX_IMG_FMT_VPXYV12:
-      I422ToABGR(image->planes[VPX_PLANE_Y], image->stride[VPX_PLANE_Y],
-        image->planes[VPX_PLANE_U], image->stride[VPX_PLANE_U],
-        image->planes[VPX_PLANE_V], image->stride[VPX_PLANE_V],
+      I420ToABGR(plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
         target, bitmap_info.stride, width, height);
       break;
 
     default:
       throw_VpxException(env, "Can not decode image, unknown pixel format");
       break;
-
-/*
-    // Not yet tested, i havent found a video that require those conversions.
-
-    case VPX_IMG_FMT_I444:
-      argb = malloc(bitmap_info.stride * height);
-      I444ToARGB(image->planes[VPX_PLANE_Y], image->stride[VPX_PLANE_Y],
-        image->planes[VPX_PLANE_U], image->stride[VPX_PLANE_U],
-        image->planes[VPX_PLANE_V], image->stride[VPX_PLANE_V],
-        argb, bitmap_info.stride,
-        width, height);
-
-      ARGBToRGBA(argb, bitmap_info.stride, target, bitmap_info.stride,
-        width, height);
-
-      free(argb);
-      break;
-
-    case VPX_IMG_FMT_UYVY:
-      argb = malloc(bitmap_info.stride * height);
-      UYVYToARGB(image->planes[VPX_PLANE_PACKED], image->stride[VPX_PLANE_PACKED],
-        argb, bitmap_info.stride, width, height);
-
-      ARGBToRGBA(argb, bitmap_info.stride, target, bitmap_info.stride, width, height);
-      free(argb);
-      break;
-
-    case VPX_IMG_FMT_YUY2:
-      argb = malloc(bitmap_info.stride * height);
-      YUY2ToARGB(image->planes[VPX_PLANE_PACKED], image->stride[VPX_PLANE_PACKED],
-        argb, bitmap_info.stride, width, height);
-      ARGBToRGBA(argb, bitmap_info.stride, target, bitmap_info.stride, width, height);
-      free(argb);
-      break;
-      */
   };
+
+  if(planes_need_free) {
+    free(plane_y);
+    free(plane_u);
+    free(plane_v);
+  }
 
   AndroidBitmap_unlockPixels(env, bitmap);
 

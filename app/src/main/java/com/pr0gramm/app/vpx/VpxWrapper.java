@@ -38,9 +38,9 @@ class VpxWrapper implements Closeable {
         data.position(data.limit());
     }
 
-    public boolean get(Bitmap bitmap) {
+    public boolean get(Bitmap bitmap, int pixelSkip) {
         checkValid();
-        return vpxGetFrame(vpx, bitmap);
+        return vpxGetFrame(vpx, bitmap, pixelSkip);
     }
 
     private void checkValid() {
@@ -72,7 +72,7 @@ class VpxWrapper implements Closeable {
 
     private static native void vpxPutData(long vpx, byte[] data, int offset, int length);
 
-    private static native boolean vpxGetFrame(long vpx, Bitmap bitmap);
+    private static native boolean vpxGetFrame(long vpx, Bitmap bitmap, int pixelSkip);
 
     private static boolean hasNativeLibrary;
 

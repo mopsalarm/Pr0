@@ -119,7 +119,7 @@ public abstract class SoftwareMediaPlayer {
      * Gets an image that has the provided size.
      */
     protected Bitmap requestBitmap(int width, int height) {
-        if (bitmapCount.get() <= 2) {
+        if (bitmapCount.get() < 3) {
             ensureStillRunning();
             bitmapCount.incrementAndGet();
             return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);

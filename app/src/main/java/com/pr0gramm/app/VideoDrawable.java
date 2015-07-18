@@ -30,7 +30,6 @@ public class VideoDrawable extends Drawable {
     private Bitmap current;
 
     private final FrameCounter fpsCounter = new FrameCounter();
-    private final Settings settings = Settings.of(Pr0grammApplication.GLOBAL_CONTEXT);
 
     /**
      * Pushes a new frame to this drawable to be drawn later.
