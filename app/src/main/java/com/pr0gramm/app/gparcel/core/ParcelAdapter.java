@@ -49,7 +49,7 @@ public abstract class ParcelAdapter<T> implements Parcelable {
         try (ParcelReader reader = new ParcelReader(parcel)) {
             Stopwatch watch = Stopwatch.createStarted();
             value = gson.fromJson(reader, type.getType());
-            logger.info("reading of {} took {}", value.getClass(), watch);
+            logger.info("reading of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not read gson as parce", ioError);
         }
@@ -67,7 +67,7 @@ public abstract class ParcelAdapter<T> implements Parcelable {
         try (ParcelWriter writer = new ParcelWriter(dest)) {
             Stopwatch watch = Stopwatch.createStarted();
             gson.toJson(value, type.getType(), writer);
-            logger.info("writing of {} took {}", value.getClass(), watch);
+            logger.info("writing of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not adapt gson to parcel", ioError);
         }

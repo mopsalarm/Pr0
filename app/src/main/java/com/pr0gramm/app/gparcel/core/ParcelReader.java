@@ -57,7 +57,9 @@ class ParcelReader extends JsonReader {
 
     @Override
     public boolean hasNext() throws IOException {
-        return next != JsonToken.END_ARRAY && next != JsonToken.END_OBJECT;
+        return next != JsonToken.END_ARRAY
+                && next != JsonToken.END_OBJECT
+                && next != JsonToken.END_DOCUMENT;
     }
 
     @Override
@@ -127,7 +129,6 @@ class ParcelReader extends JsonReader {
 
     @Override
     public double nextDouble() throws IOException {
-        consume(JsonToken.NUMBER);
         return readNumber().doubleValue();
     }
 

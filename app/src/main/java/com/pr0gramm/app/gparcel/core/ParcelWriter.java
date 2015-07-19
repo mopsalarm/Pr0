@@ -2,11 +2,11 @@ package com.pr0gramm.app.gparcel.core;
 
 import android.os.Parcel;
 
+import com.google.common.io.CharStreams;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ class ParcelWriter extends JsonWriter {
     private Map<String, Byte> nameCache = new HashMap<>();
 
     public ParcelWriter(Parcel dest) {
-        super(new StringWriter());
+        super(CharStreams.nullWriter());
 
         this.parcel = dest;
     }
