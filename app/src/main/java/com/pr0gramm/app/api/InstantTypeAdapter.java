@@ -15,11 +15,11 @@ import java.io.IOException;
 public class InstantTypeAdapter extends TypeAdapter<Instant> {
     @Override
     public void write(JsonWriter out, Instant value) throws IOException {
-        out.value(value.getMillis());
+        out.value(value.getMillis() / 1000);
     }
 
     @Override
     public Instant read(JsonReader in) throws IOException {
-        return new Instant(in.nextLong());
+        return new Instant(in.nextLong() * 1000);
     }
 }
