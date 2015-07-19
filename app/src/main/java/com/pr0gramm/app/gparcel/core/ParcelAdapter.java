@@ -19,11 +19,12 @@ import java.io.IOException;
 public abstract class ParcelAdapter<T> implements Parcelable {
     private static final Logger logger = LoggerFactory.getLogger(ParcelAdapter.class);
 
-    private final TypeToken<T> type;
+    private final TypeToken<T> type = new TypeToken<T>(getClass()) {
+    };
+
     private final T value;
 
-    protected ParcelAdapter(TypeToken<T> type, T value) {
-        this.type = type;
+    protected ParcelAdapter(T value) {
         this.value = value;
     }
 
@@ -44,15 +45,8 @@ public abstract class ParcelAdapter<T> implements Parcelable {
     }
 
     @SuppressLint("NewApi")
-    protected ParcelAdapter(TypeToken<T> type, Parcel parcel) {
-        this.type = type;
-
+    protected ParcelAdapter(Parcel parcel) {
         Gson gson = ParcelContext.gson();
-//        try {
-//            value = gson.fromJson(parcel.readString(), type.getType());
-//        } catch (Exception error) {
-//            throw new RuntimeException("Could not read gson as parce", error);
-//        }
 
         try (ParcelReader reader = new ParcelReader(parcel)) {
             Stopwatch watch = Stopwatch.createStarted();
@@ -72,11 +66,6 @@ public abstract class ParcelAdapter<T> implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Gson gson = ParcelContext.gson();
-//        try {
-//            dest.writeString(gson.toJson(value, type.getType()));
-//        } catch (Exception error) {
-//            throw new RuntimeException("Could not adapt gson to parcel", error);
-//        }
 
         try (ParcelWriter writer = new ParcelWriter(dest)) {
             Stopwatch watch = Stopwatch.createStarted();
