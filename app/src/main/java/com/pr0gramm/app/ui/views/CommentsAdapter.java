@@ -59,14 +59,14 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public void setPrioritizeOpComments(boolean enabled) {
-        if(prioritizeOpComments != enabled) {
+        if (prioritizeOpComments != enabled) {
             prioritizeOpComments = enabled;
             notifyDataSetChanged();
         }
     }
 
     public void setSelectedCommentId(long id) {
-        if(selectedCommentId != id) {
+        if (selectedCommentId != id) {
             selectedCommentId = id;
             notifyDataSetChanged();
         }
@@ -227,8 +227,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     private void appendChildComments(List<Comment> target,
-                                            ListMultimap<Long, Comment> byParent,
-                                            long id, String op) {
+                                     ListMultimap<Long, Comment> byParent,
+                                     long id, String op) {
 
         Ordering<Comment> ordering = COMMENT_BY_CONFIDENCE;
         if (op != null && prioritizeOpComments) {

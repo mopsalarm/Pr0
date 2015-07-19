@@ -26,7 +26,7 @@ import org.joda.time.Instant;
 public class ApiGsonBuilder {
     public static GsonBuilder builder() {
         return new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
+                .registerTypeAdapter(Instant.class, new InstantTypeAdapter().nullSafe())
                 .registerTypeAdapterFactory(new GsonAdaptersTag())
                 .registerTypeAdapterFactory(new GsonAdaptersComment())
                 .registerTypeAdapterFactory(new GsonAdaptersFeed())

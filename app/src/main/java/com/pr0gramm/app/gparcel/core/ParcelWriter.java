@@ -101,7 +101,7 @@ class ParcelWriter extends JsonWriter {
     public JsonWriter value(long value) throws IOException {
         token(JsonToken.NUMBER);
         parcel.writeByte(ParcelContext.NUMBER_LONG);
-        parcel.writeDouble(value);
+        parcel.writeLong(value);
         return this;
     }
 

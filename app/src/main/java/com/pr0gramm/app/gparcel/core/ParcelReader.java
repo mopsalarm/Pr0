@@ -57,6 +57,7 @@ class ParcelReader extends JsonReader {
 
     @Override
     public boolean hasNext() throws IOException {
+        JsonToken next = peek();
         return next != JsonToken.END_ARRAY
                 && next != JsonToken.END_OBJECT
                 && next != JsonToken.END_DOCUMENT;
