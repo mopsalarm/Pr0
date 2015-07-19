@@ -14,6 +14,7 @@ import com.squareup.picasso.Downloader;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
@@ -99,8 +100,7 @@ public class SoftwareVideoMediaView extends MediaView {
         if (videoPlayer != null) {
             videoPlayer.stop();
 
-            Pr0grammApplication.getRefWatcher().watch(videoPlayer);
-            videoPlayer.close();
+            Async.start(new DestroyAction(videoPlayer), Schedulers.io());
             videoPlayer = null;
         }
     }
@@ -141,4 +141,18 @@ public class SoftwareVideoMediaView extends MediaView {
         super.onDestroy();
     }
 
+    private static class DestroyAction implements Func0<Object> {
+        private final SoftwareMediaPlayer player;
+
+        public DestroyAction(SoftwareMediaPlayer player) {
+            this.player = player;
+        }
+
+        @Override
+        public Object call() {
+            player.destroy();
+            Pr0grammApplication.getRefWatcher().watch(player);
+            return null;
+        }
+    }
 }

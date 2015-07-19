@@ -60,9 +60,12 @@ public class InputStreamCache {
      * Closes and invalidates the cache.
      */
     public void close() throws IOException {
-        if (cache != null) {
+        InputStream backend = this.backend;
+        if (backend != null)
+            this.backend.close();
+
+        if (cache != null)
             cache.close();
-        }
     }
 
     private class CachingInputStream extends InputStream {

@@ -20,9 +20,12 @@ import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+
+import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 
 /**
  */
@@ -31,24 +34,37 @@ public abstract class SoftwareMediaPlayer {
 
     private final AtomicBoolean running = new AtomicBoolean();
     private final AtomicBoolean paused = new AtomicBoolean();
-    private final InputStreamCache inputCache;
 
+    private final InputStreamCache inputCache;
     private final BehaviorSubject<Size> videoSize = BehaviorSubject.create();
     private final BehaviorSubject<Throwable> errors = BehaviorSubject.create();
     private final VideoDrawable drawable = new VideoDrawable();
     private final AtomicInteger bitmapCount = new AtomicInteger();
 
     private Queue<Bitmap> returned = new LinkedList<>();
+    private AtomicReference<Thread> thread = new AtomicReference<>();
 
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
     }
 
-    public void close() {
+    /**
+     * Destroys the play. This will block until the backend thread stopped.
+     */
+    public void destroy() {
+        checkNotMainThread();
+
+        stop();
+
+        // wait for playback to stop
+        Thread thread = this.thread.get();
+        if (thread != null)
+            Uninterruptibles.joinUninterruptibly(thread);
+
         try {
             inputCache.close();
         } catch (IOException error) {
-            logger.warn("Couldnt close cache");
+            logger.warn("couldnt close cache");
         }
     }
 
@@ -59,6 +75,10 @@ public abstract class SoftwareMediaPlayer {
             thread.setDaemon(true);
             thread.setName(getClass().getSimpleName() + ":" + this);
             thread.setPriority(3);
+
+            if (this.thread.getAndSet(thread) != null)
+                logger.warn("A thread was already set");
+
             thread.start();
         }
     }
@@ -66,6 +86,10 @@ public abstract class SoftwareMediaPlayer {
     public void stop() {
         paused.set(false);
         running.set(false);
+
+        Thread thread = this.thread.get();
+        if (thread != null)
+            thread.interrupt();
     }
 
     public void pause() {
@@ -109,7 +133,7 @@ public abstract class SoftwareMediaPlayer {
             try (InputStream stream = inputCache.get()) {
                 playOnce(stream);
 
-            } catch (VideoPlaybackStoppedException ignored) {
+            } catch (VideoPlaybackStoppedException | InterruptedException ignored) {
                 // ignore this one
 
             } catch (Throwable error) {
@@ -118,6 +142,9 @@ public abstract class SoftwareMediaPlayer {
                 break;
             }
         }
+
+        if (!thread.compareAndSet(Thread.currentThread(), null))
+            logger.warn("Could not reset thread, a different thread was already set");
     }
 
     /**
