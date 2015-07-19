@@ -16,6 +16,10 @@
       },
       {
         "type": "Fix",
+        "change": "Farben der Vote-Buttons an die der Website angepasst"
+      },
+      {
+        "type": "Fix",
         "change": "Häufige Speicherfehler auf Android 4.0 Geräten hoffentlich behoben"
       },
       {

@@ -11,8 +11,9 @@ import android.widget.LinearLayout;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  * A plus and a minus sign to handle votes.
@@ -23,12 +24,11 @@ public class VoteView extends LinearLayout {
     private final Settings settings;
 
     private ColorStateList markedColor;
+    private ColorStateList markedColorDown;
     private ColorStateList defaultColor;
 
     private OnVoteListener onVoteListener;
     private Vote state;
-
-    private FeedItem feedItem;
 
     public VoteView(Context context) {
         this(context, null);
@@ -49,6 +49,7 @@ public class VoteView extends LinearLayout {
 
         int orientation = 0, spacing = 0, textSize = 24;
         markedColor = ColorStateList.valueOf(context.getResources().getColor(R.color.primary));
+        markedColorDown = ColorStateList.valueOf(context.getResources().getColor(R.color.white));
         defaultColor = ColorStateList.valueOf(context.getResources().getColor(R.color.white));
 
         if (attrs != null) {
@@ -60,9 +61,20 @@ public class VoteView extends LinearLayout {
             try {
                 orientation = a.getInteger(R.styleable.VoteView_orientation, orientation);
                 spacing = a.getDimensionPixelOffset(R.styleable.VoteView_spacing, spacing);
-                markedColor = a.getColorStateList(R.styleable.VoteView_markedColor);
-                defaultColor = a.getColorStateList(R.styleable.VoteView_defaultColor);
                 textSize = a.getDimensionPixelSize(R.styleable.VoteView_textSize, textSize);
+
+                ColorStateList color = a.getColorStateList(R.styleable.VoteView_markedColor);
+                if (color != null)
+                    markedColor = color;
+
+
+                color = a.getColorStateList(R.styleable.VoteView_markedColorDown);
+                if (color != null)
+                    markedColorDown = color;
+
+                color = a.getColorStateList(R.styleable.VoteView_defaultColor);
+                if (color != null)
+                    defaultColor = color;
 
             } finally {
                 a.recycle();
@@ -134,6 +146,14 @@ public class VoteView extends LinearLayout {
         this.markedColor = markedColor;
     }
 
+    public void setMarkedColorDown(ColorStateList markedColorDown) {
+        this.markedColorDown = markedColorDown;
+    }
+
+    public ColorStateList getMarkedColorDown() {
+        return markedColorDown;
+    }
+
     public void setVote(Vote vote) {
         setVote(vote, false);
     }
@@ -176,7 +196,7 @@ public class VoteView extends LinearLayout {
 
         if (state == Vote.DOWN) {
             viewRateUp.setTextColor(defaultColor);
-            viewRateDown.setTextColor(markedColor);
+            viewRateDown.setTextColor(firstNonNull(markedColorDown, markedColor));
             viewRateUp.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
             viewRateDown.animate().rotation(360).alpha(1f).setDuration(duration).start();
         }
