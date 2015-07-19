@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -100,6 +101,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public void onBindViewHolder(CommentView view, int position) {
+        Resources resources = view.itemView.getResources();
+
         CommentEntry entry = comments.get(position);
         Comment comment = entry.comment;
 
@@ -127,9 +130,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.vote.setOnVoteListener(v -> {
             boolean changed = doVote(entry, v);
             notifyItemChanged(position);
-            // view.senderInfo.setPoints(getCommentScore(entry));
             return changed;
         });
+
+        view.itemView.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
 
         view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
 
@@ -182,7 +186,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public static class CommentView extends RecyclerView.ViewHolder {
-
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
@@ -199,7 +202,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         public void setCommentDepth(int depth) {
             ((CommentSpacerView) itemView).setDepth(depth);
         }
-
     }
 
     public interface CommentActionListener {
@@ -209,7 +211,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         void onAnswerClicked(Comment comment);
 
         void onCommentAuthorClicked(Comment comment);
-
     }
 
     /**

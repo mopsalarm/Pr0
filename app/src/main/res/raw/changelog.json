@@ -11,6 +11,10 @@
         "change": "Begonnen die Anzeige der Userdetails zu überarbeiten - ist noch nicht fertig!"
       },
       {
+        "type": "Neu",
+        "change": "Kommentare mit eigenem Downvote werden nun ausgegraut"
+      },
+      {
         "type": "Fix",
         "change": "Häufige Speicherfehler auf Android 4.0 Geräten hoffentlich behoben"
       },
