@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -133,11 +134,13 @@ public abstract class SoftwareMediaPlayer {
             try (InputStream stream = inputCache.get()) {
                 playOnce(stream);
 
-            } catch (VideoPlaybackStoppedException | InterruptedException ignored) {
+            } catch (VideoPlaybackStoppedException | InterruptedException | InterruptedIOException ignored) {
                 // ignore this one
 
             } catch (Throwable error) {
-                errors.onNext(error);
+                if(running.get() && !paused.get())
+                    errors.onNext(error);
+
                 stop();
                 break;
             }
