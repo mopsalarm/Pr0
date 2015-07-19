@@ -1,6 +1,7 @@
 package com.pr0gramm.app.vpx;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 
@@ -17,8 +18,8 @@ import java.io.InputStream;
 /**
  */
 public class WebmMediaPlayer extends SoftwareMediaPlayer {
-    public WebmMediaPlayer(InputStream inputStream) {
-        super(inputStream);
+    public WebmMediaPlayer(Context context, InputStream inputStream) {
+        super(context, inputStream);
     }
 
     @SuppressLint("NewApi")

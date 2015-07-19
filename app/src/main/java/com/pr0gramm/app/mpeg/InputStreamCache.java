@@ -1,64 +1,91 @@
 package com.pr0gramm.app.mpeg;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 
-import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  */
 public class InputStreamCache {
-    private final List<ByteSource> cache = new ArrayList<>();
-    private final InputStream backend;
-    private boolean closed;
+    private final File directory;
+    private InputStream backend;
+    private RandomAccessFile cache;
 
-    public InputStreamCache(InputStream backend) {
+    public InputStreamCache(Context context, InputStream backend) {
+        this.directory = context.getCacheDir();
         this.backend = backend;
     }
 
+    private RandomAccessFile newCacheFile() throws IOException {
+        File file = File.createTempFile("video", "cache", directory);
+        try {
+            return new RandomAccessFile(file, "rw");
+
+        } finally {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+    }
+
+    private boolean backendIsClosed() {
+        return backend == null;
+    }
+
     private void checkIfOpen() {
-        if (closed) {
+        if (backendIsClosed()) {
             throw new IllegalStateException("input stream is closed.");
         }
     }
 
     public InputStream get() throws IOException {
-        if (closed) {
-            return ByteSource.concat(cache).openStream();
+        if (backendIsClosed()) {
+            // reset the cache and return a new input stream.
+            cache.seek(0);
+            return new FileInputStream(cache.getFD());
         } else {
+            cache = newCacheFile();
             return new CachingInputStream();
+        }
+    }
+
+    /**
+     * Closes and invalidates the cache.
+     */
+    public void close() throws IOException {
+        if (cache != null) {
+            cache.close();
         }
     }
 
     private class CachingInputStream extends InputStream {
         private ByteBuffer current;
 
-        private void freeze() {
+        private void freeze() throws IOException {
             ByteBuffer buffer = current;
             if (buffer != null && buffer.position() > 0) {
                 buffer.flip();
 
-                byte[] copy = Arrays.copyOf(buffer.array(), buffer.remaining());
-                cache.add(ByteSource.wrap(copy));
-            }
+                cache.write(buffer.array(), 0, buffer.remaining());
 
-            current = null;
+                // clear the buffer
+                current.clear();
+            }
         }
 
-        private ByteBuffer get(int space) {
+        private ByteBuffer get(int space) throws IOException {
             if (current != null && current.remaining() < space) {
                 freeze();
             }
 
-            if (current == null) {
+            if (current == null || current.remaining() < space) {
                 current = ByteBuffer.allocate(Math.max(space, 64 * 1024));
             }
 
@@ -70,7 +97,7 @@ public class InputStreamCache {
             checkIfOpen();
 
             int result = backend.read();
-            if(result >= 0) {
+            if (result >= 0) {
                 ByteBuffer buffer = get(1);
                 buffer.put((byte) result);
             }
@@ -83,7 +110,7 @@ public class InputStreamCache {
             checkIfOpen();
 
             int result = ByteStreams.read(backend, bytes, byteOffset, byteCount);
-            if(result > 0) {
+            if (result > 0) {
                 ByteBuffer buffer = get(result);
                 buffer.put(bytes, byteOffset, result);
             }
@@ -99,8 +126,8 @@ public class InputStreamCache {
         @Override
         public void close() throws IOException {
             freeze();
-            closed = true;
             backend.close();
+            backend = null;
         }
     }
 }

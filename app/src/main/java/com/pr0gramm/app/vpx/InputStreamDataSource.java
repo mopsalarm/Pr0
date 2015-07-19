@@ -1,6 +1,7 @@
 package com.pr0gramm.app.vpx;
 
 import com.google.common.base.Throwables;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ class InputStreamDataSource implements org.ebml.io.DataSource {
     public int read(ByteBuffer byteBuffer) {
         try {
             int offset = byteBuffer.arrayOffset() + byteBuffer.position();
-            int count = stream.read(byteBuffer.array(), offset, byteBuffer.remaining());
+            int count = ByteStreams.read(stream, byteBuffer.array(), offset, byteBuffer.remaining());
             byteBuffer.position(byteBuffer.position() + count);
             position += count;
             return count;

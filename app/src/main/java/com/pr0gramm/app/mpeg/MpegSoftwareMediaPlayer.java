@@ -1,10 +1,8 @@
 package com.pr0gramm.app.mpeg;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.pr0gramm.app.mpeg.PictureBuffer;
-import com.pr0gramm.app.mpeg.VideoConsumer;
-import com.pr0gramm.app.mpeg.VideoDecoder;
 import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
 
 import java.io.InputStream;
@@ -15,8 +13,8 @@ import java.io.InputStream;
 public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements VideoConsumer {
     private PictureBuffer buffer;
 
-    public MpegSoftwareMediaPlayer(InputStream inputStream) {
-        super(inputStream);
+    public MpegSoftwareMediaPlayer(Context context, InputStream inputStream) {
+        super(context, inputStream);
     }
 
     @Override

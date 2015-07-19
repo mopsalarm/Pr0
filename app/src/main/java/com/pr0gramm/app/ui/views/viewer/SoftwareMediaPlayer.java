@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -38,8 +40,16 @@ public abstract class SoftwareMediaPlayer {
 
     private Queue<Bitmap> returned = new LinkedList<>();
 
-    public SoftwareMediaPlayer(InputStream inputStream) {
-        this.inputCache = new InputStreamCache(new BufferedInputStream(inputStream));
+    public SoftwareMediaPlayer(Context context, InputStream inputStream) {
+        this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
+    }
+
+    public void close() {
+        try {
+            inputCache.close();
+        } catch (IOException error) {
+            logger.warn("Couldnt close cache");
+        }
     }
 
     public void start() {

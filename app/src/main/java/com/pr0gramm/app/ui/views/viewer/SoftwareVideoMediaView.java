@@ -66,10 +66,10 @@ public class SoftwareVideoMediaView extends MediaView {
 
             String urlString = getMediaUri().toString();
             if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg"))
-                return new MpegSoftwareMediaPlayer(response.getInputStream());
+                return new MpegSoftwareMediaPlayer(getContext(), response.getInputStream());
 
             if (urlString.endsWith(".webm"))
-                return new WebmMediaPlayer(response.getInputStream());
+                return new WebmMediaPlayer(getContext(), response.getInputStream());
 
             throw new RuntimeException("Unknown video type");
         }, Schedulers.io());
@@ -100,6 +100,7 @@ public class SoftwareVideoMediaView extends MediaView {
             videoPlayer.stop();
 
             Pr0grammApplication.getRefWatcher().watch(videoPlayer);
+            videoPlayer.close();
             videoPlayer = null;
         }
     }
