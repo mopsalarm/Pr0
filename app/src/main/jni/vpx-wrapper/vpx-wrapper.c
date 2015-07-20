@@ -4,12 +4,16 @@
 
 #include <vpx/vp8dx.h>
 #include <vpx/vpx_decoder.h>
-#include <android/bitmap.h>
+
 #include <libyuv/convert_argb.h>
 #include <libyuv/scale.h>
 
+#include <android/bitmap.h>
+
 #include <coffeecatch/coffeecatch.h>
 #include <coffeecatch/coffeejni.h>
+
+#define LOG if(false) __android_log_print(ANDROID_LOG_INFO, "VPX",
 
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
@@ -140,37 +144,58 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   int stride_y, stride_u, stride_v;
   int image_width, image_height;
 
-  #define min(a, b) (((a) < (b)) ? a : b)
+  #define min(a, b) (((a) < (b)) ? (a) : (b))
 
+  jboolean result = false;
   if(pixel_skip && image->fmt == VPX_IMG_FMT_I420) {
     planes_need_free = true;
 
     int factor = pixel_skip + 1;
+
     stride_y = multiple_of(8, image->stride[VPX_PLANE_Y] / factor);
     stride_u = multiple_of(8, image->stride[VPX_PLANE_U] / factor);
     stride_v = multiple_of(8, image->stride[VPX_PLANE_V] / factor);
+    if(stride_y <= 0 && stride_u <= 0 && stride_v <= 0) {
+      throw_VpxException(env, "Stride values are not positive");
+      goto exit;
+    }
 
-    image_width = min(image->w / factor, stride_y);
-    image_height = min(image->h / factor, stride_y);
+    image_width = min(image->d_w / factor, stride_y);
+    image_height = image->d_h / factor;
+    if(image_width <= 0 || image_height <= 0) {
+      throw_VpxException(env, "Image size not positive");
+      goto exit;
+    }
+
+    if(image_width > stride_y) {
+      throw_VpxException(env, "Image width larger than image stride");
+      goto exit;
+    }
 
     plane_y = malloc(stride_y * image_height);
     plane_u = malloc(stride_u * image_height);
     plane_v = malloc(stride_v * image_height);
+    if(!plane_y || !plane_u || !plane_v) {
+      throw_VpxException(env, "Could not allocate memory for smaller frame");
+      goto exit;
+    }
 
     I420Scale(
       image->planes[VPX_PLANE_Y], image->stride[VPX_PLANE_Y],
       image->planes[VPX_PLANE_U], image->stride[VPX_PLANE_U],
       image->planes[VPX_PLANE_V], image->stride[VPX_PLANE_V],
-      image->w, image->h,
-      plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
+      image->d_w, image->d_h,
+      plane_y, stride_y,
+      plane_u, stride_u,
+      plane_v, stride_v,
       image_width, image_height,
       kFilterNone);
 
   } else {
     planes_need_free = false;
 
-    image_width = image->w;
-    image_height = image->h;
+    image_width = image->d_w;
+    image_height = image->d_h;
 
     stride_y = image->stride[VPX_PLANE_Y];
     stride_u = image->stride[VPX_PLANE_U];
@@ -199,6 +224,7 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
       break;
   };
 
+exit:
   if(planes_need_free) {
     free(plane_y);
     free(plane_u);
@@ -206,7 +232,6 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   }
 
   AndroidBitmap_unlockPixels(env, bitmap);
-
   return true;
 }
 
