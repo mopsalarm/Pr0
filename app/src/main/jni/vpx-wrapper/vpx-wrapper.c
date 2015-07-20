@@ -139,10 +139,10 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   }
 
   // get the planes and strides
-  bool planes_need_free;
-  unsigned char *plane_y, *plane_u, *plane_v;
-  int stride_y, stride_u, stride_v;
-  int image_width, image_height;
+  bool planes_need_free = false;
+  unsigned char *plane_y = NULL, *plane_u = NULL, *plane_v = NULL;
+  int stride_y = 0, stride_u = 0, stride_v = 0;
+  int image_width = 0, image_height = 0;
 
   #define min(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -225,13 +225,14 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   };
 
 exit:
+  AndroidBitmap_unlockPixels(env, bitmap);
+
   if(planes_need_free) {
     free(plane_y);
     free(plane_u);
     free(plane_v);
   }
 
-  AndroidBitmap_unlockPixels(env, bitmap);
   return true;
 }
 
