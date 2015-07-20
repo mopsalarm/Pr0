@@ -107,6 +107,13 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
   (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
 }
 
+static int multiple_of(int what, int value) {
+  if(value % what) {
+    value += what - (value % what);
+  }
+
+  return value;
+}
 
 JNIEXPORT jboolean JNICALL
 Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
@@ -133,16 +140,18 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr
   int stride_y, stride_u, stride_v;
   int image_width, image_height;
 
+  #define min(a, b) (((a) < (b)) ? a : b)
+
   if(pixel_skip && image->fmt == VPX_IMG_FMT_I420) {
     planes_need_free = true;
 
     int factor = pixel_skip + 1;
-    image_width = image->w / factor;
-    image_height = image->h / factor;
+    stride_y = multiple_of(8, image->stride[VPX_PLANE_Y] / factor);
+    stride_u = multiple_of(8, image->stride[VPX_PLANE_U] / factor);
+    stride_v = multiple_of(8, image->stride[VPX_PLANE_V] / factor);
 
-    stride_y = (image->stride[VPX_PLANE_Y] / factor + 7) / 8 * 8;
-    stride_u = (image->stride[VPX_PLANE_U] / factor + 7) / 8 * 8;
-    stride_v = (image->stride[VPX_PLANE_V] / factor + 7) / 8 * 8;
+    image_width = min(image->w / factor, stride_y);
+    image_height = min(image->h / factor, stride_y);
 
     plane_y = malloc(stride_y * image_height);
     plane_u = malloc(stride_u * image_height);
@@ -175,7 +184,6 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr
   unsigned char *target;
   AndroidBitmap_lockPixels(env, bitmap, (void **) &target);
 
-  #define min(a, b) (((a) < (b)) ? a : b)
   int width = min(bitmap_info.width, image_width);
   int height = min(bitmap_info.height, image_height);
 
