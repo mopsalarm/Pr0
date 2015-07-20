@@ -3,6 +3,10 @@
     "version": 68,
     "changes": [
       {
+        "type": "INFO",
+        "change": "Häufige Abstürze hoffentlich endlich erwischt. Wenn die App noch ständig abstürzt, bitte Feedback geben."
+      },
+      {
         "type": "Neu",
         "change": "Benisgraph anderer Benutzer"
       },
