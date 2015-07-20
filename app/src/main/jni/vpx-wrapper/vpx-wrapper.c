@@ -8,6 +8,9 @@
 #include <libyuv/convert_argb.h>
 #include <libyuv/scale.h>
 
+#include <coffeecatch/coffeecatch.h>
+#include <coffeecatch/coffeejni.h>
+
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
 
@@ -115,10 +118,7 @@ static int multiple_of(int what, int value) {
   return value;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
-  struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
-
+jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitmap, jint pixel_skip) {
   // get the next image from codec
   vpx_image_t *image = vpx_wrapper_next_frame(wrapper);
   if(!image)
@@ -208,4 +208,19 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr
   AndroidBitmap_unlockPixels(env, bitmap);
 
   return true;
+}
+
+ __attribute__ ((noinline))
+ void protected_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitmap, jint pixel_skip, jboolean *result) {
+  COFFEE_TRY_JNI(env, *result=real_vpxGetFrame(env, wrapper, bitmap, pixel_skip));
+  coffeecatch_cancel_pending_alarm();
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
+  struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
+
+  jboolean result = false;
+  protected_vpxGetFrame(env, wrapper, bitmap, pixel_skip, &result);
+  return result;
 }

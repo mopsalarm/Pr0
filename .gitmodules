@@ -1,3 +1,6 @@
 [submodule "app/src/main/jni/libvpx"]
 	path = app/src/main/jni/libvpx
 	url = https://chromium.googlesource.com/webm/libvpx
+[submodule "app/src/main/jni/coffeecatch/coffeecatch"]
+	path = app/src/main/jni/coffeecatch/coffeecatch
+	url = https://github.com/xroche/coffeecatch.git

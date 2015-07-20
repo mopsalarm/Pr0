@@ -2,8 +2,8 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := vpx-wrapper
-LOCAL_C_INCLUDES := libvpx libvpx/third_party/libyuv/include
-LOCAL_STATIC_LIBRARIES := vpx
+LOCAL_C_INCLUDES := libvpx libvpx/third_party/libyuv/include coffeecatch
+LOCAL_STATIC_LIBRARIES := vpx coffeecatch
 LOCAL_ARM_NEON := true
 LOCAL_LDLIBS += -ljnigraphics
 
