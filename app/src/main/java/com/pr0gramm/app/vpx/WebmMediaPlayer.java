@@ -100,9 +100,9 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
                     boolean success;
                     try {
                         success = vpx.get(bitmap, pixelSkip);
-                    } catch (Exception error) {
+                    } catch (Throwable error) {
                         returnBitmap(bitmap);
-                        throw error;
+                        throw new NativeException(error);
                     }
 
                     if (success) {
@@ -136,5 +136,11 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
      */
     public static boolean isAvailable() {
         return VpxWrapper.isAvailable();
+    }
+
+    public static class NativeException extends RuntimeException {
+        public NativeException(Throwable error) {
+            super(error);
+        }
     }
 }

@@ -292,4 +292,10 @@
     <string name="hint_check_compatibility_if_videos_dont_play">Wenn Videos in dieser App-Version nicht richtig abgespielt werden, prüfe bitte die Seite "Kompatibilität" in den Einstellungen.</string>
     <string name="action_recommend">Weiter empfehlen</string>
     <string name="share_using">Teilen mit</string>
+    <string name="error_webm_native_exception">Es ist ein Fehler im webm-Dekoder aufgetreten, die App beendet sich evnt. gleich von alleine. Wenn dies öfters auftritt, deaktiviere den Softwaredekoder oder aktiviere den puren Java Dekoder.</string>
+    <string name="kpi_desc_comments">KOMMENTARE</string>
+    <string name="kpi_desc_favorites">FAVORITEN</string>
+    <string name="kpi_desc_tags">TAGS</string>
+    <string name="kpi_desc_uploads">UPLOADS</string>
+    <string name="upper_benis">BENIS</string>
 </resources>

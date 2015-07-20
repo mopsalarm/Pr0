@@ -8,6 +8,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.vpx.WebmMediaPlayer;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -182,6 +183,9 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(IllegalStateException.class,
                 err -> err.toString().contains("onSaveInstanceState")).doNotReport());
+
+        // Oops, native error, this should not happen!?
+        formatters.add(new Formatter<>(WebmMediaPlayer.NativeException.class, R.string.error_webm_native_exception));
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());

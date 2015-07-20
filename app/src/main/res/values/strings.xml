@@ -322,4 +322,10 @@
     <string name="hint_check_compatibility_if_videos_dont_play">If videos are not playing in this version, please check the page \"Compatibility\" in the settings.</string>
     <string name="action_recommend">Recommend</string>
     <string name="share_using">Share using</string>
+    <string name="error_webm_native_exception">An error in the webm decoder occurred, the app might get unstable and just stop. If this happens often, you could try to activate the java only decoder.</string>
+    <string name="kpi_desc_uploads">UPLOADS</string>
+    <string name="kpi_desc_favorites">FAVORITES</string>
+    <string name="kpi_desc_comments">COMMENTS</string>
+    <string name="kpi_desc_tags">TAGS</string>
+    <string name="upper_benis">BENIS</string>
 </resources>
