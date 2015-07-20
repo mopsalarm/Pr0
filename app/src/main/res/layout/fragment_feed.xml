@@ -4,25 +4,6 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout>
-
-    <com.pr0gramm.app.ui.views.BusyIndicator
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
-
     <FrameLayout
         android:id="@+id/empty"
         android:layout_width="match_parent"
@@ -42,4 +23,24 @@
             android:layout_height="150dp"
             android:layout_gravity="bottom"/>
     </FrameLayout>
+
+    <com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout>
+
+    <com.pr0gramm.app.ui.views.BusyIndicator
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
 </FrameLayout>
