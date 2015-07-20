@@ -210,10 +210,19 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   return true;
 }
 
+#define COFFEE_TRY_JNI_NO_ALARM(ENV, CODE)       \
+  do {                                  \
+    COFFEE_TRY() {                      \
+      CODE;                             \
+    } COFFEE_CATCH() {                  \
+      coffeecatch_throw_exception(ENV); \
+      coffeecatch_cancel_pending_alarm(); \
+    } COFFEE_END();                     \
+  } while(0)
+
  __attribute__ ((noinline))
- void protected_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitmap, jint pixel_skip, jboolean *result) {
-  COFFEE_TRY_JNI(env, *result=real_vpxGetFrame(env, wrapper, bitmap, pixel_skip));
-  coffeecatch_cancel_pending_alarm();
+void protected_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitmap, jint pixel_skip, jboolean *result) {
+  COFFEE_TRY_JNI_NO_ALARM(env, *result=real_vpxGetFrame(env, wrapper, bitmap, pixel_skip));
 }
 
 JNIEXPORT jboolean JNICALL
