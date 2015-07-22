@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
@@ -65,8 +64,8 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
+import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
@@ -289,8 +288,7 @@ public class FeedFragment extends RxRoboFragment {
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
             @Override
             public void onWriteMessageClicked(int userId, String name) {
-                DialogFragment dialog = WritePrivateMessageDialog.newInstance(userId, name);
-                dialog.show(getFragmentManager(), null);
+                startActivity(WriteMessageActivity.intent(getActivity(), userId, name));
             }
 
             @Override

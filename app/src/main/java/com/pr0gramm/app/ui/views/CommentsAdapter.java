@@ -135,7 +135,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.itemView.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
 
-        view.senderInfo.setAnswerClickedListener(v -> doAnswer(comment));
+        view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
         view.itemView.setBackgroundColor(view.itemView.getContext().getResources().getColor(
                 comment.getId() == selectedCommentId

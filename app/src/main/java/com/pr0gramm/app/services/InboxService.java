@@ -82,7 +82,7 @@ public class InboxService {
     /**
      * Sends a private message to a receiver
      */
-    public Observable<Nothing> send(int receiverId, String message) {
+    public Observable<Nothing> send(long receiverId, String message) {
         return api.sendMessage(null, message, receiverId);
     }
 }

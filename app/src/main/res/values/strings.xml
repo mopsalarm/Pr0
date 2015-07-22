@@ -328,4 +328,8 @@
     <string name="kpi_desc_comments">COMMENTS</string>
     <string name="kpi_desc_tags">TAGS</string>
     <string name="upper_benis">BENIS</string>
+    <string name="write_message_placeholder">Message</string>
+    <string name="write_message_title">To %s</string>
+    <string name="write_message_send">SEND</string>
+    <string name="message_must_not_be_empty">The message must not be empty.</string>
 </resources>

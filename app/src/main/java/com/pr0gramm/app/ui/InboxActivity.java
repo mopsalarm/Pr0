@@ -7,8 +7,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.pr0gramm.app.NotificationService;
+import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.InboxFragment;
@@ -59,6 +61,7 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -84,6 +87,17 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         } else {
             handleNewIntent(getIntent());
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item) || OptionMenuHelper.dispatch(this, item);
+    }
+
+    @OptionMenuHelper.OnOptionsItemSelected(android.R.id.home)
+    @Override
+    public void finish() {
+        super.finish();
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.pr0gramm.app.api.pr0gramm.response;
 
 import android.support.annotation.Nullable;
 
+import com.pr0gramm.app.feed.FeedItem;
+
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 import org.joda.time.Instant;
@@ -31,6 +33,34 @@ public abstract class Message {
 
     @Nullable
     public abstract String getThumb();
+
+    public static Message of(PrivateMessage message) {
+        return ImmutableMessage.builder()
+                .withMessage(message.getMessage())
+                .withId(message.getId())
+                .withItemId(0)
+                .withCreated(message.getCreated())
+                .withMark(message.getSenderMark())
+                .withName(message.getSenderName())
+                .withSenderId(message.getSenderId())
+                .withScore(0)
+                .withThumb(null)
+                .build();
+    }
+
+    public static Message of(FeedItem item, Comment comment) {
+        return ImmutableMessage.builder()
+                .withId((int) comment.getId())
+                .withItemId((int) item.getId())
+                .withMessage(comment.getContent())
+                .withSenderId(0)
+                .withName(comment.getName())
+                .withMark(comment.getMark())
+                .withScore(comment.getUp() - comment.getDown())
+                .withCreated(comment.getCreated())
+                .withThumb(item.getThumb())
+                .build();
+    }
 
     public static Message of(UserComments.User sender, UserComments.Comment comment) {
         return of(sender.getId(), sender.getName(), sender.getMark(), comment);

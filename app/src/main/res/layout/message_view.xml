@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
-        style="@style/TextAppearance.AppCompat.Caption"
         android:id="@+id/message_type"
+        style="@style/TextAppearance.AppCompat.Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/grey_700"
-        android:text="@string/inbox_message_private"/>
+        android:layout_marginBottom="8dp"
+        tools:text="@string/inbox_message_private"/>
 
     <ImageView
         android:id="@+id/message_image"
@@ -18,25 +17,22 @@
         android:layout_height="48dp"
         android:layout_below="@id/message_type"
         android:scaleType="centerCrop"
-        android:layout_marginTop="8dp"
-        />
+        tools:ignore="ContentDescription"/>
 
     <TextView
-        style="@style/TextAppearance.AppCompat.Body1"
         android:id="@+id/message_text"
+        style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/message_type"
         android:layout_marginLeft="56dp"
-        android:layout_marginTop="8dp"
         android:singleLine="false"
         android:textIsSelectable="true"
-        android:text="@string/dummy_text"
+        tools:text="@string/dummy_text"
         />
 
     <com.pr0gramm.app.ui.views.SenderInfoView
-        layout="@layout/sender_info"
-        android:id="@+id/sender_info"
+        android:id="@+id/message_sender_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/message_text"
@@ -44,12 +40,13 @@
         android:layout_marginTop="4dp"/>
 
     <View
+        android:id="@+id/message_divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_below="@id/sender_info"
         android:layout_alignLeft="@id/message_text"
         android:layout_alignParentRight="true"
+        android:layout_below="@id/message_sender_info"
         android:layout_marginTop="8dp"
         android:background="@color/brighter_background"/>
 
-</RelativeLayout>
+</merge>

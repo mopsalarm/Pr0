@@ -65,7 +65,7 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
 
         if (!isSelfInfo) {
             // only allow sending to other people
-            actionListener.onAnswerToPrivateMessage(user.getId(), user.getName());
+            actionListener.onNewPrivateMessage(user.getId(), user.getName());
         }
     }
 }

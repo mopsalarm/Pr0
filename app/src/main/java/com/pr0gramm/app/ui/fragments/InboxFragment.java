@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,13 +15,13 @@ import android.view.ViewParent;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
-import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
-import com.pr0gramm.app.ui.dialogs.WritePrivateMessageDialog;
+import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;
@@ -194,9 +193,13 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
     protected final MessageActionListener actionListener = new MessageActionListener() {
         @Override
-        public void onAnswerToPrivateMessage(int receiverId, String name) {
-            DialogFragment dialog = WritePrivateMessageDialog.newInstance(receiverId, name);
-            dialog.show(getFragmentManager(), null);
+        public void onAnswerToPrivateMessage(Message message) {
+            startActivity(WriteMessageActivity.intent(getActivity(), message));
+        }
+
+        @Override
+        public void onNewPrivateMessage(long userId, String name) {
+            startActivity(WriteMessageActivity.intent(getActivity(), userId, name));
         }
 
         @Override
@@ -210,10 +213,8 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
 
         @Override
-        public void onAnswerToCommentClicked(long itemId, long commentId, String name) {
-
-            DialogFragment dialog = ReplyCommentDialogFragment.newInstance(itemId, commentId, name);
-            dialog.show(getFragmentManager(), null);
+        public void onAnswerToCommentClicked(Message message) {
+            startActivity(WriteMessageActivity.intent(getActivity(), message));
         }
 
         @Override

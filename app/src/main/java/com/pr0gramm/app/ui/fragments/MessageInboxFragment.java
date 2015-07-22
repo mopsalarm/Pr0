@@ -34,7 +34,7 @@ public class MessageInboxFragment extends InboxFragment<Message> {
             ((MessageAdapter) adapter).setMessages(messages);
         } else {
             recyclerView.setAdapter(new MessageAdapter(
-                    getActivity(), messages, actionListener, R.layout.inbox_message));
+                    getActivity(), messages, actionListener, R.layout.row_inbox_message));
         }
     }
 

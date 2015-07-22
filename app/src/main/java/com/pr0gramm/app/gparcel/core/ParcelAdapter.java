@@ -38,6 +38,9 @@ public abstract class ParcelAdapter<T> implements Parcelable {
 
     public static <R, T extends ParcelAdapter<R>> R get(Class<T> clazz, Bundle bundle, String key) {
         T wrapper = bundle.getParcelable(key);
+        if (wrapper == null)
+            return null;
+
         if (!clazz.isInstance(wrapper))
             throw new IllegalArgumentException(String.format("Element %s is not of type %s", key, clazz));
 

@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui;
 
+import com.pr0gramm.app.api.pr0gramm.response.Message;
+
 /**
  */
 public interface MessageActionListener {
@@ -7,7 +9,9 @@ public interface MessageActionListener {
      * The user wants to answer to the message with the given id that was
      * written by the given user.
      */
-    void onAnswerToPrivateMessage(int receiverId, String name);
+    void onAnswerToPrivateMessage(Message message);
+
+    void onNewPrivateMessage(long userId, String name);
 
     /**
      * The user clicked on a comment (and probably wants to see that comment now)
@@ -17,7 +21,7 @@ public interface MessageActionListener {
     /**
      * The user wants to answer to a comment
      */
-    void onAnswerToCommentClicked(long itemId, long commentId, String name);
+    void onAnswerToCommentClicked(Message comment);
 
     /**
      * A username was clicked.

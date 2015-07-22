@@ -1,6 +1,16 @@
 [
   {
+    "version": 69,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Antworten auf Kommentare und schreiben von Nachrichten überarbeitet."
+      }
+    ]
+  },
+  {
     "version": 68,
+    "release": true,
     "changes": [
       {
         "type": "INFO",

@@ -104,7 +104,7 @@ public interface Api {
     Observable<Nothing> sendMessage(
             @Field("_nonce") Nonce nonce,
             @Field("comment") String text,
-            @Field("recipientId") int recipient);
+            @Field("recipientId") long recipient);
 
     @GET("/api/items/ratelimited")
     Observable<Nothing> ratelimited();

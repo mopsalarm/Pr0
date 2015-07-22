@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
@@ -133,6 +134,12 @@ public class AndroidUtility {
     public static Bundle bundle(String key, String value) {
         Bundle bundle = new Bundle();
         bundle.putString(key, value);
+        return bundle;
+    }
+
+    public static Bundle bundle(String key, Parcelable value) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(key, value);
         return bundle;
     }
 

@@ -45,7 +45,7 @@ public class SenderInfoView extends LinearLayout {
         badgeOpView = findView(R.id.badge_op);
 
         setBadgeOpVisible(false);
-        setAnswerClickedListener(null);
+        setOnAnswerClickedListener(null);
         setPointsVisible(false);
 
         setSingleLine(false);
@@ -76,7 +76,7 @@ public class SenderInfoView extends LinearLayout {
         badgeOpView.setVisibility(visible ? VISIBLE : GONE);
     }
 
-    public void setAnswerClickedListener(OnClickListener onClickListener) {
+    public void setOnAnswerClickedListener(OnClickListener onClickListener) {
         answerView.setVisibility(onClickListener != null ? VISIBLE : GONE);
         answerView.setOnClickListener(onClickListener);
     }

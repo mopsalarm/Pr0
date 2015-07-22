@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.ui.views.UsernameView;
@@ -76,12 +77,12 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
                 actionListener.onUserClicked(item.message.getSenderId(), item.message.getSenderName());
             });
 
-            view.sender.setAnswerClickedListener(v -> {
-                actionListener.onAnswerToPrivateMessage(item.partner.id, item.partner.name);
+            view.sender.setOnAnswerClickedListener(v -> {
+                actionListener.onAnswerToPrivateMessage(Message.of(item.message));
             });
         } else {
             // reset the answer click listener
-            view.sender.setAnswerClickedListener(null);
+            view.sender.setOnAnswerClickedListener(null);
         }
     }
 

@@ -15,19 +15,11 @@ public class TagListParcelAdapter extends ParcelAdapter<List<Tag>> {
         super(values);
     }
 
+    @SuppressWarnings("unused")
     protected TagListParcelAdapter(Parcel parcel) {
         super(parcel);
     }
 
-    public static final Parcelable.Creator<TagListParcelAdapter> CREATOR = new Creator<TagListParcelAdapter>() {
-        @Override
-        public TagListParcelAdapter createFromParcel(Parcel source) {
-            return new TagListParcelAdapter(source);
-        }
-
-        @Override
-        public TagListParcelAdapter[] newArray(int size) {
-            return new TagListParcelAdapter[size];
-        }
-    };
+    public static final Parcelable.Creator<TagListParcelAdapter> CREATOR =
+            new ReflectionCreator<>(TagListParcelAdapter.class);
 }

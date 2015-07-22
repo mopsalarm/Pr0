@@ -63,10 +63,10 @@ import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.SingleViewAdapter;
+import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
-import com.pr0gramm.app.ui.dialogs.ReplyCommentDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
@@ -113,7 +113,6 @@ import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
  */
 public class PostFragment extends RxRoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
-        ReplyCommentDialogFragment.OnNewCommentsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
@@ -901,9 +900,8 @@ public class PostFragment extends RxRoboFragment implements
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorizedHelper.run(() -> {
-            ReplyCommentDialogFragment
-                    .newInstance(feedItem.getId(), Optional.fromNullable(comment))
-                    .show(getChildFragmentManager(), null);
+            startActivity(WriteMessageActivity.answerComment(
+                    getActivity(), feedItem, comment));
 
         }, retry);
     }
@@ -925,7 +923,7 @@ public class PostFragment extends RxRoboFragment implements
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 
-    @Override
+    // TODO Must be called via EventBus or something.
     public void onNewComments(NewComment response) {
         autoScrollToComment(response.getCommentId());
         displayComments(response.getComments());
