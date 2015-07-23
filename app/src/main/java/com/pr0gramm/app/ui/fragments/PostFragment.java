@@ -900,8 +900,8 @@ public class PostFragment extends RxRoboFragment implements
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorizedHelper.run(() -> {
-            startActivity(WriteMessageActivity.answerComment(
-                    getActivity(), feedItem, comment));
+            startActivity(
+                    WriteMessageActivity.intent(getActivity(), feedItem, comment));
 
         }, retry);
     }

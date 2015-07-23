@@ -2,11 +2,18 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
+import com.google.inject.Inject;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
@@ -14,37 +21,79 @@ import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.ui.fragments.WriteMessageFragment;
+import com.pr0gramm.app.gparcel.MessageParcelAdapter;
+import com.pr0gramm.app.gparcel.core.ParcelAdapter;
+import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.VoteService;
 
 import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
+import rx.functions.Actions;
+
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
+import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */
-@ContentView(R.layout.activity_fragment)
+@ContentView(R.layout.fragment_write_message)
 public class WriteMessageActivity extends RxRoboAppCompatActivity {
+    private static final String ARGUMENT_MESSAGE = "WriteMessageFragment.message";
+    private static final String ARGUMENT_RECEIVER_ID = "WriteMessageFragment.userId";
+    private static final String ARGUMENT_RECEIVER_NAME = "WriteMessageFragment.userName";
+    private static final String ARGUMENT_COMMENT_ID = "WriteMessageFragment.commentId";
+    private static final String ARGUMENT_ITEM_ID = "WriteMessageFragment.itemId";
+
+    @Inject
+    private InboxService inboxService;
+
+    @Inject
+    private VoteService voteService;
+
+    @InjectView(R.id.message_view)
+    private MessageView messageView;
+
+    @InjectView(R.id.new_message_text)
+    private TextView messageText;
+
+    @InjectView(R.id.submit)
+    private Button buttonSubmit;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState == null) {
-            WriteMessageFragment fragment = WriteMessageFragment.newInstance();
-            fragment.setArguments(getIntent().getExtras());
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content, fragment, null)
-                    .commit();
-        }
 
         ActionBar actionbar = getSupportActionBar();
         if (actionbar != null) {
             actionbar.setDisplayShowHomeEnabled(true);
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
+
+        // set title
+        setTitle(getString(R.string.write_message_title, getReceiverName()));
+
+        // and previous message
+        updateMessageView();
+
+        // colorize the button
+        int primary = getResources().getColor(R.color.primary);
+        ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
+        buttonSubmit.setOnClickListener(v -> sendMessageNow());
+
+        messageText.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean empty = s.toString().trim().isEmpty();
+                buttonSubmit.setEnabled(!empty);
+
+                supportInvalidateOptionsMenu();
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item) || OptionMenuHelper.dispatch(this, item);
+        return OptionMenuHelper.dispatch(this, item);
     }
 
     @OnOptionsItemSelected(android.R.id.home)
@@ -53,21 +102,110 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         super.finish();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_write_message, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem item = menu.findItem(R.id.action_send);
+        if (item != null)
+            item.setEnabled(buttonSubmit != null && buttonSubmit.isEnabled());
+
+        return true;
+    }
+
+    @OptionMenuHelper.OnOptionsItemSelected(R.id.action_send)
+    public void sendMessageNow() {
+        String message = getMessageText();
+        if (message.isEmpty()) {
+            DialogBuilder.start(this)
+                    .content(R.string.message_must_not_be_empty)
+                    .positive(R.string.okay)
+                    .show();
+
+            return;
+        }
+
+        if (isCommentAnswer()) {
+            long parentComment = getParentCommentId();
+            long itemId = getItemId();
+
+            bindActivity(this, voteService.postComment(itemId, parentComment, message))
+                    .lift(busyDialog(this))
+                    .doOnCompleted(this::finish)
+                    .subscribe(comments -> {
+                        // FIXME Use eventbus or something to inform post fragment
+                    }, defaultOnError());
+
+        } else {
+            // now send message
+            bindActivity(this, inboxService.send(getReceiverId(), message))
+                    .lift(busyDialog(this))
+                    .doOnCompleted(this::finish)
+                    .subscribe(Actions.empty(), defaultOnError());
+        }
+    }
+
+    private String getMessageText() {
+        return messageText.getText().toString().trim();
+    }
+
+    private void updateMessageView() {
+        // hide view by default and only show, if we found data
+        messageView.setVisibility(View.GONE);
+
+        Bundle extras = getIntent() != null ? getIntent().getExtras() : null;
+        if (extras == null)
+            return;
+
+        Message message = ParcelAdapter.get(MessageParcelAdapter.class, extras, ARGUMENT_MESSAGE);
+        if (message != null) {
+            messageView.update(message);
+            messageView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private String getReceiverName() {
+        return getIntent().getStringExtra(ARGUMENT_RECEIVER_NAME);
+    }
+
+    private long getReceiverId() {
+        return getIntent().getLongExtra(ARGUMENT_RECEIVER_ID, 0);
+    }
+
+    private boolean isCommentAnswer() {
+        return getIntent().hasExtra(ARGUMENT_COMMENT_ID);
+    }
+
+    private long getParentCommentId() {
+        return getIntent().getLongExtra(ARGUMENT_COMMENT_ID, 0);
+    }
+
+    private long getItemId() {
+        return getIntent().getLongExtra(ARGUMENT_ITEM_ID, 0);
+    }
+
     public static Intent intent(Context context, Message message) {
-        Intent intent = new Intent(context, WriteMessageActivity.class);
-        intent.putExtras(WriteMessageFragment.newArguments(message));
+        Intent intent = intent(context, message.getSenderId(), message.getName());
+        intent.putExtra(ARGUMENT_MESSAGE, new MessageParcelAdapter(message));
         return intent;
     }
 
-    public static Intent intent(Context context, long userId, String name) {
+    public static Intent intent(Context context, long userId, String userName) {
         Intent intent = new Intent(context, WriteMessageActivity.class);
-        intent.putExtras(WriteMessageFragment.newArguments(userId, name));
+        intent.putExtra(ARGUMENT_RECEIVER_ID, userId);
+        intent.putExtra(ARGUMENT_RECEIVER_NAME, userName);
         return intent;
     }
 
-    public static Intent answerComment(Context context, FeedItem feedItem, Comment comment) {
-        Intent intent = new Intent(context, WriteMessageActivity.class);
-        intent.putExtras(WriteMessageFragment.newArguments(feedItem, comment));
+    public static Intent intent(Context context, FeedItem feedItem, Comment comment) {
+        Intent intent = intent(context, Message.of(feedItem, comment));
+        intent.putExtra(ARGUMENT_COMMENT_ID, comment.getId());
+        intent.putExtra(ARGUMENT_ITEM_ID, feedItem.getId());
         return intent;
     }
 }
