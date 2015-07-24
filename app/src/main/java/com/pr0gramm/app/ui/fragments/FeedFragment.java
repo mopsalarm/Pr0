@@ -41,6 +41,7 @@ import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -719,6 +720,8 @@ public class FeedFragment extends RxRoboFragment {
             return;
 
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+
+        Track.search(term);
     }
 
     private void onItemClicked(int idx, Optional<Long> commentId, Optional<ImageView> preview) {

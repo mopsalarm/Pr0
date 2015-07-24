@@ -18,7 +18,7 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.19.2'
         classpath 'me.tatarka:gradle-retrolambda:3.2.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.6'
-        classpath 'net.orfjackal.retrolambda:retrolambda:2.0.4'
+        classpath 'net.orfjackal.retrolambda:retrolambda:2.0.5'
     }
 }
 
@@ -142,7 +142,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:recyclerview-v7:22.2.1'
     compile 'com.android.support:design:22.2.1'
-    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.guava:guava:19.0-rc1'
 
     compile 'net.danlew:android.joda:2.8.1'
     compile 'org.roboguice:roboguice:3.0.1'
@@ -164,7 +164,7 @@ dependencies {
         transitive = true
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.4.0@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
         transitive = true;
     }
 

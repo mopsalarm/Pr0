@@ -19,6 +19,7 @@ import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -148,12 +149,16 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
                         setResult(Activity.RESULT_OK, result);
                     }, defaultOnError());
 
+            Track.writeComment();
+
         } else {
             // now send message
             bindActivity(this, inboxService.send(getReceiverId(), message))
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
                     .subscribe(Actions.empty(), defaultOnError());
+
+            Track.writeMessage();
         }
     }
 

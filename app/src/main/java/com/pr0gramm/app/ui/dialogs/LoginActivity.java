@@ -22,6 +22,7 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.SyncBroadcastReceiver;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.services.UserService;
@@ -177,6 +178,8 @@ public class LoginActivity extends RoboActionBarActivity {
             setResult(RESULT_OK);
             finish();
 
+            Track.loginSuccessful();
+
         } else {
             Login.BanInfo ban = response.getBanInfo();
             if (ban != null && ban.isBanned()) {
@@ -192,6 +195,8 @@ public class LoginActivity extends RoboActionBarActivity {
                 String msg = getString(R.string.login_not_successful);
                 showErrorString(getSupportFragmentManager(), msg);
                 enableView(true);
+
+                Track.loginFailed();
             }
         }
     }

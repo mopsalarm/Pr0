@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -57,6 +58,7 @@ public class VoteService {
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
         logger.info("Voting feed item {} {}", item.getId(), vote);
+        Track.votePost(vote);
 
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
         return api.vote(null, item.getId(), vote.getVoteValue());
@@ -64,6 +66,7 @@ public class VoteService {
 
     public Observable<Nothing> vote(Comment comment, Vote vote) {
         logger.info("Voting comment {} {}", comment.getId(), vote);
+        Track.voteComment(vote);
 
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.COMMENT, comment.getId(), vote));
         return api.voteComment(null, comment.getId(), vote.getVoteValue());
@@ -71,6 +74,7 @@ public class VoteService {
 
     public Observable<Nothing> vote(Tag tag, Vote vote) {
         logger.info("Voting tag {} {}", tag.getId(), vote);
+        Track.voteTag(vote);
 
         AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.TAG, tag.getId(), vote));
         return api.voteTag(null, tag.getId(), vote.getVoteValue());

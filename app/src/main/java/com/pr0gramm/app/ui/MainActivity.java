@@ -28,6 +28,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
@@ -359,6 +360,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     @Override
     public void onLogoutClicked() {
         drawerLayout.closeDrawers();
+        Track.logout();
 
         bindActivity(this, userService.logout())
                 .lift(busyDialog(this))

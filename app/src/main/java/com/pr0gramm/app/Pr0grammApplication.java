@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
@@ -52,6 +53,7 @@ public class Pr0grammApplication extends SugarApp {
             if (settings.analyticsEnabled()) {
                 logger.info("Initialize Fabric");
                 Fabric.with(this, new Crashlytics());
+                Fabric.with(this, new Answers());
 
                 LoggerConfiguration.configuration()
                         .removeRootLogcatHandler()

@@ -44,6 +44,7 @@ import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ShareProvider;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.Uris;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -417,6 +418,8 @@ public class PostFragment extends RxRoboFragment implements
 
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
+
+        Track.searchImage();
     }
 
     @OnOptionsItemSelected(R.id.action_share_post)
@@ -430,7 +433,10 @@ public class PostFragment extends RxRoboFragment implements
             intent.putExtra(Intent.EXTRA_TEXT,
                     Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
         }
+
         startActivity(intent);
+
+        Track.share("post");
     }
 
     @OnOptionsItemSelected(R.id.action_share_direct_link)
@@ -439,6 +445,8 @@ public class PostFragment extends RxRoboFragment implements
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
         startActivity(intent);
+
+        Track.share("image_link");
     }
 
     @OnOptionsItemSelected(R.id.action_share_image)
@@ -448,6 +456,8 @@ public class PostFragment extends RxRoboFragment implements
             intent.setType(mimetype);
             intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
             startActivity(intent);
+
+            Track.share("image");
         });
     }
 

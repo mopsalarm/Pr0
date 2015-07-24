@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
@@ -87,9 +88,14 @@ public class UploadService {
             }
         };
 
+        long size = file.length();
+
         // perform the upload!
         api.upload(output).subscribe(
-                response -> result.onNext(new UploadInfo(response.getKey())),
+                response -> {
+                    Track.upload(size);
+                    result.onNext(new UploadInfo(response.getKey()));
+                },
                 result::onError, result::onCompleted);
 
         return result.ignoreElements().mergeWith(result);

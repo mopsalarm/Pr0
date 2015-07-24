@@ -14,6 +14,8 @@
 -dontwarn org.codehaus.**.**
 -dontwarn org.slf4j.**
 -dontwarn com.google.gson.**
+-dontwarn com.google.j2objc.annotations.**
+-dontwarn java.lang.ClassValue
 
 # keep annotations
 -keepattributes *Annotation*
