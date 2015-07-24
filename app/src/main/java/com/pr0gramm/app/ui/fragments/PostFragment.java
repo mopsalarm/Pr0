@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ShareProvider;
@@ -77,8 +79,6 @@ import com.squareup.picasso.Picasso;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -114,8 +114,6 @@ import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 public class PostFragment extends RxRoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
@@ -292,6 +290,10 @@ public class PostFragment extends RxRoboFragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
+
+        if(requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK) {
+            onNewComments(WriteMessageActivity.getNewComment(data));
+        }
     }
 
     public void setPreviewInfo(PreviewInfo previewInfo) {
@@ -900,8 +902,9 @@ public class PostFragment extends RxRoboFragment implements
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorizedHelper.run(() -> {
-            startActivity(
-                    WriteMessageActivity.intent(getActivity(), feedItem, comment));
+            startActivityForResult(
+                    WriteMessageActivity.intent(getActivity(), feedItem, comment),
+                    RequestCodes.WRITE_COMMENT);
 
         }, retry);
     }

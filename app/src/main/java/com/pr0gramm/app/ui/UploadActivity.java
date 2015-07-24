@@ -33,6 +33,7 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Uris;
@@ -150,8 +151,6 @@ public class UploadActivity extends RxRoboAppCompatActivity {
     public static class UploadFragment extends RxRoboFragment {
         public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
 
-        private final int REQ_SELECT_IMAGE = 1;
-
         @Inject
         private Picasso picasso;
 
@@ -199,7 +198,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             } else {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, REQ_SELECT_IMAGE);
+                startActivityForResult(photoPickerIntent, RequestCodes.SELECT_IMAGE);
             }
 
             // enable auto-complete
@@ -283,7 +282,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             super.onActivityResult(requestCode, resultCode, intent);
 
             logger.info("got response from image picker: rc={}, intent={}", resultCode, intent);
-            if (requestCode == REQ_SELECT_IMAGE) {
+            if (requestCode == RequestCodes.SELECT_IMAGE) {
                 if (resultCode == Activity.RESULT_OK) {
                     Uri image = intent.getData();
                     handleImageUri(image);

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -20,8 +21,10 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.gparcel.MessageParcelAdapter;
+import com.pr0gramm.app.gparcel.NewCommentParcelAdapter;
 import com.pr0gramm.app.gparcel.core.ParcelAdapter;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.VoteService;
@@ -43,6 +46,8 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
     private static final String ARGUMENT_RECEIVER_NAME = "WriteMessageFragment.userName";
     private static final String ARGUMENT_COMMENT_ID = "WriteMessageFragment.commentId";
     private static final String ARGUMENT_ITEM_ID = "WriteMessageFragment.itemId";
+
+    private static final String RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment";
 
     @Inject
     private InboxService inboxService;
@@ -137,8 +142,10 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
             bindActivity(this, voteService.postComment(itemId, parentComment, message))
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
-                    .subscribe(comments -> {
-                        // FIXME Use eventbus or something to inform post fragment
+                    .subscribe(newComments -> {
+                        Intent result = new Intent();
+                        result.putExtra(RESULT_EXTRA_NEW_COMMENT, new NewCommentParcelAdapter(newComments));
+                        setResult(Activity.RESULT_OK, result);
                     }, defaultOnError());
 
         } else {
@@ -207,5 +214,10 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         intent.putExtra(ARGUMENT_COMMENT_ID, comment.getId());
         intent.putExtra(ARGUMENT_ITEM_ID, feedItem.getId());
         return intent;
+    }
+
+    public static NewComment getNewComment(Intent data) {
+        return ParcelAdapter.get(NewCommentParcelAdapter.class,
+                data.getExtras(), RESULT_EXTRA_NEW_COMMENT);
     }
 }

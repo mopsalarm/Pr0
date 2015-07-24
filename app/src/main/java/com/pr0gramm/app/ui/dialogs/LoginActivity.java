@@ -20,6 +20,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -196,8 +197,6 @@ public class LoginActivity extends RoboActionBarActivity {
     }
 
     public static abstract class DoIfAuthorizedHelper {
-        private final int REQUEST_CODE = 8413;
-
         @Nullable
         private Runnable retry;
 
@@ -205,7 +204,7 @@ public class LoginActivity extends RoboActionBarActivity {
         }
 
         public void onActivityResult(int requestCode, int resultCode) {
-            if (requestCode == REQUEST_CODE) {
+            if (requestCode == RequestCodes.AUTHORIZED_HELPER) {
                 if (resultCode == RESULT_OK && retry != null) {
                     retry.run();
                 }
@@ -243,7 +242,7 @@ public class LoginActivity extends RoboActionBarActivity {
                 this.retry = retry;
 
                 Intent intent = new Intent(context, LoginActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, RequestCodes.AUTHORIZED_HELPER);
                 return false;
             }
         }
