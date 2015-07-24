@@ -40,6 +40,12 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
     private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
 
     public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+        if(requestCode == -1) {
+            // this is the same as "no request code"
+            super.startActivityFromFragment(fragment, intent, requestCode);
+            return;
+        }
+
         if ((requestCode & (~REQUEST_CODE_MASK)) != 0) {
             logger.warn("Can use only use lower {} bits for requestCode, int value in range 1..{}",
                     REQUEST_CODE_EXT_BITS, POW_2[REQUEST_CODE_EXT_BITS] - 1);
