@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -101,8 +100,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public void onBindViewHolder(CommentView view, int position) {
-        Resources resources = view.itemView.getResources();
-
         CommentEntry entry = comments.get(position);
         Comment comment = entry.comment;
 
@@ -133,7 +130,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             return changed;
         });
 
-        view.itemView.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
+        // set alpha for the sub views. sadly, setting alpha on view.itemView is not working
+        view.comment.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
+        view.senderInfo.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
 
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 

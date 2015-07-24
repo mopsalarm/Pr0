@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Antworten auf Kommentare und schreiben von Nachrichten überarbeitet."
+      },
+      {
+        "type": "Fix",
+        "change": "Flackern und Färben beim Downvote von Kommentaren gefixt."
       }
     ]
   },
