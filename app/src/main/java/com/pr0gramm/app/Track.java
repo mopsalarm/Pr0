@@ -109,7 +109,8 @@ public final class Track {
 
     public static void bookmarks(int size) {
         track(answers -> answers.logCustom(new CustomEvent("Bookmarks loaded")
-                .putCustomAttribute("count", size)));
+                .putCustomAttribute("count", size)
+                .putCustomAttribute("bookmarks", String.valueOf(size))));
     }
 
     /**
