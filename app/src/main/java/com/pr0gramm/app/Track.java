@@ -80,6 +80,38 @@ public final class Track {
                 .putCustomAttribute("size", sizeCategory)));
     }
 
+    public static void download() {
+        track(answers -> answers.logCustom(new CustomEvent("Download")));
+    }
+
+    public static void statistics(Settings settings, boolean signedIn) {
+        String decoder;
+        if (settings.useSoftwareDecoder()) {
+            decoder = settings.forceMpegDecoder() ? "mpeg" : "webm";
+        } else {
+            decoder = "native";
+        }
+
+        track(answers -> answers.logCustom(new CustomEvent("Settings")
+                .putCustomAttribute("decoder", decoder)
+                .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
+                .putCustomAttribute("signed in", String.valueOf(signedIn))
+                .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))
+                .putCustomAttribute("repost hint", String.valueOf(settings.markRepostsInFeed()))
+                .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
+                .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
+                .putCustomAttribute("https", String.valueOf(settings.useHttps()))));
+    }
+
+    public static void drawerOpened() {
+        track(answers -> answers.logCustom(new CustomEvent("Drawer opened")));
+    }
+
+    public static void bookmarks(int size) {
+        track(answers -> answers.logCustom(new CustomEvent("Bookmarks loaded")
+                .putCustomAttribute("count", size)));
+    }
+
     /**
      * Only do the tracking if 'answers' is active.
      */
@@ -91,7 +123,7 @@ public final class Track {
             } else {
                 logger.info("Would track an event now");
             }
-        } catch(IllegalStateException error) {
+        } catch (IllegalStateException error) {
             logger.warn("Tried to log without initializing crashlytics");
         }
     }

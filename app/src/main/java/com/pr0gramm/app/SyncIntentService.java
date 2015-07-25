@@ -6,6 +6,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.inject.Inject;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 
 import org.slf4j.Logger;
@@ -26,12 +27,22 @@ public class SyncIntentService extends RoboIntentService {
     @Inject
     private NotificationService notificationService;
 
+    @Inject
+    private SingleShotService singleShotService;
+
+    @Inject
+    private Settings settings;
+
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        logger.info("Doing some statistics related trackings");
+        if(singleShotService.isFirstTimeToday("track-settings"))
+            Track.statistics(settings, userService.isAuthorized());
+
         logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)
             return;

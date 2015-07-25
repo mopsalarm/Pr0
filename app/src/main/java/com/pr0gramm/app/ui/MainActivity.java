@@ -117,8 +117,16 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
-        drawerLayout.setDrawerListener(drawerToggle);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        drawerLayout.setDrawerListener(new ForwardDrawerListener(drawerToggle) {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
+                // i am not quite sure if everyone knows that there is a drawer to open.
+                Track.drawerOpened();
+            }
+        });
 
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

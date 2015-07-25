@@ -25,8 +25,8 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
 
     private static final int[] POW_2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
     // 16 bits available at all
-    private static final int CHAIN_BITS_FOR_INDEX = 3; // adjustable constant, use value 3 or 4
-    private static final int CHAIN_BITS_COUNT = 9; // adjustable constant, use value 9 or 12
+    private static final int CHAIN_BITS_FOR_INDEX = 4; // adjustable constant, use value 3 or 4
+    private static final int CHAIN_BITS_COUNT = 12; // adjustable constant, use value 9 or 12
     private static final int CHAIN_INDEX_MASK = ~(0x80000000 >> (31 - CHAIN_BITS_FOR_INDEX));
     // max allowed depth of fragments
     private static final int CHAIN_MAX_DEPTH = CHAIN_BITS_COUNT / CHAIN_BITS_FOR_INDEX;

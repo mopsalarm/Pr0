@@ -24,6 +24,7 @@ import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.UserClasses;
 import com.pr0gramm.app.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
@@ -286,6 +287,8 @@ public class DrawerFragment extends RxRoboFragment {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
+        Track.bookmarks(entries.size());
+
         boolean premium = userService.isPremiumUser();
         return FluentIterable.from(entries)
                 .filter(entry -> premium || entry.asFeedFilter().getFeedType() != FeedType.PREMIUM)

@@ -510,6 +510,8 @@ public class PostFragment extends RxRoboFragment implements
         request.allowScanningByMediaScanner();
 
         downloadManager.enqueue(request);
+
+        Track.download();
     }
 
     @Override
