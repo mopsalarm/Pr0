@@ -198,6 +198,11 @@ public abstract class InboxFragment<T> extends RoboFragment {
         }
 
         @Override
+        public void onAnswerToCommentClicked(Message message) {
+            startActivity(WriteMessageActivity.answerToComment(getActivity(), message));
+        }
+
+        @Override
         public void onNewPrivateMessage(long userId, String name) {
             startActivity(WriteMessageActivity.intent(getActivity(), userId, name));
         }
@@ -210,11 +215,6 @@ public abstract class InboxFragment<T> extends RoboFragment {
         private void open(Uri uri) {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri, getActivity(), MainActivity.class);
             startActivity(intent);
-        }
-
-        @Override
-        public void onAnswerToCommentClicked(Message message) {
-            startActivity(WriteMessageActivity.intent(getActivity(), message));
         }
 
         @Override

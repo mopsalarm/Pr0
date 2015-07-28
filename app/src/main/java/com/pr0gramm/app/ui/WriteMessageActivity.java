@@ -214,10 +214,17 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         return intent;
     }
 
-    public static Intent intent(Context context, FeedItem feedItem, Comment comment) {
-        Intent intent = intent(context, Message.of(feedItem, comment));
-        intent.putExtra(ARGUMENT_COMMENT_ID, comment.getId());
-        intent.putExtra(ARGUMENT_ITEM_ID, feedItem.getId());
+    public static Intent answerToComment(Context context, FeedItem feedItem, Comment comment) {
+        return answerToComment(context, Message.of(feedItem, comment));
+    }
+
+    public static Intent answerToComment(Context context, Message message) {
+        long itemId = message.getItemId();
+        long commentId = message.getId();
+
+        Intent intent = intent(context, message);
+        intent.putExtra(ARGUMENT_COMMENT_ID, commentId);
+        intent.putExtra(ARGUMENT_ITEM_ID, itemId);
         return intent;
     }
 

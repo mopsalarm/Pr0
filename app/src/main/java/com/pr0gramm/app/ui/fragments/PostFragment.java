@@ -915,7 +915,7 @@ public class PostFragment extends RxRoboFragment implements
 
         doIfAuthorizedHelper.run(() -> {
             startActivityForResult(
-                    WriteMessageActivity.intent(getActivity(), feedItem, comment),
+                    WriteMessageActivity.answerToComment(getActivity(), feedItem, comment),
                     RequestCodes.WRITE_COMMENT);
 
         }, retry);

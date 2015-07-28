@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.RoboGuice;
 
+import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Duration.standardMinutes;
 
 /**
@@ -29,14 +30,18 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         logger.info("System says, we shall sync now");
         UserService userService = RoboGuice.getInjector(context).getInstance(UserService.class);
+
+        long syncTime;
         if (!userService.isAuthorized()) {
-            logger.info("Looks like we are not authorized to sync.");
-            return;
+            logger.info("We are not logged in, lets schedule the next sync in 6 hours");
+            syncTime = SystemClock.elapsedRealtime() + standardHours(6).getMillis();
+        } else {
+            syncTime = getNextSyncTime(context);
         }
 
         try {
-            logger.info("Schedule another sync in one hour.");
-            scheduleNextSync(context);
+            logger.info("Scheduling next sync now");
+            scheduleNextSync(context, syncTime);
         } catch (Exception err) {
             logger.error("Could not schedule the next sync");
         }
@@ -46,11 +51,7 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
         startWakefulService(context, service);
     }
 
-    public static void scheduleNextSync(Context context) {
-        // we don't need to schedule, if benis graph is disabled.
-        if (!Settings.of(context).benisGraphEnabled())
-            return;
-
+    private static void scheduleNextSync(Context context, long syncTime) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // the intent to send to our app in one hour.
@@ -58,8 +59,8 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, nextIntent, 0);
 
         // register a pending event.
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, getNextSyncTime(context),
-                alarmIntent);
+        logger.info("Schedule another sync");
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, syncTime, alarmIntent);
     }
 
     public static void syncNow(Context context) {
@@ -80,6 +81,10 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
 
         prefs.edit().putLong("delay", 2 * delay).apply();
         return SystemClock.elapsedRealtime() + delay;
+    }
+
+    public static void scheduleNextSync(Context context) {
+        scheduleNextSync(context, getNextSyncTime(context));
     }
 
     private static SharedPreferences getSyncPrefs(Context context) {

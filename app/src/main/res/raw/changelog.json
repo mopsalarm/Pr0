@@ -1,6 +1,16 @@
 [
   {
+    "version": 70,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Antwort auf einen Kommentar über die Inbox gefixt"
+      }
+    ]
+  },
+  {
     "version": 69,
+    "release": true,
     "changes": [
       {
         "type": "Neu",
