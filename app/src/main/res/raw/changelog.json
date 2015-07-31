@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Toolbar beim Scrollen wieder korrekt verstecken"
+      },
+      {
+        "type": "Fix",
         "change": "Ein paar kleinere Bugfixes"
       }
     ]

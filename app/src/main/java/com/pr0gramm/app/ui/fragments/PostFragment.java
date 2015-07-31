@@ -981,7 +981,7 @@ public class PostFragment extends RxRoboFragment implements
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             // get our facts straight
             int recyclerHeight = recyclerView.getHeight();
-            int scrollY = estimateRecyclerViewScrollY(recyclerView).or(-recyclerHeight);
+            int scrollY = estimateRecyclerViewScrollY(recyclerView).or(recyclerHeight);
 
             int viewerHeight = viewer.getHeight();
             boolean doFancyScroll = viewerHeight < recyclerHeight;
