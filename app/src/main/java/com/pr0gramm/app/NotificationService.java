@@ -44,6 +44,7 @@ public class NotificationService {
 
         Intent intent = new Intent(context, InboxActivity.class);
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
+        intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

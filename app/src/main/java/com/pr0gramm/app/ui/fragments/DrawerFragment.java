@@ -33,6 +33,7 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.InboxActivity;
@@ -74,6 +75,9 @@ public class DrawerFragment extends RxRoboFragment {
 
     @Inject
     private BookmarkService bookmarkService;
+
+    @Inject
+    private SingleShotService singleShotService;
 
     @InjectView(R.id.username)
     private TextView usernameView;
@@ -287,7 +291,8 @@ public class DrawerFragment extends RxRoboFragment {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        Track.bookmarks(entries.size());
+        if(singleShotService.isFirstTimeToday("bookmarksLoaded"))
+            Track.bookmarks(entries.size());
 
         boolean premium = userService.isPremiumUser();
         return FluentIterable.from(entries)

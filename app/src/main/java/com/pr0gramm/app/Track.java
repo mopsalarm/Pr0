@@ -114,7 +114,11 @@ public final class Track {
     }
 
     public static void notificationShown() {
-        track(answers -> answers.logCustom(new CustomEvent("Notification Shown")));
+        track(answers -> answers.logCustom(new CustomEvent("Notification shown")));
+    }
+
+    public static void notificationClicked() {
+        track(answers -> answers.logCustom(new CustomEvent("Notification clicked")));
     }
 
     public static void experimentEvent(String experiment, String caseName, String actionName) {

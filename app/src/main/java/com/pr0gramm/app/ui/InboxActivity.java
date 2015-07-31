@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.pr0gramm.app.NotificationService;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.services.UserService;
@@ -29,6 +30,7 @@ import roboguice.inject.InjectView;
  */
 public class InboxActivity extends RoboActionBarActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
+    public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
 
     @Inject
     private UserService userService;
@@ -92,6 +94,11 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
 
         experimentService.report(Experiments.DRAWER_EXPERIMENT,
                 Experiments.DrawerExperiment.Actions.INBOX_OPENED);
+
+        // track if we've clicked the notification!
+        if(getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
+            Track.notificationClicked();
+        }
     }
 
     @Override

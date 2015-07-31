@@ -28,7 +28,7 @@ public class Experiments {
         }
 
         public enum Actions {
-            INBOX_OPENED, MESSAGE_WRITTEN, BOOKMARK_CREATED
+            INBOX_OPENED, MESSAGE_WRITTEN, BOOKMARK_CREATED, UPLOAD_ACTIVITY, IMAGE_UPLOADED
         }
     }
 
