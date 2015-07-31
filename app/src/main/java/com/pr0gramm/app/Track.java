@@ -113,6 +113,11 @@ public final class Track {
                 .putCustomAttribute("bookmarks", String.valueOf(size))));
     }
 
+    public static void experimentEvent(String experiment, String caseName, String actionName) {
+        track(answers -> answers.logCustom(new CustomEvent(experiment)
+                .putCustomAttribute(actionName, caseName)));
+    }
+
     /**
      * Only do the tracking if 'answers' is active.
      */
