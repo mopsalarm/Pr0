@@ -39,7 +39,7 @@ public class ExperimentService {
 
         Case selectedCase;
         synchronized (lock) {
-            selectedCase = currentCaseOf(experiment).or(() -> participate(experiment));
+            selectedCase = currentCaseOf(experiment).or(() -> startParticipating(experiment));
         }
 
         onParticipate.call(selectedCase);
@@ -56,11 +56,18 @@ public class ExperimentService {
     }
 
     private <Case extends Enum<Case>, Action extends Enum<Action>>
-    Case participate(Experiment<Case, Action> experiment) {
+    Case startParticipating(Experiment<Case, Action> experiment) {
         ImmutableList<Case> cases = experiment.getCases();
         Case selectedCase = cases.get((int) (Math.random() * cases.size()));
 
-        preferences.edit().putString(experiment.getName(), selectedCase.name()).apply();
+        // track the info, that a user starts participating in this experiment
+        Track.experimentEvent(experiment.getName(), "_Participating", enumName(selectedCase));
+
+        // store info for the next time
+        preferences.edit()
+                .putString(experiment.getName(), selectedCase.name())
+                .apply();
+
         return selectedCase;
     }
 
