@@ -58,6 +58,8 @@ public class NotificationService {
                 .build();
 
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, notification);
+
+        Track.notificationShown();
     }
 
     public void cancelForInbox() {

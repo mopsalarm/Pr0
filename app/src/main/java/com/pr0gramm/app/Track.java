@@ -113,6 +113,10 @@ public final class Track {
                 .putCustomAttribute("bookmarks", String.valueOf(size))));
     }
 
+    public static void notificationShown() {
+        track(answers -> answers.logCustom(new CustomEvent("Notification Shown")));
+    }
+
     public static void experimentEvent(String experiment, String caseName, String actionName) {
         track(answers -> answers.logCustom(new CustomEvent(experiment)
                 .putCustomAttribute(actionName, caseName)));
