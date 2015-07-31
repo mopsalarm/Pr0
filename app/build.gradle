@@ -132,6 +132,7 @@ repositories {
     maven { url "https://maven.fabric.io/public" }
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url 'http://dl.bintray.com/amulyakhare/maven' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
@@ -159,6 +160,10 @@ dependencies {
     compile 'de.psdev.licensesdialog:licensesdialog:1.7.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.google.android.apps.muzei:muzei-api:2.0'
+
+    compile('com.github.worker8:tourguide:1.0.12-SNAPSHOT@aar') {
+        transitive = true
+    }
 
     compile('pl.brightinventions:slf4android:0.1.1@aar') {
         transitive = true

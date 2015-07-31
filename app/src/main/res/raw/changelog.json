@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Antwort auf einen Kommentar über die Inbox gefixt"
+      },
+      {
+        "type": "Fix",
+        "change": "Ein paar kleine Bugfixes"
       }
     ]
   },

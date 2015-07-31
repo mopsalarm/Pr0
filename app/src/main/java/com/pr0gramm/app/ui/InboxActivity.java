@@ -12,13 +12,12 @@ import android.view.MenuItem;
 import com.pr0gramm.app.NotificationService;
 import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.ui.fragments.InboxFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
-
-import java.io.NotSerializableException;
 
 import javax.inject.Inject;
 
@@ -36,6 +35,9 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
 
     @Inject
     private NotificationService notificationService;
+
+    @Inject
+    private ExperimentService experimentService;
 
     @InjectView(R.id.pager)
     private ViewPager viewPager;
@@ -87,6 +89,9 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         } else {
             handleNewIntent(getIntent());
         }
+
+        experimentService.report(Experiments.DRAWER_EXPERIMENT,
+                Experiments.DrawerExperiment.Actions.INBOX_OPENED);
     }
 
     @Override

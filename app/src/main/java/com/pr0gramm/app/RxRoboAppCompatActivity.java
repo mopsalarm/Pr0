@@ -5,10 +5,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SupportV4App;
 
+import com.pr0gramm.app.ab.ExperimentService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.activity.RoboFragmentActivity;
@@ -38,6 +42,9 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
     private static final int FRAGMENT_MAX_COUNT = POW_2[CHAIN_BITS_FOR_INDEX] - 1;
 
     private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
+
+    @Inject
+    protected ExperimentService experimentService;
 
     public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
         if(requestCode == -1) {

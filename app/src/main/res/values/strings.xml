@@ -332,4 +332,6 @@
     <string name="write_message_title">To %s</string>
     <string name="write_message_send">SEND</string>
     <string name="message_must_not_be_empty">The message must not be empty.</string>
+    <string name="hint_drawer_text">Click here for messages and more!</string>
+    <string name="hint_drawer_title">Welcome</string>
 </resources>

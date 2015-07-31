@@ -3,6 +3,9 @@ package com.pr0gramm.app;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.inject.Inject;
+import com.pr0gramm.app.ab.ExperimentService;
+
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.android.lifecycle.LifecycleEvent;
@@ -13,6 +16,9 @@ import rx.subjects.BehaviorSubject;
  */
 public class RxRoboFragment extends RoboFragment {
     private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
+
+    @Inject
+    protected ExperimentService experimentService;
 
     public Observable<LifecycleEvent> lifecycle() {
         return lifecycleSubject.asObservable();

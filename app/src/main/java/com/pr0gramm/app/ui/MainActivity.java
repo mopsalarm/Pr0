@@ -17,9 +17,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.AndroidUtility;
@@ -29,6 +31,7 @@ import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.Track;
+import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
@@ -50,6 +53,10 @@ import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
+import tourguide.tourguide.Overlay;
+import tourguide.tourguide.Pointer;
+import tourguide.tourguide.ToolTip;
+import tourguide.tourguide.TourGuide;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -96,6 +103,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
     private boolean startedWithIntent;
+    private TourGuide tourGuide;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +133,12 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
                 // i am not quite sure if everyone knows that there is a drawer to open.
                 Track.drawerOpened();
+
+                // disable the tourguide
+                if (tourGuide != null) {
+                    tourGuide.cleanUp();
+                    tourGuide = null;
+                }
             }
         });
 
@@ -159,7 +173,6 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         }
 
         addOriginalContentBookmarkOnce();
-        deactivateSurfaceViewOnce();
 
         if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint_2")) {
             showActivateGifToWebmPopup();
@@ -178,6 +191,37 @@ public class MainActivity extends RxRoboAppCompatActivity implements
                 settings.edit().putBoolean("pref_use_software_decoder", true).apply();
             }
         }
+
+        if (singleShotService.isFirstTime("showOpenDrawerTourguide")) {
+            experimentService.participate(Experiments.DRAWER_EXPERIMENT, action -> {
+                if (action == Experiments.DrawerExperiment.Cases.SHOW_DRAWER_HINT) {
+                    showOpenDrawerTourguide();
+                }
+            });
+        }
+    }
+
+    private void showOpenDrawerTourguide() {
+        View home = null;
+        for (int idx = 0; idx < toolbar.getChildCount(); idx++) {
+            View view = toolbar.getChildAt(idx);
+            if (view instanceof ImageView) {
+                home = view;
+                break;
+            }
+        }
+
+        if (home != null) {
+            tourGuide = TourGuide.init(this).with(TourGuide.Technique.Click)
+                    .setPointer(new Pointer()
+                            .setColor(0x80ffffff))
+                    .setToolTip(new ToolTip()
+                            .setTitle(getString(R.string.hint_drawer_title))
+                            .setDescription(getString(R.string.hint_drawer_text))
+                            .setGravity(Gravity.RIGHT | Gravity.BOTTOM))
+                    .setOverlay(new Overlay())
+                    .playOn(home);
+        }
     }
 
     private void showActivateGifToWebmPopup() {
@@ -187,14 +231,6 @@ public class MainActivity extends RxRoboAppCompatActivity implements
                     .positive(R.string.yes, di -> settings.edit().putBoolean("pref_convert_gif_to_webm", true).apply())
                     .negative(R.string.no)
                     .show();
-        }
-    }
-
-    private void deactivateSurfaceViewOnce() {
-        if (singleShotService.isFirstTime("auto_deactivate_surface_view_again")) {
-            settings.edit()
-                    .putBoolean("pref_use_surface_view", false)
-                    .apply();
         }
     }
 
@@ -407,6 +443,9 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     public void pinFeedFilter(FeedFilter filter, String title) {
         bookmarkService.create(filter, title).subscribe(Actions.empty(), defaultOnError());
         drawerLayout.openDrawer(GravityCompat.START);
+
+        experimentService.report(Experiments.DRAWER_EXPERIMENT,
+                Experiments.DrawerExperiment.Actions.BOOKMARK_CREATED);
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {

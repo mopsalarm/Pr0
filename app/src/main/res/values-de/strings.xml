@@ -298,4 +298,6 @@
     <string name="kpi_desc_tags">TAGS</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
     <string name="upper_benis">BENIS</string>
+    <string name="hint_drawer_title">Willkommen</string>
+    <string name="hint_drawer_text">Klicke hier für deine Nachrichten und mehr!</string>
 </resources>
