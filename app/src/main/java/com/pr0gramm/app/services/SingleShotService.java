@@ -25,6 +25,7 @@ public class SingleShotService {
 
     private final Gson gson = new Gson();
     private final SharedPreferences preferences;
+    private Map<String, String> todayMap;
 
     @Inject
     public SingleShotService(SharedPreferences preferences) {
@@ -53,16 +54,19 @@ public class SingleShotService {
     @SuppressWarnings("unchecked")
     public synchronized boolean isFirstTimeToday(String action) {
         String today = DateTime.now().toString(DateTimeFormat.forPattern("YYYY-MM-dd"));
-        Map<String, String> map = gson.fromJson(preferences.getString(KEY_MAP_ACTIONS, "{}"), Map.class);
+        if (todayMap == null) {
+            todayMap = new HashMap<>(gson.fromJson(
+                    preferences.getString(KEY_MAP_ACTIONS, "{}"),
+                    Map.class));
+        }
 
-        if (today.equals(map.get(action))) {
+        if (today.equals(todayMap.get(action))) {
             return false;
         } else {
-            map = new HashMap<>(map);
-            map.put(action, today);
+            todayMap.put(action, today);
 
             preferences.edit()
-                    .putString(KEY_MAP_ACTIONS, gson.toJson(map))
+                    .putString(KEY_MAP_ACTIONS, gson.toJson(todayMap))
                     .apply();
 
             return true;
