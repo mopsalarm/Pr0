@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
@@ -38,6 +39,8 @@ public class FeedService {
                                             Set<ContentType> contentTypes,
                                             Optional<Long> newer,
                                             Optional<Long> around) {
+
+        Track.requestFeed(feedFilter.getFeedType());
 
         // filter by feed-type
         Integer promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : null;

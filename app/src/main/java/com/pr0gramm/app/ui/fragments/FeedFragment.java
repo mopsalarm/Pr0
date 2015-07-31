@@ -175,8 +175,6 @@ public class FeedFragment extends RxRoboFragment {
             autoScrollOnLoad = start.getItemId();
             autoOpenOnLoad = start;
         }
-
-
     }
 
     @Override

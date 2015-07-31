@@ -6,6 +6,7 @@ import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.RatingEvent;
 import com.crashlytics.android.answers.SearchEvent;
 import com.crashlytics.android.answers.ShareEvent;
+import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
 import org.slf4j.Logger;
@@ -124,6 +125,11 @@ public final class Track {
     public static void experimentEvent(String experiment, String caseName, String actionName) {
         track(answers -> answers.logCustom(new CustomEvent(experiment)
                 .putCustomAttribute(actionName, caseName)));
+    }
+
+    public static void requestFeed(FeedType feedType) {
+        track(answers -> answers.logCustom(new CustomEvent("Load feed")
+                .putCustomAttribute("feed type", feedType.name())));
     }
 
     /**
