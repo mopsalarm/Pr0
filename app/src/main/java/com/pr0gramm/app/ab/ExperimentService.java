@@ -61,7 +61,7 @@ public class ExperimentService {
         Case selectedCase = cases.get((int) (Math.random() * cases.size()));
 
         // track the info, that a user starts participating in this experiment
-        Track.experimentEvent(experiment.getName(), "NowParticipating", enumName(selectedCase));
+        Track.experimentEvent(experiment.getName(), enumName(selectedCase), "NowParticipating");
 
         // store info for the next time
         preferences.edit()
