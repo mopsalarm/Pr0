@@ -98,6 +98,7 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
                 .build());
 
         scheduleUpdate(System.currentTimeMillis() + ROTATE_TIME_MILLIS);
+        Track.muzeiOnTryUpdate();
     }
 
     private List<Feed.Item> extractValidItem(Feed f) {

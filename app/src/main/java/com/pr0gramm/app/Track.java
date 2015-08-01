@@ -132,6 +132,10 @@ public final class Track {
                 .putCustomAttribute("feed type", feedType.name())));
     }
 
+    public static void muzeiOnTryUpdate() {
+        track(answers -> answers.logCustom(new CustomEvent("Muzei Update")));
+    }
+
     /**
      * Only do the tracking if 'answers' is active.
      */
