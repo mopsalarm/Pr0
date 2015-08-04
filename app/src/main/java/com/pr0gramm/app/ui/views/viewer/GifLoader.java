@@ -17,6 +17,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
 import rx.Subscriber;
 
+import static com.pr0gramm.app.AndroidUtility.toFile;
 import static java.lang.System.identityHashCode;
 
 /**
@@ -26,19 +27,26 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
     private final Downloader downloader;
     private final File temporaryPath;
-    private final Uri url;
+    private final Uri uri;
 
-    GifLoader(Downloader downloader, File temporaryPath, Uri url) {
+    GifLoader(Downloader downloader, File temporaryPath, Uri uri) {
         this.downloader = downloader;
         this.temporaryPath = temporaryPath;
-        this.url = url;
+        this.uri = uri;
     }
 
     @Override
     public void call(Subscriber<? super GifLoader.DownloadStatus> subscriber) {
         try {
+            if ("file".equals(uri.getScheme())) {
+                File file = toFile(uri);
+                subscriber.onNext(new DownloadStatus(new GifDrawable(file)));
+                subscriber.onCompleted();
+                return;
+            }
+
             // request the gif file
-            Downloader.Response response = downloader.load(url, 0);
+            Downloader.Response response = downloader.load(uri, 0);
 
             // and load + parse it
             loadGifUsingTempFile(subscriber, response);
@@ -103,7 +111,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
                 // closing is now delegated to the drawable.
                 close = false;
                 subscriber.onNext(new DownloadStatus(drawable));
-            } catch(Throwable error) {
+            } catch (Throwable error) {
                 subscriber.onError(error);
             }
 

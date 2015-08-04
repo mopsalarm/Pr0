@@ -1,7 +1,9 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
+import android.net.Uri;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import roboguice.inject.SharedPreferencesName;
@@ -89,8 +92,23 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Downloader downloader(OkHttpClient client) {
-        return new OkHttpDownloader(client);
+    public Downloader downloader(OkHttpClient client, PreloadLookupService lookupService) {
+        return new OkHttpDownloader(client) {
+            @Override
+            public Response load(Uri uri, int networkPolicy) throws IOException {
+                File file = lookupService.file(uri);
+                long size = file.length();
+                if (file.exists() && size > 0) {
+                    Optional<InputStream> stream = lookupService.open(uri);
+                    if (stream.isPresent()) {
+                        return new Response(stream.get(), true, size);
+                    }
+                }
+
+                // not preloaded, falling back to normal loader
+                return super.load(uri, networkPolicy);
+            }
+        };
     }
 
     @Provides

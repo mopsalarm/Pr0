@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
@@ -11,6 +12,9 @@ import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
@@ -18,6 +22,7 @@ import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
+import static com.pr0gramm.app.AndroidUtility.toFile;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
@@ -63,14 +68,23 @@ public class SoftwareVideoMediaView extends MediaView {
      */
     private Observable<SoftwareMediaPlayer> newVideoPlayer() {
         return Async.fromCallable(() -> {
-            Downloader.Response response = downloader.load(getEffectiveUri(), 0);
+            Uri uri = getEffectiveUri();
+
+            // open the uri.
+            InputStream inputStream;
+            if("file".equals(uri.getScheme())) {
+                inputStream = new FileInputStream(toFile(uri));
+            } else {
+                Downloader.Response response = downloader.load(uri, 0);
+                inputStream = response.getInputStream();
+            }
 
             String urlString = getMediaUri().toString();
             if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg"))
-                return new MpegSoftwareMediaPlayer(getContext(), response.getInputStream());
+                return new MpegSoftwareMediaPlayer(getContext(), inputStream);
 
             if (urlString.endsWith(".webm"))
-                return new WebmMediaPlayer(getContext(), response.getInputStream());
+                return new WebmMediaPlayer(getContext(), inputStream);
 
             throw new RuntimeException("Unknown video type");
         }, Schedulers.io());
