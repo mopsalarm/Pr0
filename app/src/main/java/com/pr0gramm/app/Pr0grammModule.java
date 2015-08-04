@@ -10,6 +10,8 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.GifToVideoService;
 import com.pr0gramm.app.services.HttpProxyService;
 import com.pr0gramm.app.services.MyGifToVideoService;
+import com.pr0gramm.app.services.PreloadLookupService;
+import com.pr0gramm.app.services.PreloadProxyService;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.RestAdapterProvider;
 import com.squareup.okhttp.Cache;
@@ -102,22 +104,25 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
+    public ProxyService proxyService(Settings settings, OkHttpClient httpClient,
+                                     PreloadLookupService preloadLookupService) {
+
+        ProxyService result = url -> url;
+
         for (int i = 0; i < 10; i++) {
             try {
                 HttpProxyService proxy = new HttpProxyService(httpClient);
                 proxy.start();
 
                 // return the proxy
-                return url -> settings.useProxy() ? proxy.proxy(url) : url;
+                result = url -> settings.useProxy() ? proxy.proxy(url) : url;
 
             } catch (IOException ioError) {
                 logger.warn("Could not open proxy: {}", ioError.toString());
             }
         }
 
-        // if we could not open a proxy, just go with no proxy.
-        return url -> url;
+        return new PreloadProxyService(result, preloadLookupService);
     }
 
     @Provides

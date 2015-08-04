@@ -18,7 +18,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,21 +50,11 @@ public class PreloadService extends RoboIntentService {
     @Inject
     private NotificationManager notificationManager;
 
-    private File preloadCache;
+    @Inject
+    private PreloadLookupService preloadLookupService;
 
     public PreloadService() {
         super("PreloadService");
-    }
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        preloadCache = getApplicationContext().getCacheDir();
-        if (preloadCache.mkdirs()) {
-            logger.info("cache directory created");
-        }
     }
 
     @Override
@@ -213,8 +202,7 @@ public class PreloadService extends RoboIntentService {
      * Name of the cache file for the given {@link Uri}.
      */
     private File cacheFileForUri(Uri uri) {
-        String filename = uri.toString().replaceAll("[^0-9a-zA-Z.]+", "_");
-        return new File(preloadCache, filename);
+        return preloadLookupService.file(uri);
     }
 
     /**
@@ -241,16 +229,5 @@ public class PreloadService extends RoboIntentService {
         Intent intent = new Intent(context, PreloadService.class);
         intent.putParcelableArrayListExtra(EXTRA_LIST_OF_URIS, new ArrayList<>(uris));
         return intent;
-    }
-
-    @Value.Immutable()
-    public interface CacheProgress {
-        Uri uri();
-
-        float progress();
-
-        int index();
-
-        int totalCount();
     }
 }
