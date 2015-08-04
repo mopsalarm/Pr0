@@ -54,6 +54,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.PreloadService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.meta.ItemsInfo;
@@ -77,6 +78,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -681,6 +683,20 @@ public class FeedFragment extends RxRoboFragment {
         ((MainActionHandler) getActivity()).pinFeedFilter(filter, title);
     }
 
+    @OnOptionsItemSelected(R.id.action_preload)
+    public void preloadCurrentFeed() {
+        Uris uriHelper = Uris.of(getActivity());
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        for (FeedItem item : feedAdapter.getFeed().getItems()) {
+            uris.add(uriHelper.media(item));
+            uris.add(uriHelper.thumbnail(item));
+        }
+
+        Intent intent = PreloadService.newIntent(getActivity(), uris);
+        getActivity().startService(intent);
+
+    }
 
     /**
      * Registers the listeners for the search view.

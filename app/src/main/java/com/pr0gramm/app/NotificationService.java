@@ -17,7 +17,8 @@ import com.pr0gramm.app.ui.InboxType;
  */
 @Singleton
 public class NotificationService {
-    private static final int NOTIFICATION_NEW_MESSAGE_ID = 5001;
+    public static final int NOTIFICATION_NEW_MESSAGE_ID = 5001;
+    public static final int NOTIFICATION_PRELOAD_ID = 5002;
 
     private final Settings settings;
     private final Application context;

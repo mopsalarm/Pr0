@@ -65,6 +65,10 @@
             android:exported="false"/>
 
         <service
+            android:name=".services.PreloadService"
+            android:exported="false"/>
+
+        <service
             android:name=".MuzeiSupport"
             android:description="@string/muzei_source_description"
             android:icon="@drawable/ic_app"
