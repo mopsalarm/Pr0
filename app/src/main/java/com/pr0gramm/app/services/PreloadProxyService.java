@@ -26,13 +26,16 @@ public class PreloadProxyService implements ProxyService {
     }
 
     @Override
-    public Uri proxy(Uri url) {
-        File file = preloadLookupService.file(url);
+    public Uri proxy(Uri uri) {
+        if("file".equals(uri.getScheme()))
+            return uri;
+
+        File file = preloadLookupService.file(uri);
         if (file.exists()) {
             logger.info("Use preloaded file {}", file);
             return Uri.fromFile(file);
         } else {
-            return backend.proxy(url);
+            return backend.proxy(uri);
         }
     }
 }

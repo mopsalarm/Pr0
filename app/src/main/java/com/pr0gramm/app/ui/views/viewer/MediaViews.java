@@ -28,7 +28,7 @@ public class MediaViews {
             return new DelayedMediaView(context, binder, uri.withDelay(false), onViewListener);
         }
 
-        if (settings.useProxy()) {
+        if (!uri.isLocal() && settings.useProxy()) {
             uri = uri.withProxy(true);
         }
 
@@ -46,7 +46,7 @@ public class MediaViews {
             }
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
-            if (settings.convertGifToWebm()) {
+            if (!uri.isLocal() && settings.convertGifToWebm()) {
                 result = new Gif2VideoMediaView(context, binder, uri, onViewListener);
             } else {
                 result = new GifMediaView(context, binder, uri, onViewListener);
@@ -64,7 +64,7 @@ public class MediaViews {
             return false;
 
         boolean canUseWebmDecoder = uri.getBaseUri().getPath().endsWith(".webm") &&
-            WebmMediaPlayer.isAvailable() && !settings.forceMpegDecoder();
+                WebmMediaPlayer.isAvailable() && !settings.forceMpegDecoder();
 
         boolean canUseMpegDecoder = uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm");
         return canUseWebmDecoder || canUseMpegDecoder;

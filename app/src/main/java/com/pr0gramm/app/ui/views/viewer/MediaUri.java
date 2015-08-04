@@ -2,6 +2,8 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.net.Uri;
 
+import java.io.File;
+
 /**
  */
 public final class MediaUri {
@@ -47,6 +49,14 @@ public final class MediaUri {
 
     public MediaType getMediaType() {
         return mediaType;
+    }
+
+    public boolean isLocal() {
+        return "file".equals(uri.getScheme());
+    }
+
+    public MediaUri withLocalFile(File file) {
+        return new MediaUri(Uri.fromFile(file), mediaType, false, false);
     }
 
     @Override

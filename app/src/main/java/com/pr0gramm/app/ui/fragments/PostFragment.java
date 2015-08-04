@@ -58,6 +58,7 @@ import com.pr0gramm.app.gparcel.CommentListParcelAdapter;
 import com.pr0gramm.app.gparcel.TagListParcelAdapter;
 import com.pr0gramm.app.gparcel.core.ParcelAdapter;
 import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.PreloadLookupService;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -151,6 +152,9 @@ public class PostFragment extends RxRoboFragment implements
 
     @Inject
     private Picasso picasso;
+
+    @Inject
+    private PreloadLookupService preloadLookupService;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -675,12 +679,15 @@ public class PostFragment extends RxRoboFragment implements
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(Uris.get().media(feedItem));
 
-        // delay playback on mobile
-        if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
+        if(preloadLookupService.exists(uri.getBaseUri())) {
+            uri = uri.withLocalFile(preloadLookupService.file(uri.getBaseUri()));
+
+        } else if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
             if (uri.getMediaType() != MediaUri.MediaType.IMAGE) {
                 uri = uri.withDelay(true);
             }
         }
+
 
         viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
             //  mark this item seen. We do that in a background thread
