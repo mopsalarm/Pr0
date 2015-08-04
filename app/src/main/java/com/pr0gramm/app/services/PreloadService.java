@@ -108,7 +108,7 @@ public class PreloadService extends RoboIntentService {
 
                 // if the file exists, we dont need to download it again
                 if (targetFile.exists()) {
-                    logger.info("File {} already exists");
+                    logger.info("File {} already exists", targetFile);
 
                     if (!targetFile.setLastModified(System.currentTimeMillis()))
                         logger.warn("Could not touch file {}", targetFile);
@@ -166,8 +166,11 @@ public class PreloadService extends RoboIntentService {
 
         } finally {
             logger.info("Finished preloading");
-            show(noBuilder.setSubText(null).setProgress(0, 0, false)
-                    .setOngoing(false).setContentIntent(null));
+            show(noBuilder.setSmallIcon(R.drawable.ic_notify_preload_finished)
+                    .setSubText(null)
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+                    .setContentIntent(null));
         }
     }
 
