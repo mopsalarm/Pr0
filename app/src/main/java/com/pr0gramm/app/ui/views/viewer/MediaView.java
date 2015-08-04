@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
@@ -105,6 +106,14 @@ public abstract class MediaView extends FrameLayout {
         gestureDetector = new GestureDetector(context, gestureListener);
 
         showBusyIndicator();
+
+        if (mediaUri.isLocal()) {
+            TextView preloadHint = new TextView(getContext());
+            preloadHint.setText("preloaded");
+            preloadHint.setLayoutParams(DEFAULT_PARAMS);
+            preloadHint.setTextColor(getResources().getColor(R.color.primary));
+            addView(preloadHint);
+        }
     }
 
     /**
