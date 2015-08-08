@@ -8,6 +8,8 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 
+import org.immutables.value.Value;
+
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -26,27 +28,15 @@ public class FeedService {
         this.api = api;
     }
 
-    public Observable<Feed> getFeedItems(FeedFilter feedFilter, Set<ContentType> contentTypes, Optional<Long> start, Optional<Long> around) {
-        return performRequest(feedFilter, start, contentTypes, Optional.<Long>absent(), around);
-    }
-
-    public Observable<Feed> getFeedItemsNewer(FeedFilter feedFilter, Set<ContentType> contentTypes, long start) {
-        return performRequest(feedFilter, Optional.<Long>absent(), contentTypes, Optional.of(start), Optional.<Long>absent());
-    }
-
-    private Observable<Feed> performRequest(FeedFilter feedFilter,
-                                            Optional<Long> older,
-                                            Set<ContentType> contentTypes,
-                                            Optional<Long> newer,
-                                            Optional<Long> around) {
-
+    public Observable<Feed> getFeedItems(FeedQuery query) {
+        FeedFilter feedFilter = query.feedFilter();
         Track.requestFeed(feedFilter.getFeedType());
 
         // filter by feed-type
         Integer promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : null;
         Integer following = (feedFilter.getFeedType() == FeedType.PREMIUM) ? 1 : null;
 
-        int flags = ContentType.combine(contentTypes);
+        int flags = ContentType.combine(query.contentTypes());
         String tags = feedFilter.getTags().orNull();
         String user = feedFilter.getUsername().orNull();
 
@@ -54,12 +44,31 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        return api.itemsGet(promoted, following, older.orNull(),
-                newer.orNull(), around.orNull(),
+        Observable<Feed> result = api.itemsGet(promoted, following,
+                query.older().orNull(), query.newer().orNull(), query.around().orNull(),
                 flags, tags, likes, self, user);
+
+        return result.map(this::filterPreloadedOnly);
+    }
+
+    private Feed filterPreloadedOnly(Feed feed) {
+        return feed;
     }
 
     public Observable<Post> loadPostDetails(long id) {
         return api.info(id);
+    }
+
+    @Value.Immutable
+    public interface FeedQuery {
+        FeedFilter feedFilter();
+
+        Set<ContentType> contentTypes();
+
+        Optional<Long> newer();
+
+        Optional<Long> older();
+
+        Optional<Long> around();
     }
 }

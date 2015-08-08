@@ -43,8 +43,11 @@ public class FeedLoader {
         this.feed.clear();
 
         Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response;
-        response = feedService.getFeedItems(feed.getFeedFilter(), feed.getContentType(),
-                Optional.<Long>absent(), around);
+        response = feedService.getFeedItems(ImmutableFeedQuery.builder()
+                .feedFilter(feed.getFeedFilter())
+                .contentTypes(feed.getContentType())
+                .around(around)
+                .build());
 
         subscribeTo(response);
     }
@@ -54,10 +57,11 @@ public class FeedLoader {
         if (feed.isAtEnd() || isLoading() || !oldest.isPresent())
             return;
 
-        subscribeTo(feedService.getFeedItems(
-                feed.getFeedFilter(), feed.getContentType(),
-                Optional.of(oldest.get().getId(feed.getFeedFilter().getFeedType())),
-                Optional.<Long>absent()));
+        subscribeTo(feedService.getFeedItems(ImmutableFeedQuery.builder()
+                .feedFilter(feed.getFeedFilter())
+                .contentTypes(feed.getContentType())
+                .older(oldest.get().getId(feed.getFeedFilter().getFeedType()))
+                .build()));
     }
 
     public void previous() {
@@ -65,9 +69,11 @@ public class FeedLoader {
         if (feed.isAtStart() || isLoading() || !newest.isPresent())
             return;
 
-        subscribeTo(feedService.getFeedItemsNewer(
-                feed.getFeedFilter(), feed.getContentType(),
-                newest.get().getId(feed.getFeedFilter().getFeedType())));
+        subscribeTo(feedService.getFeedItems(ImmutableFeedQuery.builder()
+                .feedFilter(feed.getFeedFilter())
+                .contentTypes(feed.getContentType())
+                .newer(newest.get().getId(feed.getFeedFilter().getFeedType()))
+                .build()));
     }
 
     public boolean isLoading() {

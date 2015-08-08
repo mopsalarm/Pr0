@@ -5,7 +5,6 @@ import android.net.Uri;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.Inject;
 import com.google.inject.Key;
@@ -15,6 +14,7 @@ import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.feed.ImmutableFeedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ import rx.Observable;
 
 import static com.google.common.base.Objects.equal;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 import static org.joda.time.Duration.standardMinutes;
 
 /**
@@ -61,8 +60,10 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
         String currentToken = (getCurrentArtwork() != null) ? getCurrentArtwork().getToken() : null;
 
         FeedFilter filter = new FeedFilter().withTags("earthporn").withFeedType(FeedType.PROMOTED);
-        Observable<Feed> feed = feedService.getFeedItems(filter, singleton(ContentType.SFW),
-                Optional.<Long>absent(), Optional.<Long>absent());
+        Observable<Feed> feed = feedService.getFeedItems(ImmutableFeedQuery.builder()
+                .feedFilter(filter)
+                .addContentTypes(ContentType.SFW)
+                .build());
 
         List<Feed.Item> items;
         try {
