@@ -80,6 +80,11 @@ public class VideoMediaView extends MediaView {
         videoView.pause();
     }
 
+    @Override
+    public void rewind() {
+        videoView.seekTo(0);
+    }
+
     private boolean onMediaPlayerError(MediaPlayer mediaPlayer, int what, int extra) {
         final int METHOD_CALLED_IN_INVALID_STATE = -38;
 

@@ -382,6 +382,10 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
+    public void rewind() {
+        // do nothing by default
+    }
+
     public interface Binder {
         <T> Observable<T> bind(Observable<T> observable);
     }

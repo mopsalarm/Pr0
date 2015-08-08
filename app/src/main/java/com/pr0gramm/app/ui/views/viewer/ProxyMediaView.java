@@ -103,6 +103,13 @@ public class ProxyMediaView extends MediaView {
     }
 
     @Override
+    public void rewind() {
+        if(child != null) {
+            child.rewind();
+        }
+    }
+
+    @Override
     public void onPause() {
         propagate(MediaView::onPause);
         super.onPause();

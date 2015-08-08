@@ -798,6 +798,8 @@ public class PostFragment extends RxRoboFragment implements
         // update from post
         displayTags(post.getTags());
         displayComments(post.getComments());
+
+        viewer.rewind();
     }
 
     private void displayTags(List<Tag> tags_) {

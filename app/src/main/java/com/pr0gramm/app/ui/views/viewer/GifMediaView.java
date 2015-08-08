@@ -114,6 +114,13 @@ public class GifMediaView extends MediaView {
     }
 
     @Override
+    public void rewind() {
+        if (gif != null && isPlaying()) {
+            gif.seekTo(0);
+        }
+    }
+
+    @Override
     public void onDestroy() {
         // unsubscribe and cancel downloader
         if (dlGifSubscription != null)
