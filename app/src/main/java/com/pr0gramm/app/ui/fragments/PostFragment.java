@@ -54,11 +54,11 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
-import com.pr0gramm.app.gparcel.CommentListParcelAdapter;
-import com.pr0gramm.app.gparcel.TagListParcelAdapter;
-import com.pr0gramm.app.gparcel.core.ParcelAdapter;
+import com.pr0gramm.app.gparcel.CommentListParceler;
+import com.pr0gramm.app.gparcel.TagListParceler;
+import com.pr0gramm.app.gparcel.core.Parceler;
 import com.pr0gramm.app.services.LocalCacheService;
-import com.pr0gramm.app.services.PreloadLookupService;
+import com.pr0gramm.app.services.PreloadManager;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -154,7 +154,7 @@ public class PostFragment extends RxRoboFragment implements
     private Picasso picasso;
 
     @Inject
-    private PreloadLookupService preloadLookupService;
+    private PreloadManager preloadManager;
 
     @InjectView(R.id.refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -195,8 +195,8 @@ public class PostFragment extends RxRoboFragment implements
         feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
 
         if (savedState != null) {
-            tags = ParcelAdapter.get(TagListParcelAdapter.class, savedState, "PostFragment.tags");
-            comments = ParcelAdapter.get(CommentListParcelAdapter.class, savedState, "PostFragment.comments");
+            tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
+            comments = Parceler.get(CommentListParceler.class, savedState, "PostFragment.comments");
         }
     }
 
@@ -275,8 +275,8 @@ public class PostFragment extends RxRoboFragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("PostFragment.tags", new TagListParcelAdapter(tags));
-        outState.putParcelable("PostFragment.comments", new CommentListParcelAdapter(comments));
+        outState.putParcelable("PostFragment.tags", new TagListParceler(tags));
+        outState.putParcelable("PostFragment.comments", new CommentListParceler(comments));
     }
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
@@ -679,9 +679,10 @@ public class PostFragment extends RxRoboFragment implements
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(Uris.get().media(feedItem));
 
-        if(preloadLookupService.exists(uri.getBaseUri())) {
-            uri = uri.withLocalFile(preloadLookupService.file(uri.getBaseUri()));
-
+        Optional<PreloadManager.PreloadItem> preloaded = preloadManager.get(feedItem.getId());
+        if(preloaded.isPresent()) {
+            uri = uri.withLocalFile(preloaded.get().media());
+            
         } else if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
             if (uri.getMediaType() != MediaUri.MediaType.IMAGE) {
                 uri = uri.withDelay(true);

@@ -2,6 +2,8 @@ package com.pr0gramm.app.services;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.pr0gramm.app.LoggerAdapter;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -16,11 +18,13 @@ import rx.Observable;
 /**
  * Converts a gif to a webm using my own conversion service.
  */
+@Singleton
 public class MyGifToVideoService implements GifToVideoService {
     private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de/api/gif-to-webm/v1";
 
     private final Api api;
 
+    @Inject
     public MyGifToVideoService(OkHttpClient client) {
         this.api = new RestAdapter.Builder()
                 .setEndpoint(DEFAULT_ENDPOINT)

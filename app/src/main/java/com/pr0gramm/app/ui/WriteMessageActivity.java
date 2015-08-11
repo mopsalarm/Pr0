@@ -25,9 +25,9 @@ import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.gparcel.MessageParcelAdapter;
-import com.pr0gramm.app.gparcel.NewCommentParcelAdapter;
-import com.pr0gramm.app.gparcel.core.ParcelAdapter;
+import com.pr0gramm.app.gparcel.MessageParceler;
+import com.pr0gramm.app.gparcel.NewCommentParceler;
+import com.pr0gramm.app.gparcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.VoteService;
 
@@ -146,7 +146,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
                     .doOnCompleted(this::finish)
                     .subscribe(newComments -> {
                         Intent result = new Intent();
-                        result.putExtra(RESULT_EXTRA_NEW_COMMENT, new NewCommentParcelAdapter(newComments));
+                        result.putExtra(RESULT_EXTRA_NEW_COMMENT, new NewCommentParceler(newComments));
                         setResult(Activity.RESULT_OK, result);
                     }, defaultOnError());
 
@@ -178,7 +178,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         if (extras == null)
             return;
 
-        Message message = ParcelAdapter.get(MessageParcelAdapter.class, extras, ARGUMENT_MESSAGE);
+        Message message = Parceler.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
         if (message != null) {
             messageView.update(message);
             messageView.setVisibility(View.VISIBLE);
@@ -207,7 +207,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
 
     public static Intent intent(Context context, Message message) {
         Intent intent = intent(context, message.getSenderId(), message.getName());
-        intent.putExtra(ARGUMENT_MESSAGE, new MessageParcelAdapter(message));
+        intent.putExtra(ARGUMENT_MESSAGE, new MessageParceler(message));
         return intent;
     }
 
@@ -233,7 +233,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
     }
 
     public static NewComment getNewComment(Intent data) {
-        return ParcelAdapter.get(NewCommentParcelAdapter.class,
+        return Parceler.get(NewCommentParceler.class,
                 data.getExtras(), RESULT_EXTRA_NEW_COMMENT);
     }
 }

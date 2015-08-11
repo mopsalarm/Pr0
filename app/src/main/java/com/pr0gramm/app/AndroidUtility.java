@@ -129,9 +129,10 @@ public class AndroidUtility {
 
         } catch (IllegalStateException ignored) {
             // most certainly crashlytics was not activated.
+            logger.warn("Looks likce crashlytics was not activated. Here is the error:", error);
 
         } catch (Exception err) {
-            logger.info("Could not send error to google", err);
+            logger.info("Could not send error to crashlytics", err);
         }
     }
 

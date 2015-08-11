@@ -16,15 +16,15 @@ import java.io.IOException;
 
 /**
  */
-public abstract class ParcelAdapter<T> implements Parcelable {
-    private static final Logger logger = LoggerFactory.getLogger(ParcelAdapter.class);
+public abstract class Parceler<T> implements Parcelable {
+    private static final Logger logger = LoggerFactory.getLogger(Parceler.class);
 
     private final TypeToken<T> type = new TypeToken<T>(getClass()) {
     };
 
     private final T value;
 
-    protected ParcelAdapter(T value) {
+    protected Parceler(T value) {
         this.value = value;
     }
 
@@ -36,7 +36,7 @@ public abstract class ParcelAdapter<T> implements Parcelable {
         return type;
     }
 
-    public static <R, T extends ParcelAdapter<R>> R get(Class<T> clazz, Bundle bundle, String key) {
+    public static <R, T extends Parceler<R>> R get(Class<T> clazz, Bundle bundle, String key) {
         T wrapper = bundle.getParcelable(key);
         if (wrapper == null)
             return null;
@@ -48,7 +48,7 @@ public abstract class ParcelAdapter<T> implements Parcelable {
     }
 
     @SuppressLint("NewApi")
-    protected ParcelAdapter(Parcel parcel) {
+    protected Parceler(Parcel parcel) {
         Gson gson = ParcelContext.gson();
 
         try (ParcelReader reader = new ParcelReader(parcel)) {

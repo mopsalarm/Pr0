@@ -78,7 +78,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -685,15 +684,7 @@ public class FeedFragment extends RxRoboFragment {
 
     @OnOptionsItemSelected(R.id.action_preload)
     public void preloadCurrentFeed() {
-        Uris uriHelper = Uris.of(getActivity());
-
-        ArrayList<Uri> uris = new ArrayList<>();
-        for (FeedItem item : feedAdapter.getFeed().getItems()) {
-            uris.add(uriHelper.media(item));
-            uris.add(uriHelper.thumbnail(item));
-        }
-
-        Intent intent = PreloadService.newIntent(getActivity(), uris);
+        Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
 
     }

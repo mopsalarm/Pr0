@@ -9,15 +9,19 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.NotificationService;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.feed.FeedItem;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +36,14 @@ import java.util.List;
 import roboguice.service.RoboIntentService;
 import rx.functions.Action1;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * This service handles preloading and resolving of preloaded images.
  */
 public class PreloadService extends RoboIntentService {
     private static final Logger logger = LoggerFactory.getLogger(PreloadService.class);
-    private static final String EXTRA_LIST_OF_URIS = "PreloadService.listOfUris";
+    private static final String EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems";
     private static final String EXTRA_CANCEL = "PreloadService.cancel";
 
     private long jobId;
@@ -51,10 +57,22 @@ public class PreloadService extends RoboIntentService {
     private NotificationManager notificationManager;
 
     @Inject
-    private PreloadLookupService preloadLookupService;
+    private PreloadManager preloadManager;
+
+    private File preloadCache;
 
     public PreloadService() {
         super("PreloadService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        preloadCache = new File(getCacheDir(), "preload");
+        if (preloadCache.mkdirs()) {
+            logger.info("preload directory created at {}", preloadCache);
+        }
     }
 
     @Override
@@ -69,8 +87,8 @@ public class PreloadService extends RoboIntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        List<Uri> uris = intent.getExtras().getParcelableArrayList(EXTRA_LIST_OF_URIS);
-        if (uris == null || uris.isEmpty())
+        List<FeedItem> items = intent.getExtras().getParcelableArrayList(EXTRA_LIST_OF_ITEMS);
+        if (items == null || items.isEmpty())
             return;
 
         jobId = System.currentTimeMillis();
@@ -83,57 +101,35 @@ public class PreloadService extends RoboIntentService {
         NotificationCompat.Builder noBuilder = new NotificationCompat.Builder(this)
                 .setContentTitle("Preloading pr0gramm")
                 .setSmallIcon(R.drawable.ic_notify_new_message)
-                .setProgress(100 * uris.size(), 0, false)
+                .setProgress(100 * items.size(), 0, false)
                 .setOngoing(true)
                 .setContentIntent(contentIntent);
+
+        Instant creation = Instant.now();
+        Uris uriHelper = Uris.of(this);
 
         // send out the initial notification
         show(noBuilder);
         try {
             int failed = 0, downloaded = 0;
-            for (int idx = 0; idx < uris.size() && !canceled; idx++) {
-                Uri uri = uris.get(idx);
-                File targetFile = cacheFileForUri(uri);
-
-                // if the file exists, we dont need to download it again
-                if (targetFile.exists()) {
-                    logger.info("File {} already exists", targetFile);
-
-                    if (!targetFile.setLastModified(System.currentTimeMillis()))
-                        logger.warn("Could not touch file {}", targetFile);
-
-                    continue;
-                }
-
-                File tempFile = new File(targetFile.getPath() + ".tmp");
-
+            for (int idx = 0; idx < items.size() && !canceled; idx++) {
+                FeedItem item = items.get(idx);
                 try {
-                    int index = idx;
-                    download(uri, tempFile, progress -> {
-                        String msg;
-                        int progressCurrent = (int) (100 * (index + progress));
-                        int progressTotal = 100 * uris.size();
+                    download(noBuilder, idx, items.size(), uriHelper.media(item));
+                    download(noBuilder, idx, items.size(), uriHelper.thumbnail(item));
 
-                        if (canceled) {
-                            msg = "Finishing";
-                        } else {
-                            msg = "Fetching " + uri.getPath();
-                        }
-
-                        maybeShow(noBuilder.setContentText(msg).setProgress(progressTotal, progressCurrent, false));
-                    });
-
-                    if (!tempFile.renameTo(targetFile))
-                        throw new IOException("Could not rename file");
+                    // store information about this entry in the database
+                    preloadManager.store(ImmutablePreloadItem.builder()
+                            .itemId(item.getId())
+                            .creation(creation)
+                            .media(cacheFileForUri(uriHelper.media(item)))
+                            .thumbnail(cacheFileForUri(uriHelper.thumbnail(item)))
+                            .build());
 
                     downloaded += 1;
-
                 } catch (IOException ioError) {
                     failed += 1;
-                    logger.warn("Could not preload image " + uri, ioError);
-
-                    if (!tempFile.delete())
-                        logger.warn("Could not remove temporary file");
+                    logger.warn("Could not preload image id=" + item.getId(), ioError);
                 }
             }
 
@@ -160,6 +156,48 @@ public class PreloadService extends RoboIntentService {
                     .setProgress(0, 0, false)
                     .setOngoing(false)
                     .setContentIntent(null));
+        }
+    }
+
+    private void download(NotificationCompat.Builder noBuilder, int index, int total, Uri uri) throws IOException {
+        File targetFile = cacheFileForUri(uri);
+
+        // if the file exists, we dont need to download it again
+        if (targetFile.exists()) {
+            logger.info("File {} already exists", targetFile);
+
+            if (!targetFile.setLastModified(System.currentTimeMillis()))
+                logger.warn("Could not touch file {}", targetFile);
+
+            return;
+        }
+
+        File tempFile = new File(targetFile.getPath() + ".tmp");
+        try {
+            download(uri, tempFile, progress -> {
+                String msg;
+                int progressCurrent = (int) (100 * (index + progress));
+                int progressTotal = 100 * total;
+
+                if (canceled) {
+                    msg = "Finishing";
+                } else {
+                    msg = "Fetching " + uri.getPath();
+                }
+
+                maybeShow(noBuilder.setContentText(msg).setProgress(progressTotal, progressCurrent, false));
+            });
+
+            if (!tempFile.renameTo(targetFile))
+                throw new IOException("Could not rename file");
+
+        } catch (Throwable error) {
+            if (!tempFile.delete())
+                logger.warn("Could not remove temporary file");
+
+            Throwables.propagateIfInstanceOf(error, IOException.class);
+            Throwables.propagateIfPossible(error);
+            throw Throwables.propagate(error);
         }
     }
 
@@ -202,7 +240,8 @@ public class PreloadService extends RoboIntentService {
      * Name of the cache file for the given {@link Uri}.
      */
     private File cacheFileForUri(Uri uri) {
-        return preloadLookupService.file(uri);
+        String filename = uri.toString().replaceFirst("https?://", "").replaceAll("[^0-9a-zA-Z.]+", "_");
+        return new File(preloadCache, filename);
     }
 
     /**
@@ -225,9 +264,9 @@ public class PreloadService extends RoboIntentService {
         }
     }
 
-    public static Intent newIntent(Context context, List<Uri> uris) {
+    public static Intent newIntent(Context context, Iterable<FeedItem> items) {
         Intent intent = new Intent(context, PreloadService.class);
-        intent.putParcelableArrayListExtra(EXTRA_LIST_OF_URIS, new ArrayList<>(uris));
+        intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, newArrayList(items));
         return intent;
     }
 }
