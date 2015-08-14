@@ -307,4 +307,8 @@
     <string name="write_message_placeholder">Nachricht</string>
     <string name="write_message_send">SENDEN</string>
     <string name="write_message_title">An %s</string>
+    <string name="message_must_not_be_empty">Nachricht darf nicht leer sein</string>
+    <string name="pref_confirm_play_on_mobile_human__all">Alles bestätigen</string>
+    <string name="pref_confirm_play_on_mobile_human__play_direct">Direkt abspielen</string>
+    <string name="pref_confirm_play_on_mobile_human__video_only">Videos/GIFs bestätigen</string>
 </resources>

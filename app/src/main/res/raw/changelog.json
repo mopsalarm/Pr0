@@ -7,6 +7,10 @@
         "change": "Das viel gewünschte 'preloading' ist nun endlich möglich!"
       },
       {
+        "type": "Neu",
+        "change": "Einstellung, ob mobil Bilder und/oder Videos erst nach Bestätigung geladen werden sollen"
+      },
+      {
         "type": "Fix",
         "change": "Bugfixes für Übersetzungen"
       }
