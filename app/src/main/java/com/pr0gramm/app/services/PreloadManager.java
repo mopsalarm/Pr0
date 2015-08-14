@@ -1,11 +1,14 @@
 package com.pr0gramm.app.services;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableCollection;
 
 import org.immutables.value.Value;
 import org.joda.time.Instant;
 
 import java.io.File;
+
+import rx.Observable;
 
 /**
  */
@@ -17,6 +20,8 @@ public interface PreloadManager {
     Optional<PreloadItem> get(long itemId);
 
     void deleteBefore(Instant threshold);
+
+    Observable<ImmutableCollection<PreloadItem>> all();
 
     /**
      */

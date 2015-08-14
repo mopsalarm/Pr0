@@ -332,9 +332,13 @@
             android:persistent="false"
             android:summary="@string/pref_website_summary"
             android:title="@string/pref_website_title"
-            android:key="pref_pseudo_recommend">
+            android:key="pref_pseudo_recommend"/>
 
-        </Preference>
+        <Preference
+            android:persistent="false"
+            android:summary="@string/pseudo_clean_preloaded_summary"
+            android:title="@string/pref_pseudo_clean_preloaded_title"
+            android:key="pref_pseudo_clean_preloaded"/>
 
         <Preference
             android:key="pref_pseudo_licenses"

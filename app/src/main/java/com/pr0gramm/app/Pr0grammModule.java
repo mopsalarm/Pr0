@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import roboguice.inject.SharedPreferencesName;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static org.joda.time.Duration.standardSeconds;
@@ -132,7 +133,7 @@ public class Pr0grammModule extends AbstractModule {
         return Async.start(() -> {
             SQLiteOpenHelper openHelper = new OpenHelper(application);
             return SqlBrite.create().wrapDatabaseHelper(openHelper);
-        });
+        }, Schedulers.io());
     }
 
     @Provides

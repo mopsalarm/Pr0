@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -38,11 +39,14 @@ public class DatabasePreloadManager implements PreloadManager {
     public DatabasePreloadManager(Observable<BriteDatabase> database) {
         this.database = database;
 
-        this.database
+        queryAllItems().subscribe(preloadCache::set);
+    }
+
+    private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
+        return this.database
                 .flatMap(db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS))
                 .map(SqlBrite.Query::run)
-                .map(this::readPreloadEntriesFromCursor)
-                .subscribe(preloadCache::set);
+                .map(this::readPreloadEntriesFromCursor);
     }
 
     private ImmutableMap<Long, PreloadItem> readPreloadEntriesFromCursor(Cursor cursor) {
@@ -93,6 +97,7 @@ public class DatabasePreloadManager implements PreloadManager {
         return Optional.fromNullable(preloadCache.get().get(itemId));
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void deleteBefore(Instant threshold) {
         logger.info("Removing all files preloaded before {}", threshold);
@@ -100,20 +105,21 @@ public class DatabasePreloadManager implements PreloadManager {
         BriteDatabase db = db();
         db.beginTransaction();
         try {
-            Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
-                    String.valueOf(threshold.getMillis()));
+            try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
+                    String.valueOf(threshold.getMillis()))) {
 
-            for (PreloadItem item : readPreloadEntriesFromCursor(cursor).values()) {
-                logger.info("Removing files for itemId={}", item.itemId());
+                for (PreloadItem item : readPreloadEntriesFromCursor(cursor).values()) {
+                    logger.info("Removing files for itemId={}", item.itemId());
 
-                if (!item.media().delete())
-                    logger.warn("Could not delete media file {}", item.media());
+                    if (!item.media().delete())
+                        logger.warn("Could not delete media file {}", item.media());
 
-                if (!item.thumbnail().delete())
-                    logger.warn("Could not delete thumbnail file {}", item.thumbnail());
+                    if (!item.thumbnail().delete())
+                        logger.warn("Could not delete thumbnail file {}", item.thumbnail());
 
-                // delete entry from database
-                db.delete(TABLE_NAME, "itemId=?", String.valueOf(item.itemId()));
+                    // delete entry from database
+                    db.delete(TABLE_NAME, "itemId=?", String.valueOf(item.itemId()));
+                }
             }
 
             db.setTransactionSuccessful();
@@ -125,8 +131,8 @@ public class DatabasePreloadManager implements PreloadManager {
     /**
      * Returns a list of all preloaded items.
      */
-    public ImmutableCollection<PreloadItem> all() {
-        return preloadCache.get().values();
+    public Observable<ImmutableCollection<PreloadItem>> all() {
+        return queryAllItems().map(ImmutableMap::values);
     }
 
     private BriteDatabase db() {

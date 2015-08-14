@@ -335,4 +335,7 @@
     <string name="hint_drawer_text">Click here for messages and more!</string>
     <string name="hint_drawer_title">Welcome</string>
     <string name="action_preload">Preload</string>
+    <string name="pref_pseudo_clean_preloaded_title">Cleanup preloaded</string>
+    <string name="pseudo_clean_preloaded_summary">Click to delete all preloaded files</string>
+    <string name="pseudo_clean_preloaded_summary_with_size">Click to delete all preloaded files and free %1.2fmb of space</string>
 </resources>

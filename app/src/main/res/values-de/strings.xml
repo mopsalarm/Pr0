@@ -300,4 +300,11 @@
     <string name="upper_benis">BENIS</string>
     <string name="hint_drawer_title">Willkommen</string>
     <string name="hint_drawer_text">Klicke hier für deine Nachrichten und mehr!</string>
+    <string name="action_preload">Vorladen</string>
+    <string name="pref_pseudo_clean_preloaded_title">Vorgeladene Dateien löschen</string>
+    <string name="pseudo_clean_preloaded_summary">Drücke hier um alle vorgeladenen Dateien zu löschen</string>
+    <string name="pseudo_clean_preloaded_summary_with_size">Drücke hier um alle vorgeladenen Dateien (%1.2fmb) zu löschen</string>
+    <string name="write_message_placeholder">Nachricht</string>
+    <string name="write_message_send">SENDEN</string>
+    <string name="write_message_title">An %s</string>
 </resources>

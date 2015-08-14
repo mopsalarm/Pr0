@@ -20,13 +20,20 @@ import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.PreloadManager;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
+
+import org.joda.time.Instant;
 
 import java.util.List;
 
 import de.psdev.licensesdialog.LicensesDialog;
 import roboguice.RoboGuice;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.util.async.Async;
 
 import static com.google.common.base.Strings.emptyToNull;
 
@@ -69,6 +76,11 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
         @Inject
         private Settings settings;
 
+        @Inject
+        private PreloadManager preloadManager;
+
+        private Subscription preloadItemsSubscription;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -95,6 +107,25 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
             updateFlavorSettings();
         }
 
+        private void updatePreloadInfo() {
+            Preference preference = getPreferenceManager().findPreference("pref_pseudo_clean_preloaded");
+            if (preference != null) {
+                preloadItemsSubscription = preloadManager.all()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(items -> {
+
+                            long totalSize = 0;
+                            for (PreloadManager.PreloadItem item : items) {
+                                totalSize += item.media().length();
+                                totalSize += item.thumbnail().length();
+                            }
+
+                            preference.setSummary(getString(R.string.pseudo_clean_preloaded_summary_with_size,
+                                    totalSize / (1024.f * 1024.f)));
+                        });
+            }
+        }
+
         private void updateFlavorSettings() {
             // customize depending on build flavor.
         }
@@ -105,6 +136,8 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
             getPreferenceScreen()
                     .getSharedPreferences()
                     .registerOnSharedPreferenceChangeListener(this);
+
+            updatePreloadInfo();
         }
 
         @Override
@@ -112,6 +145,11 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
             getPreferenceScreen()
                     .getSharedPreferences()
                     .unregisterOnSharedPreferenceChangeListener(this);
+
+            if (preloadItemsSubscription != null) {
+                preloadItemsSubscription.unsubscribe();
+                preloadItemsSubscription = null;
+            }
 
             super.onPause();
         }
@@ -149,6 +187,14 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
                 intent.putExtra(Intent.EXTRA_SUBJECT, "pr0gramm app");
                 intent.putExtra(Intent.EXTRA_TEXT, text);
                 startActivity(Intent.createChooser(intent, getString(R.string.share_using)));
+            }
+
+            if ("pref_pseudo_clean_preloaded".equals(preference.getKey())) {
+                Async.start(() -> {
+                    // remove all the files!
+                    preloadManager.deleteBefore(Instant.now());
+                    return null;
+                }, Schedulers.io());
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);
