@@ -143,7 +143,7 @@ public class Pr0grammModule extends AbstractModule {
 
     private static class OpenHelper extends SQLiteOpenHelper {
         public OpenHelper(Context context) {
-            super(context, "pr0-sqlbrite", null, 2  );
+            super(context, "pr0-sqlbrite", null, 4);
         }
 
         @Override

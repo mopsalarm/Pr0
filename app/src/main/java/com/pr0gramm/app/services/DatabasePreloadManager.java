@@ -27,7 +27,7 @@ import rx.Observable;
 public class DatabasePreloadManager implements PreloadManager {
     private static final Logger logger = LoggerFactory.getLogger(DatabasePreloadManager.class);
 
-    private static final String TABLE_NAME = "preload";
+    private static final String TABLE_NAME = "preload_2";
     private static final String QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME;
 
     private final Observable<BriteDatabase> database;
@@ -74,7 +74,7 @@ public class DatabasePreloadManager implements PreloadManager {
         values.put("creation", entry.creation().getMillis());
         values.put("media", entry.media().getPath());
         values.put("thumbnail", entry.thumbnail().getPath());
-        db().insert(TABLE_NAME, values);
+        db().insert(TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     /**
@@ -93,6 +93,35 @@ public class DatabasePreloadManager implements PreloadManager {
         return Optional.fromNullable(preloadCache.get().get(itemId));
     }
 
+    @Override
+    public void deleteBefore(Instant threshold) {
+        logger.info("Removing all files preloaded before {}", threshold);
+
+        BriteDatabase db = db();
+        db.beginTransaction();
+        try {
+            Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
+                    String.valueOf(threshold.getMillis()));
+
+            for (PreloadItem item : readPreloadEntriesFromCursor(cursor).values()) {
+                logger.info("Removing files for itemId={}", item.itemId());
+
+                if (!item.media().delete())
+                    logger.warn("Could not delete media file {}", item.media());
+
+                if (!item.thumbnail().delete())
+                    logger.warn("Could not delete thumbnail file {}", item.thumbnail());
+
+                // delete entry from database
+                db.delete(TABLE_NAME, "itemId=?", String.valueOf(item.itemId()));
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     /**
      * Returns a list of all preloaded items.
      */
@@ -108,7 +137,7 @@ public class DatabasePreloadManager implements PreloadManager {
         logger.info("initializing sqlite database");
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "itemId INT NOT NULL," +
+                "itemId INT NOT NULL UNIQUE," +
                 "creation INT NOT NULL," +
                 "media TEXT NOT NULL," +
                 "thumbnail TEXT NOT NULL)");

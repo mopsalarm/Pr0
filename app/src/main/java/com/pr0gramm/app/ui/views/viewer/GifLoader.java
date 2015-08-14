@@ -50,7 +50,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
             // and load + parse it
             loadGifUsingTempFile(subscriber, response);
-        } catch (Exception error) {
+        } catch (Throwable error) {
             logger.warn("Error during loading", error);
 
             if (!subscriber.isUnsubscribed())

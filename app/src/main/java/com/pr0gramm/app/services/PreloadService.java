@@ -37,6 +37,8 @@ import roboguice.service.RoboIntentService;
 import rx.functions.Action1;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.pr0gramm.app.AndroidUtility.toFile;
+import static org.joda.time.Duration.standardDays;
 
 /**
  * This service handles preloading and resolving of preloaded images.
@@ -115,16 +117,31 @@ public class PreloadService extends RoboIntentService {
             for (int idx = 0; idx < items.size() && !canceled; idx++) {
                 FeedItem item = items.get(idx);
                 try {
-                    download(noBuilder, idx, items.size(), uriHelper.media(item));
-                    download(noBuilder, idx, items.size(), uriHelper.thumbnail(item));
+                    Uri mediaUri = uriHelper.media(item);
+                    boolean mediaIsLocal = "file".equals(mediaUri.getScheme());
+                    File mediaFile = mediaIsLocal ? toFile(mediaUri) : cacheFileForUri(mediaUri);
 
-                    // store information about this entry in the database
-                    preloadManager.store(ImmutablePreloadItem.builder()
+                    Uri thumbUri = uriHelper.thumbnail(item);
+                    boolean thumbIsLocal = "file".equals(thumbUri.getScheme());
+                    File thumbFile = thumbIsLocal ? toFile(thumbUri) : cacheFileForUri(thumbUri);
+
+                    // prepare the entry that will be put into the database later
+                    PreloadManager.PreloadItem entry = ImmutablePreloadItem.builder()
                             .itemId(item.getId())
                             .creation(creation)
-                            .media(cacheFileForUri(uriHelper.media(item)))
-                            .thumbnail(cacheFileForUri(uriHelper.thumbnail(item)))
-                            .build());
+                            .media(mediaFile)
+                            .thumbnail(thumbFile)
+                            .build();
+
+                    maybeShow(noBuilder.setProgress(items.size(), idx, false));
+
+                    if (!mediaIsLocal)
+                        download(noBuilder, 2 * idx, 2 * items.size(), mediaUri, entry.media());
+
+                    if (!thumbIsLocal)
+                        download(noBuilder, 2 * idx + 1, 2 * items.size(), thumbUri, entry.thumbnail());
+
+                    preloadManager.store(entry);
 
                     downloaded += 1;
                 } catch (IOException ioError) {
@@ -133,17 +150,11 @@ public class PreloadService extends RoboIntentService {
                 }
             }
 
-            List<String> contentText = new ArrayList<>();
-            contentText.add(String.format("%d files downloaded", downloaded));
-            if (failed > 0) {
-                contentText.add(String.format("%d failed", failed));
-            }
+            // doing cleanup
+            doCleanup(noBuilder, Instant.now().minus(standardDays(1)));
 
-            if (canceled) {
-                contentText.add("canceled");
-            }
-
-            noBuilder.setContentText(Joiner.on(", ").join(contentText));
+            // setting end message
+            showEndMessage(noBuilder, downloaded, failed);
 
         } catch (Throwable error) {
             AndroidUtility.logToCrashlytics(error);
@@ -159,8 +170,33 @@ public class PreloadService extends RoboIntentService {
         }
     }
 
-    private void download(NotificationCompat.Builder noBuilder, int index, int total, Uri uri) throws IOException {
-        File targetFile = cacheFileForUri(uri);
+    private void showEndMessage(NotificationCompat.Builder noBuilder, int downloaded, int failed) {
+        List<String> contentText = new ArrayList<>();
+        contentText.add(String.format("%d files downloaded", downloaded));
+        if (failed > 0) {
+            contentText.add(String.format("%d failed", failed));
+        }
+
+        if (canceled) {
+            contentText.add("canceled");
+        }
+
+        noBuilder.setContentText(Joiner.on(", ").join(contentText));
+    }
+
+    /**
+     * Cleaning old files before the given threshold.
+     */
+    private void doCleanup(NotificationCompat.Builder noBuilder, Instant threshold) {
+        show(noBuilder
+                .setContentText("Cleaning up old files")
+                .setProgress(0, 0, true));
+
+        preloadManager.deleteBefore(threshold);
+    }
+
+    private void download(NotificationCompat.Builder noBuilder, int index, int total,
+                          Uri uri, File targetFile) throws IOException {
 
         // if the file exists, we dont need to download it again
         if (targetFile.exists()) {

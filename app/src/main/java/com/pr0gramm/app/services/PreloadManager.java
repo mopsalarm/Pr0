@@ -16,6 +16,8 @@ public interface PreloadManager {
 
     Optional<PreloadItem> get(long itemId);
 
+    void deleteBefore(Instant threshold);
+
     /**
      */
     @Value.Immutable
