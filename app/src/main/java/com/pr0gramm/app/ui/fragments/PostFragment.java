@@ -296,7 +296,7 @@ public class PostFragment extends RxRoboFragment implements
         super.onActivityResult(requestCode, resultCode, data);
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
 
-        if(requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK) {
+        if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK) {
             onNewComments(WriteMessageActivity.getNewComment(data));
         }
     }
@@ -678,8 +678,12 @@ public class PostFragment extends RxRoboFragment implements
 
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(UriHelper.get().media(feedItem));
-        if (!uri.isLocal() && settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
-            if (uri.getMediaType() != MediaUri.MediaType.IMAGE) {
+        if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
+            if (settings.confirmPlayOnMobile() == Settings.ConfirmOnMobile.ALL) {
+                uri = uri.withDelay(true);
+            } else if (settings.confirmPlayOnMobile() == Settings.ConfirmOnMobile.VIDEO
+                    && uri.getMediaType() != MediaUri.MediaType.IMAGE) {
+                
                 uri = uri.withDelay(true);
             }
         }

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.ProxyService;
@@ -107,7 +108,7 @@ public abstract class MediaView extends FrameLayout {
 
         showBusyIndicator();
 
-        if (mediaUri.isLocal()) {
+        if (BuildConfig.DEBUG && mediaUri.isLocal()) {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
             preloadHint.setLayoutParams(DEFAULT_PARAMS);

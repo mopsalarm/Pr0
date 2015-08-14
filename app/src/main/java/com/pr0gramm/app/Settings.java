@@ -13,6 +13,8 @@ import java.util.EnumSet;
 
 import javax.inject.Inject;
 
+import static com.google.common.base.Objects.equal;
+
 /**
  */
 @Singleton
@@ -140,8 +142,21 @@ public class Settings {
         return preferences.getBoolean("pref_keep_screen_on", true);
     }
 
-    public boolean confirmPlayOnMobile() {
-        return preferences.getBoolean("pref_confirm_play_on_mobile", true);
+    public ConfirmOnMobile confirmPlayOnMobile() {
+        Context context = Pr0grammApplication.GLOBAL_CONTEXT;
+
+        String prefValue = preferences.getString("pref_confirm_play_on_mobile_list", null);
+        if (prefValue == null) {
+            prefValue = context.getString(R.string.pref_confirm_play_on_mobile_default);
+        }
+
+        for (ConfirmOnMobile enumValue : ConfirmOnMobile.values()) {
+            if (equal(context.getString(enumValue.value), prefValue)) {
+                return enumValue;
+            }
+        }
+
+        return ConfirmOnMobile.VIDEO;
     }
 
     public boolean loadHqInZoomView() {
@@ -212,5 +227,17 @@ public class Settings {
                 .putBoolean("pref_feed_type_nsfw", false)
                 .putBoolean("pref_feed_type_nsfl", false)
                 .apply();
+    }
+
+    public enum ConfirmOnMobile {
+        NONE(R.string.pref_confirm_play_on_mobile_values__play_direct),
+        VIDEO(R.string.pref_confirm_play_on_mobile_values__video_only),
+        ALL(R.string.pref_confirm_play_on_mobile_values__all);
+
+        final int value;
+
+        ConfirmOnMobile(int stringValue) {
+            this.value = stringValue;
+        }
     }
 }

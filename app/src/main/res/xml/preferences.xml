@@ -51,9 +51,11 @@
                     android:summaryOn="@string/pref_convert_gif_to_webm_on"
                     android:title="@string/pref_convert_gif_to_webm"/>
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_confirm_play_on_mobile"
+                <ListPreference
+                    android:defaultValue="@string/pref_confirm_play_on_mobile_default"
+                    android:entries="@array/pref_confirm_play_on_mobile_human"
+                    android:entryValues="@array/pref_confirm_play_on_mobile_values"
+                    android:key="pref_confirm_play_on_mobile_list"
                     android:summary="@string/pref_confirm_play_on_mobile_summary"
                     android:title="@string/pref_confirm_play_on_mobile_title"/>
 

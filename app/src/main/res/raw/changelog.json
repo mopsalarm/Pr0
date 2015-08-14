@@ -1,5 +1,18 @@
 [
   {
+    "version": 71,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Das viel gewünschte 'preloading' ist nun endlich möglich!"
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfixes für Übersetzungen"
+      }
+    ]
+  },
+  {
     "version": 70,
     "changes": [
       {
@@ -18,11 +31,10 @@
   },
   {
     "version": 69,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
-        "change": "Antworten auf Kommentare und schreiben von Nachrichten überarbeitet."
+        "change": "Antworten auf Kommentare und Schreiben von Nachrichten überarbeitet."
       },
       {
         "type": "Fix",
@@ -32,7 +44,6 @@
   },
   {
     "version": 68,
-    "release": true,
     "changes": [
       {
         "type": "INFO",
@@ -66,7 +77,6 @@
   },
   {
     "version": 67,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
@@ -112,7 +122,6 @@
   },
   {
     "version": 66,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
@@ -138,7 +147,6 @@
   },
   {
     "version": 65,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
@@ -152,7 +160,6 @@
   },
   {
     "version": 64,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
@@ -170,7 +177,6 @@
   },
   {
     "version": 63,
-    "release": true,
     "changes": [
       {
         "type": "Neu",
@@ -220,7 +226,6 @@
   },
   {
     "version": 61,
-    "release": true,
     "changes": [
       {
         "type": "Fix",
@@ -310,7 +315,7 @@
   },
   {
     "version": 55,
-    "release": true,
+    
     "changes": [
       {
         "type": "Neu",

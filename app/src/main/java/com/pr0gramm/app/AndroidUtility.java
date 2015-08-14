@@ -14,7 +14,6 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.net.ConnectivityManagerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -157,7 +156,8 @@ public class AndroidUtility {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+        // return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+        return true;
     }
 
     /**

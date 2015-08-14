@@ -183,7 +183,7 @@
     <string name="pref_use_proxy_summary">Caching is good to save bandwidth and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
     <string name="rating_not_yet_visible" translatable="false">●●●</string>
     <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
-    <string name="pref_confirm_play_on_mobile_summary">Confirm playback of videos and gifs on mobile to conserve bandwidth.</string>
+    <string name="pref_confirm_play_on_mobile_summary">Confirm playback on mobile to conserve bandwidth.</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Configure updates and betas here</string>
     <string name="inbox_type_comments">Comments</string>
@@ -338,4 +338,8 @@
     <string name="pref_pseudo_clean_preloaded_title">Cleanup preloaded</string>
     <string name="pseudo_clean_preloaded_summary">Click to delete all preloaded files</string>
     <string name="pseudo_clean_preloaded_summary_with_size">Click to delete all preloaded files and free %1.2fmb of space</string>
+
+    <string name="pref_confirm_play_on_mobile_human__play_direct">Play directly</string>
+    <string name="pref_confirm_play_on_mobile_human__all">Confirm all</string>
+    <string name="pref_confirm_play_on_mobile_human__video_only"><![CDATA[Video & gif only]]></string>
 </resources>

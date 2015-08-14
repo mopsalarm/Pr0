@@ -25,7 +25,6 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
@@ -53,7 +52,7 @@ public class ChangeLogDialog extends RoboDialogFragment {
         List<ChangeGroup> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         RecyclerView recycler = (RecyclerView) inflater.inflate(R.layout.changelog, null);
-        recycler.setAdapter(new ChangeAdapter(settings.useBetaChannel(), changes));
+        recycler.setAdapter(new ChangeAdapter(changes));
         recycler.setLayoutManager(new LinearLayoutManager(context));
 
         return DialogBuilder.start(context)
@@ -77,18 +76,13 @@ public class ChangeLogDialog extends RoboDialogFragment {
     private static class ChangeAdapter extends RecyclerView.Adapter<ChangeViewHolder> {
         private final List<Object> items;
 
-        ChangeAdapter(boolean betaVersion, List<ChangeGroup> changeGroups) {
-            boolean current = true;
+        ChangeAdapter(List<ChangeGroup> changeGroups) {
             ImmutableList.Builder<Object> items = ImmutableList.builder();
             for (int idx = 0; idx < changeGroups.size(); idx++) {
                 ChangeGroup group = changeGroups.get(idx);
 
-                current &= !group.release;
-
-                if(idx == 0 || !current || betaVersion) {
-                    items.add(Version.of(group.version, current));
-                }
-
+                boolean current = (idx == 0);
+                items.add(Version.of(group.version, current));
                 items.addAll(group.changes);
             }
 
@@ -185,7 +179,6 @@ public class ChangeLogDialog extends RoboDialogFragment {
 
     private static final class ChangeGroup {
         int version;
-        boolean release;
         List<Change> changes;
     }
 
