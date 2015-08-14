@@ -687,6 +687,7 @@ public class FeedFragment extends RxRoboFragment {
         Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
 
+        Track.preloadCurrentFeed();
     }
 
     /**

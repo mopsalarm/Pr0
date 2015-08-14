@@ -136,6 +136,10 @@ public final class Track {
         track(answers -> answers.logCustom(new CustomEvent("Muzei Update")));
     }
 
+    public static void preloadCurrentFeed() {
+        track(answers -> answers.logCustom(new CustomEvent("Preload current feed")));
+    }
+
     /**
      * Only do the tracking if 'answers' is active.
      */
