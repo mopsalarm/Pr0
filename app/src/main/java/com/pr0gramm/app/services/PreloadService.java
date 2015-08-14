@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.NotificationService;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.feed.FeedItem;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -106,7 +106,7 @@ public class PreloadService extends RoboIntentService {
                 .setContentIntent(contentIntent);
 
         Instant creation = Instant.now();
-        Uris uriHelper = Uris.of(this);
+        UriHelper uriHelper = UriHelper.of(this);
 
         // send out the initial notification
         show(noBuilder);

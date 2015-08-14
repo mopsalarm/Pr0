@@ -36,17 +36,18 @@ public class MediaViews {
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
             if (shouldUseSoftwareDecoder(uri, settings)) {
                 MediaUri videoUrl = uri;
-                if (settings.forceMpegDecoder() || !WebmMediaPlayer.isAvailable())
+                if (shouldUseMpegDecoder(uri, settings))
                     videoUrl = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
 
                 result = new SoftwareVideoMediaView(context, binder,
-                        videoUrl.withProxy(uri.hasProxyFlag()), onViewListener);
+                        videoUrl.withProxy(uri.hasProxyFlag()),
+                        onViewListener);
             } else {
                 result = new VideoMediaView(context, binder, uri, onViewListener);
             }
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
-            if (!uri.isLocal() && settings.convertGifToWebm()) {
+            if (shouldUseGifToWebm(uri, settings)) {
                 result = new Gif2VideoMediaView(context, binder, uri, onViewListener);
             } else {
                 result = new GifMediaView(context, binder, uri, onViewListener);
@@ -59,15 +60,28 @@ public class MediaViews {
         return result;
     }
 
+    private static boolean canUseWebmDecoder(MediaUri uri, Settings settings) {
+        return uri.getBaseUri().getPath().endsWith(".webm")
+                && WebmMediaPlayer.isAvailable()
+                && !settings.forceMpegDecoder();
+    }
+
+    private static boolean canUseMpegDecoder(MediaUri uri) {
+        return !uri.isLocal() && uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm");
+    }
+
+    private static boolean shouldUseMpegDecoder(MediaUri uri, Settings settings) {
+        return canUseMpegDecoder(uri) && (settings.forceMpegDecoder() || !WebmMediaPlayer.isAvailable());
+    }
+
+    private static boolean shouldUseGifToWebm(MediaUri uri, Settings settings) {
+        return !uri.isLocal() && settings.convertGifToWebm();
+    }
+
     private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
         if (!settings.useSoftwareDecoder())
             return false;
 
-        boolean canUseWebmDecoder = uri.getBaseUri().getPath().endsWith(".webm") &&
-                WebmMediaPlayer.isAvailable() && !settings.forceMpegDecoder();
-
-        boolean canUseMpegDecoder = uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm");
-        return canUseWebmDecoder || canUseMpegDecoder;
-
+        return canUseWebmDecoder(uri, settings) || canUseMpegDecoder(uri);
     }
 }

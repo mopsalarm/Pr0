@@ -14,7 +14,7 @@ import android.view.ViewParent;
 
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
@@ -209,7 +209,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
         @Override
         public void onCommentClicked(long itemId, long commentId) {
-            open(Uris.of(getActivity()).post(FeedType.NEW, itemId, commentId));
+            open(UriHelper.of(getActivity()).post(FeedType.NEW, itemId, commentId));
         }
 
         private void open(Uri uri) {
@@ -219,7 +219,7 @@ public abstract class InboxFragment<T> extends RoboFragment {
 
         @Override
         public void onUserClicked(int userId, String username) {
-            open(Uris.of(getActivity()).uploads(username));
+            open(UriHelper.of(getActivity()).uploads(username));
         }
     };
 }

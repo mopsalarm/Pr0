@@ -351,7 +351,7 @@ public abstract class MediaView extends FrameLayout {
      * Gets the effective uri that should be downloaded
      */
     public Uri getEffectiveUri() {
-        if (mediaUri.hasProxyFlag()) {
+        if (!mediaUri.isLocal() && mediaUri.hasProxyFlag()) {
             return proxyService.proxy(mediaUri.getBaseUri());
         } else {
             return mediaUri.getBaseUri();

@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services;
 
+import android.app.Application;
+
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
@@ -11,7 +13,7 @@ import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.LoggerAdapter;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -36,6 +38,7 @@ import rx.Observable;
 public class RestAdapterProvider implements Provider<Api> {
     private static final Logger logger = LoggerFactory.getLogger(RestAdapterProvider.class);
 
+    private final Application context;
     private final Settings settings;
     private final OkHttpClient client;
     private final LoginCookieHandler cookieHandler;
@@ -45,8 +48,9 @@ public class RestAdapterProvider implements Provider<Api> {
     private boolean https;
 
     @Inject
-    public RestAdapterProvider(Settings settings, OkHttpClient client, LoginCookieHandler cookieHandler) {
-        this.settings = settings;
+    public RestAdapterProvider(Application context, OkHttpClient client, LoginCookieHandler cookieHandler) {
+        this.context = context;
+        this.settings = Settings.of(context);
         this.client = client;
         this.cookieHandler = cookieHandler;
 
@@ -56,7 +60,7 @@ public class RestAdapterProvider implements Provider<Api> {
     private Api newRestAdapter() {
         Gson gson = ApiGsonBuilder.builder().create();
 
-        String host = Uris.of(settings).base().toString();
+        String host = UriHelper.of(context).base().toString();
 
         // activate this to use a mock
         // host = "http://demo8733773.mockable.io";

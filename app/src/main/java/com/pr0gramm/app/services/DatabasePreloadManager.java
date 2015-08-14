@@ -13,6 +13,8 @@ import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,8 +25,9 @@ import rx.Observable;
  */
 @Singleton
 public class DatabasePreloadManager implements PreloadManager {
-    private static final String TABLE_NAME = "preload";
+    private static final Logger logger = LoggerFactory.getLogger(DatabasePreloadManager.class);
 
+    private static final String TABLE_NAME = "preload";
     private static final String QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME;
 
     private final Observable<BriteDatabase> database;
@@ -102,6 +105,7 @@ public class DatabasePreloadManager implements PreloadManager {
     }
 
     public static void onCreate(SQLiteDatabase db) {
+        logger.info("initializing sqlite database");
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "itemId INT NOT NULL," +

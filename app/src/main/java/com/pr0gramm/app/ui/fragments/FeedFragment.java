@@ -42,7 +42,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Track;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.ContentType;
@@ -264,7 +264,7 @@ public class FeedFragment extends RxRoboFragment {
                 super.onBindViewHolder(view, position);
                 view.itemView.setOnClickListener(v -> {
                     Message message = this.messages.get(position);
-                    Uri uri = Uris.of(getActivity()).post(FeedType.NEW,
+                    Uri uri = UriHelper.of(getActivity()).post(FeedType.NEW,
                             message.getItemId(), message.getId());
 
                     startActivity(new Intent(Intent.ACTION_VIEW, uri,
@@ -861,7 +861,7 @@ public class FeedFragment extends RxRoboFragment {
             FeedItem item = feed.at(position);
 
             with(fragment -> {
-                fragment.picasso.load(Uris.get().thumbnail(item))
+                fragment.picasso.load(UriHelper.get().thumbnail(item))
                         .placeholder(new ColorDrawable(0xff333333))
                         .into(view.image);
 

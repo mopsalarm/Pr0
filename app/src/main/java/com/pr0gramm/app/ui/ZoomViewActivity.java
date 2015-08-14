@@ -18,7 +18,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
@@ -123,7 +123,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
     }
 
     private void loadImage() {
-        Uri url = proxyService.proxy(Uris.get().media(item));
+        Uri url = proxyService.proxy(UriHelper.get().media(item));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
 
         if (Strings.isNullOrEmpty(item.getFullsize())) {
@@ -139,7 +139,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
         hq.setImageDrawable(getColoredHqIcon(R.color.primary));
         hq.animate().alpha(1).start();
 
-        Uri url = proxyService.proxy(Uris.get().media(item, true));
+        Uri url = proxyService.proxy(UriHelper.get().media(item, true));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
     }
 

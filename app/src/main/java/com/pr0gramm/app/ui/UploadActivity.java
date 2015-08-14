@@ -36,7 +36,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.RxRoboFragment;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
@@ -274,7 +274,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
 
             Intent intent = new Intent(getActivity(), MainActivity.class);
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uris.of(getActivity()).post(FeedType.NEW, postId));
+            intent.setData(UriHelper.of(getActivity()).post(FeedType.NEW, postId));
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 

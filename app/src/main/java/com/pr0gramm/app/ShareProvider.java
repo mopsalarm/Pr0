@@ -175,7 +175,7 @@ public class ShareProvider extends RoboContentProvider {
     }
 
     private static Uri getMediaUri(Context context, FeedItem item) {
-        return Uris.of(context).media(item);
+        return UriHelper.of(context).media(item);
     }
 
     public static Optional<String> guessMimetype(Context context, FeedItem item) {

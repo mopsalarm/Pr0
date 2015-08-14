@@ -87,8 +87,8 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
         Feed.Item item = findRandomItem(items, currentToken);
 
         // get uris for this item
-        Uri uri = Uris.get().media(new FeedItem(item), false);
-        Uri postUri = Uris.get().post(FeedType.PROMOTED, item.getId());
+        Uri uri = UriHelper.get().media(new FeedItem(item), false);
+        Uri postUri = UriHelper.get().post(FeedType.PROMOTED, item.getId());
 
         // publish to muzei
         publishArtwork(new Artwork.Builder()

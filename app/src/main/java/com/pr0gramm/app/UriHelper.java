@@ -5,17 +5,27 @@ import android.net.Uri;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.PreloadManager;
+
+import roboguice.RoboGuice;
+import roboguice.inject.RoboInjector;
 
 /**
  * A little helper class to work with URLs
  */
-public final class Uris {
+public final class UriHelper {
+    @Inject
     private final Settings settings;
+    private final PreloadManager preloadManager;
 
-    private Uris(Settings settings) {
-        this.settings = settings;
+    private UriHelper(Context context) {
+        this.settings = Settings.of(context);
+
+        RoboInjector injector = RoboGuice.getInjector(context);
+        preloadManager = injector.getInstance(PreloadManager.class);
     }
 
     private Uri.Builder start() {
@@ -30,15 +40,19 @@ public final class Uris {
                 .authority(subdomain + ".pr0gramm.com");
     }
 
-    public Uri thumbnail(FeedItem path) {
-        return start("thumb").path(path.getThumb()).build();
+    public Uri thumbnail(FeedItem item) {
+        return preloadManager.get(item.getId())
+                .transform(pi -> Uri.fromFile(pi.thumbnail()))
+                .or(() -> start("thumb").path(item.getThumb()).build());
     }
 
     public Uri media(FeedItem item, boolean hq) {
         if (hq && !Strings.isNullOrEmpty(item.getFullsize()))
             return start("full").path(item.getFullsize()).build();
 
-        return start("img").path(item.getImage()).build();
+        return preloadManager.get(item.getId())
+                .transform(pi -> Uri.fromFile(pi.media()))
+                .or(() -> start("img").path(item.getImage()).build());
     }
 
     public Uri media(FeedItem item) {
@@ -69,16 +83,12 @@ public final class Uris {
         return start().path("/user/" + user + "/likes").build();
     }
 
-    public static Uris of(Context context) {
-        return new Uris(Settings.of(context));
+    public static UriHelper of(Context context) {
+        return new UriHelper(context);
     }
 
-    public static Uris of(Settings settings) {
-        return new Uris(settings);
-    }
-
-    public static Uris get() {
-        return new Uris(Settings.of(Pr0grammApplication.GLOBAL_CONTEXT));
+    public static UriHelper get() {
+        return new UriHelper(Pr0grammApplication.GLOBAL_CONTEXT);
     }
 
     private static final ImmutableMap<FeedType, String> FEED_TYPES = ImmutableMap.<FeedType, String>builder()

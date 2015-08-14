@@ -45,7 +45,7 @@ import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ShareProvider;
 import com.pr0gramm.app.Track;
-import com.pr0gramm.app.Uris;
+import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
@@ -417,7 +417,7 @@ public class PostFragment extends RxRoboFragment implements
                 .appendQueryParameter("hl", "en")
                 .appendQueryParameter("safe", "off")
                 .appendQueryParameter("site", "search")
-                .appendQueryParameter("image_url", Uris.get().media(feedItem).toString().replace("https://", "http://"))
+                .appendQueryParameter("image_url", UriHelper.get().media(feedItem).toString().replace("https://", "http://"))
                 .build();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -432,10 +432,10 @@ public class PostFragment extends RxRoboFragment implements
         intent.setType("text/plain");
         if (feedItem.getPromotedId() > 0) {
             intent.putExtra(Intent.EXTRA_TEXT,
-                    Uris.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
+                    UriHelper.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
         } else {
             intent.putExtra(Intent.EXTRA_TEXT,
-                    Uris.get().post(FeedType.NEW, feedItem.getId()).toString());
+                    UriHelper.get().post(FeedType.NEW, feedItem.getId()).toString());
         }
 
         startActivity(intent);
@@ -447,7 +447,7 @@ public class PostFragment extends RxRoboFragment implements
     public void shareDirectLink() {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, Uris.get().media(feedItem).toString());
+        intent.putExtra(Intent.EXTRA_TEXT, UriHelper.get().media(feedItem).toString());
         startActivity(intent);
 
         Track.share("image_link");
@@ -477,7 +477,7 @@ public class PostFragment extends RxRoboFragment implements
     @OnOptionsItemSelected(R.id.action_download)
     public void downloadPostMedia() {
         // download over proxy to use caching
-        Uri url = proxyService.proxy(Uris.get().media(feedItem, true));
+        Uri url = proxyService.proxy(UriHelper.get().media(feedItem, true));
 
         File external;
         if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
@@ -677,13 +677,8 @@ public class PostFragment extends RxRoboFragment implements
         };
 
         // initialize a new viewer fragment
-        MediaUri uri = MediaUri.of(Uris.get().media(feedItem));
-
-        Optional<PreloadManager.PreloadItem> preloaded = preloadManager.get(feedItem.getId());
-        if(preloaded.isPresent()) {
-            uri = uri.withLocalFile(preloaded.get().media());
-            
-        } else if (settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
+        MediaUri uri = MediaUri.of(UriHelper.get().media(feedItem));
+        if (!uri.isLocal() && settings.confirmPlayOnMobile() && AndroidUtility.isOnMobile(getActivity())) {
             if (uri.getMediaType() != MediaUri.MediaType.IMAGE) {
                 uri = uri.withDelay(true);
             }
@@ -970,7 +965,7 @@ public class PostFragment extends RxRoboFragment implements
 
     @Nullable
     public PreviewInfo getPreviewInfoFromCache() {
-        Uri previewUri = Uris.of(settings).thumbnail(feedItem);
+        Uri previewUri = UriHelper.of(getActivity()).thumbnail(feedItem);
         return localCacheService.getSizeInfo(feedItem.getId())
                 .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
                 .orNull();
