@@ -14,7 +14,6 @@ import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Track;
 import com.pr0gramm.app.ab.ExperimentService;
-import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
@@ -91,9 +90,6 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         } else {
             handleNewIntent(getIntent());
         }
-
-        experimentService.report(Experiments.DRAWER_EXPERIMENT,
-                Experiments.DrawerExperiment.Actions.INBOX_OPENED);
 
         // track if we've clicked the notification!
         if(getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {

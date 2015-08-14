@@ -37,7 +37,6 @@ import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.UriHelper;
-import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.SingleShotService;
@@ -102,9 +101,6 @@ public class UploadActivity extends RxRoboAppCompatActivity {
                 }
             }, this::onError);
         }
-
-        experimentService.report(Experiments.DRAWER_EXPERIMENT,
-                Experiments.DrawerExperiment.Actions.UPLOAD_ACTIVITY);
     }
 
     private void onError(Throwable throwable) {
@@ -279,9 +275,6 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             startActivity(intent);
 
             getActivity().finish();
-
-            experimentService.report(Experiments.DRAWER_EXPERIMENT,
-                    Experiments.DrawerExperiment.Actions.IMAGE_UPLOADED);
         }
 
         @Override

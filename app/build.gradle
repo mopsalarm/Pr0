@@ -162,10 +162,6 @@ dependencies {
     compile 'com.google.android.apps.muzei:muzei-api:2.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.2.1'
 
-    compile('com.github.worker8:tourguide:1.0.12-SNAPSHOT@aar') {
-        transitive = true
-    }
-
     compile('pl.brightinventions:slf4android:0.1.1@aar') {
         transitive = true
     }

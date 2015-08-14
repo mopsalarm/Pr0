@@ -20,7 +20,6 @@ import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Track;
-import com.pr0gramm.app.ab.Experiments;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -160,9 +159,6 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
                     .subscribe(Actions.empty(), defaultOnError());
 
             Track.writeMessage();
-
-            experimentService.report(Experiments.DRAWER_EXPERIMENT,
-                    Experiments.DrawerExperiment.Actions.MESSAGE_WRITTEN);
         }
     }
 
