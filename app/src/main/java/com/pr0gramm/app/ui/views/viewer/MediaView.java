@@ -136,7 +136,7 @@ public abstract class MediaView extends FrameLayout {
             if (info.getPreview() != null) {
                 preview.setImageDrawable(info.getPreview());
 
-            } else if (info.getPreviewUri() != null) {
+            } else if (info.getPreviewUri() != null && !getMediaUri().isLocal()) {
                 // quickly load the preview into this view
                 picasso.load(info.getPreviewUri()).into(preview);
 
