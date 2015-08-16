@@ -18,6 +18,9 @@ import com.squareup.okhttp.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +28,7 @@ import java.io.InputStream;
 import fi.iki.elonen.NanoHTTPD;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.pr0gramm.app.AndroidUtility.toFile;
 import static java.lang.System.currentTimeMillis;
 
 /**
@@ -95,66 +99,81 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
                     Charsets.UTF_8).trim();
 
             logger.info("Decoded request to {}", url);
-
-            Request request = buildRequest(url, session);
-            com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
-
-            Response.IStatus status = translateStatus(response.code(), response.message());
-            String contentType = response.header("Content-Type", guessContentType(url));
-
-            InputStream stream;
-            final Optional<Integer> length = parseContentLength(response);
-            if (length.isPresent()) {
-                stream = ByteStreams.limit(new FilterInputStream(response.body().byteStream()) {
-                    int read = 0;
-                    final int _length = length.get();
-
-                    @Override
-                    public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
-                        int result = super.read(buffer, byteOffset, byteCount);
-                        if (read / 500_000 != (read + result) / 500_000) {
-                            int percent = 100 * read / _length;
-                            int loaded = (read + result) / 1024;
-                            logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
-                        }
-
-                        read += result;
-                        if (read == _length) {
-                            logger.info("Finished sending file {}", url);
-                        }
-
-                        return result;
-                    }
-
-                    @Override
-                    public int available() throws IOException {
-                        // fake a large value here, so ByteStreams.limit can fix it :/
-                        return Integer.MAX_VALUE;
-                    }
-                }, length.get().longValue());
-            } else {
-                stream = response.body().byteStream();
-            }
-
-            Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
-            result.addHeader("Accept-Range", "bytes");
-
-            // forward content range header
-            String contentRange = response.header("Content-Range");
-            if (contentRange != null)
-                result.addHeader("Content-Range", contentRange);
-
-            if (length.isPresent()) {
-                result.addHeader("Content-Length", String.valueOf(length.get()));
-            }
-
-            logger.info("Start sending {} ({} kb)", url, length.or(-1) / 1024);
-            return result;
+            return url.matches("https?://.*")
+                    ? proxyHttpUri(session, url)
+                    : proxyFileUri(toFile(Uri.parse(url)));
 
         } catch (Exception e) {
             logger.error("Could not proxy for url " + decodedUrl, e);
             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
         }
+    }
+
+    private Response proxyFileUri(File file) throws FileNotFoundException {
+        if (!file.exists())
+            return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "");
+
+        long size = file.length();
+        FileInputStream stream = new FileInputStream(file);
+        return newFixedLengthResponse(Response.Status.OK,
+                guessContentType(file.toString()), stream, size);
+    }
+
+    private Response proxyHttpUri(IHTTPSession session, final String url) throws IOException {
+        Request request = buildRequest(url, session);
+        com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+
+        Response.IStatus status = translateStatus(response.code(), response.message());
+        String contentType = response.header("Content-Type", guessContentType(url));
+
+        InputStream stream;
+        final Optional<Integer> length = parseContentLength(response);
+        if (length.isPresent()) {
+            stream = ByteStreams.limit(new FilterInputStream(response.body().byteStream()) {
+                int read = 0;
+                final int _length = length.get();
+
+                @Override
+                public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
+                    int result = super.read(buffer, byteOffset, byteCount);
+                    if (read / 500_000 != (read + result) / 500_000) {
+                        int percent = 100 * read / _length;
+                        int loaded = (read + result) / 1024;
+                        logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
+                    }
+
+                    read += result;
+                    if (read == _length) {
+                        logger.info("Finished sending file {}", url);
+                    }
+
+                    return result;
+                }
+
+                @Override
+                public int available() throws IOException {
+                    // fake a large value here, so ByteStreams.limit can fix it :/
+                    return Integer.MAX_VALUE;
+                }
+            }, length.get().longValue());
+        } else {
+            stream = response.body().byteStream();
+        }
+
+        Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
+        result.addHeader("Accept-Range", "bytes");
+
+        // forward content range header
+        String contentRange = response.header("Content-Range");
+        if (contentRange != null)
+            result.addHeader("Content-Range", contentRange);
+
+        if (length.isPresent()) {
+            result.addHeader("Content-Length", String.valueOf(length.get()));
+        }
+
+        logger.info("Start sending {} ({} kb)", url, length.or(-1) / 1024);
+        return result;
     }
 
     /**

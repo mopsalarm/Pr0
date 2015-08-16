@@ -125,10 +125,16 @@ public class ShareProvider extends RoboContentProvider {
 
         return openPipeHelper(uri, null, null, null, (output, uri1, mimeType, opts, args) -> {
             try {
-                Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute();
-                try (InputStream source = response.body().byteStream()) {
-                    // stream the data to the caller
-                    ByteStreams.copy(source, new FileOutputStream(output.getFileDescriptor()));
+                if (url.matches("https?://.*")) {
+                    Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute();
+                    try (InputStream source = response.body().byteStream()) {
+                        // stream the data to the caller
+                        ByteStreams.copy(source, new FileOutputStream(output.getFileDescriptor()));
+                    }
+                } else {
+                    try (InputStream source = getContext().getContentResolver().openInputStream(Uri.parse(url))) {
+                        ByteStreams.copy(source, new FileOutputStream(output.getFileDescriptor()));
+                    }
                 }
             } catch (IOException error) {
                 // do nothing

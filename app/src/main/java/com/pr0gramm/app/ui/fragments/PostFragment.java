@@ -445,9 +445,11 @@ public class PostFragment extends RxRoboFragment implements
 
     @OnOptionsItemSelected(R.id.action_share_direct_link)
     public void shareDirectLink() {
+        String uri = UriHelper.get().noPreload().media(feedItem).toString();
+
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, UriHelper.get().media(feedItem).toString());
+        intent.putExtra(Intent.EXTRA_TEXT, uri);
         startActivity(intent);
 
         Track.share("image_link");

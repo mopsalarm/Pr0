@@ -21,6 +21,8 @@ public final class UriHelper {
     private final Settings settings;
     private final PreloadManager preloadManager;
 
+    private final NoPreload noPreload = new NoPreload();
+
     private UriHelper(Context context) {
         this.settings = Settings.of(context);
 
@@ -43,16 +45,16 @@ public final class UriHelper {
     public Uri thumbnail(FeedItem item) {
         return preloadManager.get(item.getId())
                 .transform(pi -> Uri.fromFile(pi.thumbnail()))
-                .or(() -> start("thumb").path(item.getThumb()).build());
+                .or(() -> noPreload.thumbnail(item));
     }
 
     public Uri media(FeedItem item, boolean hq) {
         if (hq && !Strings.isNullOrEmpty(item.getFullsize()))
-            return start("full").path(item.getFullsize()).build();
+            return noPreload.media(item, true);
 
         return preloadManager.get(item.getId())
                 .transform(pi -> Uri.fromFile(pi.media()))
-                .or(() -> start("img").path(item.getImage()).build());
+                .or(() -> noPreload.media(item, false));
     }
 
     public Uri media(FeedItem item) {
@@ -83,6 +85,10 @@ public final class UriHelper {
         return start().path("/user/" + user + "/likes").build();
     }
 
+    public NoPreload noPreload() {
+        return noPreload;
+    }
+
     public static UriHelper of(Context context) {
         return new UriHelper(context);
     }
@@ -96,4 +102,24 @@ public final class UriHelper {
             .put(FeedType.PROMOTED, "top")
             .put(FeedType.PREMIUM, "stalk")
             .build();
+
+
+    public class NoPreload {
+        private NoPreload() {
+        }
+
+        public Uri media(FeedItem item) {
+            return media(item, false);
+        }
+
+        private Uri media(FeedItem item, boolean highQuality) {
+            return highQuality
+                    ? start("full").path(item.getFullsize()).build()
+                    : start("img").path(item.getImage()).build();
+        }
+
+        public Uri thumbnail(FeedItem item) {
+            return start("thumb").path(item.getThumb()).build();
+        }
+    }
 }

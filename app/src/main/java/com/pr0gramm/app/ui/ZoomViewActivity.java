@@ -123,7 +123,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
     }
 
     private void loadImage() {
-        Uri url = proxyService.proxy(UriHelper.get().media(item));
+        Uri url = proxyWrap(UriHelper.get().media(item));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
 
         if (Strings.isNullOrEmpty(item.getFullsize())) {
@@ -133,14 +133,17 @@ public class ZoomViewActivity extends RoboActionBarActivity {
             hq.animate().alpha(1).start();
         }
     }
-
     private void loadHqImage() {
         hq.setOnClickListener(null);
         hq.setImageDrawable(getColoredHqIcon(R.color.primary));
         hq.animate().alpha(1).start();
 
-        Uri url = proxyService.proxy(UriHelper.get().media(item, true));
+        Uri url = proxyWrap(UriHelper.get().media(item, true));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
+    }
+
+    private Uri proxyWrap(Uri uri) {
+        return "file".equals(uri.getScheme()) ? uri : proxyService.proxy(uri);
     }
 
     private Drawable getColoredHqIcon(@ColorRes int colorId) {
