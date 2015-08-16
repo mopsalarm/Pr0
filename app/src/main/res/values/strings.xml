@@ -347,4 +347,5 @@
     <string name="preload_not_on_mobile">You need to be on wifi to use preloading.</string>
     <string name="pref_show_video_progress_title">Enable video position</string>
     <string name="pref_show_video_progress_summary">Shows the little blue progressbar under a video. Wont work with software decoder for now.</string>
+    <string name="hint_musste_scrollen">If \'musste scrollen\'-images are all blurry, go to the settings and increase the maximum image size!</string>
 </resources>

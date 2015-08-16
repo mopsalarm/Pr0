@@ -317,4 +317,5 @@
     <string name="preload_not_on_mobile">Vorladen ist nur im WLAN unterstützt.</string>
     <string name="pref_show_video_progress_title">Fortschrittsanzeige</string>
     <string name="pref_show_video_progress_summary">Zeigt die Fortschrittsanzeige unter Videos an. Funktioniert aktuell nicht mit dem Softwaredekoder.</string>
+    <string name="hint_musste_scrollen">Wenn \'musste scrollen\' Bilder häufig unscharf sind, erhöhe die maximale Bildgröße in den Einstellungen!</string>
 </resources>

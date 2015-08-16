@@ -7,8 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.SingleShotService;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -33,6 +35,9 @@ public class ImageMediaView extends MediaView {
 
     @Inject
     private Picasso picasso;
+
+    @Inject
+    private SingleShotService singleShotService;
 
     public ImageMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
@@ -82,6 +87,10 @@ public class ImageMediaView extends MediaView {
 
                 player.hideBusyIndicator();
                 player.onMediaShown();
+
+                if (drawable.getIntrinsicHeight() / (float) drawable.getIntrinsicWidth() > 3) {
+                    player.showMussteScrollenPopup();
+                }
             }
         }
 
@@ -99,5 +108,14 @@ public class ImageMediaView extends MediaView {
         errorIndicator.setVisibility(VISIBLE);
         errorIndicator.setAlpha(0);
         errorIndicator.animate().alpha(1).start();
+    }
+
+    private void showMussteScrollenPopup() {
+        if (singleShotService.isFirstTime("musste_scrollen_hint")) {
+            DialogBuilder.start(getContext())
+                    .content(R.string.hint_musste_scrollen)
+                    .positive(R.string.okay)
+                    .show();
+        }
     }
 }
