@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -24,7 +25,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class GifMediaView extends MediaView {
+public class GifMediaView extends AbstractProgressMediaView {
     @Inject
     private Downloader downloader;
 
@@ -90,6 +91,20 @@ public class GifMediaView extends MediaView {
             gif.start();
             onMediaShown();
         }
+    }
+
+    @Override
+    protected Optional<Float> getVideoProgress() {
+        if (gif != null && isPlaying()) {
+            int position = gif.getCurrentFrameIndex();
+            int duration = gif.getNumberOfFrames();
+
+            if (position >= 0 && duration > 0) {
+                return Optional.of(position / (float) duration);
+            }
+        }
+
+        return Optional.absent();
     }
 
     @Override

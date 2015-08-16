@@ -89,7 +89,8 @@ public class UserService {
                         .filter(val -> val instanceof Float)
                         .cast(Float.class)
                         .map(LoginProgress::new)
-                        .mergeWith(info().ignoreElements().cast(LoginProgress.class));
+                        .mergeWith(info().ignoreElements().cast(LoginProgress.class))
+                        .onErrorResumeNext(Observable.<LoginProgress>empty());
 
             } else {
                 syncState = Observable.empty();

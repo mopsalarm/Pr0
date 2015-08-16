@@ -216,6 +216,12 @@
                 android:key="prefcat_visual__misc"
                 android:title="@string/prefcat_misc">
 
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_video_progress"
+                    android:summary="@string/pref_show_video_progress_summary"
+                    android:title="@string/pref_show_video_progress_title"/>
+
                 <ListPreference
                     android:defaultValue="@string/pref_seen_indicator_style_default"
                     android:entries="@array/pref_seen_indicator_style_human"
@@ -331,16 +337,16 @@
             android:title="@string/pref_pseudo_changelog"/>
 
         <Preference
+            android:key="pref_pseudo_recommend"
             android:persistent="false"
             android:summary="@string/pref_website_summary"
-            android:title="@string/pref_website_title"
-            android:key="pref_pseudo_recommend"/>
+            android:title="@string/pref_website_title"/>
 
         <Preference
+            android:key="pref_pseudo_clean_preloaded"
             android:persistent="false"
             android:summary="@string/pseudo_clean_preloaded_summary"
-            android:title="@string/pref_pseudo_clean_preloaded_title"
-            android:key="pref_pseudo_clean_preloaded"/>
+            android:title="@string/pref_pseudo_clean_preloaded_title"/>
 
         <Preference
             android:key="pref_pseudo_licenses"

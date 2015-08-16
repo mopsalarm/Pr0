@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.content.Context;
 import android.media.MediaPlayer;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
@@ -14,7 +15,7 @@ import roboguice.inject.InjectView;
 
 /**
  */
-public class VideoMediaView extends MediaView {
+public class VideoMediaView extends AbstractProgressMediaView {
     @InjectView(R.id.video)
     private CustomVideoView videoView;
 
@@ -56,6 +57,20 @@ public class VideoMediaView extends MediaView {
                     .show();
         }
         videoView.start();
+    }
+
+    @Override
+    protected Optional<Float> getVideoProgress() {
+        if(videoView != null && videoViewInitialized && isPlaying()) {
+            int position = videoView.getCurrentPosition();
+            int duration = videoView.getDuration();
+
+            if(position >= 0 && duration > 0) {
+                return Optional.of(position / (float) duration);
+            }
+        }
+        
+        return Optional.absent();
     }
 
     private boolean onVideoInfoEvent(MediaPlayer mediaPlayer, int event, int i) {

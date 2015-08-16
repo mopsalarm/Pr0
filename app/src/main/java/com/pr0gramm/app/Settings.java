@@ -203,6 +203,9 @@ public class Settings {
         return preferences.getBoolean("pref_prioritize_op_comments", true);
     }
 
+    public boolean showVideoProgress() {
+        return preferences.getBoolean("pref_show_video_progress", true);
+    }
 
     public SharedPreferences.Editor edit() {
         return preferences.edit();

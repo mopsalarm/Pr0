@@ -1,5 +1,22 @@
 [
   {
+    "version": 72,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Fortschrittsanzeige unter Videos (in den Einstellungen deaktivierbar)"
+      },
+      {
+        "type": "Fix",
+        "change": "Download und Teilen von vorgeladenen Bildern wieder möglich"
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfixes für Übersetzungen"
+      }
+    ]
+  },
+  {
     "version": 71,
     "changes": [
       {

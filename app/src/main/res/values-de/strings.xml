@@ -315,4 +315,6 @@
 
     <string name="preload_info_hint">Vorladen begonnen. Die App wird automatisch vorgeladene Dateien älter als einen Tag löschen, wenn du wieder auf Vorladen drückst. Alle vorgealdenen Dateien kannst du unter Einstellungen löschen.</string>
     <string name="preload_not_on_mobile">Vorladen ist nur im WLAN unterstützt.</string>
+    <string name="pref_show_video_progress_title">Fortschrittsanzeige</string>
+    <string name="pref_show_video_progress_summary">Zeigt die Fortschrittsanzeige unter Videos an. Funktioniert aktuell nicht mit dem Softwaredekoder.</string>
 </resources>

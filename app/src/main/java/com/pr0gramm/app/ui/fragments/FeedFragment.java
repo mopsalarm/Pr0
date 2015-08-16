@@ -588,7 +588,8 @@ public class FeedFragment extends RxRoboFragment {
         inflater.inflate(R.menu.menu_feed, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        initializeSearchView(item);
+        if(item != null)
+            initializeSearchView(item);
     }
 
     @Override
