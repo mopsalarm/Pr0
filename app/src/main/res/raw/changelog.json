@@ -7,6 +7,14 @@
         "change": "Fortschrittsanzeige unter Videos (in den Einstellungen deaktivierbar)"
       },
       {
+        "type": "Neu",
+        "change": "Hinweis bei 'Musste scrollen' Bilder auf Qualitätseinstellungen"
+      },
+      {
+        "type": "Neu",
+        "change": "Neuladen durch Herunterwischen startet Video/GIF von vorne neu"
+      },
+      {
         "type": "Fix",
         "change": "Download und Teilen von vorgeladenen Bildern wieder möglich"
       },
