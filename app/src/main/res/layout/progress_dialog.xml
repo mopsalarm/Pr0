@@ -17,6 +17,7 @@
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/feed_background"
         android:text="@string/please_wait"
         android:layout_marginLeft="8dp"
         android:layout_gravity="center_vertical"/>
