@@ -311,4 +311,5 @@
     <string name="pref_confirm_play_on_mobile_human__all">Alles bestätigen</string>
     <string name="pref_confirm_play_on_mobile_human__play_direct">Direkt abspielen</string>
     <string name="pref_confirm_play_on_mobile_human__video_only">Videos/GIFs bestätigen</string>
+    <string name="share_with">Teilen mit…</string>
 </resources>

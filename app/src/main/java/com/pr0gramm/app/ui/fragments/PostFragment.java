@@ -96,6 +96,7 @@ import rx.android.lifecycle.LifecycleObservable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
+import static android.content.Intent.createChooser;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
@@ -438,7 +439,7 @@ public class PostFragment extends RxRoboFragment implements
                     UriHelper.get().post(FeedType.NEW, feedItem.getId()).toString());
         }
 
-        startActivity(intent);
+        startActivity(createChooser(intent, getString(R.string.share_with)));
 
         Track.share("post");
     }
@@ -450,7 +451,8 @@ public class PostFragment extends RxRoboFragment implements
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, uri);
-        startActivity(intent);
+
+        startActivity(createChooser(intent, getString(R.string.share_with)));
 
         Track.share("image_link");
     }
@@ -461,7 +463,8 @@ public class PostFragment extends RxRoboFragment implements
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType(mimetype);
             intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
-            startActivity(intent);
+
+            startActivity(createChooser(intent, getString(R.string.share_with)));
 
             Track.share("image");
         });
