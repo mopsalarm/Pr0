@@ -101,6 +101,8 @@ public final class Track {
                 .putCustomAttribute("repost hint", String.valueOf(settings.markRepostsInFeed()))
                 .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
+                .putCustomAttribute("image size", settings.maxImageSize())
+                .putCustomAttribute("video progress", String.valueOf(settings.showVideoProgress()))
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))));
     }
 
