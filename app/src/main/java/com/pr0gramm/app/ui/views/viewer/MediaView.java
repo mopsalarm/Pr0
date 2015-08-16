@@ -25,6 +25,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.ProxyService;
 import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.views.AspectImageView;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -136,9 +137,15 @@ public abstract class MediaView extends FrameLayout {
             if (info.getPreview() != null) {
                 preview.setImageDrawable(info.getPreview());
 
-            } else if (info.getPreviewUri() != null && !getMediaUri().isLocal()) {
-                // quickly load the preview into this view
-                picasso.load(info.getPreviewUri()).into(preview);
+            } else if (info.getPreviewUri() != null) {
+                if(getMediaUri().isLocal()) {
+                    picasso.load(info.getPreviewUri())
+                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .into(previewTarget);
+                } else {
+                    // quickly load the preview into this view
+                    picasso.load(info.getPreviewUri()).into(previewTarget);
+                }
 
             } else {
                 // no preview for this item, remove the view
