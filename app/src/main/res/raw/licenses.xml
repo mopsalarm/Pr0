@@ -95,6 +95,34 @@
     </notice>
 
     <notice>
+        <name>sqlbrite</name>
+        <url>https://github.com/square/sqlbrite</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>immutables</name>
+        <url>https://github.com/immutables/immutables</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>muzei-api</name>
+        <url>https://github.com/romannurik/muzei/</url>
+        <copyright />
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>TextDrawable</name>
+        <url>https://github.com/amulyakhare/TextDrawable</url>
+        <copyright />
+        <license>MIT License</license>
+    </notice>
+
+    <notice>
         <name>slf4android</name>
         <url>https://github.com/bright/slf4android</url>
         <copyright>Copyright (c) 2014 Bright Inventions</copyright>

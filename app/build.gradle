@@ -16,9 +16,8 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
         classpath 'io.fabric.tools:gradle:1.19.2'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.6'
-        classpath 'net.orfjackal.retrolambda:retrolambda:2.0.5'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.1'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.7'
     }
 }
 
@@ -152,7 +151,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.8'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.9'
     compile 'com.github.satyan:sugar:1.4'
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:2.2.2'
     compile 'com.github.tony19:named-regexp:0.2.3'
@@ -166,7 +165,7 @@ dependencies {
         transitive = true
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
 
