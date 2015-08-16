@@ -115,6 +115,9 @@ public class PreloadService extends RoboIntentService {
         try {
             int failed = 0, downloaded = 0;
             for (int idx = 0; idx < items.size() && !canceled; idx++) {
+                if (AndroidUtility.isOnMobile(this))
+                    break;
+
                 FeedItem item = items.get(idx);
                 try {
                     Uri mediaUri = uriHelper.media(item);
