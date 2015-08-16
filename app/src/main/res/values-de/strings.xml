@@ -312,4 +312,7 @@
     <string name="pref_confirm_play_on_mobile_human__play_direct">Direkt abspielen</string>
     <string name="pref_confirm_play_on_mobile_human__video_only">Videos/GIFs bestätigen</string>
     <string name="share_with">Teilen mit…</string>
+
+    <string name="preload_info_hint">Vorladen begonnen. Die App wird automatisch vorgeladene Dateien älter als einen Tag löschen, wenn du wieder auf Vorladen drückst. Alle vorgealdenen Dateien kannst du unter Einstellungen löschen.</string>
+    <string name="preload_not_on_mobile">Vorladen ist nur im WLAN unterstützt.</string>
 </resources>

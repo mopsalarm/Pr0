@@ -343,4 +343,6 @@
     <string name="pref_confirm_play_on_mobile_human__all">Confirm all</string>
     <string name="pref_confirm_play_on_mobile_human__video_only"><![CDATA[Video & gif only]]></string>
     <string name="share_with">Share with…</string>
+    <string name="preload_info_hint">Preloading started. The app will automatically remove preloaded files older than one day when you press the preload button. You can clean preloaded files in the settings.</string>
+    <string name="preload_not_on_mobile">You need to be on wifi to use preloading.</string>
 </resources>

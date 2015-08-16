@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.ScrollView;
 
 /**
- * Wrapper around {@link android.support.v7.app.AlertDialog.Builder}
+ * Helper to build dialogs.
  */
 public class DialogBuilder {
     public static final int DEFAULT_THEME = R.style.Theme_AppCompat_Light_Dialog;

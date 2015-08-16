@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.EnhancedUserInfo;
 import com.pr0gramm.app.Graph;
 import com.pr0gramm.app.ImmutableEnhancedUserInfo;
@@ -56,6 +57,7 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.PreloadService;
 import com.pr0gramm.app.services.SeenService;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.meta.ItemsInfo;
 import com.pr0gramm.app.services.meta.MetaService;
@@ -133,6 +135,9 @@ public class FeedFragment extends RxRoboFragment {
 
     @Inject
     private MetaService metaService;
+
+    @Inject
+    private SingleShotService singleShotService;
 
     @Inject
     private LocalCacheService localCacheService;
@@ -601,6 +606,11 @@ public class FeedFragment extends RxRoboFragment {
             item.setVisible(bookmarkable);
         }
 
+        item = menu.findItem(R.id.action_preload);
+        if (item != null) {
+            item.setVisible(!AndroidUtility.isOnMobile(getActivity()));
+        }
+
         item = menu.findItem(R.id.action_change_content_type);
         if (item != null) {
             if (userService.isAuthorized()) {
@@ -684,10 +694,27 @@ public class FeedFragment extends RxRoboFragment {
 
     @OnOptionsItemSelected(R.id.action_preload)
     public void preloadCurrentFeed() {
+        if (AndroidUtility.isOnMobile(getActivity())) {
+            DialogBuilder.start(getActivity())
+                    .content(R.string.preload_not_on_mobile)
+                    .positive(R.string.okay)
+                    .show();
+
+            return;
+        }
+
+
         Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
 
         Track.preloadCurrentFeed();
+
+        if (singleShotService.isFirstTime("preload_info_hint")) {
+            DialogBuilder.start(getActivity())
+                    .content(R.string.preload_info_hint)
+                    .positive(R.string.okay)
+                    .show();
+        }
     }
 
     /**
