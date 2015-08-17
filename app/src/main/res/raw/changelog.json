@@ -5,6 +5,10 @@
       {
         "type": "Exklusiv",
         "change": "Neue Kategorie 'random', die zufällige Bilder aus dem pr0gramm ausgräbt"
+      },
+      {
+        "type": "Neu",
+        "change": "Markiere vorgeladene Bilder im Feed"
       }
     ]
   },
