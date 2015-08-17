@@ -71,38 +71,32 @@ public class NotificationService {
 
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(title);
+        for (Message msg : Iterables.limit(inboxService.getInbox().toBlocking().single(), sync.getInboxCount())){
+            String sender = msg.getName();
+            String message = msg.getMessage();
+            int itemId = msg.getItemId();
 
-        inboxService.getInbox().subscribe(new Action1<List<Message>>() {
-            @Override
-            public void call(List<Message> messages) {
-                for (Message msg : Iterables.limit(messages, sync.getInboxCount())){
-                    String sender = msg.getName();
-                    String message = msg.getMessage();
-                    int itemId = msg.getItemId();
-
-                    //Create SpanableString to make styling possible
-                    SpannableString sString = new SpannableString(sender + ' ' + message);
-                    //Check if we got a private message or an answer to some image
-                    if (0 == itemId) {
-                        //PrivateMessage
-                        //Set <sender> textstyle to BOLD and change its color
-                        sString.setSpan(new StyleSpan(Typeface.BOLD), 0, sender.length(), 0);
-                        sString.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.primary)), 0, sender.length(), 0);
-                    } else {
-                        //Image Answer
-                        //Set <sender> textstyle to UNDERLINE and change its color
-                        sString.setSpan(new UnderlineSpan(), 0, sender.length(), 0);
-                        sString.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.primary_dark)), 0, sender.length(), 0);
-                    }
-
-                    //Make sure inboxStyle did not got terminated yet
-                    if (null == inboxStyle)
-                        break;
-                    //and add the line to our notification
-                    inboxStyle.addLine(sString);
-                }
+            //Create SpanableString to make styling possible
+            SpannableString sString = new SpannableString(sender + ' ' + message);
+            //Check if we got a private message or an answer to some image
+            if (0 == itemId) {
+                //PrivateMessage
+                //Set <sender> textstyle to BOLD and change its color
+                sString.setSpan(new StyleSpan(Typeface.BOLD), 0, sender.length(), 0);
+                sString.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.primary)), 0, sender.length(), 0);
+            } else {
+                //Image Answer
+                //Set <sender> textstyle to UNDERLINE and change its color
+                sString.setSpan(new UnderlineSpan(), 0, sender.length(), 0);
+                sString.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.primary_dark)), 0, sender.length(), 0);
             }
-        });
+
+            //Make sure inboxStyle did not got terminated yet
+            if (null == inboxStyle)
+                break;
+            //and add the line to our notification
+            inboxStyle.addLine(sString);
+        }
 
         Notification notification = new NotificationCompat.Builder(context)
                 //        .setContentTitle(title)
