@@ -83,6 +83,12 @@
                     android:summary="@string/pref_feed_start_at_new_summary"
                     android:title="@string/pref_feed_start_at_new_title"/>
 
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_category_random"
+                    android:title="@string/pref_show_category_random_title"
+                    android:summary="@string/pref_show_category_random_summary"/>
+
             </PreferenceCategory>
 
             <PreferenceCategory

@@ -27,19 +27,18 @@ import java.util.Set;
 import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.toArray;
 import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static java.lang.Math.max;
-import static java.util.Arrays.asList;
 
 /**
  * Represents a feed.
  */
 public class Feed {
     private static final Logger logger = LoggerFactory.getLogger(Feed.class);
-    public static final String FIELD_FEED_FILTER = "filter";
-    public static final String FEED_FILTER_ITEMS = "items";
-    public static final String FEED_FILTER_CONTENT_TYPE = "contentType";
+    public static final String FEED_FIELD_FILTER = "filter";
+    public static final String FEED_FIELD_ITEMS = "items";
+    public static final String FEED_FIELD_CONTENT_TYPE = "contentType";
+    public static final String FEED_FIELD_AT_START = "atStart";
 
     private final List<FeedItem> items = new ArrayList<>();
 
@@ -62,9 +61,12 @@ public class Feed {
     /**
      * Constructs a new feed containing the given items.
      */
-    public Feed(FeedFilter feedFilter, Set<ContentType> contentType, Collection<FeedItem> items) {
+    public Feed(FeedFilter feedFilter, Set<ContentType> contentType, Collection<FeedItem> items,
+                boolean atStart) {
+
         this(feedFilter, contentType);
         this.items.addAll(items);
+        this.atStart = atStart;
     }
 
     public boolean isAtStart() {
@@ -136,32 +138,39 @@ public class Feed {
                 .transform(FeedItem::new)
                 .toSortedList(itemOrdering);
 
-        PeekingIterator<FeedItem> source = Iterators.peekingIterator(newItems.iterator());
-        ListIterator<FeedItem> target = items.listIterator();
+        // we can not merge a random feed based on its ids.
+        if (feedFilter.getFeedType() == FeedType.RANDOM) {
+            items.addAll(newItems);
 
-        while (source.hasNext()) {
-            if (target.hasNext()) {
-                FeedItem nextTarget = items.get(target.nextIndex());
+        } else {
+            // merge based on ids.
+            PeekingIterator<FeedItem> source = Iterators.peekingIterator(newItems.iterator());
+            ListIterator<FeedItem> target = items.listIterator();
 
-                int cmp = itemOrdering.compare(source.peek(), nextTarget);
-                if (cmp < 0) {
-                    // next target should belong behind this source item, so
-                    // put source item here.
-                    target.add(source.next());
+            while (source.hasNext()) {
+                if (target.hasNext()) {
+                    FeedItem nextTarget = items.get(target.nextIndex());
 
-                } else if (cmp == 0) {
-                    // replace target with new source
-                    target.next();
-                    target.set(source.next());
+                    int cmp = itemOrdering.compare(source.peek(), nextTarget);
+                    if (cmp < 0) {
+                        // next target should belong behind this source item, so
+                        // put source item here.
+                        target.add(source.next());
+
+                    } else if (cmp == 0) {
+                        // replace target with new source
+                        target.next();
+                        target.set(source.next());
+
+                    } else {
+                        // don't insert here, try next target
+                        target.next();
+                    }
 
                 } else {
-                    // don't insert here, try next target
-                    target.next();
+                    // we have no more target elements, so just add source here.
+                    target.add(source.next());
                 }
-
-            } else {
-                // we have no more target elements, so just add source here.
-                target.add(source.next());
             }
         }
 
@@ -195,24 +204,27 @@ public class Feed {
 
     public Bundle persist(int idx) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("filter", feedFilter);
-        bundle.putInt("contentType", ContentType.combine(contentType));
+        bundle.putParcelable(FEED_FIELD_FILTER, feedFilter);
+        bundle.putInt(FEED_FIELD_CONTENT_TYPE, ContentType.combine(contentType));
 
         // add a subset of the items
-        int start = Math.min(items.size(), max(0, idx - 32));
-        int stop = Math.min(items.size(), max(0, idx + 32));
+        int start = Math.min(items.size(), max(0, idx - 100));
+        int stop = Math.min(items.size(), max(0, idx + 100));
         List<FeedItem> items = this.items.subList(start, stop);
-        bundle.putParcelableArray("items", toArray(items, FeedItem.class));
+        bundle.putParcelableArrayList(FEED_FIELD_ITEMS, new ArrayList<>(items));
+        bundle.putBoolean(FEED_FIELD_AT_START, start == 0);
 
         return bundle;
     }
 
     @SuppressWarnings("unchecked")
     public static Feed restore(Bundle bundle) {
-        FeedFilter feedFilter = bundle.getParcelable(FIELD_FEED_FILTER);
-        List<FeedItem> items = (List<FeedItem>) (List) asList(bundle.getParcelableArray(FEED_FILTER_ITEMS));
-        Set<ContentType> contentType = ContentType.decompose(bundle.getInt(FEED_FILTER_CONTENT_TYPE));
-        return new Feed(feedFilter, contentType, items);
+        FeedFilter feedFilter = bundle.getParcelable(FEED_FIELD_FILTER);
+        List<FeedItem> items = bundle.getParcelableArrayList(FEED_FIELD_ITEMS);
+        Set<ContentType> contentType = ContentType.decompose(bundle.getInt(FEED_FIELD_CONTENT_TYPE));
+        boolean atStart = bundle.getBoolean(FEED_FIELD_AT_START, false);
+
+        return new Feed(feedFilter, contentType, items, atStart);
     }
 
     private final Ordering<FeedItem> itemOrdering = Ordering

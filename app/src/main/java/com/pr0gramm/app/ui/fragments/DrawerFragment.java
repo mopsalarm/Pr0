@@ -127,6 +127,9 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectResource(R.drawable.ic_black_action_trending)
     private Drawable iconFeedTypeNew;
 
+    @InjectResource(R.drawable.ic_action_random)
+    private Drawable iconFeedTypeRandom;
+
     @InjectResource(R.drawable.ic_black_action_bookmark)
     private Drawable iconBookmark;
 
@@ -224,6 +227,13 @@ public class DrawerFragment extends RxRoboFragment {
                     new FeedFilter().withFeedType(FeedType.PREMIUM),
                     getString(R.string.action_feed_type_premium),
                     iconFeedTypePremium));
+        }
+
+        if(settings.showCategoryRandom()) {
+            items.add(new NavigationItem(
+                    new FeedFilter().withFeedType(FeedType.RANDOM),
+                    getString(R.string.action_feed_type_random),
+                    iconFeedTypeRandom));
         }
 
         if (userInfo.isPresent()) {

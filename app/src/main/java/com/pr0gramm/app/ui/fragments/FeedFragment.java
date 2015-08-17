@@ -506,7 +506,8 @@ public class FeedFragment extends RxRoboFragment {
 
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
-            bindSupportFragment(this, bookmarkService.isBookmarkable(getCurrentFilter()))
+            bindFragmentLifecycle(lifecycle(), bindSupportFragment(this,
+                    bookmarkService.isBookmarkable(getCurrentFilter())))
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
 
@@ -588,14 +589,24 @@ public class FeedFragment extends RxRoboFragment {
         inflater.inflate(R.menu.menu_feed, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        if(item != null)
-            initializeSearchView(item);
+        if (item != null) {
+            boolean searchable = getCurrentFilter().getFeedType().searchable();
+            if (searchable) {
+                initializeSearchView(item);
+            } else {
+                item.setVisible(false);
+            }
+        }
+
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         if (getActivity() == null)
             return;
+
+        FeedFilter filter = getCurrentFilter();
+        FeedType feedType = filter.getFeedType();
 
         MenuItem item = menu.findItem(R.id.action_refresh);
         if (item != null) {
@@ -609,7 +620,7 @@ public class FeedFragment extends RxRoboFragment {
 
         item = menu.findItem(R.id.action_preload);
         if (item != null) {
-            item.setVisible(!AndroidUtility.isOnMobile(getActivity()));
+            item.setVisible(feedType.preloadable() && !AndroidUtility.isOnMobile(getActivity()));
         }
 
         item = menu.findItem(R.id.action_change_content_type);

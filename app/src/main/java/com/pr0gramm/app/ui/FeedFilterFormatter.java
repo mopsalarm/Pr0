@@ -50,6 +50,9 @@ public class FeedFilterFormatter {
             case PREMIUM:
                 return context.getString(R.string.filter_format_premium);
 
+            case RANDOM:
+                return context.getString(R.string.filter_format_random);
+
             default:
                 throw new IllegalArgumentException("Invalid feed type");
         }

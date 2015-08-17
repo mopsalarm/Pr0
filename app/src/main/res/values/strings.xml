@@ -348,4 +348,8 @@
     <string name="pref_show_video_progress_title">Enable video position</string>
     <string name="pref_show_video_progress_summary">Shows the little blue progressbar under a video. Wont work with software decoder for now.</string>
     <string name="hint_musste_scrollen">If \'musste scrollen\'-images are all blurry, go to the settings and increase the maximum image size!</string>
+    <string name="action_feed_type_random">RANDOM</string>
+    <string name="filter_format_random">Random</string>
+    <string name="pref_show_category_random_title">Category \'random\'</string>
+    <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
 </resources>

@@ -9,6 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.pr0gramm.app.api.pr0gramm.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
+import com.pr0gramm.app.api.pr0gramm.response.Post;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class FeedService {
                 .setConverter(new GsonConverter(ApiGsonBuilder.builder().create()))
                 .setEndpoint("http://pr0.wibbly-wobbly.de/api/categories/v1")
                 .setLog(new LoggerAdapter(logger))
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build()
                 .create(ExtraCategoryApi.class);
     }
@@ -70,6 +72,10 @@ public class FeedService {
         }
 
         return result;
+    }
+
+    public Observable<Post> loadPostDetails(long id) {
+        return mainApi.info(id);
     }
 
     @Value.Immutable
