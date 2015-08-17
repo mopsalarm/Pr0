@@ -14,6 +14,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -71,10 +72,10 @@ public class NotificationService {
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(title);
 
-        inboxService.getUnreadMessages().subscribe(new Action1<List<Message>>() {
+        inboxService.getInbox().subscribe(new Action1<List<Message>>() {
             @Override
             public void call(List<Message> messages) {
-                for (Message msg : messages) {
+                for (Message msg : Iterables.limit(messages, sync.getInboxCount())){
                     String sender = msg.getName();
                     String message = msg.getMessage();
                     int itemId = msg.getItemId();
