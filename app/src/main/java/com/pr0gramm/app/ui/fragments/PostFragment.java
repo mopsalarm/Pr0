@@ -186,6 +186,7 @@ public class PostFragment extends RxRoboFragment implements
 
     private List<Tag> tags;
     private List<Comment> comments;
+    boolean rewindOnLoad;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -475,6 +476,7 @@ public class PostFragment extends RxRoboFragment implements
         if (swipeRefreshLayout.isRefreshing())
             return;
 
+        rewindOnLoad = true;
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.postDelayed(this::loadPostDetails, 500);
     }
@@ -688,7 +690,7 @@ public class PostFragment extends RxRoboFragment implements
                 uri = uri.withDelay(true);
             } else if (settings.confirmPlayOnMobile() == Settings.ConfirmOnMobile.VIDEO
                     && uri.getMediaType() != MediaUri.MediaType.IMAGE) {
-                
+
                 uri = uri.withDelay(true);
             }
         }
@@ -804,7 +806,10 @@ public class PostFragment extends RxRoboFragment implements
         displayTags(post.getTags());
         displayComments(post.getComments());
 
-        viewer.rewind();
+        if (rewindOnLoad) {
+            rewindOnLoad = false;
+            viewer.rewind();
+        }
     }
 
     private void displayTags(List<Tag> tags_) {

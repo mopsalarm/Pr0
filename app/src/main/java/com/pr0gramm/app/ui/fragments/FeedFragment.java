@@ -55,6 +55,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.PreloadManager;
 import com.pr0gramm.app.services.PreloadService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -141,6 +142,9 @@ public class FeedFragment extends RxRoboFragment {
 
     @Inject
     private LocalCacheService localCacheService;
+
+    @Inject
+    private PreloadManager preloadManager;
 
     @InjectView(R.id.list)
     private RecyclerView recyclerView;
@@ -240,7 +244,7 @@ public class FeedFragment extends RxRoboFragment {
 
         recyclerView.addOnScrollListener(onScrollListener);
 
-        if(getCurrentFilter().getFeedType() == FeedType.RANDOM) {
+        if (getCurrentFilter().getFeedType() == FeedType.RANDOM) {
             if (singleShotService.isFirstTime("category_random_hint")) {
                 DialogBuilder.start(getActivity())
                         .content(R.string.hint_category_random)
@@ -527,6 +531,9 @@ public class FeedFragment extends RxRoboFragment {
             seenIndicatorStyle = settings.seenIndicatorStyle();
             feedAdapter.notifyDataSetChanged();
         }
+
+        bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, preloadManager.all()))
+                .subscribe(ignored -> feedAdapter.notifyDataSetChanged());
     }
 
     private void recheckContentTypes() {
@@ -910,7 +917,8 @@ public class FeedFragment extends RxRoboFragment {
             FeedItem item = feed.at(position);
 
             with(fragment -> {
-                fragment.picasso.load(UriHelper.get().thumbnail(item))
+                Uri imageUri = UriHelper.get().thumbnail(item);
+                fragment.picasso.load(imageUri)
                         .placeholder(new ColorDrawable(0xff333333))
                         .into(view.image);
 
@@ -918,6 +926,9 @@ public class FeedFragment extends RxRoboFragment {
                     ViewCompat.setTransitionName(view.image, "TransitionTarget");
                     fragment.onItemClicked(position, Optional.<Long>absent(), Optional.of(view.image));
                 });
+
+                // show preload-badge
+                view.setIsPreloaded(fragment.preloadManager.exists(item.getId()));
 
                 // check if this item was already seen.
                 if (fragment.localCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
@@ -1122,7 +1133,10 @@ public class FeedFragment extends RxRoboFragment {
     private static final class FeedItemViewHolder extends RecyclerView.ViewHolder {
         private final ImageView seen;
         private final ImageView repost;
+        private final View preloaded;
         final ImageView image;
+
+        private Uri previousImageUri;
 
         public FeedItemViewHolder(View itemView) {
             super(itemView);
@@ -1130,6 +1144,7 @@ public class FeedFragment extends RxRoboFragment {
             image = (ImageView) checkNotNull(itemView.findViewById(R.id.image));
             seen = (ImageView) checkNotNull(itemView.findViewById(R.id.seen));
             repost = (ImageView) checkNotNull(itemView.findViewById(R.id.repost));
+            preloaded = checkNotNull(itemView.findViewById(R.id.preloaded));
         }
 
         public void setIsRepost() {
@@ -1146,6 +1161,9 @@ public class FeedFragment extends RxRoboFragment {
             seen.setVisibility(View.GONE);
             repost.setVisibility(View.GONE);
         }
-    }
 
+        public void setIsPreloaded(boolean isPreloaded) {
+            preloaded.setVisibility(isPreloaded ? View.VISIBLE : View.GONE);
+        }
+    }
 }

@@ -323,4 +323,5 @@
     <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="hint_category_random">Dies ist die exklusive neue Zufallskategorie. Es werden zufällige Bilder aus dem pr0gramm angezeigt (größtenteils aus Top). Wie der Zufall es so will, kannst du diese Kategorie nicht durchsuchen oder vorladen.</string>
+    <string name="preloaded">geladen</string>
 </resources>

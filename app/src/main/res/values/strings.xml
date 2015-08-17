@@ -353,4 +353,5 @@
     <string name="pref_show_category_random_title">Category \'random\'</string>
     <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
     <string name="hint_category_random">This is the new and exclusive random category. It will show totally random posts (mostly from top). You are not able to search or preload this category because of the randomness!</string>
+    <string name="preloaded">loaded</string>
 </resources>
