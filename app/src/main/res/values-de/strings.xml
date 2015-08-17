@@ -318,4 +318,8 @@
     <string name="pref_show_video_progress_title">Fortschrittsanzeige</string>
     <string name="pref_show_video_progress_summary">Zeigt die Fortschrittsanzeige unter Videos an. Funktioniert aktuell nicht mit dem Softwaredekoder.</string>
     <string name="hint_musste_scrollen">Wenn \'musste scrollen\' Bilder häufig unscharf sind, erhöhe die maximale Bildgröße in den Einstellungen!</string>
+    <string name="action_feed_type_random">ZUFALL</string>
+    <string name="filter_format_random">Zufall</string>
+    <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
+    <string name="pref_show_category_random_title">Zufall-Kategorie</string>
 </resources>

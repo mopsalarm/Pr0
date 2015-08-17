@@ -1,5 +1,14 @@
 [
   {
+    "version": 73,
+    "changes": [
+      {
+        "type": "Exklusiv",
+        "change": "Neue Kategorie 'random', die zufällige Bilder aus dem pr0gramm ausgräbt"
+      }
+    ]
+  },
+  {
     "version": 72,
     "changes": [
       {
