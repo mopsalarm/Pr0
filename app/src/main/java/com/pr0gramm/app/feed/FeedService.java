@@ -3,17 +3,23 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.LoggerAdapter;
 import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
+import com.pr0gramm.app.api.pr0gramm.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
 
 import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 import rx.Observable;
 
 /**
@@ -21,11 +27,21 @@ import rx.Observable;
  */
 @Singleton
 public class FeedService {
-    private final Api api;
+    private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
+
+    private final Api mainApi;
+    private final ExtraCategoryApi extraCategoryApi;
 
     @Inject
-    public FeedService(Api api) {
-        this.api = api;
+    public FeedService(Api mainApi) {
+        this.mainApi = mainApi;
+
+        this.extraCategoryApi = new RestAdapter.Builder()
+                .setConverter(new GsonConverter(ApiGsonBuilder.builder().create()))
+                .setEndpoint("http://pr0.wibbly-wobbly.de/api/categories/v1")
+                .setLog(new LoggerAdapter(logger))
+                .build()
+                .create(ExtraCategoryApi.class);
     }
 
     public Observable<Feed> getFeedItems(FeedQuery query) {
@@ -44,19 +60,16 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        Observable<Feed> result = api.itemsGet(promoted, following,
-                query.older().orNull(), query.newer().orNull(), query.around().orNull(),
-                flags, tags, likes, self, user);
+        Observable<Feed> result;
+        if (query.feedFilter().getFeedType() == FeedType.RANDOM) {
+            result = extraCategoryApi.random(flags);
+        } else {
+            result = mainApi.itemsGet(promoted, following,
+                    query.older().orNull(), query.newer().orNull(), query.around().orNull(),
+                    flags, tags, likes, self, user);
+        }
 
-        return result.map(this::filterPreloadedOnly);
-    }
-
-    private Feed filterPreloadedOnly(Feed feed) {
-        return feed;
-    }
-
-    public Observable<Post> loadPostDetails(long id) {
-        return api.info(id);
+        return result;
     }
 
     @Value.Immutable
