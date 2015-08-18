@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.LoggerAdapter;
 import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
@@ -62,8 +63,10 @@ public class RestAdapterProvider implements Provider<Api> {
 
         String host = UriHelper.of(context).base().toString();
 
-        // activate this to use a mock
-        host = "http://demo8733773.mockable.io";
+        if(BuildConfig.DEBUG && settings.mockApi()) {
+            // activate this to use a mock
+            host = "http://demo8733773.mockable.io";
+        }
 
         return new RestAdapter.Builder()
                 .setEndpoint(host)

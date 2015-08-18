@@ -105,6 +105,17 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
             // Load the preferences from an XML resource
             updateContentTypeBoxes(getPreferenceManager().getSharedPreferences());
             updateFlavorSettings();
+
+            if (!BuildConfig.DEBUG) {
+                hideDebugPreferences();
+            }
+        }
+
+        private void hideDebugPreferences() {
+            Preference pref = findPreference("prefcat_debug");
+            if (pref != null) {
+                getPreferenceScreen().removePreference(pref);
+            }
         }
 
         private void updatePreloadInfo() {

@@ -211,6 +211,10 @@ public class Settings {
         return preferences.getBoolean("pref_show_category_random", true);
     }
 
+    public boolean mockApi() {
+        return BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

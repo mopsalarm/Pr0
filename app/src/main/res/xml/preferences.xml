@@ -86,8 +86,8 @@
                 <CheckBoxPreference
                     android:defaultValue="true"
                     android:key="pref_show_category_random"
-                    android:title="@string/pref_show_category_random_title"
-                    android:summary="@string/pref_show_category_random_summary"/>
+                    android:summary="@string/pref_show_category_random_summary"
+                    android:title="@string/pref_show_category_random_title"/>
 
             </PreferenceCategory>
 
@@ -332,6 +332,25 @@
         </PreferenceScreen>
     </PreferenceCategory>
 
+    <!-- This screen is hidden on non debug builds -->
+    <PreferenceScreen
+        android:key="prefcat_debug"
+        android:persistent="false"
+        android:summary="Debug preferences for development"
+        android:title="Debug">
+
+        <intent
+            android:action="preference://prefcat_debug"
+            android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
+            android:targetPackage="@string/app_id"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_debug_mock_api"
+            android:summary="Requires full restart of app"
+            android:title="Use mock api endpoint"/>
+    </PreferenceScreen>
+
     <PreferenceCategory
         android:key="prefcat_misc"
         android:persistent="false"
@@ -358,7 +377,6 @@
             android:key="pref_pseudo_licenses"
             android:summary="@string/pref_pseudo_licenses_summary"
             android:title="@string/pref_pseudo_licenses_title"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -379,5 +397,6 @@
             android:summaryOn="@string/pref_crashlytics_enabled_on"
             android:title="@string/pref_crashlytics_enabled"/>
     </PreferenceCategory>
+
 
 </PreferenceScreen>
