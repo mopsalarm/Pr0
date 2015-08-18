@@ -136,13 +136,15 @@ public class Feed {
     private List<FeedItem> add(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
         ImmutableList<FeedItem> newItems = FluentIterable.from(feed.getItems())
                 .transform(FeedItem::new)
-                .toSortedList(itemOrdering);
+                .toList();
 
         // we can not merge a random feed based on its ids.
         if (feedFilter.getFeedType() == FeedType.RANDOM) {
             items.addAll(newItems);
 
         } else {
+            newItems = itemOrdering.immutableSortedCopy(newItems);
+
             // merge based on ids.
             PeekingIterator<FeedItem> source = Iterators.peekingIterator(newItems.iterator());
             ListIterator<FeedItem> target = items.listIterator();
