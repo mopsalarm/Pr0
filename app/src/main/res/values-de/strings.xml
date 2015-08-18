@@ -138,10 +138,8 @@
     <string name="error_login_required_exception">Schaut so aus, als wäre was mit deinem Login-Cookie kaputt. Hast du dich vielleicht im Browser abgemeldet?</string>
     <string name="feedback_reminder">Dies ist eine Beta. Bitte Informiere mich über den Feedback-Knopf in den Einstellungen, wenn dir irgendetwas (nicht) gefällt!</string>
     <string name="filter_format_premium">Stelz</string>
-    <string name="notify_new_message_text">Eine neue Nachricht auf pr0gramm</string>
-    <string name="notify_new_message_title">Neue Nachricht</string>
-    <string name="notify_new_messages_text">%d neue Nachrichten auf pr0gramm</string>
-    <string name="notify_new_messages_title">Neue Nachrichten</string>
+    <string name="notify_new_message_title">Eine neue Nachricht</string>
+    <string name="notify_new_messages_title">%d neue Nachrichten</string>
     <string name="pref_show_notifications_title">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="info_how_to_vote_tags">Tags können durch längeres Drücken bewertet werden!</string>
@@ -324,4 +322,5 @@
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="hint_category_random">Dies ist die exklusive neue Zufallskategorie. Es werden zufällige Bilder aus dem pr0gramm angezeigt (größtenteils aus Top). Wie der Zufall es so will, kannst du diese Kategorie nicht durchsuchen oder vorladen.</string>
     <string name="preloaded">geladen</string>
+    <string name="notify_new_message_summary_text">Zum Lesen hier berühren</string>
 </resources>

@@ -229,7 +229,7 @@ public class DrawerFragment extends RxRoboFragment {
                     iconFeedTypePremium));
         }
 
-        if(settings.showCategoryRandom()) {
+        if (settings.showCategoryRandom()) {
             items.add(new NavigationItem(
                     new FeedFilter().withFeedType(FeedType.RANDOM),
                     getString(R.string.action_feed_type_random),
@@ -301,7 +301,7 @@ public class DrawerFragment extends RxRoboFragment {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        if(singleShotService.isFirstTimeToday("bookmarksLoaded"))
+        if (singleShotService.isFirstTimeToday("bookmarksLoaded"))
             Track.bookmarks(entries.size());
 
         boolean premium = userService.isPremiumUser();
@@ -405,7 +405,10 @@ public class DrawerFragment extends RxRoboFragment {
     private NavigationItem getInboxNavigationItem(Integer unreadCount) {
         Runnable run = () -> {
             Intent intent = new Intent(getActivity(), InboxActivity.class);
-            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.ALL.ordinal());
+            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, unreadCount == 0
+                    ? InboxType.ALL.ordinal()
+                    : InboxType.UNREAD.ordinal());
+
             startActivity(intent);
         };
 

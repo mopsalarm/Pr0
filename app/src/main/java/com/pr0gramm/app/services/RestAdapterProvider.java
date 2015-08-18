@@ -63,7 +63,7 @@ public class RestAdapterProvider implements Provider<Api> {
         String host = UriHelper.of(context).base().toString();
 
         // activate this to use a mock
-        // host = "http://demo8733773.mockable.io";
+        host = "http://demo8733773.mockable.io";
 
         return new RestAdapter.Builder()
                 .setEndpoint(host)

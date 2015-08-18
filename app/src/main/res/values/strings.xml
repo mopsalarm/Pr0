@@ -144,10 +144,8 @@
     <string name="filter_format_premium">Stelz</string>
     <string name="nothing_there">No results\n¯\\_(ツ)_/¯</string>
     <string name="could_not_load_image">Could not load image\n¯\\_(ツ)_/¯</string>
-    <string name="notify_new_message_title">New message</string>
-    <string name="notify_new_messages_title">New messages</string>
-    <string name="notify_new_message_text">One new message on pr0gramm</string>
-    <string name="notify_new_messages_text">%d new messages on pr0gramm</string>
+    <string name="notify_new_message_title">One new message</string>
+    <string name="notify_new_messages_title">%d new messages</string>
     <string name="pref_show_notifications_title">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
@@ -354,4 +352,5 @@
     <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
     <string name="hint_category_random">This is the new and exclusive random category. It will show totally random posts (mostly from top). You are not able to search or preload this category because of the randomness!</string>
     <string name="preloaded">loaded</string>
+    <string name="notify_new_message_summary_text">Touch to read messages</string>
 </resources>

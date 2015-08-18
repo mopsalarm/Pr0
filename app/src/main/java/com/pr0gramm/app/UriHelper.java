@@ -5,7 +5,7 @@ import android.net.Uri;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Inject;
+import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.PreloadManager;
@@ -17,7 +17,6 @@ import roboguice.inject.RoboInjector;
  * A little helper class to work with URLs
  */
 public final class UriHelper {
-    @Inject
     private final Settings settings;
     private final PreloadManager preloadManager;
 
@@ -46,6 +45,12 @@ public final class UriHelper {
         return preloadManager.get(item.getId())
                 .transform(pi -> Uri.fromFile(pi.thumbnail()))
                 .or(() -> noPreload.thumbnail(item));
+    }
+
+    public Uri thumbnail(Message message) {
+        return preloadManager.get(message.getItemId())
+                .transform(pi -> Uri.fromFile(pi.thumbnail()))
+                .or(() -> start("thumb").path(message.getThumb()).build());
     }
 
     public Uri media(FeedItem item, boolean hq) {
@@ -102,7 +107,6 @@ public final class UriHelper {
             .put(FeedType.PROMOTED, "top")
             .put(FeedType.PREMIUM, "stalk")
             .build();
-
 
     public class NoPreload {
         private NoPreload() {
