@@ -8,6 +8,10 @@
       },
       {
         "type": "Neu",
+        "change": "Vorschau bei Nachrichten/Antwort-Benachrichtigung"
+      },
+      {
+        "type": "Neu",
         "change": "Markiere vorgeladene Bilder im Feed"
       }
     ]
