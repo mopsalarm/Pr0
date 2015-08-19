@@ -376,6 +376,10 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
     @Override
     public void onFeedFilterSelected(FeedFilter filter) {
+        // if it is a non searchable filter, we need to switch to some searchable category.
+        if(!filter.getFeedType().searchable() && !filter.isBasic())
+            filter = filter.withFeedType(FeedType.NEW);
+
         gotoFeedFragment(filter, false);
     }
 

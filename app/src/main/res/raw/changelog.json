@@ -13,6 +13,10 @@
       {
         "type": "Neu",
         "change": "Markiere vorgeladene Bilder im Feed"
+      },
+      {
+        "type": "Fix",
+        "change": "Klickt man in der 'Zufall'-Kategorie Tags oder User an, wird man zu Neu weitergeleitet."
       }
     ]
   },
