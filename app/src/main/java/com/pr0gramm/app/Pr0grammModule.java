@@ -40,8 +40,6 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
-import static org.joda.time.Duration.standardSeconds;
-
 /**
  */
 @SuppressWarnings("UnusedDeclaration")
@@ -74,7 +72,7 @@ public class Pr0grammModule extends AbstractModule {
         client.setReadTimeout(15, TimeUnit.SECONDS);
         client.setWriteTimeout(15, TimeUnit.SECONDS);
         client.setConnectTimeout(10, TimeUnit.SECONDS);
-        client.setConnectionPool(new ConnectionPool(4, standardSeconds(2).getMillis()));
+        client.setConnectionPool(new ConnectionPool(0, 0));
         client.setRetryOnConnectionFailure(true);
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
