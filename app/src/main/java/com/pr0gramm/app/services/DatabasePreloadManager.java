@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import rx.Observable;
@@ -39,7 +41,29 @@ public class DatabasePreloadManager implements PreloadManager {
     public DatabasePreloadManager(Observable<BriteDatabase> database) {
         this.database = database;
 
-        queryAllItems().subscribe(preloadCache::set);
+        queryAllItems().subscribe(this::setPreloadCache);
+    }
+
+    private void setPreloadCache(ImmutableMap<Long, PreloadItem> items) {
+        List<PreloadItem> missing = new ArrayList<>();
+        for (PreloadItem item : items.values()) {
+            if (!item.thumbnail().exists() || !item.media().exists()) {
+                missing.add(item);
+            }
+        }
+
+        if (!missing.isEmpty()) {
+            BriteDatabase db = db();
+            db.beginTransaction();
+            try {
+                deleteTx(db, missing);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        } else {
+            preloadCache.set(items);
+        }
     }
 
     private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
@@ -108,23 +132,27 @@ public class DatabasePreloadManager implements PreloadManager {
             try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
                     String.valueOf(threshold.getMillis()))) {
 
-                for (PreloadItem item : readPreloadEntriesFromCursor(cursor).values()) {
-                    logger.info("Removing files for itemId={}", item.itemId());
-
-                    if (!item.media().delete())
-                        logger.warn("Could not delete media file {}", item.media());
-
-                    if (!item.thumbnail().delete())
-                        logger.warn("Could not delete thumbnail file {}", item.thumbnail());
-
-                    // delete entry from database
-                    db.delete(TABLE_NAME, "itemId=?", String.valueOf(item.itemId()));
-                }
+                deleteTx(db, readPreloadEntriesFromCursor(cursor).values());
             }
 
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private void deleteTx(BriteDatabase db, Iterable<PreloadItem> items) {
+        for (PreloadItem item : items) {
+            logger.info("Removing files for itemId={}", item.itemId());
+
+            if (!item.media().delete())
+                logger.warn("Could not delete media file {}", item.media());
+
+            if (!item.thumbnail().delete())
+                logger.warn("Could not delete thumbnail file {}", item.thumbnail());
+
+            // delete entry from database
+            db.delete(TABLE_NAME, "itemId=?", String.valueOf(item.itemId()));
         }
     }
 
