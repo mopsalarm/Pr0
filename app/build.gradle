@@ -22,8 +22,8 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23"
 
     defaultConfig {
         minSdkVersion 14
@@ -139,9 +139,9 @@ dependencies {
 
     compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:recyclerview-v7:22.2.1'
-    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:appcompat-v7:23.0.0'
+    compile 'com.android.support:recyclerview-v7:23.0.0'
+    compile 'com.android.support:design:23.0.0'
     compile 'com.google.guava:guava:19.0-rc1'
 
     compile 'net.danlew:android.joda:2.8.1'

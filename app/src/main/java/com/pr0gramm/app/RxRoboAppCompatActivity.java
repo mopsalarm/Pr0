@@ -10,7 +10,7 @@ import com.pr0gramm.app.ab.ExperimentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -102,7 +102,7 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
 
         int chain = requestCode >>> REQUEST_CODE_EXT_BITS;
         if (chain != 0) {
-            ArrayList<Fragment> active = SupportV4App.activityFragmentsActive(this);
+            List<Fragment> active = SupportV4App.activityFragmentsActive(this);
             Fragment fragment;
 
             do {

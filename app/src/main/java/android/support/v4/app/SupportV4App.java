@@ -1,6 +1,10 @@
 package android.support.v4.app;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  * We need this to access some internal properties of the support library.
@@ -12,8 +16,9 @@ public class SupportV4App {
         activity.mFragments.noteStateNotSaved();
     }
 
-    public static ArrayList<Fragment> activityFragmentsActive(FragmentActivity activity) {
-        return activity.mFragments.mActive;
+    public static List<Fragment> activityFragmentsActive(FragmentActivity activity) {
+        return firstNonNull(activity.mFragments.getActiveFragments(null),
+                Collections.<Fragment>emptyList());
     }
 
     public static int fragmentIndex(Fragment fragment) {

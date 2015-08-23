@@ -16,6 +16,10 @@
 -dontwarn com.google.gson.**
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn net.i2p.**
+-dontwarn org.apache.http.**
+-dontwarn retrofit.client.**
+-dontwarn android.net.http.**
+-dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 
 # keep annotations
