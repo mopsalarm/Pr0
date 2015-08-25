@@ -130,6 +130,9 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectResource(R.drawable.ic_action_random)
     private Drawable iconFeedTypeRandom;
 
+    @InjectResource(R.drawable.ic_category_controversial)
+    private Drawable iconFeedTypeControversial;
+
     @InjectResource(R.drawable.ic_black_action_bookmark)
     private Drawable iconBookmark;
 
@@ -225,7 +228,7 @@ public class DrawerFragment extends RxRoboFragment {
         items.add(new NavigationItem(
                 new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
                 getString(R.string.action_feed_type_controversial),
-                iconFeedTypeRandom));
+                iconFeedTypeControversial));
 
         if (settings.showCategoryRandom()) {
             items.add(new NavigationItem(
