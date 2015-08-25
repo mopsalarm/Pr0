@@ -62,16 +62,18 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        Observable<Feed> result;
-        if (query.feedFilter().getFeedType() == FeedType.RANDOM) {
-            result = extraCategoryApi.random(flags);
-        } else {
-            result = mainApi.itemsGet(promoted, following,
-                    query.older().orNull(), query.newer().orNull(), query.around().orNull(),
-                    flags, tags, likes, self, user);
-        }
+        switch (query.feedFilter().getFeedType()) {
+            case RANDOM:
+                return extraCategoryApi.random(flags);
 
-        return result;
+            case CONTROVERSIAL:
+                return extraCategoryApi.controversial(flags, query.older().orNull());
+
+            default:
+                return mainApi.itemsGet(promoted, following,
+                        query.older().orNull(), query.newer().orNull(), query.around().orNull(),
+                        flags, tags, likes, self, user);
+        }
     }
 
     public Observable<Post> loadPostDetails(long id) {

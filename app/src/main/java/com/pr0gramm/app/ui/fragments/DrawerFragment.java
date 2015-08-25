@@ -222,18 +222,23 @@ public class DrawerFragment extends RxRoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
-        if (userService.isPremiumUser()) {
-            items.add(new NavigationItem(
-                    new FeedFilter().withFeedType(FeedType.PREMIUM),
-                    getString(R.string.action_feed_type_premium),
-                    iconFeedTypePremium));
-        }
+        items.add(new NavigationItem(
+                new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
+                getString(R.string.action_feed_type_controversial),
+                iconFeedTypeRandom));
 
         if (settings.showCategoryRandom()) {
             items.add(new NavigationItem(
                     new FeedFilter().withFeedType(FeedType.RANDOM),
                     getString(R.string.action_feed_type_random),
                     iconFeedTypeRandom));
+        }
+
+        if (userService.isPremiumUser()) {
+            items.add(new NavigationItem(
+                    new FeedFilter().withFeedType(FeedType.PREMIUM),
+                    getString(R.string.action_feed_type_premium),
+                    iconFeedTypePremium));
         }
 
         if (userInfo.isPresent()) {

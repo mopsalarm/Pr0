@@ -6,6 +6,23 @@ package com.pr0gramm.app.feed;
 public enum FeedType {
     NEW, PROMOTED, PREMIUM,
 
+    CONTROVERSIAL {
+        @Override
+        public boolean searchable() {
+            return false;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return true;
+        }
+
+        @Override
+        public boolean official() {
+            return false;
+        }
+    },
+
     RANDOM {
         @Override
         public boolean searchable() {
@@ -14,6 +31,11 @@ public enum FeedType {
 
         @Override
         public boolean preloadable() {
+            return false;
+        }
+
+        @Override
+        public boolean official() {
             return false;
         }
     };
@@ -25,4 +47,9 @@ public enum FeedType {
     public boolean preloadable() {
         return true;
     }
+
+    public boolean official() {
+        return true;
+    }
+
 }
