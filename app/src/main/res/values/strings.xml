@@ -359,4 +359,5 @@
     <string name="hint_category_random">This is the new and exclusive random category. It will show totally random posts (mostly from top). You are not able to search or preload this category because of the randomness!</string>
     <string name="preloaded">loaded</string>
     <string name="notify_new_message_summary_text">Touch to read messages</string>
+    <string name="prefcat_behaviour__categories_title">Categories</string>
 </resources>
