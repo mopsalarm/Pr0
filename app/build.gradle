@@ -160,6 +160,7 @@ dependencies {
     compile 'com.squareup.sqlbrite:sqlbrite:0.2.1'
 
     // rx java
+    compile 'io.reactivex:rxjava:1.0.14'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.trello:rxlifecycle:0.2.0'
