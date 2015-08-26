@@ -88,3 +88,5 @@ crashlytics.properties
 crashlytics-build.properties
 
 *.keystore
+
+captures/
