@@ -16,26 +16,16 @@ public enum FeedType {
         public boolean preloadable() {
             return true;
         }
-
-        @Override
-        public boolean official() {
-            return false;
-        }
     },
 
     RANDOM {
         @Override
         public boolean searchable() {
-            return true;
-        }
-
-        @Override
-        public boolean preloadable() {
             return false;
         }
 
         @Override
-        public boolean official() {
+        public boolean preloadable() {
             return false;
         }
     };
@@ -45,10 +35,6 @@ public enum FeedType {
     }
 
     public boolean preloadable() {
-        return true;
-    }
-
-    public boolean official() {
         return true;
     }
 

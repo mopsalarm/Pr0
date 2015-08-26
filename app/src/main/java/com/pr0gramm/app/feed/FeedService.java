@@ -64,7 +64,7 @@ public class FeedService {
 
         switch (query.feedFilter().getFeedType()) {
             case RANDOM:
-                return extraCategoryApi.random(flags);
+                return extraCategoryApi.random(tags, flags);
 
             case CONTROVERSIAL:
                 return extraCategoryApi.controversial(flags, query.older().orNull());
