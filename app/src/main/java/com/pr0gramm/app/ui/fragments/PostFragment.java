@@ -673,13 +673,7 @@ public class PostFragment extends RxRoboFragment implements
     private void initializeMediaView() {
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
 
-        //noinspection Convert2Lambda
-        MediaView.Binder binder = new MediaView.Binder() {
-            @Override
-            public <T> Observable<T> bind(Observable<T> observable) {
-                return observable.compose(bindToLifecycle());
-            }
-        };
+        MediaView.Binder binder = new MediaView.Binder(bindToLifecycle());
 
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(UriHelper.get().media(feedItem));
@@ -692,7 +686,6 @@ public class PostFragment extends RxRoboFragment implements
                 uri = uri.withDelay(true);
             }
         }
-
 
         viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
             //  mark this item seen. We do that in a background thread

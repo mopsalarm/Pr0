@@ -38,7 +38,7 @@ public class Gif2VideoMediaView extends ProxyMediaView {
         String gifUrl = url.toString().replace("https://", "http://");
 
         // and start conversion!
-        conversion = binder.bind(gifToVideoService.toVideo(gifUrl)).subscribe(result -> {
+        conversion = gifToVideoService.toVideo(gifUrl).compose(binder.get()).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer

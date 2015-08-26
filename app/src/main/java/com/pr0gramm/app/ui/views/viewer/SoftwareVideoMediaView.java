@@ -47,13 +47,13 @@ public class SoftwareVideoMediaView extends MediaView {
             return;
         }
 
-        loading = binder.bind(newVideoPlayer()).finallyDo(() -> loading = null).subscribe(mpeg -> {
+        loading = newVideoPlayer().compose(binder.get()).finallyDo(() -> loading = null).subscribe(mpeg -> {
             hideBusyIndicator();
 
             videoPlayer = mpeg;
             imageView.setImageDrawable(videoPlayer.drawable());
-            binder.bind(videoPlayer.videoSize()).subscribe(this::onSizeChanged);
-            binder.bind(videoPlayer.errors()).subscribe(defaultOnError());
+            videoPlayer.videoSize().compose(binder.get()).subscribe(this::onSizeChanged);
+            videoPlayer.errors().compose(binder.get()).subscribe(defaultOnError());
 
             if (isPlaying()) {
                 videoPlayer.start();

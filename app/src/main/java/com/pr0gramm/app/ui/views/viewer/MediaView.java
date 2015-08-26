@@ -394,8 +394,17 @@ public abstract class MediaView extends FrameLayout {
         // do nothing by default
     }
 
-    public interface Binder {
-        <T> Observable<T> bind(Observable<T> observable);
+    public static class Binder {
+        private final Observable.Transformer transformer;
+
+        public Binder(Observable.Transformer transformer) {
+            this.transformer = transformer;
+        }
+
+        <T> Observable.Transformer<T, T> get() {
+            //noinspection unchecked
+            return transformer;
+        }
     }
 
     public interface TapListener {
