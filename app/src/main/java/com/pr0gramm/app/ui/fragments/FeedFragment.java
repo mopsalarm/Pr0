@@ -76,6 +76,7 @@ import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.squareup.picasso.Picasso;
+import com.trello.rxlifecycle.FragmentEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,6 @@ import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.android.lifecycle.LifecycleEvent;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
@@ -104,9 +104,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
-import static rx.android.app.AppObservable.bindSupportFragment;
-import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
-import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  */
@@ -262,8 +259,9 @@ public class FeedFragment extends RxRoboFragment {
         merged.addAdapter(adapter);
         recyclerView.setAdapter(merged);
 
-        bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, queryUserInfo()))
+        queryUserInfo()
                 .first()
+                .compose(bindToLifecycle())
                 .subscribe(this::presentUserInfo, Actions.empty());
     }
 
@@ -483,10 +481,10 @@ public class FeedFragment extends RxRoboFragment {
 
         loader = new FeedLoader(new FeedLoader.Binder() {
             @Override
-            public <T> Observable<T> bind(Observable<T> observable) {
-                Observable<T> bound = bindSupportFragment(FeedFragment.this, observable);
-                Observable<T> guarded = bindUntilLifecycleEvent(lifecycle(), bound, LifecycleEvent.DESTROY_VIEW);
-                return guarded.finallyDo(FeedFragment.this::onFeedLoadFinished);
+            public <T> Observable.Transformer<T, T> bind() {
+                return observable -> observable
+                        .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                        .finallyDo(FeedFragment.this::onFeedLoadFinished);
             }
 
             @Override
@@ -519,8 +517,8 @@ public class FeedFragment extends RxRoboFragment {
 
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
-            bindFragmentLifecycle(lifecycle(), bindSupportFragment(this,
-                    bookmarkService.isBookmarkable(getCurrentFilter())))
+            bookmarkService.isBookmarkable(getCurrentFilter())
+                    .compose(bindToLifecycle())
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
 
@@ -532,7 +530,8 @@ public class FeedFragment extends RxRoboFragment {
             feedAdapter.notifyDataSetChanged();
         }
 
-        bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, preloadManager.all()))
+        preloadManager.all()
+                .compose(bindToLifecycle())
                 .subscribe(ignored -> feedAdapter.notifyDataSetChanged());
     }
 
@@ -990,7 +989,7 @@ public class FeedFragment extends RxRoboFragment {
                 .getItemsInfo(items)
                 .doOnNext(this::cacheInfoResponse);
 
-        bindSupportFragment(this, metaData)
+        metaData.compose(bindToLifecycle())
                 .onErrorResumeNext(Observable.<ItemsInfo>empty())
                 .subscribe(this::onMetaServiceResponse, Actions.empty());
     }

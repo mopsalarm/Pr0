@@ -9,7 +9,7 @@ import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
-import roboguice.fragment.RoboFragment;
+import roboguice.fragment.RoboDialogFragment;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -17,7 +17,7 @@ import rx.subjects.BehaviorSubject;
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-public class RxRoboFragment extends RoboFragment implements FragmentLifecycleProvider {
+public class RxRoboDialogFragment extends RoboDialogFragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
     @Inject

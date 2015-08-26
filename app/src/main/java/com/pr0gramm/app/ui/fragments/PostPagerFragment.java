@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,7 +36,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
-public class PostPagerFragment extends RoboFragment {
+public class PostPagerFragment extends RxRoboFragment {
     private static final Logger logger = LoggerFactory.getLogger(PostPagerFragment.class);
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";

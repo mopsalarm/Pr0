@@ -36,7 +36,6 @@ import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */
@@ -140,7 +139,8 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
             long parentComment = getParentCommentId();
             long itemId = getItemId();
 
-            bindActivity(this, voteService.postComment(itemId, parentComment, message))
+            voteService.postComment(itemId, parentComment, message)
+                    .compose(bindToLifecycle())
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
                     .subscribe(newComments -> {
@@ -153,7 +153,8 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
 
         } else {
             // now send message
-            bindActivity(this, inboxService.send(getReceiverId(), message))
+            inboxService.send(getReceiverId(), message)
+                    .compose(bindToLifecycle())
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
                     .subscribe(Actions.empty(), defaultOnError());

@@ -12,6 +12,7 @@ import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.UpdateChecker;
+import com.trello.rxlifecycle.ActivityEvent;
 
 import org.joda.time.Instant;
 
@@ -19,15 +20,12 @@ import roboguice.RoboGuice;
 import roboguice.fragment.RoboDialogFragment;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
-import rx.android.lifecycle.LifecycleEvent;
-import rx.android.lifecycle.LifecycleObservable;
 import rx.functions.Action0;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Instant.now;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */
@@ -112,12 +110,11 @@ public class UpdateDialogFragment extends RoboDialogFragment {
                 interactive ? busyDialog(activity) : NOOP;
 
         // do the check
-        bindActivity(activity, LifecycleObservable.bindUntilLifecycleEvent(
-                activity.lifecycle(), new UpdateChecker(activity).check(), LifecycleEvent.DESTROY))
-
+        new UpdateChecker(activity).check()
                 .onErrorResumeNext(Observable.empty())
-                .lift(busyOperator)
                 .defaultIfEmpty(null)
+                .compose(activity.bindUntilEvent(ActivityEvent.DESTROY))
+                .lift(busyOperator)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {
                     if (interactive || update != null) {

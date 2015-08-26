@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboDialogFragment;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
@@ -18,13 +19,9 @@ import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.fragment.RoboDialogFragment;
-
-import static rx.android.app.AppObservable.bindSupportFragment;
-
 /**
  */
-public class SearchUserDialog extends RoboDialogFragment {
+public class SearchUserDialog extends RxRoboDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger(SearchUserDialog.class);
 
     private TextInputLayout inputView;
@@ -54,7 +51,8 @@ public class SearchUserDialog extends RoboDialogFragment {
     private void onSearchClicked() {
         String username = inputView.getEditText().getText().toString().trim();
 
-        bindSupportFragment(this, userService.info(username))
+        userService.info(username)
+                .compose(bindToLifecycle())
                 .lift(BusyDialogFragment.busyDialog(this))
                 .subscribe(this::onSearchSuccess, this::onSearchFailure);
     }

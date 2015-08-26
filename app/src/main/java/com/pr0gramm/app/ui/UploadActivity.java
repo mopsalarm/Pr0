@@ -45,6 +45,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.trello.rxlifecycle.FragmentEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,15 +59,11 @@ import java.util.Set;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.android.lifecycle.LifecycleEvent;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
-import static rx.android.app.AppObservable.bindActivity;
-import static rx.android.app.AppObservable.bindSupportFragment;
-import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  */
@@ -92,7 +89,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
                     .replace(R.id.fragment_container, fragment)
                     .commit();
 
-            bindActivity(this, uploadService.checkIsRateLimited()).subscribe(limited -> {
+            uploadService.checkIsRateLimited().compose(bindToLifecycle()).subscribe(limited -> {
                 if (!limited) {
                     showUploadFragment();
 
@@ -232,24 +229,23 @@ public class UploadActivity extends RxRoboAppCompatActivity {
                     .split(this.tags.getText().toString()));
 
             logger.info("Start upload of type {} with tags {}", type, tags);
-            bindUntilLifecycleEvent(lifecycle(),
-                    bindSupportFragment(this, uploadService.upload(file, type, tags)),
-                    LifecycleEvent.DESTROY_VIEW).subscribe(status -> {
+            uploadService.upload(file, type, tags)
+                    .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                    .subscribe(status -> {
+                        if (status.isFinished()) {
+                            logger.info("finished! item id is {}", status.getId());
+                            onUploadComplete(status.getId());
 
-                if (status.isFinished()) {
-                    logger.info("finished! item id is {}", status.getId());
-                    onUploadComplete(status.getId());
+                        } else if (status.getProgress() >= 0) {
+                            float progress = status.getProgress();
+                            logger.info("uploading, progress is {}", progress);
+                            busyIndicator.setProgress(progress);
 
-                } else if (status.getProgress() >= 0) {
-                    float progress = status.getProgress();
-                    logger.info("uploading, progress is {}", progress);
-                    busyIndicator.setProgress(progress);
-
-                } else {
-                    logger.info("upload finished, posting now.");
-                    busyIndicator.spin();
-                }
-            }, this::onUploadError);
+                        } else {
+                            logger.info("upload finished, posting now.");
+                            busyIndicator.spin();
+                        }
+                    }, this::onUploadError);
 
             // scroll back up
             scrollView.fullScroll(View.FOCUS_UP);
@@ -296,7 +292,9 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             busyIndicator.setVisibility(View.VISIBLE);
 
             logger.info("copy image to private memory");
-            bindSupportFragment(this, copy(getActivity(), image)).subscribe(this::onImageFile, this::onError);
+            copy(getActivity(), image)
+                    .compose(bindToLifecycle())
+                    .subscribe(this::onImageFile, this::onError);
         }
 
         private void onError(Throwable throwable) {

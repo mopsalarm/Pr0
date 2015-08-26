@@ -58,8 +58,6 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.AndroidUtility.ifPresent;
-import static rx.android.app.AppObservable.bindSupportFragment;
-import static rx.android.lifecycle.LifecycleObservable.bindFragmentLifecycle;
 
 /**
  */
@@ -267,18 +265,17 @@ public class DrawerFragment extends RxRoboFragment {
     public void onResume() {
         super.onResume();
 
-        bind(userService.loginState())
+        userService.loginState()
+                .compose(bindToLifecycle())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
-        bind(newNavigationItemsObservable()).subscribe(
-                navigationAdapter::setNavigationItems,
-                ErrorDialogFragment.defaultOnError());
+        newNavigationItemsObservable()
+                .compose(bindToLifecycle())
+                .subscribe(
+                        navigationAdapter::setNavigationItems,
+                        ErrorDialogFragment.defaultOnError());
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
-    }
-
-    private <T> Observable<T> bind(Observable<T> observable) {
-        return bindFragmentLifecycle(lifecycle(), bindSupportFragment(this, observable));
     }
 
     @SuppressWarnings("unchecked")

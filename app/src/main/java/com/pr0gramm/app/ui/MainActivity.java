@@ -53,7 +53,6 @@ import rx.functions.Actions;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.app.AppObservable.bindActivity;
 
 
 /**
@@ -346,7 +345,8 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         drawerLayout.closeDrawers();
         Track.logout();
 
-        bindActivity(this, userService.logout())
+        userService.logout()
+                .compose(bindToLifecycle())
                 .lift(busyDialog(this))
                 .doOnCompleted(() -> {
                     // show a short information.

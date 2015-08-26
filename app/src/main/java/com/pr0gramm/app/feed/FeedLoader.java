@@ -1,16 +1,15 @@
 package com.pr0gramm.app.feed;
 
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 
 import com.google.common.base.Optional;
+import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static rx.android.app.AppObservable.bindSupportFragment;
 
 /**
  * This class handles loading of feed data.
@@ -81,7 +80,8 @@ public class FeedLoader {
     }
 
     private void subscribeTo(Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response) {
-        subscription = binder.bind(response)
+        subscription = response
+                .compose(binder.bind())
                 .finallyDo(() -> subscription = null)
                 .subscribe(this::merge, binder::onError);
     }
@@ -104,7 +104,7 @@ public class FeedLoader {
         /**
          * Bind the given observable to some kind of context like a fragment or thread.
          */
-        <T> Observable<T> bind(Observable<T> observable);
+        <T> Observable.Transformer<T, T> bind();
 
         /**
          * Handles error responses while loading feed data
@@ -112,11 +112,14 @@ public class FeedLoader {
         void onError(Throwable error);
     }
 
-    public static Binder bindTo(Fragment fragment, Action1<Throwable> onError) {
+    public static Binder bindTo(FragmentLifecycleProvider lifecycle, Action1<Throwable> onError) {
+        Observable.Transformer transformer = lifecycle.bindToLifecycle();
+
         return new Binder() {
             @Override
-            public <T> Observable<T> bind(Observable<T> observable) {
-                return bindSupportFragment(fragment, observable);
+            public <T> Observable.Transformer<T, T> bind() {
+                //noinspection unchecked
+                return transformer;
             }
 
             @Override

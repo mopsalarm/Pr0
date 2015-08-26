@@ -12,20 +12,19 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
 
-import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */
-public class FeedbackActivity extends RoboActionBarActivity {
+public class FeedbackActivity extends RxRoboAppCompatActivity {
     @Inject
     private FeedbackService feedbackService;
 
@@ -73,8 +72,9 @@ public class FeedbackActivity extends RoboActionBarActivity {
         String name = vName.getText().toString().trim();
         String feedback = vText.getText().toString().trim();
 
-        bindActivity(this, feedbackService.post(name, feedback))
+        feedbackService.post(name, feedback)
                 .lift(busyDialog(this))
+                .compose(bindToLifecycle())
                 .doOnCompleted(this::onSubmitSuccess)
                 .subscribe(Actions.empty(), defaultOnError());
     }

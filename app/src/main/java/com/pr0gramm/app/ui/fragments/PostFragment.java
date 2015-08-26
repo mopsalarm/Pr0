@@ -78,6 +78,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.squareup.picasso.Picasso;
+import com.trello.rxlifecycle.FragmentEvent;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -91,8 +92,6 @@ import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.android.lifecycle.LifecycleEvent;
-import rx.android.lifecycle.LifecycleObservable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
@@ -108,8 +107,6 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static java.util.Collections.emptyMap;
-import static rx.android.app.AppObservable.bindSupportFragment;
-import static rx.android.lifecycle.LifecycleObservable.bindUntilLifecycleEvent;
 
 /**
  * This fragment shows the content of one post.
@@ -334,7 +331,8 @@ public class PostFragment extends RxRoboFragment implements
     }
 
     private void writeComment(String text) {
-        bindSupportFragment(this, voteService.postComment(feedItem, 0, text))
+        voteService.postComment(feedItem, 0, text)
+                .compose(bindToLifecycle())
                 .lift(busyDialog(this))
                 .subscribe(this::onNewComments, defaultOnError());
     }
@@ -586,17 +584,16 @@ public class PostFragment extends RxRoboFragment implements
     private void loadPostDetails() {
         int delay = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 500 : 100;
 
-        Observable<Post> details = feedService.loadPostDetails(feedItem.getId());
-        bindUntilLifecycleEvent(lifecycle(),
-                bindSupportFragment(this, details.delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())),
-                LifecycleEvent.DESTROY
-        ).subscribe(this::onPostReceived, defaultOnError());
+        feedService.loadPostDetails(feedItem.getId())
+                .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .compose(bindUntilEvent(FragmentEvent.DESTROY))
+                .subscribe(this::onPostReceived, defaultOnError());
     }
 
     @SuppressWarnings("CodeBlock2Expr")
     private void initializeInfoLine() {
         // get the vote from the service
-        Observable<Vote> cachedVote = voteService.getVote(feedItem);
+        Observable<Vote> cachedVote = voteService.getVote(feedItem).compose(bindToLifecycle());
 
         infoLineView = new InfoLineView(getActivity());
         adapter.addAdapter(SingleViewAdapter.ofView(infoLineView));
@@ -607,7 +604,7 @@ public class PostFragment extends RxRoboFragment implements
                 .or(false);
 
         // display the feed item in the view
-        infoLineView.setFeedItem(feedItem, isSelfPost, bindSupportFragment(this, cachedVote));
+        infoLineView.setFeedItem(feedItem, isSelfPost, cachedVote);
 
         infoLineView.setOnDetailClickedListener(this);
 
@@ -616,7 +613,8 @@ public class PostFragment extends RxRoboFragment implements
             Runnable action = () -> {
                 showPostVoteAnimation(vote);
 
-                bindSupportFragment(this, voteService.vote(feedItem, vote))
+                voteService.vote(feedItem, vote)
+                        .compose(bindToLifecycle())
                         .subscribe(Actions.empty(), defaultOnError());
             };
 
@@ -627,7 +625,8 @@ public class PostFragment extends RxRoboFragment implements
         // and a vote listener vor voting tags.
         infoLineView.setTagVoteListener((tag, vote) -> {
             Runnable action = () -> {
-                bindSupportFragment(this, voteService.vote(tag, vote))
+                voteService.vote(tag, vote)
+                        .compose(bindToLifecycle())
                         .subscribe(Actions.empty(), defaultOnError());
             };
 
@@ -678,8 +677,7 @@ public class PostFragment extends RxRoboFragment implements
         MediaView.Binder binder = new MediaView.Binder() {
             @Override
             public <T> Observable<T> bind(Observable<T> observable) {
-                return LifecycleObservable.bindFragmentLifecycle(lifecycle(),
-                        bindSupportFragment(PostFragment.this, observable));
+                return observable.compose(bindToLifecycle());
             }
         };
 
@@ -820,9 +818,10 @@ public class PostFragment extends RxRoboFragment implements
         infoLineView.setTags(toMap(tags, tag -> Vote.NEUTRAL));
 
         // and update tags with votes later.
-        bindSupportFragment(this, voteService.getTagVotes(tags))
+        voteService.getTagVotes(tags)
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(Observable.<Map<Long, Vote>>empty())
+                .compose(bindToLifecycle())
                 .subscribe(votes -> infoLineView.setTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
     }
@@ -844,9 +843,10 @@ public class PostFragment extends RxRoboFragment implements
         }
 
         // load the votes for the comments and update, when we found any
-        bindSupportFragment(this, voteService.getCommentVotes(comments))
+        voteService.getCommentVotes(comments)
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(Observable.empty())
+                .compose(bindToLifecycle())
                 .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.getUser()));
     }
 
@@ -898,7 +898,8 @@ public class PostFragment extends RxRoboFragment implements
      */
     @Override
     public void onAddNewTags(List<String> tags) {
-        bindSupportFragment(this, voteService.tag(feedItem, tags))
+        voteService.tag(feedItem, tags)
+                .compose(bindToLifecycle())
                 .lift(busyDialog(this))
                 .subscribe(this::displayTags, defaultOnError());
     }
@@ -922,7 +923,8 @@ public class PostFragment extends RxRoboFragment implements
     @Override
     public boolean onCommentVoteClicked(Comment comment, Vote vote) {
         return doIfAuthorizedHelper.run(() -> {
-            bindSupportFragment(this, voteService.vote(comment, vote))
+            voteService.vote(comment, vote)
+                    .compose(bindToLifecycle())
                     .subscribe(Actions.empty(), defaultOnError());
         });
     }

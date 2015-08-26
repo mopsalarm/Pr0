@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
+import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.SyncBroadcastReceiver;
 import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
@@ -36,7 +37,6 @@ import javax.inject.Inject;
 
 import retrofit.RetrofitError;
 import roboguice.RoboGuice;
-import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscriber;
@@ -46,11 +46,10 @@ import static com.pr0gramm.app.AndroidUtility.toObservable;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static rx.android.app.AppObservable.bindActivity;
 
 /**
  */
-public class LoginActivity extends RoboActionBarActivity {
+public class LoginActivity extends RxRoboAppCompatActivity {
     private static final String PREF_USERNAME = "LoginDialogFragment.username";
 
     @Inject
@@ -119,7 +118,8 @@ public class LoginActivity extends RoboActionBarActivity {
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply();
 
-        subscription = bindActivity(this, userService.login(username, password))
+        subscription = userService.login(username, password)
+                .compose(bindToLifecycle())
                 .lift(busyDialog(this, getString(R.string.login_please_wait), UserService.LoginProgress::getProgress))
                 .flatMap(progress -> toObservable(progress.getLogin()))
                 .lift(new LoginErrorInterceptor())

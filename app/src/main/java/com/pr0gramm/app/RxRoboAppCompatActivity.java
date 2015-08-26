@@ -5,26 +5,26 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SupportV4App;
 
-import com.pr0gramm.app.ab.ExperimentService;
+import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.components.ActivityLifecycleProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.activity.RoboFragmentActivity;
 import rx.Observable;
-import rx.android.lifecycle.LifecycleEvent;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
 /**
  * A {@link RoboFragmentActivity} that is an {@link android.support.v7.app.AppCompatActivity}
  * with roboguice functionality and its lifecycle exposed as an observable.
  */
-public class RxRoboAppCompatActivity extends RoboActionBarActivity {
+public class RxRoboAppCompatActivity extends RoboActionBarActivity implements ActivityLifecycleProvider {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int[] POW_2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
@@ -41,13 +41,27 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
     // because we could not determine 0 index at all
     private static final int FRAGMENT_MAX_COUNT = POW_2[CHAIN_BITS_FOR_INDEX] - 1;
 
-    private final BehaviorSubject<LifecycleEvent> lifecycleSubject = BehaviorSubject.create();
+    private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
 
-    @Inject
-    protected ExperimentService experimentService;
+    @Override
+    public Observable<ActivityEvent> lifecycle() {
+        return lifecycleSubject.asObservable();
+    }
+
+    @Override
+    public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
+        return observable -> RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event)
+                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+    }
+
+    @Override
+    public final <T> Observable.Transformer<T, T> bindToLifecycle() {
+        return observable -> RxLifecycle.<T>bindActivity(lifecycleSubject)
+                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+    }
 
     public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
-        if(requestCode == -1) {
+        if (requestCode == -1) {
             // this is the same as "no request code"
             super.startActivityFromFragment(fragment, intent, requestCode);
             return;
@@ -132,43 +146,39 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity {
         }
     }
 
-    public Observable<LifecycleEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        lifecycleSubject.onNext(LifecycleEvent.CREATE);
+        lifecycleSubject.onNext(ActivityEvent.CREATE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        lifecycleSubject.onNext(LifecycleEvent.START);
+        lifecycleSubject.onNext(ActivityEvent.START);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        lifecycleSubject.onNext(LifecycleEvent.RESUME);
+        lifecycleSubject.onNext(ActivityEvent.RESUME);
     }
 
     @Override
     protected void onPause() {
-        lifecycleSubject.onNext(LifecycleEvent.PAUSE);
+        lifecycleSubject.onNext(ActivityEvent.PAUSE);
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        lifecycleSubject.onNext(LifecycleEvent.STOP);
+        lifecycleSubject.onNext(ActivityEvent.STOP);
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        lifecycleSubject.onNext(LifecycleEvent.DESTROY);
+        lifecycleSubject.onNext(ActivityEvent.DESTROY);
         super.onDestroy();
     }
 }
