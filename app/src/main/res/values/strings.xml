@@ -351,7 +351,9 @@
     <string name="action_feed_type_controversial">CONTROVERSIAL</string>
     <string name="filter_format_controversial">Controversial</string>
     <string name="pref_show_category_random_title">Category \'random\'</string>
+    <string name="pref_show_category_controversial_title">Category \'controversial\'</string>
     <string name="pref_show_category_random_summary">Activate this to show the category \'random\' in the drawer. This category shows random images on pr0gramm.</string>
+    <string name="pref_show_category_controversial_summary">Activate this to show the category \'controversial\' in the drawer. This category shows images with a similar number of up/down votes.</string>
     <string name="hint_category_random">This is the new and exclusive random category. It will show totally random posts (mostly from top). You are not able to search or preload this category because of the randomness!</string>
     <string name="preloaded">loaded</string>
     <string name="notify_new_message_summary_text">Touch to read messages</string>

@@ -223,10 +223,12 @@ public class DrawerFragment extends RxRoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
-        items.add(new NavigationItem(
-                new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
-                getString(R.string.action_feed_type_controversial),
-                iconFeedTypeControversial));
+        if(settings.showCategoryControversial()) {
+            items.add(new NavigationItem(
+                    new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
+                    getString(R.string.action_feed_type_controversial),
+                    iconFeedTypeControversial));
+        }
 
         if (settings.showCategoryRandom()) {
             items.add(new NavigationItem(
