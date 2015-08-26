@@ -1,5 +1,18 @@
 [
   {
+    "version": 74,
+    "changes": [
+      {
+        "type": "Exklusiv",
+        "change": "Neue Kategorie 'Kontrovers', die Bilder anzeigt, die ein ähnliches Verhältnis von Up- Down-Votes haben"
+      },
+      {
+        "type": "Hinter den Kulissen",
+        "change": "Viele Abhängigkeiten upgedated, hoffe alles läuft stabil!"
+      }
+    ]
+  },
+  {
     "version": 73,
     "changes": [
       {
@@ -365,7 +378,6 @@
   },
   {
     "version": 55,
-    
     "changes": [
       {
         "type": "Neu",
