@@ -1,76 +1,85 @@
-#!/usr/bin/fish
+#!/bin/bash
 
-if [ (count $argv) -eq 1 ]
-  set version (cat app/version.gradle | egrep -o '[0-9]+')
-  set changelog $argv[1]
+set -eu -o pipefail
 
-else if [ (count $argv) -eq 2 ]
-  set version $argv[1]
-  set changelog $argv[2]
+if [ $# -eq 1 ] ; then
+  VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
+  CHANGELOG="$1"
+
+elif [ $# -eq 2 ] ; then
+  VERSION=$1
+  CHANGELOG="$2"
 
 else
-  echo "usage: "(status -f)" [version] changelog"
+  echo "usage: $(basename "$0") [version] changelog"
   exit 1
-end
+fi
 
 # check if we are clear to go
-if [ -n "(git status --porcelain)" ]
+if [ -n "$(git status --porcelain)" ] ; then
   echo "Please commit all your changes and clean working directory."
   git status
   exit 1
-end
+fi
 
 # path of the update repo
-set update_repo ../pr0gramm-updates
+UPDATE_REPO_PATH=../pr0gramm-updates
+VERSION_NEXT=$(( VERSION + 1 ))
 
 echo "Release steps:"
-echo " * Start release of version $version."
-echo " * Copy apk and json files to $update_repo and commit"
-echo " * Create tag for version v$version"
-echo " * Increase version to $version_next"
+echo " * Start release of version $VERSION."
+echo " * Copy apk and json files to $UPDATE_REPO_PATH and commit"
+echo " * Create tag for version v$VERSION"
+echo " * Increase version to $VERSION_NEXT"
 echo ""
 
 # user needs to type yes to continue
-read -p 'echo "Is this correct?: "' confirm
-[ $confirm != "yes" ] ; and exit 1
+read -p 'Is this correct?: ' CONFIRM || exit 1
+[ "$CONFIRM" == "yes" ] || exit 1
 
-function generate_update_json
-  set flavor $argv[1]
-  set url https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/$flavor/pr0gramm-v1.$version.apk
+function format_version() {
+  local VERSION=$1
+  echo -n "1."$(( VERSION/10 ))'.'$((VERSION % 10 ))
+}
+
+function deploy_make_update_json() {
+  local FLAVOR=$1
+  local URL="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/$FLAVOR/pr0gramm-v1.$VERSION.apk"
 
   echo "{}" \
-    | jq '.version = '$version \
-    | jq '.versionStr = "1.'(math $version/10)'.'(math $version%10)'"' \
-    | jq '.changelog = "'$changelog'"' \
-    | jq '.apk = "'$url'"' > $flavor/update.json
+    | jq ".version = $VERSION" \
+    | jq ".versionStr = \"1.$(( VERSION/10 )).$((VERSION % 10 ))\"" \
+    | jq ".changelog = \"$CHANGELOG\"" \
+    | jq ".apk = \"$URL\"" > $UPDATE_REPO_PATH/$FLAVOR/update.json
 
-  git -C $update_repo add $flavor/update.json
-end
+  git -C $UPDATE_REPO_PATH add $FLAVOR/update.json
+}
 
-function copy_apk_file
-  set flavor $argv[1]
-  cp app/build/outputs/apk/app-$flavor-release.apk  $update_repo/$flavor/pr0gramm-v1.$version.apk
-  git -C $update_repo add $flavor/pr0gramm-v1.$version.apk
-end
+function deploy_copy_apk_file() {
+  local FLAVOR=$1
+  cp app/build/outputs/apk/app-$FLAVOR-release.apk  $UPDATE_REPO_PATH/$FLAVOR/pr0gramm-v1.$VERSION.apk
+  git -C $UPDATE_REPO_PATH add $FLAVOR/pr0gramm-v1.$VERSION.apk
+}
 
 # compile code and create apks
-./gradlew clean assembleRelease generateOpenDebugSources ; or exit 1
+./gradlew clean assembleRelease generateOpenDebugSources
 
 # copy apks and generate update.json in beta branch
-git -C $update_repo checkout beta
-git -C $update_repo pull
-for flavor in "open" "play"
-  copy_apk_file $flavor
-  generate_update_json $flavor
-end
+git -C $UPDATE_REPO_PATH checkout beta
+git -C $UPDATE_REPO_PATH pull
+for FLAVOR in "open" "play" ; do
+  deploy_copy_apk_file $FLAVOR
+  deploy_make_update_json $FLAVOR
+done
 
 # commit those files
-git -C $update_repo commit -m "Version $version"
+git -C $UPDATE_REPO_PATH commit -m "Version $(format_version $VERSION)"
 
 # create tag for this version
-git tag -a "v$version"
+git tag -a "$(format_version $VERSION)" \
+        -m "Released version $(format_version $VERSION)"
 
 # increase app version for further development
-echo "ext { appVersion = $version_next }" > app/version.gradle
+echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
 git add app/version.gradle
-git commit -m "Increase version to $version_next after release"
+git commit -m "Increase version to $VERSION_NEXT after release"
