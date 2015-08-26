@@ -11,8 +11,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.pr0gramm.app.Lazy;
 import com.pr0gramm.app.Pr0grammApplication;
+import com.pr0gramm.app.util.Lazy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

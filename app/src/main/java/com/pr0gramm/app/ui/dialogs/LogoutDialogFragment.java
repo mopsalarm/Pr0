@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.MainActionHandler;
 
 import roboguice.fragment.RoboDialogFragment;

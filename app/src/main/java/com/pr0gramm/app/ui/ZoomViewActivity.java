@@ -18,9 +18,9 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.services.ProxyService;
+import com.pr0gramm.app.services.UriHelper;
+import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -36,8 +36,8 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.InjectExtra;
 import roboguice.inject.InjectView;
 
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
-import static com.pr0gramm.app.AndroidUtility.getTintentDrawable;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
 public class ZoomViewActivity extends RoboActionBarActivity {
     private static final Logger logger = LoggerFactory.getLogger(ZoomViewActivity.class);

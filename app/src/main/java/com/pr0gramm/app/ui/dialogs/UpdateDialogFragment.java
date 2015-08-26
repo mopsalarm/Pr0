@@ -8,10 +8,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboAppCompatActivity;
-import com.pr0gramm.app.UpdateChecker;
+import com.pr0gramm.app.services.UpdateChecker;
+import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
 import com.trello.rxlifecycle.ActivityEvent;
 
 import org.joda.time.Instant;

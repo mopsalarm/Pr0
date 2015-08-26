@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;

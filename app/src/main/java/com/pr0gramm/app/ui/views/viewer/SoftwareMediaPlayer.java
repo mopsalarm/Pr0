@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import com.pr0gramm.app.VideoDrawable;
 import com.pr0gramm.app.mpeg.InputStreamCache;
+import com.pr0gramm.app.ui.VideoDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
-import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 
 /**
  */

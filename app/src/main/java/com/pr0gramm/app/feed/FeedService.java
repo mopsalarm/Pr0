@@ -3,13 +3,13 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.LoggerAdapter;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.pr0gramm.app.api.pr0gramm.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
+import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.util.LoggerAdapter;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;

@@ -10,13 +10,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.services.DatabasePreloadManager;
-import com.pr0gramm.app.services.GifToVideoService;
-import com.pr0gramm.app.services.HttpProxyService;
-import com.pr0gramm.app.services.MyGifToVideoService;
-import com.pr0gramm.app.services.PreloadManager;
-import com.pr0gramm.app.services.ProxyService;
-import com.pr0gramm.app.services.RestAdapterProvider;
+import com.pr0gramm.app.api.pr0gramm.ApiProvider;
+import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
+import com.pr0gramm.app.services.gif.GifToVideoService;
+import com.pr0gramm.app.services.gif.MyGifToVideoService;
+import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
+import com.pr0gramm.app.services.preloading.PreloadManager;
+import com.pr0gramm.app.services.proxy.HttpProxyService;
+import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.util.GuavaPicassoCache;
+import com.pr0gramm.app.util.SmallBufferSocketFactory;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.ConnectionPool;
 import com.squareup.okhttp.OkHttpClient;
@@ -48,7 +51,7 @@ public class Pr0grammModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(Api.class).toProvider(RestAdapterProvider.class);
+        bind(Api.class).toProvider(ApiProvider.class);
         bind(PreloadManager.class).to(DatabasePreloadManager.class);
         bind(GifToVideoService.class).to(MyGifToVideoService.class);
     }
@@ -122,6 +125,7 @@ public class Pr0grammModule extends AbstractModule {
             }
         }
 
+        logger.warn("Stop trying, using no proxy now.");
         return result;
     }
 

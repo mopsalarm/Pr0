@@ -27,7 +27,7 @@ import java.util.Set;
 import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static java.lang.Math.max;
 
 /**

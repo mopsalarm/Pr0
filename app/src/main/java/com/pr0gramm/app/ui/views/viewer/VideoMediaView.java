@@ -5,10 +5,10 @@ import android.media.MediaPlayer;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 
 import roboguice.inject.InjectView;

@@ -12,16 +12,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.UriHelper;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
 import com.pr0gramm.app.ui.WriteMessageActivity;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;

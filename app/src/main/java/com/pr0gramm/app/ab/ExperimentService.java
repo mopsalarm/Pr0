@@ -9,7 +9,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.Track;
+import com.pr0gramm.app.services.Track;
 
 import rx.functions.Action1;
 

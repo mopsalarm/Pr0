@@ -9,11 +9,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.pr0gramm.app.NotificationService;
-import com.pr0gramm.app.OptionMenuHelper;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.services.NotificationService;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;

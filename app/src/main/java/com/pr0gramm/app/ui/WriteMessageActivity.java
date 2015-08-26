@@ -14,21 +14,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.OptionMenuHelper;
-import com.pr0gramm.app.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboAppCompatActivity;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.gparcel.MessageParceler;
-import com.pr0gramm.app.gparcel.NewCommentParceler;
-import com.pr0gramm.app.gparcel.core.Parceler;
+import com.pr0gramm.app.parcel.MessageParceler;
+import com.pr0gramm.app.parcel.NewCommentParceler;
+import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.VoteService;
+import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;

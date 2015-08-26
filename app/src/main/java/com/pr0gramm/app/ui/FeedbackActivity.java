@@ -10,9 +10,7 @@ import android.widget.EditText;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
 

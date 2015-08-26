@@ -22,8 +22,8 @@ import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
-import static com.pr0gramm.app.AndroidUtility.toFile;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
+import static com.pr0gramm.app.util.AndroidUtility.toFile;
 
 /**
  */

@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.common.base.Throwables;
-import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.util.ErrorFormatting;
 
 import java.lang.ref.WeakReference;
 

@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.MultiAutoCompleteTextView;
 
 import com.google.common.base.Splitter;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.TagInputView;
 
 import org.slf4j.Logger;

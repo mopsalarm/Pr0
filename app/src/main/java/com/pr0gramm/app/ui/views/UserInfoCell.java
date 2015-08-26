@@ -9,11 +9,11 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.pr0gramm.app.AndroidUtility;
-import com.pr0gramm.app.Graph;
-import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.services.Graph;
+import com.pr0gramm.app.ui.GraphDrawable;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

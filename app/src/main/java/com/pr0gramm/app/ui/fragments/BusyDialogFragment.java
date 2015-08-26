@@ -11,15 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
 
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
  */

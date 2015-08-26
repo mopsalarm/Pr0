@@ -13,16 +13,14 @@ import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.BuildConfig;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboAppCompatActivity;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.services.PreloadManager;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Instant;
 

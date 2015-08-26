@@ -4,15 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 
-import com.pr0gramm.app.services.GifToVideoService;
-import com.pr0gramm.app.services.ProxyService;
+import com.pr0gramm.app.services.gif.GifToVideoService;
+import com.pr0gramm.app.services.proxy.ProxyService;
 
 import javax.inject.Inject;
 
 import rx.Subscription;
 
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
  */

@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 

@@ -14,12 +14,12 @@ import android.widget.Toast;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
-import com.pr0gramm.app.MergeRecyclerAdapter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.TagCloudLayoutManager;
 
@@ -33,7 +33,7 @@ import java.util.Map;
 import rx.Observable;
 import rx.functions.Actions;
 
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static java.lang.Math.min;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 

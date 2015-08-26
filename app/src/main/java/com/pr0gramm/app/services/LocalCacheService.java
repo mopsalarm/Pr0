@@ -5,10 +5,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
-import com.pr0gramm.app.EnhancedUserInfo;
+import com.pr0gramm.app.api.meta.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.services.meta.SizeInfo;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.atomic.AtomicBoolean;

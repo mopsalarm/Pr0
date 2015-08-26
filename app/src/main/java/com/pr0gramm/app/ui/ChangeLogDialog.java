@@ -23,10 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.pr0gramm.app.AndroidUtility;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import java.io.IOException;
 import java.io.InputStream;

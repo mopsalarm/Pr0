@@ -17,7 +17,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
 import rx.Subscriber;
 
-import static com.pr0gramm.app.AndroidUtility.toFile;
+import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static java.lang.System.identityHashCode;
 
 /**

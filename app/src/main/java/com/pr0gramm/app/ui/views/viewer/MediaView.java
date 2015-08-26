@@ -18,13 +18,13 @@ import android.widget.TextView;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.services.ProxyService;
+import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.views.AspectImageView;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;

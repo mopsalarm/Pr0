@@ -9,11 +9,11 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
 import com.google.inject.Inject;
-import com.pr0gramm.app.DialogBuilder;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboDialogFragment;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.RxRoboDialogFragment;
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 
 import org.slf4j.Logger;

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 
-import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.util.AndroidUtility;
 
 /**
  */

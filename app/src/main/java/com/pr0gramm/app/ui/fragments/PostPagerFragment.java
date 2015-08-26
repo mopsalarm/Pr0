@@ -12,9 +12,7 @@ import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.pr0gramm.app.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -22,7 +20,9 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.RxRoboFragment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

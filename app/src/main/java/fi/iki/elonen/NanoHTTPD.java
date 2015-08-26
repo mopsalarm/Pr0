@@ -35,7 +35,7 @@ package fi.iki.elonen;
 
 import android.support.annotation.NonNull;
 
-import com.pr0gramm.app.AndroidUtility;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

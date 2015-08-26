@@ -15,6 +15,8 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.ImmutableFeedQuery;
+import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.services.UriHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

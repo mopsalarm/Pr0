@@ -7,10 +7,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.Graph;
-import com.pr0gramm.app.LoginCookieHandler;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
@@ -33,8 +32,8 @@ import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
-import static com.pr0gramm.app.AndroidUtility.checkNotMainThread;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
 
 /**

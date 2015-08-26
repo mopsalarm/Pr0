@@ -8,9 +8,9 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.ErrorFormatting;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.util.ErrorFormatting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,8 @@ import java.lang.ref.WeakReference;
 
 import rx.functions.Action1;
 
-import static com.pr0gramm.app.AndroidUtility.checkMainThread;
-import static com.pr0gramm.app.AndroidUtility.logToCrashlytics;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.logToCrashlytics;
 
 /**
  * This dialog fragment shows and error to the user.

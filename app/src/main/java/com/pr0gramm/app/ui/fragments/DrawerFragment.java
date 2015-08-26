@@ -18,28 +18,28 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.DialogBuilder;
-import com.pr0gramm.app.Graph;
-import com.pr0gramm.app.GraphDrawable;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.RxRoboFragment;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.UserClasses;
-import com.pr0gramm.app.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedbackActivity;
+import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.UploadActivity;
+import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -56,8 +56,8 @@ import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
-import static com.pr0gramm.app.AndroidUtility.getStatusBarHeight;
-import static com.pr0gramm.app.AndroidUtility.ifPresent;
+import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
+import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 
 /**
  */

@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.text.util.Linkify;
 import android.util.AttributeSet;
@@ -11,11 +10,11 @@ import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
-import com.pr0gramm.app.AndroidUtility;
-import com.pr0gramm.app.Lazy;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
+import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.Lazy;
 import com.squareup.picasso.Picasso;
 
 import roboguice.RoboGuice;

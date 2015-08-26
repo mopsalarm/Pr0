@@ -18,15 +18,15 @@ import android.widget.EditText;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.pr0gramm.app.AndroidUtility;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
-import com.pr0gramm.app.RxRoboAppCompatActivity;
-import com.pr0gramm.app.SyncBroadcastReceiver;
-import com.pr0gramm.app.Track;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import net.danlew.android.joda.DateUtils;
 
@@ -42,10 +42,10 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 
-import static com.pr0gramm.app.AndroidUtility.toObservable;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.util.AndroidUtility.toObservable;
 
 /**
  */
