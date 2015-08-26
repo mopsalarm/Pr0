@@ -16,7 +16,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
         classpath 'io.fabric.tools:gradle:1.19.2'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.1'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.7'
     }
 }
@@ -144,10 +144,10 @@ dependencies {
     compile 'com.android.support:design:23.0.0'
     compile 'com.google.guava:guava:19.0-rc1'
 
-    compile 'net.danlew:android.joda:2.8.1'
+    compile 'net.danlew:android.joda:2.8.2'
     compile 'org.roboguice:roboguice:3.0.1'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
