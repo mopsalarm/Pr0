@@ -215,6 +215,10 @@ public class Settings {
         return preferences.getBoolean("pref_show_category_controversial", true);
     }
 
+    public boolean showCategoryPremium() {
+        return preferences.getBoolean("pref_show_category_premium", true);
+    }
+
     public boolean mockApi() {
         return BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false);
     }

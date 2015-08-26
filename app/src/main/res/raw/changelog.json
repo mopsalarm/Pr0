@@ -7,6 +7,10 @@
         "change": "Neue Kategorie 'Kontrovers', die Bilder anzeigt, die ein ähnliches Verhältnis von Up- Down-Votes haben"
       },
       {
+        "type": "Neu",
+        "change": "Stelz-Kategorie kann nun ausgeblendet werden"
+      },
+      {
         "type": "Hinter den Kulissen",
         "change": "Viele Abhängigkeiten upgedated, hoffe alles läuft stabil!"
       }

@@ -95,6 +95,12 @@
                     android:summary="@string/pref_show_category_controversial_summary"
                     android:title="@string/pref_show_category_controversial_title"/>
 
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="pref_show_category_premium"
+                    android:summary="@string/pref_show_category_premium_summary"
+                    android:title="@string/pref_show_category_premium_title"/>
+
             </PreferenceCategory>
 
             <PreferenceCategory
