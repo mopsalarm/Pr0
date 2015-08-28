@@ -4,13 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.pr0gramm.app.util.LoggerAdapter;
 import com.squareup.okhttp.OkHttpClient;
 
-import org.slf4j.LoggerFactory;
-
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import rx.Observable;
@@ -25,12 +23,12 @@ public class MyGifToVideoService implements GifToVideoService {
     private final Api api;
 
     @Inject
-    public MyGifToVideoService(OkHttpClient client) {
-        this.api = new RestAdapter.Builder()
-                .setEndpoint(DEFAULT_ENDPOINT)
-                .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setClient(new OkClient(client))
+    public MyGifToVideoService(OkHttpClient httpClient) {
+        this.api = new Retrofit.Builder()
+                .baseUrl(DEFAULT_ENDPOINT)
+                .client(httpClient)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(Api.class);
     }

@@ -1,13 +1,14 @@
 package com.pr0gramm.app.util;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.StringRes;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
@@ -22,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLException;
 
-import retrofit.RetrofitError;
+import retrofit.HttpException;
 import rx.functions.Func2;
 
 import static com.google.common.primitives.Ints.asList;
@@ -105,11 +106,9 @@ public class ErrorFormatting {
         }
     }
 
-    private static class RetrofitStatusFormatter extends Formatter<RetrofitError> {
-        public RetrofitStatusFormatter(Predicate<RetrofitError> check, @StringRes int message) {
-            super(RetrofitError.class,
-                    err -> err.getResponse() != null && check.apply(err),
-                    message);
+    private static class RetrofitStatusFormatter extends Formatter<HttpException> {
+        public RetrofitStatusFormatter(Predicate<HttpException> check, @StringRes int message) {
+            super(HttpException.class, check::apply, message);
         }
     }
 
@@ -119,6 +118,7 @@ public class ErrorFormatting {
      *
      * @return The error formatters.
      */
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private static List<Formatter<?>> makeErrorFormatters() {
         final List<Formatter<?>> formatters = new ArrayList<>();
 
@@ -134,50 +134,50 @@ public class ErrorFormatting {
         };
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> asList(401, 403).contains(err.getResponse().getStatus()),
+                err -> asList(401, 403).contains(err.code()),
                 R.string.error_not_authorized).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() == 404,
+                err -> err.code() == 404,
                 R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.getResponse().getStatus() / 100 == 5,
+                err -> err.code() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof TimeoutException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof TimeoutException,
                 R.string.error_timeout).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof SocketTimeoutException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof SocketTimeoutException,
                 R.string.error_timeout).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getKind() == RetrofitError.Kind.CONVERSION,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof MalformedJsonException,
                 R.string.error_conversion).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof UnknownHostException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof UnknownHostException,
                 R.string.error_host_not_found).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof SSLHandshakeException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof SSLException,
                 R.string.error_ssl_error).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof ConnectException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof ConnectException,
                 (err, context) -> {
-                    String host = Uri.parse(err.getUrl()).getHost();
-                    return context.getString(R.string.error_connect_exception, host);
+                    return context.getString(R.string.error_connect_exception,
+                            String.valueOf(err.getLocalizedMessage()));
                 }).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof SocketException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof SocketException,
                 R.string.error_socket).doNotReport());
 
-        formatters.add(new Formatter<>(RetrofitError.class,
-                err -> err.getCause() instanceof EOFException,
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof EOFException,
                 R.string.error_socket).doNotReport());
 
         formatters.add(new Formatter<>(LoginCookieHandler.LoginRequiredException.class,
@@ -187,7 +187,8 @@ public class ErrorFormatting {
                 err -> err.toString().contains("onSaveInstanceState")).doNotReport());
 
         // Oops, native error, this should not happen!?
-        formatters.add(new Formatter<>(WebmMediaPlayer.NativeException.class, R.string.error_webm_native_exception));
+        formatters.add(new Formatter<>(WebmMediaPlayer.NativeException.class,
+                R.string.error_webm_native_exception));
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());

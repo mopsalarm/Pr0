@@ -13,6 +13,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.api.pr0gramm.response.Upload;
 import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
+import com.squareup.okhttp.RequestBody;
 
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -21,7 +22,6 @@ import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
 import retrofit.http.Query;
-import retrofit.mime.TypedOutput;
 import rx.Observable;
 
 /**
@@ -111,7 +111,7 @@ public interface Api {
 
     @Multipart
     @POST("/api/items/upload")
-    Observable<Upload> upload(@Part("image") TypedOutput file);
+    Observable<Upload> upload(@Part("image") RequestBody file);
 
     @FormUrlEncoded
     @POST("/api/items/post")

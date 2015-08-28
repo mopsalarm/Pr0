@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.services.Graph;
-import com.pr0gramm.app.util.LoggerAdapter;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
@@ -36,18 +37,18 @@ public class MetaService {
     private final Api api;
 
     @Inject
-    public MetaService() {
+    public MetaService(OkHttpClient httpClient) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new GsonAdaptersItemsInfo())
                 .registerTypeAdapterFactory(new GsonAdaptersSizeInfo())
                 .registerTypeAdapterFactory(new GsonAdaptersUserInfo())
                 .create();
 
-        api = new RestAdapter.Builder()
-                .setLog(new LoggerAdapter(logger))
-                .setEndpoint("http://pr0.wibbly-wobbly.de/api/meta/v1")
-                .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
+        api = new Retrofit.Builder()
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/meta/v1")
+                .client(httpClient)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
                 .create(Api.class);
     }

@@ -9,7 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.Track;
-import com.pr0gramm.app.util.LoggerAdapter;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -19,8 +19,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 
 /**
@@ -34,14 +35,14 @@ public class FeedService {
     private final ExtraCategoryApi extraCategoryApi;
 
     @Inject
-    public FeedService(Api mainApi) {
+    public FeedService(OkHttpClient httpClient, Api mainApi) {
         this.mainApi = mainApi;
 
-        this.extraCategoryApi = new RestAdapter.Builder()
-                .setConverter(new GsonConverter(ApiGsonBuilder.builder().create()))
-                .setEndpoint("http://pr0.wibbly-wobbly.de/api/categories/v1")
-                .setLog(new LoggerAdapter(logger))
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
+        this.extraCategoryApi = new Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(httpClient)
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1")
                 .build()
                 .create(ExtraCategoryApi.class);
     }

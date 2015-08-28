@@ -19,6 +19,7 @@
 -dontwarn org.apache.http.**
 -dontwarn retrofit.client.**
 -dontwarn android.net.http.**
+-dontwarn retrofit.Platform$Java8
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 

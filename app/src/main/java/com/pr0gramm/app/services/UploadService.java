@@ -11,17 +11,18 @@ import com.google.inject.Singleton;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.RequestBody;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Set;
 
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-import retrofit.mime.TypedOutput;
+import okio.BufferedSink;
+import retrofit.HttpException;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -37,28 +38,26 @@ public class UploadService {
     }
 
     private Observable<UploadInfo> upload(File file) {
+        if (!file.exists() || !file.isFile() || !file.canRead())
+            return Observable.error(new FileNotFoundException("Can not read file to upload"));
+
         BehaviorSubject<UploadInfo> result = BehaviorSubject.create(new UploadInfo(0.f));
 
-        TypedOutput output = new TypedOutput() {
+        RequestBody output = new RequestBody() {
             @Override
-            public String fileName() {
-                return file.getName();
+            public MediaType contentType() {
+                return MediaType.parse(guessMediaType(file));
             }
 
             @Override
-            public String mimeType() {
-                return isPngImage(file) ? "image/png" : "image/jpeg";
-            }
-
-            @Override
-            public long length() {
+            public long contentLength() throws IOException {
                 return file.length();
             }
 
             @SuppressLint("NewApi")
             @Override
-            public void writeTo(OutputStream out) throws IOException {
-                float length = (float) length();
+            public void writeTo(BufferedSink sink) throws IOException {
+                float length = (float) file.length();
                 byte[] buffer = new byte[16 * 1024];
 
                 long lastTime = 0L;
@@ -68,7 +67,7 @@ public class UploadService {
 
                     int len, sent = 0;
                     while ((len = input.read(buffer)) >= 0) {
-                        out.write(buffer, 0, len);
+                        sink.write(buffer, 0, len);
                         sent += len;
 
                         long now = System.currentTimeMillis();
@@ -90,14 +89,21 @@ public class UploadService {
         long size = file.length();
 
         // perform the upload!
-        api.upload(output).subscribe(
-                response -> {
-                    Track.upload(size);
-                    result.onNext(new UploadInfo(response.getKey()));
-                },
-                result::onError, result::onCompleted);
+        api.upload(output)
+                .doOnEach(n -> Track.upload(size))
+                .map(response -> new UploadInfo(response.getKey()))
+                .subscribe(result::onNext, result::onError, result::onCompleted);
 
         return result.ignoreElements().mergeWith(result);
+    }
+
+    private static String guessMediaType(File file) {
+        String name = file.getName().toLowerCase();
+        if (name.endsWith(".png")) {
+            return "image/png";
+        } else {
+            return "image/jpeg";
+        }
     }
 
     private Observable<Posted> post(String key, ContentType contentType, Set<String> tags) {
@@ -135,10 +141,9 @@ public class UploadService {
      */
     public Observable<Boolean> checkIsRateLimited() {
         return api.ratelimited().map(v -> false).onErrorResumeNext(error -> {
-            if (error instanceof RetrofitError) {
+            if (error instanceof HttpException) {
                 // a http error code 403 tells us that the user is rate limited.
-                Response response = ((RetrofitError) error).getResponse();
-                if (response != null && response.getStatus() == 403)
+                if (((HttpException) error).code() == 403)
                     return Observable.just(true);
             }
 

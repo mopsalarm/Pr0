@@ -18,7 +18,7 @@
     <string name="dummy_rating">952</string>
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
-    <string name="error_connect_exception">Kann nicht zu Host %s verbinden</string>
+    <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>
     <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden.</string>
     <string name="error_exception_of_type">Es ist ein Fehler ohne weitere Nachricht aufgetreten: %s</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>

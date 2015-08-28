@@ -146,7 +146,9 @@ dependencies {
 
     compile 'net.danlew:android.joda:2.8.2'
     compile 'org.roboguice:roboguice:3.0.1'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.retrofit:retrofit:2.0.0-SNAPSHOT'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-SNAPSHOT'
+    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-SNAPSHOT'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.9'

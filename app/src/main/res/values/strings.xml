@@ -18,7 +18,7 @@
     <string name="dummy_rating">952</string>
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
-    <string name="error_connect_exception">Could not connect to host %s</string>
+    <string name="error_connect_exception">Could not connect to host: %s</string>
     <string name="error_conversion">An error occurred while decoding the api response</string>
     <string name="error_exception_of_type">No message provided, type of error was %s</string>
     <string name="error_host_not_found">A hostname could not be resolved. Please check your connectivty.</string>

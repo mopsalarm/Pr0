@@ -3,7 +3,7 @@ package com.pr0gramm.app.api.pr0gramm;
 import android.app.Application;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import com.google.common.io.CharStreams;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
@@ -13,21 +13,24 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.pr0gramm.app.util.LoggerAdapter;
+import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
+import retrofit.BaseUrl;
+import retrofit.GsonConverterFactory;
+import retrofit.HttpException;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
 import rx.Observable;
 
@@ -58,30 +61,22 @@ public class ApiProvider implements Provider<Api> {
     private Api newRestAdapter() {
         Gson gson = ApiGsonBuilder.builder().create();
 
-        String host = UriHelper.of(context).base().toString();
+        BaseUrl baseUrl = () -> {
+            if (BuildConfig.DEBUG && settings.mockApi()) {
+                // activate this to use a mock
+                return HttpUrl.parse("http://demo8733773.mockable.io");
+            } else {
+                return HttpUrl.parse(UriHelper.of(context).base().toString());
+            }
+        };
 
-        if(BuildConfig.DEBUG && settings.mockApi()) {
-            // activate this to use a mock
-            host = "http://demo8733773.mockable.io";
-        }
-
-        return new RestAdapter.Builder()
-                .setEndpoint(host)
-                .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setLog(new LoggerAdapter(LoggerFactory.getLogger(Api.class)))
-                .setClient(new OkClient(client))
+        return new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(this.client)
                 .build()
                 .create(Api.class);
-    }
-
-    private synchronized Api getRestAdapter() {
-        if (backend == null || https != settings.useHttps()) {
-            backend = newRestAdapter();
-            https = settings.useHttps();
-        }
-
-        return backend;
     }
 
     @Override
@@ -90,6 +85,7 @@ public class ApiProvider implements Provider<Api> {
     }
 
     private Api newProxyWrapper() {
+        Api backend = newRestAdapter();
         // proxy to add the nonce if not provided
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
             Class<?>[] params = method.getParameterTypes();
@@ -119,19 +115,16 @@ public class ApiProvider implements Provider<Api> {
                 // check if this is a get for retry.
                 int retryCount = 2;
                 if (method.getAnnotation(GET.class) != null) {
-                    return invokeWithRetry(getRestAdapter(), method, args,
-                            ApiProvider::isNetworkError, retryCount);
+                    return invokeWithRetry(backend, method, args,
+                            ApiProvider::isHttpError, retryCount);
                 } else {
-                    return invokeWithRetry(getRestAdapter(), method, args,
-                            Predicates.or(
-                                    ApiProvider::isServiceNotAvailableError,
-                                    ApiProvider::isServiceNotAvailableError),
-                            retryCount);
+                    return invokeWithRetry(backend, method, args,
+                            ApiProvider::isHttpError, retryCount);
                 }
             }
 
             try {
-                return method.invoke(getRestAdapter(), args);
+                return method.invoke(backend, args);
             } catch (InvocationTargetException targetError) {
                 throw targetError.getCause();
             }
@@ -169,24 +162,22 @@ public class ApiProvider implements Provider<Api> {
     }
 
 
-    private static boolean isNetworkError(Throwable error) {
-        if (error instanceof RetrofitError) {
-            RetrofitError httpError = (RetrofitError) error;
-            RetrofitError.Kind kind = httpError.getKind();
-            return kind == RetrofitError.Kind.HTTP || kind == RetrofitError.Kind.NETWORK;
+    private static boolean isHttpError(Throwable error) {
+        if (error instanceof HttpException) {
+            HttpException httpError = (HttpException) error;
+            String errorBody = "";
+            try {
+                Reader stream = httpError.response().errorBody().charStream();
+                errorBody = CharStreams.toString(stream);
+            } catch (IOException ignored) {
+            }
+
+            logger.warn("Got http error {} {}, with body: {}", httpError.code(),
+                    httpError.message(), errorBody);
+
+            return true;
+        } else {
+            return false;
         }
-
-        return false;
-    }
-
-    private static boolean isServiceNotAvailableError(Throwable error) {
-        if (error instanceof RetrofitError) {
-            RetrofitError httpError = (RetrofitError) error;
-            return httpError.getKind() == RetrofitError.Kind.HTTP
-                    && httpError.getResponse() != null
-                    && httpError.getResponse().getStatus() == 503;
-        }
-
-        return false;
     }
 }

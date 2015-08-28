@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.RestAdapter;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
 import retrofit.http.GET;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -123,10 +124,10 @@ public class UpdateChecker {
         };
     }
 
-    private static RestAdapter newRestAdapter(String endpoint) {
-        return new RestAdapter.Builder()
-                .setEndpoint(endpoint)
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
+    private static Retrofit newRestAdapter(String endpoint) {
+        return new Retrofit.Builder()
+                .baseUrl(endpoint)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 

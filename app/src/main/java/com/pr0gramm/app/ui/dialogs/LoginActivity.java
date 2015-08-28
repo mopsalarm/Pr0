@@ -35,7 +35,7 @@ import org.joda.time.Weeks;
 
 import javax.inject.Inject;
 
-import retrofit.RetrofitError;
+import retrofit.HttpException;
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -145,9 +145,9 @@ public class LoginActivity extends RxRoboAppCompatActivity {
 
                 @Override
                 public void onError(Throwable err_) {
-                    if (err_ instanceof RetrofitError) {
-                        RetrofitError err = (RetrofitError) err_;
-                        if (err.getResponse() != null && err.getResponse().getStatus() == 403) {
+                    if (err_ instanceof HttpException) {
+                        HttpException err = (HttpException) err_;
+                        if (err.code() == 403) {
                             try {
                                 subscriber.onNext(ImmutableLogin.builder().success(false).build());
                                 subscriber.onCompleted();

@@ -11,8 +11,9 @@ import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.feed.Nothing;
 import com.squareup.okhttp.OkHttpClient;
 
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
@@ -29,9 +30,11 @@ public class FeedbackService {
 
     @Inject
     public FeedbackService(OkHttpClient okHttpClient) {
-        this.api = new RestAdapter.Builder()
-                .setClient(new OkClient(okHttpClient))
-                .setEndpoint("http://pr0.wibbly-wobbly.de/api/feedback/v1")
+        this.api = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/feedback/v1")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build().create(Api.class);
     }
 
