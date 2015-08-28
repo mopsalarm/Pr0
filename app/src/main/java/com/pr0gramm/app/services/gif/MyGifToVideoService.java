@@ -18,7 +18,7 @@ import rx.Observable;
  */
 @Singleton
 public class MyGifToVideoService implements GifToVideoService {
-    private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de/api/gif-to-webm/v1";
+    private static final String DEFAULT_ENDPOINT = "http://pr0.wibbly-wobbly.de/api/gif-to-webm/v1/";
 
     private final Api api;
 
@@ -56,7 +56,7 @@ public class MyGifToVideoService implements GifToVideoService {
      * Simple gif-to-webm service.
      */
     private interface Api {
-        @GET("/convert/{url}")
+        @GET("convert/{url}")
         Observable<ConvertResult> convert(@Path("url") String encodedUrl);
     }
 

@@ -9,11 +9,11 @@ import rx.Observable;
 /**
  */
 public interface ExtraCategoryApi {
-    @GET("/random")
+    @GET("random")
     Observable<Feed> random(@Query("tags") String tags,
                             @Query("flags") int flags);
 
-    @GET("/controversial")
+    @GET("controversial")
     Observable<Feed> controversial(@Query("flags") int flags,
                                    @Query("older") Long older);
 }

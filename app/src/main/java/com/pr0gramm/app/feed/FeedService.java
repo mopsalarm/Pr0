@@ -39,10 +39,10 @@ public class FeedService {
         this.mainApi = mainApi;
 
         this.extraCategoryApi = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .client(httpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1")
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1/")
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
                 .build()
                 .create(ExtraCategoryApi.class);
     }

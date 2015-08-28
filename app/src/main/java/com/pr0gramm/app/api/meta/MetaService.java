@@ -45,7 +45,7 @@ public class MetaService {
                 .create();
 
         api = new Retrofit.Builder()
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/meta/v1")
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/meta/v1/")
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -85,10 +85,10 @@ public class MetaService {
 
     private interface Api {
         @FormUrlEncoded
-        @POST("/items")
+        @POST("items")
         Observable<ItemsInfo> info(@Field("ids") String itemIds);
 
-        @GET("/user/{name}")
+        @GET("user/{name}")
         Observable<UserInfo> user(@Path("name") String name);
     }
 

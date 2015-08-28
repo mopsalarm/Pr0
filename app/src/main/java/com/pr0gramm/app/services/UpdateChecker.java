@@ -132,7 +132,7 @@ public class UpdateChecker {
     }
 
     private interface UpdateApi {
-        @GET("/update.json")
+        @GET("update.json")
         Update get();
     }
 
@@ -144,11 +144,11 @@ public class UpdateChecker {
         List<String> urls = new ArrayList<>();
 
         if (betaChannel) {
-            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor);
-            urls.add("http://pr0.wibbly-wobbly.de/beta/" + flavor);
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor + "/");
+            urls.add("http://pr0.wibbly-wobbly.de/beta/" + flavor + "/");
         } else {
-            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor);
-            urls.add("http://pr0.wibbly-wobbly.de/stable/" + flavor);
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor + "/");
+            urls.add("http://pr0.wibbly-wobbly.de/stable/" + flavor + "/");
         }
 
         return ImmutableList.copyOf(urls);

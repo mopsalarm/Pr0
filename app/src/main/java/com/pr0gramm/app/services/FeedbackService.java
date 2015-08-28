@@ -32,7 +32,7 @@ public class FeedbackService {
     public FeedbackService(OkHttpClient okHttpClient) {
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/feedback/v1")
+                .baseUrl("http://pr0.wibbly-wobbly.de/api/feedback/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build().create(Api.class);
