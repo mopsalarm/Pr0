@@ -6,12 +6,8 @@ if [ $# -eq 1 ] ; then
   VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
   CHANGELOG="$1"
 
-elif [ $# -eq 2 ] ; then
-  VERSION=$1
-  CHANGELOG="$2"
-
 else
-  echo "usage: $(basename "$0") [version] changelog"
+  echo "usage: $(basename "$0") changelog"
   exit 1
 fi
 
