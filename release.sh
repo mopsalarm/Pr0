@@ -21,9 +21,10 @@ fi
 # path of the update repo
 UPDATE_REPO_PATH=../pr0gramm-updates
 VERSION_NEXT=$(( VERSION + 1 ))
+VERSION_PREVIOUS=$(jq .version < $UPDATE_REPO_PATH/open/update.json)
 
 echo "Release steps:"
-echo " * Start release of version $VERSION."
+echo " * Start release of version $VERSION (current is $VERSION_PREVIOUS)"
 echo " * Copy apk and json files to $UPDATE_REPO_PATH and commit"
 echo " * Create tag for version v$VERSION"
 echo " * Increase version to $VERSION_NEXT"
