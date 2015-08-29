@@ -3,6 +3,10 @@
     "version": 74,
     "changes": [
       {
+        "type": "ACHTUNG!!!",
+        "change": "Durch ein paar Updates der Libraries, bitte mal probieren und berichten, ob Uploads noch funktionieren!"
+      },
+      {
         "type": "Exklusiv",
         "change": "Neue Kategorie 'Kontrovers', die Bilder anzeigt, die ein ähnliches Verhältnis von Up- Down-Votes haben"
       },
