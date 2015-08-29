@@ -11,8 +11,16 @@
         "change": "Stelz-Kategorie kann nun ausgeblendet werden"
       },
       {
+        "type": "Fix",
+        "change": "Einträge für die neuen Kategorien nicht anzeigen, wenn der Service nicht da ist"
+      },
+      {
+        "type": "Fix",
+        "change": "Reposts nicht in kontrovers anzeigen"
+      },
+      {
         "type": "Hinter den Kulissen",
-        "change": "Viele Abhängigkeiten upgedated, hoffe alles läuft stabil!"
+        "change": "Viele Updates in den Abhängigkeiten, hoffe alles läuft stabil!"
       }
     ]
   },
