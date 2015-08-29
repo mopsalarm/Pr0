@@ -223,7 +223,10 @@ public class PostFragment extends RxRoboFragment implements
         int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
-        swipeRefreshLayout.setOnRefreshListener(this::loadPostDetails);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            rewindOnLoad = true;
+            loadPostDetails();
+        });
 
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 

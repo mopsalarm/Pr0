@@ -19,6 +19,10 @@
         "change": "Reposts nicht in kontrovers anzeigen"
       },
       {
+        "type": "Fix",
+        "change": "Herunterwischen/Neuladen auf einem Post startet das Video/GIF neu"
+      },
+      {
         "type": "Hinter den Kulissen",
         "change": "Viele Updates in den Abhängigkeiten, hoffe alles läuft stabil!"
       }
