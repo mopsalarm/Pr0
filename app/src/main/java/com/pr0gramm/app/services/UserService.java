@@ -257,6 +257,13 @@ public class UserService {
         return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
+    public static Optional<Info.User> getUser(LoginState loginState) {
+        if(loginState.getInfo() == null)
+            return Optional.absent();
+
+        return Optional.fromNullable(loginState.getInfo().getUser());
+    }
+
     public static final class LoginState {
         private final Info info;
         private final Graph benisHistory;

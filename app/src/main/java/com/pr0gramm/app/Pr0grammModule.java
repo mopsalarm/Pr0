@@ -9,6 +9,8 @@ import com.google.common.base.Stopwatch;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.api.categories.ExtraCategoryApi;
+import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
@@ -52,6 +54,7 @@ public class Pr0grammModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(Api.class).toProvider(ApiProvider.class);
+        bind(ExtraCategoryApi.class).toProvider(ExtraCategoryApiProvider.class);
         bind(PreloadManager.class).to(DatabasePreloadManager.class);
         bind(GifToVideoService.class).to(MyGifToVideoService.class);
     }

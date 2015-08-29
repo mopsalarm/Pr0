@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
+import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
@@ -49,6 +50,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import retrofit.Response;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -58,6 +60,7 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
+import static rx.Observable.combineLatest;
 
 /**
  */
@@ -76,6 +79,9 @@ public class DrawerFragment extends RxRoboFragment {
 
     @Inject
     private SingleShotService singleShotService;
+
+    @Inject
+    private ExtraCategoryApi extraCategoryApi;
 
     @InjectView(R.id.username)
     private TextView usernameView;
@@ -145,8 +151,20 @@ public class DrawerFragment extends RxRoboFragment {
     private static final int ICON_ALPHA = 127;
     private final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
+    private Observable<Boolean> extraCategoryApiAvailable;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        this.extraCategoryApiAvailable = Observable.just(false)
+                .concatWith(extraCategoryApi.ping().map(Response::isSuccess))
+                .onErrorResumeNext(Observable.just(false))
+                .cache();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -175,7 +193,8 @@ public class DrawerFragment extends RxRoboFragment {
                 getActivity(), WrapContentLinearLayoutManager.VERTICAL, false));
 
         // add the static items to the navigation
-        navigationAdapter.setNavigationItems(getFixedNavigationItems(Optional.<Info.User>absent()));
+        navigationAdapter.setNavigationItems(getCategoryNavigationItems(
+                Optional.<Info.User>absent(), false));
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
@@ -211,7 +230,9 @@ public class DrawerFragment extends RxRoboFragment {
     /**
      * Adds the default "fixed" items to the menu
      */
-    private List<NavigationItem> getFixedNavigationItems(Optional<Info.User> userInfo) {
+    private List<NavigationItem> getCategoryNavigationItems(
+            Optional<Info.User> userInfo, boolean extraCategory) {
+
         List<NavigationItem> items = new ArrayList<>();
         items.add(new NavigationItem(
                 new FeedFilter().withFeedType(FeedType.PROMOTED),
@@ -223,21 +244,23 @@ public class DrawerFragment extends RxRoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
-        if(settings.showCategoryControversial()) {
-            items.add(new NavigationItem(
-                    new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
-                    getString(R.string.action_feed_type_controversial),
-                    iconFeedTypeControversial));
+        if(extraCategory) {
+            if (settings.showCategoryControversial()) {
+                items.add(new NavigationItem(
+                        new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
+                        getString(R.string.action_feed_type_controversial),
+                        iconFeedTypeControversial));
+            }
+
+            if (settings.showCategoryRandom()) {
+                items.add(new NavigationItem(
+                        new FeedFilter().withFeedType(FeedType.RANDOM),
+                        getString(R.string.action_feed_type_random),
+                        iconFeedTypeRandom));
+            }
         }
 
-        if (settings.showCategoryRandom()) {
-            items.add(new NavigationItem(
-                    new FeedFilter().withFeedType(FeedType.RANDOM),
-                    getString(R.string.action_feed_type_random),
-                    iconFeedTypeRandom));
-        }
-
-        if(settings.showCategoryPremium()) {
+        if (settings.showCategoryPremium()) {
             if (userService.isPremiumUser()) {
                 items.add(new NavigationItem(
                         new FeedFilter().withFeedType(FeedType.PREMIUM),
@@ -285,10 +308,8 @@ public class DrawerFragment extends RxRoboFragment {
     @SuppressWarnings("unchecked")
     private Observable<List<NavigationItem>> newNavigationItemsObservable() {
         // observe and merge the menu items from different sources
-        return Observable.combineLatest(ImmutableList.of(
-                userService.loginState().map(st -> st.getInfo() != null
-                        ? getFixedNavigationItems(Optional.of(st.getInfo().getUser()))
-                        : getFixedNavigationItems(Optional.<Info.User>absent())),
+        return combineLatest(ImmutableList.of(
+                getCategoryNavigationItems(),
 
                 userService.loginState()
                         .flatMap(ignored -> bookmarkService.get())
@@ -307,6 +328,11 @@ public class DrawerFragment extends RxRoboFragment {
 
             return result;
         });
+    }
+
+    private Observable<List<NavigationItem>> getCategoryNavigationItems() {
+        return combineLatest(userService.loginState().map(UserService::getUser), extraCategoryApiAvailable,
+                this::getCategoryNavigationItems);
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {

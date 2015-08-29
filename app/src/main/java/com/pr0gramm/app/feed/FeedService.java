@@ -3,13 +3,11 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
-import com.pr0gramm.app.api.pr0gramm.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.Track;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -19,9 +17,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 
 /**
@@ -32,19 +27,12 @@ public class FeedService {
     private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     private final Api mainApi;
-    private final ExtraCategoryApi extraCategoryApi;
+    private final ExtraCategoryApi categoryApi;
 
     @Inject
-    public FeedService(OkHttpClient httpClient, Api mainApi) {
+    public FeedService(Api mainApi, ExtraCategoryApi categoryApi) {
         this.mainApi = mainApi;
-
-        this.extraCategoryApi = new Retrofit.Builder()
-                .client(httpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1/")
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
-                .build()
-                .create(ExtraCategoryApi.class);
+        this.categoryApi = categoryApi;
     }
 
     public Observable<Feed> getFeedItems(FeedQuery query) {
@@ -65,10 +53,10 @@ public class FeedService {
 
         switch (query.feedFilter().getFeedType()) {
             case RANDOM:
-                return extraCategoryApi.random(tags, flags);
+                return categoryApi.random(tags, flags);
 
             case CONTROVERSIAL:
-                return extraCategoryApi.controversial(flags, query.older().orNull());
+                return categoryApi.controversial(flags, query.older().orNull());
 
             default:
                 return mainApi.itemsGet(promoted, following,
