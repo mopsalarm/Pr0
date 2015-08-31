@@ -76,7 +76,7 @@ public class FeedbackService {
 
     private interface Api {
         @FormUrlEncoded
-        @POST("/post")
+        @POST("post")
         Observable<Nothing> post(@Field("name") String name,
                                  @Field("feedback") String feedback,
                                  @Field("version") String version,

@@ -16,6 +16,10 @@
       },
       {
         "type": "Fix",
+        "change": "Feedbackfunktion wieder repariert"
+      },
+      {
+        "type": "Fix",
         "change": "Einträge für die neuen Kategorien nicht anzeigen, wenn der Service nicht da ist"
       },
       {
