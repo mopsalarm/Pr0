@@ -1,9 +1,7 @@
 package com.pr0gramm.app.api.categories;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
-import com.squareup.okhttp.ResponseBody;
 
-import retrofit.Response;
 import retrofit.http.GET;
 import retrofit.http.HEAD;
 import retrofit.http.Query;
@@ -21,5 +19,5 @@ public interface ExtraCategoryApi {
                                    @Query("older") Long older);
 
     @HEAD("ping")
-    Observable<Response<ResponseBody>> ping();
+    Observable<byte[]> ping();
 }

@@ -45,12 +45,14 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Response;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -65,6 +67,8 @@ import static rx.Observable.combineLatest;
 /**
  */
 public class DrawerFragment extends RxRoboFragment {
+    private static final Logger logger = LoggerFactory.getLogger(DrawerFragment.class);
+
     @Inject
     private UserService userService;
 
@@ -160,10 +164,13 @@ public class DrawerFragment extends RxRoboFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.extraCategoryApiAvailable = Observable.just(false)
-                .concatWith(extraCategoryApi.ping().map(Response::isSuccess))
-                .onErrorResumeNext(Observable.just(false))
-                .cache();
+//        this.extraCategoryApiAvailable = extraCategoryApi.ping().map(r -> true)
+//                .doOnError(err -> logger.error("Could not reach category api", err))
+//                .onErrorResumeNext(Observable.just(false))
+//                .startWith(true)
+//                .cache();
+
+        this.extraCategoryApiAvailable = Observable.just(true);
     }
 
     @Override
@@ -244,7 +251,7 @@ public class DrawerFragment extends RxRoboFragment {
                 getString(R.string.action_feed_type_new),
                 iconFeedTypeNew));
 
-        if(extraCategory) {
+        if (extraCategory) {
             if (settings.showCategoryControversial()) {
                 items.add(new NavigationItem(
                         new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
@@ -331,7 +338,9 @@ public class DrawerFragment extends RxRoboFragment {
     }
 
     private Observable<List<NavigationItem>> getCategoryNavigationItems() {
-        return combineLatest(userService.loginState().map(UserService::getUser), extraCategoryApiAvailable,
+        return combineLatest(
+                userService.loginState().map(UserService::getUser),
+                extraCategoryApiAvailable,
                 this::getCategoryNavigationItems);
     }
 

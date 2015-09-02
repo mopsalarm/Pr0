@@ -20,10 +20,6 @@
       },
       {
         "type": "Fix",
-        "change": "Einträge für die neuen Kategorien nicht anzeigen, wenn der Service nicht da ist"
-      },
-      {
-        "type": "Fix",
         "change": "Reposts nicht in kontrovers anzeigen"
       },
       {
