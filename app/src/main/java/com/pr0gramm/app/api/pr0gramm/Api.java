@@ -15,6 +15,7 @@ import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
 import com.squareup.okhttp.RequestBody;
 
+import retrofit.http.Body;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
@@ -109,9 +110,8 @@ public interface Api {
     @GET("/api/items/ratelimited")
     Observable<Nothing> ratelimited();
 
-    @Multipart
     @POST("/api/items/upload")
-    Observable<Upload> upload(@Part("image") RequestBody file);
+    Observable<Upload> upload(@Body RequestBody body);
 
     @FormUrlEncoded
     @POST("/api/items/post")

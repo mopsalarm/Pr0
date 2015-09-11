@@ -12,6 +12,7 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
 
 import java.io.File;
@@ -86,10 +87,14 @@ public class UploadService {
             }
         };
 
+        RequestBody body = new MultipartBuilder().type(MultipartBuilder.FORM)
+                .addFormDataPart("image", file.getName(), output)
+                .build();
+
         long size = file.length();
 
         // perform the upload!
-        api.upload(output)
+        api.upload(body)
                 .doOnEach(n -> Track.upload(size))
                 .map(response -> new UploadInfo(response.getKey()))
                 .subscribe(result::onNext, result::onError, result::onCompleted);
@@ -99,7 +104,7 @@ public class UploadService {
 
     private static String guessMediaType(File file) {
         String name = file.getName().toLowerCase();
-        if (name.endsWith(".png")) {
+        if (isPngImage(file)) {
             return "image/png";
         } else {
             return "image/jpeg";

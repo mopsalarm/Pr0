@@ -17,7 +17,7 @@ public abstract class Posted {
         //noinspection ConstantConditions
         return getItem() != null
                 ? getItem().getId()
-                : null;
+                : -1;
     }
 
     @Nullable
