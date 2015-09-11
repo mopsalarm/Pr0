@@ -1,0 +1,1 @@
+{"resources": {"GET-api/profile/info": {"category": "user"}, "GET-api/items/ratelimited": {"category": "upload"}, "GET-api/items/get": {"category": "feed"}, "GET-api/items/info": {"category": "feed"}}}

@@ -1,0 +1,61 @@
+{
+tags: [
+{
+id: 6382286,
+confidence: 0.206543,
+tag: "Berlin"
+},
+{
+id: 6382165,
+confidence: 0.206543,
+tag: "Fahrrad"
+},
+{
+id: 6382249,
+confidence: 0.342372,
+tag: "Fernsehturm"
+},
+{
+id: 6382168,
+confidence: 0.206543,
+tag: "Gras"
+},
+{
+id: 6382167,
+confidence: 0.0945287,
+tag: "Innen Stadt Außen"
+},
+{
+id: 6382164,
+confidence: 0.206543,
+tag: "Olafur Eliasson"
+},
+{
+id: 6382166,
+confidence: 0.206543,
+tag: "Spiegel"
+},
+{
+id: 6382351,
+confidence: 0.438494,
+tag: "spiegelception"
+}
+],
+comments: [
+{
+id: 5072945,
+parent: 0,
+content: "Verstehe ich nicht.",
+created: 1437114022,
+up: 1,
+down: 0,
+confidence: 0.206543,
+name: "Lightningblade",
+mark: 0
+}
+],
+ts: 1437114144,
+cache: "item:896869",
+rt: 3,
+qc: 2
+}
