@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 23
 
         versionCode appVersion
         versionName "1.${(int)(appVersion / 10)}"
@@ -139,40 +139,40 @@ dependencies {
 
     compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'com.android.support:appcompat-v7:23.0.0'
-    compile 'com.android.support:recyclerview-v7:23.0.0'
-    compile 'com.android.support:design:23.0.0'
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:design:23.0.1'
     compile 'com.google.guava:guava:19.0-rc1'
 
     compile 'net.danlew:android.joda:2.8.2'
     compile 'org.roboguice:roboguice:3.0.1'
-    compile 'com.squareup.retrofit:retrofit:2.0.0-SNAPSHOT'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-SNAPSHOT'
-    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-SNAPSHOT'
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
+    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta1'
+    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta1'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.9'
     compile 'com.github.satyan:sugar:1.4'
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:2.2.2'
     compile 'com.github.tony19:named-regexp:0.2.3'
-    compile 'com.pnikosis:materialish-progress:1.5'
+    compile 'com.pnikosis:materialish-progress:1.7'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.google.android.apps.muzei:muzei-api:2.0'
-    compile 'com.squareup.sqlbrite:sqlbrite:0.2.1'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.3.1'
 
     // rx java
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
-    compile 'com.trello:rxlifecycle:0.2.0'
-    compile 'com.trello:rxlifecycle-components:0.2.0'
+    compile 'com.trello:rxlifecycle:0.3.0'
+    compile 'com.trello:rxlifecycle-components:0.3.0'
 
     compile('pl.brightinventions:slf4android:0.1.1@aar') {
         transitive = true
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }
 

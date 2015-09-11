@@ -54,12 +54,9 @@ public class DatabasePreloadManager implements PreloadManager {
 
         if (!missing.isEmpty()) {
             BriteDatabase db = db();
-            db.beginTransaction();
-            try {
+            try (BriteDatabase.Transaction tx = db.newTransaction()) {
                 deleteTx(db, missing);
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
+                tx.markSuccessful();
             }
         } else {
             preloadCache.set(items);
@@ -127,17 +124,15 @@ public class DatabasePreloadManager implements PreloadManager {
         logger.info("Removing all files preloaded before {}", threshold);
 
         BriteDatabase db = db();
-        db.beginTransaction();
-        try {
+
+        try(BriteDatabase.Transaction tx = db.newTransaction()) {
             try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
                     String.valueOf(threshold.getMillis()))) {
 
                 deleteTx(db, readPreloadEntriesFromCursor(cursor).values());
             }
 
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
+            tx.markSuccessful();
         }
     }
 
