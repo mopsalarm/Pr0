@@ -375,7 +375,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     @Override
     public void onFeedFilterSelected(FeedFilter filter) {
         // if it is a non searchable filter, we need to switch to some searchable category.
-        if(!filter.getFeedType().searchable() && !filter.isBasic())
+        if (!filter.getFeedType().searchable() && !filter.isBasic())
             filter = filter.withFeedType(FeedType.NEW);
 
         gotoFeedFragment(filter, false);
@@ -425,8 +425,11 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     }
 
     private void clearBackStack() {
-        getSupportFragmentManager().popBackStackImmediate(
-                null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        try {
+            getSupportFragmentManager().popBackStackImmediate(
+                    null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        } catch (Exception ignored) {
+        }
     }
 
     @Override

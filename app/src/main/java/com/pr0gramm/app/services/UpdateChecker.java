@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
+import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -40,9 +42,9 @@ public class UpdateChecker {
     }
 
     private Observable<Update> check(String endpoint) {
-        return Async.start(() -> {
+        return Async.fromCallable(() -> {
             UpdateApi api = newRestAdapter(endpoint).create(UpdateApi.class);
-            return api.get();
+            return api.get().execute().body();
 
         }, Schedulers.io()).filter(update -> {
             logger.info("Installed v{}, found update v{} at {}",
@@ -64,7 +66,9 @@ public class UpdateChecker {
 
     public Observable<Update> check() {
         return Observable.from(endpoints)
-                .flatMap(ep -> check(ep).onErrorResumeNext(Observable.empty()))
+                .flatMap(ep -> check(ep)
+                        .doOnError(err -> logger.warn("Could not check for update: {}", err.toString()))
+                        .onErrorResumeNext(Observable.empty()))
                 .first();
     }
 
@@ -133,7 +137,7 @@ public class UpdateChecker {
 
     private interface UpdateApi {
         @GET("update.json")
-        Update get();
+        Call<Update> get();
     }
 
     /**
