@@ -1,5 +1,14 @@
 [
   {
+    "version": 75,
+    "changes": [
+      {
+        "type": "Exklusiv & Neu",
+        "change": "Neue 'Best of'-Kategorie, die nur Bilder ab einem bestimmten Benis anzeigt. In den Einstellungen konfigurierbar."
+      }
+    ]
+  },
+  {
     "version": 74,
     "changes": [
       {
