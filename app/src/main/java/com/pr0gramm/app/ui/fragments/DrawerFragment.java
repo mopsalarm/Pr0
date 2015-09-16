@@ -147,6 +147,9 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectResource(R.drawable.ic_action_email)
     private Drawable iconInbox;
 
+    @InjectResource(R.drawable.ic_drawer_bestof)
+    private Drawable iconFeedTypeBestOf;
+
     @InjectResource(R.drawable.ic_black_action_upload)
     private Drawable iconUpload;
 
@@ -264,6 +267,14 @@ public class DrawerFragment extends RxRoboFragment {
                         new FeedFilter().withFeedType(FeedType.RANDOM),
                         getString(R.string.action_feed_type_random),
                         iconFeedTypeRandom));
+            }
+
+            if (settings.showCategoryRandom()) {
+                // TODO Fix correct check
+                items.add(new NavigationItem(
+                        new FeedFilter().withFeedType(FeedType.BESTOF),
+                        getString(R.string.action_feed_type_bestof),
+                        iconFeedTypeBestOf));
             }
         }
 

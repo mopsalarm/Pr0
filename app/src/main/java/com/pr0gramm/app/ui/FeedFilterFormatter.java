@@ -56,6 +56,9 @@ public class FeedFilterFormatter {
             case CONTROVERSIAL:
                 return context.getString(R.string.filter_format_controversial);
 
+            case BESTOF:
+                return context.getString(R.string.filter_format_bestof);
+
             default:
                 throw new IllegalArgumentException("Invalid feed type");
         }

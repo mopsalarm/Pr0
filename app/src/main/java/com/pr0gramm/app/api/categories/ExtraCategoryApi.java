@@ -18,6 +18,12 @@ public interface ExtraCategoryApi {
     Observable<Feed> controversial(@Query("flags") int flags,
                                    @Query("older") Long older);
 
+    @GET("bestof")
+    Observable<Feed> bestof(@Query("tags") String tags,
+                          @Query("user") String user,
+                          @Query("flags") int flags,
+                          @Query("older") Long older);
+
     @HEAD("ping")
     Observable<byte[]> ping();
 }

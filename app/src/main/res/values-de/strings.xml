@@ -324,7 +324,6 @@
     <string name="pref_show_category_random_title">Zufall-Kategorie</string>
     <string name="pref_show_category_controversial_title">Kontrovers-Kategorie</string>
     <string name="pref_show_category_premium_title">Stelz-Kategorie</string>
-    <string name="hint_category_random">Dies ist die exklusive neue Zufallskategorie. Es werden zufällige Bilder aus dem pr0gramm angezeigt (größtenteils aus Top). Wie der Zufall es so will, kannst du diese Kategorie nicht durchsuchen oder vorladen.</string>
     <string name="preloaded">geladen</string>
     <string name="notify_new_message_summary_text">Zum Lesen hier berühren</string>
     <string name="action_feed_type_controversial">KONTROVERS</string>

@@ -28,6 +28,18 @@ public enum FeedType {
         public boolean preloadable() {
             return false;
         }
+    },
+
+    BESTOF {
+        @Override
+        public boolean searchable() {
+            return true;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return false;
+        }
     };
 
     public boolean searchable() {

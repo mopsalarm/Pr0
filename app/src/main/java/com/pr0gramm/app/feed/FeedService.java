@@ -55,6 +55,9 @@ public class FeedService {
             case RANDOM:
                 return categoryApi.random(tags, flags);
 
+            case BESTOF:
+                return categoryApi.bestof(tags, user, flags, query.older().orNull());
+
             case CONTROVERSIAL:
                 return categoryApi.controversial(flags, query.older().orNull());
 

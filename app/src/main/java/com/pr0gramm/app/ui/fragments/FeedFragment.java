@@ -240,15 +240,6 @@ public class FeedFragment extends RxRoboFragment {
         resetToolbar();
 
         recyclerView.addOnScrollListener(onScrollListener);
-
-        if (getCurrentFilter().getFeedType() == FeedType.RANDOM) {
-            if (singleShotService.isFirstTime("category_random_hint")) {
-                DialogBuilder.start(getActivity())
-                        .content(R.string.hint_category_random)
-                        .positive(R.string.okay)
-                        .show();
-            }
-        }
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
