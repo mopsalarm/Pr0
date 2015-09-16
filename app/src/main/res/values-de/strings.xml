@@ -329,4 +329,11 @@
     <string name="action_feed_type_controversial">KONTROVERS</string>
     <string name="filter_format_controversial">Kontrovers</string>
     <string name="prefcat_behaviour__categories_title">Kategorien</string>
+
+    <string name="pref_bestof_benis_human__dont_show">Nicht anzeigen</string>
+    <string name="pref_bestof_threshold_title">Best of-Kategorie</string>
+    <string name="filter_format_bestof">Best of</string>
+    <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
+    <string name="action_feed_type_bestof">BEST OF</string>
+    <string name="hint_bestof_category">Es gibt nun eine \'Best of\'-Kategorie. Du kannst das minimale Benislevel für die \'Best of\'-Kategorie in den Einstellungen ändern.</string>
 </resources>

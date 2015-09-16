@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
@@ -28,11 +29,13 @@ public class FeedService {
 
     private final Api mainApi;
     private final ExtraCategoryApi categoryApi;
+    private final Settings settings;
 
     @Inject
-    public FeedService(Api mainApi, ExtraCategoryApi categoryApi) {
+    public FeedService(Api mainApi, ExtraCategoryApi categoryApi, Settings settings) {
         this.mainApi = mainApi;
         this.categoryApi = categoryApi;
+        this.settings = settings;
     }
 
     public Observable<Feed> getFeedItems(FeedQuery query) {
@@ -56,7 +59,8 @@ public class FeedService {
                 return categoryApi.random(tags, flags);
 
             case BESTOF:
-                return categoryApi.bestof(tags, user, flags, query.older().orNull());
+                int benisScore = settings.bestOfBenisThreshold();
+                return categoryApi.bestof(tags, user, flags, query.older().orNull(), benisScore);
 
             case CONTROVERSIAL:
                 return categoryApi.controversial(flags, query.older().orNull());

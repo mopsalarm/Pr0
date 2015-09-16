@@ -49,5 +49,4 @@ public enum FeedType {
     public boolean preloadable() {
         return true;
     }
-
 }

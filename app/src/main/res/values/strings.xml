@@ -361,5 +361,10 @@
     <string name="prefcat_behaviour__categories_title">Categories</string>
     <string name="filter_format_bestof">Best of</string>
     <string name="action_feed_type_bestof">BEST OF</string>
+
+    <string name="pref_bestof_benis_human__dont_show">Hide category</string>
+    <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
+    <string name="pref_bestof_threshold_title">Category \'best of\'</string>
+    <string name="hint_bestof_category">There is now a \'best of\'-category. You can select the minimum benis level for the best of category in the settings.</string>
 </resources>
 

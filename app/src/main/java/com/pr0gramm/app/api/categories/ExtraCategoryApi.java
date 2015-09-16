@@ -20,9 +20,10 @@ public interface ExtraCategoryApi {
 
     @GET("bestof")
     Observable<Feed> bestof(@Query("tags") String tags,
-                          @Query("user") String user,
-                          @Query("flags") int flags,
-                          @Query("older") Long older);
+                            @Query("user") String user,
+                            @Query("flags") int flags,
+                            @Query("older") Long older,
+                            @Query("score") int benisScore);
 
     @HEAD("ping")
     Observable<byte[]> ping();

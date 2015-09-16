@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.google.common.base.Enums;
+import com.google.common.primitives.Ints;
 import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
@@ -13,6 +14,7 @@ import java.util.EnumSet;
 
 import javax.inject.Inject;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Objects.equal;
 
 /**
@@ -217,6 +219,15 @@ public class Settings {
 
     public boolean showCategoryPremium() {
         return preferences.getBoolean("pref_show_category_premium", true);
+    }
+
+    public int bestOfBenisThreshold() {
+        String value = preferences.getString("pref_bestof_threshold", "2000");
+        return firstNonNull(Ints.tryParse(value), 2000);
+    }
+
+    public boolean showCategoryBestOf() {
+        return bestOfBenisThreshold() > 0;
     }
 
     public boolean mockApi() {

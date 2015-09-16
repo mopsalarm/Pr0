@@ -66,4 +66,22 @@
         <item>@string/pref_confirm_play_on_mobile_values__video_only</item>
         <item>@string/pref_confirm_play_on_mobile_values__all</item>
     </string-array>
+
+    <string-array name="pref_bestof_benis_human">
+        <item>@string/pref_bestof_benis_human__dont_show</item>
+        <item>1000</item>
+        <item>1500</item>
+        <item>2000</item>
+        <item>2500</item>
+        <item>3000</item>
+        <item>3500</item>
+        <item>4000</item>
+        <item>4500</item>
+        <item>5000</item>
+        <item>5500</item>
+        <item>6000</item>
+        <item>6500</item>
+        <item>7000</item>
+    </string-array>
+
 </resources>

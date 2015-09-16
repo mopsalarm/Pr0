@@ -269,8 +269,7 @@ public class DrawerFragment extends RxRoboFragment {
                         iconFeedTypeRandom));
             }
 
-            if (settings.showCategoryRandom()) {
-                // TODO Fix correct check
+            if (settings.showCategoryBestOf()) {
                 items.add(new NavigationItem(
                         new FeedFilter().withFeedType(FeedType.BESTOF),
                         getString(R.string.action_feed_type_bestof),

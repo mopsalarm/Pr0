@@ -154,19 +154,14 @@ public class MainActivity extends RxRoboAppCompatActivity implements
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
-        addOriginalContentBookmarkOnce();
-
-//        if (AndroidUtility.isOnMobile(this) && singleShotService.isFirstTime("gif_to_webm_mobile_hint_2")) {
-//            showActivateGifToWebmPopup();
-//        }
+        showBestOfCategoryHint();
     }
 
-    private void showActivateGifToWebmPopup() {
-        if (!settings.convertGifToWebm()) {
+    private void showBestOfCategoryHint() {
+        if (singleShotService.isFirstTime("hint_bestof_category")) {
             DialogBuilder.start(this)
-                    .content(R.string.hint_use_gif_to_webm_service)
-                    .positive(R.string.yes, di -> settings.edit().putBoolean("pref_convert_gif_to_webm", true).apply())
-                    .negative(R.string.no)
+                    .content(R.string.hint_bestof_category)
+                    .positive(R.string.okay)
                     .show();
         }
     }
