@@ -223,7 +223,7 @@ public class Settings {
 
     public int bestOfBenisThreshold() {
         String value = preferences.getString("pref_bestof_threshold", "2000");
-        return firstNonNull(Ints.tryParse(value), 2000);
+        return firstNonNull(Ints.tryParse(value), 0);
     }
 
     public boolean showCategoryBestOf() {
