@@ -20,6 +20,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -59,6 +60,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.ui.HandleBackButton;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
@@ -82,6 +84,8 @@ import com.trello.rxlifecycle.FragmentEvent;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -104,6 +108,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.util.AndroidUtility.getActionBarContentOffset;
 import static com.pr0gramm.app.util.AndroidUtility.ifNotNull;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static java.util.Collections.emptyMap;
@@ -113,9 +118,11 @@ import static java.util.Collections.emptyMap;
  */
 public class PostFragment extends RxRoboFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
-        CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
+        CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener,
+        HandleBackButton {
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
+    private static final Logger logger = LoggerFactory.getLogger(PostFragment.class);
 
     private boolean active;
     private FeedItem feedItem;
@@ -376,13 +383,13 @@ public class PostFragment extends RxRoboFragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        boolean isImage = isStaticImage(feedItem.getImage());
+        boolean isImage = isStaticImage(feedItem);
 
         ifNotNull(menu.findItem(R.id.action_refresh),
                 item -> item.setVisible(settings.showRefreshButton()));
 
-        ifNotNull(menu.findItem(R.id.action_zoom),
-                item -> item.setVisible(isImage));
+//        ifNotNull(menu.findItem(R.id.action_zoom),
+//                item -> item.setVisible(true));
 
         ifNotNull(menu.findItem(R.id.action_share_image),
                 item -> item.setVisible(ShareProvider.canShare(getActivity(), feedItem)));
@@ -397,17 +404,72 @@ public class PostFragment extends RxRoboFragment implements
      *
      * @param image The url of the image to check
      */
-    private boolean isStaticImage(String image) {
-        return image.toLowerCase().matches(".*\\.(jpg|jpeg|png)");
+    private boolean isStaticImage(FeedItem image) {
+        return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
     public void openImageInFullscreen() {
-        boolean hq = settings.loadHqInZoomView();
-        Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, hq);
-        startActivity(intent);
+        if (isStaticImage(feedItem)) {
+            boolean hq = settings.loadHqInZoomView();
+            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, hq);
+            startActivity(intent);
+
+        } else {
+            content.setVisibility(View.GONE);
+
+            int abHeight = getActionBarContentOffset(getActivity());
+            int windowWidth = swipeRefreshLayout.getWidth();
+            int windowHeight = swipeRefreshLayout.getHeight() - abHeight;
+
+            float scale = Math.min(
+                    windowHeight / (float) viewer.getWidth(),
+                    windowWidth / (float) (viewer.getHeight() - viewer.getPaddingTop()));
+
+            viewer.setPivotY(viewer.getHeight() - 0.5f * (viewer.getHeight() - viewer.getPaddingTop()));
+            viewer.setPivotX(viewer.getWidth() / 2.f);
+
+            float trY = (windowHeight / 2.f - viewer.getPivotY()) + abHeight;
+
+            viewer.animate()
+                    .rotation(90)
+                    .translationX(0).translationY(trY)
+                    .scaleX(scale).scaleY(scale)
+                    .setDuration(500)
+                    .start();
+
+            // add a listener to show/hide the fullscreen.
+            getView().setFocusableInTouchMode(true);
+            getView().requestFocus();
+            getView().setOnKeyListener((v, keyCode, event) -> {
+                if (content.getVisibility() == View.GONE) {
+                    if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                        content.scrollToPosition(0);
+                        content.setVisibility(View.VISIBLE);
+                        content.setAlpha(0);
+                        content.animate().alpha(1).setDuration(500).start();
+
+                        viewer.animate()
+                                .rotation(0)
+                                .translationX(0).translationY(0)
+                                .scaleX(1).scaleY(1)
+                                .setDuration(500)
+                                .start();
+
+                        // handle back button's click listener
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
     }
 
+    @Override
+    public boolean onBackButton() {
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -766,7 +828,7 @@ public class PostFragment extends RxRoboFragment implements
      */
     private void registerTabListener(MediaView viewer) {
         viewer.setTapListener(new MediaView.TapListener() {
-            boolean isImage = isStaticImage(feedItem.getImage());
+            boolean isImage = isStaticImage(feedItem);
 
             @Override
             public boolean onSingleTap() {

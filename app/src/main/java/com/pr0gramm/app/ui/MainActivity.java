@@ -155,6 +155,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         }
 
         showBestOfCategoryHint();
+        addOriginalContentBookmarkOnce();
     }
 
     private void showBestOfCategoryHint() {
