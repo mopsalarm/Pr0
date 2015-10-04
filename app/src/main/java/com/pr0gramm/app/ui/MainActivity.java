@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.internal.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +62,9 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
         MainActionHandler {
+
+    // we use this to propagate a fake-home event to the fragments.
+    public static final int ID_FAKE_HOME = android.R.id.list;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -295,13 +299,19 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (!drawerToggle.isDrawerIndicatorEnabled()) {
             if (item.getItemId() == android.R.id.home) {
-                getSupportFragmentManager().popBackStack();
+                if (!dispatchFakeHomeEvent(item))
+                    getSupportFragmentManager().popBackStack();
+
                 return true;
             }
         }
 
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
 
+    private boolean dispatchFakeHomeEvent(MenuItem item) {
+        return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, new ActionMenuItem(
+                this, item.getGroupId(), ID_FAKE_HOME, 0, item.getOrder(), item.getTitle()));
     }
 
     @Override
