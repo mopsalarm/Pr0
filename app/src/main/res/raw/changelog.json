@@ -5,6 +5,10 @@
       {
         "type": "Exklusiv & Neu",
         "change": "Neue 'Best of'-Kategorie, die nur Bilder ab einem bestimmten Benis anzeigt. In den Einstellungen konfigurierbar."
+      },
+      {
+        "type": "Neu",
+        "change": "Vollbild-Modus für Videos. Falls es nicht geht, bitte Feedback über die Feedback-Funktion!"
       }
     ]
   },
