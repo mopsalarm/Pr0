@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -63,6 +64,7 @@ public class Pr0grammApplication extends SugarApp {
             }
         } else {
             logger.info("This is a development version.");
+            StrictMode.enableDefaults();
         }
 
         // initialize this to show errors always in the context of the current activity.

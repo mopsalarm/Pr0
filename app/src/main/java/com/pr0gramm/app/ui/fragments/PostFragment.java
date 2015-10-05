@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -385,12 +386,13 @@ public class PostFragment extends RxRoboFragment implements
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         boolean isImage = isStaticImage(feedItem);
+        boolean isRotated = getActivity().getWindowManager().getDefaultDisplay().getRotation() != Surface.ROTATION_0;
 
         ifNotNull(menu.findItem(R.id.action_refresh),
                 item -> item.setVisible(settings.showRefreshButton() && !isVideoFullScreen()));
 
         ifNotNull(menu.findItem(R.id.action_zoom),
-                item -> item.setVisible(!isVideoFullScreen()));
+                item -> item.setVisible(!isVideoFullScreen() && (isImage || !isRotated)));
 
         ifNotNull(menu.findItem(R.id.action_share_image),
                 item -> item.setVisible(ShareProvider.canShare(getActivity(), feedItem)));
@@ -417,35 +419,30 @@ public class PostFragment extends RxRoboFragment implements
             startActivity(intent);
 
         } else {
-            content.setVisibility(View.GONE);
-
-            int abHeight = getActionBarContentOffset(getActivity());
-            int windowWidth = swipeRefreshLayout.getWidth();
-            int windowHeight = swipeRefreshLayout.getHeight() - abHeight;
-
-            //noinspection UnnecessaryLocalVariable
-            int viewerWidth = windowWidth;
-
-            float scale = Math.min(
-                    windowHeight / (float) viewerWidth,
-                    windowWidth / (float) (viewer.getHeight() - viewer.getPaddingTop()));
-
-            viewer.setPivotY(viewer.getHeight() - 0.5f * (viewer.getHeight() - viewer.getPaddingTop()));
-            viewer.setPivotX(viewerWidth / 2.f);
-
-            float trY = (windowHeight / 2.f - viewer.getPivotY()) + abHeight;
+            FullScreenParams params = new FullScreenParams();
 
             ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, 90f),
-                    ofFloat(View.TRANSLATION_Y, trY),
-                    ofFloat(View.SCALE_X, scale),
-                    ofFloat(View.SCALE_Y, scale))
+                    ofFloat(View.TRANSLATION_Y, params.trY),
+                    ofFloat(View.SCALE_X, params.scale),
+                    ofFloat(View.SCALE_Y, params.scale))
                     .setDuration(500)
                     .start();
+
+            // hide content below
+            content.setVisibility(View.GONE);
 
             getActivity().supportInvalidateOptionsMenu();
             registerExitFullscreenListener();
         }
+    }
+
+    private void realignFullScreen() {
+        FullScreenParams params = new FullScreenParams();
+
+        viewer.setTranslationY(params.trY);
+        viewer.setScaleX(params.scale);
+        viewer.setScaleY(params.scale);
     }
 
     private void registerExitFullscreenListener() {
@@ -841,6 +838,10 @@ public class PostFragment extends RxRoboFragment implements
                     // if already in a layout pass.
                     placeholder.post(placeholder::requestLayout);
                 }
+
+                if (isVideoFullScreen()) {
+                    realignFullScreen();
+                }
             }
         });
 
@@ -1190,6 +1191,30 @@ public class PostFragment extends RxRoboFragment implements
 
         public Uri getPreviewUri() {
             return previewUri;
+        }
+    }
+
+    private class FullScreenParams {
+        private final float scale;
+        private final float trY;
+        private final int windowHeight;
+
+        FullScreenParams() {
+            int abHeight = getActionBarContentOffset(getActivity());
+            int windowWidth = swipeRefreshLayout.getWidth();
+            windowHeight = swipeRefreshLayout.getHeight() - abHeight;
+
+            //noinspection UnnecessaryLocalVariable
+            int viewerWidth = windowWidth;
+
+            scale = Math.min(
+                    windowHeight / (float) viewerWidth,
+                    windowWidth / (float) (viewer.getHeight() - viewer.getPaddingTop()));
+
+            viewer.setPivotY(viewer.getHeight() - 0.5f * (viewer.getHeight() - viewer.getPaddingTop()));
+            viewer.setPivotX(viewerWidth / 2.f);
+
+            trY = (windowHeight / 2.f - viewer.getPivotY()) + abHeight;
         }
     }
 }

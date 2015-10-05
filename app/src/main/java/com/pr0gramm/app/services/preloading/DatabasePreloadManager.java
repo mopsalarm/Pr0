@@ -1,17 +1,19 @@
 package com.pr0gramm.app.services.preloading;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.squareup.sqlbrite.BriteDatabase;
-import com.squareup.sqlbrite.SqlBrite;
 
 import org.joda.time.Instant;
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ public class DatabasePreloadManager implements PreloadManager {
         queryAllItems().subscribe(this::setPreloadCache);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void setPreloadCache(ImmutableMap<Long, PreloadItem> items) {
         List<PreloadItem> missing = new ArrayList<>();
         for (PreloadItem item : items.values()) {
@@ -65,28 +68,26 @@ public class DatabasePreloadManager implements PreloadManager {
 
     private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
         return this.database
-                .flatMap(db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS))
-                .map(SqlBrite.Query::run)
+                .flatMap(db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS).mapToList(this::readPreloadItem))
                 .map(this::readPreloadEntriesFromCursor);
     }
 
-    private ImmutableMap<Long, PreloadItem> readPreloadEntriesFromCursor(Cursor cursor) {
-        ImmutableMap.Builder<Long, PreloadItem> result = new ImmutableMap.Builder<>();
-
+    private PreloadItem readPreloadItem(Cursor cursor) {
         int cItemId = cursor.getColumnIndexOrThrow("itemId");
         int cCreation = cursor.getColumnIndexOrThrow("creation");
         int cMedia = cursor.getColumnIndexOrThrow("media");
         int cThumbnail = cursor.getColumnIndexOrThrow("thumbnail");
-        while (cursor.moveToNext()) {
-            result.put(cursor.getLong(cItemId), ImmutablePreloadItem.builder()
-                    .itemId(cursor.getLong(cItemId))
-                    .creation(new Instant(cursor.getLong(cCreation)))
-                    .media(new File(cursor.getString(cMedia)))
-                    .thumbnail(new File(cursor.getString(cThumbnail)))
-                    .build());
-        }
 
-        return result.build();
+        return ImmutablePreloadItem.builder()
+                .itemId(cursor.getLong(cItemId))
+                .creation(new Instant(cursor.getLong(cCreation)))
+                .media(new File(cursor.getString(cMedia)))
+                .thumbnail(new File(cursor.getString(cThumbnail)))
+                .build();
+    }
+
+    private ImmutableMap<Long, PreloadItem> readPreloadEntriesFromCursor(List<PreloadItem> items) {
+        return Maps.uniqueIndex(items, PreloadItem::itemId);
     }
 
     /**
@@ -125,13 +126,16 @@ public class DatabasePreloadManager implements PreloadManager {
 
         BriteDatabase db = db();
 
-        try(BriteDatabase.Transaction tx = db.newTransaction()) {
-            try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation < ?",
+        try (BriteDatabase.Transaction tx = db.newTransaction()) {
+            List<PreloadItem> items = new ArrayList<>();
+            try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation<?",
                     String.valueOf(threshold.getMillis()))) {
 
-                deleteTx(db, readPreloadEntriesFromCursor(cursor).values());
+                while (cursor.moveToNext())
+                    items.add(readPreloadItem(cursor));
             }
 
+            deleteTx(db, items);
             tx.markSuccessful();
         }
     }
