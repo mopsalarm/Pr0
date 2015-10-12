@@ -22,25 +22,36 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
 
+import org.joda.time.Hours;
+import org.joda.time.Instant;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import roboguice.util.Strings;
+
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static org.joda.time.Instant.now;
 
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
+    private final String selfName;
     private ImmutableList<CommentEntry> comments;
     private Optional<String> op;
     private CommentActionListener commentActionListener;
     private long selectedCommentId;
     private boolean prioritizeOpComments;
 
-    public CommentsAdapter() {
+    private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
+
+    public CommentsAdapter(String selfName) {
+        this.selfName = selfName;
+
         setHasStableIds(true);
         set(emptyList(), emptyMap(), null);
     }
@@ -112,8 +123,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         Linkify.addLinks(view.comment, Linkify.WEB_URLS);
 
         // show the points
-        view.senderInfo.setPoints(getCommentScore(entry));
-        view.senderInfo.setPointsVisible(true);
+        if (Strings.equalsIgnoreCase(comment.getName(), selfName)
+                || comment.getCreated().isBefore(scoreVisibleThreshold)) {
+
+            view.senderInfo.setPoints(getCommentScore(entry));
+            view.senderInfo.setPointsVisible(true);
+        } else {
+            view.senderInfo.setPointsVisible(false);
+        }
+
 
         // and the date of the post
         view.senderInfo.setDate(comment.getCreated());

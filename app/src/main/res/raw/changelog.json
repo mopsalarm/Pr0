@@ -1,5 +1,18 @@
 [
   {
+    "version": 76,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Download unter Android 6 gefixt"
+      },
+      {
+        "type": "Fix",
+        "change": "Kommentarbenis wie auf pr0gramm für 60min verstecken"
+      }
+    ]
+  },
+  {
     "version": 75,
     "changes": [
       {
