@@ -366,5 +366,6 @@
     <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
     <string name="pref_bestof_threshold_title">Category \'best of\'</string>
     <string name="hint_bestof_category">There is now a \'best of\'-category. You can select the minimum benis level for the best of category in the settings.</string>
+    <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
 </resources>
 

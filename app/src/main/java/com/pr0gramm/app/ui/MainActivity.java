@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,6 +48,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
+import rx.Single;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -61,7 +63,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler {
+        MainActionHandler, PermissionHelperActivity {
 
     // we use this to propagate a fake-home event to the fragments.
     public static final int ID_FAKE_HOME = android.R.id.list;
@@ -92,6 +94,9 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
     @Inject
     private SingleShotService singleShotService;
+
+    @Inject
+    private PermissionHelper permissionHelper;
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -481,4 +486,16 @@ public class MainActivity extends RxRoboAppCompatActivity implements
             lastUpdate = now;
         }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public Single<Void> requirePermission(String permission) {
+        return permissionHelper.requirePermission(permission);
+    }
 }

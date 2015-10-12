@@ -49,6 +49,7 @@ import java.util.Map;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
+import rx.Single;
 import rx.functions.Action1;
 import rx.functions.Action2;
 
@@ -319,5 +320,9 @@ public class AndroidUtility {
     public static File toFile(Uri uri) {
         checkArgument("file".equals(uri.getScheme()), "not a file:// uri");
         return new File(uri.getPath());
+    }
+
+    public static <A, B> Single.Transformer<A, B> forSingle(Observable.Transformer<A, B> transformer) {
+        return aSingle -> transformer.call(aSingle.toObservable()).toSingle();
     }
 }

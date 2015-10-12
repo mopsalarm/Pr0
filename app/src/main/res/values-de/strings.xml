@@ -336,4 +336,5 @@
     <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
     <string name="action_feed_type_bestof">BEST OF</string>
     <string name="hint_bestof_category">Es gibt nun eine \'Best of\'-Kategorie. Du kannst das minimale Benislevel für die \'Best of\'-Kategorie in den Einstellungen ändern.</string>
+    <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
 </resources>

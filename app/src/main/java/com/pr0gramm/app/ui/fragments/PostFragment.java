@@ -16,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -65,6 +64,7 @@ import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
+import com.pr0gramm.app.ui.PermissionHelperActivity;
 import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
@@ -98,6 +98,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.animation.PropertyValuesHolder.ofFloat;
 import static android.content.Intent.createChooser;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -224,8 +225,6 @@ public class PostFragment extends RxRoboFragment implements
         ToolbarActivity activity = (ToolbarActivity) getActivity();
         activity.getScrollHideToolbarListener().reset();
 
-        ((AppCompatActivity) activity).getSupportActionBar().setHomeButtonEnabled(true);
-
         // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
@@ -248,7 +247,7 @@ public class PostFragment extends RxRoboFragment implements
         initializeInfoLine();
         initializeCommentPostLine();
 
-        commentsAdapter = new CommentsAdapter();
+        commentsAdapter = new CommentsAdapter(userService.getName().or(""));
         commentsAdapter.setCommentActionListener(this);
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         adapter.addAdapter(commentsAdapter);
@@ -577,6 +576,13 @@ public class PostFragment extends RxRoboFragment implements
 
     @OnOptionsItemSelected(R.id.action_download)
     public void downloadPostMedia() {
+        ((PermissionHelperActivity) getActivity())
+                .requirePermission(WRITE_EXTERNAL_STORAGE)
+                .compose(bindUntilEvent(FragmentEvent.DESTROY))
+                .subscribe(ignored -> downloadPostWithPermissionGranted(), defaultOnError());
+    }
+
+    private void downloadPostWithPermissionGranted() {
         // download over proxy to use caching
         Uri url = proxyService.proxy(UriHelper.get().media(feedItem, true));
 

@@ -1,6 +1,8 @@
 package com.pr0gramm.app.util;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.support.annotation.StringRes;
 
 import com.google.common.base.Predicate;
@@ -11,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
+import com.pr0gramm.app.ui.PermissionHelper;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 
 import java.io.EOFException;
@@ -185,6 +188,20 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(IllegalStateException.class,
                 err -> err.toString().contains("onSaveInstanceState")).doNotReport());
+
+        formatters.add(new Formatter<>(PermissionHelper.PermissionNotGranted.class,
+                (error, context) -> {
+                    CharSequence permissionName = error.getPermission();
+                    try {
+                        PackageManager packageManager = context.getPackageManager();
+                        PermissionInfo permissionInfo = packageManager.getPermissionInfo(
+                                error.getPermission(), 0);
+                        permissionName = permissionInfo.loadLabel(packageManager);
+                    } catch (PackageManager.NameNotFoundException ignored) {
+                    }
+
+                    return context.getString(R.string.error_permission_not_granted, permissionName);
+                }));
 
         // Oops, native error, this should not happen!?
         formatters.add(new Formatter<>(WebmMediaPlayer.NativeException.class,
