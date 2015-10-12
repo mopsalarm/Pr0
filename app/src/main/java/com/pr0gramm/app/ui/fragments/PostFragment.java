@@ -429,7 +429,7 @@ public class PostFragment extends RxRoboFragment implements
                     .start();
 
             // hide content below
-            content.setVisibility(View.GONE);
+            swipeRefreshLayout.setVisibility(View.GONE);
 
             getActivity().supportInvalidateOptionsMenu();
             registerExitFullscreenListener();
@@ -455,6 +455,11 @@ public class PostFragment extends RxRoboFragment implements
             view.setOnKeyListener((v, keyCode, event) -> {
                 if (isVideoFullScreen()) {
                     if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                        // remove listener
+                        view.setOnKeyListener(null);
+                        view.setOnFocusChangeListener(null);
+
+                        // and move back to normal state
                         exitFullScreen();
                         return true;
                     }
@@ -462,15 +467,21 @@ public class PostFragment extends RxRoboFragment implements
 
                 return false;
             });
+
+            view.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus && isVideoFullScreen()) {
+                    view.requestFocus();
+                }
+            });
         }
     }
 
     private void exitFullScreen() {
-        content.scrollToPosition(0);
-        content.setVisibility(View.VISIBLE);
-        content.setAlpha(0);
+        swipeRefreshLayout.setAlpha(0);
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
+        // content.scrollToPosition(0);
 
-        ObjectAnimator.ofPropertyValuesHolder(content,
+        ObjectAnimator.ofPropertyValuesHolder(swipeRefreshLayout,
                 ofFloat(View.ALPHA, 0, 1f))
                 .setDuration(500)
                 .start();
@@ -488,7 +499,7 @@ public class PostFragment extends RxRoboFragment implements
     }
 
     private boolean isVideoFullScreen() {
-        return content.getVisibility() != View.VISIBLE;
+        return swipeRefreshLayout.getVisibility() != View.VISIBLE;
     }
 
     @OnOptionsItemSelected(MainActivity.ID_FAKE_HOME)

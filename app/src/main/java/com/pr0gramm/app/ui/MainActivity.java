@@ -48,7 +48,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
-import rx.Single;
+import rx.Observable;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -495,7 +495,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     }
 
     @Override
-    public Single<Void> requirePermission(String permission) {
+    public Observable<Void> requirePermission(String permission) {
         return permissionHelper.requirePermission(permission);
     }
 }

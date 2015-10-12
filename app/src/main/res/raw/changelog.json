@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Kommentarbenis wie auf pr0gramm für 60min verstecken"
+      },
+      {
+        "type": "Fix",
+        "change": "Der Start-Button für Videos funktioniert nun auch im Vollbild"
       }
     ]
   },
