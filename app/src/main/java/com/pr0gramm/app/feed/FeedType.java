@@ -4,7 +4,56 @@ package com.pr0gramm.app.feed;
  * Type of the feed - like "new" or "top".
  */
 public enum FeedType {
-    NEW, PROMOTED, PREMIUM,
+    NEW {
+        @Override
+        public boolean searchable() {
+            return true;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return true;
+        }
+
+        @Override
+        public boolean sortable() {
+            return true;
+        }
+    },
+
+    PROMOTED {
+        @Override
+        public boolean searchable() {
+            return true;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return true;
+        }
+
+        @Override
+        public boolean sortable() {
+            return true;
+        }
+    },
+
+    PREMIUM {
+        @Override
+        public boolean searchable() {
+            return true;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return true;
+        }
+
+        @Override
+        public boolean sortable() {
+            return true;
+        }
+    },
 
     CONTROVERSIAL {
         @Override
@@ -16,6 +65,11 @@ public enum FeedType {
         public boolean preloadable() {
             return true;
         }
+
+        @Override
+        public boolean sortable() {
+            return false;
+        }
     },
 
     RANDOM {
@@ -26,6 +80,11 @@ public enum FeedType {
 
         @Override
         public boolean preloadable() {
+            return false;
+        }
+
+        @Override
+        public boolean sortable() {
             return false;
         }
     },
@@ -40,13 +99,15 @@ public enum FeedType {
         public boolean preloadable() {
             return false;
         }
+
+        public boolean sortable() {
+            return true;
+        }
     };
 
-    public boolean searchable() {
-        return true;
-    }
+    public abstract boolean searchable();
 
-    public boolean preloadable() {
-        return true;
-    }
+    public abstract boolean preloadable();
+
+    public abstract boolean sortable();
 }

@@ -138,8 +138,8 @@ public class Feed {
                 .transform(FeedItem::new)
                 .toList();
 
-        // we can not merge a random feed based on its ids.
-        if (feedFilter.getFeedType() == FeedType.RANDOM) {
+        // we can not merge some feeds based on their ids
+        if (!feedFilter.getFeedType().sortable()) {
             items.addAll(newItems);
 
         } else {
