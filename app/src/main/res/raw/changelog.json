@@ -21,6 +21,10 @@
       {
         "type": "Fix",
         "change": "Der Start-Button für Videos funktioniert nun auch im Vollbild"
+      },
+      {
+        "type": "Fix",
+        "change": "Sortierung für die Kontrovers-Kategorie korrigiert"
       }
     ]
   },
