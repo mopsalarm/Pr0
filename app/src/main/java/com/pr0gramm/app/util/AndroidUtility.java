@@ -54,7 +54,6 @@ import java.util.regex.Pattern;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
-import rx.Single;
 import rx.functions.Action1;
 import rx.functions.Action2;
 
@@ -65,6 +64,10 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class AndroidUtility {
     private static final Logger logger = LoggerFactory.getLogger(AndroidUtility.class);
+
+    private static final Pattern RE_USERNAME = Pattern.compile("@[A-Za-z0-9]+");
+    private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^ ]*[0-9])");
+    private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/(new|top|user)/[^ ]*[0-9]");
 
     private AndroidUtility() {
     }
@@ -327,27 +330,22 @@ public class AndroidUtility {
         return new File(uri.getPath());
     }
 
-    public static <A, B> Single.Transformer<A, B> forSingle(Observable.Transformer<A, B> transformer) {
-        return aSingle -> transformer.call(aSingle.toObservable()).toSingle();
-    }
-
     public static void linkify(TextView view, String content) {
         Uri base = UriHelper.of(view.getContext()).base();
-        SpannableStringBuilder text = SpannableStringBuilder.valueOf(content
-                .replaceAll("https?://pr0gramm.com/new/", "/new/")
-                .replaceAll("https?://pr0gramm.com/top/", "/top/"));
+        String scheme = base.getScheme() + "://";
+
+        SpannableStringBuilder text = SpannableStringBuilder.valueOf(
+                RE_GENERIC_LINK.matcher(content).replaceAll("$1"));
 
         Linkify.addLinks(text, Linkify.WEB_URLS);
-        Linkify.addLinks(text, Pattern.compile("@[A-Za-z0-9]+"), "http://", null,
+
+        Linkify.addLinks(text, RE_USERNAME, scheme, null,
                 (match, url) -> {
                     String user = match.group().substring(1);
                     return base.buildUpon().path("/user").appendEncodedPath(user).toString();
                 });
 
-        Linkify.addLinks(text, Pattern.compile("/new/[^ ]*[0-9]"), "http://", null,
-                (match, url) -> base.buildUpon().path(match.group()).toString());
-
-        Linkify.addLinks(text, Pattern.compile("/top/[^ ]*[0-9]"), "http://", null,
+        Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null,
                 (match, url) -> base.buildUpon().path(match.group()).toString());
 
         view.setText(text);

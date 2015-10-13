@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Links zu Posts wie auf der Website gekürzt"
+      },
+      {
+        "type": "Fix",
         "change": "Download unter Android 6 gefixt"
       },
       {
