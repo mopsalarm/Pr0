@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.ui.views.UsernameView;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import java.util.List;
 
@@ -63,8 +63,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
                 ? R.color.message_text_sent : R.color.message_text_received));
 
         // the text of the message
-        view.text.setText(item.message.getMessage());
-        Linkify.addLinks(view.text, Linkify.WEB_URLS);
+        AndroidUtility.linkify(view.text, item.message.getMessage());
 
         // sender info
         view.sender.setSingleLine(true);

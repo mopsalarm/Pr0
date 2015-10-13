@@ -20,10 +20,13 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.BulletSpan;
+import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Optional;
@@ -33,6 +36,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.services.UriHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -324,5 +329,28 @@ public class AndroidUtility {
 
     public static <A, B> Single.Transformer<A, B> forSingle(Observable.Transformer<A, B> transformer) {
         return aSingle -> transformer.call(aSingle.toObservable()).toSingle();
+    }
+
+    public static void linkify(TextView view, String content) {
+        Uri base = UriHelper.of(view.getContext()).base();
+        SpannableStringBuilder text = SpannableStringBuilder.valueOf(content
+                .replaceAll("https?://pr0gramm.com/new/", "/new/")
+                .replaceAll("https?://pr0gramm.com/top/", "/top/"));
+
+        Linkify.addLinks(text, Linkify.WEB_URLS);
+        Linkify.addLinks(text, Pattern.compile("@[A-Za-z0-9]+"), "http://", null,
+                (match, url) -> {
+                    String user = match.group().substring(1);
+                    return base.buildUpon().path("/user").appendEncodedPath(user).toString();
+                });
+
+        Linkify.addLinks(text, Pattern.compile("/new/[^ ]*[0-9]"), "http://", null,
+                (match, url) -> base.buildUpon().path(match.group()).toString());
+
+        Linkify.addLinks(text, Pattern.compile("/top/[^ ]*[0-9]"), "http://", null,
+                (match, url) -> base.buildUpon().path(match.group()).toString());
+
+        view.setText(text);
+        view.setMovementMethod(new LinkMovementMethod());
     }
 }

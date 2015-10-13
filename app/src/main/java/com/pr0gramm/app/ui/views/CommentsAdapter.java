@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
 import org.joda.time.Instant;
@@ -118,9 +118,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setSenderName(comment.getName(), comment.getMark());
         view.senderInfo.setOnSenderClickedListener(v -> doOnAuthorClicked(comment));
 
-        // set the comment and add links
-        view.comment.setText(comment.getContent());
-        Linkify.addLinks(view.comment, Linkify.WEB_URLS);
+        AndroidUtility.linkify(view.comment, comment.getContent());
 
         // show the points
         if (Strings.equalsIgnoreCase(comment.getName(), selfName)

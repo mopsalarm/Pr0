@@ -3,6 +3,10 @@
     "version": 76,
     "changes": [
       {
+        "type": "Neu",
+        "change": "@Name in Kommentaren wird nun verlinkt"
+      },
+      {
         "type": "Fix",
         "change": "Download unter Android 6 gefixt"
       },

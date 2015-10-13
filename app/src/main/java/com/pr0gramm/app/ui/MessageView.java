@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -91,8 +90,8 @@ public class MessageView extends RelativeLayout {
         }
 
         // the text of the message
-        text.setText(message.getMessage());
-        Linkify.addLinks(text, Linkify.WEB_URLS);
+        AndroidUtility.linkify(text, message.getMessage());
+
 
         // draw the image for this post
         if (isComment) {
