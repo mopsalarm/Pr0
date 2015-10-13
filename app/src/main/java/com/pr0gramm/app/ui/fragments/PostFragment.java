@@ -67,6 +67,7 @@ import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.PermissionHelperActivity;
 import com.pr0gramm.app.ui.RxRoboFragment;
+import com.pr0gramm.app.ui.Screen;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.SingleViewAdapter;
@@ -279,6 +280,9 @@ public class PostFragment extends RxRoboFragment implements
             scrollHandler = null;
         }
 
+        // restore orientation if the user closes this view
+        Screen.unlockOrientation(getActivity());
+
         adapter = null;
     }
 
@@ -440,6 +444,9 @@ public class PostFragment extends RxRoboFragment implements
 
             activity.supportInvalidateOptionsMenu();
             registerExitFullscreenListener();
+
+            // forbid orientation changes while in fullscreen
+            Screen.lockOrientation(activity);
         }
     }
 
@@ -524,6 +531,8 @@ public class PostFragment extends RxRoboFragment implements
             // show the toolbar again
             ((ToolbarActivity) activity).getScrollHideToolbarListener().reset();
         }
+
+        Screen.unlockOrientation(activity);
     }
 
     private boolean isVideoFullScreen() {

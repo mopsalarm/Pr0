@@ -32,6 +32,10 @@
       },
       {
         "type": "Fix",
+        "change": "Rotation wird im Vollbildmodus geblockt"
+      },
+      {
+        "type": "Fix",
         "change": "Sortierung für die Kontrovers-Kategorie korrigiert"
       }
     ]
