@@ -66,8 +66,8 @@ public class AndroidUtility {
     private static final Logger logger = LoggerFactory.getLogger(AndroidUtility.class);
 
     private static final Pattern RE_USERNAME = Pattern.compile("@[A-Za-z0-9]+");
-    private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^ ]*[0-9])");
-    private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/(new|top|user)/[^ ]*[0-9]");
+    private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
+    private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/(new|top|user)/[^\\p{javaWhitespace}]*[0-9]");
 
     private AndroidUtility() {
     }
