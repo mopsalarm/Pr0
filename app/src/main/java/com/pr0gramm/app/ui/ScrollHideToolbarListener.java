@@ -87,6 +87,13 @@ public class ScrollHideToolbarListener {
         return (int) (toolbar.getHeight() + toolbar.getTranslationY());
     }
 
+    public void hide() {
+        if(toolbarMarginOffset != toolbar.getHeight()) {
+            toolbarMarginOffset = toolbar.getHeight();
+            applyToolbarPosition(true);
+        }
+    }
+
     public interface ToolbarActivity {
         ScrollHideToolbarListener getScrollHideToolbarListener();
     }

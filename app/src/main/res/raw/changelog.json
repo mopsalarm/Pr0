@@ -24,11 +24,15 @@
       },
       {
         "type": "Fix",
-        "change": "Sortierung für die Kontrovers-Kategorie korrigiert"
+        "change": "'Vertical Video Syndrom'-Videos werden im Vollbild nicht mehr gedreht"
       },
       {
         "type": "Fix",
-        "change": "'Vertical Video Syndrom'-Videos werden im Vollbild nicht mehr gedreht"
+        "change": "Vollbild versteckt nun auch die Toolbar"
+      },
+      {
+        "type": "Fix",
+        "change": "Sortierung für die Kontrovers-Kategorie korrigiert"
       }
     ]
   },

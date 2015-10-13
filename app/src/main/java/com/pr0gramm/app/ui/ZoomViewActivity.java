@@ -104,8 +104,6 @@ public class ZoomViewActivity extends RoboActionBarActivity {
                 flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
             decorView.setSystemUiVisibility(flags);
-
-
         }
     }
 

@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -109,7 +110,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static com.pr0gramm.app.util.AndroidUtility.getActionBarContentOffset;
 import static com.pr0gramm.app.util.AndroidUtility.ifNotNull;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static java.util.Collections.emptyMap;
@@ -411,14 +411,15 @@ public class PostFragment extends RxRoboFragment implements
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
-    public void openImageInFullscreen() {
+    public void enterFullscreen() {
+        FragmentActivity activity = getActivity();
         if (isStaticImage(feedItem)) {
             boolean hq = settings.loadHqInZoomView();
-            Intent intent = ZoomViewActivity.newIntent(getActivity(), feedItem, hq);
+            Intent intent = ZoomViewActivity.newIntent(activity, feedItem, hq);
             startActivity(intent);
 
         } else {
-            FullScreenParams params = new FullScreenParams();
+            FullscreenParams params = new FullscreenParams();
 
             ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, params.rotation),
@@ -428,16 +429,22 @@ public class PostFragment extends RxRoboFragment implements
                     .setDuration(500)
                     .start();
 
+
             // hide content below
             swipeRefreshLayout.setVisibility(View.GONE);
 
-            getActivity().supportInvalidateOptionsMenu();
+            if (activity instanceof ToolbarActivity) {
+                // hide the toolbar if required neccessary
+                ((ToolbarActivity) activity).getScrollHideToolbarListener().hide();
+            }
+
+            activity.supportInvalidateOptionsMenu();
             registerExitFullscreenListener();
         }
     }
 
     private void realignFullScreen() {
-        FullScreenParams params = new FullScreenParams();
+        FullscreenParams params = new FullscreenParams();
 
         viewer.setTranslationY(params.trY);
         viewer.setScaleX(params.scale);
@@ -460,7 +467,7 @@ public class PostFragment extends RxRoboFragment implements
                         view.setOnFocusChangeListener(null);
 
                         // and move back to normal state
-                        exitFullScreen();
+                        exitFullscreen();
                         return true;
                     }
                 }
@@ -476,26 +483,47 @@ public class PostFragment extends RxRoboFragment implements
         }
     }
 
-    private void exitFullScreen() {
-        swipeRefreshLayout.setAlpha(0);
+    private void exitFullscreen() {
+        exitFullscreenAnimated(true);
+    }
+
+    private void exitFullscreenAnimated(boolean animated) {
+        if (!isVideoFullScreen())
+            return;
+
         swipeRefreshLayout.setVisibility(View.VISIBLE);
-        // content.scrollToPosition(0);
 
-        ObjectAnimator.ofPropertyValuesHolder(swipeRefreshLayout,
-                ofFloat(View.ALPHA, 0, 1f))
-                .setDuration(500)
-                .start();
+        // move to our target values.
+        if (animated) {
+            swipeRefreshLayout.setAlpha(0);
+            ObjectAnimator.ofPropertyValuesHolder(swipeRefreshLayout,
+                    ofFloat(View.ALPHA, 0, 1f))
+                    .setDuration(500)
+                    .start();
 
-        ObjectAnimator.ofPropertyValuesHolder(viewer,
-                ofFloat(View.ROTATION, 0),
-                ofFloat(View.TRANSLATION_Y, 0),
-                ofFloat(View.SCALE_X, 1),
-                ofFloat(View.SCALE_Y, 1))
-                .setDuration(500)
-                .start();
+
+            ObjectAnimator.ofPropertyValuesHolder(viewer,
+                    ofFloat(View.ROTATION, 0),
+                    ofFloat(View.TRANSLATION_Y, 0),
+                    ofFloat(View.SCALE_X, 1),
+                    ofFloat(View.SCALE_Y, 1))
+                    .setDuration(500)
+                    .start();
+        } else {
+            viewer.setRotation(0.f);
+            viewer.setTranslationY(0.f);
+            viewer.setScaleX(1.f);
+            viewer.setScaleY(1.f);
+        }
 
         // go back to normal!
-        getActivity().supportInvalidateOptionsMenu();
+        FragmentActivity activity = getActivity();
+        activity.supportInvalidateOptionsMenu();
+
+        if (activity instanceof ToolbarActivity) {
+            // show the toolbar again
+            ((ToolbarActivity) activity).getScrollHideToolbarListener().reset();
+        }
     }
 
     private boolean isVideoFullScreen() {
@@ -505,7 +533,7 @@ public class PostFragment extends RxRoboFragment implements
     @OnOptionsItemSelected(MainActivity.ID_FAKE_HOME)
     public boolean onHomePressed() {
         if (isVideoFullScreen()) {
-            exitFullScreen();
+            exitFullscreen();
             return true;
         }
 
@@ -885,7 +913,7 @@ public class PostFragment extends RxRoboFragment implements
             @Override
             public boolean onSingleTap() {
                 if (isImage && settings.singleTapForFullscreen()) {
-                    openImageInFullscreen();
+                    enterFullscreen();
                 }
 
                 return true;
@@ -1002,6 +1030,8 @@ public class PostFragment extends RxRoboFragment implements
         if (viewer != null) {
             viewer.stopMedia();
         }
+
+        exitFullscreenAnimated(false);
     }
 
     /**
@@ -1211,15 +1241,14 @@ public class PostFragment extends RxRoboFragment implements
         }
     }
 
-    private class FullScreenParams {
+    private class FullscreenParams {
         private final float scale;
         private final float trY;
         private final float rotation;
 
-        FullScreenParams() {
-            int abHeight = getActionBarContentOffset(getActivity());
+        FullscreenParams() {
             int windowWidth = swipeRefreshLayout.getWidth();
-            float windowHeight = swipeRefreshLayout.getHeight() - abHeight;
+            float windowHeight = swipeRefreshLayout.getHeight();
 
             //noinspection UnnecessaryLocalVariable
             int viewerWidth = windowWidth;
@@ -1227,7 +1256,7 @@ public class PostFragment extends RxRoboFragment implements
 
             viewer.setPivotY(viewer.getHeight() - 0.5f * viewerHeight);
             viewer.setPivotX(viewerWidth / 2.f);
-            trY = (windowHeight / 2.f - viewer.getPivotY()) + abHeight;
+            trY = (windowHeight / 2.f - viewer.getPivotY());
 
             float scaleRot = Math.min(
                     windowHeight / (float) viewerWidth,
