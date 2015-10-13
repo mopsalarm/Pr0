@@ -25,6 +25,10 @@
       {
         "type": "Fix",
         "change": "Sortierung für die Kontrovers-Kategorie korrigiert"
+      },
+      {
+        "type": "Fix",
+        "change": "'Vertical Video Syndrom'-Videos werden im Vollbild nicht mehr gedreht"
       }
     ]
   },

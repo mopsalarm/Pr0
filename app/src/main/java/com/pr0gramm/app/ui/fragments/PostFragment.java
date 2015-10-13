@@ -421,7 +421,7 @@ public class PostFragment extends RxRoboFragment implements
             FullScreenParams params = new FullScreenParams();
 
             ObjectAnimator.ofPropertyValuesHolder(viewer,
-                    ofFloat(View.ROTATION, 90f),
+                    ofFloat(View.ROTATION, params.rotation),
                     ofFloat(View.TRANSLATION_Y, params.trY),
                     ofFloat(View.SCALE_X, params.scale),
                     ofFloat(View.SCALE_Y, params.scale))
@@ -1214,24 +1214,37 @@ public class PostFragment extends RxRoboFragment implements
     private class FullScreenParams {
         private final float scale;
         private final float trY;
-        private final int windowHeight;
+        private final float rotation;
 
         FullScreenParams() {
             int abHeight = getActionBarContentOffset(getActivity());
             int windowWidth = swipeRefreshLayout.getWidth();
-            windowHeight = swipeRefreshLayout.getHeight() - abHeight;
+            float windowHeight = swipeRefreshLayout.getHeight() - abHeight;
 
             //noinspection UnnecessaryLocalVariable
             int viewerWidth = windowWidth;
+            int viewerHeight = viewer.getHeight() - viewer.getPaddingTop();
 
-            scale = Math.min(
-                    windowHeight / (float) viewerWidth,
-                    windowWidth / (float) (viewer.getHeight() - viewer.getPaddingTop()));
-
-            viewer.setPivotY(viewer.getHeight() - 0.5f * (viewer.getHeight() - viewer.getPaddingTop()));
+            viewer.setPivotY(viewer.getHeight() - 0.5f * viewerHeight);
             viewer.setPivotX(viewerWidth / 2.f);
-
             trY = (windowHeight / 2.f - viewer.getPivotY()) + abHeight;
+
+            float scaleRot = Math.min(
+                    windowHeight / (float) viewerWidth,
+                    windowWidth / (float) viewerHeight);
+
+            float scaleNoRot = Math.min(
+                    windowHeight / (float) viewerHeight,
+                    windowWidth / (float) viewerWidth);
+
+            // check if rotation is neccessary
+            if (scaleRot > scaleNoRot) {
+                rotation = 90.f;
+                scale = scaleRot;
+            } else {
+                rotation = 0.f;
+                scale = scaleNoRot;
+            }
         }
     }
 }

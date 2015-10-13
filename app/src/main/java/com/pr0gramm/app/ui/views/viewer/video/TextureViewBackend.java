@@ -54,7 +54,12 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         callbacks.onDestroy(this);
-        surfaceTexture = null;
+
+        if (surfaceTexture != null) {
+            surfaceTexture.release();
+            surfaceTexture = null;
+        }
+
         return true;
     }
 
