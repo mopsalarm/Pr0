@@ -1,1 +1,1 @@
-{"resources": {"GET-api/profile/info": {"category": "user"}, "GET-api/items/ratelimited": {"category": "upload"}, "GET-api/items/get": {"category": "feed"}, "GET-api/items/info": {"category": "feed"}}}
+{"resources": {"GET-api/user/sync": {"category": "user"}, "POST-api/user/login": {"category": "user"}, "GET-api/items/info": {"category": "feed"}, "GET-api/items/ratelimited": {"category": "upload"}, "GET-api/items/get": {"category": "feed"}, "GET-api/inbox/all": {"category": "inbox"}, "GET-api/profile/info": {"category": "user"}}}
