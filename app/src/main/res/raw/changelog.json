@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Punkte von Kommentaren noch an einigen weitern Stellen versteckt"
+      },
+      {
+        "type": "Fix",
+        "change": "App-Stack korrigiert, wenn die App über eine Benachrichtigung geöffnet wird"
       }
     ]
   },

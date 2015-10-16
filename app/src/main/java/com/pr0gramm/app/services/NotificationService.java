@@ -9,6 +9,8 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -126,7 +128,7 @@ public class NotificationService {
                 .setShowWhen(timestamp != 0)
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(context.getResources().getColor(R.color.primary), 500, 500)
+                .setLights(ContextCompat.getColor(context, R.color.primary), 500, 500)
                 .build();
 
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, notification);
@@ -149,7 +151,11 @@ public class NotificationService {
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        return TaskStackBuilder.create(context)
+                .addParentStack(InboxActivity.class)
+                .addNextIntent(intent)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void cancelForInbox() {
