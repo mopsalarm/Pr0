@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Scrollen in den Nachrichten sollte nun besser funktionieren"
+      },
+      {
+        "type": "Fix",
+        "change": "Punkte von Kommentaren noch an einigen weitern Stellen versteckt"
       }
     ]
   },
