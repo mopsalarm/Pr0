@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "App-Stack korrigiert, wenn die App über eine Benachrichtigung geöffnet wird"
+      },
+      {
+        "type": "Fix",
+        "change": "Wake Lock während Bilder vorgeladen werden"
       }
     ]
   },

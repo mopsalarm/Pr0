@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.common.base.Joiner;
@@ -39,6 +40,7 @@ import rx.functions.Action1;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static org.joda.time.Duration.standardDays;
+import static org.joda.time.Minutes.minutes;
 
 /**
  * This service handles preloading and resolving of preloaded images.
@@ -61,6 +63,11 @@ public class PreloadService extends RoboIntentService {
     @Inject
     private PreloadManager preloadManager;
 
+    @Inject
+    private PowerManager powerManager;
+
+    private PowerManager.WakeLock wakeLock;
+
     private File preloadCache;
 
     public PreloadService() {
@@ -70,6 +77,8 @@ public class PreloadService extends RoboIntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "pr0-peload");
 
         preloadCache = new File(getCacheDir(), "preload");
         if (preloadCache.mkdirs()) {
@@ -113,6 +122,9 @@ public class PreloadService extends RoboIntentService {
         // send out the initial notification
         show(noBuilder);
         try {
+            logger.info("Acquire wake lock for at most 10 minutes");
+            wakeLock.acquire(minutes(10).toStandardDuration().getMillis());
+
             int failed = 0, downloaded = 0;
             for (int idx = 0; idx < items.size() && !canceled; idx++) {
                 if (AndroidUtility.isOnMobile(this))
@@ -164,6 +176,9 @@ public class PreloadService extends RoboIntentService {
             noBuilder.setContentTitle("Preloading failed");
 
         } finally {
+            logger.info("Releasing wake lock");
+            wakeLock.release();
+
             logger.info("Finished preloading");
             show(noBuilder.setSmallIcon(R.drawable.ic_notify_preload_finished)
                     .setSubText(null)
