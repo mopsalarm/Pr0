@@ -122,7 +122,7 @@
         <TextView
             android:id="@+id/action_feedback"
             style="@style/AppStyle.DrawerItem"
-            android:drawableLeft="@drawable/ic_feedback_black_24dp"
+            android:drawableLeft="@drawable/ic_grey_action_feedback"
             android:text="@string/action_feedback"/>
 
         <TextView

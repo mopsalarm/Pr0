@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -186,7 +187,7 @@ public class DrawerFragment extends RxRoboFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // get "marked" color
-        int primary = getActivity().getResources().getColor(R.color.primary);
+        int primary = ContextCompat.getColor(getActivity(), R.color.primary);
         markedColor = ColorStateList.valueOf(primary);
 
         // add some space on the top for the translucent status bar
