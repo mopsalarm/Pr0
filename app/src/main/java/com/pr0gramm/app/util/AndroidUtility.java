@@ -67,7 +67,7 @@ public class AndroidUtility {
 
     private static final Pattern RE_USERNAME = Pattern.compile("@[A-Za-z0-9]+");
     private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
-    private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/(new|top|user)/[^\\p{javaWhitespace}]*[0-9]");
+    private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
 
     private AndroidUtility() {
     }
@@ -346,7 +346,7 @@ public class AndroidUtility {
                 });
 
         Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null,
-                (match, url) -> base.buildUpon().path(match.group()).toString());
+                (match, url) -> base.buildUpon().appendEncodedPath(match.group(1)).toString());
 
         view.setText(text);
         view.setMovementMethod(new LinkMovementMethod());

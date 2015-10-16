@@ -1,5 +1,18 @@
 [
   {
+    "version": 77,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Links mit Prozentzeichen funktionieren wieder"
+      },
+      {
+        "type": "Fix",
+        "change": "Scrollen in den Nachrichten sollte nun besser funktionieren"
+      }
+    ]
+  },
+  {
     "version": 76,
     "changes": [
       {
