@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -16,7 +17,13 @@ import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.Lazy;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.Hours;
+import org.joda.time.Instant;
+
 import roboguice.RoboGuice;
+import roboguice.util.Strings;
+
+import static org.joda.time.Instant.now;
 
 /**
  */
@@ -34,6 +41,8 @@ public class MessageView extends RelativeLayout {
     private final SenderInfoView sender;
 
     private final Picasso picasso;
+
+    private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
 
     public MessageView(Context context) {
         this(context, null, 0);
@@ -64,7 +73,7 @@ public class MessageView extends RelativeLayout {
         inflate(context, layoutId, this);
 
         picasso = isInEditMode() ? null :
-            RoboGuice.getInjector(context).getInstance(Picasso.class);
+                RoboGuice.getInjector(context).getInstance(Picasso.class);
 
         text = (TextView) findViewById(R.id.message_text);
         type = (TextView) findViewById(R.id.message_type);
@@ -81,6 +90,10 @@ public class MessageView extends RelativeLayout {
     }
 
     public void update(Message message) {
+        update(message, null);
+    }
+
+    public void update(Message message, @Nullable String name) {
         // set the type. if we have an item, we  have a comment
         boolean isComment = message.getItemId() != 0;
         if (type != null) {
@@ -104,11 +117,16 @@ public class MessageView extends RelativeLayout {
             image.setImageDrawable(makeSenderDrawable(message));
         }
 
+        // show the points
+        boolean visible = Strings.equalsIgnoreCase(message.getName(), name)
+                || message.getCreated().isBefore(scoreVisibleThreshold);
+
         // sender info
         sender.setSenderName(message.getName(), message.getMark());
         sender.setPointsVisible(isComment);
         sender.setPoints(message.getScore());
         sender.setDate(message.getCreated());
+        sender.setPointsVisible(visible);
     }
 
     private TextDrawable makeSenderDrawable(Message message) {

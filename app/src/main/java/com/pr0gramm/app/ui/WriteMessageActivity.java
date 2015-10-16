@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import com.pr0gramm.app.parcel.NewCommentParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 
@@ -48,6 +50,9 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
 
     @Inject
     private InboxService inboxService;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private VoteService voteService;
@@ -78,7 +83,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         updateMessageView();
 
         // colorize the button
-        int primary = getResources().getColor(R.color.primary);
+        int primary = ContextCompat.getColor(this, R.color.primary);
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> sendMessageNow());
 
@@ -174,7 +179,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
 
         Message message = Parceler.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
         if (message != null) {
-            messageView.update(message);
+            messageView.update(message, userService.getName().orNull());
             messageView.setVisibility(View.VISIBLE);
         }
     }

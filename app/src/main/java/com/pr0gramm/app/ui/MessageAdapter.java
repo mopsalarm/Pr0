@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.google.common.collect.Iterables;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.squareup.picasso.Picasso;
+import com.pr0gramm.app.services.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private final MessageActionListener actionListener;
     private final int itemLayout;
 
+    @Nullable
+    private final String userName;
+
     public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener, int layout) {
         this.context = context;
         this.actionListener = actionListener;
         this.messages = new ArrayList<>(messages);
         this.itemLayout = layout;
+
+        UserService userService = RoboGuice.getInjector(context).getInstance(UserService.class);
+        userName = userService.getName().orNull();
 
         setHasStableIds(true);
     }
@@ -57,7 +64,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         MessageView view = holder.view;
-        view.update(message);
+        view.update(message, userName);
 
         if (actionListener != null) {
             view.setOnSenderClickedListener(v -> {
