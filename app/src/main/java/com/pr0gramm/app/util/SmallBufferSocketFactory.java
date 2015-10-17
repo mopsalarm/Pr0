@@ -43,7 +43,7 @@ public class SmallBufferSocketFactory extends SocketFactory {
 
     private Socket process(Socket socket) throws SocketException {
         socket.setSendBufferSize(SEND_BUFFER_SIZE);
-        socket.setTcpNoDelay(true);
+        // socket.setTcpNoDelay(true);
         return socket;
     }
 }
