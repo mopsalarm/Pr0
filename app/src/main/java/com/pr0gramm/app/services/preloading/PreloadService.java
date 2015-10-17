@@ -66,8 +66,6 @@ public class PreloadService extends RoboIntentService {
     @Inject
     private PowerManager powerManager;
 
-    private PowerManager.WakeLock wakeLock;
-
     private File preloadCache;
 
     public PreloadService() {
@@ -77,8 +75,6 @@ public class PreloadService extends RoboIntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "pr0-peload");
 
         preloadCache = new File(getCacheDir(), "preload");
         if (preloadCache.mkdirs()) {
@@ -118,6 +114,10 @@ public class PreloadService extends RoboIntentService {
 
         Instant creation = Instant.now();
         UriHelper uriHelper = UriHelper.of(this);
+
+        // create a wake lock
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK, PreloadService.class.getName());
 
         // send out the initial notification
         show(noBuilder);
