@@ -21,6 +21,10 @@
       {
         "type": "Fix",
         "change": "Wake Lock während Bilder vorgeladen werden"
+      },
+      {
+        "type": "Fix",
+        "change": "Ein paar Crashes gefixt"
       }
     ]
   },
