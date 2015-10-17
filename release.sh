@@ -80,3 +80,4 @@ git tag -a "$(format_version $VERSION)" \
 echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
 git add app/version.gradle
 git commit -m "Increase version to $VERSION_NEXT after release"
+git push --tags
