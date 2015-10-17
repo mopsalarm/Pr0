@@ -417,6 +417,9 @@ public class PostFragment extends RxRoboFragment implements
     @OnOptionsItemSelected(R.id.action_zoom)
     public void enterFullscreen() {
         FragmentActivity activity = getActivity();
+        if (activity == null)
+            return;
+
         if (isStaticImage(feedItem)) {
             boolean hq = settings.loadHqInZoomView();
             Intent intent = ZoomViewActivity.newIntent(activity, feedItem, hq);
