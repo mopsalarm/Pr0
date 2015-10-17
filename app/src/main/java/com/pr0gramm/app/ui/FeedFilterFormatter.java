@@ -39,7 +39,7 @@ public class FeedFilterFormatter {
         return result.toString().trim();
     }
 
-    private static String feedTypeToString(Context context, FeedFilter filter) {
+    public static String feedTypeToString(Context context, FeedFilter filter) {
         switch (filter.getFeedType()) {
             case PROMOTED:
                 return context.getString(R.string.filter_format_top);

@@ -97,6 +97,7 @@ import rx.functions.Actions;
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -760,6 +761,9 @@ public class FeedFragment extends RxRoboFragment {
                 return false;
             }
         });
+
+        String typeName = feedTypeToString(getActivity(), getCurrentFilter().withTags("dummy"));
+        searchView.setQueryHint(getString(R.string.action_search, typeName));
     }
 
     private void performSearch(String term) {

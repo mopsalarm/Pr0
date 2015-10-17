@@ -45,7 +45,8 @@ public final class FeedFilter implements Parcelable {
     }
 
     /**
-     * Checks if this filter is a basic filter.
+     * Checks if this filter is a basic filter. A filter is basic, if
+     * it has no tag/likes or username-filter.
      */
     public boolean isBasic() {
         return equals(basic());
@@ -57,7 +58,15 @@ public final class FeedFilter implements Parcelable {
     public FeedFilter withFeedType(FeedType type) {
         FeedFilter result = new FeedFilter(this);
         result.feedType = type;
-        return result;
+        return fix(result);
+    }
+
+    private static FeedFilter fix(FeedFilter filter) {
+        // if it is a non searchable filter, we need to switch to some searchable category.
+        if (!filter.getFeedType().searchable() && !filter.isBasic())
+            filter = filter.withFeedType(FeedType.NEW);
+
+        return filter;
     }
 
     public FeedType getFeedType() {
@@ -70,7 +79,7 @@ public final class FeedFilter implements Parcelable {
     public FeedFilter withTags(@Nonnull String tags) {
         FeedFilter copy = basic();
         copy.tags = fromNullable(emptyToNull(tags.trim()));
-        return copy;
+        return fix(copy);
     }
 
     /**
@@ -86,7 +95,7 @@ public final class FeedFilter implements Parcelable {
     public FeedFilter withUser(@Nonnull String username) {
         FeedFilter copy = basic();
         copy.username = fromNullable(emptyToNull(username.trim()));
-        return copy;
+        return fix(copy);
     }
 
     public Optional<String> getUsername() {
@@ -99,7 +108,7 @@ public final class FeedFilter implements Parcelable {
     public FeedFilter withLikes(@Nonnull String username) {
         FeedFilter copy = basic();
         copy.likes = fromNullable(emptyToNull(username.trim()));
-        return copy;
+        return fix(copy);
     }
 
     public Optional<String> getLikes() {
