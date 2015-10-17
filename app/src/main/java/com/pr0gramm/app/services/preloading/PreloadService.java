@@ -176,8 +176,11 @@ public class PreloadService extends RoboIntentService {
             noBuilder.setContentTitle("Preloading failed");
 
         } finally {
-            logger.info("Releasing wake lock");
-            wakeLock.release();
+            try {
+                logger.info("Releasing wake lock");
+                wakeLock.release();
+            } catch (RuntimeException ignored) {
+            }
 
             logger.info("Finished preloading");
             show(noBuilder.setSmallIcon(R.drawable.ic_notify_preload_finished)
