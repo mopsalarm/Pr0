@@ -3,6 +3,10 @@
     "version": 77,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Neue 'versteckte Benis'-Punkte. Sie sind nun etwas kleiner als vorher"
+      },
+      {
         "type": "Fix",
         "change": "Links mit Prozentzeichen funktionieren wieder"
       },
