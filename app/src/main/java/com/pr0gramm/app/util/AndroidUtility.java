@@ -58,6 +58,7 @@ import rx.functions.Action1;
 import rx.functions.Action2;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Place to put everything that belongs nowhere. Thanks Obama.
@@ -350,5 +351,16 @@ public class AndroidUtility {
 
         view.setText(text);
         view.setMovementMethod(new LinkMovementMethod());
+    }
+
+    /**
+     * Find one view. Raise a {@link NullPointerException} if the view can not be found.
+     *
+     * @param view The view to search in
+     * @param id   The id of the view to search
+     */
+    public static <T extends View> T findView(View view, int id) {
+        //noinspection unchecked
+        return checkNotNull((T) view.findViewById(id));
     }
 }

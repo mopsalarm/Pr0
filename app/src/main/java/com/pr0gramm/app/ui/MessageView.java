@@ -123,10 +123,15 @@ public class MessageView extends RelativeLayout {
 
         // sender info
         sender.setSenderName(message.getName(), message.getMark());
-        sender.setPointsVisible(isComment);
-        sender.setPoints(message.getScore());
         sender.setDate(message.getCreated());
-        sender.setPointsVisible(visible);
+
+        if (isComment && !visible) {
+            sender.setPointsUnknown();
+        } else if (isComment) {
+            sender.setPoints(message.getScore());
+        } else {
+            sender.hidePointView();
+        }
     }
 
     private TextDrawable makeSenderDrawable(Message message) {

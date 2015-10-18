@@ -68,7 +68,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
         // sender info
         view.sender.setSingleLine(true);
         view.sender.setSenderName(item.message.getSenderName(), item.message.getSenderMark());
-        view.sender.setPointsVisible(false);
+        view.sender.hidePointView();
         view.sender.setDate(item.message.getCreated());
 
         if (actionListener != null && !item.message.isSent()) {

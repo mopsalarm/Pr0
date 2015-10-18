@@ -10,7 +10,7 @@ import com.pr0gramm.app.R;
 
 import org.joda.time.Instant;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.util.AndroidUtility.findView;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
 /**
@@ -18,6 +18,7 @@ import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 public class SenderInfoView extends LinearLayout {
     private final UsernameView nameView;
     private final TextView pointsView;
+    private final View pointsUnknownView;
     private final TextView dateView;
     private final View answerView;
     private final View badgeOpView;
@@ -38,15 +39,16 @@ public class SenderInfoView extends LinearLayout {
         super(context, attrs, defStyleAttr);
 
         inflate(getContext(), R.layout.sender_info, this);
-        nameView = findView(R.id.username);
-        pointsView = findView(R.id.points);
-        dateView = findView(R.id.date);
-        answerView = findView(R.id.answer);
-        badgeOpView = findView(R.id.badge_op);
+        nameView = findView(this, R.id.username);
+        pointsView = findView(this, R.id.points);
+        pointsUnknownView = findView(this, R.id.points_unknown);
+        dateView = findView(this, R.id.date);
+        answerView = findView(this, R.id.answer);
+        badgeOpView = findView(this, R.id.badge_op);
 
         setBadgeOpVisible(false);
         setOnAnswerClickedListener(null);
-        setPointsVisible(false);
+        hidePointView();
 
         setSingleLine(false);
     }
@@ -54,14 +56,18 @@ public class SenderInfoView extends LinearLayout {
     public void setPoints(int points) {
         String text = getContext().getString(R.string.points, points);
         pointsView.setText(text);
+        pointsView.setVisibility(VISIBLE);
+        pointsUnknownView.setVisibility(GONE);
     }
 
-    public void setPointsVisible(boolean visible) {
-        pointsView.setVisibility(visible ? VISIBLE : GONE);
+    public void hidePointView() {
+        pointsView.setVisibility(GONE);
+        pointsUnknownView.setVisibility(GONE);
     }
 
-    private <T extends View> T findView(int id) {
-        return checkNotNull((T) findViewById(id));
+    public void setPointsUnknown() {
+        pointsView.setVisibility(GONE);
+        pointsUnknownView.setVisibility(VISIBLE);
     }
 
     public void setDate(Instant date) {

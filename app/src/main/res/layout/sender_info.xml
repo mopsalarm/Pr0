@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:tools="http://schemas.android.com/tools"
        xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
        android:orientation="vertical"
@@ -42,6 +43,16 @@
             android:layout_marginRight="8dp"
             android:textSize="10sp"
             android:text="@string/dummy_points"/>
+
+        <com.pr0gramm.app.ui.views.ScoreUnknownView
+            android:id="@+id/points_unknown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="4sp"
+            android:layout_marginRight="8dp"
+            app:fillColor="?android:textColorSecondary"
+            app:radius="3sp"/>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Caption"

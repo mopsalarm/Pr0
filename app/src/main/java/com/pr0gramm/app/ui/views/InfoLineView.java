@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -34,6 +35,7 @@ import rx.Observable;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.findView;
 import static java.lang.Math.min;
 import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 
@@ -48,6 +50,7 @@ public class InfoLineView extends LinearLayout {
     private final TextView voteFavoriteView;
 
     private final Settings settings;
+    private final View ratingUnknownView;
     private OnDetailClickedListener onDetailClickedListener;
     private VoteView.OnVoteListener onVoteListener;
 
@@ -69,18 +72,19 @@ public class InfoLineView extends LinearLayout {
         settings = Settings.of(context);
 
         setOrientation(VERTICAL);
-        setBackgroundColor(context.getResources().getColor(R.color.feed_background));
+        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.feed_background));
 
         inflate(context, R.layout.post_info_line, this);
 
         // get the views from the hierarchy
-        ratingView = (TextView) findViewById(R.id.rating);
-        usernameView = (UsernameView) findViewById(R.id.username);
-        dateView = (TextView) findViewById(R.id.date);
-        voteView = (VoteView) findViewById(R.id.voting);
-        voteFavoriteView = (TextView) findViewById(R.id.action_favorite);
+        ratingView = findView(this, R.id.rating);
+        ratingUnknownView = findView(this, R.id.rating_hidden);
+        usernameView = findView(this, R.id.username);
+        dateView = findView(this, R.id.date);
+        voteView = findView(this, R.id.voting);
+        voteFavoriteView = findView(this, R.id.action_favorite);
 
-        tagsView = (RecyclerView) findViewById(R.id.tags);
+        tagsView = findView(this, R.id.tags);
 
         if (settings.tagCloudView()) {
             int tagGaps = getResources().getDimensionPixelSize(R.dimen.tag_gap_size);
@@ -164,8 +168,12 @@ public class InfoLineView extends LinearLayout {
                 return true;
             });
 
+            ratingView.setVisibility(VISIBLE);
+            ratingUnknownView.setVisibility(GONE);
+
         } else {
-            ratingView.setText(R.string.rating_not_yet_visible);
+            ratingUnknownView.setVisibility(VISIBLE);
+            ratingView.setVisibility(GONE);
             ratingView.setOnLongClickListener(null);
         }
 

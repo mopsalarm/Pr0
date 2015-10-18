@@ -20,6 +20,11 @@
         <attr name="depth" format="integer"/>
     </declare-styleable>
 
+    <declare-styleable name="ScoreUnknownView">
+        <attr name="radius" format="dimension"/>
+        <attr name="fillColor" format="color|reference"/>
+    </declare-styleable>
+
     <declare-styleable name="AspectView">
         <attr name="aspect" format="float"/>
     </declare-styleable>

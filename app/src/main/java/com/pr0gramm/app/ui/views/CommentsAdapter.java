@@ -125,11 +125,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 || comment.getCreated().isBefore(scoreVisibleThreshold)) {
 
             view.senderInfo.setPoints(getCommentScore(entry));
-            view.senderInfo.setPointsVisible(true);
         } else {
-            view.senderInfo.setPointsVisible(false);
+            view.senderInfo.setPointsUnknown();
         }
-
 
         // and the date of the post
         view.senderInfo.setDate(comment.getCreated());
