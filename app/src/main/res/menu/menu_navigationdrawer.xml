@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_grey_action_settings"
+            android:title="@string/action_settings" />
+
+        <item
+            android:id="@+id/action_feedback"
+            android:icon="@drawable/ic_grey_action_feedback"
+            android:title="@string/action_feedback" />
+
+        <item
+            android:id="@+id/action_logout"
+            android:icon="@drawable/ic_black_action_exit"
+            android:title="@string/action_logout" />
+
+        <item
+            android:id="@+id/action_login"
+            android:icon="@drawable/ic_grey_action_login"
+            android:title="@string/action_login" />
+    </group>
+</menu>
