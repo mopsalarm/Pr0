@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,6 +20,8 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
 import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.feed.FeedFilter;
+import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.InboxService;
@@ -35,8 +38,12 @@ import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Observable;
+
 import javax.inject.Inject;
 
+import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
@@ -61,6 +68,9 @@ public class NavigationDrawerFragment extends RxRoboFragment {
 
     @Inject
     private ExtraCategoryApi extraCategoryApi;
+
+    private NavigationView navigationView;
+    private Menu navigationViewMenu;
 
     private View userImageView;
     private TextView usernameView;
@@ -91,9 +101,9 @@ public class NavigationDrawerFragment extends RxRoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        NavigationView navigationView = (NavigationView) view;
+        navigationView = (NavigationView) view;
         View navigationViewHeader = navigationView.inflateHeaderView(R.layout.navigationdrawer_header);
-        Menu menu = navigationView.getMenu();
+        navigationViewMenu = navigationView.getMenu();
 
         userImageView = navigationViewHeader.findViewById(R.id.user_image);
         usernameView = (TextView) navigationViewHeader.findViewById(R.id.username);
@@ -103,10 +113,10 @@ public class NavigationDrawerFragment extends RxRoboFragment {
         benisContainer = navigationViewHeader.findViewById(R.id.benis_container);
         benisGraph = (ImageView) navigationViewHeader.findViewById(R.id.benis_graph);
 
-        settingsView = menu.findItem(R.id.action_settings);
-        feedbackView = menu.findItem(R.id.action_feedback);
-        logoutView = menu.findItem(R.id.action_logout);
-        loginView = menu.findItem(R.id.action_login);
+        settingsView = navigationViewMenu.findItem(R.id.action_settings);
+        feedbackView = navigationViewMenu.findItem(R.id.action_feedback);
+        logoutView = navigationViewMenu.findItem(R.id.action_logout);
+        loginView = navigationViewMenu.findItem(R.id.action_login);
 
         // add some space on the top for the translucent status bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -152,7 +162,7 @@ public class NavigationDrawerFragment extends RxRoboFragment {
                 .compose(bindToLifecycle())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
-        // TODO
+        // TODO newNavigationItemsObservable...
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
     }
