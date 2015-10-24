@@ -18,20 +18,17 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
-import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.Graph;
-import com.pr0gramm.app.services.InboxService;
-import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.services.NavigationProvider;
+import com.pr0gramm.app.services.NavigationProvider.NavigationItem;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedbackActivity;
@@ -46,35 +43,23 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
-import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
-import static rx.Observable.combineLatest;
 
 /**
  */
 public class DrawerFragment extends RxRoboFragment {
-    private static final Logger logger = LoggerFactory.getLogger(DrawerFragment.class);
-
     @Inject
     private UserService userService;
-
-    @Inject
-    private InboxService inboxService;
 
     @Inject
     private Settings settings;
@@ -83,10 +68,7 @@ public class DrawerFragment extends RxRoboFragment {
     private BookmarkService bookmarkService;
 
     @Inject
-    private SingleShotService singleShotService;
-
-    @Inject
-    private ExtraCategoryApi extraCategoryApi;
+    private NavigationProvider navigationProvider;
 
     @InjectView(R.id.username)
     private TextView usernameView;
@@ -124,58 +106,14 @@ public class DrawerFragment extends RxRoboFragment {
     @InjectView(R.id.drawer_nav_list)
     private RecyclerView navItemsRecyclerView;
 
-    @InjectResource(R.drawable.ic_black_action_favorite)
-    private Drawable iconFavorites;
-
-    @InjectResource(R.drawable.ic_black_action_home)
-    private Drawable iconFeedTypePromoted;
-
-    @InjectResource(R.drawable.ic_black_action_stelz)
-    private Drawable iconFeedTypePremium;
-
-    @InjectResource(R.drawable.ic_black_action_trending)
-    private Drawable iconFeedTypeNew;
-
-    @InjectResource(R.drawable.ic_action_random)
-    private Drawable iconFeedTypeRandom;
-
-    @InjectResource(R.drawable.ic_category_controversial)
-    private Drawable iconFeedTypeControversial;
-
-    @InjectResource(R.drawable.ic_black_action_bookmark)
-    private Drawable iconBookmark;
-
-    @InjectResource(R.drawable.ic_action_email)
-    private Drawable iconInbox;
-
-    @InjectResource(R.drawable.ic_drawer_bestof)
-    private Drawable iconFeedTypeBestOf;
-
-    @InjectResource(R.drawable.ic_black_action_upload)
-    private Drawable iconUpload;
-
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private static final int ICON_ALPHA = 127;
     private final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
     private ColorStateList markedColor;
-    private Observable<Boolean> extraCategoryApiAvailable;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-//        this.extraCategoryApiAvailable = extraCategoryApi.ping().map(r -> true)
-//                .doOnError(err -> logger.error("Could not reach category api", err))
-//                .onErrorResumeNext(Observable.just(false))
-//                .startWith(true)
-//                .cache();
-
-        this.extraCategoryApiAvailable = Observable.just(true);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -204,7 +142,7 @@ public class DrawerFragment extends RxRoboFragment {
                 getActivity(), WrapContentLinearLayoutManager.VERTICAL, false));
 
         // add the static items to the navigation
-        navigationAdapter.setNavigationItems(getCategoryNavigationItems(
+        navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(
                 Optional.<Info.User>absent(), false));
 
         settingsView.setOnClickListener(v -> {
@@ -238,67 +176,6 @@ public class DrawerFragment extends RxRoboFragment {
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
     }
 
-    /**
-     * Adds the default "fixed" items to the menu
-     */
-    private List<NavigationItem> getCategoryNavigationItems(
-            Optional<Info.User> userInfo, boolean extraCategory) {
-
-        List<NavigationItem> items = new ArrayList<>();
-        items.add(new NavigationItem(
-                new FeedFilter().withFeedType(FeedType.PROMOTED),
-                getString(R.string.action_feed_type_promoted),
-                iconFeedTypePromoted));
-
-        items.add(new NavigationItem(
-                new FeedFilter().withFeedType(FeedType.NEW),
-                getString(R.string.action_feed_type_new),
-                iconFeedTypeNew));
-
-        if (extraCategory) {
-            if (settings.showCategoryControversial()) {
-                items.add(new NavigationItem(
-                        new FeedFilter().withFeedType(FeedType.CONTROVERSIAL),
-                        getString(R.string.action_feed_type_controversial),
-                        iconFeedTypeControversial));
-            }
-
-            if (settings.showCategoryRandom()) {
-                items.add(new NavigationItem(
-                        new FeedFilter().withFeedType(FeedType.RANDOM),
-                        getString(R.string.action_feed_type_random),
-                        iconFeedTypeRandom));
-            }
-
-            if (settings.showCategoryBestOf()) {
-                items.add(new NavigationItem(
-                        new FeedFilter().withFeedType(FeedType.BESTOF),
-                        getString(R.string.action_feed_type_bestof),
-                        iconFeedTypeBestOf));
-            }
-        }
-
-        if (settings.showCategoryPremium()) {
-            if (userService.isPremiumUser()) {
-                items.add(new NavigationItem(
-                        new FeedFilter().withFeedType(FeedType.PREMIUM),
-                        getString(R.string.action_feed_type_premium),
-                        iconFeedTypePremium));
-            }
-        }
-
-        if (userInfo.isPresent()) {
-            String name = userInfo.get().getName();
-            items.add(new NavigationItem(
-                    new FeedFilter().withFeedType(FeedType.NEW).withLikes(name),
-                    getString(R.string.action_favorites),
-                    iconFavorites));
-
-        }
-
-        return items;
-    }
-
     private void onBenisGraphClicked(View view) {
         DialogBuilder.start(getActivity())
                 .content(R.string.benis_graph_explanation)
@@ -314,60 +191,13 @@ public class DrawerFragment extends RxRoboFragment {
                 .compose(bindToLifecycle())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
-        newNavigationItemsObservable()
+        navigationProvider.navigationItems()
                 .compose(bindToLifecycle())
                 .subscribe(
                         navigationAdapter::setNavigationItems,
                         ErrorDialogFragment.defaultOnError());
 
         benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Observable<List<NavigationItem>> newNavigationItemsObservable() {
-        // observe and merge the menu items from different sources
-        return combineLatest(ImmutableList.of(
-                getCategoryNavigationItems(),
-
-                userService.loginState()
-                        .flatMap(ignored -> bookmarkService.get())
-                        .map(this::bookmarksToNavItem),
-
-                inboxService.unreadMessagesCount()
-                        .map(this::getInboxNavigationItem)
-                        .map(ImmutableList::of),
-
-                Observable.just(ImmutableList.of(getUploadNavigationItem()))
-        ), args -> {
-
-            ArrayList<NavigationItem> result = new ArrayList<>();
-            for (Object arg : args)
-                result.addAll((List<NavigationItem>) arg);
-
-            return result;
-        });
-    }
-
-    private Observable<List<NavigationItem>> getCategoryNavigationItems() {
-        return combineLatest(
-                userService.loginState().map(UserService::getUser),
-                extraCategoryApiAvailable,
-                this::getCategoryNavigationItems);
-    }
-
-    private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        if (singleShotService.isFirstTimeToday("bookmarksLoaded"))
-            Track.bookmarks(entries.size());
-
-        boolean premium = userService.isPremiumUser();
-        return FluentIterable.from(entries)
-                .filter(entry -> premium || entry.asFeedFilter().getFeedType() != FeedType.PREMIUM)
-                .transform(entry -> {
-                    Drawable icon = iconBookmark.getConstantState().newDrawable();
-                    String title = entry.getTitle().toUpperCase();
-                    return new NavigationItem(entry.asFeedFilter(), title, icon, entry);
-                })
-                .toList();
     }
 
     /**
@@ -396,7 +226,9 @@ public class DrawerFragment extends RxRoboFragment {
             usernameView.setOnClickListener(v -> onUsernameClicked());
 
             userTypeView.setVisibility(View.VISIBLE);
-            userTypeView.setTextColor(getResources().getColor(UserClasses.MarkColors.get(user.getMark())));
+            userTypeView.setTextColor(ContextCompat.getColor(getContext(),
+                    UserClasses.MarkColors.get(user.getMark())));
+
             userTypeView.setText(getString(UserClasses.MarkStrings.get(user.getMark())).toUpperCase());
 
             Graph benis = state.getBenisHistory();
@@ -433,8 +265,8 @@ public class DrawerFragment extends RxRoboFragment {
         } else {
             benisDeltaView.setVisibility(View.VISIBLE);
             benisDeltaView.setTextColor(delta < 0
-                    ? getResources().getColor(R.color.benis_delta_negative)
-                    : getResources().getColor(R.color.benis_delta_positive));
+                    ? ContextCompat.getColor(getContext(), R.color.benis_delta_negative)
+                    : ContextCompat.getColor(getContext(), R.color.benis_delta_positive));
 
             benisDeltaView.setText(String.format("%s%d", delta < 0 ? "↓" : "↑", delta));
         }
@@ -452,38 +284,6 @@ public class DrawerFragment extends RxRoboFragment {
 
     public void updateCurrentFilters(FeedFilter current) {
         navigationAdapter.setCurrentFilter(current);
-    }
-
-    /**
-     * Returns the menu item that takes the user to the inbox.
-     */
-    private NavigationItem getInboxNavigationItem(Integer unreadCount) {
-        Runnable run = () -> {
-            Intent intent = new Intent(getActivity(), InboxActivity.class);
-            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, unreadCount == 0
-                    ? InboxType.ALL.ordinal()
-                    : InboxType.UNREAD.ordinal());
-
-            startActivity(intent);
-        };
-
-        return new NavigationItem(getString(R.string.action_inbox), iconInbox)
-                .withClickAction(() -> doIfAuthorizedHelper.run(run, run))
-                .withLayout(R.layout.left_drawer_nav_item_inbox)
-                .withExtraBind(holder -> {
-                    TextView unread = (TextView) holder.itemView.findViewById(R.id.unread_count);
-                    unread.setText(String.valueOf(unreadCount));
-                    unread.setVisibility(unreadCount > 0 ? View.VISIBLE : View.GONE);
-                });
-    }
-
-    /**
-     * Returns the menu item that takes the user to the upload activity.
-     */
-    private NavigationItem getUploadNavigationItem() {
-        Runnable run = () -> startActivity(new Intent(getActivity(), UploadActivity.class));
-        return new NavigationItem(getString(R.string.action_upload), iconUpload)
-                .withClickAction(() -> doIfAuthorizedHelper.run(run, run));
     }
 
     public interface OnFeedFilterSelected {
@@ -526,15 +326,15 @@ public class DrawerFragment extends RxRoboFragment {
 
         @Override
         public int getItemViewType(int position) {
-            return allItems.get(position).layout;
+            return allItems.get(position).layout();
         }
 
         public void onBindViewHolder(NavigationItemViewHolder holder, int position) {
             NavigationItem item = allItems.get(position);
-            holder.text.setText(item.title);
+            holder.text.setText(item.title());
 
             // set the icon of the image
-            holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon, null, null, null);
+            holder.text.setCompoundDrawablesWithIntrinsicBounds(item.icon(), null, null, null);
 
             // update color
             ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
@@ -542,25 +342,18 @@ public class DrawerFragment extends RxRoboFragment {
             changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA));
 
             // handle clicks
-            holder.itemView.setOnClickListener(v -> {
-                if (item.hasFilter()) {
-                    onFeedFilterClicked(item.filter);
-
-                } else if (item.action != null) {
-                    item.action.run();
-                    onOtherNavigationItemClicked();
-                }
-            });
+            holder.itemView.setOnClickListener(v -> dispatchItemClick(item));
 
             holder.itemView.setOnLongClickListener(v -> {
-                if (item.bookmark != null) {
-                    showDialogToRemoveBookmark(item.bookmark);
-                }
-
+                ifPresent(item.bookmark(), DrawerFragment.this::showDialogToRemoveBookmark);
                 return true;
             });
 
-            item.bind.call(holder);
+            if (item.action() == NavigationProvider.ActionType.MESSAGES) {
+                TextView unread = (TextView) holder.itemView.findViewById(R.id.unread_count);
+                unread.setText(String.valueOf(item.unreadCount()));
+                unread.setVisibility(item.unreadCount() > 0 ? View.VISIBLE : View.GONE);
+            }
         }
 
         @Override
@@ -583,18 +376,56 @@ public class DrawerFragment extends RxRoboFragment {
             // calculate the currently selected item
             selected = FluentIterable.from(allItems)
                     .filter(NavigationItem::hasFilter)
-                    .filter(nav -> equal(currentFilter, nav.filter))
+                    .filter(nav -> equal(currentFilter, nav.filter().orNull()))
                     .first();
 
             if (!selected.isPresent() && currentFilter != null) {
                 selected = FluentIterable.from(allItems)
                         .filter(NavigationItem::hasFilter)
-                        .filter(nav -> nav.filter.getFeedType() == currentFilter.getFeedType())
+                        .filter(nav -> nav.filter().get().getFeedType() == currentFilter.getFeedType())
                         .first();
             }
 
             notifyDataSetChanged();
         }
+    }
+
+    private void dispatchItemClick(NavigationItem item) {
+        switch (item.action()) {
+            case FILTER:
+            case BOOKMARK:
+                onFeedFilterClicked(item.filter().get());
+                break;
+
+            case UPLOAD: {
+                showUploadActivity();
+                onOtherNavigationItemClicked();
+                break;
+            }
+
+            case MESSAGES:
+                showInboxActivity(item.unreadCount());
+                onOtherNavigationItemClicked();
+                break;
+        }
+    }
+
+    private void showInboxActivity(int unreadCount) {
+        Runnable run = () -> {
+            Intent intent = new Intent(getActivity(), InboxActivity.class);
+            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, unreadCount == 0
+                    ? InboxType.ALL.ordinal()
+                    : InboxType.UNREAD.ordinal());
+
+            startActivity(intent);
+        };
+
+        doIfAuthorizedHelper.run(run, run);
+    }
+
+    private void showUploadActivity() {
+        Runnable run = () -> startActivity(new Intent(getActivity(), UploadActivity.class));
+        doIfAuthorizedHelper.run(run, run);
     }
 
     private void showDialogToRemoveBookmark(Bookmark bookmark) {
@@ -612,55 +443,6 @@ public class DrawerFragment extends RxRoboFragment {
             super(itemView);
             text = (TextView) (itemView instanceof TextView ?
                     itemView : itemView.findViewById(R.id.title));
-        }
-    }
-
-    private static class NavigationItem {
-        final String title;
-        final FeedFilter filter;
-        final Drawable icon;
-        final Bookmark bookmark;
-
-        Runnable action;
-        Action1<NavigationItemViewHolder> bind = Actions.empty();
-        int layout = R.layout.left_drawer_nav_item;
-
-        NavigationItem(String title, Drawable icon) {
-            this.title = title;
-            this.icon = icon;
-            this.filter = null;
-            this.bookmark = null;
-        }
-
-        NavigationItem(FeedFilter filter, String title, Drawable icon) {
-            this(filter, title, icon, null);
-        }
-
-        NavigationItem(FeedFilter filter, String title, Drawable icon, Bookmark bookmark) {
-            this.title = title;
-            this.filter = filter;
-            this.icon = icon;
-            this.bookmark = bookmark;
-            this.action = null;
-        }
-
-        public NavigationItem withLayout(int layout) {
-            this.layout = layout;
-            return this;
-        }
-
-        public NavigationItem withExtraBind(Action1<NavigationItemViewHolder> bind) {
-            this.bind = bind;
-            return this;
-        }
-
-        public NavigationItem withClickAction(Runnable action) {
-            this.action = action;
-            return this;
-        }
-
-        public boolean hasFilter() {
-            return filter != null;
         }
     }
 }
