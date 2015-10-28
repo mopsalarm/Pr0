@@ -1,10 +1,14 @@
 package com.pr0gramm.app.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SupportV4App;
+import android.util.AttributeSet;
+import android.view.View;
 
+import com.f2prateek.dart.Dart;
 import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.ActivityLifecycleProvider;
@@ -14,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.activity.RoboFragmentActivity;
 import rx.Observable;
@@ -149,6 +154,7 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity implements Ac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Dart.inject(this);
         lifecycleSubject.onNext(ActivityEvent.CREATE);
     }
 
@@ -180,5 +186,17 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity implements Ac
     protected void onDestroy() {
         lifecycleSubject.onNext(ActivityEvent.DESTROY);
         super.onDestroy();
+    }
+
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        ButterKnife.bind(this);
+        return super.onCreateView(name, context, attrs);
+    }
+
+    @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        ButterKnife.bind(this);
+        return super.onCreateView(parent, name, context, attrs);
     }
 }

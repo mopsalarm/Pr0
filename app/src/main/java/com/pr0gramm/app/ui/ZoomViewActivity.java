@@ -9,11 +9,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorRes;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import com.f2prateek.dart.InjectExtra;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.pr0gramm.app.R;
@@ -24,40 +26,41 @@ import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.InjectExtra;
-import roboguice.inject.InjectView;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
-public class ZoomViewActivity extends RoboActionBarActivity {
+public class ZoomViewActivity extends RxRoboAppCompatActivity {
     private static final Logger logger = LoggerFactory.getLogger(ZoomViewActivity.class);
     private int maximumBitmapHeight;
     private int maximumBitmapWidth;
 
     @InjectExtra("ZoomViewActivity.item")
-    private FeedItem item;
+    FeedItem item;
 
     @InjectExtra("ZoomViewActivity.hq")
-    private boolean loadHqIfAvailable;
+    boolean loadHqIfAvailable;
 
-    @InjectView(R.id.image)
-    private ImageViewTouch imageView;
+    @Bind(R.id.image)
+    ImageViewTouch imageView;
 
-    @InjectView(R.id.busy_indicator)
-    private View busyIndicator;
+    @Bind(R.id.busy_indicator)
+    View busyIndicator;
 
-    @InjectView(R.id.hq)
-    private ImageView hq;
+    @Bind(R.id.hq)
+    ImageView hq;
 
     @Inject
     private Picasso picasso;
@@ -77,6 +80,7 @@ public class ZoomViewActivity extends RoboActionBarActivity {
 
         // normal content view
         setContentView(R.layout.activity_zoom_view);
+
         imageView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
 
         // additional canvas view to estimate maximum image size

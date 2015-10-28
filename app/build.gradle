@@ -161,6 +161,12 @@ dependencies {
     compile 'com.google.android.apps.muzei:muzei-api:2.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.4.0'
 
+    compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
+    apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
+
+    compile 'com.f2prateek.dart:dart:2.0.0-RC1'
+    compile 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
+
     // rx java
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'io.reactivex:rxandroid:1.0.1'
