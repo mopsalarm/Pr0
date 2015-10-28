@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
-import roboguice.util.Strings;
 
 import static butterknife.ButterKnife.findById;
+import static com.google.common.base.Ascii.equalsIgnoreCase;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -123,7 +123,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         AndroidUtility.linkify(view.comment, comment.getContent());
 
         // show the points
-        if (Strings.equalsIgnoreCase(comment.getName(), selfName)
+        if (equalsIgnoreCase(comment.getName(), selfName)
                 || comment.getCreated().isBefore(scoreVisibleThreshold)) {
 
             view.senderInfo.setPoints(getCommentScore(entry));

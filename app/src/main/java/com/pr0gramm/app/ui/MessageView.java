@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.google.common.base.Ascii;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
@@ -21,7 +22,6 @@ import org.joda.time.Hours;
 import org.joda.time.Instant;
 
 import roboguice.RoboGuice;
-import roboguice.util.Strings;
 
 import static org.joda.time.Instant.now;
 
@@ -118,7 +118,7 @@ public class MessageView extends RelativeLayout {
         }
 
         // show the points
-        boolean visible = Strings.equalsIgnoreCase(message.getName(), name)
+        boolean visible = Ascii.equalsIgnoreCase(message.getName(), name)
                 || message.getCreated().isBefore(scoreVisibleThreshold);
 
         // sender info

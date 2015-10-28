@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.google.common.base.Predicate;
 import com.google.common.io.CharStreams;
-import com.google.common.primitives.Ints;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;

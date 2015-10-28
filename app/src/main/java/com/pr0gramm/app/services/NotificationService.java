@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import roboguice.util.Strings;
 import rx.Observable;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.limit;
 
 /**
@@ -106,7 +106,7 @@ public class NotificationService {
 
         if (allForTheSamePost) {
             Message message = newMessages.get(0);
-            if (message.getItemId() != 0 && Strings.notEmpty(message.getThumb())) {
+            if (message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
                 thumbnail = loadThumbnail(message);
             }
         }

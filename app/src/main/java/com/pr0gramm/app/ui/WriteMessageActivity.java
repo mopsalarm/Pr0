@@ -30,7 +30,6 @@ import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 
 import butterknife.Bind;
-import roboguice.inject.ContentView;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -38,7 +37,6 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
 /**
  */
-@ContentView(R.layout.fragment_write_message)
 public class WriteMessageActivity extends RxRoboAppCompatActivity {
     private static final String ARGUMENT_MESSAGE = "WriteMessageFragment.message";
     private static final String ARGUMENT_RECEIVER_ID = "WriteMessageFragment.userId";
@@ -69,6 +67,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_write_message);
 
         ActionBar actionbar = getSupportActionBar();
         if (actionbar != null) {

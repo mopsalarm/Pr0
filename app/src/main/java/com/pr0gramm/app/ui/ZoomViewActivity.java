@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorRes;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -26,7 +25,6 @@ import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
-import roboguice.activity.RoboActionBarActivity;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
@@ -135,6 +131,7 @@ public class ZoomViewActivity extends RxRoboAppCompatActivity {
             hq.animate().alpha(1).start();
         }
     }
+
     private void loadHqImage() {
         hq.setOnClickListener(null);
         hq.setImageDrawable(getColoredHqIcon(R.color.primary));

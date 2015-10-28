@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
@@ -363,5 +364,10 @@ public class AndroidUtility {
     public static <T extends View> T findView(View view, int id) {
         //noinspection unchecked
         return checkNotNull(ButterKnife.findById(view, id));
+    }
+
+    public static boolean equalsIgnoreCase(@Nullable String first, @Nullable String second) {
+        //noinspection StringEquality
+        return first == second || (first != null && first.equalsIgnoreCase(second));
     }
 }

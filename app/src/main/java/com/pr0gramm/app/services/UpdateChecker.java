@@ -19,7 +19,6 @@ import java.util.List;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.GET;
 import rx.Observable;
 import rx.schedulers.Schedulers;
