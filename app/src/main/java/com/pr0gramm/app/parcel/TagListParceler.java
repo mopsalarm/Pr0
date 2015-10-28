@@ -3,6 +3,7 @@ package com.pr0gramm.app.parcel;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.reflect.TypeToken;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.parcel.core.Parceler;
 
@@ -20,6 +21,12 @@ public class TagListParceler extends Parceler<List<Tag>> {
         super(parcel);
     }
 
+    @Override
+    public TypeToken<List<Tag>> getType() {
+        return new TypeToken<List<Tag>>() {
+        };
+    }
+
     public static final Parcelable.Creator<TagListParceler> CREATOR =
-            new ReflectionCreator<>(TagListParceler.class);
+            new LambdaCreator<>(TagListParceler::new, TagListParceler[]::new);
 }

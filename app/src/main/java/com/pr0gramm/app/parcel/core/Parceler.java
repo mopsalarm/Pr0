@@ -19,9 +19,6 @@ import java.io.IOException;
 public abstract class Parceler<T> implements Parcelable {
     private static final Logger logger = LoggerFactory.getLogger(Parceler.class);
 
-    private final TypeToken<T> type = new TypeToken<T>(getClass()) {
-    };
-
     private final T value;
 
     protected Parceler(T value) {
@@ -32,9 +29,7 @@ public abstract class Parceler<T> implements Parcelable {
         return value;
     }
 
-    public TypeToken<T> getType() {
-        return type;
-    }
+    public abstract TypeToken<T> getType();
 
     public static <R, T extends Parceler<R>> R get(Class<T> clazz, Bundle bundle, String key) {
         T wrapper = bundle.getParcelable(key);
@@ -53,7 +48,7 @@ public abstract class Parceler<T> implements Parcelable {
 
         try (ParcelReader reader = new ParcelReader(parcel)) {
             Stopwatch watch = Stopwatch.createStarted();
-            value = gson.fromJson(reader, type.getType());
+            value = gson.fromJson(reader, getType().getType());
             logger.info("reading of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not read gson as parce", ioError);
@@ -72,7 +67,7 @@ public abstract class Parceler<T> implements Parcelable {
 
         try (ParcelWriter writer = new ParcelWriter(dest)) {
             Stopwatch watch = Stopwatch.createStarted();
-            gson.toJson(value, type.getType(), writer);
+            gson.toJson(value, getType().getType(), writer);
             logger.info("writing of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not adapt gson to parcel", ioError);

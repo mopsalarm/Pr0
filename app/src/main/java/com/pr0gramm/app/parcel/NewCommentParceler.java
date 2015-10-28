@@ -2,6 +2,7 @@ package com.pr0gramm.app.parcel;
 
 import android.os.Parcel;
 
+import com.google.common.reflect.TypeToken;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
 import com.pr0gramm.app.parcel.core.Parceler;
 
@@ -17,6 +18,12 @@ public class NewCommentParceler extends Parceler<NewComment> {
         super(parcel);
     }
 
+    @Override
+    public TypeToken<NewComment> getType() {
+        return new TypeToken<NewComment>() {
+        };
+    }
+
     public static final Creator<NewCommentParceler> CREATOR =
-            new ReflectionCreator<>(NewCommentParceler.class);
+            new LambdaCreator<>(NewCommentParceler::new, NewCommentParceler[]::new);
 }

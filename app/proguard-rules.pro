@@ -1,6 +1,7 @@
 # Add project specific ProGuard rules here.
 
--dontobfuscate
+# -dontobfuscate
+-flattenpackagehierarchy
 
 -dontwarn java.nio.**
 -dontwarn java.lang.invoke.**
@@ -23,27 +24,21 @@
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 
-# keep annotations
--keepattributes *Annotation*
+# -keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
+-keepattributes *Annotation*,Signature
 
 # keep our application
--keep class com.pr0gramm.** {
-    *;
-}
+-keep class com.pr0gramm.app.orm.** { *; }
+-keep class com.pr0gramm.app.vpx.** { *; }
+-keep class com.pr0gramm.app.api.** { *; }
+-keep class com.pr0gramm.app.services.gif.** { *; }
 
 # keep retrofit-annotations and methods
 -keep class retrofit.** { *; }
 
-# roboguice - keep classes with inject-constructor
--keep class roboguice.inject.** { *; }
--keep class javax.annotation.** { *; }
--keepclasseswithmembers class * {
-    @com.google.inject.Inject public <init>(...);
-}
-
-# we need this for roboguice
--keep class * extends com.google.inject.AnnotationDatabase {
-    *;
+# keep native  methods/names
+-keepclasseswithmembernames class * {
+    native <methods>;
 }
 
 # keeps views and other stuff. Support library fails without this.
@@ -70,6 +65,7 @@
 -keepclasseswithmembernames class * {
     @com.f2prateek.dart.* <fields>;
 }
+
 #for dart 2.0 only
 -keep class **Henson { *; }
 -keep class **$$IntentBuilder { *; }
