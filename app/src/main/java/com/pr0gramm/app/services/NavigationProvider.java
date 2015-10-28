@@ -7,9 +7,10 @@ import android.graphics.drawable.Drawable;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.ContextSingleton;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.categories.ExtraCategoryApi;
+import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 
 import butterknife.BindDrawable;
 import butterknife.ButterKnife;
-import roboguice.inject.ContextSingleton;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -79,7 +79,7 @@ public class NavigationProvider {
     public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,
                               Settings settings, BookmarkService bookmarkService,
                               SingleShotService singleShotService,
-                              ExtraCategoryApi extraCategoryApi) {
+                              ExtraCategoryApiProvider extraCategoryApi) {
 
         this.context = activity;
 

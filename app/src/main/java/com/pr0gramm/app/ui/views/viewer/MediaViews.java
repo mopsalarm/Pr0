@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.content.Context;
+import android.app.Activity;
 
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
@@ -20,12 +20,12 @@ public class MediaViews {
      * @param uri The url that should be displayed.
      * @return A new {@link MediaView} instance.
      */
-    public static MediaView newInstance(Context context, MediaView.Binder binder, MediaUri uri, Runnable onViewListener) {
-        Settings settings = Settings.of(context);
+    public static MediaView newInstance(Activity activity, MediaView.Binder binder, MediaUri uri, Runnable onViewListener) {
+        Settings settings = Settings.of(activity);
 
         // handle delay urls first.
         if (uri.hasDelayFlag()) {
-            return new DelayedMediaView(context, binder, uri.withDelay(false), onViewListener);
+            return new DelayedMediaView(activity, binder, uri.withDelay(false), onViewListener);
         }
 
         if (!uri.isLocal() && settings.useProxy()) {
@@ -39,22 +39,22 @@ public class MediaViews {
                 if (shouldUseMpegDecoder(uri, settings))
                     videoUrl = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
 
-                result = new SoftwareVideoMediaView(context, binder,
+                result = new SoftwareVideoMediaView(activity, binder,
                         videoUrl.withProxy(uri.hasProxyFlag()),
                         onViewListener);
             } else {
-                result = new VideoMediaView(context, binder, uri, onViewListener);
+                result = new VideoMediaView(activity, binder, uri, onViewListener);
             }
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
             if (shouldUseGifToWebm(uri, settings)) {
-                result = new Gif2VideoMediaView(context, binder, uri, onViewListener);
+                result = new Gif2VideoMediaView(activity, binder, uri, onViewListener);
             } else {
-                result = new GifMediaView(context, binder, uri, onViewListener);
+                result = new GifMediaView(activity, binder, uri, onViewListener);
             }
 
         } else {
-            result = new ImageMediaView(context, binder, uri, onViewListener);
+            result = new ImageMediaView(activity, binder, uri, onViewListener);
         }
 
         return result;

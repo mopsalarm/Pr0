@@ -7,9 +7,10 @@ import android.content.SharedPreferences;
 import com.google.common.base.Enums;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.services.Track;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.functions.Action1;
 

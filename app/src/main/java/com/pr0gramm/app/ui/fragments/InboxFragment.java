@@ -46,10 +46,10 @@ public abstract class InboxFragment<T> extends RxRoboFragment {
     protected static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
 
     @Inject
-    private InboxService inboxService;
+    InboxService inboxService;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Bind(R.id.messages)
     RecyclerView messagesView;

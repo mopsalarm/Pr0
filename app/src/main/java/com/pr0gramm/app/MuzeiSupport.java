@@ -6,8 +6,6 @@ import android.net.Uri;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.common.collect.FluentIterable;
-import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -21,13 +19,11 @@ import com.pr0gramm.app.services.UriHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import roboguice.RoboGuice;
-import roboguice.util.RoboContext;
+import javax.inject.Inject;
+
 import rx.Observable;
 
 import static com.google.common.base.Objects.equal;
@@ -36,14 +32,12 @@ import static org.joda.time.Duration.standardMinutes;
 
 /**
  */
-public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
+public class MuzeiSupport extends RemoteMuzeiArtSource {
     private static final Logger logger = LoggerFactory.getLogger(MuzeiSupport.class);
     private static final int ROTATE_TIME_MILLIS = (int) standardMinutes(30).getMillis();
 
-    private HashMap<Key<?>, Object> scopedObjects = new HashMap<>();
-
     @Inject
-    private FeedService feedService;
+    FeedService feedService;
 
     public MuzeiSupport() {
         super(MuzeiSupport.class.getSimpleName());
@@ -51,7 +45,7 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
 
     @Override
     public void onCreate() {
-        RoboGuice.getInjector(this).injectMembers(this);
+        Dagger.appComponent(this).inject(this);
         super.onCreate();
 
         setUserCommands(BUILTIN_COMMAND_ID_NEXT_ARTWORK);
@@ -77,7 +71,7 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
 
         } catch (Exception error) {
             logger.warn("could not get feed", error);
-            throw new RemoteMuzeiArtSource.RetryException(error);
+            throw new RetryException(error);
         }
 
         if (items.isEmpty()) {
@@ -125,10 +119,5 @@ public class MuzeiSupport extends RemoteMuzeiArtSource implements RoboContext {
     private static boolean isImageItem(Feed.Item item) {
         String image = item.getImage();
         return image != null && image.toLowerCase().matches(".*\\.(jpg|jpeg|png)");
-    }
-
-    @Override
-    public Map<Key<?>, Object> getScopedObjectMap() {
-        return scopedObjects;
     }
 }

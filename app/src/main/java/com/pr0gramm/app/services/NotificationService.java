@@ -19,8 +19,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -34,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 

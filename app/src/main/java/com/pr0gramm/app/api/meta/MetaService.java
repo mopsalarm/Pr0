@@ -8,8 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.services.Graph;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -18,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;

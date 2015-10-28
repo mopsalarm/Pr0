@@ -2,6 +2,7 @@ package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,25 +10,27 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.io.File;
 
-import roboguice.receiver.RoboBroadcastReceiver;
+import javax.inject.Inject;
 
 /**
  */
-public class DownloadCompleteReceiver extends RoboBroadcastReceiver {
+public class DownloadCompleteReceiver extends BroadcastReceiver {
     @Inject
-    private SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
 
     @Inject
-    private DownloadManager downloadManager;
+    DownloadManager downloadManager;
 
     @SuppressLint("NewApi")
     @Override
-    protected void handleReceive(Context context, Intent intent) {
+    public void onReceive(Context context, Intent intent) {
+        Dagger.appComponent(context).inject(this);
+
         Bundle extras = intent.getExtras();
         if (extras == null)
             return;

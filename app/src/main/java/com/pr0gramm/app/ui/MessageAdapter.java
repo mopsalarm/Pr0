@@ -8,13 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.collect.Iterables;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.services.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.RoboGuice;
 
 /**
  */
@@ -33,7 +33,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.messages = new ArrayList<>(messages);
         this.itemLayout = layout;
 
-        UserService userService = RoboGuice.getInjector(context).getInstance(UserService.class);
+        UserService userService = Dagger.appComponent(context).userService();
         userName = userService.getName().orNull();
 
         setHasStableIds(true);

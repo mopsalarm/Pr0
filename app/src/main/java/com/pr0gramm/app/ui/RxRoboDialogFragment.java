@@ -1,15 +1,19 @@
 package com.pr0gramm.app.ui;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 
-import com.google.inject.Inject;
+import com.f2prateek.dart.Dart;
+import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ab.ExperimentService;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
-import roboguice.fragment.RoboDialogFragment;
+import javax.inject.Inject;
+
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -17,7 +21,7 @@ import rx.subjects.BehaviorSubject;
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-public class RxRoboDialogFragment extends RoboDialogFragment implements FragmentLifecycleProvider {
+public abstract class RxRoboDialogFragment extends DialogFragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
     @Inject
@@ -49,8 +53,15 @@ public class RxRoboDialogFragment extends RoboDialogFragment implements Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        injectComponent(Dagger.activityComponent(getActivity()));
+
+        if(getArguments() != null)
+            Dart.inject(this, getArguments());
+
         lifecycleSubject.onNext(FragmentEvent.CREATE);
     }
+
+    protected abstract void injectComponent(ActivityComponent activityComponent);
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

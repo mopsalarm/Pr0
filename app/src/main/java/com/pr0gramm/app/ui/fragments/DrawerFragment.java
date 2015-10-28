@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
@@ -61,16 +62,16 @@ import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
  */
 public class DrawerFragment extends RxRoboFragment {
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private BookmarkService bookmarkService;
+    BookmarkService bookmarkService;
 
     @Inject
-    private NavigationProvider navigationProvider;
+    NavigationProvider navigationProvider;
 
     @Bind(R.id.username)
     TextView usernameView;
@@ -120,6 +121,11 @@ public class DrawerFragment extends RxRoboFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.left_drawer, container, false);
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -27,10 +28,10 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 @SuppressLint("ViewConstructor")
 public class GifMediaView extends AbstractProgressMediaView {
     @Inject
-    private Downloader downloader;
+    Downloader downloader;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Bind(R.id.image)
     ImageView imageView;
@@ -40,7 +41,7 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     private Subscription dlGifSubscription;
 
-    public GifMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public GifMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_gif, url, onViewListener);
 
         loadGif();
@@ -105,6 +106,11 @@ public class GifMediaView extends AbstractProgressMediaView {
         }
 
         return Optional.absent();
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     @Override

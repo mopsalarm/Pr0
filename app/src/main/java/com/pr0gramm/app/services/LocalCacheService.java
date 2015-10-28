@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -37,6 +38,10 @@ public class LocalCacheService {
             .build();
 
     private final AtomicReference<long[]> repostCache = new AtomicReference<>(new long[0]);
+
+    @Inject
+    public LocalCacheService() {
+    }
 
     /**
      * Caches (or enhanced) a list of tags for the given itemId.

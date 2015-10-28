@@ -16,6 +16,7 @@ import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
+import com.pr0gramm.app.util.Lazy;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -40,6 +41,11 @@ public class Pr0grammApplication extends SugarApp {
     private static final Logger logger = LoggerFactory.getLogger(Pr0grammApplication.class);
 
     private RefWatcher refWatcher;
+
+    final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
+            .appModule(new AppModule(this))
+            .httpModule(new HttpModule())
+            .build());
 
     public Pr0grammApplication() {
         GLOBAL_CONTEXT = this;
@@ -109,5 +115,9 @@ public class Pr0grammApplication extends SugarApp {
      */
     public static RefWatcher getRefWatcher() {
         return ((Pr0grammApplication) GLOBAL_CONTEXT).refWatcher;
+    }
+
+    public static Pr0grammApplication get(Context context) {
+        return (Pr0grammApplication) context.getApplicationContext();
     }
 }

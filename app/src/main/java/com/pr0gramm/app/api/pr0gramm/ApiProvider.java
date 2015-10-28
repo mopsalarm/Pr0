@@ -1,14 +1,12 @@
 package com.pr0gramm.app.api.pr0gramm;
 
-import android.app.Application;
+import android.content.Context;
 
 import com.google.common.base.Predicate;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
@@ -29,6 +27,10 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import retrofit.BaseUrl;
 import retrofit.Converter;
 import retrofit.GsonConverterFactory;
@@ -40,20 +42,18 @@ import rx.Observable;
 
 /**
  */
+@Singleton
 public class ApiProvider implements Provider<Api> {
     private static final Logger logger = LoggerFactory.getLogger(ApiProvider.class);
 
-    private final Application context;
+    private final Context context;
     private final Settings settings;
     private final OkHttpClient client;
     private final LoginCookieHandler cookieHandler;
     private final Api proxy;
 
-    private Api backend;
-    private boolean https;
-
     @Inject
-    public ApiProvider(Application context, OkHttpClient client, LoginCookieHandler cookieHandler) {
+    public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler) {
         this.context = context;
         this.settings = Settings.of(context);
         this.client = client;

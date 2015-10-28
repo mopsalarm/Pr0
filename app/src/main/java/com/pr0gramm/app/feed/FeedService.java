@@ -2,9 +2,9 @@ package com.pr0gramm.app.feed;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.categories.ExtraCategoryApi;
+import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Post;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 
@@ -32,9 +33,9 @@ public class FeedService {
     private final Settings settings;
 
     @Inject
-    public FeedService(Api mainApi, ExtraCategoryApi categoryApi, Settings settings) {
+    public FeedService(Api mainApi, ExtraCategoryApiProvider categoryApi, Settings settings) {
         this.mainApi = mainApi;
-        this.categoryApi = categoryApi;
+        this.categoryApi = categoryApi.get();
         this.settings = settings;
     }
 

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.common.base.Ascii;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
@@ -20,8 +21,6 @@ import com.squareup.picasso.Picasso;
 
 import org.joda.time.Hours;
 import org.joda.time.Instant;
-
-import roboguice.RoboGuice;
 
 import static org.joda.time.Instant.now;
 
@@ -73,7 +72,7 @@ public class MessageView extends RelativeLayout {
         inflate(context, layoutId, this);
 
         picasso = isInEditMode() ? null :
-                RoboGuice.getInjector(context).getInstance(Picasso.class);
+                Dagger.appComponent(context).picasso();
 
         text = (TextView) findViewById(R.id.message_text);
         type = (TextView) findViewById(R.id.message_type);

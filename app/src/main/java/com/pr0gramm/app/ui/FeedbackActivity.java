@@ -9,10 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.functions.Actions;
@@ -24,10 +26,10 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
  */
 public class FeedbackActivity extends RxRoboAppCompatActivity {
     @Inject
-    private FeedbackService feedbackService;
+    FeedbackService feedbackService;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Bind(R.id.submit)
     Button buttonSubmit;
@@ -64,6 +66,11 @@ public class FeedbackActivity extends RxRoboAppCompatActivity {
         if (name.isPresent()) {
             vName.setText(name.get());
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     private void submitClicked() {

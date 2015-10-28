@@ -4,12 +4,13 @@ import android.os.Build;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.feed.Nothing;
 import com.squareup.okhttp.OkHttpClient;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;

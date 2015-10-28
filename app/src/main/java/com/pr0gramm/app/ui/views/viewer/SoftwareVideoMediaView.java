@@ -1,11 +1,11 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.net.Uri;
 import android.widget.ImageView;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
@@ -14,6 +14,8 @@ import com.squareup.picasso.Downloader;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.Observable;
@@ -33,12 +35,12 @@ public class SoftwareVideoMediaView extends MediaView {
     ImageView imageView;
 
     @Inject
-    private Downloader downloader;
+    Downloader downloader;
 
     private SoftwareMediaPlayer videoPlayer;
     private Subscription loading;
 
-    public SoftwareVideoMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public SoftwareVideoMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
     }
 
@@ -125,6 +127,11 @@ public class SoftwareVideoMediaView extends MediaView {
         if (isPlaying()) {
             loadAndPlay();
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     @Override

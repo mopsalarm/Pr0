@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services.preloading;
 
 import android.annotation.SuppressLint;
+import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,7 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.NotificationService;
@@ -34,7 +35,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.service.RoboIntentService;
+import javax.inject.Inject;
+
 import rx.functions.Action1;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -45,7 +47,7 @@ import static org.joda.time.Minutes.minutes;
 /**
  * This service handles preloading and resolving of preloaded images.
  */
-public class PreloadService extends RoboIntentService {
+public class PreloadService extends IntentService {
     private static final Logger logger = LoggerFactory.getLogger(PreloadService.class);
     private static final String EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems";
     private static final String EXTRA_CANCEL = "PreloadService.cancel";
@@ -55,16 +57,16 @@ public class PreloadService extends RoboIntentService {
     private volatile boolean canceled;
 
     @Inject
-    private OkHttpClient httpClient;
+    OkHttpClient httpClient;
 
     @Inject
-    private NotificationManager notificationManager;
+    NotificationManager notificationManager;
 
     @Inject
-    private PreloadManager preloadManager;
+    PreloadManager preloadManager;
 
     @Inject
-    private PowerManager powerManager;
+    PowerManager powerManager;
 
     private File preloadCache;
 
@@ -75,6 +77,7 @@ public class PreloadService extends RoboIntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+        Dagger.appComponent(this).inject(this);
 
         preloadCache = new File(getCacheDir(), "preload");
         if (preloadCache.mkdirs()) {

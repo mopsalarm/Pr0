@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Singleton;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.functions.Action1;

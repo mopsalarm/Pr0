@@ -12,8 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -26,8 +27,9 @@ import org.joda.time.Instant;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.psdev.licensesdialog.LicensesDialog;
-import roboguice.RoboGuice;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -58,6 +60,11 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
     }
 
     @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
@@ -69,20 +76,20 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Inject
-        private UserService userService;
+        UserService userService;
 
         @Inject
-        private Settings settings;
+        Settings settings;
 
         @Inject
-        private PreloadManager preloadManager;
+        PreloadManager preloadManager;
 
         private Subscription preloadItemsSubscription;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            RoboGuice.getInjector(getActivity()).injectMembersWithoutViews(this);
+            Dagger.appComponent(getActivity()).inject(this);
 
             if (!userService.isAuthorized()) {
                 // reset those content types - better be sure!

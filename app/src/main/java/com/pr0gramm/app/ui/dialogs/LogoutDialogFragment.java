@@ -4,19 +4,21 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.RxRoboDialogFragment;
 
-import roboguice.fragment.RoboDialogFragment;
+import javax.inject.Inject;
+
 
 /**
  */
-public class LogoutDialogFragment extends RoboDialogFragment {
+public class LogoutDialogFragment extends RxRoboDialogFragment {
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @NonNull
     @Override
@@ -30,5 +32,10 @@ public class LogoutDialogFragment extends RoboDialogFragment {
 
     private void logout() {
         ((MainActionHandler) getActivity()).onLogoutClicked();
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 }

@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -81,22 +82,22 @@ public class MainActivity extends RxRoboAppCompatActivity implements
     View toolbarContainer;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private BookmarkService bookmarkService;
+    BookmarkService bookmarkService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private SharedPreferences shared;
+    SharedPreferences shared;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
     @Inject
-    private PermissionHelper permissionHelper;
+    PermissionHelper permissionHelper;
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -165,6 +166,11 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
         showBestOfCategoryHint();
         addOriginalContentBookmarkOnce();
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     private void showBestOfCategoryHint() {

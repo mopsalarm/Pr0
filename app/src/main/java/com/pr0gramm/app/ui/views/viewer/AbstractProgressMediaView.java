@@ -1,13 +1,14 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.annotation.LayoutRes;
 import android.widget.ProgressBar;
 
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 
@@ -18,10 +19,10 @@ public abstract class AbstractProgressMediaView extends MediaView {
     ProgressBar videoProgressView;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
-    public AbstractProgressMediaView(Context context, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
-        super(context, binder, layoutId, mediaUri, onViewListener);
+    public AbstractProgressMediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
+        super(activity, binder, layoutId, mediaUri, onViewListener);
 
         videoProgressView.setVisibility(GONE);
 

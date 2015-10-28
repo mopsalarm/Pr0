@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
@@ -19,6 +19,8 @@ import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 /**
  */
 public class SearchUserDialog extends RxRoboDialogFragment {
@@ -27,7 +29,7 @@ public class SearchUserDialog extends RxRoboDialogFragment {
     private TextInputLayout inputView;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @NonNull
     @Override
@@ -42,7 +44,7 @@ public class SearchUserDialog extends RxRoboDialogFragment {
         return DialogBuilder.start(context)
                 .content(inputView)
                 .fullWidth()
-                .positive(R.string.action_search, di -> onSearchClicked())
+                .positive(R.string.action_search_simple, di -> onSearchClicked())
                 .negative(R.string.cancel, Dialog::dismiss)
                 .noAutoDismiss()
                 .build();
@@ -70,6 +72,11 @@ public class SearchUserDialog extends RxRoboDialogFragment {
 
     private void onSearchFailure(Throwable throwable) {
         inputView.setError(getString(R.string.user_not_found));
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     public interface Listener {

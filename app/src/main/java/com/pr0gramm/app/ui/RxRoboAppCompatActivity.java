@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SupportV4App;
+import android.support.v7.app.AppCompatActivity;
 
 import com.f2prateek.dart.Dart;
+import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.Dagger;
 import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.ActivityLifecycleProvider;
@@ -16,17 +19,15 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import roboguice.activity.RoboActionBarActivity;
-import roboguice.activity.RoboFragmentActivity;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
 /**
- * A {@link RoboFragmentActivity} that is an {@link android.support.v7.app.AppCompatActivity}
+ * A {@link android.support.v7.app.AppCompatActivity}
  * with roboguice functionality and its lifecycle exposed as an observable.
  */
-public class RxRoboAppCompatActivity extends RoboActionBarActivity implements ActivityLifecycleProvider {
+public abstract class RxRoboAppCompatActivity extends AppCompatActivity implements ActivityLifecycleProvider {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int[] POW_2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
@@ -44,6 +45,7 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity implements Ac
     private static final int FRAGMENT_MAX_COUNT = POW_2[CHAIN_BITS_FOR_INDEX] - 1;
 
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
+    private ActivityComponent activityComponent;
 
     @Override
     public Observable<ActivityEvent> lifecycle() {
@@ -151,8 +153,19 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity implements Ac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        activityComponent = Dagger.newActivityComponent(this);
+
+        injectComponent(activityComponent);
+
         Dart.inject(this);
         lifecycleSubject.onNext(ActivityEvent.CREATE);
+    }
+
+    protected abstract void injectComponent(ActivityComponent appComponent);
+
+    public ActivityComponent getActivityComponent() {
+        return activityComponent;
     }
 
     @Override

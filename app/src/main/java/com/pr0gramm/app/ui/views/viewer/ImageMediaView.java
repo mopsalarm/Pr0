@@ -1,12 +1,13 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
@@ -31,16 +32,21 @@ public class ImageMediaView extends MediaView {
     View errorIndicator;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
-    public ImageMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public ImageMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, R.layout.player_image, url, onViewListener);
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     @Override

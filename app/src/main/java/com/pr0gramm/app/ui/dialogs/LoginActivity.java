@@ -18,6 +18,8 @@ import android.widget.EditText;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
@@ -37,7 +39,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import retrofit.HttpException;
-import roboguice.RoboGuice;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -53,10 +54,10 @@ public class LoginActivity extends RxRoboAppCompatActivity {
     private static final String PREF_USERNAME = "LoginDialogFragment.username";
 
     @Inject
-    private SharedPreferences prefs;
+    SharedPreferences prefs;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Bind(R.id.username)
     EditText usernameView;
@@ -83,6 +84,10 @@ public class LoginActivity extends RxRoboAppCompatActivity {
         submitView.setOnClickListener(v -> onLoginClicked());
 
         updateActivityBackground();
+    }
+
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     private void updateActivityBackground() {
@@ -235,10 +240,7 @@ public class LoginActivity extends RxRoboAppCompatActivity {
             if (context == null)
                 return false;
 
-            UserService userService = RoboGuice
-                    .getInjector(context)
-                    .getInstance(UserService.class);
-
+            UserService userService = Dagger.appComponent(context).userService();
             if (userService.isAuthorized()) {
                 runnable.run();
                 return true;

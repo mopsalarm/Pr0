@@ -10,8 +10,6 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
@@ -24,6 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import fi.iki.elonen.NanoHTTPD;
 

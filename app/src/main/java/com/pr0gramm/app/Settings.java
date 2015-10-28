@@ -6,13 +6,13 @@ import android.preference.PreferenceManager;
 
 import com.google.common.base.Enums;
 import com.google.common.primitives.Ints;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
 
 import java.util.EnumSet;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Objects.equal;

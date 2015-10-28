@@ -1,23 +1,11 @@
 package com.pr0gramm.app;
 
-import android.app.Application;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.common.base.Stopwatch;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.pr0gramm.app.api.categories.ExtraCategoryApi;
-import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
-import com.pr0gramm.app.services.gif.GifToVideoService;
-import com.pr0gramm.app.services.gif.MyGifToVideoService;
-import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
-import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.proxy.HttpProxyService;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.util.GuavaPicassoCache;
@@ -30,8 +18,6 @@ import com.squareup.okhttp.Response;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
-import com.squareup.sqlbrite.BriteDatabase;
-import com.squareup.sqlbrite.SqlBrite;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,34 +26,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import roboguice.inject.SharedPreferencesName;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-import rx.util.async.Async;
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 /**
  */
-@SuppressWarnings("UnusedDeclaration")
-public class Pr0grammModule extends AbstractModule {
-    private static final Logger logger = LoggerFactory.getLogger(Pr0grammModule.class);
-
-    @Override
-    protected void configure() {
-        bind(Api.class).toProvider(ApiProvider.class);
-        bind(ExtraCategoryApi.class).toProvider(ExtraCategoryApiProvider.class);
-        bind(PreloadManager.class).to(DatabasePreloadManager.class);
-        bind(GifToVideoService.class).to(MyGifToVideoService.class);
-    }
+@Module
+public class HttpModule {
+    private static final Logger logger = LoggerFactory.getLogger(HttpModule.class);
 
     @Provides
     @Singleton
-    public Downloader downloader(OkHttpClient client) {
-        return new OkHttpDownloader(client);
-    }
-
-    @Provides
-    @Singleton
-    public OkHttpClient okHttpClient(Context context, LoginCookieHandler cookieHandler) throws IOException {
+    public OkHttpClient okHttpClient(Context context, LoginCookieHandler cookieHandler) {
         File cacheDir = new File(context.getCacheDir(), "imgCache");
 
         OkHttpClient client = new OkHttpClient();
@@ -103,11 +75,8 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Picasso picasso(Context context, Downloader downloader) {
-        return new Picasso.Builder(context)
-                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
-                .downloader(downloader)
-                .build();
+    public Downloader downloader(OkHttpClient client) {
+        return new OkHttpDownloader(client);
     }
 
     @Provides
@@ -134,32 +103,15 @@ public class Pr0grammModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Observable<BriteDatabase> sqlBrite(Application application) {
-        return Async.start(() -> {
-            SQLiteOpenHelper openHelper = new OpenHelper(application);
-            return SqlBrite.create().wrapDatabaseHelper(openHelper);
-        }, Schedulers.io());
+    public Picasso picasso(Context context, Downloader downloader) {
+        return new Picasso.Builder(context)
+                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
+                .downloader(downloader)
+                .build();
     }
 
     @Provides
-    @SharedPreferencesName
-    public String sharedPreferencesName() {
-        return "pr0gramm";
-    }
-
-    private static class OpenHelper extends SQLiteOpenHelper {
-        public OpenHelper(Context context) {
-            super(context, "pr0-sqlbrite", null, 4);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            DatabasePreloadManager.onCreate(db);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onCreate(db);
-        }
+    public Api api(ApiProvider apiProvider) {
+        return apiProvider.get();
     }
 }

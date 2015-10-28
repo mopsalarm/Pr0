@@ -10,8 +10,10 @@ import android.view.View;
 import android.widget.MultiAutoCompleteTextView;
 
 import com.google.common.base.Splitter;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.RxRoboDialogFragment;
 import com.pr0gramm.app.ui.TagInputView;
 
 import org.slf4j.Logger;
@@ -20,11 +22,10 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import roboguice.fragment.RoboDialogFragment;
 
 /**
  */
-public class NewTagDialogFragment extends RoboDialogFragment {
+public class NewTagDialogFragment extends RxRoboDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger(NewTagDialogFragment.class);
 
     private MultiAutoCompleteTextView tagInput;
@@ -61,6 +62,11 @@ public class NewTagDialogFragment extends RoboDialogFragment {
 
         // inform parent
         ((OnAddNewTagsListener) getParentFragment()).onAddNewTags(tags);
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     /**

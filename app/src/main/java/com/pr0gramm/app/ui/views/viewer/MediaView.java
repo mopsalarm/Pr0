@@ -1,6 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -18,7 +18,9 @@ import android.widget.TextView;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.proxy.ProxyService;
@@ -38,8 +40,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 import rx.Observable;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
@@ -72,27 +72,27 @@ public abstract class MediaView extends FrameLayout {
     protected AspectImageView preview;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Inject
-    private ProxyService proxyService;
+    ProxyService proxyService;
 
     private float viewAspect = -1;
 
-    protected MediaView(Context context, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri,
+    protected MediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
 
-        super(context);
+        super(activity);
         this.binder = binder;
         this.mediaUri = mediaUri;
         this.onViewListener = onViewListener;
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
-            LayoutInflater.from(context).inflate(layoutId, this);
+            LayoutInflater.from(activity).inflate(layoutId, this);
 
             progress = findViewById(R.id.progress);
             preview = (AspectImageView) findViewById(R.id.preview);
@@ -101,13 +101,12 @@ public abstract class MediaView extends FrameLayout {
             preview = null;
         }
 
-        RoboInjector injector = RoboGuice.getInjector(context);
-        injector.injectMembersWithoutViews(this);
-        injector.injectViewMembers(this);
+        // inject all the stuff!
+        injectComponent(Dagger.activityComponent(activity));
         ButterKnife.bind(this);
 
         // register the detector to handle double taps
-        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector = new GestureDetector(activity, gestureListener);
 
         showBusyIndicator();
 
@@ -119,6 +118,8 @@ public abstract class MediaView extends FrameLayout {
             addView(preloadHint);
         }
     }
+
+    protected abstract void injectComponent(ActivityComponent component);
 
     /**
      * Sets the preview image for this media view. You need to provide a width and height.
@@ -140,7 +141,7 @@ public abstract class MediaView extends FrameLayout {
                 preview.setImageDrawable(info.getPreview());
 
             } else if (info.getPreviewUri() != null) {
-                if(getMediaUri().isLocal()) {
+                if (getMediaUri().isLocal()) {
                     picasso.load(info.getPreviewUri())
                             .networkPolicy(NetworkPolicy.OFFLINE)
                             .into(previewTarget);
@@ -227,7 +228,7 @@ public abstract class MediaView extends FrameLayout {
      * The listener that handles double tapping
      */
     @SuppressWarnings("FieldCanBeLocal")
-    private final SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+    private final SimpleOnGestureListener gestureListener = new SimpleOnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
             return true;

@@ -28,7 +28,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.feed.ContentType;
@@ -54,6 +54,8 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
@@ -69,7 +71,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
     private static final Logger logger = LoggerFactory.getLogger(UploadActivity.class);
 
     @Inject
-    private UploadService uploadService;
+    UploadService uploadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +98,11 @@ public class UploadActivity extends RxRoboAppCompatActivity {
                 }
             }, this::onError);
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     private void onError(Throwable throwable) {
@@ -147,13 +154,13 @@ public class UploadActivity extends RxRoboAppCompatActivity {
         public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
 
         @Inject
-        private Picasso picasso;
+        Picasso picasso;
 
         @Inject
-        private UploadService uploadService;
+        UploadService uploadService;
 
         @Inject
-        private SingleShotService singleShotService;
+        SingleShotService singleShotService;
 
         @Bind(R.id.preview)
         ImageView preview;
@@ -180,6 +187,11 @@ public class UploadActivity extends RxRoboAppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_upload, container, false);
+        }
+
+        @Override
+        protected void injectComponent(ActivityComponent activityComponent) {
+            activityComponent.inject(this);
         }
 
         @Override

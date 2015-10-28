@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
@@ -129,37 +130,37 @@ public class PostFragment extends RxRoboFragment implements
     private MediaView viewer;
 
     @Inject
-    private FeedService feedService;
+    FeedService feedService;
 
     @Inject
-    private VoteService voteService;
+    VoteService voteService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private SeenService seenService;
+    SeenService seenService;
 
     @Inject
-    private DownloadManager downloadManager;
+    DownloadManager downloadManager;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
     @Inject
-    private LocalCacheService localCacheService;
+    LocalCacheService localCacheService;
 
     @Inject
-    private ProxyService proxyService;
+    ProxyService proxyService;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Inject
-    private PreloadManager preloadManager;
+    PreloadManager preloadManager;
 
     @Bind(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -204,6 +205,11 @@ public class PostFragment extends RxRoboFragment implements
             tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
             comments = Parceler.get(CommentListParceler.class, savedState, "PostFragment.comments");
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     @Override
@@ -1058,7 +1064,7 @@ public class PostFragment extends RxRoboFragment implements
 
     /**
      * Creates a new instance of a {@link PostFragment} displaying the
-     * given {@link com.pr0gramm.app.feed.FeedItem}.
+     * given {@link FeedItem}.
      */
     public static PostFragment newInstance(FeedItem item) {
         checkNotNull(item, "Item must not be null");

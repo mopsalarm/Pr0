@@ -7,18 +7,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
+import com.pr0gramm.app.ui.RxRoboDialogFragment;
 import com.trello.rxlifecycle.ActivityEvent;
 
 import org.joda.time.Instant;
 
-import roboguice.RoboGuice;
-import roboguice.fragment.RoboDialogFragment;
-import roboguice.inject.RoboInjector;
+import javax.inject.Inject;
+
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Actions;
@@ -29,14 +30,14 @@ import static org.joda.time.Instant.now;
 
 /**
  */
-public class UpdateDialogFragment extends RoboDialogFragment {
+public class UpdateDialogFragment extends RxRoboDialogFragment {
     public static final String KEY_DOWNLOAD_ID = "UpdateDialogFragment.downloadId";
 
     @Inject
-    private DownloadManager downloadManager;
+    DownloadManager downloadManager;
 
     @Inject
-    private SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
 
     @NonNull
     @Override
@@ -85,14 +86,13 @@ public class UpdateDialogFragment extends RoboDialogFragment {
     }
 
     /**
-     * Check for updates and shows a new {@link com.pr0gramm.app.ui.dialogs.UpdateDialogFragment}
+     * Check for updates and shows a new {@link UpdateDialogFragment}
      * if an update could be found.
      *
      * @param activity The activity that starts this update check.
      */
     public static void checkForUpdates(RxRoboAppCompatActivity activity, boolean interactive) {
-        RoboInjector injector = RoboGuice.getInjector(activity);
-        SharedPreferences shared = injector.getInstance(SharedPreferences.class);
+        SharedPreferences shared = Dagger.appComponent(activity).sharedPreferences();
 
         if (!interactive) {
             Instant last = new Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0));
@@ -126,4 +126,9 @@ public class UpdateDialogFragment extends RoboDialogFragment {
 
     private static final String KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck";
     private static final Observable.Operator<UpdateChecker.Update, UpdateChecker.Update> NOOP = subscriber -> subscriber;
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
+    }
 }

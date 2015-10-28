@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.Feed;
@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.Bind;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,7 +46,7 @@ public class PostPagerFragment extends RxRoboFragment {
     private static final String ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment";
 
     @Inject
-    private FeedService feedService;
+    FeedService feedService;
 
     @Bind(R.id.pager)
     ViewPager viewPager;
@@ -61,6 +63,11 @@ public class PostPagerFragment extends RxRoboFragment {
                              @Nullable Bundle savedInstanceState) {
 
         return inflater.inflate(R.layout.fragment_post_pager, container, false);
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     @Override

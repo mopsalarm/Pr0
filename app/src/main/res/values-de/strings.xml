@@ -7,6 +7,7 @@
     <string name="action_feed_type_promoted">TOP</string>
     <string name="action_messages">NACHRICHTEN</string>
     <string name="action_search">Suchen in %s…</string>
+    <string name="action_search_simple">Suchen</string>
     <string name="action_upload">HOCHLADEN</string>
     <string name="app_name">pr0gramm</string>
     <string name="banned">Du bist bis %1$s gebannt. Grund: %2$s</string>

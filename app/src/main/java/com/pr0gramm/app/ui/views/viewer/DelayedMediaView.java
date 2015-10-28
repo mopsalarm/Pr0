@@ -3,16 +3,18 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
 
 /**
  */
@@ -22,9 +24,9 @@ public class DelayedMediaView extends ProxyMediaView {
     private final AtomicBoolean childCreated = new AtomicBoolean();
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
-    public DelayedMediaView(Context context, Binder binder, MediaUri url, Runnable onViewListener) {
+    public DelayedMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
         super(context, binder, url, onViewListener);
         hideBusyIndicator();
 
@@ -47,13 +49,18 @@ public class DelayedMediaView extends ProxyMediaView {
     }
 
     @Override
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
+    }
+
+    @Override
     protected boolean onSingleTap() {
         // call this function only exactly once!
         if (!childCreated.compareAndSet(false, true))
             return false;
 
         // create the real view as a child.
-        MediaView mediaView = MediaViews.newInstance(getContext(),
+        MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
                 binder, mediaUri.withDelay(false), this::onMediaShown);
 
         mediaView.removePreviewImage();

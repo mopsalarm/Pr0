@@ -1,40 +1,43 @@
 package com.pr0gramm.app.sync;
 
+import android.app.IntentService;
 import android.content.Intent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
-import com.google.inject.Inject;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import roboguice.service.RoboIntentService;
+import javax.inject.Inject;
 
+import static android.support.v4.content.WakefulBroadcastReceiver.completeWakefulIntent;
+import static com.google.common.base.Stopwatch.createStarted;
+import static com.pr0gramm.app.services.Track.statistics;
 import static com.pr0gramm.app.util.AndroidUtility.toOptional;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  */
-public class SyncIntentService extends RoboIntentService {
-    private static final Logger logger = LoggerFactory.getLogger(SyncIntentService.class);
+public class SyncIntentService extends IntentService {
+    private static final Logger logger = getLogger(SyncIntentService.class);
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private NotificationService notificationService;
+    NotificationService notificationService;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
@@ -42,15 +45,17 @@ public class SyncIntentService extends RoboIntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Dagger.appComponent(this).inject(this);
+
         logger.info("Doing some statistics related trackings");
-        if(singleShotService.isFirstTimeToday("track-settings"))
-            Track.statistics(settings, userService.isAuthorized());
+        if (singleShotService.isFirstTimeToday("track-settings"))
+            statistics(settings, userService.isAuthorized());
 
         logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)
             return;
 
-        Stopwatch watch = Stopwatch.createStarted();
+        Stopwatch watch = createStarted();
         try {
             logger.info("performing sync");
             Optional<Sync> sync = toOptional(userService.sync());
@@ -75,8 +80,7 @@ public class SyncIntentService extends RoboIntentService {
             logger.error("Error while syncing", thr);
 
         } finally {
-            SyncBroadcastReceiver.completeWakefulIntent(intent);
+            completeWakefulIntent(intent);
         }
     }
-
 }

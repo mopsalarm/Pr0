@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -28,6 +28,8 @@ import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.functions.Actions;
@@ -47,13 +49,13 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
     private static final String RESULT_EXTRA_NEW_COMMENT = "WriteMessageFragment.result.newComment";
 
     @Inject
-    private InboxService inboxService;
+    InboxService inboxService;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private VoteService voteService;
+    VoteService voteService;
 
     @Bind(R.id.message_view)
     MessageView messageView;
@@ -95,6 +97,11 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
                 supportInvalidateOptionsMenu();
             }
         });
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     @Override

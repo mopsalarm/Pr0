@@ -5,6 +5,7 @@ import android.net.Uri;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -12,8 +13,6 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
 
 /**
  * A little helper class to work with URLs
@@ -27,8 +26,7 @@ public final class UriHelper {
     private UriHelper(Context context) {
         this.settings = Settings.of(context);
 
-        RoboInjector injector = RoboGuice.getInjector(context);
-        preloadManager = injector.getInstance(PreloadManager.class);
+        preloadManager = Dagger.appComponent(context).preloadManager();
     }
 
     private Uri.Builder start() {

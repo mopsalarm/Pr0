@@ -16,7 +16,7 @@ import android.widget.ImageView;
 
 import com.f2prateek.dart.InjectExtra;
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
@@ -59,13 +61,13 @@ public class ZoomViewActivity extends RxRoboAppCompatActivity {
     ImageView hq;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private ProxyService proxyService;
+    ProxyService proxyService;
 
     // a handler for this activity
     private final Handler handler = new Handler();
@@ -83,6 +85,11 @@ public class ZoomViewActivity extends RxRoboAppCompatActivity {
         addTemporaryCanvasView();
 
         hq.setImageDrawable(getColoredHqIcon(R.color.grey_700));
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     @Override

@@ -31,6 +31,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.meta.ItemsInfo;
@@ -115,34 +116,34 @@ public class FeedFragment extends RxRoboFragment {
     private static final String ARG_FEED_START = "FeedFragment.start.id";
 
     @Inject
-    private FeedService feedService;
+    FeedService feedService;
 
     @Inject
-    private Picasso picasso;
+    Picasso picasso;
 
     @Inject
-    private SeenService seenService;
+    SeenService seenService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @Inject
-    private BookmarkService bookmarkService;
+    BookmarkService bookmarkService;
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private MetaService metaService;
+    MetaService metaService;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
     @Inject
-    private LocalCacheService localCacheService;
+    LocalCacheService localCacheService;
 
     @Inject
-    private PreloadManager preloadManager;
+    PreloadManager preloadManager;
 
     @Bind(R.id.list)
     RecyclerView recyclerView;
@@ -183,6 +184,11 @@ public class FeedFragment extends RxRoboFragment {
             autoScrollOnLoad = start.getItemId();
             autoOpenOnLoad = start;
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services;
 
 import android.annotation.TargetApi;
+import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,16 +9,18 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
+import android.os.NetworkOnMainThreadException;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.feed.FeedItem;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -31,20 +34,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import roboguice.content.RoboContentProvider;
+import javax.inject.Inject;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  */
-public class ShareProvider extends RoboContentProvider {
+public class ShareProvider extends ContentProvider {
     private static final Logger logger = LoggerFactory.getLogger(ShareProvider.class);
 
     @Inject
-    private OkHttpClient httpClient;
+    OkHttpClient httpClient;
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public boolean onCreate() {
+        Dagger.appComponent(getContext()).inject(this);
+        return true;
+    }
+
+    @Override
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
+
         if (projection == null) {
             projection = new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE};
         }
@@ -54,7 +65,7 @@ public class ShareProvider extends RoboContentProvider {
             try {
                 // only try to do this on some background thread.
                 fileSize = getSizeForUri(uri);
-            } catch (IOException | android.os.NetworkOnMainThreadException error) {
+            } catch (IOException | NetworkOnMainThreadException error) {
                 logger.warn("could not estimate size");
             }
         }

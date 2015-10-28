@@ -11,8 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import org.joda.time.Instant;
@@ -23,6 +21,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 

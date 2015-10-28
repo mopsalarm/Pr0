@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 
 import com.pr0gramm.app.R;
 
@@ -10,10 +10,10 @@ import rx.functions.Action1;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class ProxyMediaView extends MediaView {
+public abstract class ProxyMediaView extends MediaView {
     private MediaView child;
 
-    public ProxyMediaView(Context context, Binder binder, MediaUri uri, Runnable onViewListener) {
+    public ProxyMediaView(Activity context, Binder binder, MediaUri uri, Runnable onViewListener) {
         super(context, binder, R.layout.player_proxy, uri, onViewListener);
     }
 

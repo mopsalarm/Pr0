@@ -5,7 +5,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
@@ -17,13 +17,15 @@ import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  */
 public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
         implements SearchUserDialog.Listener {
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     public PrivateMessageInboxFragment() {
         setHasOptionsMenu(true);
@@ -67,5 +69,10 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
             // only allow sending to other people
             actionListener.onNewPrivateMessage(user.getId(), user.getName());
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 }

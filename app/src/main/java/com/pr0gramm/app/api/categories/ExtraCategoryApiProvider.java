@@ -1,7 +1,5 @@
 package com.pr0gramm.app.api.categories;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -10,6 +8,10 @@ import com.squareup.okhttp.ResponseBody;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import retrofit.Converter;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -17,6 +19,7 @@ import retrofit.RxJavaCallAdapterFactory;
 
 /**
  */
+@Singleton
 public class ExtraCategoryApiProvider implements Provider<ExtraCategoryApi> {
     private final ExtraCategoryApi api;
 

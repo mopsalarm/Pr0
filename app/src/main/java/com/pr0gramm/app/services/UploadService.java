@@ -6,8 +6,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
@@ -21,6 +19,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import okio.BufferedSink;
 import retrofit.HttpException;

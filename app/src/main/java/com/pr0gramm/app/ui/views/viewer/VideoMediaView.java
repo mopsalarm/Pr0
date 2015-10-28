@@ -1,15 +1,17 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.media.MediaPlayer;
 
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 
@@ -20,18 +22,23 @@ public class VideoMediaView extends AbstractProgressMediaView {
     CustomVideoView videoView;
 
     @Inject
-    private SingleShotService singleShotService;
+    SingleShotService singleShotService;
 
     @Inject
-    private Settings settings;
+    Settings settings;
 
     private int retryCount;
     private boolean videoViewInitialized;
 
-    protected VideoMediaView(Context context, Binder binder,
+    protected VideoMediaView(Activity context, Binder binder,
                              MediaUri mediaUri, Runnable onViewListener) {
 
         super(context, binder, R.layout.player_simple_video_view, mediaUri, onViewListener);
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     @Override

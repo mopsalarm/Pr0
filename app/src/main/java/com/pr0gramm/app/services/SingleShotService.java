@@ -3,8 +3,6 @@ package com.pr0gramm.app.services;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.Pr0grammApplication;
 
 import org.joda.time.DateTime;
@@ -15,6 +13,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  */

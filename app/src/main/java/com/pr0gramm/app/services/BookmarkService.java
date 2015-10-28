@@ -4,13 +4,14 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.common.base.Optional;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;

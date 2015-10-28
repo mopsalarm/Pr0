@@ -22,7 +22,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -33,13 +33,14 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
-import roboguice.fragment.RoboDialogFragment;
+import javax.inject.Inject;
+
 
 /**
  */
-public class ChangeLogDialog extends RoboDialogFragment {
+public class ChangeLogDialog extends RxRoboDialogFragment {
     @Inject
-    private Settings settings;
+    Settings settings;
 
     @NonNull
     @Override
@@ -70,6 +71,11 @@ public class ChangeLogDialog extends RoboDialogFragment {
                 .content(R.string.feedback_reminder)
                 .positive(R.string.okay)
                 .show();
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 
     private static class ChangeAdapter extends RecyclerView.Adapter<ChangeViewHolder> {

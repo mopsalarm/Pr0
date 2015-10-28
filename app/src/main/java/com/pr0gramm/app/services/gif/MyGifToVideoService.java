@@ -2,9 +2,10 @@ package com.pr0gramm.app.services.gif;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.squareup.okhttp.OkHttpClient;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;

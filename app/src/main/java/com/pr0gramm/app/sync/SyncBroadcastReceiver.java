@@ -8,13 +8,12 @@ import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.services.UserService;
 
 import org.joda.time.Hours;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import roboguice.RoboGuice;
 
 import static org.joda.time.Duration.standardHours;
 import static org.joda.time.Duration.standardMinutes;
@@ -29,7 +28,7 @@ public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         logger.info("System says, we shall sync now");
-        UserService userService = RoboGuice.getInjector(context).getInstance(UserService.class);
+        UserService userService = Dagger.appComponent(context).userService();
 
         long syncTime;
         if (!userService.isAuthorized()) {

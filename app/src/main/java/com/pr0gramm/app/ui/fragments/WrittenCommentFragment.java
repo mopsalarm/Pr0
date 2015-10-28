@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.services.UserService;
@@ -9,11 +9,13 @@ import com.pr0gramm.app.services.UserService;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  */
 public class WrittenCommentFragment extends MessageInboxFragment {
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Override
     protected LoaderHelper<List<Message>> newLoaderHelper() {
@@ -27,5 +29,10 @@ public class WrittenCommentFragment extends MessageInboxFragment {
                                 comment -> Message.of(userComments.getUser(), comment));
                     });
         });
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent activityComponent) {
+        activityComponent.inject(this);
     }
 }

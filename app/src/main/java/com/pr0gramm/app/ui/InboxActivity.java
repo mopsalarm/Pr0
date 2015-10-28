@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.services.NotificationService;
@@ -30,13 +31,13 @@ public class InboxActivity extends RxRoboAppCompatActivity implements ViewPager.
     public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
 
     @Inject
-    private UserService userService;
+    UserService userService;
 
     @Inject
-    private NotificationService notificationService;
+    NotificationService notificationService;
 
     @Inject
-    private ExperimentService experimentService;
+    ExperimentService experimentService;
 
     @Bind(R.id.pager)
     ViewPager viewPager;
@@ -93,6 +94,11 @@ public class InboxActivity extends RxRoboAppCompatActivity implements ViewPager.
         if (getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
             Track.notificationClicked();
         }
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
     }
 
     @Override
