@@ -13,8 +13,8 @@ import com.squareup.picasso.Downloader;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import pl.droidsonroids.gif.GifDrawable;
-import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
@@ -32,8 +32,8 @@ public class GifMediaView extends AbstractProgressMediaView {
     @Inject
     private Settings settings;
 
-    @InjectView(R.id.image)
-    private ImageView imageView;
+    @Bind(R.id.image)
+    ImageView imageView;
 
     // the gif that is shown
     private GifDrawable gif;

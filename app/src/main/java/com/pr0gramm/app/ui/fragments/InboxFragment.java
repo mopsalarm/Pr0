@@ -20,6 +20,7 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
+import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
@@ -32,15 +33,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static org.joda.time.Duration.standardMinutes;
 
 /**
  */
-public abstract class InboxFragment<T> extends RoboFragment {
+public abstract class InboxFragment<T> extends RxRoboFragment {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";
@@ -51,17 +51,17 @@ public abstract class InboxFragment<T> extends RoboFragment {
     @Inject
     private Picasso picasso;
 
-    @InjectView(R.id.messages)
-    private RecyclerView messagesView;
+    @Bind(R.id.messages)
+    RecyclerView messagesView;
 
-    @InjectView(android.R.id.empty)
-    private View viewNothingHere;
+    @Bind(android.R.id.empty)
+    View viewNothingHere;
 
-    @InjectView(R.id.busy_indicator)
-    private View viewBusyIndicator;
+    @Bind(R.id.busy_indicator)
+    View viewBusyIndicator;
 
-    @InjectView(R.id.refresh)
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private LoaderHelper<List<T>> loader;
     private Instant loadStartedTimestamp;

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
 import roboguice.fragment.RoboDialogFragment;
 
 /**
@@ -34,7 +35,7 @@ public class NewTagDialogFragment extends RoboDialogFragment {
         Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light);
 
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_add_tags, null);
-        tagInput = (MultiAutoCompleteTextView) view.findViewById(R.id.tag);
+        tagInput = ButterKnife.findById(view, R.id.tag);
 
         TagInputView.setup(tagInput);
 

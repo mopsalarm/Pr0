@@ -37,6 +37,7 @@ import java.lang.ref.WeakReference;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
 import rx.Observable;
@@ -103,6 +104,7 @@ public abstract class MediaView extends FrameLayout {
         RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
         injector.injectViewMembers(this);
+        ButterKnife.bind(this);
 
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(context, gestureListener);

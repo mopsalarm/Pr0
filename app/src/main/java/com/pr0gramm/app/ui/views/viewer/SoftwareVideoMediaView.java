@@ -15,7 +15,7 @@ import com.squareup.picasso.Downloader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func0;
@@ -29,8 +29,8 @@ import static com.pr0gramm.app.util.AndroidUtility.toFile;
  */
 @SuppressLint("ViewConstructor")
 public class SoftwareVideoMediaView extends MediaView {
-    @InjectView(R.id.image)
-    private ImageView imageView;
+    @Bind(R.id.image)
+    ImageView imageView;
 
     @Inject
     private Downloader downloader;
@@ -72,7 +72,7 @@ public class SoftwareVideoMediaView extends MediaView {
 
             // open the uri.
             InputStream inputStream;
-            if("file".equals(uri.getScheme())) {
+            if ("file".equals(uri.getScheme())) {
                 inputStream = new FileInputStream(toFile(uri));
             } else {
                 Downloader.Response response = downloader.load(uri, 0);

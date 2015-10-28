@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
@@ -21,9 +22,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.RoboGuice;
+import butterknife.BindDrawable;
+import butterknife.ButterKnife;
 import roboguice.inject.ContextSingleton;
-import roboguice.inject.InjectResource;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -42,45 +43,45 @@ public class NavigationProvider {
     private final BookmarkService bookmarkService;
     private final SingleShotService singleShotService;
 
-    @InjectResource(R.drawable.ic_black_action_favorite)
-    private Drawable iconFavorites;
+    @BindDrawable(R.drawable.ic_black_action_favorite)
+    Drawable iconFavorites;
 
-    @InjectResource(R.drawable.ic_black_action_home)
-    private Drawable iconFeedTypePromoted;
+    @BindDrawable(R.drawable.ic_black_action_home)
+    Drawable iconFeedTypePromoted;
 
-    @InjectResource(R.drawable.ic_black_action_stelz)
-    private Drawable iconFeedTypePremium;
+    @BindDrawable(R.drawable.ic_black_action_stelz)
+    Drawable iconFeedTypePremium;
 
-    @InjectResource(R.drawable.ic_black_action_trending)
-    private Drawable iconFeedTypeNew;
+    @BindDrawable(R.drawable.ic_black_action_trending)
+    Drawable iconFeedTypeNew;
 
-    @InjectResource(R.drawable.ic_action_random)
-    private Drawable iconFeedTypeRandom;
+    @BindDrawable(R.drawable.ic_action_random)
+    Drawable iconFeedTypeRandom;
 
-    @InjectResource(R.drawable.ic_category_controversial)
-    private Drawable iconFeedTypeControversial;
+    @BindDrawable(R.drawable.ic_category_controversial)
+    Drawable iconFeedTypeControversial;
 
-    @InjectResource(R.drawable.ic_black_action_bookmark)
-    private Drawable iconBookmark;
+    @BindDrawable(R.drawable.ic_black_action_bookmark)
+    Drawable iconBookmark;
 
-    @InjectResource(R.drawable.ic_action_email)
-    private Drawable iconInbox;
+    @BindDrawable(R.drawable.ic_action_email)
+    Drawable iconInbox;
 
-    @InjectResource(R.drawable.ic_drawer_bestof)
-    private Drawable iconFeedTypeBestOf;
+    @BindDrawable(R.drawable.ic_drawer_bestof)
+    Drawable iconFeedTypeBestOf;
 
-    @InjectResource(R.drawable.ic_black_action_upload)
-    private Drawable iconUpload;
+    @BindDrawable(R.drawable.ic_black_action_upload)
+    Drawable iconUpload;
 
     private BehaviorSubject<Boolean> extraCategoryApiAvailable = BehaviorSubject.create(false);
 
     @Inject
-    public NavigationProvider(Context context, UserService userService, InboxService inboxService,
+    public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,
                               Settings settings, BookmarkService bookmarkService,
                               SingleShotService singleShotService,
                               ExtraCategoryApi extraCategoryApi) {
 
-        this.context = context;
+        this.context = activity;
 
         this.userService = userService;
         this.inboxService = inboxService;
@@ -88,8 +89,8 @@ public class NavigationProvider {
         this.bookmarkService = bookmarkService;
         this.singleShotService = singleShotService;
 
-        // inject the resources
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+        // inject the images
+        ButterKnife.bind(this, activity);
 
         // for now, just activate the categories always. We'll fix this
         // later with code like below.

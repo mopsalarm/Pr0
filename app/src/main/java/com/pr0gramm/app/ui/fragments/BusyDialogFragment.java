@@ -15,6 +15,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -31,10 +32,10 @@ public class BusyDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.progress_dialog, null);
 
-        TextView text = (TextView) view.findViewById(R.id.text);
+        TextView text = ButterKnife.findById(view, R.id.text);
         text.setText(getDialogText());
 
-        this.progress = (BusyIndicator) view.findViewById(R.id.progress);
+        this.progress = ButterKnife.findById(view, R.id.progress);
 
         return DialogBuilder.start(getActivity())
                 .content(view)

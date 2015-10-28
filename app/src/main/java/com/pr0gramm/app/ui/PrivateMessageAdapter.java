@@ -19,6 +19,8 @@ import com.pr0gramm.app.util.AndroidUtility;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+
 /**
  */
 public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAdapter.MessageViewHolder> {
@@ -101,11 +103,11 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
         public MessageViewHolder(View itemView) {
             super(itemView);
 
-            text = (TextView) itemView.findViewById(R.id.message_text);
-            type = (TextView) itemView.findViewById(R.id.message_type);
-            sender = (SenderInfoView) itemView.findViewById(R.id.sender_info);
+            text = ButterKnife.findById(itemView, R.id.message_text);
+            type = ButterKnife.findById(itemView, R.id.message_type);
+            sender = ButterKnife.findById(itemView, R.id.sender_info);
             header = itemView.findViewById(R.id.header);
-            senderName = (UsernameView) itemView.findViewById(R.id.sender_name);
+            senderName = ButterKnife.findById(itemView, R.id.sender_name);
             divider = itemView.findViewById(R.id.divider);
         }
     }

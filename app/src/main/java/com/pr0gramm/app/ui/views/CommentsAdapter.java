@@ -30,8 +30,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.ButterKnife;
 import roboguice.util.Strings;
 
+import static butterknife.ButterKnife.findById;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -207,9 +209,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             super(itemView);
 
             // get the subviews
-            comment = (TextView) itemView.findViewById(R.id.comment);
-            vote = (VoteView) itemView.findViewById(R.id.voting);
-            senderInfo = (SenderInfoView) itemView.findViewById(R.id.sender_info);
+            comment = findById(itemView, R.id.comment);
+            vote = ButterKnife.findById(itemView, R.id.voting);
+            senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
         }
 
         public void setCommentDepth(int depth) {

@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.functions.Actions;
 
@@ -315,8 +316,8 @@ public class InfoLineView extends LinearLayout {
 
         TagViewHolder(View itemView) {
             super(itemView);
-            tag = (TextView) itemView.findViewById(R.id.tag_text);
-            vote = (VoteView) itemView.findViewById(R.id.tag_vote);
+            tag = ButterKnife.findById(itemView, R.id.tag_text);
+            vote = ButterKnife.findById(itemView, R.id.tag_vote);
         }
     }
 

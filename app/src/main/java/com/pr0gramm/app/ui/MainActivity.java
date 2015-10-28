@@ -47,7 +47,7 @@ import org.joda.time.Seconds;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 import rx.Observable;
 import rx.functions.Actions;
 
@@ -70,15 +70,15 @@ public class MainActivity extends RxRoboAppCompatActivity implements
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    @InjectView(R.id.drawer_layout)
-    private DrawerLayout drawerLayout;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
 
-    @InjectView(R.id.toolbar)
-    private Toolbar toolbar;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
 
     @Nullable
-    @InjectView(R.id.toolbar_container)
-    private View toolbarContainer;
+    @Bind(R.id.toolbar_container)
+    View toolbarContainer;
 
     @Inject
     private UserService userService;

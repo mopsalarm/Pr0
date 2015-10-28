@@ -18,17 +18,17 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 /**
  */
 @SuppressLint("ViewConstructor")
 public class ImageMediaView extends MediaView {
-    @InjectView(R.id.image)
-    private ImageView imageView;
+    @Bind(R.id.image)
+    ImageView imageView;
 
-    @InjectView(R.id.error)
-    private View errorIndicator;
+    @Bind(R.id.error)
+    View errorIndicator;
 
     @Inject
     private Settings settings;

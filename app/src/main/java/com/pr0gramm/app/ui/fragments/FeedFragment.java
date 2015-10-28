@@ -89,7 +89,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Actions;
@@ -144,17 +144,17 @@ public class FeedFragment extends RxRoboFragment {
     @Inject
     private PreloadManager preloadManager;
 
-    @InjectView(R.id.list)
-    private RecyclerView recyclerView;
+    @Bind(R.id.list)
+    RecyclerView recyclerView;
 
-    @InjectView(R.id.progress)
-    private BusyIndicator busyIndicator;
+    @Bind(R.id.progress)
+    BusyIndicator busyIndicator;
 
-    @InjectView(R.id.refresh)
-    private CustomSwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.refresh)
+    CustomSwipeRefreshLayout swipeRefreshLayout;
 
-    @InjectView(R.id.empty)
-    private View noResultsView;
+    @Bind(R.id.empty)
+    View noResultsView;
 
     private boolean userInfoCommentsOpen;
     private boolean bookmarkable;
@@ -268,7 +268,7 @@ public class FeedFragment extends RxRoboFragment {
     public void presentUserInfoCell(EnhancedUserInfo info) {
         MessageAdapter messages = new MessageAdapter(getActivity(), emptyList(), null, R.layout.user_info_comment) {
             @Override
-            public void onBindViewHolder(MessageAdapter.MessageViewHolder view, int position) {
+            public void onBindViewHolder(MessageViewHolder view, int position) {
                 super.onBindViewHolder(view, position);
                 view.itemView.setOnClickListener(v -> {
                     Message message = this.messages.get(position);

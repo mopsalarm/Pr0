@@ -14,7 +14,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -29,14 +29,14 @@ public class FeedbackActivity extends RxRoboAppCompatActivity {
     @Inject
     private UserService userService;
 
-    @InjectView(R.id.submit)
-    private Button buttonSubmit;
+    @Bind(R.id.submit)
+    Button buttonSubmit;
 
-    @InjectView(R.id.feedback_name)
-    private EditText vName;
+    @Bind(R.id.feedback_name)
+    EditText vName;
 
-    @InjectView(R.id.feedback_text)
-    private EditText vText;
+    @Bind(R.id.feedback_text)
+    EditText vText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

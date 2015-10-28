@@ -95,7 +95,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
@@ -161,20 +161,20 @@ public class PostFragment extends RxRoboFragment implements
     @Inject
     private PreloadManager preloadManager;
 
-    @InjectView(R.id.refresh)
-    private SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
-    @InjectView(R.id.player_container)
-    private ViewGroup playerContainer;
+    @Bind(R.id.player_container)
+    ViewGroup playerContainer;
 
-    @InjectView(R.id.content)
-    private RecyclerView content;
+    @Bind(R.id.content)
+    RecyclerView content;
 
-    @InjectView(R.id.vote_indicator)
-    private TextView voteAnimationIndicator;
+    @Bind(R.id.vote_indicator)
+    TextView voteAnimationIndicator;
 
-    @InjectView(R.id.repost_hint)
-    private View repostHint;
+    @Bind(R.id.repost_hint)
+    View repostHint;
 
     private InfoLineView infoLineView;
 

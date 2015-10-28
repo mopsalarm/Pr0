@@ -52,7 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Action2;
@@ -217,7 +218,7 @@ public class AndroidUtility {
                 break;
 
             FluentIterable.of(currentClass.getDeclaredFields())
-                    .filter(field -> field.isAnnotationPresent(InjectView.class))
+                    .filter(field -> field.isAnnotationPresent(Bind.class))
                     .copyInto(fields);
 
             currentClass = currentClass.getSuperclass();
@@ -361,6 +362,6 @@ public class AndroidUtility {
      */
     public static <T extends View> T findView(View view, int id) {
         //noinspection unchecked
-        return checkNotNull((T) view.findViewById(id));
+        return checkNotNull(ButterKnife.findById(view, id));
     }
 }

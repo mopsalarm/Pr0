@@ -3,12 +3,14 @@ package com.pr0gramm.app.ui;
 import android.os.Bundle;
 import android.view.View;
 
+import com.f2prateek.dart.Dart;
 import com.google.inject.Inject;
 import com.pr0gramm.app.ab.ExperimentService;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
+import butterknife.ButterKnife;
 import roboguice.fragment.RoboFragment;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,12 +51,17 @@ public class RxRoboFragment extends RoboFragment implements FragmentLifecyclePro
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null) {
+            Dart.inject(this, getArguments());
+        }
+
         lifecycleSubject.onNext(FragmentEvent.CREATE);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ButterKnife.bind(this, view);
         lifecycleSubject.onNext(FragmentEvent.CREATE_VIEW);
     }
 

@@ -9,13 +9,13 @@ import com.google.inject.Inject;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 /**
  */
 public abstract class AbstractProgressMediaView extends MediaView {
-    @InjectView(R.id.video_progress)
-    private ProgressBar videoProgressView;
+    @Bind(R.id.video_progress)
+    ProgressBar videoProgressView;
 
     @Inject
     private Settings settings;

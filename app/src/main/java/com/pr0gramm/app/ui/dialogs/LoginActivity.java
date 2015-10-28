@@ -35,9 +35,9 @@ import org.joda.time.Weeks;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import retrofit.HttpException;
 import roboguice.RoboGuice;
-import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -58,14 +58,14 @@ public class LoginActivity extends RxRoboAppCompatActivity {
     @Inject
     private UserService userService;
 
-    @InjectView(R.id.username)
-    private EditText usernameView;
+    @Bind(R.id.username)
+    EditText usernameView;
 
-    @InjectView(R.id.password)
-    private EditText passwordView;
+    @Bind(R.id.password)
+    EditText passwordView;
 
-    @InjectView(R.id.login)
-    private Button submitView;
+    @Bind(R.id.login)
+    Button submitView;
 
     private Subscription subscription;
 

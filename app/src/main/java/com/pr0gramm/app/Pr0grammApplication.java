@@ -10,6 +10,7 @@ import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
+import com.f2prateek.dart.Dart;
 import com.google.common.base.Throwables;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
@@ -23,6 +24,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 import pl.brightinventions.slf4android.LoggerConfiguration;
 import rx.Scheduler;
@@ -65,6 +67,8 @@ public class Pr0grammApplication extends SugarApp {
         } else {
             logger.info("This is a development version.");
             StrictMode.enableDefaults();
+            ButterKnife.setDebug(true);
+            Dart.setDebug(true);
         }
 
         // initialize this to show errors always in the context of the current activity.

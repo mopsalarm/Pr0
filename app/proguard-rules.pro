@@ -62,3 +62,14 @@
 # for gifs
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
 -keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
+
+
+# this is for dart injection library
+-dontwarn com.f2prateek.dart.internal.**
+-keep class **$$ExtraInjector { *; }
+-keepclasseswithmembernames class * {
+    @com.f2prateek.dart.* <fields>;
+}
+#for dart 2.0 only
+-keep class **Henson { *; }
+-keep class **$$IntentBuilder { *; }

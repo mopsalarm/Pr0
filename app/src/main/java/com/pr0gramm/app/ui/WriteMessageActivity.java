@@ -29,8 +29,8 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 
+import butterknife.Bind;
 import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -57,14 +57,14 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
     @Inject
     private VoteService voteService;
 
-    @InjectView(R.id.message_view)
-    private MessageView messageView;
+    @Bind(R.id.message_view)
+    MessageView messageView;
 
-    @InjectView(R.id.new_message_text)
-    private TextView messageText;
+    @Bind(R.id.new_message_text)
+    TextView messageText;
 
-    @InjectView(R.id.submit)
-    private Button buttonSubmit;
+    @Bind(R.id.submit)
+    Button buttonSubmit;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,7 +125,7 @@ public class WriteMessageActivity extends RxRoboAppCompatActivity {
         return true;
     }
 
-    @OptionMenuHelper.OnOptionsItemSelected(R.id.action_send)
+    @OnOptionsItemSelected(R.id.action_send)
     public void sendMessageNow() {
         String message = getMessageText();
         if (message.isEmpty()) {

@@ -20,13 +20,12 @@ import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
 
 import javax.inject.Inject;
 
-import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 /**
  * The activity that displays the inbox.
  */
-public class InboxActivity extends RoboActionBarActivity implements ViewPager.OnPageChangeListener {
+public class InboxActivity extends RxRoboAppCompatActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
     public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
 
@@ -39,11 +38,11 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
     @Inject
     private ExperimentService experimentService;
 
-    @InjectView(R.id.pager)
-    private ViewPager viewPager;
+    @Bind(R.id.pager)
+    ViewPager viewPager;
 
-    @InjectView(R.id.tabs)
-    private TabLayout tabLayout;
+    @Bind(R.id.tabs)
+    TabLayout tabLayout;
 
     private TabsAdapter tabsAdapter;
 
@@ -91,7 +90,7 @@ public class InboxActivity extends RoboActionBarActivity implements ViewPager.On
         }
 
         // track if we've clicked the notification!
-        if(getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
+        if (getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
             Track.notificationClicked();
         }
     }

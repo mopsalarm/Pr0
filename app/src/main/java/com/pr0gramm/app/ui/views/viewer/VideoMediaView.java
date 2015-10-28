@@ -11,13 +11,13 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView {
-    @InjectView(R.id.video)
-    private CustomVideoView videoView;
+    @Bind(R.id.video)
+    CustomVideoView videoView;
 
     @Inject
     private SingleShotService singleShotService;
@@ -61,15 +61,15 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
     @Override
     protected Optional<Float> getVideoProgress() {
-        if(videoView != null && videoViewInitialized && isPlaying()) {
+        if (videoView != null && videoViewInitialized && isPlaying()) {
             int position = videoView.getCurrentPosition();
             int duration = videoView.getDuration();
 
-            if(position >= 0 && duration > 0) {
+            if (position >= 0 && duration > 0) {
                 return Optional.of(position / (float) duration);
             }
         }
-        
+
         return Optional.absent();
     }
 

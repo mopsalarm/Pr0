@@ -164,8 +164,12 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
 
-    compile 'com.f2prateek.dart:dart:2.0.0-RC1'
-    compile 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
+    compile ("com.f2prateek.dart:dart:2.0.0-RC1") {
+        // someone fucked up and added this library.
+        // see https://github.com/f2prateek/dart/issues/74
+        exclude group: "com.squareup", module: "javapoet"
+    }
+    apt 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
 
     // rx java
     compile 'io.reactivex:rxjava:1.0.14'

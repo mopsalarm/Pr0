@@ -1,12 +1,9 @@
 package com.pr0gramm.app.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SupportV4App;
-import android.util.AttributeSet;
-import android.view.View;
 
 import com.f2prateek.dart.Dart;
 import com.trello.rxlifecycle.ActivityEvent;
@@ -189,14 +186,8 @@ public class RxRoboAppCompatActivity extends RoboActionBarActivity implements Ac
     }
 
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public void onSupportContentChanged() {
+        super.onSupportContentChanged();
         ButterKnife.bind(this);
-        return super.onCreateView(name, context, attrs);
-    }
-
-    @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        ButterKnife.bind(this);
-        return super.onCreateView(parent, name, context, attrs);
     }
 }

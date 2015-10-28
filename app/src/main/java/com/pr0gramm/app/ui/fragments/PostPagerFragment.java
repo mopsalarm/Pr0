@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -46,8 +46,8 @@ public class PostPagerFragment extends RxRoboFragment {
     @Inject
     private FeedService feedService;
 
-    @InjectView(R.id.pager)
-    private ViewPager viewPager;
+    @Bind(R.id.pager)
+    ViewPager viewPager;
 
     private Feed feed;
     private PostAdapter adapter;
@@ -96,7 +96,7 @@ public class PostPagerFragment extends RxRoboFragment {
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if(position >= 0 && position + 1 < adapter.getCount()) {
+                if (position >= 0 && position + 1 < adapter.getCount()) {
                     Optional<Fragment> prev = adapter.getFragment(position);
                     Optional<Fragment> next = adapter.getFragment(position + 1);
                     if (prev.isPresent() && next.isPresent()) {
@@ -190,7 +190,7 @@ public class PostPagerFragment extends RxRoboFragment {
     }
 
     /**
-     * @see #getArgumentFeed(android.os.Bundle)
+     * @see #getArgumentFeed(Bundle)
      */
     private FeedItem getArgumentStartItem(@Nullable Bundle saveState) {
         FeedItem result = null;

@@ -54,7 +54,8 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.util.async.Async;
@@ -154,23 +155,23 @@ public class UploadActivity extends RxRoboAppCompatActivity {
         @Inject
         private SingleShotService singleShotService;
 
-        @InjectView(R.id.preview)
-        private ImageView preview;
+        @Bind(R.id.preview)
+        ImageView preview;
 
-        @InjectView(R.id.upload)
-        private Button upload;
+        @Bind(R.id.upload)
+        Button upload;
 
-        @InjectView(R.id.busy_indicator)
-        private BusyIndicator busyIndicator;
+        @Bind(R.id.busy_indicator)
+        BusyIndicator busyIndicator;
 
-        @InjectView(R.id.tags)
-        private MultiAutoCompleteTextView tags;
+        @Bind(R.id.tags)
+        MultiAutoCompleteTextView tags;
 
-        @InjectView(R.id.scrollView)
-        private ScrollView scrollView;
+        @Bind(R.id.scrollView)
+        ScrollView scrollView;
 
-        @InjectView(R.id.content_type_group)
-        private RadioGroup contentTypeGroup;
+        @Bind(R.id.content_type_group)
+        RadioGroup contentTypeGroup;
 
         private File file;
 
@@ -199,7 +200,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             TagInputView.setup(tags);
 
             // add the small print to the view
-            TextView smallPrintView = (TextView) view.findViewById(R.id.small_print);
+            TextView smallPrintView = ButterKnife.findById(view, R.id.small_print);
             int offset = getResources().getDimensionPixelSize(R.dimen.bullet_list_leading_margin);
             smallPrintView.setText(AndroidUtility.makeBulletList(offset,
                     getResources().getStringArray(R.array.upload_small_print)));
@@ -376,7 +377,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
             View view = getView();
             if (view != null) {
                 for (Map.Entry<Integer, ContentType> entry : types.entrySet()) {
-                    RadioButton button = (RadioButton) view.findViewById(entry.getKey());
+                    RadioButton button = ButterKnife.findById(view, entry.getKey());
                     if (button != null && button.isChecked())
                         return entry.getValue();
                 }

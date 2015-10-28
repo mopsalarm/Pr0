@@ -48,10 +48,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.inject.InjectView;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
+import static com.pr0gramm.app.R.id.unread_count;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 
@@ -70,41 +72,41 @@ public class DrawerFragment extends RxRoboFragment {
     @Inject
     private NavigationProvider navigationProvider;
 
-    @InjectView(R.id.username)
-    private TextView usernameView;
+    @Bind(R.id.username)
+    TextView usernameView;
 
-    @InjectView(R.id.user_type)
-    private TextView userTypeView;
+    @Bind(R.id.user_type)
+    TextView userTypeView;
 
-    @InjectView(R.id.kpi_benis)
-    private TextView benisView;
+    @Bind(R.id.kpi_benis)
+    TextView benisView;
 
-    @InjectView(R.id.benis_delta)
-    private TextView benisDeltaView;
+    @Bind(R.id.benis_delta)
+    TextView benisDeltaView;
 
-    @InjectView(R.id.benis_container)
-    private View benisContainer;
+    @Bind(R.id.benis_container)
+    View benisContainer;
 
-    @InjectView(R.id.benis_graph)
-    private ImageView benisGraph;
+    @Bind(R.id.benis_graph)
+    ImageView benisGraph;
 
-    @InjectView(R.id.action_login)
-    private View loginView;
+    @Bind(R.id.action_login)
+    View loginView;
 
-    @InjectView(R.id.action_logout)
-    private View logoutView;
+    @Bind(R.id.action_logout)
+    View logoutView;
 
-    @InjectView(R.id.action_feedback)
-    private TextView feedbackView;
+    @Bind(R.id.action_feedback)
+    TextView feedbackView;
 
-    @InjectView(R.id.action_settings)
-    private View settingsView;
+    @Bind(R.id.action_settings)
+    View settingsView;
 
-    @InjectView(R.id.user_image)
-    private View userImageView;
+    @Bind(R.id.user_image)
+    View userImageView;
 
-    @InjectView(R.id.drawer_nav_list)
-    private RecyclerView navItemsRecyclerView;
+    @Bind(R.id.drawer_nav_list)
+    RecyclerView navItemsRecyclerView;
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
@@ -350,7 +352,7 @@ public class DrawerFragment extends RxRoboFragment {
             });
 
             if (item.action() == NavigationProvider.ActionType.MESSAGES) {
-                TextView unread = (TextView) holder.itemView.findViewById(R.id.unread_count);
+                TextView unread = ButterKnife.findById(holder.itemView, unread_count);
                 unread.setText(String.valueOf(item.unreadCount()));
                 unread.setVisibility(item.unreadCount() > 0 ? View.VISIBLE : View.GONE);
             }
