@@ -1,6 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm;
 
 import android.content.SharedPreferences;
+import android.support.annotation.Keep;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
@@ -19,6 +20,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import proguard.annotation.KeepClassMembers;
 
 import static com.google.common.base.Objects.equal;
 import static java.util.Arrays.asList;
@@ -224,6 +227,7 @@ public class LoginCookieHandler extends CookieHandler {
         return httpCookie != null && parsedCookie.transform(c -> c.id != null).or(false);
     }
 
+    @KeepClassMembers
     public static class Cookie {
         public String n;
         public String id;

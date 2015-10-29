@@ -2,6 +2,11 @@
 
 # -dontobfuscate
 -flattenpackagehierarchy
+-allowaccessmodification
+-mergeinterfacesaggressively
+-repackageclasses
+
+-printconfiguration
 
 -dontwarn java.nio.**
 -dontwarn java.lang.invoke.**
@@ -25,16 +30,10 @@
 -dontwarn java.lang.ClassValue
 
 # -keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
--keepattributes *Annotation*,Signature
+-keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
 
-# keep our application
--keep class com.pr0gramm.app.orm.** { *; }
--keep class com.pr0gramm.app.vpx.** { *; }
--keep class com.pr0gramm.app.api.** { *; }
--keep class com.pr0gramm.app.services.gif.** { *; }
-
-# keep retrofit-annotations and methods
--keep class retrofit.** { *; }
+# keep database model
+-keep class * extends com.orm.SugarRecord { *; }
 
 # keep native  methods/names
 -keepclasseswithmembernames class * {
@@ -62,10 +61,15 @@
 # this is for dart injection library
 -dontwarn com.f2prateek.dart.internal.**
 -keep class **$$ExtraInjector { *; }
--keepclasseswithmembernames class * {
-    @com.f2prateek.dart.* <fields>;
-}
 
-#for dart 2.0 only
+# for dart 2.0 only
 -keep class **Henson { *; }
 -keep class **$$IntentBuilder { *; }
+
+# kkeep enums!
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+    **[] $VALUES;
+    public *;
+}

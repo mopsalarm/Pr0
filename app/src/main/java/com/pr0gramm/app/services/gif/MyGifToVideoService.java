@@ -7,6 +7,7 @@ import com.squareup.okhttp.OkHttpClient;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import proguard.annotation.KeepClassMembers;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
@@ -49,7 +50,7 @@ public class MyGifToVideoService implements GifToVideoService {
 
         String encoded = BaseEncoding.base64Url().encode(gifUrl.getBytes(Charsets.UTF_8));
         return api.convert(encoded)
-                .map(result -> new Result(gifUrl, DEFAULT_ENDPOINT + result.getPath()))
+                .map(result -> new Result(gifUrl, DEFAULT_ENDPOINT + result.path))
                 .onErrorResumeNext(fallback);
     }
 
@@ -63,11 +64,8 @@ public class MyGifToVideoService implements GifToVideoService {
 
     /**
      */
+    @KeepClassMembers
     private static class ConvertResult {
-        private String path;
-
-        public String getPath() {
-            return path;
-        }
+        String path;
     }
 }

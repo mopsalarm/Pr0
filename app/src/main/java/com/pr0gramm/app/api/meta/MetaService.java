@@ -1,6 +1,7 @@
 package com.pr0gramm.app.api.meta;
 
 import android.graphics.PointF;
+import android.support.annotation.Keep;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;

@@ -157,8 +157,8 @@ dependencies {
     compile 'com.pnikosis:materialish-progress:1.7'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile 'com.google.android.apps.muzei:muzei-api:2.0'
     compile 'com.squareup.sqlbrite:sqlbrite:0.4.0'
+    compile "com.infstory:proguard-annotations:1.0.2"
 
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'

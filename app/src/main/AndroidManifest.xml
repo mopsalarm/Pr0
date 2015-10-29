@@ -68,21 +68,6 @@
             android:name=".services.preloading.PreloadService"
             android:exported="false"/>
 
-        <service
-            android:name=".MuzeiSupport"
-            android:description="@string/muzei_source_description"
-            android:icon="@drawable/ic_app"
-            android:label="@string/muzei_source_name">
-
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="color"
-                android:value="@color/primary"/>
-        </service>
-
         <provider
             android:name=".services.ShareProvider"
             android:authorities="${applicationId}.ShareProvider"

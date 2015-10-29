@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
@@ -34,6 +35,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import proguard.annotation.KeepClassMemberNames;
+import proguard.annotation.KeepClassMembers;
 
 
 /**
@@ -127,8 +131,7 @@ public class ChangeLogDialog extends RxRoboDialogFragment {
             if (item instanceof Version) {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
-                holder.setTextColorId(version.current
-                        ? R.color.primary : R.color.primary_dark_material_light);
+                holder.setTextColorId(version.current ? R.color.primary : R.color.grey_700);
             }
         }
 
@@ -172,16 +175,18 @@ public class ChangeLogDialog extends RxRoboDialogFragment {
         }
 
         public void setTextColorId(@ColorRes int textColorId) {
-            int color = itemView.getContext().getResources().getColor(textColorId);
+            int color = ContextCompat.getColor(itemView.getContext(), textColorId);
             this.text.setTextColor(color);
         }
     }
 
+    @KeepClassMembers
     private static final class Change {
         String type;
         String change;
     }
 
+    @KeepClassMembers
     private static final class ChangeGroup {
         int version;
         List<Change> changes;

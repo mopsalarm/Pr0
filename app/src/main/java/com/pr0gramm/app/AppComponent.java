@@ -43,6 +43,4 @@ public interface AppComponent {
     void inject(ShareProvider shareProvider);
 
     void inject(PreloadService preloadService);
-
-    void inject(MuzeiSupport service);
 }

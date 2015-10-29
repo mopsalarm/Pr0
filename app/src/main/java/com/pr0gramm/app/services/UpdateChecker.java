@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Keep;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.BuildConfig;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import proguard.annotation.KeepClassMembers;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -71,6 +73,7 @@ public class UpdateChecker {
                 .first();
     }
 
+    @KeepClassMembers
     public static class Update implements Parcelable {
         private int version;
         private String apk;
