@@ -65,7 +65,7 @@ import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OptionMenuHelper;
-import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
+import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.PermissionHelperActivity;
 import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.Screen;
@@ -191,7 +191,7 @@ public class PostFragment extends RxRoboFragment implements
 
     private List<Tag> tags;
     private List<Comment> comments;
-    boolean rewindOnLoad;
+    private boolean rewindOnLoad;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -271,10 +271,14 @@ public class PostFragment extends RxRoboFragment implements
         loadPostDetails();
 
         // show the repost badge if this is a repost
-        if (localCacheService.isRepost(feedItem)) {
+        if (isRepost()) {
             repostHint.setVisibility(View.VISIBLE);
             repostHint.setRotation(45);
         }
+    }
+
+    private boolean isRepost() {
+        return localCacheService.isRepost(feedItem);
     }
 
     @Override
@@ -442,6 +446,7 @@ public class PostFragment extends RxRoboFragment implements
                     .setDuration(500)
                     .start();
 
+            repostHint.setVisibility(View.GONE);
 
             // hide content below
             swipeRefreshLayout.setVisibility(View.GONE);
@@ -517,7 +522,6 @@ public class PostFragment extends RxRoboFragment implements
                     .setDuration(500)
                     .start();
 
-
             ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, 0),
                     ofFloat(View.TRANSLATION_Y, 0),
@@ -525,6 +529,11 @@ public class PostFragment extends RxRoboFragment implements
                     ofFloat(View.SCALE_Y, 1))
                     .setDuration(500)
                     .start();
+
+            if (isRepost()) {
+                repostHint.setVisibility(View.VISIBLE);
+            }
+
         } else {
             viewer.setRotation(0.f);
             viewer.setTranslationY(0.f);

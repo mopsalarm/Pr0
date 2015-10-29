@@ -35,6 +35,10 @@
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }
 
+-keepclassmembers class * {
+    @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
+}
+
 # keep native  methods/names
 -keepclasseswithmembernames class * {
     native <methods>;

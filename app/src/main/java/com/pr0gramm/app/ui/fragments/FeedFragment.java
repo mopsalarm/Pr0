@@ -66,7 +66,7 @@ import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.OptionMenuHelper;
-import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
+import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;

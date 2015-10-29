@@ -27,7 +27,6 @@ import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
-import com.pr0gramm.app.ui.OptionMenuHelper.OnOptionsItemSelected;
 
 import javax.inject.Inject;
 

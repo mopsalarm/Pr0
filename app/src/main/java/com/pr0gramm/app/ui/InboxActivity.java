@@ -106,7 +106,7 @@ public class InboxActivity extends RxRoboAppCompatActivity implements ViewPager.
         return super.onOptionsItemSelected(item) || OptionMenuHelper.dispatch(this, item);
     }
 
-    @OptionMenuHelper.OnOptionsItemSelected(android.R.id.home)
+    @OnOptionsItemSelected(android.R.id.home)
     @Override
     public void finish() {
         super.finish();
