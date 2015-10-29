@@ -3,7 +3,6 @@
 # -dontobfuscate
 -flattenpackagehierarchy
 -allowaccessmodification
--mergeinterfacesaggressively
 -repackageclasses
 
 -printconfiguration
