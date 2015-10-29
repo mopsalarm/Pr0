@@ -1,5 +1,22 @@
 [
   {
+    "version": 78,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Verstecke die 'repost'-Badge im Vollbild"
+      },
+      {
+        "type": "Fix",
+        "change": "Startup auf langsameren Geräten beschleunigt"
+      },
+      {
+        "type": "Fix",
+        "change": "Größe der App gut 30% kleiner"
+      }
+    ]
+  },
+  {
     "version": 77,
     "changes": [
       {
