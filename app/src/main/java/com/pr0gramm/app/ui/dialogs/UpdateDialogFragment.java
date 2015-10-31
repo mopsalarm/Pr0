@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.services.Update;
 import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
@@ -42,15 +43,15 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        UpdateChecker.Update update = getArguments().getParcelable("update");
+        Update update = getArguments().getParcelable("update");
         return update != null
                 ? updateAvailableDialog(update)
                 : noNewUpdateDialog();
     }
 
-    private Dialog updateAvailableDialog(final UpdateChecker.Update update) {
+    private Dialog updateAvailableDialog(final Update update) {
         return DialogBuilder.start(getActivity())
-                .content(getString(R.string.new_update_available, update.getChangelog()))
+                .content(getString(R.string.new_update_available, update.changelog()))
                 .positive(R.string.download, () -> download(update))
                 .negative(R.string.ignore)
                 .build();
@@ -63,8 +64,8 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
                 .show();
     }
 
-    private void download(UpdateChecker.Update update) {
-        Uri apkUrl = Uri.parse(update.getApk());
+    private void download(Update update) {
+        Uri apkUrl = Uri.parse(update.apk());
 
         DownloadManager.Request request = new DownloadManager.Request(apkUrl)
                 .setVisibleInDownloadsUi(false)
@@ -76,7 +77,7 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
                 .apply();
     }
 
-    public static UpdateDialogFragment newInstance(UpdateChecker.Update update) {
+    public static UpdateDialogFragment newInstance(Update update) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("update", update);
 
@@ -106,7 +107,7 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
                 .apply();
 
         // show a busy-dialog or not?
-        Observable.Operator<UpdateChecker.Update, UpdateChecker.Update> busyOperator =
+        Observable.Operator<Update, Update> busyOperator =
                 interactive ? busyDialog(activity) : NOOP;
 
         // do the check
@@ -125,7 +126,7 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
     }
 
     private static final String KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck";
-    private static final Observable.Operator<UpdateChecker.Update, UpdateChecker.Update> NOOP = subscriber -> subscriber;
+    private static final Observable.Operator<Update, Update> NOOP = subscriber -> subscriber;
 
     @Override
     protected void injectComponent(ActivityComponent activityComponent) {

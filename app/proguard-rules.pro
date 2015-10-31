@@ -34,6 +34,7 @@
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }
 
+# this is for dispatching menu clicks via reflection
 -keepclassmembers class * {
     @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
 }
@@ -60,7 +61,6 @@
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
 -keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
 
-
 # this is for dart injection library
 -dontwarn com.f2prateek.dart.internal.**
 -keep class **$$ExtraInjector { *; }
@@ -69,7 +69,7 @@
 -keep class **Henson { *; }
 -keep class **$$IntentBuilder { *; }
 
-# kkeep enums!
+# keep enums!
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
