@@ -20,7 +20,7 @@ public class CustomProxySelector extends ProxySelector {
     @Override
     public List<Proxy> select(URI uri) {
         if ("pr0gramm.com".equals(uri.getHost())) {
-            if (uri.getPath().startsWith("/api/")) {
+            if (uri.getPath().startsWith("/api/") && !"/api/user/login".equals(uri.getPath())) {
                 logger.info("Using proxy for {}", uri);
 
                 InetSocketAddress address = new InetSocketAddress("pr0.wibbly-wobbly.de", 8080);

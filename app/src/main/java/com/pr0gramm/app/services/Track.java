@@ -104,7 +104,8 @@ public final class Track {
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
                 .putCustomAttribute("image size", settings.maxImageSize())
                 .putCustomAttribute("video progress", String.valueOf(settings.showVideoProgress()))
-                .putCustomAttribute("https", String.valueOf(settings.useHttps()))));
+                .putCustomAttribute("https", String.valueOf(settings.useHttps()))
+                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 
     public static void drawerOpened() {

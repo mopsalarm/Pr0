@@ -31,13 +31,17 @@ public final class UriHelper {
 
     private Uri.Builder start() {
         return new Uri.Builder()
-                .scheme(settings.useHttps() ? "https" : "http")
+                .scheme(scheme())
                 .authority("pr0gramm.com");
+    }
+
+    private String scheme() {
+        return (settings.useHttps() && !settings.useApiProxy()) ? "https" : "http";
     }
 
     private Uri.Builder start(String subdomain) {
         return new Uri.Builder()
-                .scheme(settings.useHttps() ? "https" : "http")
+                .scheme(scheme())
                 .authority(subdomain + ".pr0gramm.com");
     }
 
