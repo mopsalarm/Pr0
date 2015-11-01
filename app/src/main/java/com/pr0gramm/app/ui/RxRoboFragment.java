@@ -57,7 +57,7 @@ public abstract class RxRoboFragment extends Fragment implements FragmentLifecyc
         super.onCreate(savedInstanceState);
 
         FragmentActivity activity = getActivity();
-        injectComponent(Dagger.activityComponent(getActivity()));
+        injectComponent(Dagger.activityComponent(activity));
 
         if(getArguments() != null)
             Dart.inject(this, getArguments());

@@ -3,6 +3,10 @@
     "version": 78,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Neue Option unter Kompatibilität um einen Proxy Server für Api-Anfragen zu nutzen. Kann helfen, wenn du im WLAN häufig Sachen nicht laden kannst."
+      },
+      {
         "type": "Fix",
         "change": "Verstecke die 'repost'-Badge im Vollbild"
       },

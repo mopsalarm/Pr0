@@ -8,6 +8,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  */
@@ -71,6 +72,7 @@ public abstract class LoaderHelper<T> {
 
         subscription = newObservable()
                 .first()
+                .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onNext, this::onError);
     }

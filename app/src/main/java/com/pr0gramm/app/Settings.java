@@ -234,6 +234,10 @@ public class Settings {
         return BuildConfig.DEBUG && preferences.getBoolean("pref_debug_mock_api", false);
     }
 
+    public boolean useApiProxy() {
+        return preferences.getBoolean("pref_use_api_proxy", false);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
@@ -22,6 +23,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.joda.time.Instant;
 
@@ -83,6 +85,9 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
 
         @Inject
         PreloadManager preloadManager;
+
+        @Inject
+        OkHttpClient okHttpClient;
 
         private Subscription preloadItemsSubscription;
 
@@ -239,6 +244,19 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
                             .show();
                 }
             }
+
+            if ("pref_use_api_proxy".equals(key)) {
+                boolean useProxy = preferences.getBoolean(key, false);
+                okHttpClient.setProxySelector(useProxy ? new CustomProxySelector() : null);
+
+                if (useProxy) {
+                    DialogBuilder.start(activity)
+                            .content(R.string.warn_api_proxy)
+                            .positive(R.string.okay)
+                            .show();
+                }
+            }
+
         }
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {

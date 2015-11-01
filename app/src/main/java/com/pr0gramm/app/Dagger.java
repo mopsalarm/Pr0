@@ -18,7 +18,7 @@ public class Dagger {
 
     public static ActivityComponent activityComponent(Activity activity) {
         if (activity instanceof RxRoboAppCompatActivity) {
-            // reuse the graph
+            // create or reuse the graph
             return ((RxRoboAppCompatActivity) activity).getActivityComponent();
         } else {
             return newActivityComponent(activity);

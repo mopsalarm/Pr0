@@ -39,7 +39,7 @@ public class HttpModule {
 
     @Provides
     @Singleton
-    public OkHttpClient okHttpClient(Context context, LoginCookieHandler cookieHandler) {
+    public OkHttpClient okHttpClient(Context context, Settings settings, LoginCookieHandler cookieHandler) {
         File cacheDir = new File(context.getCacheDir(), "imgCache");
 
         OkHttpClient client = new OkHttpClient();
@@ -52,6 +52,8 @@ public class HttpModule {
         client.setConnectTimeout(10, TimeUnit.SECONDS);
         client.setConnectionPool(new ConnectionPool(4, 1000));
         client.setRetryOnConnectionFailure(true);
+
+        client.setProxySelector(settings.useApiProxy() ? new CustomProxySelector() : null);
 
         final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
         client.networkInterceptors().add(chain -> {

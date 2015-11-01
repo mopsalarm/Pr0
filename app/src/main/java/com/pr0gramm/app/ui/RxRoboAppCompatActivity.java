@@ -23,6 +23,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+
 /**
  * A {@link android.support.v7.app.AppCompatActivity}
  * with roboguice functionality and its lifecycle exposed as an observable.
@@ -165,6 +167,11 @@ public abstract class RxRoboAppCompatActivity extends AppCompatActivity implemen
     protected abstract void injectComponent(ActivityComponent appComponent);
 
     public ActivityComponent getActivityComponent() {
+        checkMainThread();
+
+        if (activityComponent == null)
+            activityComponent = Dagger.newActivityComponent(this);
+
         return activityComponent;
     }
 
