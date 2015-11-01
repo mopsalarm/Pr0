@@ -33,6 +33,10 @@ android {
         versionName "1.${(int)(appVersion / 10)}"
 
         resConfigs "en", "de"
+
+        ndk {
+            abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
+        }
     }
 
     sourceSets.main {
@@ -110,10 +114,11 @@ android.applicationVariants.all { variant ->
     variant.mergeResources.doLast {
         def filesToDelete = fileTree(variant.mergeResources.outputDir) {
             // remove timezone data
-            include "raw/joda_time_android_tzdata_*"
-            exclude "raw/joda_time_android_tzdata_etc_utc"
-            exclude "raw/joda_time_android_tzdata_europe_berlin"
-            exclude "raw/joda_time_android_tzdata_zoneinfomap"
+            include "raw/joda_*"
+            exclude "raw/joda_etc_utc"
+            exclude "raw/joda_europe_berlin"
+            exclude "raw/joda_europe_zurich"
+            exclude "raw/joda_zoneinfomap"
 
             // remove left-to-right drawables
             include "drawable-ldrtl-*/*"
@@ -144,7 +149,7 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
     compile 'com.google.guava:guava:19.0-rc2'
 
-    compile 'net.danlew:android.joda:2.8.2'
+    compile 'net.danlew:android.joda:2.9.0'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta1'
     compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta1'
