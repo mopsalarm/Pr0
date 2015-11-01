@@ -23,7 +23,7 @@ public class CustomProxySelector extends ProxySelector {
             if (uri.getPath().startsWith("/api/") && !"/api/user/login".equals(uri.getPath())) {
                 logger.info("Using proxy for {}", uri);
 
-                InetSocketAddress address = new InetSocketAddress("pr0.wibbly-wobbly.de", 8080);
+                InetSocketAddress address = new InetSocketAddress("pr0.wibbly-wobbly.de", 80);
                 Proxy proxy = new Proxy(Proxy.Type.HTTP, address);
                 return Collections.singletonList(proxy);
             }

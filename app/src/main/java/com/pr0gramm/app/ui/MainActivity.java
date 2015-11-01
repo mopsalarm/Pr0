@@ -164,7 +164,7 @@ public class MainActivity extends RxRoboAppCompatActivity implements
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
-        showBestOfCategoryHint();
+        showApiProxyHint();
         addOriginalContentBookmarkOnce();
     }
 
@@ -173,10 +173,10 @@ public class MainActivity extends RxRoboAppCompatActivity implements
         appComponent.inject(this);
     }
 
-    private void showBestOfCategoryHint() {
-        if (singleShotService.isFirstTime("hint_bestof_category")) {
+    private void showApiProxyHint() {
+        if (singleShotService.isFirstTime("hint_apiproxy_info")) {
             DialogBuilder.start(this)
-                    .content(R.string.hint_bestof_category)
+                    .content(R.string.hint_apiproxy_info)
                     .positive(R.string.okay)
                     .show();
         }

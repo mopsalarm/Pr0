@@ -336,6 +336,9 @@
     <string name="filter_format_bestof">Best of</string>
     <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
     <string name="action_feed_type_bestof">BEST OF</string>
-    <string name="hint_bestof_category">Es gibt nun eine \'Best of\'-Kategorie. Du kannst das minimale Benislevel für die \'Best of\'-Kategorie in den Einstellungen ändern.</string>
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
+    <string name="pref_use_api_proxy_summary">Verwende einen externen Proxy für API-Anfragen. Dies kann helfen, wenn du ständig Verbindungsprobleme im WLAN hast und Posts nicht laden. ACHTUNG: Dies sendet private Daten über den externen Proxy-Server (aber NICHT dein Passwort).</string>
+    <string name="pref_use_api_proxy_title">Api Proxy</string>
+    <string name="warn_api_proxy">All deine privaten Daten außer deinem Passwort (Nachrichten und so) werden über einen externen Proxy übertragen. Bitte sei dir darüber im Klaren, wenn du diese Funktion verwendest.</string>
+    <string name="hint_apiproxy_info">Wenn du oft Probleme damit hast, dass im WLAN Posts nicht geladen werden, versuche die neue Api-Proxy Einstellung in den Kompatibilitätseinstellungen.</string>
 </resources>

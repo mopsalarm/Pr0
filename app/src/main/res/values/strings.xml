@@ -366,10 +366,10 @@
     <string name="pref_bestof_benis_human__dont_show">Hide category</string>
     <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
     <string name="pref_bestof_threshold_title">Category \'best of\'</string>
-    <string name="hint_bestof_category">There is now a \'best of\'-category. You can select the minimum benis level for the best of category in the settings.</string>
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
-    <string name="pref_use_api_proxy_summary">Uses an external proxy server for all api requests. This might help with connection problems on wifi. ATTENTION: This will naturally send all your private data over an external server.</string>
+    <string name="pref_use_api_proxy_summary">Uses an external proxy server for all api requests. This might help with connection problems on wifi. ATTENTION: This will naturally send all your private data over an external server (but NOT your password).</string>
     <string name="pref_use_api_proxy_title">Api Proxy</string>
-    <string name="warn_api_proxy">All your private data (passwords, messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
+    <string name="warn_api_proxy">All your private data except your password (messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
+    <string name="hint_apiproxy_info">If you often have loading problems on wifi, you could try the new api-proxy setting in the compatibility preferences.</string>
 </resources>
 
