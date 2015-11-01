@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Absturz beim Drehen des Telefons gefixt"
+      },
+      {
+        "type": "Fix",
         "change": "Verstecke die 'repost'-Badge im Vollbild"
       },
       {
