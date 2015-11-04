@@ -13,7 +13,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.RxRoboDialogFragment;
+import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import javax.inject.Inject;
 
 /**
  */
-public class SearchUserDialog extends RxRoboDialogFragment {
+public class SearchUserDialog extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger(SearchUserDialog.class);
 
     private TextInputLayout inputView;

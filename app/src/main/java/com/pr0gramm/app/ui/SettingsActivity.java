@@ -21,6 +21,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.okhttp.OkHttpClient;
@@ -41,7 +42,7 @@ import static com.google.common.base.Strings.emptyToNull;
 
 /**
  */
-public class SettingsActivity extends RxRoboAppCompatActivity {
+public class SettingsActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,7 +179,7 @@ public class SettingsActivity extends RxRoboAppCompatActivity {
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
             if ("pref_pseudo_update".equals(preference.getKey())) {
-                RxRoboAppCompatActivity activity = (RxRoboAppCompatActivity) getActivity();
+                BaseAppCompatActivity activity = (BaseAppCompatActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }

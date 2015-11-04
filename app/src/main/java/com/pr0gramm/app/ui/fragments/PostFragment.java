@@ -64,16 +64,16 @@ import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
-import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
+import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.PermissionHelperActivity;
-import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.Screen;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
+import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -119,7 +119,7 @@ import static java.util.Collections.emptyMap;
 /**
  * This fragment shows the content of one post.
  */
-public class PostFragment extends RxRoboFragment implements
+public class PostFragment extends BaseFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 

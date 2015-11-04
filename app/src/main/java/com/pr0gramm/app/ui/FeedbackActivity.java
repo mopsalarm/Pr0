@@ -13,6 +13,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -24,7 +25,7 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
 /**
  */
-public class FeedbackActivity extends RxRoboAppCompatActivity {
+public class FeedbackActivity extends BaseAppCompatActivity {
     @Inject
     FeedbackService feedbackService;
 

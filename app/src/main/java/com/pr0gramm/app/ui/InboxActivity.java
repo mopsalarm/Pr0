@@ -15,6 +15,7 @@ import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
@@ -26,7 +27,7 @@ import butterknife.Bind;
 /**
  * The activity that displays the inbox.
  */
-public class InboxActivity extends RxRoboAppCompatActivity implements ViewPager.OnPageChangeListener {
+public class InboxActivity extends BaseAppCompatActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
     public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
 

@@ -22,6 +22,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -40,7 +41,7 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
-public class ZoomViewActivity extends RxRoboAppCompatActivity {
+public class ZoomViewActivity extends BaseAppCompatActivity {
     private static final Logger logger = LoggerFactory.getLogger(ZoomViewActivity.class);
     private int maximumBitmapHeight;
     private int maximumBitmapWidth;

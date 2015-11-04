@@ -27,6 +27,7 @@ import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -38,7 +39,7 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
 /**
  */
-public class WriteMessageActivity extends RxRoboAppCompatActivity {
+public class WriteMessageActivity extends BaseAppCompatActivity {
     private static final String ARGUMENT_MESSAGE = "WriteMessageFragment.message";
     private static final String ARGUMENT_RECEIVER_ID = "WriteMessageFragment.userId";
     private static final String ARGUMENT_RECEIVER_NAME = "WriteMessageFragment.userName";

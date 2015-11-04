@@ -13,8 +13,8 @@ import com.google.common.base.Splitter;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.RxRoboDialogFragment;
 import com.pr0gramm.app.ui.TagInputView;
+import com.pr0gramm.app.ui.base.BaseDialogFragment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import butterknife.ButterKnife;
 
 /**
  */
-public class NewTagDialogFragment extends RxRoboDialogFragment {
+public class NewTagDialogFragment extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger(NewTagDialogFragment.class);
 
     private MultiAutoCompleteTextView tagInput;

@@ -36,10 +36,10 @@ import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
-import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
+import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -60,7 +60,7 @@ import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 
 /**
  */
-public class DrawerFragment extends RxRoboFragment {
+public class DrawerFragment extends BaseFragment {
     @Inject
     UserService userService;
 

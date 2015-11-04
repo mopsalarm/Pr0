@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui;
+package com.pr0gramm.app.ui.base;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +29,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
  * A {@link android.support.v7.app.AppCompatActivity}
  * with roboguice functionality and its lifecycle exposed as an observable.
  */
-public abstract class RxRoboAppCompatActivity extends AppCompatActivity implements ActivityLifecycleProvider {
+public abstract class BaseAppCompatActivity extends AppCompatActivity implements ActivityLifecycleProvider {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int[] POW_2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};

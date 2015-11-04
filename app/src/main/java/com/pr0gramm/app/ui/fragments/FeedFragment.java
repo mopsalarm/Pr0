@@ -65,11 +65,11 @@ import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.MessageAdapter;
-import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
-import com.pr0gramm.app.ui.RxRoboFragment;
+import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
+import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
@@ -109,7 +109,7 @@ import static java.util.Collections.emptyList;
 
 /**
  */
-public class FeedFragment extends RxRoboFragment {
+public class FeedFragment extends BaseFragment {
     private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";

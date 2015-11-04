@@ -20,8 +20,8 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
-import com.pr0gramm.app.ui.RxRoboFragment;
 import com.pr0gramm.app.ui.WriteMessageActivity;
+import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
 
@@ -40,7 +40,7 @@ import static org.joda.time.Duration.standardMinutes;
 
 /**
  */
-public abstract class InboxFragment<T> extends RxRoboFragment {
+public abstract class InboxFragment<T> extends BaseFragment {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected static final String ARG_INBOX_TYPE = "InboxFragment.inboxType";

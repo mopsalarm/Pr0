@@ -105,14 +105,16 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
                     Charsets.UTF_8).trim();
 
             logger.info("Decoded request to {}", url);
-            return url.matches("https?://.*")
-                    ? proxyHttpUri(session, url)
-                    : proxyFileUri(toFile(Uri.parse(url)));
+            return proxyUri(session, url);
 
         } catch (Exception e) {
             logger.error("Could not proxy for url " + decodedUrl, e);
             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
         }
+    }
+
+    private Response proxyUri(IHTTPSession session, String url) throws IOException {
+        return url.matches("https?://.*") ? proxyHttpUri(session, url) : proxyFileUri(toFile(Uri.parse(url)));
     }
 
     private Response proxyFileUri(File file) throws FileNotFoundException {

@@ -1,8 +1,7 @@
-package com.pr0gramm.app.ui;
+package com.pr0gramm.app.ui.base;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 
 import com.f2prateek.dart.Dart;
@@ -15,7 +14,6 @@ import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -23,7 +21,7 @@ import rx.subjects.BehaviorSubject;
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-public abstract class RxRoboFragment extends Fragment implements FragmentLifecycleProvider {
+public abstract class BaseDialogFragment extends DialogFragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
     @Inject
@@ -55,9 +53,7 @@ public abstract class RxRoboFragment extends Fragment implements FragmentLifecyc
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        FragmentActivity activity = getActivity();
-        injectComponent(Dagger.activityComponent(activity));
+        injectComponent(Dagger.activityComponent(getActivity()));
 
         if(getArguments() != null)
             Dart.inject(this, getArguments());
@@ -70,7 +66,6 @@ public abstract class RxRoboFragment extends Fragment implements FragmentLifecyc
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
         lifecycleSubject.onNext(FragmentEvent.CREATE_VIEW);
     }
 

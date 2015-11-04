@@ -13,8 +13,8 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.Update;
 import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
-import com.pr0gramm.app.ui.RxRoboDialogFragment;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
+import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.trello.rxlifecycle.ActivityEvent;
 
 import org.joda.time.Instant;
@@ -31,7 +31,7 @@ import static org.joda.time.Instant.now;
 
 /**
  */
-public class UpdateDialogFragment extends RxRoboDialogFragment {
+public class UpdateDialogFragment extends BaseDialogFragment {
     public static final String KEY_DOWNLOAD_ID = "UpdateDialogFragment.downloadId";
 
     @Inject
@@ -92,7 +92,7 @@ public class UpdateDialogFragment extends RxRoboDialogFragment {
      *
      * @param activity The activity that starts this update check.
      */
-    public static void checkForUpdates(RxRoboAppCompatActivity activity, boolean interactive) {
+    public static void checkForUpdates(BaseAppCompatActivity activity, boolean interactive) {
         SharedPreferences shared = Dagger.appComponent(activity).sharedPreferences();
 
         if (!interactive) {

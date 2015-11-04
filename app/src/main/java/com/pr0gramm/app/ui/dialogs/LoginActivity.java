@@ -27,7 +27,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
-import com.pr0gramm.app.ui.RxRoboAppCompatActivity;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import net.danlew.android.joda.DateUtils;
@@ -50,7 +50,7 @@ import static com.pr0gramm.app.util.AndroidUtility.toObservable;
 
 /**
  */
-public class LoginActivity extends RxRoboAppCompatActivity {
+public class LoginActivity extends BaseAppCompatActivity {
     private static final String PREF_USERNAME = "LoginDialogFragment.username";
 
     @Inject

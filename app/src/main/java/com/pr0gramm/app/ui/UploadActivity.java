@@ -36,6 +36,8 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.services.UriHelper;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
+import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -67,7 +69,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 /**
  */
-public class UploadActivity extends RxRoboAppCompatActivity {
+public class UploadActivity extends BaseAppCompatActivity {
     private static final Logger logger = LoggerFactory.getLogger(UploadActivity.class);
 
     @Inject
@@ -150,7 +152,7 @@ public class UploadActivity extends RxRoboAppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class UploadFragment extends RxRoboFragment {
+    public static class UploadFragment extends BaseFragment {
         public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
 
         @Inject

@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import java.io.IOException;
@@ -36,13 +37,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import proguard.annotation.KeepClassMemberNames;
 import proguard.annotation.KeepClassMembers;
 
 
 /**
  */
-public class ChangeLogDialog extends RxRoboDialogFragment {
+public class ChangeLogDialog extends BaseDialogFragment {
     @Inject
     Settings settings;
 

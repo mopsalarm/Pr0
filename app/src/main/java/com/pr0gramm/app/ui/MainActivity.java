@@ -34,6 +34,7 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
@@ -60,7 +61,7 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 /**
  * This is the main class of our pr0gramm app.
  */
-public class MainActivity extends RxRoboAppCompatActivity implements
+public class MainActivity extends BaseAppCompatActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
