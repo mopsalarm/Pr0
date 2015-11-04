@@ -92,8 +92,8 @@ public class UserInfoCell extends FrameLayout {
     }
 
     public void setBenisGraph(Graph graph) {
-        int fillColor = getResources().getColor(R.color.public_benis_graph_background);
-        int lineColor = getResources().getColor(R.color.public_benis_graph_stroke);
+        int fillColor = ContextCompat.getColor(this, R.color.public_benis_graph_background);
+        int lineColor = ContextCompat.getColor(this, R.color.public_benis_graph_stroke);
 
         GraphDrawable drawable = new GraphDrawable(graph);
         drawable.setFillColor(fillColor);

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,7 +30,7 @@ import static org.joda.time.Instant.now;
 public class MessageView extends RelativeLayout {
     private final Lazy<TextDrawable.IShapeBuilder> textShapeBuilder = Lazy.of(() ->
             TextDrawable.builder().beginConfig()
-                    .textColor(getContext().getResources().getColor(R.color.feed_background))
+                    .textColor(ContextCompat.getColor(getContext(), R.color.feed_background))
                     .fontSize(AndroidUtility.dp(getContext(), 24))
                     .bold()
                     .endConfig());

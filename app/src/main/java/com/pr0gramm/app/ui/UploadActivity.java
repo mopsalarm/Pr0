@@ -222,7 +222,7 @@ public class UploadActivity extends BaseAppCompatActivity {
             upload.setOnClickListener(v -> onUploadClicked());
 
             // give the upload-button the primary-tint
-            int color = getResources().getColor(R.color.primary);
+            int color = ContextCompat.getColor(this, R.color.primary);
             ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
         }
 

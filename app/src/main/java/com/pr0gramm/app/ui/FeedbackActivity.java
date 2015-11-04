@@ -51,7 +51,7 @@ public class FeedbackActivity extends BaseAppCompatActivity {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
-        int primary = getResources().getColor(R.color.primary);
+        int primary = ContextCompat.getColor(this, R.color.primary);
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> submitClicked());
 

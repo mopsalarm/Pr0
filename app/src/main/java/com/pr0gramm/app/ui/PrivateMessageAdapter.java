@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +62,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
         view.senderName.setUsername(item.partner.name, item.partner.mark);
 
         // grey out our messages
-        view.text.setTextColor(context.getResources().getColor(item.message.isSent()
+        view.text.setTextColor(ContextCompat.getColor(context, item.message.isSent()
                 ? R.color.message_text_sent : R.color.message_text_received));
 
         // the text of the message

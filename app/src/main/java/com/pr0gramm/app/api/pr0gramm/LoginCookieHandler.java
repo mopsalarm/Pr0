@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm;
 
 import android.content.SharedPreferences;
-import android.support.annotation.Keep;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
 import android.widget.Button;
@@ -91,7 +92,7 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private void updateActivityBackground() {
-        int fallbackColor = getResources().getColor(R.color.primary_dark);
+        int fallbackColor = ContextCompat.getColor(this, R.color.primary_dark);
         Drawable background = new WrapCrashingDrawable(fallbackColor,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.login_background, getTheme()));
 

@@ -48,9 +48,9 @@ public class VoteView extends LinearLayout {
         }
 
         int orientation = 0, spacing = 0, textSize = 24;
-        markedColor = ColorStateList.valueOf(context.getResources().getColor(R.color.primary));
-        markedColorDown = ColorStateList.valueOf(context.getResources().getColor(R.color.white));
-        defaultColor = ColorStateList.valueOf(context.getResources().getColor(R.color.white));
+        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.primary));
+        markedColorDown = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
+        defaultColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
 
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(

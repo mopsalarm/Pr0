@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -152,10 +153,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
-        view.itemView.setBackgroundColor(view.itemView.getContext().getResources().getColor(
-                comment.getId() == selectedCommentId
-                        ? R.color.selected_comment_background
-                        : R.color.feed_background));
+        view.itemView.setBackgroundColor(ContextCompat.getColor(view.itemView.getContext(), comment.getId() == selectedCommentId
+                ? R.color.selected_comment_background
+                : R.color.feed_background));
     }
 
     private int getCommentScore(CommentEntry entry) {

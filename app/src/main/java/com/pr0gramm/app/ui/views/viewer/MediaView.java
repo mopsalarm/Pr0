@@ -114,7 +114,7 @@ public abstract class MediaView extends FrameLayout {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
             preloadHint.setLayoutParams(DEFAULT_PARAMS);
-            preloadHint.setTextColor(getResources().getColor(R.color.primary));
+            preloadHint.setTextColor(ContextCompat.getColor(this, R.color.primary));
             addView(preloadHint);
         }
     }
@@ -415,20 +415,6 @@ public abstract class MediaView extends FrameLayout {
 
         boolean onDoubleTap();
     }
-
-    public static class TapListenerAdapter implements TapListener {
-        @Override
-        public boolean onSingleTap() {
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTap() {
-            return false;
-        }
-
-    }
-
 
     /**
      * Puts the loaded image into the preview container, if there
