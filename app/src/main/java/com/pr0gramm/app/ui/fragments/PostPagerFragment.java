@@ -96,6 +96,9 @@ public class PostPagerFragment extends BaseFragment {
                 @Override
                 public void onPageScrollStateChanged(int state) {
                     activity.getScrollHideToolbarListener().reset();
+                    if (activePostFragment != null) {
+                        activePostFragment.exitFullscreen();
+                    }
                 }
             });
         }

@@ -504,7 +504,7 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    private void exitFullscreen() {
+    public void exitFullscreen() {
         exitFullscreenAnimated(true);
     }
 

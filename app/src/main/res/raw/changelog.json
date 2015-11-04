@@ -23,6 +23,10 @@
         "change": "Größe der App gut 30% kleiner"
       },
       {
+        "type": "Fix",
+        "change": "Wenn man im Videovollbild zur Seite wischt, wird Vollbild verlassen"
+      },
+      {
         "type": "Entfernt",
         "change": "Muzei Support entfernt. Benutzt eh kaum einer"
       }
