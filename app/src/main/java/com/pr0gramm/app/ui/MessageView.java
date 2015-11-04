@@ -117,7 +117,7 @@ public class MessageView extends RelativeLayout {
         }
 
         // show the points
-        boolean visible = Ascii.equalsIgnoreCase(message.getName(), name)
+        boolean visible = (name != null && Ascii.equalsIgnoreCase(message.getName(), name))
                 || message.getCreated().isBefore(scoreVisibleThreshold);
 
         // sender info
