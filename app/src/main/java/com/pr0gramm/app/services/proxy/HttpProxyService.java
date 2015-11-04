@@ -40,15 +40,20 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
 
     private final String nonce;
     private final OkHttpClient okHttpClient;
+    private final int port;
 
     @Inject
     public HttpProxyService(OkHttpClient okHttpClient) {
-        super("127.0.0.1", getRandomPort());
+        this(okHttpClient, getRandomPort());
+    }
 
+    private HttpProxyService(OkHttpClient okHttpClient, int port) {
+        super("127.0.0.1", port);
+
+        this.port = port;
         this.okHttpClient = okHttpClient;
         this.nonce = Hashing.md5().hashLong(currentTimeMillis()).toString();
-
-        logger.info("Open simple proxy on port " + getMyPort());
+        logger.info("Open simple proxy on port " + port);
     }
 
     /**
@@ -73,7 +78,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         String encoded = BaseEncoding.base64Url().encode(uriString.getBytes(Charsets.UTF_8));
         return new Uri.Builder()
                 .scheme("http")
-                .encodedAuthority("127.0.0.1:" + getMyPort())
+                .encodedAuthority("127.0.0.1:" + port)
                 .appendPath(nonce)
                 .appendPath(encoded)
                 .appendPath(name)
