@@ -5,6 +5,8 @@ import android.content.Context;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.FeedFilter;
 
+import javax.annotation.Nullable;
+
 public class FeedFilterFormatter {
     private FeedFilterFormatter() {
     }
@@ -16,7 +18,11 @@ public class FeedFilterFormatter {
      * @param context The current context
      * @param filter  The filter that is to be converted into a string
      */
-    public static String format(Context context, FeedFilter filter) {
+    public static String format(@Nullable Context context, FeedFilter filter) {
+        // prevent null pointer exceptions
+        if (context == null)
+            return "";
+
         StringBuilder result = new StringBuilder();
 
         if (filter.isBasic()) {
