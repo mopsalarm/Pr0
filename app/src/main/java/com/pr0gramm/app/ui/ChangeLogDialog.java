@@ -73,7 +73,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
     private void showFeedbackReminderDialog() {
         DialogBuilder.start(getActivity())
                 .content(R.string.feedback_reminder)
-                .positive(R.string.okay)
+                .positive()
                 .show();
     }
 

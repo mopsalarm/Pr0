@@ -17,7 +17,7 @@ class ParcelReader extends JsonReader {
     private final Parcel parcel;
     private JsonToken next;
 
-    private List<String> nameCache = new ArrayList<>();
+    private final List<String> nameCache = new ArrayList<>();
 
     /**
      * Creates a new instance that reads a JSON-encoded stream from {@code in}.

@@ -14,7 +14,7 @@ import java.util.Map;
  */
 class ParcelWriter extends JsonWriter {
     private final Parcel parcel;
-    private Map<String, Byte> nameCache = new HashMap<>();
+    private final Map<String, Byte> nameCache = new HashMap<>();
 
     public ParcelWriter(Parcel dest) {
         super(CharStreams.nullWriter());

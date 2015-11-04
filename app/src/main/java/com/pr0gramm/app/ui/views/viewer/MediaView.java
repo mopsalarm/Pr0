@@ -1,11 +1,13 @@
 package com.pr0gramm.app.ui.views.viewer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -82,6 +84,7 @@ public abstract class MediaView extends FrameLayout {
 
     private float viewAspect = -1;
 
+    @SuppressLint("SetTextI18n")
     protected MediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
 
@@ -114,7 +117,7 @@ public abstract class MediaView extends FrameLayout {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
             preloadHint.setLayoutParams(DEFAULT_PARAMS);
-            preloadHint.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            preloadHint.setTextColor(ContextCompat.getColor(getContext(), R.color.primary));
             addView(preloadHint);
         }
     }

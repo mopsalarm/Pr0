@@ -140,7 +140,7 @@ public class CustomVideoView extends AspectLayout {
 
         // we shouldn't clear the target state, because somebody might have
         // called start() previously
-        release(false);
+        release();
         try {
             mMediaPlayer = new MediaPlayer();
 
@@ -166,7 +166,7 @@ public class CustomVideoView extends AspectLayout {
         }
     }
 
-    MediaPlayer.OnVideoSizeChangedListener mSizeChangedListener =
+    final MediaPlayer.OnVideoSizeChangedListener mSizeChangedListener =
             new MediaPlayer.OnVideoSizeChangedListener() {
                 public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
                     mVideoWidth = mp.getVideoWidth();
@@ -184,7 +184,7 @@ public class CustomVideoView extends AspectLayout {
                 }
             };
 
-    MediaPlayer.OnPreparedListener mPreparedListener = new MediaPlayer.OnPreparedListener() {
+    final MediaPlayer.OnPreparedListener mPreparedListener = new MediaPlayer.OnPreparedListener() {
         public void onPrepared(MediaPlayer mp) {
             mCurrentState = STATE_PREPARED;
 
@@ -222,7 +222,7 @@ public class CustomVideoView extends AspectLayout {
         }
     };
 
-    private MediaPlayer.OnCompletionListener mCompletionListener =
+    private final MediaPlayer.OnCompletionListener mCompletionListener =
             new MediaPlayer.OnCompletionListener() {
                 public void onCompletion(MediaPlayer mp) {
                     // Workaround for samsung devices to enable looping.
@@ -242,7 +242,7 @@ public class CustomVideoView extends AspectLayout {
                 }
             };
 
-    private MediaPlayer.OnInfoListener mInfoListener =
+    private final MediaPlayer.OnInfoListener mInfoListener =
             new MediaPlayer.OnInfoListener() {
                 public boolean onInfo(MediaPlayer mp, int arg1, int arg2) {
                     if (mOnInfoListener != null) {
@@ -252,7 +252,7 @@ public class CustomVideoView extends AspectLayout {
                 }
             };
 
-    private MediaPlayer.OnErrorListener mErrorListener =
+    private final MediaPlayer.OnErrorListener mErrorListener =
             new MediaPlayer.OnErrorListener() {
                 public boolean onError(MediaPlayer mp, int framework_err, int impl_err) {
                     logger.error("Error: " + framework_err + "," + impl_err);
@@ -342,14 +342,14 @@ public class CustomVideoView extends AspectLayout {
 
         @Override
         public void onDestroy(ViewBackend backend) {
-            release(false);
+            release();
         }
     };
 
     /*
      * release the media player in any state
      */
-    private void release(boolean clearTargetState) {
+    private void release() {
         mBackendView.getView().setAlpha(0.01f);
 
         if (mMediaPlayer != null) {
@@ -357,9 +357,6 @@ public class CustomVideoView extends AspectLayout {
             mMediaPlayer.release();
             mMediaPlayer = null;
             mCurrentState = STATE_IDLE;
-            if (clearTargetState) {
-                mTargetState = STATE_IDLE;
-            }
         }
     }
 
@@ -384,7 +381,7 @@ public class CustomVideoView extends AspectLayout {
     }
 
     public void suspend() {
-        release(false);
+        release();
     }
 
     public void resume() {

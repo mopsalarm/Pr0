@@ -42,8 +42,8 @@ public abstract class SoftwareMediaPlayer {
     private final VideoDrawable drawable = new VideoDrawable();
     private final AtomicInteger bitmapCount = new AtomicInteger();
 
-    private Queue<Bitmap> returned = new LinkedList<>();
-    private AtomicReference<Thread> thread = new AtomicReference<>();
+    private final Queue<Bitmap> returned = new LinkedList<>();
+    private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));

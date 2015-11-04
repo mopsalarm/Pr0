@@ -137,7 +137,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         if (message.isEmpty()) {
             DialogBuilder.start(this)
                     .content(R.string.message_must_not_be_empty)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
 
             return;

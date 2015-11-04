@@ -60,7 +60,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
     private Dialog noNewUpdateDialog() {
         return DialogBuilder.start(getActivity())
                 .content(R.string.no_new_update)
-                .positive(R.string.okay)
+                .positive()
                 .show();
     }
 

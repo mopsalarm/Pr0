@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;

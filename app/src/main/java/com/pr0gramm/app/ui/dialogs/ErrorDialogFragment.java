@@ -8,7 +8,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.util.ErrorFormatting;
 
@@ -89,7 +88,7 @@ public class ErrorDialogFragment extends DialogFragment {
         Bundle args = getArguments();
         return DialogBuilder.start(getActivity())
                 .content(args.getString("content"))
-                .positive(R.string.okay)
+                .positive()
                 .build();
     }
 

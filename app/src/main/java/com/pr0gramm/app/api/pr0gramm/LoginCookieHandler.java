@@ -54,7 +54,7 @@ public class LoginCookieHandler extends CookieHandler {
 
     @Override
     public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) {
-        if (!isApiRequest(uri))
+        if (isNoApiRequest(uri))
             return requestHeaders;
 
         if (httpCookie == null || httpCookie.getValue() == null)
@@ -66,7 +66,7 @@ public class LoginCookieHandler extends CookieHandler {
 
     @Override
     public void put(URI uri, Map<String, List<String>> responseHeaders) {
-        if (!isApiRequest(uri)) return;
+        if (isNoApiRequest(uri)) return;
 
         for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
             if (!"Set-Cookie".equalsIgnoreCase(entry.getKey()))
@@ -88,8 +88,8 @@ public class LoginCookieHandler extends CookieHandler {
         }
     }
 
-    private boolean isApiRequest(URI uri) {
-        return uri.getHost().equalsIgnoreCase("pr0gramm.com") || uri.getHost().contains("mockable.io");
+    private boolean isNoApiRequest(URI uri) {
+        return !uri.getHost().equalsIgnoreCase("pr0gramm.com") && !uri.getHost().contains("mockable.io");
     }
 
     private void handleCookie(HttpCookie cookie) {

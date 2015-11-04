@@ -73,7 +73,7 @@ public class NavigationProvider {
     @BindDrawable(R.drawable.ic_black_action_upload)
     Drawable iconUpload;
 
-    private BehaviorSubject<Boolean> extraCategoryApiAvailable = BehaviorSubject.create(false);
+    private final BehaviorSubject<Boolean> extraCategoryApiAvailable = BehaviorSubject.create(false);
 
     @Inject
     public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,

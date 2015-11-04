@@ -60,7 +60,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
         if (!settings.useSoftwareDecoder() && singleShotService.isFirstTimeInVersion("hint_check_compatibility_settings")) {
             DialogBuilder.start(getContext())
                     .content(R.string.hint_check_compatibility_if_videos_dont_play)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
         }
         videoView.start();
@@ -136,7 +136,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
             if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
                 DialogBuilder.start(getContext())
                         .content(R.string.could_not_play_video_io)
-                        .positive(R.string.okay)
+                        .positive()
                         .show();
 
                 return true;
@@ -144,7 +144,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
             DialogBuilder.start(getContext())
                     .content(R.string.could_not_play_video)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
 
         } catch (Exception ignored) {

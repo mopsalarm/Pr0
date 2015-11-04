@@ -935,7 +935,7 @@ public class PostFragment extends BaseFragment implements
      */
     private void registerTabListener(MediaView viewer) {
         viewer.setTapListener(new MediaView.TapListener() {
-            boolean isImage = isStaticImage(feedItem);
+            final boolean isImage = isStaticImage(feedItem);
 
             @Override
             public boolean onSingleTap() {

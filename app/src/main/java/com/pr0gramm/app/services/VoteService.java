@@ -203,7 +203,7 @@ public class VoteService {
     }
 
     public Observable<Map<Long, Vote>> getTagVotes(List<Tag> tags) {
-        List<Long> ids = transform(tags, tag -> tag.getId());
+        List<Long> ids = transform(tags, Tag::getId);
         return findCachedVotes(CachedVote.Type.TAG, ids);
     }
 

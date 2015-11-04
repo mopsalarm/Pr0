@@ -120,7 +120,7 @@ public class ImageMediaView extends MediaView {
         if (singleShotService.isFirstTime("musste_scrollen_hint")) {
             DialogBuilder.start(getContext())
                     .content(R.string.hint_musste_scrollen)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
         }
     }

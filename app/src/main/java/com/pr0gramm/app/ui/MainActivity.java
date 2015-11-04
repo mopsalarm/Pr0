@@ -178,7 +178,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (singleShotService.isFirstTime("hint_apiproxy_info")) {
             DialogBuilder.start(this)
                     .content(R.string.hint_apiproxy_info)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
         }
     }

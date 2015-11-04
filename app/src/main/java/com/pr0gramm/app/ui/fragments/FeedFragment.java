@@ -722,7 +722,7 @@ public class FeedFragment extends BaseFragment {
         if (AndroidUtility.isOnMobile(getActivity())) {
             DialogBuilder.start(getActivity())
                     .content(R.string.preload_not_on_mobile)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
 
             return;
@@ -737,7 +737,7 @@ public class FeedFragment extends BaseFragment {
         if (singleShotService.isFirstTime("preload_info_hint")) {
             DialogBuilder.start(getActivity())
                     .content(R.string.preload_info_hint)
-                    .positive(R.string.okay)
+                    .positive()
                     .show();
         }
     }
@@ -1135,8 +1135,6 @@ public class FeedFragment extends BaseFragment {
         private final ImageView repost;
         private final View preloaded;
         final ImageView image;
-
-        private Uri previousImageUri;
 
         public FeedItemViewHolder(View itemView) {
             super(itemView);

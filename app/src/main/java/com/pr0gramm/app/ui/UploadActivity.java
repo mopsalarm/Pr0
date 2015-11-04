@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
@@ -222,7 +223,7 @@ public class UploadActivity extends BaseAppCompatActivity {
             upload.setOnClickListener(v -> onUploadClicked());
 
             // give the upload-button the primary-tint
-            int color = ContextCompat.getColor(this, R.color.primary);
+            int color = ContextCompat.getColor(getActivity(), R.color.primary);
             ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
         }
 
@@ -324,7 +325,7 @@ public class UploadActivity extends BaseAppCompatActivity {
                 String causeText = getUploadFailureText(getActivity(), cause);
                 DialogBuilder.start(getActivity())
                         .content(causeText)
-                        .positive(R.string.okay)
+                        .positive()
                         .show();
 
             } else {
@@ -357,7 +358,7 @@ public class UploadActivity extends BaseAppCompatActivity {
             if (singleShotService.isFirstTime("upload_is_experimental_warning")) {
                 DialogBuilder.start(getActivity())
                         .content(R.string.upload_warning)
-                        .positive(R.string.okay)
+                        .positive()
                         .show();
             }
         }

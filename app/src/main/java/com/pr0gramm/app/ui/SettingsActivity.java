@@ -231,7 +231,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
                     DialogBuilder.start(activity)
                             .content(R.string.gif_as_webm_might_be_buggy)
-                            .positive(R.string.okay)
+                            .positive()
                             .show();
                 }
             }
@@ -253,7 +253,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 if (useProxy) {
                     DialogBuilder.start(activity)
                             .content(R.string.warn_api_proxy)
-                            .positive(R.string.okay)
+                            .positive()
                             .show();
                 }
             }

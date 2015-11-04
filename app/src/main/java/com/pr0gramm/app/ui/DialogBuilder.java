@@ -75,8 +75,8 @@ public class DialogBuilder {
         return content(LayoutInflater.from(context).inflate(view, null));
     }
 
-    public DialogBuilder positive(@StringRes int text) {
-        return positive(getString(text), null);
+    public DialogBuilder positive() {
+        return positive(getString(R.string.okay), null);
     }
 
     public DialogBuilder positive(@StringRes int text, OnClickListener onClick) {
@@ -101,8 +101,8 @@ public class DialogBuilder {
         return negative(getString(text), null);
     }
 
-    public DialogBuilder negative(@StringRes int text, OnClickListener onClick) {
-        return negative(getString(text), onClick);
+    public DialogBuilder negative(OnClickListener onClick) {
+        return negative(getString(R.string.cancel), onClick);
     }
 
     public DialogBuilder negative(@StringRes int text, Runnable onClick) {
@@ -243,8 +243,8 @@ public class DialogBuilder {
         return new DialogBuilder(context);
     }
 
-    public DialogBuilder cancelable(boolean cancelable) {
-        this.cancelable = cancelable;
+    public DialogBuilder cancelable() {
+        this.cancelable = false;
         return this;
     }
 

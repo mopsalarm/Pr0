@@ -39,7 +39,7 @@ public class BusyDialogFragment extends DialogFragment {
 
         return DialogBuilder.start(getActivity())
                 .content(view)
-                .cancelable(false)
+                .cancelable()
                 .build();
     }
 

@@ -293,8 +293,8 @@ public class UserService {
     }
 
     public static final class LoginProgress {
-        private Optional<Login> login;
-        private float progress;
+        private final Optional<Login> login;
+        private final float progress;
 
         public LoginProgress(float progress) {
             this.progress = progress;

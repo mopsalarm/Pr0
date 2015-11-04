@@ -187,7 +187,7 @@ public class DrawerFragment extends BaseFragment {
     private void onBenisGraphClicked(View view) {
         DialogBuilder.start(getActivity())
                 .content(R.string.benis_graph_explanation)
-                .positive(R.string.okay)
+                .positive()
                 .show();
     }
 

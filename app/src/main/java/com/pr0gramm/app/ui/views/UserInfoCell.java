@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
@@ -92,8 +93,8 @@ public class UserInfoCell extends FrameLayout {
     }
 
     public void setBenisGraph(Graph graph) {
-        int fillColor = ContextCompat.getColor(this, R.color.public_benis_graph_background);
-        int lineColor = ContextCompat.getColor(this, R.color.public_benis_graph_stroke);
+        int fillColor = ContextCompat.getColor(getContext(), R.color.public_benis_graph_background);
+        int lineColor = ContextCompat.getColor(getContext(), R.color.public_benis_graph_stroke);
 
         GraphDrawable drawable = new GraphDrawable(graph);
         drawable.setFillColor(fillColor);

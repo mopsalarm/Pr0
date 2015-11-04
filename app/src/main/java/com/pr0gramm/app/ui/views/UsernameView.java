@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ public class UsernameView extends TextView {
         setCompoundDrawablesWithIntrinsicBounds(0, 0, UserClasses.MarkDrawables.get(mark), 0);
     }
 
+    @SuppressLint("SetTextI18n")
     public void setUsername(String name, int mark) {
         setText(name + " ");
         setMark(mark);

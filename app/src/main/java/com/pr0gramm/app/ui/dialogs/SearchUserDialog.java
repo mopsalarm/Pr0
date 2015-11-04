@@ -45,7 +45,7 @@ public class SearchUserDialog extends BaseDialogFragment {
                 .content(inputView)
                 .fullWidth()
                 .positive(R.string.action_search_simple, di -> onSearchClicked())
-                .negative(R.string.cancel, Dialog::dismiss)
+                .negative(Dialog::dismiss)
                 .noAutoDismiss()
                 .build();
     }
