@@ -1,6 +1,13 @@
 # Add project specific ProGuard rules here.
 
--dontobfuscate
+# -dontobfuscate
+-flattenpackagehierarchy
+-allowaccessmodification
+-repackageclasses
+
+# -optimizationpasses 5
+-optimizations !method/removal/parameter
+# -dontoptimize
 
 -dontwarn java.nio.**
 -dontwarn java.lang.invoke.**
@@ -23,7 +30,7 @@
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 
--keepattributes *
+-keepattributes *Annotation*,Signature,SourceFile
 
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }
