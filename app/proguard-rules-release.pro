@@ -30,7 +30,7 @@
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 
--keepattributes *Annotation*,Signature,SourceFile
+-keepattributes *Annotation*,Signature,LineNumberTable
 
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }

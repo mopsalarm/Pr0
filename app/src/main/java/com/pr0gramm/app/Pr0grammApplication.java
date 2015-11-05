@@ -69,6 +69,10 @@ public class Pr0grammApplication extends SugarApp {
                 LoggerConfiguration.configuration()
                         .removeRootLogcatHandler()
                         .addHandlerToRootLogger(new CrashlyticsLogHandler());
+            } else {
+                // just disable logging
+                LoggerConfiguration.configuration()
+                        .removeRootLogcatHandler();
             }
         } else {
             logger.info("This is a development version.");

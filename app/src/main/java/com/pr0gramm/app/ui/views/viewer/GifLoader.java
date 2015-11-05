@@ -111,11 +111,10 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
                 // closing is now delegated to the drawable.
                 close = false;
                 subscriber.onNext(new DownloadStatus(drawable));
+                subscriber.onCompleted();
             } catch (Throwable error) {
                 subscriber.onError(error);
             }
-
-            subscriber.onCompleted();
 
         } finally {
             if (close) {

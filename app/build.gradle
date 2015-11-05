@@ -23,7 +23,7 @@ buildscript {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         minSdkVersion 14
@@ -176,7 +176,7 @@ dependencies {
     apt 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
 
     // rx java
-    compile 'io.reactivex:rxjava:1.0.14'
+    compile 'io.reactivex:rxjava:1.0.15'
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.0.14.2'
@@ -199,6 +199,6 @@ dependencies {
     provided 'org.immutables:value:2.1.0'
     provided 'org.immutables:gson:2.1.0'
 
-    compile 'com.google.dagger:dagger:2.0.1'
-    apt 'com.google.dagger:dagger-compiler:2.0.1'
+    compile 'com.google.dagger:dagger:2.0.2'
+    apt 'com.google.dagger:dagger-compiler:2.0.2'
 }
