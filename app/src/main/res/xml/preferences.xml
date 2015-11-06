@@ -246,12 +246,6 @@
                 android:key="prefcat_visual__misc"
                 android:title="@string/prefcat_misc">
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_show_video_progress"
-                    android:summary="@string/pref_show_video_progress_summary"
-                    android:title="@string/pref_show_video_progress_title"/>
-
                 <ListPreference
                     android:defaultValue="@string/pref_seen_indicator_style_default"
                     android:entries="@array/pref_seen_indicator_style_human"

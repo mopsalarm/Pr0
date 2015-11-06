@@ -205,10 +205,6 @@ public class Settings {
         return preferences.getBoolean("pref_prioritize_op_comments", true);
     }
 
-    public boolean showVideoProgress() {
-        return preferences.getBoolean("pref_show_video_progress", true);
-    }
-
     public boolean showCategoryRandom() {
         return preferences.getBoolean("pref_show_category_random", true);
     }

@@ -7,6 +7,10 @@
         "change": "Neue Option unter Kompatibilität um einen Proxy Server für Api-Anfragen zu nutzen. Kann helfen, wenn du im WLAN häufig Sachen nicht laden kannst."
       },
       {
+        "type": "Neu",
+        "change": "Videofortschritt bei Loops verstecken"
+      },
+      {
         "type": "Fix",
         "change": "Absturz beim Drehen des Telefons gefixt"
       },

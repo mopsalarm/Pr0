@@ -21,11 +21,12 @@ public abstract class AbstractProgressMediaView extends MediaView {
     @Inject
     Settings settings;
 
+    private boolean progressEnabled = true;
+
     public AbstractProgressMediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
         super(activity, binder, layoutId, mediaUri, onViewListener);
 
         videoProgressView.setVisibility(GONE);
-
         updateTimeline();
     }
 
@@ -42,11 +43,11 @@ public abstract class AbstractProgressMediaView extends MediaView {
     }
 
     private void updateTimeline() {
-        if (!isPlaying() || !settings.showVideoProgress())
+        if (!isPlaying())
             return;
 
         Optional<Float> progress = getVideoProgress();
-        if (progress.isPresent() && progress.get() >= 0 && progress.get() <= 1) {
+        if (shouldShowView(progress)) {
             videoProgressView.setVisibility(VISIBLE);
             videoProgressView.setProgress((int) (1000 * progress.get()));
             videoProgressView.setMax(1000);
@@ -54,9 +55,19 @@ public abstract class AbstractProgressMediaView extends MediaView {
             videoProgressView.setVisibility(GONE);
         }
 
-        removeCallbacks(this::updateTimeline);
-        postDelayed(this::updateTimeline, 200);
+        if (progressEnabled) {
+            removeCallbacks(this::updateTimeline);
+            postDelayed(this::updateTimeline, 200);
+        }
+    }
+
+    private boolean shouldShowView(Optional<Float> progress) {
+        return progressEnabled && progress.isPresent() && progress.get() >= 0 && progress.get() <= 1;
     }
 
     protected abstract Optional<Float> getVideoProgress();
+
+    public void setProgressEnabled(boolean visible) {
+        progressEnabled = visible;
+    }
 }

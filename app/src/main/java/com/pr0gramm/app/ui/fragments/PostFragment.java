@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
@@ -79,6 +80,7 @@ import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
+import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
@@ -989,6 +991,25 @@ public class PostFragment extends BaseFragment implements
                 .compose(bindToLifecycle())
                 .subscribe(votes -> infoLineView.setTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
+
+        hideProgressIfLoop(tags);
+    }
+
+    /**
+     * If the current post is a loop, we'll check if it is a loop. If it is,
+     * we will hide the little video progress bar.
+     */
+    private void hideProgressIfLoop(List<Tag> tags) {
+        if (viewer instanceof AbstractProgressMediaView) {
+            if (Iterables.any(tags, tag -> isLoopTag(tag.getTag()))) {
+                ((AbstractProgressMediaView) viewer).setProgressEnabled(false);
+            }
+        }
+    }
+
+    private static boolean isLoopTag(String tag) {
+        tag = tag.toLowerCase();
+        return tag.contains("loop") && !(tag.contains("verschenkt") || tag.contains("verkackt"));
     }
 
     /**
