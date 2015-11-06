@@ -1000,9 +1000,11 @@ public class PostFragment extends BaseFragment implements
      * we will hide the little video progress bar.
      */
     private void hideProgressIfLoop(List<Tag> tags) {
-        if (viewer instanceof AbstractProgressMediaView) {
+        MediaView actualView = viewer != null ? viewer.getActualMediaView() : null;
+
+        if (actualView instanceof AbstractProgressMediaView) {
             if (Iterables.any(tags, tag -> isLoopTag(tag.getTag()))) {
-                ((AbstractProgressMediaView) viewer).setProgressEnabled(false);
+                ((AbstractProgressMediaView) actualView).setProgressEnabled(false);
             }
         }
     }

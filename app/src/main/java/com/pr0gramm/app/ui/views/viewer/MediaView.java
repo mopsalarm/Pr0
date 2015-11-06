@@ -400,6 +400,10 @@ public abstract class MediaView extends FrameLayout {
         // do nothing by default
     }
 
+    public MediaView getActualMediaView() {
+        return this;
+    }
+
     public static class Binder {
         private final Observable.Transformer transformer;
 

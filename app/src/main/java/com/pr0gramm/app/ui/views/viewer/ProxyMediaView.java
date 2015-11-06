@@ -104,9 +104,14 @@ public abstract class ProxyMediaView extends MediaView {
 
     @Override
     public void rewind() {
-        if(child != null) {
+        if (child != null) {
             child.rewind();
         }
+    }
+
+    @Override
+    public MediaView getActualMediaView() {
+        return child != null ? child : this;
     }
 
     @Override
