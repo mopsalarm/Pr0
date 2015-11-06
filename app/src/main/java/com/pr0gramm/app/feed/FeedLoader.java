@@ -8,6 +8,7 @@ import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -81,6 +82,7 @@ public class FeedLoader {
 
     private void subscribeTo(Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response) {
         subscription = response
+                .unsubscribeOn(Schedulers.io())
                 .compose(binder.bind())
                 .finallyDo(() -> subscription = null)
                 .subscribe(this::merge, binder::onError);
