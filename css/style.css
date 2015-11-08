@@ -11,6 +11,9 @@ body {
   color: #f2f5f4;
   font-family: "sans-serif", "Helvetica"; }
 
+html, body, td, input {
+  font-family: 'Roboto', sans-serif; }
+
 .header {
   left: 0;
   padding: 20px;
@@ -61,7 +64,7 @@ body {
     .main .section img {
       max-height: 500px;
       max-width: 90%;
-      box-shadow: 5px 5px 30px 0 black; }
+      box-shadow: 0px 0px 30px 0 rgba(0, 0, 0, 0.5); }
   .main .section:nth-child(even) {
     background-color: #252528; }
   .main .top {
