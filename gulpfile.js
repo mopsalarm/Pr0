@@ -7,7 +7,7 @@ var ghPages = require('gulp-gh-pages');
 
 gulp.task('default', ['scss', 'jade']);
 
-gulp.task('deploy', function() {
+gulp.task('deploy', ['build'], function() {
   return gulp.src('./dist/**/*').pipe(ghPages());
 });
 
