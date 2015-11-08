@@ -118,8 +118,6 @@ html, body, td, input {
 
   .top-continue {
     font-size: 20px;
-    height: 50px;
-    padding: 10px 0;
     text-align: center;
     background-color: $col-pro-gray !important;
 
@@ -128,6 +126,9 @@ html, body, td, input {
     a:hover,
     a:visited {
       color: $col-pro-text;
+      display: block;
+      height: 50px;
+      padding-top: 10px;
     }
   }
 
