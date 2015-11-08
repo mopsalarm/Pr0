@@ -8,7 +8,7 @@ var ghPages = require('gulp-gh-pages')
 gulp.task('default', ['scss', 'jade']);
 
 gulp.task('publish', ['scss', 'jade'], function() {
-  gulp.src(['css/*.css', 'img/**/*', 'index.html', 'unlocker.html', 'pr0gramm-navigator-unlock.apk'],
+  gulp.src(['pr0gramm-navigator-unlock.apk', "img/**"],
     {base: '.'})
     .pipe(gulp.dest('dist/'));
 });
@@ -25,14 +25,14 @@ gulp.task('scss', function() {
     .pipe(autoprefixer({
       browsers: ['last 2 versions']
     }))
-    .pipe(gulp.dest('css/'));
+    .pipe(gulp.dest('dist/css/'));
 });
 
 gulp.task('jade', function() {
   return gulp.src(['jade/index.jade', 'jade/unlocker.jade'])
     .pipe(plumber())
     .pipe(jade({pretty: true}))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('deploy', function() {
