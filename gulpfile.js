@@ -3,6 +3,7 @@ var scss = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var jade = require('gulp-jade');
 var plumber = require('gulp-plumber');
+var ghPages = require('gulp-gh-pages')
 
 gulp.task('default', ['scss', 'jade']);
 
@@ -32,4 +33,8 @@ gulp.task('jade', function() {
     .pipe(plumber())
     .pipe(jade({pretty: true}))
     .pipe(gulp.dest('.'));
+});
+
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*').pipe(ghPages());
 });
