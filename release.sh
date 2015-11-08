@@ -11,6 +11,11 @@ else
   exit 1
 fi
 
+# path of the update repo
+UPDATE_REPO_PATH=${UPDATE_REPO_PATH:-../pr0gramm-updates}
+VERSION_NEXT=$(( VERSION + 1 ))
+VERSION_PREVIOUS=$(jq .version < ${UPDATE_REPO_PATH}/open/update.json)
+
 # check if we are clear to go
 if [ -n "$(git status --porcelain)" ] ; then
   echo "Please commit all your changes and clean working directory."
@@ -18,10 +23,12 @@ if [ -n "$(git status --porcelain)" ] ; then
   exit 1
 fi
 
-# path of the update repo
-UPDATE_REPO_PATH=${UPDATE_REPO_PATH:-../pr0gramm-updates}
-VERSION_NEXT=$(( VERSION + 1 ))
-VERSION_PREVIOUS=$(jq .version < $UPDATE_REPO_PATH/open/update.json)
+# check if we are clear to go in the update repo
+if [ -n "$(git -C ${UPDATE_REPO_PATH} status --porcelain)" ] ; then
+  echo "Please commit all your changes and clean working directory in ${UPDATE_REPO_PATH}."
+  git -C ${UPDATE_REPO_PATH} status
+  exit 1
+fi
 
 echo "Release steps:"
 echo " * Start release of version $VERSION (current is $VERSION_PREVIOUS)"
@@ -47,35 +54,35 @@ function deploy_make_update_json() {
     | jq ".version = $VERSION" \
     | jq ".versionStr = \"1.$(( VERSION/10 )).$((VERSION % 10 ))\"" \
     | jq ".changelog = \"$CHANGELOG\"" \
-    | jq ".apk = \"$URL\"" > $UPDATE_REPO_PATH/$FLAVOR/update.json
+    | jq ".apk = \"$URL\"" > ${UPDATE_REPO_PATH}/${FLAVOR}/update.json
 
-  git -C $UPDATE_REPO_PATH add $FLAVOR/update.json
+  git -C ${UPDATE_REPO_PATH} add ${FLAVOR}/update.json
 }
 
 function deploy_copy_apk_file() {
   local FLAVOR=$1
-  mkdir $UPDATE_REPO_PATH/$FLAVOR/
-  cp app/build/outputs/apk/app-$FLAVOR-release.apk $UPDATE_REPO_PATH/$FLAVOR/pr0gramm-v1.$VERSION.apk
-  git -C $UPDATE_REPO_PATH add $FLAVOR/pr0gramm-v1.$VERSION.apk
+  mkdir -p ${UPDATE_REPO_PATH}/${FLAVOR}/
+  cp app/build/outputs/apk/app-${FLAVOR}-release.apk ${UPDATE_REPO_PATH}/${FLAVOR}/pr0gramm-v1.${VERSION}.apk
+  git -C ${UPDATE_REPO_PATH} add ${FLAVOR}/pr0gramm-v1.${VERSION}.apk
 }
 
 # compile code and create apks
 ./gradlew clean assembleRelease generateOpenDebugSources
 
 # copy apks and generate update.json in beta branch
-git -C $UPDATE_REPO_PATH checkout beta
-git -C $UPDATE_REPO_PATH pull
+git -C ${UPDATE_REPO_PATH} checkout -B beta
+git -C ${UPDATE_REPO_PATH} pull origin beta
 for FLAVOR in "open" "play" "play2" ; do
-  deploy_copy_apk_file $FLAVOR
-  deploy_make_update_json $FLAVOR
+  deploy_copy_apk_file ${FLAVOR}
+  deploy_make_update_json ${FLAVOR}
 done
 
 # commit those files
-git -C $UPDATE_REPO_PATH commit -m "Version $(format_version $VERSION)"
+git -C ${UPDATE_REPO_PATH} commit -m "Version $(format_version ${VERSION})"
 
 # create tag for this version
-git tag -a "$(format_version $VERSION)" \
-        -m "Released version $(format_version $VERSION)"
+git tag -a "$(format_version ${VERSION})" \
+        -m "Released version $(format_version ${VERSION})"
 
 # increase app version for further development
 echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
