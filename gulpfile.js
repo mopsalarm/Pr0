@@ -3,12 +3,16 @@ var scss = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
 var jade = require('gulp-jade');
 var plumber = require('gulp-plumber');
-var ghPages = require('gulp-gh-pages')
+var ghPages = require('gulp-gh-pages');
 
 gulp.task('default', ['scss', 'jade']);
 
-gulp.task('publish', ['scss', 'jade'], function() {
-  gulp.src(['pr0gramm-navigator-unlock.apk', "img/**"],
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*').pipe(ghPages());
+});
+
+gulp.task('build', ['scss', 'jade'], function() {
+  gulp.src(['css/*.css', 'img/', 'index.html', 'unlocker.html', 'pr0gramm-navigator-unlock.apk'],
     {base: '.'})
     .pipe(gulp.dest('dist/'));
 });
@@ -33,8 +37,4 @@ gulp.task('jade', function() {
     .pipe(plumber())
     .pipe(jade({pretty: true}))
     .pipe(gulp.dest('dist/'));
-});
-
-gulp.task('deploy', function() {
-  return gulp.src('./dist/**/*').pipe(ghPages());
 });
