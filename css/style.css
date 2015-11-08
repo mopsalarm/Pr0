@@ -14,9 +14,6 @@ body {
 html, body, td, input {
   font-family: 'Roboto', sans-serif; }
 
-#continue {
-  display: block; }
-
 .header {
   left: 0;
   padding: 20px;
@@ -81,15 +78,16 @@ html, body, td, input {
             flex-direction: column; }
   .main .top-continue {
     font-size: 20px;
-    height: 50px;
-    padding: 10px 0;
     text-align: center;
     background-color: #161618 !important; }
     .main .top-continue a,
     .main .top-continue a:active,
     .main .top-continue a:hover,
     .main .top-continue a:visited {
-      color: #f2f5f4; }
+      color: #f2f5f4;
+      display: block;
+      height: 50px;
+      padding-top: 10px; }
 
 .btn-pro {
   background: #ee4d2e;
