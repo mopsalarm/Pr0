@@ -19,7 +19,7 @@ if [ -n "$(git status --porcelain)" ] ; then
 fi
 
 # path of the update repo
-UPDATE_REPO_PATH=../pr0gramm-updates
+UPDATE_REPO_PATH=${UPDATE_REPO_PATH:-../pr0gramm-updates}
 VERSION_NEXT=$(( VERSION + 1 ))
 VERSION_PREVIOUS=$(jq .version < $UPDATE_REPO_PATH/open/update.json)
 
@@ -54,7 +54,8 @@ function deploy_make_update_json() {
 
 function deploy_copy_apk_file() {
   local FLAVOR=$1
-  cp app/build/outputs/apk/app-$FLAVOR-release.apk  $UPDATE_REPO_PATH/$FLAVOR/pr0gramm-v1.$VERSION.apk
+  mkdir $UPDATE_REPO_PATH/$FLAVOR/
+  cp app/build/outputs/apk/app-$FLAVOR-release.apk $UPDATE_REPO_PATH/$FLAVOR/pr0gramm-v1.$VERSION.apk
   git -C $UPDATE_REPO_PATH add $FLAVOR/pr0gramm-v1.$VERSION.apk
 }
 
@@ -64,7 +65,7 @@ function deploy_copy_apk_file() {
 # copy apks and generate update.json in beta branch
 git -C $UPDATE_REPO_PATH checkout beta
 git -C $UPDATE_REPO_PATH pull
-for FLAVOR in "open" "play" ; do
+for FLAVOR in "open" "play" "play2" ; do
   deploy_copy_apk_file $FLAVOR
   deploy_make_update_json $FLAVOR
 done
