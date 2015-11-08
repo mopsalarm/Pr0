@@ -47,7 +47,7 @@
     margin-top: 55px;
   }
 
-  .phone video {
+  #video {
     max-height: 100%;
   }
 
@@ -84,41 +84,36 @@
   <div class="container">
     <div class="row">
       <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-
         <div class="col-xs-12 col-sm-6 vcenter phone">
           <div class="screen">
-            <video autoplay muted loop poster="pr0-poster.jpg">
-              <source src="pr0.webm" type="video/webm">
-              <source src="pr0.mp4" type="video/mp4">
-            </video>
+            <img id="video" src="pr0-poster.jpg">
           </div>
         </div><!--
-      --><div class="col-xs-12 col-sm-6 vcenter text-center">
-          Jetzt auf deinem Android installieren!<br />
+      --><div class="col-xs-12 col-sm-6 vcenter">
+          <p>Im Google PlayStore sind Apps verboten, die pornographische Handlungen
+            oder Gewalt zeigen. Aus diesem Grund unterstützt die App das
+            Darstellen von nsfw/nsfl Inhalten erstmal nicht.</p>
+
+          <p>Um trotzdem in den Genuss dieser Inhalte zu kommen, kannst du
+            die <i>pr0gramm navigator unlock</i> App installieren. Diese
+            aktiviert dann Zugriff auf das vollständige pr0gramm auf deinem
+            Smartphone (sofern du im pr0gramm angemeldet bist).</p>
+
+          <p>Bei weiteren Fragen kannst du dich auch einfach an
+            <a href="https://pr0gramm.com/user/Mopsalarm" target="_blank">@Mopsalarm</a> wenden.
+          </p>
+
           <div class="col-md-12 col-sm-12">
             <br/>
-            <a href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.786.apk"
+            <a href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/pr0gramm-navigator-unlocker.apk"
              id="download-button"
              class="btn btn-lg btn-primary">Download</a><br/><br/>
-            <span class="download-details">Version <span id="version">x.xx</span> &bull; <a href="https://github.com/mopsalarm/pr0gramm-updates">Alle Versionen</a></span>
           </div>
         </div>
       </div>
     </div>
   </div>
 </main>
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="//rawgit.com/mopsalarm/pr0gramm-updates/master/update.js"></script>
-<script>
-  $(document).ready(function() {
-    getUpdateJson(function(json) {
-      var versionString = json.versionStr || ("1." + json.version);
-      $("#version").html(versionString);
-      $("#download-button").attr("href", json.apk);
-    });
-  });
-</script>
 
 </body>
 </html>
