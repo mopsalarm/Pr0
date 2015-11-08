@@ -1,0 +1,240 @@
+// Pr0 Colors
+$col-pro-orange: #ee4d2e;
+$col-pro-gray: #161618;
+$col-pro-text: #f2f5f4;
+$col-pro-link: #75c0c7;
+$col-pro-old: #ff0082;
+
+$col-footer-text: #888;
+$col-top-minor: #888;
+
+// Font
+$font-family: 'sans-serif', 'Helvetica';
+$font-size: 13px;
+
+$font-size-title: 25px;
+$font-size-title-small: 20px;
+
+$image-max-height: 500px;
+$image-shadow: 5px 5px 30px 0 black;
+
+$logo-size-small: 40px;
+$logo-size: 80px;
+
+$header-height: 120px;
+$header-height-small: 80px;
+
+$section-padding: 50px;
+
+$screen-sm-min: 768px;
+
+html,
+body {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+body {
+  background: $col-pro-gray;
+  color: $col-pro-text;
+  font-family: $font-family;
+}
+
+.header {
+  left: 0;
+  padding: 20px;
+  height: $header-height-small;
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  top: 0;
+  width: 100%;
+  transition: background 300ms linear;
+  z-index: 100;
+
+  &.fixed {
+    background-color: transparentize($col-pro-gray, .2);
+
+    .download-buttons {
+      display: flex;
+    }
+  }
+
+  .logo {
+    height: $logo-size-small;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-size: $font-size-title-small;
+    margin-left: 20px;
+  }
+
+  .download-buttons {
+    float: right;
+    display: none;
+  }
+}
+
+.download-buttons {
+  a.btn {
+    background: $col-pro-orange;
+    border: 0;
+    color: $col-pro-text;
+    margin-left: 10px;
+  }
+}
+
+.main {
+  flex-shrink: 0;
+
+  min-height: 100%;
+
+  .section {
+    background-color: lighten($col-pro-gray, 4);
+    width: 100%;
+
+    > div {
+      margin: $section-padding 0;
+    }
+
+    img {
+      max-height: $image-max-height;
+      max-width: 90%;
+      box-shadow: $image-shadow;
+    }
+  }
+
+  .section:nth-child(even) {
+    background-color: lighten($col-pro-gray, 6);
+  }
+
+  .top {
+    background: url('../img/feed.jpg');
+    padding-top: $header-height;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-continue {
+    font-size: 20px;
+    height: 50px;
+    padding: 10px 0;
+    text-align: center;
+    background-color: $col-pro-gray !important;
+
+    a,
+    a:active,
+    a:hover,
+    a:visited {
+      color: $col-pro-text;
+    }
+  }
+}
+
+.minor {
+  color: $col-top-minor;
+
+  a,
+  a:hover {
+    color: $col-top-minor;
+  }
+}
+
+.phone {
+  height: 500px;
+  width: 310px;
+  background-image: url('../img/nexus5-white.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  text-align: center;
+
+  .screen {
+    height: 355px;
+    margin-top: 55px;
+
+    video {
+      max-height: 100%;
+    }
+  }
+}
+
+.footer {
+  padding: 10px 0;
+  margin-top: 15px;
+  text-align: center;
+  color: $col-footer-text;
+
+  .heart {
+    display: block;
+    margin-top: 5px;
+
+    a,
+    a:active,
+    a:hover,
+    a:visited {
+      color: $col-pro-old;
+    }
+  }
+}
+
+.vcenter-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hcenter-content {
+  align-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.anker {
+  display: inline-block;
+  height: 0;
+  margin-top: -($header-height-small + $section-padding + 14px);
+  padding-top: ($header-height-small + $section-padding + 14px);
+  width: 1px;
+}
+
+// Screens bigger than $screen-sm-min
+@media (min-width: $screen-sm-min) {
+  .main .top {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .header {
+    height: $header-height;
+
+    .logo {
+      height: $logo-size;
+    }
+
+    .title {
+      font-size: $font-size-title;
+    }
+  }
+
+  .anker {
+    margin-top: -($header-height + $section-padding + 14px);
+    padding-top: ($header-height + $section-padding + 14px);
+  }
+}
+
+// Bootstrap overwrite
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}

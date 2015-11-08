@@ -1,0 +1,118 @@
+mixin section(classes)
+  .section.row(class=classes)
+    block
+
+
+doctype html
+html
+  head(lang="en")
+    meta(charset="UTF-8")
+    meta(http-equiv="x-ua-compatible" content="ie=edge")
+    title pr0gramm App
+    meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no")
+    link(rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png")
+    link(rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png")
+    link(rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png")
+    link(rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png")
+    link(rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png")
+    link(rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png")
+    link(rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png")
+    link(rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png")
+    link(rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png")
+    link(rel="icon" type="image/png" sizes="192x192"  href="favicon/android-icon-192x192.png")
+    link(rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png")
+    link(rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png")
+    link(rel="manifest" href="favicon/manifest.json")
+    meta(name="msapplication-TileColor" content="#ffffff")
+    meta(name="msapplication-TileImage" content="favicon/ms-icon-144x144.png")
+    meta(name="theme-color" content="#ffffff")
+    link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
+    link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
+    link(rel="stylesheet" href="css/style.css")
+  
+  body
+    header.header
+      img.logo(src="logo.png" alt="Logo")
+      .vcenter-content
+        span.title pr0gramm navigator
+      div(style="flex-grow: 1;")
+      .download-buttons.vcenter-content
+        .div
+          a.btn.btn-lg.btn-open-download(href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.772.apk") Herunterladen
+        //- a.btn.btn-lg(href="#")
+        //-   i.fa.fa-android
+        //-   |  PlayStore
+    main.main.container-fluid
+      +section('top')
+          .vcenter-content.hcenter-content
+            .phone
+              .screen
+                video(autoplay muted loop poster="img/pr0-poster.jpg")
+                  source(src="img/pr0.webm" type="video/webm")
+                  source(src="img/pr0.mp4" type="video/mp4")
+          .vcenter-content
+            div
+              .download-buttons
+                center
+                  p Jetzt und NUR für Android!
+                  p
+                    a.btn.btn-lg.btn-default.btn-open-download(href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.772.apk") Herunterladen
+                  .minor
+                    | version 
+                    span.version 1.77.2
+                    |  | 
+                    a(href="https://github.com/schr3j/pr0gramm-updates/tree/master/open", target="_blank") alle versionen 
+                  //- a.btn.btn-lg.btn-default(href="#")
+                  //-   i.fa.fa-android
+                  //-   |  PlayStore
+      +section('top-continue')
+        a(href="#continue")
+          i.fa.fa-chevron-down
+      +section()
+        a.anker(name='continue')
+        include ./sections/section1.jade
+      +section()
+        include ./sections/section2.jade
+      +section()
+        include ./sections/section3.jade
+      +section()
+        include ./sections/opensource_aktuell.jade
+    footer.footer
+      span
+        | copyright 2015 by 
+        a(href="https://github.com/mopsalarm/", target="_blank") mopsalarm
+        |  | 
+        a(href="https://github.com/mopsalarm/Pr0", target="_blank") sourcecode
+      br
+      span.heart
+        a(href="http://pr0gramm.com", target="_blank")
+          i.fa.fa-heart
+  
+  script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+  script(src="//cdn.rawgit.com/schr3j/pr0gramm-updates/33b082e789fdb0a6a391cb7d54e24539b3c45202/update.js")
+  script.
+    $('.top').css('min-height', $(window).height() - 50);
+    $('.header').toggleClass('fixed', $(window).scrollTop() > 0);
+    
+    getUpdateJson(function(json) {
+      var versionString = json.versionStr || ("1." + json.version);
+      $(".version").html(versionString);
+      $(".download-button").attr("href", json.apk);
+    });
+    
+    $(window).resize(function() {
+      $('.top').css('min-height', $(window).height() - 50);
+    });
+    
+    $(window).scroll(function() {
+      $('.header').toggleClass('fixed', $(window).scrollTop() > 0);
+    });
+    
+    var $root = $('html, body');
+    $('a').click(function() {
+      $root.animate({
+          scrollTop: $('[name="' + $.attr(this, 'href').substr(1) + '"]').offset().top
+        }, 500);
+      return false;
+    });
