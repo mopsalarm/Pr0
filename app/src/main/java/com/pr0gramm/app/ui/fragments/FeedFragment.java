@@ -315,6 +315,8 @@ public class FeedFragment extends BaseFragment {
                 if (!filter.equals(getCurrentFilter())) {
                     ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
                 }
+
+                closeUserInfoComments();
             }
 
             @Override
@@ -323,12 +325,20 @@ public class FeedFragment extends BaseFragment {
                 if (!filter.equals(getCurrentFilter())) {
                     ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
                 }
+
+                closeUserInfoComments();
             }
 
             @Override
             public void onShowCommentsClicked() {
                 userInfoCommentsOpen = messages.getItemCount() == 0;
                 messages.setMessages(userInfoCommentsOpen ? comments : emptyList());
+                updateSpanSizeLookup();
+            }
+
+            private void closeUserInfoComments() {
+                userInfoCommentsOpen = false;
+                messages.setMessages(emptyList());
                 updateSpanSizeLookup();
             }
         });
