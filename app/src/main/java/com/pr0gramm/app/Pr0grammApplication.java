@@ -109,7 +109,7 @@ public class Pr0grammApplication extends SugarApp {
      */
     public static void openCommunityWebpage(Activity activity) {
         Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://example.com/"));
+                Uri.parse("https://play.google.com/apps/testing/io.github.mopsalarm.pr0gramm.gp2"));
 
         activity.startActivity(intent);
     }
