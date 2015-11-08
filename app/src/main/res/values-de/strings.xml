@@ -236,7 +236,7 @@
     <string name="pref_feed_type_login_required">Zum Ändern musst du angemeldet sein.</string>
     <string name="action_change_content_type">Filter ändern</string>
     <string name="hint_try_mpeg_decoder">Wenn du Probleme beim Abspielen von Videos hast, teste die neue Option \'Softwaredekoder\' unter Kompatibilität in den Einstellungen! Bitte gib Feedback!</string>
-    <string name="beta_you_need_to_join_community">Um an der Beta teilzunehmen, musst du der Beta Community bei Google+ beitreten.</string>
+    <string name="beta_you_need_to_join_community">Um an der Beta teilzunehmen, musst du der dem Beta Programm bei Google beitreten.</string>
     <string name="user_type_gesperrt">gesperrt</string>
     <string name="user_type_legende">legende</string>
     <string name="user_type_altschwuchtel">altschwuchtel</string>
@@ -341,4 +341,6 @@
     <string name="pref_use_api_proxy_title">Api Proxy</string>
     <string name="warn_api_proxy">All deine privaten Daten außer deinem Passwort (Nachrichten und so) werden über einen externen Proxy übertragen. Bitte sei dir darüber im Klaren, wenn du diese Funktion verwendest.</string>
     <string name="hint_apiproxy_info">Wenn du oft Probleme damit hast, dass im WLAN Posts nicht geladen werden, versuche die neue Api-Proxy Einstellung in den Kompatibilitätseinstellungen.</string>
+    <string name="hint_unlock_plugin_required">Im Google PlayStore sind keine Apps mit NSFW/NSFL-Inhalten erlaubt. Für weitere Informationen, und wie du das pr0gramm trotzdem vollständig genießen kannst, schaue auf der pr0gramm-navigator Website nach.</string>
+    <string name="open_website">Website öffnen</string>
 </resources>

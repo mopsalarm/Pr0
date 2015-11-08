@@ -109,7 +109,7 @@ public class Pr0grammApplication extends SugarApp {
      */
     public static void openCommunityWebpage(Activity activity) {
         Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://plus.google.com/communities/110437493632062622082"));
+                Uri.parse("http://example.com/"));
 
         activity.startActivity(intent);
     }

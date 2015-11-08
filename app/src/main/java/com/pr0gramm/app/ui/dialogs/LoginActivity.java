@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
@@ -23,11 +24,13 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
+import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -59,6 +62,9 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @Inject
     UserService userService;
+
+    @Inject
+    UnlockService unlockService;
 
     @Bind(R.id.username)
     EditText usernameView;
@@ -182,7 +188,21 @@ public class LoginActivity extends BaseAppCompatActivity {
 
             // signal success
             setResult(RESULT_OK);
-            finish();
+
+            if (!unlockService.unlocked()) {
+                DialogBuilder.start(this)
+                        .content(R.string.hint_unlock_plugin_required)
+                        .onCancel(di -> finish())
+                        .negative(R.string.ignore, this::finish)
+                        .positive(R.string.open_website, () -> {
+                            openUnlockerWebpage();
+                            finish();
+                        })
+                        .show();
+
+            } else {
+                finish();
+            }
 
             Track.loginSuccessful();
 
@@ -205,6 +225,14 @@ public class LoginActivity extends BaseAppCompatActivity {
                 Track.loginFailed();
             }
         }
+    }
+
+    /**
+     * Shows the info unlocker website in the browser.
+     */
+    private void openUnlockerWebpage() {
+        Uri url = Uri.parse("https://mopsalarm.github.io/Pr0/unlocker.html");
+        startActivity(new Intent(Intent.ACTION_VIEW, url));
     }
 
     public static abstract class DoIfAuthorizedHelper {

@@ -272,7 +272,7 @@
     <string name="user_type_gesperrt">banned</string>
     <string name="user_type_legende">legend</string>
     <string name="user_type_wichtler">wichtler</string>
-    <string name="beta_you_need_to_join_community">You need to join the google community to receive beta updates.</string>
+    <string name="beta_you_need_to_join_community">You need to join the google open beta programm to receive beta updates.</string>
     <string name="hint_try_mpeg_decoder">If you got problems playing videos, try activating the option "Softwaredecoder" in the settings.</string>
     <string name="user_type_altschwuchtel">oldfag</string>
     <string name="user_type_neuschwuchtel">newfag</string>
@@ -371,5 +371,7 @@
     <string name="pref_use_api_proxy_title">Api Proxy</string>
     <string name="warn_api_proxy">All your private data except your password (messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
     <string name="hint_apiproxy_info">If you often have loading problems on wifi, you could try the new api-proxy setting in the compatibility preferences.</string>
+    <string name="open_website">Open website</string>
+    <string name="hint_unlock_plugin_required">Apps displaying nsfw/nsfl content are not allowed in the play store. To get more information and to learn, how to see the complete content anyways, see the pr0gramm navigator website.</string>
 </resources>
 
