@@ -43,6 +43,10 @@ body {
   font-family: $font-family;
 }
 
+html, body, td, input {
+  font-family: 'Roboto', sans-serif;
+}
+
 .header {
   left: 0;
   padding: 20px;
