@@ -88,12 +88,21 @@ android {
             applicationId "com.pr0gramm.app"
             signingConfig flavorSigningOpen
             buildConfigField "boolean", "IS_PLAYSTORE_RELEASE", "false"
+            buildConfigField "boolean", "REQUIRES_UNLOCK_PLUGIN", "false"
         }
 
         play {
             applicationId "io.github.mopsalarm.pr0gramm.gp"
             signingConfig flavorSigningPlay
             buildConfigField "boolean", "IS_PLAYSTORE_RELEASE", "true"
+            buildConfigField "boolean", "REQUIRES_UNLOCK_PLUGIN", "false"
+        }
+
+        play2 {
+            applicationId "io.github.mopsalarm.pr0gramm.gp2"
+            signingConfig flavorSigningPlay
+            buildConfigField "boolean", "IS_PLAYSTORE_RELEASE", "true"
+            buildConfigField "boolean", "REQUIRES_UNLOCK_PLUGIN", "true"
         }
     }
 

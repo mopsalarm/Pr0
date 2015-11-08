@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+
+        versionCode 1
+        versionName "1.0"
+
+        applicationId "io.github.mopsalarm.pr0gramm.unlock"
+    }
+
+    signingConfigs {
+        play {
+            storeFile file("../release.keystore")
+            storePassword "android"
+            keyAlias "playstore"
+            keyPassword "so very secret"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+
+    buildTypes {
+        debug {
+            shrinkResources false
+            versionNameSuffix ".dev"
+            signingConfig signingConfigs.play
+        }
+
+        release {
+            shrinkResources false
+            signingConfig signingConfigs.play
+        }
+    }
+}
+
+dependencies {
+
+}

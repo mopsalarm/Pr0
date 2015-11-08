@@ -19,6 +19,7 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -90,7 +91,12 @@ public class SettingsActivity extends BaseAppCompatActivity {
         @Inject
         OkHttpClient okHttpClient;
 
+        @Inject
+        UnlockService unlockService;
+
         private Subscription preloadItemsSubscription;
+        public static final List<String> CONTENT_TYPE_KEYS = ImmutableList.of(
+                "pref_feed_type_sfw", "pref_feed_type_nsfw", "pref_feed_type_nsfl");
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -149,7 +155,12 @@ public class SettingsActivity extends BaseAppCompatActivity {
         }
 
         private void updateFlavorSettings() {
-            // customize depending on build flavor.
+            if (contentTypesNotVisible()) {
+                Preference pref = findPreference("prefcat_feed_types");
+                if (pref != null) {
+                    getPreferenceScreen().removePreference(pref);
+                }
+            }
         }
 
         @Override
@@ -257,16 +268,13 @@ public class SettingsActivity extends BaseAppCompatActivity {
                             .show();
                 }
             }
-
         }
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {
             Settings settings = Settings.of(sharedPreferences);
-            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized();
-            List<String> contentTypeKeys = ImmutableList.of(
-                    "pref_feed_type_sfw", "pref_feed_type_nsfw", "pref_feed_type_nsfl");
+            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized() && !contentTypesNotVisible();
 
-            for (String ctKey : contentTypeKeys) {
+            for (String ctKey : CONTENT_TYPE_KEYS) {
                 Preference pref = findPreference(ctKey);
                 if (pref != null && sharedPreferences.getBoolean(ctKey, false))
                     pref.setEnabled(enabled);
@@ -281,6 +289,10 @@ public class SettingsActivity extends BaseAppCompatActivity {
                     }
                 }
             }
+        }
+
+        private boolean contentTypesNotVisible() {
+            return !unlockService.unlocked();
         }
     }
 }

@@ -34,6 +34,7 @@ import com.google.common.collect.Lists;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.meta.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.meta.SizeInfo;
@@ -144,6 +145,9 @@ public class FeedFragment extends BaseFragment {
 
     @Inject
     PreloadManager preloadManager;
+
+    @Inject
+    UnlockService unlockService;
 
     @Bind(R.id.list)
     RecyclerView recyclerView;
@@ -610,7 +614,6 @@ public class FeedFragment extends BaseFragment {
                 item.setVisible(false);
             }
         }
-
     }
 
     @Override
@@ -638,7 +641,7 @@ public class FeedFragment extends BaseFragment {
 
         item = menu.findItem(R.id.action_change_content_type);
         if (item != null) {
-            if (userService.isAuthorized()) {
+            if (userService.isAuthorized() && unlockService.unlocked()) {
                 ContentTypeDrawable icon = new ContentTypeDrawable(getActivity(), getSelectedContentType());
 
                 icon.setTextSize(getResources().getDimensionPixelSize(
