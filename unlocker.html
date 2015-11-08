@@ -1,119 +1,127 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>pr0gramm App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
-</head>
-<style>
-  body {
-    background-color: #161618;
-    color: #f2f5f4;
-    margin-bottom: 20px;
-  }
-
-  header {
-    margin-bottom: 50px;
-  }
-
-  nav {
-    margin: 20px;
-  }
-
-  nav img {
-    height: 80px;
-  }
-
-  nav span {
-    margin-left: 20px;
-    font-size: 30px;
-    color: #ed492c;
-    vertical-align: middle;
-  }
-
-  .phone {
-    height: 500px;
-    background-image: url("nexus5-white.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    text-align: center;
-  }
-
-  .phone .screen {
-    height: 355px;
-    margin-top: 55px;
-  }
-
-  #video {
-    max-height: 100%;
-  }
-
-  .btn-primary {
-    border: none;
-    background-color: #ee4d2e;
-  }
-
-  .btn-primary:hover, .btn-primary:focus {
-    background-color: #f5f7f6;
-    color: #555;
-  }
-
-  .vcenter {
-    display: inline-block;
-    vertical-align: middle;
-    float: none;
-  }
-
-  .download-details, .download-details a {
-    color: #555555;
-  }
-</style>
-<body>
-
-<header>
-  <nav>
-    <img src="logo.png" alt="Logo"/>
-    <span>pr0gramm App</span>
-  </nav>
-</header>
-
-<main>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
-        <div class="col-xs-12 col-sm-6 vcenter phone">
-          <div class="screen">
-            <img id="video" src="pr0-poster.jpg">
-          </div>
-        </div><!--
-      --><div class="col-xs-12 col-sm-6 vcenter">
-          <p>Im Google PlayStore sind Apps verboten, die pornographische Handlungen
-            oder Gewalt zeigen. Aus diesem Grund unterstützt die App das
-            Darstellen von nsfw/nsfl Inhalten erstmal nicht.</p>
-
-          <p>Um trotzdem in den Genuss dieser Inhalte zu kommen, kannst du
-            die <i>pr0gramm navigator unlock</i> App installieren. Diese
-            aktiviert dann Zugriff auf das vollständige pr0gramm auf deinem
-            Smartphone (sofern du im pr0gramm angemeldet bist).</p>
-
-          <p>Bei weiteren Fragen kannst du dich auch einfach an
-            <a href="https://pr0gramm.com/user/Mopsalarm" target="_blank">@Mopsalarm</a> wenden.
+  <head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>pr0gramm App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="img/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url('img/feed.jpg');
+        color: #f2f5f4;
+      }
+      
+      .header {
+        height: $header-height;
+        display: flex;
+        padding: 20px;
+        flex-direction: row;
+        height: 80px;
+        width: 100%;
+      }
+      
+      .header .logo {
+        height: 40px;
+      }
+      
+      .header  .title {
+        font-size: 20px;
+        margin-left: 20px;
+      }
+      
+      .header a.title,
+      .header a.title:hover,
+      .header a.title:active,
+      .header a.title:visited {
+        color: #f2f5f4;
+        text-decoration: none;
+      }
+      
+      .btn-pro {
+        background: #ee4d2e;
+        border: 0;
+        color: #f2f5f4;
+      }
+      
+      .footer {
+        padding: 10px 0;
+        margin-top: 15px;
+        text-align: center;
+        color: #888;
+      }
+      
+      .footer .heart {
+        display: block;
+        margin-top: 5px;
+      }
+      
+      .footer .heart a,
+      .footer .heart a:active,
+      .footer .heart a:hover,
+      .footer .heart a:visited {
+        color: #ff0082;
+      }
+      
+      .vcenter-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .hcenter-content {
+        align-items: center;
+        align-content: center;
+        text-align: center;
+      }
+      
+      
+    </style>
+  </head>
+  <body>
+    <header stlye="position: absolute;" class="header"><img src="img/logo.png" alt="Logo" class="logo">
+      <div class="vcenter-content"><a href="index.html" class="title">pr0gramm navigator</a></div>
+    </header>
+    <div style="flex-grow:1;"></div>
+    <main class="main">
+      <div stlye="height: 100%" class="top">
+        <center>
+          <p>
+            Leider erlauben die Google PlayStore Richtlinien keinen nsfw/nsfl Content.
+            Deshalb gibt es ein Plugin, mit dem nsfw/nsfl auch in der PlayStore Variante aktiviert werden kann.
+            Dadurch hast du vollen Funktionsumfang und trotzdem Updates über den PlayStore.
           </p>
-
-          <div class="col-md-12 col-sm-12">
-            <br/>
-            <a href="pr0gramm-navigator-unlock.apk"
-             id="download-button"
-             class="btn btn-lg btn-primary">Download</a><br/><br/>
-          </div>
-        </div>
+          <p>Das Plugin muss nur einmal installiert werden. Du kannst es hier herunterladen.</p>
+          <p class="hcenter-content"><a href="pr0gramm-navigator-unlock.apk" class="btn btn-lg btn-pro"><i class="fa fa-unlock-alt"></i> Unlocker Plugin</a></p>
+        </center>
       </div>
-    </div>
-  </div>
-</main>
-
-</body>
+    </main>
+    <div style="flex-grow:1;"></div>
+    <footer class="footer"><span>copyright 2015 by <a href="https://github.com/mopsalarm/" target="_blank">mopsalarm</a> | website by <a href="https://github.com/schr3j/" target="_blank">schr3j</a></span><br><span class="heart"><a href="http://pr0gramm.com" target="_blank"><i class="fa fa-heart"></i></a></span></footer>
+  </body>
 </html>
