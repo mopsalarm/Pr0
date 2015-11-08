@@ -316,7 +316,7 @@ public class FeedFragment extends BaseFragment {
                     ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
                 }
 
-                closeUserInfoComments();
+                showUserInfoComments(emptyList());
             }
 
             @Override
@@ -326,19 +326,17 @@ public class FeedFragment extends BaseFragment {
                     ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
                 }
 
-                closeUserInfoComments();
+                showUserInfoComments(emptyList());
             }
 
             @Override
             public void onShowCommentsClicked() {
-                userInfoCommentsOpen = messages.getItemCount() == 0;
-                messages.setMessages(userInfoCommentsOpen ? comments : emptyList());
-                updateSpanSizeLookup();
+                showUserInfoComments(messages.getItemCount() == 0 ? comments : emptyList());
             }
 
-            private void closeUserInfoComments() {
-                userInfoCommentsOpen = false;
-                messages.setMessages(emptyList());
+            private void showUserInfoComments(List<Message> comments) {
+                userInfoCommentsOpen = comments.size() > 0;
+                messages.setMessages(comments);
                 updateSpanSizeLookup();
             }
         });
