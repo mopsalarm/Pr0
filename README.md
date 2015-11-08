@@ -7,10 +7,10 @@ benötigt.
 Um dann alle zusatztools zu installieren muss einmal ```npm install``` ausgeführt werden.
 
 ### Publish
-Um Änderungen zu veröffentlichen muss ein Build durchgeführt und anschließend ein push auf gh-pages durchgeführt werden. Dazu:
-```
-gulp publish
-sh publish.sh
-```
+Um Änderungen zu veröffentlichen muss ein Build durchgeführt und anschließend ein push auf gh-pages durchgeführt werden. Dazu zuerst ein Build mit
+```gulp publish```
+und danach den aktuellen Stand commiten.
+Abschließend kann das ganze mit
+```sh publish.sh``` gepublisht werden.  
 Letzteres Script führt ```git subtree push --prefix dist origin gh-pages``` aus.  
 Damit sind die Änderungen veröffentlicht.
