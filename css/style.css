@@ -14,6 +14,9 @@ body {
 html, body, td, input {
   font-family: 'Roboto', sans-serif; }
 
+#continue {
+  display: block; }
+
 .header {
   left: 0;
   padding: 20px;
