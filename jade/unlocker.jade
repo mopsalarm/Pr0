@@ -56,6 +56,14 @@ html
         margin-left: 20px;
       }
       
+      .header a.title,
+      .header a.title:hover,
+      .header a.title:active,
+      .header a.title:visited {
+        color: #f2f5f4;
+        text-decoration: none;
+      }
+      
       .btn-pro {
         background: #ee4d2e;
         border: 0;
@@ -98,7 +106,7 @@ html
     header.header(stlye="position: absolute;")
       img.logo(src="img/logo.png" alt="Logo")
       .vcenter-content
-        span.title pr0gramm navigator
+        a(href="index.html").title pr0gramm navigator
     div(style="flex-grow:1;")
     main.main
       .top(stlye="height: 100%")
