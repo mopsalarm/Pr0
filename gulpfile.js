@@ -12,7 +12,7 @@ gulp.task('deploy', function() {
 });
 
 gulp.task('build', ['scss', 'jade'], function() {
-  gulp.src(['css/*.css', 'img/**/*', 'index.html', 'unlocker.html', 'pr0gramm-navigator-unlock.apk'],
+  gulp.src(['css/*.css', 'img/**', 'index.html', 'unlocker.html', 'pr0gramm-navigator-unlock.apk'],
     {base: '.'})
     .pipe(gulp.dest('dist/'));
 });
@@ -29,12 +29,12 @@ gulp.task('scss', function() {
     .pipe(autoprefixer({
       browsers: ['last 2 versions']
     }))
-    .pipe(gulp.dest('css/'));
+    .pipe(gulp.dest('dist/css/'));
 });
 
 gulp.task('jade', function() {
   return gulp.src(['jade/index.jade', 'jade/unlocker.jade'])
     .pipe(plumber())
     .pipe(jade({pretty: true}))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest('dist/'));
 });

@@ -16,7 +16,7 @@ $font-size-title: 25px;
 $font-size-title-small: 20px;
 
 $image-max-height: 500px;
-$image-shadow: 5px 5px 30px 0 black;
+$image-shadow: 0px 0px 30px 0 rgba(0, 0, 0, 0.5);
 
 $logo-size-small: 40px;
 $logo-size: 80px;
@@ -41,6 +41,10 @@ body {
   background: $col-pro-gray;
   color: $col-pro-text;
   font-family: $font-family;
+}
+
+html, body, td, input {
+  font-family: 'Roboto', sans-serif;
 }
 
 .header {
@@ -114,8 +118,6 @@ body {
 
   .top-continue {
     font-size: 20px;
-    height: 50px;
-    padding: 10px 0;
     text-align: center;
     background-color: $col-pro-gray !important;
 
@@ -124,6 +126,9 @@ body {
     a:hover,
     a:visited {
       color: $col-pro-text;
+      display: block;
+      height: 50px;
+      padding-top: 10px;
     }
   }
 

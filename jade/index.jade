@@ -10,6 +10,7 @@ html
     meta(charset="UTF-8")
     meta(http-equiv="x-ua-compatible" content="ie=edge")
     title pr0gramm App
+    
     meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no")
     link(rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png")
     link(rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png")
@@ -25,11 +26,14 @@ html
     link(rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png")
     link(rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png")
     link(rel="manifest" href="img/favicon/manifest.json")
+    
     meta(name="msapplication-TileColor" content="#ffffff")
     meta(name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png")
     meta(name="theme-color" content="#ffffff")
+    
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
+    link(rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700")
     link(rel="stylesheet" href="css/style.css")
   
   body
@@ -72,7 +76,7 @@ html
       +section()
         include ./sections/opensource_aktuell.jade
       +section('download')
-        a.anker(name='download')
+        a(name='download')
         include ./sections/download.jade
     footer.footer
       span
@@ -88,7 +92,8 @@ html
           i.fa.fa-heart
   
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
-  script(src="//cdn.rawgit.com/schr3j/pr0gramm-updates/33b082e789fdb0a6a391cb7d54e24539b3c45202/update.js")
+  script(src="//cdn.rawgit.com/mopsalarm/pr0gramm-updates/master/update.js")
+  
   script.
     $('.top').css('min-height', $(window).height() - 50);
     $('.header').toggleClass('fixed', $(window).scrollTop() > 0);
