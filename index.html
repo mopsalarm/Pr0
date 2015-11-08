@@ -66,10 +66,11 @@
           <p>Stöbere bequem durch die Kategorien Top und Neu.</p>
           <p>
             Damit du noch mehr Zeit auf dem pr0 verschw - ääh - verbringen kannst, 
-            gibt es zusätzlich noch vier neue Kategorien: Kontrovers, Zufall, Best Of und OC in Top
+            gibt es zusätzlich noch drei neue Kategorien: Kontrovers, Zufall und Best Of
           </p>
           <p>Damit auch Arbeitszeit problemlos auf dem pr0 verbracht werden kann, gibt es schnell erreichbare Filtereinstellungen.</p>
           <p>Und über die Suchfunktion kannst du Bilder die richtig getaggt sind wiederfinden.</p>
+          <p>Und für deine liebsten Suchen kannst du sogar Lesezeichen anlegen!</p>
         </div>
         <div class="col-sm-6 col-lg-5">
           <center><img src="img/screenshots/feed.jpg" alt="feed"></center>
@@ -140,7 +141,7 @@
     getUpdateJson(function(json) {
       var versionString = json.versionStr || ("1." + json.version);
       $(".version").html(versionString);
-      $(".download-button").attr("href", json.apk);
+      $(".btn-open-download").attr("href", json.apk);
     });
     
     $(window).resize(function() {

@@ -87,6 +87,10 @@ body {
     color: $col-pro-text;
     margin-left: 10px;
   }
+
+  a.btn:first-child {
+    margin-left: 0;
+  }
 }
 
 .main {
@@ -99,7 +103,8 @@ body {
     width: 100%;
 
     > div {
-      margin: $section-padding 0;
+      margin-top: $section-padding;
+      margin-bottom: $section-padding;
     }
 
     img {

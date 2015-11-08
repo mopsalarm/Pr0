@@ -98,7 +98,7 @@ html
     getUpdateJson(function(json) {
       var versionString = json.versionStr || ("1." + json.version);
       $(".version").html(versionString);
-      $(".download-button").attr("href", json.apk);
+      $(".btn-open-download").attr("href", json.apk);
     });
     
     $(window).resize(function() {

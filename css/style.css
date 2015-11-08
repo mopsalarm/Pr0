@@ -53,6 +53,9 @@ body {
   color: #f2f5f4;
   margin-left: 10px; }
 
+.download-buttons a.btn:first-child {
+  margin-left: 0; }
+
 .main {
   -webkit-flex-shrink: 0;
       -ms-flex-negative: 0;
@@ -62,7 +65,8 @@ body {
     background-color: #202023;
     width: 100%; }
     .main .section > div {
-      margin: 50px 0; }
+      margin-top: 50px;
+      margin-bottom: 50px; }
     .main .section img {
       max-height: 500px;
       max-width: 90%;
