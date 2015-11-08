@@ -1,5 +1,14 @@
 [
   {
+    "version": 79,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Fehler in den Benutzerinformationen beim Umschalten zwischen Kommentaren und Uploads behoben"
+      }
+    ]
+  },
+  {
     "version": 78,
     "changes": [
       {
