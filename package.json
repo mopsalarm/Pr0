@@ -8,6 +8,7 @@
     "gulp-sass": "*",
     "gulp-autoprefixer": "*",
     "gulp-jade": "*",
-    "gulp-plumber": "*"
+    "gulp-plumber": "*",
+    "gulp-gh-pages": "*"
   }
 }
