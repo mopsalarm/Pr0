@@ -10,22 +10,22 @@ html
     meta(http-equiv="x-ua-compatible" content="ie=edge")
     title pr0gramm App
     meta(name="viewport" content="width=device-width, initial-scale=1, user-scalable=no")
-    link(rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png")
-    link(rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png")
-    link(rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png")
-    link(rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png")
-    link(rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png")
-    link(rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png")
-    link(rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png")
-    link(rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png")
-    link(rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png")
-    link(rel="icon" type="image/png" sizes="192x192"  href="favicon/android-icon-192x192.png")
-    link(rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png")
-    link(rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png")
-    link(rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png")
-    link(rel="manifest" href="favicon/manifest.json")
+    link(rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png")
+    link(rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png")
+    link(rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png")
+    link(rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png")
+    link(rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png")
+    link(rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png")
+    link(rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png")
+    link(rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png")
+    link(rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png")
+    link(rel="icon" type="image/png" sizes="192x192"  href="img/favicon/android-icon-192x192.png")
+    link(rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png")
+    link(rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png")
+    link(rel="manifest" href="img/favicon/manifest.json")
     meta(name="msapplication-TileColor" content="#ffffff")
-    meta(name="msapplication-TileImage" content="favicon/ms-icon-144x144.png")
+    meta(name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png")
     meta(name="theme-color" content="#ffffff")
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
@@ -39,10 +39,7 @@ html
       div(style="flex-grow: 1;")
       .download-buttons.vcenter-content
         .div
-          a.btn.btn-lg.btn-open-download(href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.772.apk") Herunterladen
-        //- a.btn.btn-lg(href="#")
-        //-   i.fa.fa-android
-        //-   |  PlayStore
+          a.btn.btn-lg.btn-pro(href="#download") Herunterladen
     main.main.container-fluid
       +section('top')
           .vcenter-content.hcenter-content
@@ -57,15 +54,10 @@ html
                 center
                   p Jetzt und NUR für Android!
                   p
-                    a.btn.btn-lg.btn-default.btn-open-download(href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.772.apk") Herunterladen
+                    a.btn.btn-lg.btn-pro(href="#download") Herunterladen
                   .minor
                     | version 
                     span.version 1.77.2
-                    |  | 
-                    a(href="https://github.com/schr3j/pr0gramm-updates/tree/master/open", target="_blank") alle versionen 
-                  //- a.btn.btn-lg.btn-default(href="#")
-                  //-   i.fa.fa-android
-                  //-   |  PlayStore
       +section('top-continue')
         a(href="#continue")
           i.fa.fa-chevron-down
@@ -78,6 +70,9 @@ html
         include ./sections/section3.jade
       +section()
         include ./sections/opensource_aktuell.jade
+      +section('download')
+        a.anker(name='download')
+        include ./sections/download.jade
     footer.footer
       span
         | copyright 2015 by 

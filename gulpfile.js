@@ -6,6 +6,12 @@ var plumber = require('gulp-plumber');
 
 gulp.task('default', ['scss', 'jade']);
 
+gulp.task('publish', ['scss', 'jade'], function() {
+  gulp.src(['css/*.css', 'img/**/*', 'index.html', 'pr0gramm-navigator-unlock.apk'],
+    {base: '.'})
+    .pipe(gulp.dest('dist/'));
+});
+
 gulp.task('watch', function() {
   gulp.watch('scss/**/*.scss', ['scss']);
   gulp.watch('jade/**/*.jade', ['jade']);

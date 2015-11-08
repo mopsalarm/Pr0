@@ -1,0 +1,33 @@
+extends section_base.jade
+
+block left
+  h3 direkt herunterladen
+  p Hier kannst du die App direkt herunterladen und installieren.
+  p Beachte dass du Apps aus nicht vertrauenswürdigen Quellen zulassen musst, damit du die App installieren kannst.
+  p.hcenter-content
+    a.btn.btn-lg.btn-pro.btn-open-download(href="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/open/pr0gramm-v1.772.apk") Herunterladen
+  p.hcenter-content.minor
+    | version 
+    span.version 1.77.2
+    |  | 
+    a(href="https://github.com/mopsalarm/pr0gramm-updates/tree/master/open", target="_blank") alle versionen
+  p Diese Version enthält ein Updatefunktion und läd updates automatisch herunter die Du dann nur noch installieren musst.
+  
+block right
+  h3 play store
+  p Wenn du deine Updates lieber vollautomatisch vom Google PlayStore bekommen willst, installiere diese Version der App.
+  p.hcenter-content
+    a.btn.btn-lg.btn-pro(href="#")
+      i.fa.fa-android
+      |  PlayStore
+  br
+  a(name='download')
+  p.
+    Leider erlauben die Google PlayStore Richtlinien keinen nsfw/nsfl Content.
+    Deshalb gibt es ein Plugin, mit dem nsfw/nsfl auch in der PlayStore Variante aktiviert werden kann.
+    Dadurch hast du vollen Funktionsumfang und trotzdem Updates über den PlayStore.
+  p Das Plugin muss nur einmal installiert werden. Du kannst es hier herunterladen.
+  p.hcenter-content
+    a.btn.btn-lg.btn-pro(href="pr0gramm-navigator-unlock.apk")
+      i.fa.fa-unlock-alt
+      |  Unlocker Plugin

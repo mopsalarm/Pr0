@@ -80,19 +80,6 @@ body {
   }
 }
 
-.download-buttons {
-  a.btn {
-    background: $col-pro-orange;
-    border: 0;
-    color: $col-pro-text;
-    margin-left: 10px;
-  }
-
-  a.btn:first-child {
-    margin-left: 0;
-  }
-}
-
 .main {
   flex-shrink: 0;
 
@@ -139,6 +126,16 @@ body {
       color: $col-pro-text;
     }
   }
+
+  .download {
+    //background: $col-pro-orange;
+  }
+}
+
+.btn-pro {
+  background: $col-pro-orange;
+  border: 0;
+  color: $col-pro-text;
 }
 
 .minor {

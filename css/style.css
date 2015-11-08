@@ -47,15 +47,6 @@ body {
     float: right;
     display: none; }
 
-.download-buttons a.btn {
-  background: #ee4d2e;
-  border: 0;
-  color: #f2f5f4;
-  margin-left: 10px; }
-
-.download-buttons a.btn:first-child {
-  margin-left: 0; }
-
 .main {
   -webkit-flex-shrink: 0;
       -ms-flex-negative: 0;
@@ -93,6 +84,11 @@ body {
     .main .top-continue a:hover,
     .main .top-continue a:visited {
       color: #f2f5f4; }
+
+.btn-pro {
+  background: #ee4d2e;
+  border: 0;
+  color: #f2f5f4; }
 
 .minor {
   color: #888; }
