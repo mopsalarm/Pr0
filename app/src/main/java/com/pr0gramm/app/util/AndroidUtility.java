@@ -9,10 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
@@ -36,6 +34,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UriHelper;
 
@@ -143,7 +142,7 @@ public class AndroidUtility {
 
         } catch (IllegalStateException ignored) {
             // most certainly crashlytics was not activated.
-            logger.warn("Looks likce crashlytics was not activated. Here is the error:", error);
+            logger.warn("Looks like crashlytics was not activated. Here is the error:", error);
 
         } catch (Exception err) {
             logger.info("Could not send error to crashlytics", err);
@@ -153,12 +152,6 @@ public class AndroidUtility {
     public static Bundle bundle(String key, String value) {
         Bundle bundle = new Bundle();
         bundle.putString(key, value);
-        return bundle;
-    }
-
-    public static Bundle bundle(String key, Parcelable value) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(key, value);
         return bundle;
     }
 
@@ -278,28 +271,30 @@ public class AndroidUtility {
         }
     }
 
-    public static <T> void ifNotNull(T value, Action1<T> action) {
-        if (value != null) {
-            action.call(value);
-        }
-    }
-
     /**
      * Measures the runtime of the given runnable and log it to the provided logger.
      */
     public static void time(Logger logger, String name, Runnable runnable) {
-        time(logger, name, () -> {
+        if (BuildConfig.DEBUG) {
+            time(logger, name, () -> {
+                runnable.run();
+                return null;
+            });
+        } else {
             runnable.run();
-            return null;
-        });
+        }
     }
 
     public static <T> T time(Logger logger, String name, Supplier<T> supplier) {
-        Stopwatch watch = Stopwatch.createStarted();
-        try {
+        if (BuildConfig.DEBUG) {
+            Stopwatch watch = Stopwatch.createStarted();
+            try {
+                return supplier.get();
+            } finally {
+                logger.info("{} took {}", name, watch);
+            }
+        } else {
             return supplier.get();
-        } finally {
-            logger.info("{} took {}", name, watch);
         }
     }
 
@@ -364,10 +359,5 @@ public class AndroidUtility {
     public static <T extends View> T findView(View view, int id) {
         //noinspection unchecked
         return checkNotNull(ButterKnife.findById(view, id));
-    }
-
-    public static boolean equalsIgnoreCase(@Nullable String first, @Nullable String second) {
-        //noinspection StringEquality
-        return first == second || (first != null && first.equalsIgnoreCase(second));
     }
 }

@@ -62,6 +62,7 @@ import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
+import com.pr0gramm.app.ui.FeedItemViewHolder;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
@@ -276,7 +277,7 @@ public class FeedFragment extends BaseFragment {
         }
     }
 
-    public void presentUserInfoCell(EnhancedUserInfo info) {
+    private void presentUserInfoCell(EnhancedUserInfo info) {
         MessageAdapter messages = new MessageAdapter(getActivity(), emptyList(), null, R.layout.user_info_comment) {
             @Override
             public void onBindViewHolder(MessageViewHolder view, int position) {
@@ -351,7 +352,7 @@ public class FeedFragment extends BaseFragment {
                 SingleViewAdapter.ofLayout(R.layout.user_info_footer));
     }
 
-    public void presentUserUploadsHint(Info info) {
+    private void presentUserUploadsHint(Info info) {
         if (isSelfInfo(info))
             return;
 
@@ -369,13 +370,14 @@ public class FeedFragment extends BaseFragment {
             return;
         }
 
-        ifPresent(getMainAdapter(), adapter -> {
+        Optional<MergeRecyclerAdapter> adapter = getMainAdapter();
+        if (adapter.isPresent()) {
             for (int idx = 0; idx < adapters.length; idx++) {
-                adapter.addAdapter(1 + idx, adapters[idx]);
+                adapter.get().addAdapter(1 + idx, adapters[idx]);
             }
 
             updateSpanSizeLookup();
-        });
+        }
     }
 
     private Observable<EnhancedUserInfo> queryUserInfo() {
@@ -633,26 +635,19 @@ public class FeedFragment extends BaseFragment {
         FeedFilter filter = getCurrentFilter();
         FeedType feedType = filter.getFeedType();
 
-        MenuItem item = menu.findItem(R.id.action_refresh);
-        if (item != null) {
+        MenuItem item;
+        if ((item = menu.findItem(R.id.action_refresh)) != null)
             item.setVisible(settings.showRefreshButton());
-        }
 
-        item = menu.findItem(R.id.action_pin);
-        if (item != null) {
+        if ((item = menu.findItem(R.id.action_pin)) != null)
             item.setVisible(bookmarkable);
-        }
 
-        item = menu.findItem(R.id.action_preload);
-        if (item != null) {
+        if ((item = menu.findItem(R.id.action_preload)) != null)
             item.setVisible(feedType.preloadable() && !AndroidUtility.isOnMobile(getActivity()));
-        }
 
-        item = menu.findItem(R.id.action_change_content_type);
-        if (item != null) {
+        if ((item = menu.findItem(R.id.action_change_content_type)) != null) {
             if (userService.isAuthorized() && unlockService.unlocked()) {
                 ContentTypeDrawable icon = new ContentTypeDrawable(getActivity(), getSelectedContentType());
-
                 icon.setTextSize(getResources().getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size));
 
@@ -730,7 +725,7 @@ public class FeedFragment extends BaseFragment {
     }
 
     @OnOptionsItemSelected(R.id.action_preload)
-    public void preloadCurrentFeed() {
+    public  void preloadCurrentFeed() {
         if (AndroidUtility.isOnMobile(getActivity())) {
             DialogBuilder.start(getActivity())
                     .content(R.string.preload_not_on_mobile)
@@ -739,7 +734,6 @@ public class FeedFragment extends BaseFragment {
 
             return;
         }
-
 
         Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
@@ -885,7 +879,7 @@ public class FeedFragment extends BaseFragment {
         return seenService.isSeen(item);
     }
 
-    public Optional<SizeInfo> getSizeInfo(FeedItem item) {
+    private Optional<SizeInfo> getSizeInfo(FeedItem item) {
         return localCacheService.getSizeInfo(item.getId());
     }
 
@@ -987,8 +981,10 @@ public class FeedFragment extends BaseFragment {
 
             // load meta data for the items.
             List<Long> itemIds = Lists.transform(newItems, FeedItem::getId);
-            with(fragment -> fragment.loadMetaData(itemIds));
-            with(FeedFragment::performAutoOpen);
+            with(fragment -> {
+                fragment.loadMetaData(itemIds);
+                fragment.performAutoOpen();
+            });
         }
 
         @Override
@@ -1091,9 +1087,7 @@ public class FeedFragment extends BaseFragment {
     }
 
     private boolean isSelfInfo(Info info) {
-        return userService.getName()
-                .transform(info.getUser().getName()::equalsIgnoreCase)
-                .or(false);
+        return info.getUser().getName().equalsIgnoreCase(userService.getName().orNull());
     }
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
@@ -1141,39 +1135,4 @@ public class FeedFragment extends BaseFragment {
             }
         }
     };
-
-    private static final class FeedItemViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView seen;
-        private final ImageView repost;
-        private final View preloaded;
-        final ImageView image;
-
-        public FeedItemViewHolder(View itemView) {
-            super(itemView);
-
-            image = (ImageView) checkNotNull(itemView.findViewById(R.id.image));
-            seen = (ImageView) checkNotNull(itemView.findViewById(R.id.seen));
-            repost = (ImageView) checkNotNull(itemView.findViewById(R.id.repost));
-            preloaded = checkNotNull(itemView.findViewById(R.id.preloaded));
-        }
-
-        public void setIsRepost() {
-            repost.setVisibility(View.VISIBLE);
-            seen.setVisibility(View.GONE);
-        }
-
-        public void setIsSeen() {
-            seen.setVisibility(View.VISIBLE);
-            repost.setVisibility(View.GONE);
-        }
-
-        public void clear() {
-            seen.setVisibility(View.GONE);
-            repost.setVisibility(View.GONE);
-        }
-
-        public void setIsPreloaded(boolean isPreloaded) {
-            preloaded.setVisibility(isPreloaded ? View.VISIBLE : View.GONE);
-        }
-    }
 }

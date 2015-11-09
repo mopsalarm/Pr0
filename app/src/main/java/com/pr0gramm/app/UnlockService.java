@@ -3,8 +3,6 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import com.google.common.base.Stopwatch;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +24,7 @@ public class UnlockService {
     }
 
     public boolean unlocked() {
-        Stopwatch watch = Stopwatch.createStarted();
-        try {
-            return pluginNotRequired() || appInstalled(context, "io.github.mopsalarm.pr0gramm.unlock");
-        } finally {
-            logger.info("Checking for unlock app took {}", watch);
-        }
+        return pluginNotRequired() || appInstalled(context, "io.github.mopsalarm.pr0gramm.unlock");
     }
 
     private static boolean pluginNotRequired() {
