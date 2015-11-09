@@ -6,8 +6,8 @@ import android.net.Uri;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.BuildConfig;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class UpdateChecker {
     private final ImmutableList<String> endpoints;
 
     public UpdateChecker(Context context) {
-        this.currentVersion = Pr0grammApplication.getPackageInfo(context).versionCode;
+        currentVersion = AndroidUtility.getPackageVersionCode(context);
 
         boolean betaChannel = Settings.of(context).useBetaChannel();
         endpoints = updateUrls(betaChannel);

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
-import com.pr0gramm.app.Pr0grammApplication;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -52,7 +52,7 @@ public class SingleShotService {
     }
 
     public boolean isFirstTimeInVersion(String action) {
-        int version = Pr0grammApplication.getPackageInfo(context).versionCode;
+        int version = AndroidUtility.getPackageVersionCode(context);
         return isFirstTime(action + "--" + version);
     }
 

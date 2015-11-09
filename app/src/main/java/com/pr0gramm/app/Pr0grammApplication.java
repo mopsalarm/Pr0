@@ -3,15 +3,12 @@ package com.pr0gramm.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
-import com.google.common.base.Throwables;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
@@ -81,16 +78,6 @@ public class Pr0grammApplication extends SugarApp {
                 return HandlerThreadScheduler.INSTANCE;
             }
         });
-    }
-
-    public static PackageInfo getPackageInfo(Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        try {
-            return packageManager.getPackageInfo(context.getPackageName(), 0);
-
-        } catch (PackageManager.NameNotFoundException err) {
-            throw Throwables.propagate(err);
-        }
     }
 
     /**

@@ -6,8 +6,8 @@ import android.os.Build;
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.BuildConfig;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.feed.Nothing;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
@@ -44,7 +44,7 @@ public class FeedbackService {
     }
 
     public Observable<Nothing> post(String name, String feedback) {
-        String version = String.valueOf(Pr0grammApplication.getPackageInfo(context).versionCode);
+        String version = String.valueOf(AndroidUtility.getPackageVersionCode(context));
 
         return Async
                 .start(FeedbackService::logcat, Schedulers.io())

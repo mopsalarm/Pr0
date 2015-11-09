@@ -1,6 +1,8 @@
 package com.pr0gramm.app.util;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -359,5 +361,23 @@ public class AndroidUtility {
     public static <T extends View> T findView(View view, int id) {
         //noinspection unchecked
         return checkNotNull(ButterKnife.findById(view, id));
+    }
+
+    public static PackageInfo getPackageInfo(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            return packageManager.getPackageInfo(context.getPackageName(), 0);
+
+        } catch (PackageManager.NameNotFoundException err) {
+            throw Throwables.propagate(err);
+        }
+    }
+
+    public static int getPackageVersionCode(Context context) {
+        try {
+            return getPackageInfo(context).versionCode;
+        } catch (Exception error) {
+            return -1;
+        }
     }
 }
