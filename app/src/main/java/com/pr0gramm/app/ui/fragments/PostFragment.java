@@ -7,11 +7,9 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -33,7 +31,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -48,26 +45,25 @@ import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.parcel.CommentListParceler;
 import com.pr0gramm.app.parcel.TagListParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
+import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
+import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
-import com.pr0gramm.app.services.preloading.PreloadManager;
-import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.PermissionHelperActivity;
+import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.Screen;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SimpleTextWatcher;
@@ -85,13 +81,8 @@ import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +96,6 @@ import rx.functions.Actions;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.animation.PropertyValuesHolder.ofFloat;
-import static android.content.Intent.createChooser;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
@@ -114,8 +104,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static com.pr0gramm.app.util.AndroidUtility.ifNotNull;
-import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -153,16 +141,10 @@ public class PostFragment extends BaseFragment implements
     LocalCacheService localCacheService;
 
     @Inject
-    ProxyService proxyService;
-
-    @Inject
     UserService userService;
 
     @Inject
-    Picasso picasso;
-
-    @Inject
-    PreloadManager preloadManager;
+    DownloadService downloadService;
 
     @Bind(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -296,6 +278,8 @@ public class PostFragment extends BaseFragment implements
         Screen.unlockOrientation(getActivity());
 
         adapter = null;
+
+        AndroidUtility.uninjectViews(this);
     }
 
     @Override
@@ -403,17 +387,18 @@ public class PostFragment extends BaseFragment implements
         boolean isImage = isStaticImage(feedItem);
         boolean isRotated = getActivity().getWindowManager().getDefaultDisplay().getRotation() != Surface.ROTATION_0;
 
-        ifNotNull(menu.findItem(R.id.action_refresh),
-                item -> item.setVisible(settings.showRefreshButton() && !isVideoFullScreen()));
+        MenuItem item;
+        if ((item = menu.findItem(R.id.action_refresh)) != null)
+            item.setVisible(settings.showRefreshButton() && !isVideoFullScreen());
 
-        ifNotNull(menu.findItem(R.id.action_zoom),
-                item -> item.setVisible(!isVideoFullScreen() && (isImage || !isRotated)));
+        if ((item = menu.findItem(R.id.action_zoom)) != null)
+            item.setVisible(!isVideoFullScreen() && (isImage || !isRotated));
 
-        ifNotNull(menu.findItem(R.id.action_share_image),
-                item -> item.setVisible(ShareProvider.canShare(getActivity(), feedItem)));
+        if ((item = menu.findItem(R.id.action_share_image)) != null)
+            item.setVisible(ShareProvider.canShare(getActivity(), feedItem));
 
-        ifNotNull(menu.findItem(R.id.action_search_image),
-                item -> item.setVisible(isImage && settings.showGoogleImageButton()));
+        if ((item = menu.findItem(R.id.action_search_image)) != null)
+            item.setVisible(isImage && settings.showGoogleImageButton());
     }
 
     /**
@@ -571,65 +556,26 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
-    }
+        switch (item.getItemId()) {
+            case R.id.action_search_image:
+                ShareHelper.searchImage(getActivity(), feedItem);
+                return true;
 
-    @OnOptionsItemSelected(R.id.action_search_image)
-    public void searchImage() {
-        Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
-                .appendQueryParameter("hl", "en")
-                .appendQueryParameter("safe", "off")
-                .appendQueryParameter("site", "search")
-                .appendQueryParameter("image_url", UriHelper.get().media(feedItem).toString().replace("https://", "http://"))
-                .build();
+            case R.id.action_share_post:
+                ShareHelper.sharePost(getActivity(), feedItem);
+                return true;
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
+            case R.id.action_share_direct_link:
+                ShareHelper.shareDirectLink(getActivity(), feedItem);
+                return true;
 
-        Track.searchImage();
-    }
+            case R.id.action_share_image:
+                ShareHelper.shareImage(getActivity(), feedItem);
+                return true;
 
-    @OnOptionsItemSelected(R.id.action_share_post)
-    public void sharePost() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        if (feedItem.getPromotedId() > 0) {
-            intent.putExtra(Intent.EXTRA_TEXT,
-                    UriHelper.get().post(FeedType.PROMOTED, feedItem.getId()).toString());
-        } else {
-            intent.putExtra(Intent.EXTRA_TEXT,
-                    UriHelper.get().post(FeedType.NEW, feedItem.getId()).toString());
+            default:
+                return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
         }
-
-        startActivity(createChooser(intent, getString(R.string.share_with)));
-
-        Track.share("post");
-    }
-
-    @OnOptionsItemSelected(R.id.action_share_direct_link)
-    public void shareDirectLink() {
-        String uri = UriHelper.get().noPreload().media(feedItem).toString();
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, uri);
-
-        startActivity(createChooser(intent, getString(R.string.share_with)));
-
-        Track.share("image_link");
-    }
-
-    @OnOptionsItemSelected(R.id.action_share_image)
-    public void shareImage() {
-        ifPresent(ShareProvider.guessMimetype(getActivity(), feedItem), mimetype -> {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType(mimetype);
-            intent.putExtra(Intent.EXTRA_STREAM, ShareProvider.getShareUri(getActivity(), feedItem));
-
-            startActivity(createChooser(intent, getString(R.string.share_with)));
-
-            Track.share("image");
-        });
     }
 
     @OnOptionsItemSelected(R.id.action_refresh)
@@ -651,46 +597,9 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void downloadPostWithPermissionGranted() {
-        // download over proxy to use caching
-        Uri url = proxyService.proxy(UriHelper.get().media(feedItem, true));
-
-        File external;
-        if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_downloads))) {
-            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
-        } else if (settings.downloadLocation().equals(getString(R.string.pref_downloadLocation_value_pictures))) {
-            external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
-        } else {
-            external = Environment.getExternalStorageDirectory();
-        }
-
-        File targetDirectory = new File(external, "pr0gramm");
-        if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-            showErrorString(getChildFragmentManager(), getString(R.string.error_could_not_create_download_directory));
-            return;
-        }
-
-        DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss");
-        String fileType = feedItem.getImage().toLowerCase().replaceFirst("^.*\\.([a-z]+)$", "$1");
-        String prefix = Joiner.on("-").join(
-                feedItem.getCreated().toString(format),
-                feedItem.getUser(),
-                "id" + feedItem.getId());
-
-        String name = prefix.replaceAll("[^A-Za-z0-9_-]+", "") + "." + fileType;
-
-        DownloadManager.Request request = new DownloadManager.Request(url);
-        request.setVisibleInDownloadsUi(false);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setTitle(name);
-        request.setDestinationUri(Uri.fromFile(new File(targetDirectory, name)));
-
-        request.allowScanningByMediaScanner();
-
-        downloadManager.enqueue(request);
-
-        Track.download();
+        Optional<String> error = downloadService.download(feedItem);
+        if (error.isPresent())
+            showErrorString(getFragmentManager(), error.get());
     }
 
     @Override
@@ -1149,7 +1058,6 @@ public class PostFragment extends BaseFragment implements
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 
-    // TODO Must be called via EventBus or something.
     public void onNewComments(NewComment response) {
         autoScrollToComment(response.getCommentId());
         displayComments(response.getComments());
@@ -1243,51 +1151,6 @@ public class PostFragment extends BaseFragment implements
         // position the repost badge, if it is visible
         if (repostHint.getVisibility() == View.VISIBLE) {
             repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
-        }
-    }
-
-    public static final class PreviewInfo {
-        private final long itemId;
-        private final int width;
-        private final int height;
-        private Drawable preview;
-        private Uri previewUri;
-
-
-        public PreviewInfo(long itemId, int width, int height) {
-            this.itemId = itemId;
-            this.width = width;
-            this.height = height;
-        }
-
-        public PreviewInfo(long itemId, Drawable preview, int width, int height) {
-            this(itemId, width, height);
-            this.preview = preview;
-        }
-
-        public PreviewInfo(long itemId, Uri previewUri, int width, int height) {
-            this(itemId, width, height);
-            this.previewUri = previewUri;
-        }
-
-        public long getItemId() {
-            return itemId;
-        }
-
-        public Drawable getPreview() {
-            return preview;
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public Uri getPreviewUri() {
-            return previewUri;
         }
     }
 

@@ -22,6 +22,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.ui.MainActionHandler;
+import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.base.BaseFragment;
 
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class PostPagerFragment extends BaseFragment {
 
     private PostFragment activePostFragment;
 
-    private PostFragment.PreviewInfo previewInfo;
+    private PreviewInfo previewInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -257,7 +258,7 @@ public class PostPagerFragment extends BaseFragment {
     /**
      * Sets the preview that should be used in the transition.
      */
-    public void setPreviewInfo(PostFragment.PreviewInfo previewInfo) {
+    public void setPreviewInfo(PreviewInfo previewInfo) {
         this.previewInfo = previewInfo;
     }
 

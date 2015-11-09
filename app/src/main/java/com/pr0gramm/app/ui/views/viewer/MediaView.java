@@ -26,7 +26,7 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.proxy.ProxyService;
-import com.pr0gramm.app.ui.fragments.PostFragment;
+import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.NetworkPolicy;
@@ -128,7 +128,7 @@ public abstract class MediaView extends FrameLayout {
      * Sets the preview image for this media view. You need to provide a width and height.
      * Those values will be used to place the preview image correctly.
      */
-    public void setPreviewImage(PostFragment.PreviewInfo info, String transitionName) {
+    public void setPreviewImage(PreviewInfo info, String transitionName) {
         if (preview != null) {
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();

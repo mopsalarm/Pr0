@@ -68,6 +68,7 @@ import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
+import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
@@ -836,11 +837,11 @@ public class FeedFragment extends BaseFragment {
         }
     }
 
-    private PostFragment.PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
+    private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
         Optional<SizeInfo> sizeInfo = getSizeInfo(item);
         int sizeWidth = sizeInfo.transform(SizeInfo::getWidth).or(-1);
         int sizeHeight = sizeInfo.transform(SizeInfo::getHeight).or(-1);
-        return new PostFragment.PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
+        return new PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
     }
 
     /**
