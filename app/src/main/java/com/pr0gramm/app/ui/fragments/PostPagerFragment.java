@@ -277,12 +277,12 @@ public class PostPagerFragment extends BaseFragment {
         @Override
         public Fragment getItem(int position) {
             if (!loader.isLoading()) {
-                if (position > proxy.size() - 8) {
+                if (position > proxy.size() - 12) {
                     logger.info("requested pos=" + position + ", load next page");
                     loader.next();
                 }
 
-                if (position < 8) {
+                if (position < 12) {
                     logger.info("requested pos=" + position + ", load prev page");
                     loader.previous();
                 }
