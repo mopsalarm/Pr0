@@ -401,16 +401,6 @@ public class PostFragment extends BaseFragment implements
             item.setVisible(isImage && settings.showGoogleImageButton());
     }
 
-    /**
-     * Returns true, if the given url links to a static image.
-     * This does only a check on the filename and not on the data.
-     *
-     * @param image The url of the image to check
-     */
-    private boolean isStaticImage(FeedItem image) {
-        return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
-    }
-
     @OnOptionsItemSelected(R.id.action_zoom)
     public void enterFullscreen() {
         FragmentActivity activity = getActivity();
@@ -439,7 +429,7 @@ public class PostFragment extends BaseFragment implements
             swipeRefreshLayout.setVisibility(View.GONE);
 
             if (activity instanceof ToolbarActivity) {
-                // hide the toolbar if required neccessary
+                // hide the toolbar if required necessary
                 ((ToolbarActivity) activity).getScrollHideToolbarListener().hide();
             }
 
@@ -918,13 +908,8 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    private static boolean isLoopTag(String tag) {
-        tag = tag.toLowerCase();
-        return tag.contains("loop") && !(tag.contains("verschenkt") || tag.contains("verkackt"));
-    }
-
     /**
-     * Displays the given list of comments combined with the votings for those comments.
+     * Displays the given list of comments combined with the voting for those comments.
      *
      * @param comments The list of comments to display.
      */
@@ -976,7 +961,7 @@ public class PostFragment extends BaseFragment implements
     /**
      * Called if this fragment becomes the active post fragment.
      */
-    protected void onMarkedActive() {
+    private void onMarkedActive() {
         if (viewer != null) {
             viewer.playMedia();
         }
@@ -985,7 +970,7 @@ public class PostFragment extends BaseFragment implements
     /**
      * Called if this fragment is not the active post fragment anymore.
      */
-    protected void onMarkedInactive() {
+    private void onMarkedInactive() {
         if (viewer != null) {
             viewer.stopMedia();
         }
@@ -1058,7 +1043,7 @@ public class PostFragment extends BaseFragment implements
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 
-    public void onNewComments(NewComment response) {
+    private void onNewComments(NewComment response) {
         autoScrollToComment(response.getCommentId());
         displayComments(response.getComments());
 
@@ -1078,7 +1063,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     @Nullable
-    public PreviewInfo getPreviewInfoFromCache() {
+    private PreviewInfo getPreviewInfoFromCache() {
         Uri previewUri = UriHelper.of(getActivity()).thumbnail(feedItem);
         return localCacheService.getSizeInfo(feedItem.getId())
                 .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
@@ -1143,8 +1128,6 @@ public class PostFragment extends BaseFragment implements
      * Positions the media view using the given offset (on the y axis)
      */
     private void offsetMediaView(float offset) {
-        ViewGroup.MarginLayoutParams layout = (ViewGroup.MarginLayoutParams) viewer.getLayoutParams();
-
         // finally position the viewer
         viewer.setTranslationY(-offset);
 
@@ -1179,7 +1162,7 @@ public class PostFragment extends BaseFragment implements
                     windowHeight / (float) viewerHeight,
                     windowWidth / (float) viewerWidth);
 
-            // check if rotation is neccessary
+            // check if rotation is necessary
             if (scaleRot > scaleNoRot) {
                 rotation = 90.f;
                 scale = scaleRot;
@@ -1189,4 +1172,23 @@ public class PostFragment extends BaseFragment implements
             }
         }
     }
+
+    /**
+     * Returns true, if the given tag looks like some "loop" tag.
+     */
+    private static boolean isLoopTag(String tag) {
+        tag = tag.toLowerCase();
+        return tag.contains("loop") && !(tag.contains("verschenkt") || tag.contains("verkackt"));
+    }
+
+    /**
+     * Returns true, if the given url links to a static image.
+     * This does only a check on the filename and not on the data.
+     *
+     * @param image The url of the image to check
+     */
+    private static boolean isStaticImage(FeedItem image) {
+        return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
+    }
+
 }
