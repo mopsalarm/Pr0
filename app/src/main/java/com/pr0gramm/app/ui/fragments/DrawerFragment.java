@@ -426,11 +426,10 @@ public class DrawerFragment extends BaseFragment {
         DialogBuilder.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
                 .positive(R.string.yes, () -> bookmarkService.delete(bookmark))
-                .negative(R.string.cancel)
                 .show();
     }
 
-    private class NavigationItemViewHolder extends RecyclerView.ViewHolder {
+    private static class NavigationItemViewHolder extends RecyclerView.ViewHolder {
         final TextView text;
 
         public NavigationItemViewHolder(View itemView) {

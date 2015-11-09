@@ -25,7 +25,6 @@ public class LogoutDialogFragment extends BaseDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return DialogBuilder.start(getActivity())
                 .content(R.string.are_you_sure_to_logout)
-                .negative(R.string.cancel)
                 .positive(R.string.logout, this::logout)
                 .build();
     }
