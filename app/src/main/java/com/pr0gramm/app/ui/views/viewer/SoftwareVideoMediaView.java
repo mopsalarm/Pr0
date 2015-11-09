@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
@@ -172,7 +171,6 @@ public class SoftwareVideoMediaView extends MediaView {
         @Override
         public Object call() {
             player.destroy();
-            Pr0grammApplication.getRefWatcher().watch(player);
             return null;
         }
     }

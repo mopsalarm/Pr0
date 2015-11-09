@@ -35,7 +35,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.Settings;
@@ -631,19 +630,12 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public void onDestroy() {
-        if (viewer != null)
-            viewer.onDestroy();
-
-        super.onDestroy();
-
-        // check that this fragment is removed!
-        Pr0grammApplication.getRefWatcher().watch(this);
-
-        // check that the viewer is removed too
         if (viewer != null) {
-            Pr0grammApplication.getRefWatcher().watch(viewer);
+            viewer.onDestroy();
             viewer = null;
         }
+
+        super.onDestroy();
     }
 
     /**

@@ -17,8 +17,6 @@ import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -40,8 +38,6 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDial
 public class Pr0grammApplication extends SugarApp {
     private static final Logger logger = LoggerFactory.getLogger(Pr0grammApplication.class);
 
-    private RefWatcher refWatcher;
-
     final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
             .appModule(new AppModule(this))
             .httpModule(new HttpModule())
@@ -55,11 +51,15 @@ public class Pr0grammApplication extends SugarApp {
     public void onCreate() {
         super.onCreate();
 
-        refWatcher = LeakCanary.install(this);
         JodaTimeAndroid.init(this);
 
-        boolean development = getPackageInfo().versionName.endsWith(".dev");
-        if (!development) {
+        if (BuildConfig.DEBUG) {
+            logger.info("This is a development version.");
+            StrictMode.enableDefaults();
+            ButterKnife.setDebug(true);
+            Dart.setDebug(true);
+
+        } else {
             Settings settings = Settings.of(this);
             if (settings.analyticsEnabled()) {
                 logger.info("Initialize Fabric");
@@ -74,11 +74,6 @@ public class Pr0grammApplication extends SugarApp {
                 LoggerConfiguration.configuration()
                         .removeRootLogcatHandler();
             }
-        } else {
-            logger.info("This is a development version.");
-            StrictMode.enableDefaults();
-            ButterKnife.setDebug(true);
-            Dart.setDebug(true);
         }
 
         // initialize this to show errors always in the context of the current activity.
@@ -112,13 +107,6 @@ public class Pr0grammApplication extends SugarApp {
                 Uri.parse("https://play.google.com/apps/testing/io.github.mopsalarm.pr0gramm.gp2"));
 
         activity.startActivity(intent);
-    }
-
-    /**
-     * Returns the global ref watcher instance
-     */
-    public static RefWatcher getRefWatcher() {
-        return ((Pr0grammApplication) GLOBAL_CONTEXT).refWatcher;
     }
 
     public static Pr0grammApplication get(Context context) {
