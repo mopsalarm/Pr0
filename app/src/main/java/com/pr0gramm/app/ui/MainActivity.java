@@ -391,6 +391,20 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     @Override
+    public void onUsernameClicked() {
+        Optional<String> name = userService.getName();
+        if (name.isPresent()) {
+            FeedFilter filter = new FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .withUser(name.get());
+
+            gotoFeedFragment(filter, false);
+        }
+
+        drawerLayout.closeDrawers();
+    }
+
+    @Override
     public void onFeedFilterSelected(FeedFilter filter) {
         gotoFeedFragment(filter, false);
     }

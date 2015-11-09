@@ -24,7 +24,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
-import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.Graph;
@@ -231,7 +230,7 @@ public class DrawerFragment extends BaseFragment {
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
             usernameView.setText(user.getName());
-            usernameView.setOnClickListener(v -> onUsernameClicked());
+            usernameView.setOnClickListener(v -> getCallback().onUsernameClicked());
 
             userTypeView.setVisibility(View.VISIBLE);
             userTypeView.setTextColor(ContextCompat.getColor(getContext(),
@@ -280,16 +279,6 @@ public class DrawerFragment extends BaseFragment {
         }
     }
 
-    private void onUsernameClicked() {
-        ifPresent(userService.getName(), name -> {
-            FeedFilter filter = new FeedFilter()
-                    .withFeedType(FeedType.NEW)
-                    .withUser(name);
-
-            onFeedFilterClicked(filter);
-        });
-    }
-
     public void updateCurrentFilters(FeedFilter current) {
         navigationAdapter.setCurrentFilter(current);
     }
@@ -303,22 +292,19 @@ public class DrawerFragment extends BaseFragment {
         void onFeedFilterSelectedInNavigation(FeedFilter filter);
 
         /**
+         * Called if the user name itself was clicked.
+         */
+        void onUsernameClicked();
+
+        /**
          * Some other menu item was clicked and we request that this
          * drawer gets closed
          */
         void onOtherNavigationItemClicked();
     }
 
-    private void onFeedFilterClicked(FeedFilter filter) {
-        if (getActivity() instanceof OnFeedFilterSelected) {
-            ((OnFeedFilterSelected) getActivity()).onFeedFilterSelectedInNavigation(filter);
-        }
-    }
-
-    private void onOtherNavigationItemClicked() {
-        if (getActivity() instanceof OnFeedFilterSelected) {
-            ((OnFeedFilterSelected) getActivity()).onOtherNavigationItemClicked();
-        }
+    private OnFeedFilterSelected getCallback() {
+        return (OnFeedFilterSelected) getActivity();
     }
 
     private class NavigationAdapter extends RecyclerView.Adapter<NavigationItemViewHolder> {
@@ -402,18 +388,18 @@ public class DrawerFragment extends BaseFragment {
         switch (item.action()) {
             case FILTER:
             case BOOKMARK:
-                onFeedFilterClicked(item.filter().get());
+                getCallback().onFeedFilterSelectedInNavigation(item.filter().get());
                 break;
 
             case UPLOAD: {
                 showUploadActivity();
-                onOtherNavigationItemClicked();
+                getCallback().onOtherNavigationItemClicked();
                 break;
             }
 
             case MESSAGES:
                 showInboxActivity(item.unreadCount());
-                onOtherNavigationItemClicked();
+                getCallback().onOtherNavigationItemClicked();
                 break;
         }
     }

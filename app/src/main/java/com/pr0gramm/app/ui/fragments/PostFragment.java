@@ -655,7 +655,7 @@ public class PostFragment extends BaseFragment implements
 
         feedService.loadPostDetails(feedItem.getId())
                 .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-                .compose(bindUntilEvent(FragmentEvent.DESTROY))
+                .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .subscribe(this::onPostReceived, defaultOnError());
     }
 
@@ -978,8 +978,6 @@ public class PostFragment extends BaseFragment implements
         exitFullscreenAnimated(false);
     }
 
-    /**
-     */
     @Override
     public void onAddNewTags(List<String> tags) {
         voteService.tag(feedItem, tags)
