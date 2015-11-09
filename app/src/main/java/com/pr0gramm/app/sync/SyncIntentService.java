@@ -7,6 +7,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -39,6 +40,9 @@ public class SyncIntentService extends IntentService {
     @Inject
     Settings settings;
 
+    @Inject
+    UnlockService unlockService;
+
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
     }
@@ -49,7 +53,7 @@ public class SyncIntentService extends IntentService {
 
         logger.info("Doing some statistics related trackings");
         if (singleShotService.isFirstTimeToday("track-settings"))
-            statistics(settings, userService.isAuthorized());
+            statistics(settings, userService.isAuthorized(), unlockService.unlocked());
 
         logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)

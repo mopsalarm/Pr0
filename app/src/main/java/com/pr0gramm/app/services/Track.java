@@ -86,7 +86,7 @@ public final class Track {
         track(answers -> answers.logCustom(new CustomEvent("Download")));
     }
 
-    public static void statistics(Settings settings, boolean signedIn) {
+    public static void statistics(Settings settings, boolean signedIn, boolean unlocked) {
         String decoder;
         if (settings.useSoftwareDecoder()) {
             decoder = settings.forceMpegDecoder() ? "mpeg" : "webm";
@@ -102,9 +102,10 @@ public final class Track {
                 .putCustomAttribute("repost hint", String.valueOf(settings.markRepostsInFeed()))
                 .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
-                .putCustomAttribute("image size", settings.maxImageSize())
+                .putCustomAttribute("image size", String.valueOf(settings.maxImageSize()))
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
-                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
+                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))
+                .putCustomAttribute("unlocked", String.valueOf(unlocked))));
     }
 
     public static void drawerOpened() {
@@ -133,10 +134,6 @@ public final class Track {
     public static void requestFeed(FeedType feedType) {
         track(answers -> answers.logCustom(new CustomEvent("Load feed")
                 .putCustomAttribute("feed type", feedType.name())));
-    }
-
-    public static void muzeiOnTryUpdate() {
-        track(answers -> answers.logCustom(new CustomEvent("Muzei Update")));
     }
 
     public static void preloadCurrentFeed() {
