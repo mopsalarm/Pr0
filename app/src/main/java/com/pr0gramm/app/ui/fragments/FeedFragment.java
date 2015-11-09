@@ -923,7 +923,7 @@ public class FeedFragment extends BaseFragment {
             FeedItem item = feed.at(position);
 
             with(fragment -> {
-                Uri imageUri = UriHelper.get().thumbnail(item);
+                Uri imageUri = UriHelper.of(fragment.getContext()).thumbnail(item);
                 fragment.picasso.load(imageUri)
                         .placeholder(new ColorDrawable(0xff333333))
                         .into(view.image);

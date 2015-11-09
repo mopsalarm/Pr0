@@ -6,7 +6,6 @@ import android.net.Uri;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedItem;
@@ -100,10 +99,6 @@ public final class UriHelper {
 
     public static UriHelper of(Context context) {
         return new UriHelper(context);
-    }
-
-    public static UriHelper get() {
-        return new UriHelper(Pr0grammApplication.GLOBAL_CONTEXT);
     }
 
     private static final ImmutableMap<FeedType, String> FEED_TYPES = ImmutableMap.<FeedType, String>builder()

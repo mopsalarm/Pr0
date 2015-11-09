@@ -737,11 +737,13 @@ public class PostFragment extends BaseFragment implements
         MediaView.Binder binder = new MediaView.Binder(bindToLifecycle());
 
         // initialize a new viewer fragment
-        MediaUri uri = MediaUri.of(UriHelper.get().media(feedItem));
+        MediaUri uri = MediaUri.of(UriHelper.of(getContext()).media(feedItem));
         if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
-            if (settings.confirmPlayOnMobile() == Settings.ConfirmOnMobile.ALL) {
+            Settings.ConfirmOnMobile confirmOnMobile = settings.confirmPlayOnMobile(getContext());
+            if (confirmOnMobile == Settings.ConfirmOnMobile.ALL) {
                 uri = uri.withDelay(true);
-            } else if (settings.confirmPlayOnMobile() == Settings.ConfirmOnMobile.VIDEO
+
+            } else if (confirmOnMobile == Settings.ConfirmOnMobile.VIDEO
                     && uri.getMediaType() != MediaUri.MediaType.IMAGE) {
 
                 uri = uri.withDelay(true);

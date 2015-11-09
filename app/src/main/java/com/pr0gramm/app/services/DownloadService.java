@@ -44,13 +44,14 @@ public class DownloadService {
      */
     public Optional<String> download(FeedItem feedItem) {
         // download over proxy to use caching
-        Uri url = proxyService.proxy(UriHelper.get().media(feedItem, true));
+        Uri url = proxyService.proxy(UriHelper.of(context).media(feedItem, true));
 
         File external;
-        if (settings.downloadLocation().equals(context.getString(R.string.pref_downloadLocation_value_downloads))) {
+        String location = settings.downloadLocation(context);
+        if (location.equals(context.getString(R.string.pref_downloadLocation_value_downloads))) {
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-        } else if (settings.downloadLocation().equals(context.getString(R.string.pref_downloadLocation_value_pictures))) {
+        } else if (location.equals(context.getString(R.string.pref_downloadLocation_value_pictures))) {
             external = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
         } else {

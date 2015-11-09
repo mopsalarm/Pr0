@@ -45,14 +45,6 @@ public class Settings {
         return preferences.getBoolean("pref_feed_type_nsfl", false);
     }
 
-    public void registerOnChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        preferences.registerOnSharedPreferenceChangeListener(listener);
-    }
-
-    public void unregisterOnChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        preferences.unregisterOnSharedPreferenceChangeListener(listener);
-    }
-
     /**
      * Gets a set of all selected content types.
      */
@@ -84,8 +76,8 @@ public class Settings {
         return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
     }
 
-    public String downloadLocation() {
-        String def = Pr0grammApplication.GLOBAL_CONTEXT.getString(R.string.pref_downloadLocation_default);
+    public String downloadLocation(Context context) {
+        String def = context.getString(R.string.pref_downloadLocation_default);
         return preferences.getString("pref_downloadLocation", def);
     }
 
@@ -144,9 +136,7 @@ public class Settings {
         return preferences.getBoolean("pref_keep_screen_on", true);
     }
 
-    public ConfirmOnMobile confirmPlayOnMobile() {
-        Context context = Pr0grammApplication.GLOBAL_CONTEXT;
-
+    public ConfirmOnMobile confirmPlayOnMobile(Context context) {
         String prefValue = preferences.getString("pref_confirm_play_on_mobile_list", null);
         if (prefValue == null) {
             prefValue = context.getString(R.string.pref_confirm_play_on_mobile_default);

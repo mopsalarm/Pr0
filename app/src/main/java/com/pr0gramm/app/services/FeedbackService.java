@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import android.content.Context;
 import android.os.Build;
 
 import com.google.common.base.Charsets;
@@ -28,19 +29,22 @@ import rx.util.async.Async;
 @Singleton
 public class FeedbackService {
     private final Api api;
+    private final Context context;
 
     @Inject
-    public FeedbackService(OkHttpClient okHttpClient) {
+    public FeedbackService(OkHttpClient okHttpClient, Context context) {
+        this.context = context;
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl("http://pr0.wibbly-wobbly.de/api/feedback/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build().create(Api.class);
+
     }
 
     public Observable<Nothing> post(String name, String feedback) {
-        String version = String.valueOf(Pr0grammApplication.getPackageInfo().versionCode);
+        String version = String.valueOf(Pr0grammApplication.getPackageInfo(context).versionCode);
 
         return Async
                 .start(FeedbackService::logcat, Schedulers.io())

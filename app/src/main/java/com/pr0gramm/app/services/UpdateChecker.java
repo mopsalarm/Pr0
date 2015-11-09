@@ -33,7 +33,7 @@ public class UpdateChecker {
     private final ImmutableList<String> endpoints;
 
     public UpdateChecker(Context context) {
-        this.currentVersion = Pr0grammApplication.getPackageInfo().versionCode;
+        this.currentVersion = Pr0grammApplication.getPackageInfo(context).versionCode;
 
         boolean betaChannel = Settings.of(context).useBetaChannel();
         endpoints = updateUrls(betaChannel);

@@ -129,7 +129,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     }
 
     private void loadImage() {
-        Uri url = proxyWrap(UriHelper.get().media(item));
+        Uri url = proxyWrap(UriHelper.of(this).media(item));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
 
         if (Strings.isNullOrEmpty(item.getFullsize())) {
@@ -145,7 +145,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         hq.setImageDrawable(getColoredHqIcon(R.color.primary));
         hq.animate().alpha(1).start();
 
-        Uri url = proxyWrap(UriHelper.get().media(item, true));
+        Uri url = proxyWrap(UriHelper.of(this).media(item, true));
         loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
     }
 

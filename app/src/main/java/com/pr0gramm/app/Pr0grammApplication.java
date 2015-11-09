@@ -43,10 +43,6 @@ public class Pr0grammApplication extends SugarApp {
             .httpModule(new HttpModule())
             .build());
 
-    public Pr0grammApplication() {
-        GLOBAL_CONTEXT = this;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -87,17 +83,15 @@ public class Pr0grammApplication extends SugarApp {
         });
     }
 
-    public static PackageInfo getPackageInfo() {
-        PackageManager packageManager = GLOBAL_CONTEXT.getPackageManager();
+    public static PackageInfo getPackageInfo(Context context) {
+        PackageManager packageManager = context.getPackageManager();
         try {
-            return packageManager.getPackageInfo(GLOBAL_CONTEXT.getPackageName(), 0);
+            return packageManager.getPackageInfo(context.getPackageName(), 0);
 
         } catch (PackageManager.NameNotFoundException err) {
             throw Throwables.propagate(err);
         }
     }
-
-    public static Context GLOBAL_CONTEXT;
 
     /**
      * Opens the community in the playstore.

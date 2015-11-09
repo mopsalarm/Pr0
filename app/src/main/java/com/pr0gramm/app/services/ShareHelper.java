@@ -17,7 +17,7 @@ public class ShareHelper {
     private ShareHelper() {}
 
     public static void searchImage(Activity activity, FeedItem feedItem) {
-        String imageUri = UriHelper.get().media(feedItem).toString().replace("https://", "http://");
+        String imageUri = UriHelper.of(activity).media(feedItem).toString().replace("https://", "http://");
 
         Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
                 .appendQueryParameter("hl", "en")
@@ -32,8 +32,8 @@ public class ShareHelper {
 
     public static void sharePost(Activity activity, FeedItem feedItem) {
         String text = feedItem.getPromotedId() > 0
-                ? UriHelper.get().post(FeedType.PROMOTED, feedItem.getId()).toString()
-                : UriHelper.get().post(FeedType.NEW, feedItem.getId()).toString();
+                ? UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.getId()).toString()
+                : UriHelper.of(activity).post(FeedType.NEW, feedItem.getId()).toString();
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")
@@ -45,7 +45,7 @@ public class ShareHelper {
     }
 
     public static void shareDirectLink(Activity activity, FeedItem feedItem) {
-        String uri = UriHelper.get().noPreload().media(feedItem).toString();
+        String uri = UriHelper.of(activity).noPreload().media(feedItem).toString();
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")
