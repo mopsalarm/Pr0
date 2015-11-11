@@ -1,313 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/background_material_dark">
+<LinearLayout
+    android:id="@+id/user_cell_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/grey_800"
+    android:orientation="vertical">
+
 
     <LinearLayout
-        android:id="@+id/user_cell_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="8dp">
-
-
-            <com.pr0gramm.app.ui.views.UsernameView
-                android:id="@+id/username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginRight="4sp"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:text="@string/upper_benis"
-                android:textSize="12sp"/>
-
-            <TextView
-                android:id="@+id/kpi_benis"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:text="14854"
-                android:textColor="@color/white"
-                android:textSize="24sp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/actions_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
-            android:gravity="right">
-
-            <ImageView
-                android:id="@+id/action_new_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:src="@drawable/ic_action_email"
-                android:tint="@color/white"
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                style="@style/UserInfo_KpiContainer">
-
-                <TextView
-                    style="@style/UserInfo_Kpi_Header"
-                    android:text="@string/kpi_desc_uploads"/>
-
-                <TextView
-                    android:id="@+id/kpi_uploads"
-                    style="@style/UserInfo_Kpi_Value"
-                    android:text="56"/>
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/UserInfo_KpiContainer">
-
-                <TextView
-                    style="@style/UserInfo_Kpi_Header"
-                    android:text="@string/kpi_desc_favorites"/>
-
-                <TextView
-                    android:id="@+id/kpi_favorites"
-                    style="@style/UserInfo_Kpi_Value"
-                    android:text="96"/>
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/UserInfo_KpiContainer">
-
-                <TextView
-                    style="@style/UserInfo_Kpi_Header"
-                    android:text="@string/kpi_desc_comments"/>
-
-                <TextView
-                    android:id="@+id/kpi_comments"
-                    style="@style/UserInfo_Kpi_Value"
-                    android:text="85"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/UserInfo_KpiContainer">
-
-                <TextView
-                    style="@style/UserInfo_Kpi_Header"
-                    android:text="@string/kpi_desc_tags"/>
-
-                <TextView
-                    android:id="@+id/kpi_tags"
-                    style="@style/UserInfo_Kpi_Value"
-                    android:text="1827"/>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!--
-    <ImageButton
-        android:id="@+id/action_messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:background="?android:selectableItemBackground"
-        android:padding="8dp"
-        android:src="@drawable/ic_action_email"
-        android:tint="@color/grey_400"/>
-
-    <LinearLayout
-        android:id="@+id/user_info_first_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/username"
-        android:layout_below="@id/username">
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_benis"/>
-
-        <TextView
-            android:id="@+id/benis"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/dummy_benis"
-            android:textColor="@color/primary"/>
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_since"/>
-
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/dummy_date"
-            android:textColor="@color/primary"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/user_info_second_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/username"
-        android:layout_below="@id/user_info_first_row">
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_uploads"/>
-
-        <TextView
-            android:id="@+id/uploads"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="124"
-            android:textColor="@color/primary"
-            tools:ignore="HardcodedText"/>
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_favorites"/>
-
-        <TextView
-            android:id="@+id/favorites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingTop="4dp"
-            android:text="534"
-            android:textColor="@color/primary"
-            tools:ignore="HardcodedText"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/user_info_third_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/username"
-        android:layout_below="@id/user_info_second_row">
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_tags"/>
-
-        <TextView
-            android:id="@+id/tags"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="143"
-            android:textColor="@color/primary"
-            tools:ignore="HardcodedText"/>
-
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/userinfo_comments"/>
-
-        <TextView
-            android:id="@+id/comments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="143"
-            android:textColor="@color/primary"
-            tools:ignore="HardcodedText"/>
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/user_info_last_row"
-        android:layout_below="@id/user_info_third_row"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="48dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp">
+
+
+        <com.pr0gramm.app.ui.views.UsernameView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginRight="4sp"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="@string/upper_benis"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/kpi_benis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            tools:text="14854"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/actions_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/user_extra_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="Seit: 3 Jahre"/>
 
         <ImageView
-            android:id="@+id/benis_graph"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:visibility="gone"/>
-    </FrameLayout>
+            android:id="@+id/action_new_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_action_email"
+            android:tint="@color/white"
+            />
+    </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/action_comments"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignBottom="@id/user_info_last_row"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="-4dp"
-        android:background="?android:selectableItemBackground"
-        android:padding="8dp"
-        android:src="@drawable/ic_black_action_mail"
-        android:tint="@color/grey_400"/>
-    -->
-</RelativeLayout>
+        android:orientation="horizontal">
+
+        <LinearLayout
+            style="@style/UserInfo_KpiContainer">
+
+            <TextView
+                style="@style/UserInfo_Kpi_Header"
+                android:text="@string/kpi_desc_uploads"/>
+
+            <TextView
+                android:id="@+id/kpi_uploads"
+                style="@style/UserInfo_Kpi_Value"
+                tools:text="56"/>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/UserInfo_KpiContainer">
+
+            <TextView
+                style="@style/UserInfo_Kpi_Header"
+                android:text="@string/kpi_desc_favorites"/>
+
+            <TextView
+                android:id="@+id/kpi_favorites"
+                style="@style/UserInfo_Kpi_Value"
+                tools:text="96"/>
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/UserInfo_KpiContainer">
+
+            <TextView
+                style="@style/UserInfo_Kpi_Header"
+                android:text="@string/kpi_desc_comments"/>
+
+            <TextView
+                android:id="@+id/kpi_comments"
+                style="@style/UserInfo_Kpi_Value"
+                tools:text="85"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/UserInfo_KpiContainer">
+
+            <TextView
+                style="@style/UserInfo_Kpi_Header"
+                android:text="@string/kpi_desc_tags"/>
+
+            <TextView
+                android:id="@+id/kpi_tags"
+                style="@style/UserInfo_Kpi_Value"
+                tools:text="1827"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

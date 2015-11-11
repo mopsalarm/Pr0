@@ -343,4 +343,7 @@
     <string name="hint_apiproxy_info">Wenn du oft Probleme damit hast, dass im WLAN Posts nicht geladen werden, versuche die neue Api-Proxy Einstellung in den Kompatibilitätseinstellungen.</string>
     <string name="hint_unlock_plugin_required">Im Google PlayStore sind keine Apps mit NSFW/NSFL-Inhalten erlaubt. Für weitere Informationen, und wie du das pr0gramm trotzdem vollständig genießen kannst, schaue auf der pr0gramm-navigator Website nach.</string>
     <string name="open_website">Website öffnen</string>
+    <string name="user_registered">Registriert am %s</string>
+    <string name="user_banned_forever">Dauerhaft gesperrt</string>
+    <string name="user_banned">Gebannt für %s</string>
 </resources>

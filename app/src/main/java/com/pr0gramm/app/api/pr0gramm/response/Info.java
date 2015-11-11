@@ -6,10 +6,13 @@ import org.joda.time.Instant;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  */
 @Value.Immutable
 @Value.Enclosing
+@Value.Style(get = {"is*", "get*"})
 @Gson.TypeAdapters
 public interface Info {
     User getUser();
@@ -27,15 +30,23 @@ public interface Info {
     List<UserComments.Comment> getComments();
 
     @Value.Immutable
-    interface User {
-        int getId();
+    abstract class User {
+        public abstract int getId();
 
-        int getMark();
+        public abstract int getMark();
 
-        int getScore();
+        public abstract int getScore();
 
-        String getName();
+        public abstract String getName();
 
-        Instant getRegistered();
+        public abstract Instant getRegistered();
+
+        @Value.Default
+        public int isBanned() {
+            return 0;
+        }
+
+        @Nullable
+        public abstract Instant getBannedUntil();
     }
 }

@@ -7,6 +7,10 @@
         "change": "Zeige mehr Kommentare eines Users in der Useransicht an"
       },
       {
+        "type": "Neu",
+        "change": "Zeige Registrierdatum und Banndauer an"
+      },
+      {
         "type": "Fix",
         "change": "Fehler in den Benutzerinformationen beim Umschalten zwischen Kommentaren und Uploads behoben"
       }

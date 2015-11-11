@@ -373,5 +373,9 @@
     <string name="hint_apiproxy_info">If you often have loading problems on wifi, you could try the new api-proxy setting in the compatibility preferences.</string>
     <string name="open_website">Open website</string>
     <string name="hint_unlock_plugin_required">Apps displaying nsfw/nsfl content are not allowed in the play store. To get more information and to learn, how to see the complete content anyways, see the pr0gramm navigator website.</string>
+
+    <string name="user_banned">Banned for %s</string>
+    <string name="user_banned_forever">Banned forever</string>
+    <string name="user_registered">Registered %s</string>
 </resources>
 

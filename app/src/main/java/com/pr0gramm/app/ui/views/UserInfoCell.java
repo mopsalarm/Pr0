@@ -16,6 +16,11 @@ import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.util.AndroidUtility;
 
+import net.danlew.android.joda.DateUtils;
+
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -27,6 +32,7 @@ public class UserInfoCell extends FrameLayout {
     private final View messages;
     private final View showComments;
     private final View container;
+    private final TextView extraInfo;
     private UserActionListener userActionListener;
 
     public UserInfoCell(Context context, Info userInfo) {
@@ -41,6 +47,7 @@ public class UserInfoCell extends FrameLayout {
         tags = findView(R.id.kpi_tags);
         messages = findView(R.id.action_new_message);
         showComments = (View) findView(R.id.kpi_comments).getParent();
+        extraInfo = findView(R.id.user_extra_info);
 
         container = findView(R.id.user_cell_container);
 
@@ -77,7 +84,7 @@ public class UserInfoCell extends FrameLayout {
             }
         });
 
-        if(info.likesArePublic()) {
+        if (info.likesArePublic()) {
             favorites.setText(String.valueOf(info.getLikeCount()));
 
             ((View) favorites.getParent()).setOnClickListener(view -> {
@@ -89,6 +96,23 @@ public class UserInfoCell extends FrameLayout {
             // remove the view
             ViewParent parent = favorites.getParent();
             ((View) parent).setVisibility(GONE);
+        }
+
+        // info about banned/register date
+        if (user.isBanned() != 0) {
+            Instant bannedUntil = user.getBannedUntil();
+            if (bannedUntil == null) {
+                extraInfo.setText(R.string.user_banned_forever);
+            } else {
+                Duration duration = new Duration(Instant.now(), bannedUntil);
+                CharSequence durationStr = DateUtils.formatDuration(getContext(), duration);
+                extraInfo.setText(getContext().getString(R.string.user_banned, durationStr));
+            }
+        } else {
+            CharSequence registered = DateUtils.getRelativeTimeSpanString(getContext(),
+                    user.getRegistered(), false);
+
+            extraInfo.setText(getContext().getString(R.string.user_registered, registered));
         }
     }
 
