@@ -3,6 +3,10 @@
     "version": 79,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Zeige mehr Kommentare eines Users in der Useransicht an"
+      },
+      {
         "type": "Fix",
         "change": "Fehler in den Benutzerinformationen beim Umschalten zwischen Kommentaren und Uploads behoben"
       }

@@ -39,7 +39,7 @@ import com.pr0gramm.app.api.meta.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.meta.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -51,6 +51,7 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
+import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -64,9 +65,7 @@ import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.FeedItemViewHolder;
 import com.pr0gramm.app.ui.MainActionHandler;
-import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
-import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.PreviewInfo;
@@ -150,6 +149,9 @@ public class FeedFragment extends BaseFragment {
 
     @Inject
     UnlockService unlockService;
+
+    @Inject
+    InboxService inboxService;
 
     @Bind(R.id.list)
     RecyclerView recyclerView;
@@ -278,27 +280,11 @@ public class FeedFragment extends BaseFragment {
     }
 
     private void presentUserInfoCell(EnhancedUserInfo info) {
-        MessageAdapter messages = new MessageAdapter(getActivity(), emptyList(), null, R.layout.user_info_comment) {
-            @Override
-            public void onBindViewHolder(MessageViewHolder view, int position) {
-                super.onBindViewHolder(view, position);
-                view.itemView.setOnClickListener(v -> {
-                    Message message = this.messages.get(position);
-                    Uri uri = UriHelper.of(getActivity()).post(FeedType.NEW,
-                            message.getItemId(), message.getId());
-
-                    startActivity(new Intent(Intent.ACTION_VIEW, uri,
-                            getActivity(), MainActivity.class));
-                });
-            }
-        };
-
-        List<Message> comments = FluentIterable.from(info.getInfo().getComments())
-                .transform(c -> Message.of(info.getInfo().getUser(), c))
-                .toList();
+        UserCommentsAdapter messages = new UserCommentsAdapter(getActivity());
+        List<UserComments.Comment> comments = info.getComments();
 
         if (userInfoCommentsOpen) {
-            messages.setMessages(comments);
+            messages.setComments(info.getInfo().getUser(), comments);
         }
 
         UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo());
@@ -336,9 +322,9 @@ public class FeedFragment extends BaseFragment {
                 showUserInfoComments(messages.getItemCount() == 0 ? comments : emptyList());
             }
 
-            private void showUserInfoComments(List<Message> comments) {
+            private void showUserInfoComments(List<UserComments.Comment> comments) {
                 userInfoCommentsOpen = comments.size() > 0;
-                messages.setMessages(comments);
+                messages.setComments(info.getInfo().getUser(), comments);
                 updateSpanSizeLookup();
             }
         });
@@ -395,7 +381,9 @@ public class FeedFragment extends BaseFragment {
         }
 
         if (queryString != null) {
-            Optional<EnhancedUserInfo> cached = localCacheService.getUserInfo(queryString);
+            EnumSet<ContentType> contentTypes = getSelectedContentType();
+            Optional<EnhancedUserInfo> cached = localCacheService.getUserInfo(contentTypes, queryString);
+
             if (cached.isPresent()) {
                 return Observable.just(cached.get());
             }
@@ -410,9 +398,14 @@ public class FeedFragment extends BaseFragment {
                     .map(Optional::fromNullable)
                     .onErrorResumeNext(Observable.just(Optional.absent()));
 
-            return Observable.zip(first, second, ImmutableEnhancedUserInfo::of)
+            Observable<List<UserComments.Comment>> third = inboxService
+                    .getUserComments(queryString, getSelectedContentType())
+                    .map(UserComments::getComments)
+                    .onErrorResumeNext(Observable.just(emptyList()));
+
+            return Observable.zip(first, second, third, ImmutableEnhancedUserInfo::of)
                     .cast(EnhancedUserInfo.class)
-                    .doOnNext(localCacheService::cacheUserInfo);
+                    .doOnNext(info -> localCacheService.cacheUserInfo(contentTypes, info));
 
         } else {
             return Observable.empty();
@@ -725,7 +718,7 @@ public class FeedFragment extends BaseFragment {
     }
 
     @OnOptionsItemSelected(R.id.action_preload)
-    public  void preloadCurrentFeed() {
+    public void preloadCurrentFeed() {
         if (AndroidUtility.isOnMobile(getActivity())) {
             DialogBuilder.start(getActivity())
                     .content(R.string.preload_not_on_mobile)
@@ -1135,4 +1128,5 @@ public class FeedFragment extends BaseFragment {
             }
         }
     };
+
 }

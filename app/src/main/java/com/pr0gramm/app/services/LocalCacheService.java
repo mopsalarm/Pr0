@@ -7,11 +7,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.meta.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -105,15 +107,17 @@ public class LocalCacheService {
     /**
      * Stores the given entry for a few minutes in the cache
      */
-    public void cacheUserInfo(EnhancedUserInfo info) {
-        String name = info.getInfo().getUser().getName().toLowerCase();
-        userInfoCache.put(name, info);
+    public void cacheUserInfo(Set<ContentType> contentTypes, EnhancedUserInfo info) {
+        String name = info.getInfo().getUser().getName().trim().toLowerCase();
+        String key = name + ContentType.combine(contentTypes);
+        userInfoCache.put(key, info);
     }
 
     /**
      * Gets a cached instance, if there is one.
      */
-    public Optional<EnhancedUserInfo> getUserInfo(String name) {
-        return Optional.fromNullable(userInfoCache.getIfPresent(name.trim().toLowerCase()));
+    public Optional<EnhancedUserInfo> getUserInfo(Set<ContentType> contentTypes, String name) {
+        String key = name.trim().toLowerCase() + ContentType.combine(contentTypes);
+        return Optional.fromNullable(userInfoCache.getIfPresent(key));
     }
 }
