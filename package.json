@@ -9,6 +9,7 @@
     "gulp-autoprefixer": "*",
     "gulp-jade": "*",
     "gulp-plumber": "*",
-    "gulp-gh-pages": "*"
+    "gulp-gh-pages": "*",
+    "gulp-clean": "*"
   }
 }

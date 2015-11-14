@@ -4,6 +4,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var jade = require('gulp-jade');
 var plumber = require('gulp-plumber');
 var ghPages = require('gulp-gh-pages');
+var clean = require('gulp-clean');
 
 gulp.task('default', ['scss', 'jade']);
 
@@ -21,6 +22,10 @@ gulp.task('watch', function() {
   gulp.watch('scss/**/*.scss', ['scss']);
   gulp.watch('jade/**/*.jade', ['jade']);
   gulp.watch('img/**', ['build']);
+});
+
+gulp.task('clean', function() {
+    gulp.src("dist", {read: false}).pipe(clean());
 });
 
 gulp.task('scss', function() {
