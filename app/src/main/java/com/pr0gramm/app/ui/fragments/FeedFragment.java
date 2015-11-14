@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
@@ -767,8 +768,11 @@ public class FeedFragment extends BaseFragment {
             }
         });
 
-        String typeName = feedTypeToString(getActivity(), getCurrentFilter().withTags("dummy"));
-        searchView.setQueryHint(getString(R.string.action_search, typeName));
+        FragmentActivity activity = getActivity();
+        if(activity != null) {
+            String typeName = feedTypeToString(activity, getCurrentFilter().withTags("dummy"));
+            searchView.setQueryHint(getString(R.string.action_search, typeName));
+        }
     }
 
     private void performSearch(String term) {

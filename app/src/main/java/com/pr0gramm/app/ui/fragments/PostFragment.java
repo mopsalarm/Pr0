@@ -725,7 +725,10 @@ public class PostFragment extends BaseFragment implements
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    voteAnimationIndicator.setVisibility(View.GONE);
+                    View view = PostFragment.this.voteAnimationIndicator;
+                    if (view != null) {
+                        view.setVisibility(View.GONE);
+                    }
                 }
             });
         }
