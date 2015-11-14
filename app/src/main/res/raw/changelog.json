@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Benachrichtigung bei neuen Updates"
+      },
+      {
+        "type": "Update",
+        "change": "Liste mit Automatischen Tag-Vorschlägen upgedated"
       }
     ]
   },
