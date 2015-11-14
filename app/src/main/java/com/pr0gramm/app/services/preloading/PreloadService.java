@@ -122,8 +122,9 @@ public class PreloadService extends IntentService {
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK, PreloadService.class.getName());
 
-        // send out the initial notification
-        show(noBuilder);
+        // send out the initial notification and bring the service into foreground mode!
+        startForeground(NotificationService.NOTIFICATION_PRELOAD_ID, noBuilder.build());
+
         try {
             logger.info("Acquire wake lock for at most 10 minutes");
             wakeLock.acquire(minutes(10).toStandardDuration().getMillis());
@@ -191,6 +192,8 @@ public class PreloadService extends IntentService {
                     .setProgress(0, 0, false)
                     .setOngoing(false)
                     .setContentIntent(null));
+
+            stopForeground(false);
         }
     }
 
