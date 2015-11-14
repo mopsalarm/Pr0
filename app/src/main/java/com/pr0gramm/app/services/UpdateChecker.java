@@ -76,7 +76,7 @@ public class UpdateChecker {
                 .flatMap(ep -> check(ep)
                         .doOnError(err -> logger.warn("Could not check for update at {}: {}", ep, err.toString()))
                         .onErrorResumeNext(Observable.empty()))
-                .first();
+                .take(1);
     }
 
     private static Retrofit newRestAdapter(String endpoint) {
