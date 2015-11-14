@@ -16,6 +16,10 @@
       },
       {
         "type": "Fix",
+        "change": "Stabilität von Preloading verbessert, sollte nicht mehr abkacken"
+      },
+      {
+        "type": "Fix",
         "change": "Benachrichtigung bei neuen Updates"
       },
       {
