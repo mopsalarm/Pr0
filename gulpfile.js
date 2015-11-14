@@ -13,7 +13,7 @@ gulp.task('deploy', ['build'], function() {
 });
 
 gulp.task('build', ['scss', 'jade'], function() {
-  gulp.src(['css/*.css', 'img/**', 'pr0gramm-navigator-unlock.apk'],
+  gulp.src(['css/*.css', 'img/**', 'img/**/*', 'pr0gramm-navigator-unlock.apk'],
     {base: '.'})
     .pipe(gulp.dest('dist/'));
 });
