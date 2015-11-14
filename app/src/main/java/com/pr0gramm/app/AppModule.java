@@ -18,8 +18,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import rx.Observable;
-import rx.schedulers.Schedulers;
-import rx.util.async.Async;
 
 /**
  */
@@ -40,10 +38,10 @@ public class AppModule {
     @Provides
     @Singleton
     public Observable<BriteDatabase> sqlBrite(Application application) {
-        return Async.start(() -> {
+        return Observable.fromCallable(() -> {
             SQLiteOpenHelper openHelper = new OpenHelper(application);
             return SqlBrite.create().wrapDatabaseHelper(openHelper);
-        }, Schedulers.io());
+        }).cache();
     }
 
     @Provides

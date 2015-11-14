@@ -61,7 +61,7 @@ public class BookmarkService {
             return Observable.just(false);
 
         // check if already in database
-        return Async.start(() -> !Bookmark.byFilter(filter).isPresent(), Schedulers.io());
+        return Observable.fromCallable(() -> !Bookmark.byFilter(filter).isPresent());
     }
 
     private void triggerChange() {

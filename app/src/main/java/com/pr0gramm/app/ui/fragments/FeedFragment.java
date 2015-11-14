@@ -769,7 +769,7 @@ public class FeedFragment extends BaseFragment {
         });
 
         FragmentActivity activity = getActivity();
-        if(activity != null) {
+        if (activity != null) {
             String typeName = feedTypeToString(activity, getCurrentFilter().withTags("dummy"));
             searchView.setQueryHint(getString(R.string.action_search, typeName));
         }
@@ -991,8 +991,7 @@ public class FeedFragment extends BaseFragment {
     }
 
     private void loadMetaData(List<Long> items) {
-        Observable<ItemsInfo> metaData = metaService
-                .getItemsInfo(items)
+        Observable<ItemsInfo> metaData = metaService.getItemsInfo(items)
                 .doOnNext(this::cacheInfoResponse);
 
         metaData.compose(bindToLifecycle())

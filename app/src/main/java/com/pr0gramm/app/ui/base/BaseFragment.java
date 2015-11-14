@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -36,14 +37,20 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
 
     @Override
     public final <T> Observable.Transformer<T, T> bindUntilEvent(FragmentEvent event) {
-        return observable -> RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event)
-                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+        return observable -> observable
+                .compose(RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event))
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
     public final <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return observable -> RxLifecycle.<T>bindFragment(lifecycleSubject)
-                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+        return observable -> observable
+                .compose(RxLifecycle.<T>bindFragment(lifecycleSubject))
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -59,7 +66,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
         FragmentActivity activity = getActivity();
         injectComponent(Dagger.activityComponent(activity));
 
-        if(getArguments() != null)
+        if (getArguments() != null)
             Dart.inject(this, getArguments());
 
         lifecycleSubject.onNext(FragmentEvent.CREATE);

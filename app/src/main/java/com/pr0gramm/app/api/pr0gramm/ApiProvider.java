@@ -13,8 +13,6 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.ResponseBody;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +29,6 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import retrofit.BaseUrl;
-import retrofit.Converter;
 import retrofit.GsonConverterFactory;
 import retrofit.HttpException;
 import retrofit.Retrofit;
@@ -76,28 +72,11 @@ public class ApiProvider implements Provider<Api> {
 
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(new OkHttpAwareConverterFactory(GsonConverterFactory.create(gson)))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .client(this.client)
                 .build()
                 .create(Api.class);
-    }
-
-    private static class OkHttpAwareConverterFactory implements Converter.Factory {
-        private final Converter.Factory factory;
-
-        private OkHttpAwareConverterFactory(Converter.Factory factory) {
-            this.factory = factory;
-        }
-
-        @Override
-        public Converter<?> get(Type type) {
-            if(type == ResponseBody.class || type == RequestBody.class) {
-                return null;
-            } else {
-                return factory.get(type);
-            }
-        }
     }
 
     @Override

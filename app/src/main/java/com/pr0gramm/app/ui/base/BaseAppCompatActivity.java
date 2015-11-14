@@ -21,6 +21,7 @@ import java.util.List;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -56,14 +57,19 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
 
     @Override
     public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
-        return observable -> RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event)
-                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+        return observable -> observable
+                .compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event))
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
     public final <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return observable -> RxLifecycle.<T>bindActivity(lifecycleSubject)
-                .call(observable.observeOn(AndroidSchedulers.mainThread()));
+        return observable -> observable.compose(RxLifecycle.<T>bindActivity(lifecycleSubject))
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {

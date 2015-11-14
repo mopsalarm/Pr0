@@ -139,9 +139,9 @@ public class SettingsActivity extends BaseAppCompatActivity {
             Preference preference = getPreferenceManager().findPreference("pref_pseudo_clean_preloaded");
             if (preference != null) {
                 preloadItemsSubscription = preloadManager.all()
+                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(items -> {
-
                             long totalSize = 0;
                             for (PreloadManager.PreloadItem item : items) {
                                 totalSize += item.media().length();

@@ -26,5 +26,5 @@ public interface ExtraCategoryApi {
                             @Query("score") int benisScore);
 
     @HEAD("ping")
-    Observable<byte[]> ping();
+    Observable<Void> ping();
 }
