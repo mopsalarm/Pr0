@@ -12,7 +12,7 @@ gulp.task('deploy', ['build'], function() {
 });
 
 gulp.task('build', ['scss', 'jade'], function() {
-  gulp.src(['css/*.css', 'img/**', 'index.html', 'unlocker.html', 'pr0gramm-navigator-unlock.apk'],
+  gulp.src(['css/*.css', 'img/**', 'pr0gramm-navigator-unlock.apk'],
     {base: '.'})
     .pipe(gulp.dest('dist/'));
 });
@@ -20,6 +20,7 @@ gulp.task('build', ['scss', 'jade'], function() {
 gulp.task('watch', function() {
   gulp.watch('scss/**/*.scss', ['scss']);
   gulp.watch('jade/**/*.jade', ['jade']);
+  gulp.watch('img/**', ['build']);
 });
 
 gulp.task('scss', function() {
