@@ -17,6 +17,8 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
 
 import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,6 @@ import javax.inject.Inject;
 import butterknife.BindDrawable;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.subjects.BehaviorSubject;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
@@ -36,6 +37,8 @@ import static rx.Observable.combineLatest;
  */
 @ContextSingleton
 public class NavigationProvider {
+    private static final Logger logger = LoggerFactory.getLogger(NavigationProvider.class);
+
     private final Context context;
     private final UserService userService;
     private final InboxService inboxService;
@@ -73,7 +76,7 @@ public class NavigationProvider {
     @BindDrawable(R.drawable.ic_black_action_upload)
     Drawable iconUpload;
 
-    private final BehaviorSubject<Boolean> extraCategoryApiAvailable = BehaviorSubject.create(false);
+    private final Observable<Boolean> extraCategoryApiAvailable;
 
     @Inject
     public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,
@@ -92,15 +95,14 @@ public class NavigationProvider {
         // inject the images
         ButterKnife.bind(this, activity);
 
-        // for now, just activate the categories always. We'll fix this
-        // later with code like below.
-        this.extraCategoryApiAvailable.onNext(true);
-
-//        this.extraCategoryApiAvailable = extraCategoryApi.ping().map(r -> true)
-//                .doOnError(err -> logger.error("Could not reach category api", err))
-//                .onErrorResumeNext(Observable.just(false))
-//                .startWith(true)
-//                .cache();
+        // estimate if we should show those extra categories
+        this.extraCategoryApiAvailable = extraCategoryApi.get().ping()
+                .map(r -> true)
+                .doOnError(err -> logger.error("Could not reach category api", err))
+                .onErrorResumeNext(Observable.just(false))
+                .startWith(true)
+                .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))
+                .cache();
     }
 
     public Observable<List<NavigationItem>> navigationItems() {
