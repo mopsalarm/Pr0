@@ -90,6 +90,13 @@ public class Pr0grammApplication extends SugarApp {
         activity.startActivity(intent);
     }
 
+    public static void openDownloadFreeVersion(Activity activity) {
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://mopsalarm.github.io/Pr0#download"));
+
+        activity.startActivity(intent);
+    }
+
     public static Pr0grammApplication get(Context context) {
         return (Pr0grammApplication) context.getApplicationContext();
     }

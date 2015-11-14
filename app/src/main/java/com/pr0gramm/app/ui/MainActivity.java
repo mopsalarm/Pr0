@@ -25,6 +25,8 @@ import android.view.Window;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Pr0grammApplication;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -165,8 +167,24 @@ public class MainActivity extends BaseAppCompatActivity implements
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
+        //noinspection PointlessBooleanExpression
+        if (BuildConfig.IS_PLAYSTORE_RELEASE) {
+            if (singleShotService.isFirstTimeToday("hint_download_open_version")) {
+                DialogBuilder.start(this)
+                        .content("Die App ist nun bereits das zweite Mal nach kurzer Zeit aus dem" +
+                                " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
+                                " Ich bitte dich, die 'nicht PlayStore'-Version herunterzuladen.")
+
+                        .positive("Herunterladen", v -> Pr0grammApplication.openDownloadFreeVersion(this))
+                        .negative("Jetzt nicht")
+                        .show();
+            }
+        }
+
         showApiProxyHint();
+
         addOriginalContentBookmarkOnce();
+
     }
 
     @Override
