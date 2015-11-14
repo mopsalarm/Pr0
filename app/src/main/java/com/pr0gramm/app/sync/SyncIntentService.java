@@ -11,6 +11,8 @@ import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.Update;
+import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.services.UserService;
 
 import org.slf4j.Logger;
@@ -54,6 +56,13 @@ public class SyncIntentService extends IntentService {
         logger.info("Doing some statistics related trackings");
         if (singleShotService.isFirstTimeToday("track-settings"))
             statistics(settings, userService.isAuthorized(), unlockService.unlocked());
+
+        if (singleShotService.isFirstTimeToday("background-update-check")) {
+            Optional<Update> update = toOptional(new UpdateChecker(this).check());
+            if (update.isPresent()) {
+                notificationService.showUpdateNotification(update.get());
+            }
+        }
 
         logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)

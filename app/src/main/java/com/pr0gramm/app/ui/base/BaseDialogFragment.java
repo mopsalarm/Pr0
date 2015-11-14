@@ -1,13 +1,16 @@
 package com.pr0gramm.app.ui.base;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
@@ -109,5 +112,16 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
     public void onDetach() {
         lifecycleSubject.onNext(FragmentEvent.DETACH);
         super.onDetach();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        FragmentActivity activity = getActivity();
+        if (activity instanceof DialogDismissListener) {
+            // propagate to fragment
+            ((DialogDismissListener) activity).onDialogDismissed(this);
+        }
     }
 }

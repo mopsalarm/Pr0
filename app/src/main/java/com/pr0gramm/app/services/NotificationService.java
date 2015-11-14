@@ -25,6 +25,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.UpdateActivity;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;
@@ -49,6 +50,7 @@ public class NotificationService {
 
     public static final int NOTIFICATION_NEW_MESSAGE_ID = 5001;
     public static final int NOTIFICATION_PRELOAD_ID = 5002;
+    public static final int NOTIFICATION_UPDATE_ID = 5003;
 
     private final Settings settings;
     private final Application context;
@@ -65,6 +67,20 @@ public class NotificationService {
         this.uriHelper = UriHelper.of(context);
         this.settings = Settings.of(context);
         this.nm = NotificationManagerCompat.from(context);
+    }
+
+    public void showUpdateNotification(Update update) {
+        Notification notification = new NotificationCompat.Builder(context)
+                .setContentIntent(newUpdateActivityIntent(update))
+                .setContentTitle(context.getString(R.string.notification_update_available))
+                .setContentText(context.getString(R.string.notification_update_available_text, update.version() % 100))
+                .setSmallIcon(R.drawable.ic_notify_new_message)
+                .addAction(R.drawable.ic_white_action_save, "Download", newDownloadUpdateIntent(update))
+                .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+                .setAutoCancel(true)
+                .build();
+
+        nm.notify(NOTIFICATION_UPDATE_ID, notification);
     }
 
     public void showForInbox(Sync sync) {
@@ -119,7 +135,7 @@ public class NotificationService {
                         .toSortedList(Ordering.natural()));
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(newContentEvent())
+                .setContentIntent(newContentIntent())
                 .setContentTitle(title)
                 .setContentText(summaryText)
                 .setStyle(inboxStyle)
@@ -147,7 +163,7 @@ public class NotificationService {
         }
     }
 
-    private PendingIntent newContentEvent() {
+    private PendingIntent newContentIntent() {
         Intent intent = new Intent(context, InboxActivity.class);
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
@@ -159,7 +175,28 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    private PendingIntent newUpdateActivityIntent(Update update) {
+        Intent intent = new Intent(context, UpdateActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(UpdateActivity.EXTRA_UPDATE, update);
+
+        return TaskStackBuilder.create(context)
+                .addParentStack(UpdateActivity.class)
+                .addNextIntent(intent)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private PendingIntent newDownloadUpdateIntent(Update update) {
+        Intent intent = new Intent(context, DownloadUpdateReceiver.class);
+        intent.putExtra(DownloadUpdateReceiver.EXTRA_UPDATE, update);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
     public void cancelForInbox() {
         nm.cancel(NOTIFICATION_NEW_MESSAGE_ID);
+    }
+
+    public void cancelForUpdate() {
+        nm.cancel(NOTIFICATION_UPDATE_ID);
     }
 }

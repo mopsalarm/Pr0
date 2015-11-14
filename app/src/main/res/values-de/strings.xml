@@ -346,4 +346,7 @@
     <string name="user_registered">Registriert am %s</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
     <string name="user_banned">Gebannt für %s</string>
+    <string name="notification_update_available">Update verfügbar</string>
+    <string name="notification_update_available_text">Ein neues Update für die pr0gramm App auf Version 1.%s ist verfügbar.</string>
+    <string name="update">Update</string>
 </resources>

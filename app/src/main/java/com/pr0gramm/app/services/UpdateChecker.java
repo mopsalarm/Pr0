@@ -1,11 +1,14 @@
 package com.pr0gramm.app.services;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.GsonBuilder;
+import com.pr0gramm.app.AppComponent;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -27,6 +30,8 @@ import rx.util.async.Async;
  * Class to perform an update check.
  */
 public class UpdateChecker {
+    public static final String KEY_DOWNLOAD_ID = "UpdateChecker.downloadId";
+
     private static final Logger logger = LoggerFactory.getLogger(UpdateChecker.class);
 
     private final int currentVersion;
@@ -69,7 +74,7 @@ public class UpdateChecker {
     public Observable<Update> check() {
         return Observable.from(endpoints)
                 .flatMap(ep -> check(ep)
-                        .doOnError(err -> logger.warn("Could not check for update: {}", err.toString()))
+                        .doOnError(err -> logger.warn("Could not check for update at {}: {}", ep, err.toString()))
                         .onErrorResumeNext(Observable.empty()))
                 .first();
     }
@@ -106,6 +111,26 @@ public class UpdateChecker {
         }
 
         return ImmutableList.copyOf(urls);
+    }
+
+
+    public static void download(Context context, Update update) {
+        AppComponent appComponent = Dagger.appComponent(context);
+
+
+        Uri apkUrl = Uri.parse(update.apk());
+
+        DownloadManager.Request request = new DownloadManager.Request(apkUrl)
+                .setVisibleInDownloadsUi(false)
+                .setTitle(apkUrl.getLastPathSegment());
+
+        long downloadId = appComponent.downloadManager().enqueue(request);
+        appComponent.sharedPreferences().edit()
+                .putLong(KEY_DOWNLOAD_ID, downloadId)
+                .apply();
+
+        // remove pending upload notification
+        appComponent.notificationService().cancelForUpdate();
     }
 }
 

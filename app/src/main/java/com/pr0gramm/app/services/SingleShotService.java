@@ -56,9 +56,13 @@ public class SingleShotService {
         return isFirstTime(action + "--" + version);
     }
 
+    public boolean isFirstTimeToday(String action) {
+        String timeString = DateTime.now().toString(DateTimeFormat.forPattern("YYYY-MM-dd"));
+        return timeStringHasChanged(action, timeString);
+    }
+
     @SuppressWarnings("unchecked")
-    public synchronized boolean isFirstTimeToday(String action) {
-        String today = DateTime.now().toString(DateTimeFormat.forPattern("YYYY-MM-dd"));
+    private synchronized boolean timeStringHasChanged(String action, String today) {
         if (todayMap == null) {
             todayMap = new HashMap<>(gson.fromJson(
                     preferences.getString(KEY_MAP_ACTIONS, "{}"),

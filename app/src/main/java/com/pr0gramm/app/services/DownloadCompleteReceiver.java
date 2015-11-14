@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 import java.io.File;
 
@@ -39,7 +38,7 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
         if (downloadId == -1)
             return;
 
-        long expectedId = sharedPreferences.getLong(UpdateDialogFragment.KEY_DOWNLOAD_ID, -1);
+        long expectedId = sharedPreferences.getLong(UpdateChecker.KEY_DOWNLOAD_ID, -1);
         if (downloadId != expectedId)
             return;
 

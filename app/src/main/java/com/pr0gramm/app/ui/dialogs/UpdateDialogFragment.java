@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.dialogs;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -32,8 +31,6 @@ import static org.joda.time.Instant.now;
 /**
  */
 public class UpdateDialogFragment extends BaseDialogFragment {
-    public static final String KEY_DOWNLOAD_ID = "UpdateDialogFragment.downloadId";
-
     @Inject
     DownloadManager downloadManager;
 
@@ -52,7 +49,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
     private Dialog updateAvailableDialog(final Update update) {
         return DialogBuilder.start(getActivity())
                 .content(getString(R.string.new_update_available, update.changelog()))
-                .positive(R.string.download, () -> download(update))
+                .positive(R.string.download, () -> UpdateChecker.download(getContext(), update))
                 .negative(R.string.ignore)
                 .build();
     }
@@ -62,19 +59,6 @@ public class UpdateDialogFragment extends BaseDialogFragment {
                 .content(R.string.no_new_update)
                 .positive()
                 .show();
-    }
-
-    private void download(Update update) {
-        Uri apkUrl = Uri.parse(update.apk());
-
-        DownloadManager.Request request = new DownloadManager.Request(apkUrl)
-                .setVisibleInDownloadsUi(false)
-                .setTitle(apkUrl.getLastPathSegment());
-
-        long downloadId = downloadManager.enqueue(request);
-        sharedPreferences.edit()
-                .putLong(KEY_DOWNLOAD_ID, downloadId)
-                .apply();
     }
 
     public static UpdateDialogFragment newInstance(Update update) {

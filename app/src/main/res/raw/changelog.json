@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Fehler in den Benutzerinformationen beim Umschalten zwischen Kommentaren und Uploads behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Benachrichtigung bei neuen Updates"
       }
     ]
   },
