@@ -7,8 +7,10 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -29,7 +31,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
@@ -38,7 +39,6 @@ import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
 import static com.pr0gramm.app.services.UserService.LoginState.NOT_AUTHORIZED;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -47,6 +47,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
+    private static final String KEY_LAST_USER_INFO = "UserService.lastUserInfo";
 
     private final Api api;
     private final VoteService voteService;
@@ -55,9 +56,8 @@ public class UserService {
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
 
-    private final BehaviorSubject<LoginState> loginStateObservable
-            = BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
-
+    private final Gson gson = ApiGsonBuilder.builder().create();
+    private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(NOT_AUTHORIZED);
     private final Settings settings;
 
     @Inject
@@ -74,7 +74,21 @@ public class UserService {
         this.preferences = preferences;
         this.settings = settings;
 
+        restoreLatestUserInfo(preferences);
+
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
+    }
+
+    private void restoreLatestUserInfo(SharedPreferences preferences) {
+        // try to restore the previous user info object
+        Observable.just(preferences.getString(KEY_LAST_USER_INFO, null))
+                .filter(value -> value != null)
+                .map(encoded -> createLoginState(Optional.of(gson.fromJson(encoded, Info.class))))
+                .subscribeOn(BackgroundScheduler.instance())
+                .doOnNext(info -> logger.info("Restoring user info: {}", info))
+                .subscribe(
+                        loginStateObservable::onNext,
+                        error -> logger.warn("Could not restore user info: " + error));
     }
 
     private void onCookieChanged() {
@@ -129,7 +143,10 @@ public class UserService {
             cookieHandler.clearLoginCookie(false);
 
             // remove sync id
-            preferences.edit().remove(KEY_LAST_SYNC_ID).apply();
+            preferences.edit()
+                    .remove(KEY_LAST_SYNC_ID)
+                    .remove(KEY_LAST_USER_INFO)
+                    .apply();
 
             // clear all the vote cache
             voteService.clear();
@@ -221,8 +238,24 @@ public class UserService {
 
             // updates the login state and ui
             loginStateObservable.onNext(createLoginState(Optional.of(info)));
+
+            // and store the login state for later
+            persistLatestUserInfo(info);
+
             return info;
         });
+    }
+
+    private void persistLatestUserInfo(Info info) {
+        try {
+            String encoded = gson.toJson(info);
+            preferences.edit()
+                    .putString(KEY_LAST_USER_INFO, encoded)
+                    .apply();
+
+        } catch (RuntimeException error) {
+            logger.warn("Could not persist latest user info", error);
+        }
     }
 
     private LoginState createLoginState(Optional<Info> info) {
@@ -262,7 +295,7 @@ public class UserService {
     }
 
     public static Optional<Info.User> getUser(LoginState loginState) {
-        if(loginState.getInfo() == null)
+        if (loginState.getInfo() == null)
             return Optional.absent();
 
         return Optional.fromNullable(loginState.getInfo().getUser());
