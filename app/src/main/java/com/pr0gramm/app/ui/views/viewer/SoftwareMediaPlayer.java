@@ -16,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +43,7 @@ public abstract class SoftwareMediaPlayer {
     private final VideoDrawable drawable = new VideoDrawable();
     private final AtomicInteger bitmapCount = new AtomicInteger();
 
-    private final Queue<Bitmap> returned = new LinkedList<>();
+    private final Queue<WeakReference<Bitmap>> returned = new LinkedList<>();
     private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
@@ -95,6 +96,17 @@ public abstract class SoftwareMediaPlayer {
 
     public void pause() {
         paused.set(true);
+
+        WeakReference<Bitmap> ref;
+        while ((ref = returned.poll()) != null) {
+            logger.info("Clear bitmap in video pause mode, remaining: {}",
+                    bitmapCount.decrementAndGet());
+
+            Bitmap bitmap = ref.get();
+            if (bitmap != null)
+                bitmap.recycle();
+        }
+
     }
 
     public Drawable drawable() {
@@ -138,7 +150,7 @@ public abstract class SoftwareMediaPlayer {
                 // ignore this one
 
             } catch (Throwable error) {
-                if(running.get() && !paused.get())
+                if (running.get() && !paused.get())
                     errors.onNext(error);
 
                 stop();
@@ -182,7 +194,18 @@ public abstract class SoftwareMediaPlayer {
      * If no bitmap was returned, it will ask the drawable for a previously painted image.
      */
     private Bitmap dequeBitmap() {
-        Bitmap bitmap = returned.poll();
+        Bitmap bitmap = null;
+
+        // poll weak refs until we found one alive or until there are no more.
+        WeakReference<Bitmap> bitmapRef;
+        while ((bitmapRef = returned.poll()) != null) {
+            bitmap = bitmapRef.get();
+            if (bitmap == null) {
+                bitmapCount.decrementAndGet();
+            } else {
+                break;
+            }
+        }
 
         while (bitmap == null) {
             ensureStillRunning();
@@ -201,7 +224,7 @@ public abstract class SoftwareMediaPlayer {
      * the image will be recycled.
      */
     protected void returnBitmap(Bitmap bitmap) {
-        if (!returned.offer(bitmap)) {
+        if (!returned.offer(new WeakReference<>(bitmap))) {
             bitmap.recycle();
             bitmapCount.decrementAndGet();
         }
