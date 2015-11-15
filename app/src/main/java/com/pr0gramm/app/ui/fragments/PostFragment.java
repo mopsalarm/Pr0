@@ -530,7 +530,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private boolean isVideoFullScreen() {
-        return swipeRefreshLayout.getVisibility() != View.VISIBLE;
+        return swipeRefreshLayout != null && swipeRefreshLayout.getVisibility() != View.VISIBLE;
     }
 
     @OnOptionsItemSelected(MainActivity.ID_FAKE_HOME)
