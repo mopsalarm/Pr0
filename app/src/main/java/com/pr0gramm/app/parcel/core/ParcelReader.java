@@ -75,12 +75,12 @@ class ParcelReader extends JsonReader {
     public String nextName() throws IOException {
         consume(JsonToken.NAME);
         switch (parcel.readByte()) {
-            case ParcelContext.NAME_FOLLOWING:
+            case ParcelConstants.NAME_FOLLOWING:
                 String name = parcel.readString();
                 nameCache.add(name);
                 return name;
 
-            case ParcelContext.NAME_REFERENCE:
+            case ParcelConstants.NAME_REFERENCE:
                 return nameCache.get(parcel.readByte() & 0xff);
 
             default:
@@ -108,19 +108,19 @@ class ParcelReader extends JsonReader {
     private Number readNumber() throws IOException {
         consume(JsonToken.NUMBER);
         switch (parcel.readByte()) {
-            case ParcelContext.NUMBER_LONG:
+            case ParcelConstants.NUMBER_LONG:
                 return parcel.readLong();
 
-            case ParcelContext.NUMBER_INTEGER:
+            case ParcelConstants.NUMBER_INTEGER:
                 return parcel.readInt();
 
-            case ParcelContext.NUMBER_BYTE:
+            case ParcelConstants.NUMBER_BYTE:
                 return parcel.readByte();
 
-            case ParcelContext.NUMBER_DOUBLE:
+            case ParcelConstants.NUMBER_DOUBLE:
                 return parcel.readDouble();
 
-            case ParcelContext.NUMBER_FLOAT:
+            case ParcelConstants.NUMBER_FLOAT:
                 return parcel.readFloat();
 
             default:

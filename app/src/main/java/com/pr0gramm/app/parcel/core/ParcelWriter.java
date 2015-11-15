@@ -56,13 +56,13 @@ class ParcelWriter extends JsonWriter {
 
         Byte ref = nameCache.get(name);
         if (ref == null) {
-            parcel.writeByte(ParcelContext.NAME_FOLLOWING);
+            parcel.writeByte(ParcelConstants.NAME_FOLLOWING);
             parcel.writeString(name);
 
             // cache for next time
             nameCache.put(name, (byte) nameCache.size());
         } else {
-            parcel.writeByte(ParcelContext.NAME_REFERENCE);
+            parcel.writeByte(ParcelConstants.NAME_REFERENCE);
             parcel.writeByte(ref);
         }
 
@@ -92,7 +92,7 @@ class ParcelWriter extends JsonWriter {
     @Override
     public JsonWriter value(double value) throws IOException {
         token(JsonToken.NUMBER);
-        parcel.writeByte(ParcelContext.NUMBER_DOUBLE);
+        parcel.writeByte(ParcelConstants.NUMBER_DOUBLE);
         parcel.writeDouble(value);
         return this;
     }
@@ -100,7 +100,7 @@ class ParcelWriter extends JsonWriter {
     @Override
     public JsonWriter value(long value) throws IOException {
         token(JsonToken.NUMBER);
-        parcel.writeByte(ParcelContext.NUMBER_LONG);
+        parcel.writeByte(ParcelConstants.NUMBER_LONG);
         parcel.writeLong(value);
         return this;
     }
@@ -111,19 +111,19 @@ class ParcelWriter extends JsonWriter {
 
         if (clazz == Integer.class || clazz == Short.class) {
             token(JsonToken.NUMBER);
-            parcel.writeByte(ParcelContext.NUMBER_INTEGER);
+            parcel.writeByte(ParcelConstants.NUMBER_INTEGER);
             parcel.writeInt(value.intValue());
             return this;
 
         } else if (clazz == Byte.class) {
             token(JsonToken.NUMBER);
-            parcel.writeByte(ParcelContext.NUMBER_BYTE);
+            parcel.writeByte(ParcelConstants.NUMBER_BYTE);
             parcel.writeByte(value.byteValue());
             return this;
 
         } else if (clazz == Float.class) {
             token(JsonToken.NUMBER);
-            parcel.writeByte(ParcelContext.NUMBER_FLOAT);
+            parcel.writeByte(ParcelConstants.NUMBER_FLOAT);
             parcel.writeFloat(value.floatValue());
             return this;
 

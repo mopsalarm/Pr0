@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
 import static com.google.common.base.Objects.equal;
@@ -227,6 +228,7 @@ public class LoginCookieHandler extends CookieHandler {
         return httpCookie != null && parsedCookie.transform(c -> c.id != null).or(false);
     }
 
+    @Keep
     @KeepClassMembers
     public static class Cookie {
         public String n;

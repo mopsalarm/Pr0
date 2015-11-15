@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -56,7 +55,7 @@ public class UserService {
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
 
-    private final Gson gson = ApiGsonBuilder.builder().create();
+    private final Gson gson;
     private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(NOT_AUTHORIZED);
     private final Settings settings;
 
@@ -64,7 +63,7 @@ public class UserService {
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
-                       SharedPreferences preferences, Settings settings) {
+                       SharedPreferences preferences, Settings settings, Gson gson) {
 
         this.api = api;
         this.seenService = seenService;
@@ -73,6 +72,7 @@ public class UserService {
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
         this.settings = settings;
+        this.gson = gson;
 
         restoreLatestUserInfo();
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);

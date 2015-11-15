@@ -25,6 +25,7 @@ import dagger.Component;
         AppModule.class,
         HttpModule.class,
         ServicesModule.class,
+        GsonModule.class,
 })
 public interface AppComponent {
     ActivityComponent activiyComponent(ActivityModule activityModule);

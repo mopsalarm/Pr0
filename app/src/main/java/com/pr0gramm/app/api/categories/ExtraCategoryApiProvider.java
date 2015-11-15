@@ -1,6 +1,6 @@
 package com.pr0gramm.app.api.categories;
 
-import com.pr0gramm.app.api.pr0gramm.ApiGsonBuilder;
+import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
@@ -18,11 +18,11 @@ public class ExtraCategoryApiProvider implements Provider<ExtraCategoryApi> {
     private final ExtraCategoryApi api;
 
     @Inject
-    public ExtraCategoryApiProvider(OkHttpClient httpClient) {
+    public ExtraCategoryApiProvider(OkHttpClient httpClient, Gson gson) {
         this.api = new Retrofit.Builder()
                 .client(httpClient)
                 .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1/")
-                .addConverterFactory(GsonConverterFactory.create(ApiGsonBuilder.builder().create()))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
                 .create(ExtraCategoryApi.class);

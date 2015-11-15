@@ -7,7 +7,7 @@ import android.os.Parcelable;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.pr0gramm.app.GsonModule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +44,10 @@ public abstract class Parceler<T> implements Parcelable {
 
     @SuppressLint("NewApi")
     protected Parceler(Parcel parcel) {
-        Gson gson = ParcelContext.gson();
 
         try (ParcelReader reader = new ParcelReader(parcel)) {
             Stopwatch watch = Stopwatch.createStarted();
-            value = gson.fromJson(reader, getType().getType());
+            value = GsonModule.INSTANCE.fromJson(reader, getType().getType());
             logger.info("reading of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not read gson as parce", ioError);
@@ -63,11 +62,9 @@ public abstract class Parceler<T> implements Parcelable {
     @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        Gson gson = ParcelContext.gson();
-
         try (ParcelWriter writer = new ParcelWriter(dest)) {
             Stopwatch watch = Stopwatch.createStarted();
-            gson.toJson(value, getType().getType(), writer);
+            GsonModule.INSTANCE.toJson(value, getType().getType(), writer);
             logger.info("writing of {} took {}", getType(), watch);
         } catch (IOException ioError) {
             throw new RuntimeException("Could not adapt gson to parcel", ioError);

@@ -37,6 +37,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
 
@@ -180,12 +181,14 @@ public class ChangeLogDialog extends BaseDialogFragment {
         }
     }
 
+    @Keep
     @KeepClassMembers
     private static final class Change {
         String type;
         String change;
     }
 
+    @Keep
     @KeepClassMembers
     private static final class ChangeGroup {
         int version;

@@ -48,10 +48,12 @@ public class ApiProvider implements Provider<Api> {
     private final OkHttpClient client;
     private final LoginCookieHandler cookieHandler;
     private final Api proxy;
+    private final Gson gson;
 
     @Inject
-    public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler) {
+    public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler, Gson gson) {
         this.context = context;
+        this.gson = gson;
         this.settings = Settings.of(context);
         this.client = client;
         this.cookieHandler = cookieHandler;
@@ -60,8 +62,6 @@ public class ApiProvider implements Provider<Api> {
     }
 
     private Api newRestAdapter() {
-        Gson gson = ApiGsonBuilder.builder().create();
-
         BaseUrl baseUrl = () -> {
             if (BuildConfig.DEBUG && settings.mockApi()) {
                 // activate this to use a mock
