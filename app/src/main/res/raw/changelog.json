@@ -23,6 +23,10 @@
         "change": "Benachrichtigung bei neuen Updates"
       },
       {
+        "type": "Workaround",
+        "change": "Text in Kommentaren markieren ist auf Android 6 erstmal deaktiviert. Das führte durch einen Bug in Android zum Absturz der App :/"
+      },
+      {
         "type": "Update",
         "change": "Liste mit Automatischen Tag-Vorschlägen upgedated"
       }

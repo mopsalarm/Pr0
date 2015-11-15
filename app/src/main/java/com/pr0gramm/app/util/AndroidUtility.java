@@ -349,7 +349,13 @@ public class AndroidUtility {
                 (match, url) -> base.buildUpon().appendEncodedPath(match.group(1)).toString());
 
         view.setText(text);
-        view.setMovementMethod(new LinkMovementMethod());
+
+        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            // disable selecting comments because of crash stuff
+            view.setTextIsSelectable(false);
+        }
+
+        view.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     /**
