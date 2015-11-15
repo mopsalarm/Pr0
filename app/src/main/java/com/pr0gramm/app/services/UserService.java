@@ -74,18 +74,20 @@ public class UserService {
         this.preferences = preferences;
         this.settings = settings;
 
-        restoreLatestUserInfo(preferences);
-
+        restoreLatestUserInfo();
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
     }
 
-    private void restoreLatestUserInfo(SharedPreferences preferences) {
-        // try to restore the previous user info object
+    /**
+     * Restore the latest user info from the shared preferences
+     */
+    private void restoreLatestUserInfo() {
         Observable.just(preferences.getString(KEY_LAST_USER_INFO, null))
                 .filter(value -> value != null)
                 .map(encoded -> createLoginState(Optional.of(gson.fromJson(encoded, Info.class))))
                 .subscribeOn(BackgroundScheduler.instance())
                 .doOnNext(info -> logger.info("Restoring user info: {}", info))
+                .filter(info -> isAuthorized())
                 .subscribe(
                         loginStateObservable::onNext,
                         error -> logger.warn("Could not restore user info: " + error));
