@@ -7,6 +7,7 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import java.util.List;
 
@@ -14,11 +15,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.schedulers.Schedulers;
+import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
+import static com.pr0gramm.app.orm.Bookmark.byFilter;
+import static com.pr0gramm.app.orm.Bookmark.of;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -35,16 +39,16 @@ public class BookmarkService {
     public Observable<Bookmark> create(FeedFilter filter, String title) {
         return Async.start(() -> {
             // check if here is an existing item
-            Optional<Bookmark> existing = Bookmark.byFilter(filter);
+            Optional<Bookmark> existing = byFilter(filter);
             if (existing.isPresent())
                 return existing.get();
 
             // create new entry
-            Bookmark entry = Bookmark.of(filter, title);
+            Bookmark entry = of(filter, title);
             entry.save();
             triggerChange();
             return entry;
-        }, Schedulers.io());
+        }, BackgroundScheduler.instance());
     }
 
     /**
@@ -69,7 +73,7 @@ public class BookmarkService {
     }
 
     public Observable<List<Bookmark>> get() {
-        return onChange.subscribeOn(Schedulers.io()).map(ignored -> list());
+        return onChange.subscribeOn(BackgroundScheduler.instance()).map(ignored -> list());
     }
 
     /**
@@ -92,7 +96,7 @@ public class BookmarkService {
             bookmark.delete();
             triggerChange();
             return null;
-        }, Schedulers.io()).ignoreElements();
+        }, BackgroundScheduler.instance()).ignoreElements();
     }
 
     /**

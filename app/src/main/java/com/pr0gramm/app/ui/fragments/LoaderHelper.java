@@ -2,13 +2,16 @@ package com.pr0gramm.app.ui.fragments;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -72,8 +75,8 @@ public abstract class LoaderHelper<T> {
 
         subscription = newObservable()
                 .first()
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onNext, this::onError);
     }

@@ -60,7 +60,7 @@ public class HttpModule {
             Stopwatch watch = Stopwatch.createStarted();
             Request request = chain.request();
 
-            logger.info("performing http request for " + request.urlString());
+            logger.info("performing {} http request for {}", request.method(), request.urlString());
             try {
                 Response response = chain.proceed(request);
                 logger.info("{} ({}) took {}", request.urlString(), response.code(), watch);

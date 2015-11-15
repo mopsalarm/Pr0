@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.ActivityLifecycleProvider;
@@ -20,11 +21,12 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static rx.schedulers.Schedulers.io;
 
 /**
  * A {@link android.support.v7.app.AppCompatActivity}
@@ -58,18 +60,19 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     @Override
     public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
         return observable -> observable
-                .compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event))
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event));
     }
 
     @Override
     public final <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return observable -> observable.compose(RxLifecycle.<T>bindActivity(lifecycleSubject))
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        return observable -> observable
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindActivity(lifecycleSubject));
     }
 
     public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {

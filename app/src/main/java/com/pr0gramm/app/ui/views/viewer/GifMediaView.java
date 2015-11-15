@@ -10,6 +10,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Downloader;
 
 import javax.inject.Inject;
@@ -17,11 +18,12 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -50,7 +52,7 @@ public class GifMediaView extends AbstractProgressMediaView {
     private void loadGif() {
         Observable<GifLoader.DownloadStatus> loader = GifLoader
                 .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(BackgroundScheduler.instance());
 
         dlGifSubscription = loader.compose(binder.get()).subscribe(state -> {
             onDownloadProgress(state.getProgress());

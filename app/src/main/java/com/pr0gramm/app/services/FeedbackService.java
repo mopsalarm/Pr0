@@ -8,6 +8,7 @@ import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
@@ -47,7 +48,7 @@ public class FeedbackService {
         String version = String.valueOf(AndroidUtility.getPackageVersionCode(context));
 
         return Async
-                .start(FeedbackService::logcat, Schedulers.io())
+                .start(FeedbackService::logcat, BackgroundScheduler.instance())
                 .flatMap(logcat -> api.post(name, feedback, version, logcat));
     }
 

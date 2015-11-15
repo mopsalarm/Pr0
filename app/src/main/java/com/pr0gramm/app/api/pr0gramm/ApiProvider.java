@@ -8,6 +8,7 @@ import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -64,7 +65,7 @@ public class ApiProvider implements Provider<Api> {
         BaseUrl baseUrl = () -> {
             if (BuildConfig.DEBUG && settings.mockApi()) {
                 // activate this to use a mock
-                return HttpUrl.parse("http://10.1.1.56:8888");
+                return HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888");
             } else {
                 return HttpUrl.parse(UriHelper.of(context).base().toString());
             }

@@ -11,6 +11,7 @@ import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
@@ -26,6 +27,8 @@ import pl.brightinventions.slf4android.LoggerConfiguration;
 import rx.Scheduler;
 import rx.android.plugins.RxAndroidPlugins;
 import rx.android.plugins.RxAndroidSchedulersHook;
+import rx.plugins.RxJavaPlugins;
+import rx.plugins.RxJavaSchedulersHook;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDialogHandler;
 

@@ -15,6 +15,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Stopwatch.createStarted;
 import static com.google.common.collect.Lists.transform;
+import static com.pr0gramm.app.orm.CachedVote.Type;
+import static com.pr0gramm.app.orm.CachedVote.Type.ITEM;
+import static com.pr0gramm.app.orm.CachedVote.find;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -85,7 +91,7 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        return Async.start(() -> CachedVote.find(CachedVote.Type.ITEM, item.getId()), Schedulers.io())
+        return Async.start(() -> find(ITEM, item.getId()), BackgroundScheduler.instance())
                 .map(vote -> vote.transform(v -> v.vote))
                 .map(vote -> vote.or(Vote.NEUTRAL));
     }
@@ -212,8 +218,8 @@ public class VoteService {
             return Observable.just(Collections.<Long, Vote>emptyMap());
 
         return Async.start(() -> {
-            Stopwatch watch = Stopwatch.createStarted();
-            List<CachedVote> cachedVotes = CachedVote.find(type, ids);
+            Stopwatch watch = createStarted();
+            List<CachedVote> cachedVotes = find(type, ids);
 
             Map<Long, Vote> result = new HashMap<>();
             for (CachedVote cachedVote : cachedVotes)
@@ -221,7 +227,7 @@ public class VoteService {
 
             logger.info("Loading votes for {} {}s took {}", ids.size(), type.name().toLowerCase(), watch);
             return result;
-        }, Schedulers.io());
+        }, BackgroundScheduler.instance());
     }
 
     private static class VoteAction {

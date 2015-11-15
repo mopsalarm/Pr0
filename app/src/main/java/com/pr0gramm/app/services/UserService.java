@@ -15,6 +15,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -28,13 +29,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.schedulers.Schedulers;
+import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
+import static com.pr0gramm.app.Settings.resetContentTypeSettings;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
+import static com.pr0gramm.app.services.UserService.LoginState.NOT_AUTHORIZED;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -119,7 +123,7 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
-            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+            loginStateObservable.onNext(NOT_AUTHORIZED);
 
             // removing cookie from requests
             cookieHandler.clearLoginCookie(false);
@@ -135,10 +139,10 @@ public class UserService {
 
             // and reset the content user, because only signed in users can
             // see the nsfw and nsfl stuff.
-            Settings.resetContentTypeSettings(settings);
+            resetContentTypeSettings(settings);
 
             return null;
-        }, Schedulers.io()).ignoreElements();
+        }, BackgroundScheduler.instance()).ignoreElements();
     }
 
     public Observable<LoginState> loginState() {

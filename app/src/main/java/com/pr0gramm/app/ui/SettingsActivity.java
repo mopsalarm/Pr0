@@ -25,6 +25,7 @@ import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.okhttp.OkHttpClient;
 
 import org.joda.time.Instant;
@@ -34,12 +35,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import de.psdev.licensesdialog.LicensesDialog;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static org.joda.time.Instant.now;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -139,7 +142,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             Preference preference = getPreferenceManager().findPreference("pref_pseudo_clean_preloaded");
             if (preference != null) {
                 preloadItemsSubscription = preloadManager.all()
-                        .subscribeOn(Schedulers.io())
+                        .subscribeOn(BackgroundScheduler.instance())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(items -> {
                             long totalSize = 0;
@@ -225,9 +228,9 @@ public class SettingsActivity extends BaseAppCompatActivity {
             if ("pref_pseudo_clean_preloaded".equals(preference.getKey())) {
                 Async.start(() -> {
                     // remove all the files!
-                    preloadManager.deleteBefore(Instant.now());
+                    preloadManager.deleteBefore(now());
                     return null;
-                }, Schedulers.io());
+                }, BackgroundScheduler.instance());
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

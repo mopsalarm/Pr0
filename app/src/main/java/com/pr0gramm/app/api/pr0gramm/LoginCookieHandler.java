@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
+import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     private boolean isNoApiRequest(URI uri) {
-        return !uri.getHost().equalsIgnoreCase("pr0gramm.com") && !uri.getHost().contains("mockable.io");
+        return !uri.getHost().equalsIgnoreCase("pr0gramm.com") && !uri.getHost().contains(Debug.MOCK_API_HOST);
     }
 
     private void handleCookie(HttpCookie cookie) {

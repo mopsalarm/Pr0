@@ -8,7 +8,7 @@ if [ -d $VENV/bin/activate ] ; then
 else
   virtualenv $VENV
   . $VENV/bin/activate
-  pip install mock-server
+  pip install git+https://github.com/mopsalarm/mock-server.git
 fi
 
 exec mock-server --address=0.0.0.0 --dir="$(dirname "$0")"

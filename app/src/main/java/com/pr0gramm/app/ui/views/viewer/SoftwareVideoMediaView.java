@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
 
@@ -18,13 +19,15 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func0;
-import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
+import static com.squareup.picasso.Downloader.Response;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -76,7 +79,7 @@ public class SoftwareVideoMediaView extends MediaView {
             if ("file".equals(uri.getScheme())) {
                 inputStream = new FileInputStream(toFile(uri));
             } else {
-                Downloader.Response response = downloader.load(uri, 0);
+                Response response = downloader.load(uri, 0);
                 inputStream = response.getInputStream();
             }
 
@@ -88,7 +91,7 @@ public class SoftwareVideoMediaView extends MediaView {
                 return new WebmMediaPlayer(getContext(), inputStream);
 
             throw new RuntimeException("Unknown video type");
-        }, Schedulers.io());
+        }, BackgroundScheduler.instance());
     }
 
 
@@ -115,7 +118,7 @@ public class SoftwareVideoMediaView extends MediaView {
         if (videoPlayer != null) {
             videoPlayer.stop();
 
-            Async.start(new DestroyAction(videoPlayer), Schedulers.io());
+            Async.start(new DestroyAction(videoPlayer), BackgroundScheduler.instance());
             videoPlayer = null;
         }
     }

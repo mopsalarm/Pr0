@@ -9,6 +9,7 @@ import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
@@ -17,9 +18,11 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
+
+import static rx.schedulers.Schedulers.io;
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -38,19 +41,19 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     @Override
     public final <T> Observable.Transformer<T, T> bindUntilEvent(FragmentEvent event) {
         return observable -> observable
-                .compose(RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event))
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event));
     }
 
     @Override
     public final <T> Observable.Transformer<T, T> bindToLifecycle() {
         return observable -> observable
-                .compose(RxLifecycle.<T>bindFragment(lifecycleSubject))
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindFragment(lifecycleSubject));
     }
 
     @Override

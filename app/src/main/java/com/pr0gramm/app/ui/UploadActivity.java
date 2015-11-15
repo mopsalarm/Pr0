@@ -42,6 +42,7 @@ import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.ErrorFormatting;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -62,11 +63,12 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.schedulers.Schedulers;
+import rx.Scheduler;
 import rx.util.async.Async;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -375,7 +377,7 @@ public class UploadActivity extends BaseAppCompatActivity {
                 }
 
                 return target;
-            }, Schedulers.io());
+            }, BackgroundScheduler.instance());
         }
 
         private static File getTempFileUri(Context context) {

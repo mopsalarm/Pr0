@@ -11,6 +11,7 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,10 @@ import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.http.GET;
 import rx.Observable;
-import rx.schedulers.Schedulers;
+import rx.Scheduler;
 import rx.util.async.Async;
+
+import static rx.schedulers.Schedulers.io;
 
 /**
  * Class to perform an update check.
@@ -49,7 +52,7 @@ public class UpdateChecker {
             UpdateApi api = newRestAdapter(endpoint).create(UpdateApi.class);
             return api.get().execute().body();
 
-        }, Schedulers.io()).filter(update -> {
+        }, BackgroundScheduler.instance()).filter(update -> {
             logger.info("Installed v{}, found update v{} at {}",
                     currentVersion, update.version(), endpoint);
 

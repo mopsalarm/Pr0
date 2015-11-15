@@ -3,14 +3,16 @@ package com.pr0gramm.app.feed;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static rx.schedulers.Schedulers.io;
 
 /**
  * This class handles loading of feed data.
@@ -82,7 +84,7 @@ public class FeedLoader {
 
     private void subscribeTo(Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response) {
         subscription = response
-                .unsubscribeOn(Schedulers.io())
+                .unsubscribeOn(BackgroundScheduler.instance())
                 .compose(binder.bind())
                 .finallyDo(() -> subscription = null)
                 .subscribe(this::merge, binder::onError);

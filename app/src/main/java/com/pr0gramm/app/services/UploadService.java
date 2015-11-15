@@ -9,6 +9,7 @@ import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
@@ -26,7 +27,10 @@ import javax.inject.Singleton;
 import okio.BufferedSink;
 import retrofit.HttpException;
 import rx.Observable;
+import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
+
+import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -98,6 +102,7 @@ public class UploadService {
         api.upload(body)
                 .doOnEach(n -> Track.upload(size))
                 .map(response -> new UploadInfo(response.getKey()))
+                .subscribeOn(BackgroundScheduler.instance())
                 .subscribe(result::onNext, result::onError, result::onCompleted);
 
         return result.ignoreElements().mergeWith(result);
