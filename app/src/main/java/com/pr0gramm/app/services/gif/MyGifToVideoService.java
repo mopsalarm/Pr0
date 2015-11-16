@@ -7,6 +7,7 @@ import com.squareup.okhttp.OkHttpClient;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -64,6 +65,7 @@ public class MyGifToVideoService implements GifToVideoService {
 
     /**
      */
+    @Keep
     @KeepClassMembers
     private static class ConvertResult {
         String path;
