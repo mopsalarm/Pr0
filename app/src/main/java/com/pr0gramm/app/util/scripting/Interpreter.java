@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.functions.FuncN;
 
 /**
@@ -18,7 +20,7 @@ import rx.functions.FuncN;
 public class Interpreter {
     private final ImmutableMap<String, FuncN<Object>> functions;
 
-    public Interpreter(Map<String, FuncN<Object>> functions) {
+    private Interpreter(Map<String, FuncN<Object>> functions) {
         this.functions = ImmutableMap.copyOf(functions);
     }
 
@@ -89,20 +91,35 @@ public class Interpreter {
         return function.call(args.toArray());
     }
 
-    public static final Map<String, FuncN<Object>> DEFAULT_FUNCTIONS = ImmutableMap.<String, FuncN<Object>>builder()
-            .put("not", new UnaryFunction<>("not", Boolean.class, var -> !var))
-            .put("=", new BiFunction<>("=", Object.class, Objects::equal))
-            .put("<", new BiFunction<>("<", Number.class, (a, b) -> a.doubleValue() < b.doubleValue()))
-            .put("<=", new BiFunction<>("<=", Number.class, (a, b) -> a.doubleValue() <= b.doubleValue()))
-            .put(">", new BiFunction<>(">", Number.class, (a, b) -> a.doubleValue() > b.doubleValue()))
-            .put(">=", new BiFunction<>(">=", Number.class, (a, b) -> a.doubleValue() >= b.doubleValue()))
-            .put("or", Functions::or)
-            .put("and", Functions::and)
-            .put("+", Functions::plus)
-            .put("-", Functions::minus)
-            .put("*", Functions::multiply)
-            .put("/", Functions::divide)
-            .build();
+    public static class Builder {
+        private final ImmutableMap.Builder<String, FuncN<Object>> functions = ImmutableMap.<String, FuncN<Object>>builder()
+                .put("not", new UnaryFunction<>("not", Boolean.class, var -> !var))
+                .put("=", new BiFunction<>("=", Object.class, Objects::equal))
+                .put("<", new BiFunction<>("<", Number.class, (a, b) -> a.doubleValue() < b.doubleValue()))
+                .put("<=", new BiFunction<>("<=", Number.class, (a, b) -> a.doubleValue() <= b.doubleValue()))
+                .put(">", new BiFunction<>(">", Number.class, (a, b) -> a.doubleValue() > b.doubleValue()))
+                .put(">=", new BiFunction<>(">=", Number.class, (a, b) -> a.doubleValue() >= b.doubleValue()))
+                .put("or", Functions::or)
+                .put("and", Functions::and)
+                .put("+", Functions::plus)
+                .put("-", Functions::minus)
+                .put("*", Functions::multiply)
+                .put("/", Functions::divide);
+
+        public <T> Builder func(String name, Class<T> clazz, Func1<T, Object> func) {
+            functions.put(name, new UnaryFunction<>(name, clazz, func));
+            return this;
+        }
+
+        public <T> Builder func(String name, Class<T> clazz, Func2<T, T, Object> func) {
+            functions.put(name, new BiFunction<>(name, clazz, func));
+            return this;
+        }
+
+        public Interpreter build() {
+            return new Interpreter(functions.build());
+        }
+    }
 
     public static class Scope {
         private final Map<String, Object> variables;
@@ -124,5 +141,6 @@ public class Interpreter {
             return of(Collections.emptyMap());
         }
     }
+
 
 }

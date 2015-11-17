@@ -32,6 +32,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.ImportantMessageService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
@@ -42,6 +43,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -101,6 +103,9 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Inject
     PermissionHelper permissionHelper;
+
+    @Inject
+    ImportantMessageService messageService;
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -185,6 +190,10 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         addOriginalContentBookmarkOnce();
 
+
+        messageService.messages()
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(def -> logger.info("Message: {}", def.message()));
     }
 
     @Override
