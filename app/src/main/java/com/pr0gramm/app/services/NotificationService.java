@@ -52,6 +52,8 @@ public class NotificationService {
     public static final int NOTIFICATION_PRELOAD_ID = 5002;
     public static final int NOTIFICATION_UPDATE_ID = 5003;
 
+    public static final int NOTIFICATION_IMPORTANT_MESSAGES_OFFSET = 6000;
+
     private final Settings settings;
     private final Application context;
     private final NotificationManagerCompat nm;
@@ -135,7 +137,7 @@ public class NotificationService {
                         .toSortedList(Ordering.natural()));
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(newContentIntent())
+                .setContentIntent(newInboxActivityIntent())
                 .setContentTitle(title)
                 .setContentText(summaryText)
                 .setStyle(inboxStyle)
@@ -163,7 +165,13 @@ public class NotificationService {
         }
     }
 
-    private PendingIntent newContentIntent() {
+
+    public void showImportantMessage(int messageId, Notification notification) {
+        int id = NOTIFICATION_IMPORTANT_MESSAGES_OFFSET + messageId;
+        nm.notify(id, notification);
+    }
+
+    private PendingIntent newInboxActivityIntent() {
         Intent intent = new Intent(context, InboxActivity.class);
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);

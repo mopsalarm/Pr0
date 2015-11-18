@@ -57,7 +57,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
         // if this is the first time we start the media, tell the
         // user about the changes!
-        if (!settings.useSoftwareDecoder() && singleShotService.isFirstTimeInVersion("hint_check_compatibility_settings")) {
+        if (!settings.useSoftwareDecoder() && singleShotService.firstTimeInVersion("hint_check_compatibility_settings")) {
             DialogBuilder.start(getContext())
                     .content(R.string.hint_check_compatibility_if_videos_dont_play)
                     .positive()

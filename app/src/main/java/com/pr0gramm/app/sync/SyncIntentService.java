@@ -9,6 +9,8 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.services.ImportantMessageService;
+import com.pr0gramm.app.services.MessageDefinition;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Update;
@@ -18,6 +20,8 @@ import com.pr0gramm.app.services.UserService;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+
+import rx.functions.Actions;
 
 import static android.support.v4.content.WakefulBroadcastReceiver.completeWakefulIntent;
 import static com.google.common.base.Stopwatch.createStarted;
@@ -45,6 +49,9 @@ public class SyncIntentService extends IntentService {
     @Inject
     UnlockService unlockService;
 
+    @Inject
+    ImportantMessageService messageService;
+
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
     }
@@ -54,15 +61,20 @@ public class SyncIntentService extends IntentService {
         Dagger.appComponent(this).inject(this);
 
         logger.info("Doing some statistics related trackings");
-        if (singleShotService.isFirstTimeToday("track-settings"))
+        if (singleShotService.firstTimeToday("track-settings"))
             statistics(settings, userService.isAuthorized(), unlockService.unlocked());
 
-        if (singleShotService.isFirstTimeToday("background-update-check")) {
+        if (singleShotService.firstTimeToday("background-update-check")) {
             Optional<Update> update = toOptional(new UpdateChecker(this).check());
             if (update.isPresent()) {
                 notificationService.showUpdateNotification(update.get());
             }
         }
+
+        logger.info("Look for important messages.");
+        messageService.messages()
+                .filter(MessageDefinition::notification)
+                .subscribe(def -> messageService.present(this, def), Actions.empty());
 
         logger.info("Performing a sync operation now");
         if (!userService.isAuthorized() || intent == null)

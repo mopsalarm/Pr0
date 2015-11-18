@@ -219,7 +219,7 @@ public class NavigationProvider {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        if (singleShotService.isFirstTimeToday("bookmarksLoaded"))
+        if (singleShotService.firstTimeToday("bookmarksLoaded"))
             Track.bookmarks(entries.size());
 
         boolean premium = userService.isPremiumUser();

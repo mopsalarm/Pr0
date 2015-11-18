@@ -1,5 +1,8 @@
 package com.pr0gramm.app.services;
 
+import android.app.Notification;
+import android.content.Context;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -32,24 +35,19 @@ import rx.Observable;
 public class ImportantMessageService {
     private static final Logger logger = LoggerFactory.getLogger(ImportantMessageService.class);
 
-    private final Interpreter interpreter;
     private final SingleShotService singleShotService;
     private final ApiInterface apiInterface;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     @Inject
     public ImportantMessageService(Gson gson, OkHttpClient httpClient,
-                                   SingleShotService singleShotService, UserService userService) {
+                                   SingleShotService singleShotService, UserService userService,
+                                   NotificationService notificationService) {
 
         this.singleShotService = singleShotService;
         this.userService = userService;
-
-        this.interpreter = new Interpreter.Builder()
-                .func("is-first-time", String.class, this::funcIsFirstTime)
-                .func("is-first-time-today", String.class, this::funcIsFirstTimeToday)
-                .func("is-time-millis-after", Long.class, this::funcIsTimeMillisAfter)
-                .func("is-time-millis-before", Long.class, this::funcIsTimeMillisBefore)
-                .build();
+        this.notificationService = notificationService;
 
         apiInterface = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -60,22 +58,44 @@ public class ImportantMessageService {
                 .create(ApiInterface.class);
     }
 
+    private Interpreter newInterpreter(boolean testing) {
+        return new Interpreter.Builder()
+                .func("is-first-time-by-time-pattern", String.class,
+                        (key, pattern) -> funcIsFirstTimeByTimePattern(testing, key, pattern))
+
+                .func("is-first-time", String.class, key -> funcIsFirstTime(testing, key))
+                .func("is-first-time-today", String.class, key -> funcIsFirstTimeToday(testing, key))
+                .func("is-time-millis-after", Long.class, this::funcIsTimeMillisAfter)
+                .func("is-time-millis-before", Long.class, this::funcIsTimeMillisBefore)
+                .build();
+    }
+
     /**
      * Returns an observable producing messages that are to be shown right now.
      */
     public Observable<MessageDefinition> messages() {
+        if (!singleShotService.firstTimeInHour("check-important-messages"))
+            return Observable.empty();
+
         return userService.loginState()
                 .take(1)
                 .flatMap(loginState -> Observable
                         .from(urls())
-                        .flatMap(url -> apiInterface.get(url)
-                                .doOnError(error -> logger.error("Error while fetching messages: " + error))
+                        .flatMap(url -> apiInterface.get(url + "?_t=" + System.currentTimeMillis())
+                                .doOnNext(list -> logger.info("Got {} messages from {}", list.size(), url))
+                                .doOnError(error -> logger.warn("Error while fetching messages from {}: {}", url, error))
                                 .onErrorResumeNext(Observable.empty()))
                         .flatMap(Observable::from)
-                        .filter(def -> isValidMessageDefinition(loginState, def)));
+                        .filter(def -> {
+                            boolean valid = isValidMessageDefinition(loginState, def);
+                            logger.info("Message {} ({}) {}", def.uniqueId(), def.title(),
+                                    valid ? "accepted" : "rejected");
+
+                            return valid;
+                        }));
     }
 
-    private Interpreter.Scope scope(UserService.LoginState loginState) {
+    private Interpreter.Scope scope(UserService.LoginState loginState, MessageDefinition message) {
         return Interpreter.Scope.of(ImmutableMap.<String, Object>builder()
                 .put("version", BuildConfig.VERSION_CODE)
                 .put("flavor", BuildConfig.FLAVOR)
@@ -85,13 +105,30 @@ public class ImportantMessageService {
                 .put("is-logged-in", loginState.isAuthorized())
                 .put("is-premium-user", userService.isPremiumUser())
                 .put("user-class", varGetUserClass(loginState))
+                .put("user-benis", varGetUserBenis(loginState))
                 .build());
     }
 
-    private boolean isValidMessageDefinition(UserService.LoginState loginState, MessageDefinition definition) {
+    /**
+     * Gets the message key for a message. It is ImportantMessage-[uniqueId]
+     */
+    public static String messageKey(MessageDefinition message) {
+        return "ImportantMessageShown-" + message.uniqueId();
+    }
+
+    public void present(Context context, MessageDefinition message) {
+        if (message.notification()) {
+            Notification notification = message.asNotification(context);
+            notificationService.showImportantMessage(message.uniqueId(), notification);
+        } else {
+            message.asDialog(context).show();
+        }
+    }
+
+    private boolean isValidMessageDefinition(UserService.LoginState loginState, MessageDefinition message) {
         try {
-            Interpreter.Scope scope = scope(loginState);
-            Object result = interpreter.evaluate(scope, definition.condition());
+            Interpreter.Scope scope = scope(loginState, message);
+            Object result = newInterpreter(true).evaluate(scope, message.condition());
             return (boolean) result;
 
         } catch (Exception error) {
@@ -100,9 +137,24 @@ public class ImportantMessageService {
         }
     }
 
+    public void messageAcknowledged(MessageDefinition message) {
+        try {
+            // we just evaluate the message again, but this time we apply all the
+            // testings
+            Interpreter.Scope scope = scope(UserService.LoginState.NOT_AUTHORIZED, message);
+            newInterpreter(false).evaluate(scope, message.condition());
+
+        } catch (Exception error) {
+            AndroidUtility.logToCrashlytics(error);
+        }
+    }
+
     private List<String> urls() {
+        // we use multiple api endpoints to fetch messages
+        // you know, redundancy and stuff :)
         ImmutableList.Builder<String> builder = ImmutableList.<String>builder()
-                .add("https://github.com/mopsalarm/pr0gramm-updates/raw/messages.json")
+                .add("https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master/messages.json")
+                .add("https://mopsalarm.github.io/Pr0/messages.json")
                 .add("http://pr0.wibbly-wobbly.de/messages.json");
 
         if (BuildConfig.DEBUG) {
@@ -113,26 +165,42 @@ public class ImportantMessageService {
     }
 
     private Object varGetUserClass(UserService.LoginState loginState) {
-        if (loginState != null) {
-            return loginState.getInfo().getUser().getMark();
+        return loginState.getInfo() != null ? loginState.getInfo().getUser().getMark() : -1;
+    }
+
+    private long varGetUserBenis(UserService.LoginState loginState) {
+        return loginState.getInfo() != null ? loginState.getInfo().getUser().getScore() : -1;
+    }
+
+    private boolean funcIsFirstTime(boolean testOnly, String key) {
+        if (testOnly) {
+            return singleShotService.test().isFirstTime(key);
         } else {
-            return -1;
+            return singleShotService.isFirstTime(key);
         }
     }
 
-    private Object funcIsFirstTime(String key) {
-        return singleShotService.isFirstTime(key);
+    private boolean funcIsFirstTimeToday(boolean testOnly, String key) {
+        if (testOnly) {
+            return singleShotService.test().firstTimeToday(key);
+        } else {
+            return singleShotService.firstTimeToday(key);
+        }
     }
 
-    private Object funcIsFirstTimeToday(String key) {
-        return singleShotService.isFirstTimeToday(key);
+    private boolean funcIsFirstTimeByTimePattern(boolean testOnly, String key, String pattern) {
+        if (testOnly) {
+            return singleShotService.test().firstTimeByTimePattern(key, pattern);
+        } else {
+            return singleShotService.firstTimeByTimePattern(key, pattern);
+        }
     }
 
-    private Object funcIsTimeMillisAfter(long deadline) {
+    private boolean funcIsTimeMillisAfter(long deadline) {
         return System.currentTimeMillis() > deadline;
     }
 
-    private Object funcIsTimeMillisBefore(long deadline) {
+    private boolean funcIsTimeMillisBefore(long deadline) {
         return System.currentTimeMillis() < deadline;
     }
 

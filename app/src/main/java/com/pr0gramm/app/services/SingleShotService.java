@@ -29,7 +29,9 @@ public class SingleShotService {
     private final SharedPreferences preferences;
     private final Context context;
 
-    private Map<String, String> todayMap;
+    private Map<String, String> timeStringMap;
+
+    private final Object lock = new Object();
 
     @Inject
     public SingleShotService(SharedPreferences preferences, Context context) {
@@ -38,47 +40,104 @@ public class SingleShotService {
     }
 
     public synchronized boolean isFirstTime(String action) {
-        Set<String> actions = new HashSet<>(preferences.getStringSet(
-                KEY_ACTIONS, Collections.<String>emptySet()));
+        synchronized (lock) {
+            Set<String> actions = new HashSet<>(preferences.getStringSet(
+                    KEY_ACTIONS, Collections.<String>emptySet()));
 
-        if (actions.add(action)) {
-            // store modifications
-            preferences.edit().putStringSet(KEY_ACTIONS, actions).apply();
-            return true;
-
-        } else {
-            return false;
+            if (actions.add(action)) {
+                // store modifications
+                preferences.edit().putStringSet(KEY_ACTIONS, actions).apply();
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
-    public boolean isFirstTimeInVersion(String action) {
+    public boolean firstTimeInVersion(String action) {
         int version = AndroidUtility.getPackageVersionCode(context);
         return isFirstTime(action + "--" + version);
     }
 
-    public boolean isFirstTimeToday(String action) {
-        String timeString = DateTime.now().toString(DateTimeFormat.forPattern("YYYY-MM-dd"));
+    public boolean firstTimeToday(String action) {
+        return firstTimeByTimePattern(action, "YYYY-MM-dd");
+    }
+
+    public boolean firstTimeInHour(String action) {
+        return firstTimeByTimePattern(action, "YYYY-MM-dd:HH");
+    }
+
+    public boolean firstTimeByTimePattern(String action, String pattern) {
+        String timeString = DateTime.now().toString(DateTimeFormat.forPattern(pattern));
         return timeStringHasChanged(action, timeString);
     }
 
-    @SuppressWarnings("unchecked")
-    private synchronized boolean timeStringHasChanged(String action, String today) {
-        if (todayMap == null) {
-            todayMap = new HashMap<>(gson.fromJson(
-                    preferences.getString(KEY_MAP_ACTIONS, "{}"),
-                    Map.class));
+    public TestOnlySingleShotService test() {
+        return new TestOnlySingleShotService();
+    }
+
+    public class TestOnlySingleShotService {
+        private TestOnlySingleShotService() {
         }
 
-        if (today.equals(todayMap.get(action))) {
-            return false;
-        } else {
-            todayMap.put(action, today);
+        public boolean isFirstTime(String action) {
+            synchronized (lock) {
+                return preferences
+                        .getStringSet(KEY_ACTIONS, Collections.<String>emptySet())
+                        .contains(action);
+            }
+        }
 
-            preferences.edit()
-                    .putString(KEY_MAP_ACTIONS, gson.toJson(todayMap))
-                    .apply();
+        public boolean firstTimeInVersion(String action) {
+            int version = AndroidUtility.getPackageVersionCode(context);
+            return isFirstTime(action + "--" + version);
+        }
 
-            return true;
+        public boolean firstTimeToday(String action) {
+            return firstTimeByTimePattern(action, "YYYY-MM-dd");
+        }
+
+        public boolean firstTimeInHour(String action) {
+            return firstTimeByTimePattern(action, "YYYY-MM-dd:HH");
+        }
+
+        public boolean firstTimeByTimePattern(String action, String pattern) {
+            String timeString = DateTime.now().toString(DateTimeFormat.forPattern(pattern));
+            return timeStringHasChanged(action, timeString);
+        }
+
+        private boolean timeStringHasChanged(String action, String timeString) {
+            synchronized (lock) {
+                return timeStringMap == null || !timeString.equals(timeStringMap.get(action));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean timeStringHasChanged(String action, String timeString) {
+        synchronized (lock) {
+            if (timeStringMap == null) {
+                try {
+                    timeStringMap = new HashMap<>(gson.fromJson(
+                            preferences.getString(KEY_MAP_ACTIONS, "{}"),
+                            Map.class));
+
+                } catch (RuntimeException ignored) {
+                    timeStringMap = new HashMap<>();
+                }
+            }
+
+            if (timeString.equals(timeStringMap.get(action))) {
+                return false;
+            } else {
+                timeStringMap.put(action, timeString);
+
+                preferences.edit()
+                        .putString(KEY_MAP_ACTIONS, gson.toJson(timeStringMap))
+                        .apply();
+
+                return true;
+            }
         }
     }
 }

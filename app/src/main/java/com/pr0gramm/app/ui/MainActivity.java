@@ -43,7 +43,6 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
-import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -163,7 +162,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             }
         }
 
-        if (singleShotService.isFirstTimeInVersion("changelog")) {
+        if (singleShotService.firstTimeInVersion("changelog")) {
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
 
@@ -174,7 +173,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         //noinspection PointlessBooleanExpression
         if (BuildConfig.IS_PLAYSTORE_RELEASE) {
-            if (singleShotService.isFirstTimeToday("hint_download_open_version")) {
+            if (singleShotService.firstTimeToday("hint_download_open_version")) {
                 DialogBuilder.start(this)
                         .content("Die App ist nun bereits das zweite Mal nach kurzer Zeit aus dem" +
                                 " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
@@ -187,13 +186,12 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         showApiProxyHint();
-
         addOriginalContentBookmarkOnce();
 
 
         messageService.messages()
-                .subscribeOn(BackgroundScheduler.instance())
-                .subscribe(def -> logger.info("Message: {}", def.message()));
+                .compose(bindToLifecycle())
+                .subscribe(def -> messageService.present(this, def), Actions.empty());
     }
 
     @Override
