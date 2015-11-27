@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
+import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
@@ -301,6 +302,10 @@ public class UserService {
             return Optional.absent();
 
         return Optional.fromNullable(loginState.getInfo().getUser());
+    }
+
+    public Observable<AccountInfo> accountInfo() {
+        return api.accountInfo();
     }
 
     public static final class LoginState {

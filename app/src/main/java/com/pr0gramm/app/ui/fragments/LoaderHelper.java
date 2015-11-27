@@ -74,7 +74,7 @@ public abstract class LoaderHelper<T> {
         }
 
         subscription = newObservable()
-                .first()
+                .take(1)
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())

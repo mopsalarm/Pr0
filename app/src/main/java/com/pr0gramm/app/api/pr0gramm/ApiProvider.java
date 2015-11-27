@@ -43,25 +43,21 @@ import rx.Observable;
 public class ApiProvider implements Provider<Api> {
     private static final Logger logger = LoggerFactory.getLogger(ApiProvider.class);
 
-    private final Context context;
-    private final Settings settings;
-    private final OkHttpClient client;
-    private final LoginCookieHandler cookieHandler;
-    private final Api proxy;
-    private final Gson gson;
+    private final Api apiInstance;
 
     @Inject
     public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler, Gson gson) {
-        this.context = context;
-        this.gson = gson;
-        this.settings = Settings.of(context);
-        this.client = client;
-        this.cookieHandler = cookieHandler;
-
-        this.proxy = newProxyWrapper();
+        this.apiInstance = newProxyWrapper(newRestAdapter(context, client, gson), cookieHandler);
     }
 
-    private Api newRestAdapter() {
+    @Override
+    public Api get() {
+        return apiInstance;
+    }
+
+    private static Api newRestAdapter(Context context, OkHttpClient client, Gson gson) {
+        Settings settings = Settings.of(context);
+
         BaseUrl baseUrl = () -> {
             if (BuildConfig.DEBUG && settings.mockApi()) {
                 // activate this to use a mock
@@ -75,18 +71,13 @@ public class ApiProvider implements Provider<Api> {
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(this.client)
+                .client(client)
+                .validateEagerly()
                 .build()
                 .create(Api.class);
     }
 
-    @Override
-    public Api get() {
-        return proxy;
-    }
-
-    private Api newProxyWrapper() {
-        Api backend = newRestAdapter();
+    private static Api newProxyWrapper(Api backend, LoginCookieHandler cookieHandler) {
         // proxy to add the nonce if not provided
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
             Class<?>[] params = method.getParameterTypes();

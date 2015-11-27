@@ -1,5 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm;
 
+import com.pr0gramm.app.api.meta.UserInfo;
+import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
@@ -80,6 +82,9 @@ public interface Api {
 
     @GET("/api/user/sync")
     Observable<Sync> sync(@Query("lastId") long lastId);
+
+    @GET("/api/user/info")
+    Observable<AccountInfo> accountInfo();
 
     @GET("/api/profile/info")
     Observable<Info> info(@Query("name") String name, @Query("flags") Integer flags);

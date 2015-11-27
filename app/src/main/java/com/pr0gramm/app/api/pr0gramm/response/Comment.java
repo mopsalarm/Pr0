@@ -6,7 +6,6 @@ import org.joda.time.Instant;
 
 /**
  */
-@SuppressWarnings("unused")
 @Value.Immutable
 @Gson.TypeAdapters
 public interface Comment {

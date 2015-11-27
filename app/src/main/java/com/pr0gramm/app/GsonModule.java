@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.api.InstantTypeAdapter;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersAccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersInfo;
@@ -51,6 +52,7 @@ public class GsonModule {
             .registerTypeAdapterFactory(new GsonAdaptersPost())
             .registerTypeAdapterFactory(new GsonAdaptersSync())
             .registerTypeAdapterFactory(new GsonAdaptersMessageFeed())
+            .registerTypeAdapterFactory(new GsonAdaptersAccountInfo())
             .registerTypeAdapterFactory(new GsonAdaptersInfo())
             .registerTypeAdapterFactory(new GsonAdaptersUpdate())
             .registerTypeAdapterFactory(new GsonAdaptersMessageDefinition())

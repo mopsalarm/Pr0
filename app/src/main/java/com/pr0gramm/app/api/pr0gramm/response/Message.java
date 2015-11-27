@@ -3,6 +3,7 @@ package com.pr0gramm.app.api.pr0gramm.response;
 import android.support.annotation.Nullable;
 
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.CommentService;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -15,11 +16,11 @@ import org.joda.time.Instant;
 @Value.Style(init = "with*")
 @Gson.TypeAdapters
 public abstract class Message {
-    public abstract int getId();
+    public abstract long getId();
 
     public abstract Instant getCreated();
 
-    public abstract int getItemId();
+    public abstract long getItemId();
 
     public abstract int getMark();
 

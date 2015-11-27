@@ -380,5 +380,6 @@
     <string name="update">Update</string>
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version 1.%s is available.</string>
+    <string name="inbox_type_comment_favorites">k-fav</string>
 </resources>
 

@@ -14,6 +14,7 @@ import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
+import com.pr0gramm.app.ui.fragments.FavedCommentFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PostFragment;
@@ -61,11 +62,13 @@ public interface ActivityComponent {
 
     void inject(UploadActivity.UploadFragment uploadFragment);
 
-    void inject(MessageInboxFragment messageInboxFragment);
+    void inject(MessageInboxFragment fragment);
 
-    void inject(WrittenCommentFragment messageInboxFragment);
+    void inject(WrittenCommentFragment fragment);
 
-    void inject(PrivateMessageInboxFragment privateMessageInboxFragment);
+    void inject(FavedCommentFragment fragment);
+
+    void inject(PrivateMessageInboxFragment fragment);
 
     void inject(DelayedMediaView delayedMediaView);
 
