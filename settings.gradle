@@ -1,1 +1,1 @@
-include ':unlock', ':app'
+include ':app'
