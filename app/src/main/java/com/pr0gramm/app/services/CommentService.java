@@ -23,6 +23,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.TCollections;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import retrofit.GsonConverterFactory;
@@ -153,7 +154,7 @@ public class CommentService {
 
     private void updateAfterChange() {
         // sends the hash set to all the observers
-        favCommentIdsObservable.onNext(new TLongHashSet(favCommentIds));
+        favCommentIdsObservable.onNext(TCollections.unmodifiableSet(new TLongHashSet(favCommentIds)));
     }
 
     private static boolean isUserHashAvailable(String userHash) {

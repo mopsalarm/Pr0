@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 import static butterknife.ButterKnife.findById;
 import static com.google.common.base.Ascii.equalsIgnoreCase;
@@ -51,6 +53,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private boolean prioritizeOpComments;
 
     private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
+    private TLongSet favedComments = new TLongHashSet();
 
     public CommentsAdapter(String selfName) {
         this.selfName = selfName;
@@ -84,6 +87,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             selectedCommentId = id;
             notifyDataSetChanged();
         }
+    }
+
+    public void setFavedComments(TLongSet favedComments) {
+        this.favedComments = favedComments;
     }
 
     public List<Comment> getComments() {
@@ -153,9 +160,16 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
-        view.itemView.setBackgroundColor(ContextCompat.getColor(view.itemView.getContext(), comment.getId() == selectedCommentId
+        Context context = view.itemView.getContext();
+        view.itemView.setBackgroundColor(ContextCompat.getColor(context, comment.getId() == selectedCommentId
                 ? R.color.selected_comment_background
                 : R.color.feed_background));
+
+        if (view.kFav != null) {
+            view.kFav.setTextColor(favedComments.contains(comment.getId())
+                    ? ContextCompat.getColor(context, R.color.primary)
+                    : ContextCompat.getColor(context, R.color.grey_700));
+        }
     }
 
     private int getCommentScore(CommentEntry entry) {
@@ -204,6 +218,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
+        final TextView kFav;
 
         public CommentView(View itemView) {
             super(itemView);
@@ -212,6 +227,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             comment = findById(itemView, R.id.comment);
             vote = ButterKnife.findById(itemView, R.id.voting);
             senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
+            kFav = ButterKnife.findById(itemView, R.id.kfav);
         }
 
         public void setCommentDepth(int depth) {

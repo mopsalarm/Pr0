@@ -9,6 +9,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -20,8 +21,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
  * A plus and a minus sign to handle votes.
  */
 public class VoteView extends LinearLayout {
-    private final Pr0grammFontTextView viewRateUp;
-    private final Pr0grammFontTextView viewRateDown;
+    private final TextView viewRateUp;
+    private final TextView viewRateDown;
     private final Settings settings;
 
     private ColorStateList markedColor;
@@ -84,21 +85,8 @@ public class VoteView extends LinearLayout {
 
         setOrientation(orientation == 1 ? VERTICAL : HORIZONTAL);
 
-        // initialize vote up view
-        viewRateUp = new Pr0grammFontTextView(context);
-        viewRateUp.setText("+");
-        viewRateUp.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        viewRateUp.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        // initialize vote down view.
-        viewRateDown = new Pr0grammFontTextView(context);
-        viewRateDown.setText("-");
-        viewRateDown.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        viewRateDown.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        viewRateUp = newVoteButton(context, textSize, "+");
+        viewRateDown = newVoteButton(context, textSize, "-");
 
         // add views
         addView(viewRateUp);
@@ -117,6 +105,17 @@ public class VoteView extends LinearLayout {
         // register listeners
         viewRateUp.setOnClickListener(v -> triggerUpVoteClicked());
         viewRateDown.setOnClickListener(v -> triggerDownVoteClicked());
+    }
+
+    private TextView newVoteButton(Context context, int textSize, String text) {
+        TextView view = new Pr0grammFontTextView(context);
+        view.setText(text);
+        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        view.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        return view;
     }
 
     public void triggerDownVoteClicked() {

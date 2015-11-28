@@ -48,6 +48,7 @@ import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.parcel.CommentListParceler;
 import com.pr0gramm.app.parcel.TagListParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
+import com.pr0gramm.app.services.CommentService;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
@@ -144,6 +145,9 @@ public class PostFragment extends BaseFragment implements
 
     @Inject
     DownloadService downloadService;
+
+    @Inject
+    CommentService commentService;
 
     @Bind(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -600,6 +604,10 @@ public class PostFragment extends BaseFragment implements
         if (active) {
             onMarkedActive();
         }
+
+        commentService.favedCommentIds()
+                .compose(bindToLifecycle())
+                .subscribe(commentsAdapter::setFavedComments);
     }
 
     @Override

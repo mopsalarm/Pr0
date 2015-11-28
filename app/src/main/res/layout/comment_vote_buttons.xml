@@ -2,6 +2,7 @@
 <com.pr0gramm.app.ui.views.CommentSpacerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="4dp"
@@ -19,10 +20,22 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         app:defaultColor="@color/grey_700"
-        app:markedColor="?colorPrimary"
+        app:markedColor="@color/primary"
         app:orientation="vertical"
         app:spacing="4dp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
+
+    <com.pr0gramm.app.ui.views.Pr0grammFontTextView
+        android:id="@+id/kfav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/voting"
+        android:layout_below="@+id/voting"
+        android:text="*"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/grey_700"
+        android:textSize="@dimen/normal_comment_vote_view_size"
+        tools:ignore="HardcodedText"/>
 
     <include layout="@layout/comment_common"/>
 
