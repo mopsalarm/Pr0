@@ -108,8 +108,6 @@
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_benis_graph_enabled">Benisgraph aktivieren</string>
     <string name="pref_benis_graph_enabled_summary">Der Benisgraph zeigt die Änderungen in deinem Benis in den letzten sieben Tagen.</string>
-    <string name="pref_comment_view_vote_buttons_small">Kleinere Vote-Buttons</string>
-    <string name="pref_comment_view_vote_buttons_small_summary">Wenn du dies aktivierst, werden die Buttons zum Voten von Kommentaren kleiner dargestellt</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
     <string name="pref_fullscreen_zoom_view_summary">Aktiviere diese Einstellung, um Status- und Navigationsleiste in der Zoomansicht zu verstecken.</string>
     <string name="pref_pseudo_changelog">Changelog</string>

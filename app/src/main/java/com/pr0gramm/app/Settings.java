@@ -100,10 +100,6 @@ public class Settings {
         return preferences.getBoolean("pref_double_tap_to_upvote", true);
     }
 
-    public boolean smallerVoteViewsOnComments() {
-        return preferences.getBoolean("pref_comment_view_vote_buttons_small", false);
-    }
-
     public boolean benisGraphEnabled() {
         return preferences.getBoolean("pref_benis_graph_enabled", true);
     }

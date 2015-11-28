@@ -268,12 +268,6 @@
                     android:summary="@string/pref_benis_graph_enabled_summary"
                     android:title="@string/pref_benis_graph_enabled"/>
 
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="pref_comment_view_vote_buttons_small"
-                    android:summary="@string/pref_comment_view_vote_buttons_small_summary"
-                    android:title="@string/pref_comment_view_vote_buttons_small"/>
-
             </PreferenceCategory>
 
         </PreferenceScreen>
