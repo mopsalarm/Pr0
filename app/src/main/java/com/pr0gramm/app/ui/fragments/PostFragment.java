@@ -245,6 +245,7 @@ public class PostFragment extends BaseFragment implements
         commentsAdapter = new CommentsAdapter(userService.getName().or(""));
         commentsAdapter.setCommentActionListener(this);
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
+        commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
         adapter.addAdapter(commentsAdapter);
 
         scrollHandler = new ScrollHandler(activity);

@@ -53,6 +53,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
     private TLongSet favedComments = new TLongHashSet();
+    private boolean showFavCommentButton;
 
     public CommentsAdapter(String selfName) {
         this.selfName = selfName;
@@ -72,6 +73,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }).toList();
 
         notifyDataSetChanged();
+    }
+
+    public void setShowFavCommentButton(boolean showFavCommentButton) {
+        this.showFavCommentButton = showFavCommentButton;
     }
 
     public void setPrioritizeOpComments(boolean enabled) {
@@ -159,15 +164,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 : R.color.feed_background));
 
         if (view.kFav != null) {
-            boolean isFavorite = favedComments.contains(comment.getId());
+            if (showFavCommentButton) {
+                boolean isFavorite = favedComments.contains(comment.getId());
 
-            view.kFav.setTextColor(isFavorite
-                    ? ContextCompat.getColor(context, R.color.primary)
-                    : ContextCompat.getColor(context, R.color.grey_700));
+                view.kFav.setTextColor(isFavorite
+                        ? ContextCompat.getColor(context, R.color.primary)
+                        : ContextCompat.getColor(context, R.color.grey_700));
 
-            view.kFav.setOnClickListener(v -> {
-                commentActionListener.onCommentMarkAsFavoriteClicked(comment, !isFavorite);
-            });
+                view.kFav.setVisibility(View.VISIBLE);
+                view.kFav.setOnClickListener(v -> {
+                    commentActionListener.onCommentMarkAsFavoriteClicked(comment, !isFavorite);
+                });
+            } else {
+                view.kFav.setVisibility(View.GONE);
+            }
         }
     }
 

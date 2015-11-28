@@ -1,5 +1,14 @@
 [
   {
+    "version": 80,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "WIP: Kommentare können nun favorisiert werden. Design ist leider noch nicht richtig 'hübsch'. Vorschläge? Kann auch mit dem Browser mittels Userscript synchronisiert werden."
+      }
+    ]
+  },
+  {
     "version": 79,
     "changes": [
       {
