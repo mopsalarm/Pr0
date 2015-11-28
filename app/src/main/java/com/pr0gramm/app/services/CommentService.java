@@ -16,12 +16,15 @@ import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
@@ -32,6 +35,9 @@ import retrofit.http.PUT;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
+
+import static com.google.common.collect.Lists.transform;
 
 /**
  */
@@ -42,6 +48,8 @@ public class CommentService {
 
     private final HttpInterface api;
     private final Observable<String> userHash;
+    private final TLongSet favCommentIds = new TLongHashSet();
+    private final BehaviorSubject<TLongSet> favCommentIdsObservable = BehaviorSubject.create(new TLongHashSet());
 
     @Inject
     public CommentService(UserService userService, OkHttpClient okHttpClient) {
@@ -72,10 +80,45 @@ public class CommentService {
                 .onErrorResumeNext(Observable.empty())
                 .replay(1)
                 .autoConnect();
+
+        // update comments when the login state changes
+        userHash
+                .switchMap(userHash -> userHash == null
+                        ? Observable.just(Collections.<FavedComment>emptyList())
+                        : list(EnumSet.allOf(ContentType.class)))
+
+                .onErrorResumeNext(Observable.<List<FavedComment>>empty())
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(comments -> {
+                    updateCommentIds(new TLongHashSet(transform(comments, FavedComment::id)));
+                });
+    }
+
+    private void updateCommentIds(TLongHashSet commentIds) {
+        logger.info("updating comment cache, setting {} comments", commentIds.size());
+
+        synchronized (favCommentIds) {
+            favCommentIds.clear();
+            favCommentIds.addAll(commentIds);
+            updateAfterChange();
+        }
+    }
+
+    public boolean isFavedComment(long commentId) {
+        return favCommentIds.contains(commentId);
+    }
+
+    public Observable<TLongSet> favedCommentIds() {
+        return favCommentIdsObservable.asObservable();
     }
 
     public Observable<Void> save(FavedComment comment) {
         logger.info("save comment-fav with id {}", comment.id());
+
+        synchronized (favCommentIds) {
+            if (favCommentIds.add(comment.id()))
+                updateAfterChange();
+        }
 
         return userHash
                 .filter(CommentService::isUserHashAvailable)
@@ -96,11 +139,21 @@ public class CommentService {
     public Observable<Void> delete(long commentId) {
         logger.info("delete comment-fav with id {}", commentId);
 
+        synchronized (favCommentIds) {
+            if (favCommentIds.remove(commentId))
+                updateAfterChange();
+        }
+
         return userHash
                 .filter(CommentService::isUserHashAvailable)
                 .take(1)
                 .flatMap(hash -> api.delete(hash, commentId))
                 .ignoreElements();
+    }
+
+    private void updateAfterChange() {
+        // sends the hash set to all the observers
+        favCommentIdsObservable.onNext(new TLongHashSet(favCommentIds));
     }
 
     private static boolean isUserHashAvailable(String userHash) {

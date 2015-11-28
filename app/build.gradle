@@ -173,6 +173,7 @@ dependencies {
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.squareup.sqlbrite:sqlbrite:0.4.1'
     compile "com.infstory:proguard-annotations:1.0.2"
+    compile 'net.sf.trove4j:trove4j:3.0.3'
 
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
