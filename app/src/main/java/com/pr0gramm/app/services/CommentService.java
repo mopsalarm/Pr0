@@ -37,6 +37,7 @@ import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 import static com.google.common.collect.Lists.transform;
 
@@ -51,6 +52,7 @@ public class CommentService {
     private final Observable<String> userHash;
     private final TLongSet favCommentIds = new TLongHashSet();
     private final BehaviorSubject<TLongSet> favCommentIdsObservable = BehaviorSubject.create(new TLongHashSet());
+    private final PublishSubject<String> forceUpdateUserHash = PublishSubject.create();
 
     @Inject
     public CommentService(UserService userService, OkHttpClient okHttpClient) {
@@ -84,9 +86,10 @@ public class CommentService {
 
         // update comments when the login state changes
         userHash
+                .mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
                 .switchMap(userHash -> userHash == null
                         ? Observable.just(Collections.<FavedComment>emptyList())
-                        : list(EnumSet.allOf(ContentType.class)))
+                        : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))))
 
                 .onErrorResumeNext(Observable.<List<FavedComment>>empty())
                 .subscribeOn(BackgroundScheduler.instance())
@@ -131,6 +134,9 @@ public class CommentService {
     public Observable<List<FavedComment>> list(EnumSet<ContentType> contentType) {
         int flags = ContentType.combine(contentType);
 
+        // update cache too
+        updateCache();
+
         return userHash
                 .filter(CommentService::isUserHashAvailable)
                 .take(1)
@@ -159,6 +165,10 @@ public class CommentService {
 
     private static boolean isUserHashAvailable(String userHash) {
         return userHash != null;
+    }
+
+    public void updateCache() {
+        userHash.take(1).subscribe(forceUpdateUserHash::onNext);
     }
 
     private interface HttpInterface {

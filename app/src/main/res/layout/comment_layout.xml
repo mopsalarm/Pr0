@@ -22,22 +22,42 @@
         app:defaultColor="@color/grey_700"
         app:markedColor="@color/primary"
         app:orientation="vertical"
-        app:spacing="4dp"
+        app:spacing="4sp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
 
     <com.pr0gramm.app.ui.views.Pr0grammFontTextView
         android:id="@+id/kfav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/voting"
-        android:layout_below="@+id/voting"
+        android:layout_alignParentRight="true"
         android:text="*"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:textColor="@color/grey_700"
-        android:textSize="@dimen/normal_comment_vote_view_size"
+        android:textSize="20sp"
+        android:background="?selectableItemBackgroundBorderless"
         tools:ignore="HardcodedText"/>
 
-    <include layout="@layout/comment_common"/>
+    <TextView
+        style="@style/Base.TextAppearance.AppCompat.Body1"
+        android:id="@+id/comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="8dp"
+        android:layout_toRightOf="@+id/voting"
+        android:layout_toLeftOf="@+id/kfav"
+        android:layout_alignWithParentIfMissing="true"
+        android:textIsSelectable="true"
+        tools:text="@string/dummy_text"/>
+
+    <com.pr0gramm.app.ui.views.SenderInfoView
+        layout="@layout/sender_info"
+        android:id="@+id/sender_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/comment"
+        android:layout_below="@+id/comment"
+        android:layout_marginTop="2dp"/>
 
 </com.pr0gramm.app.ui.views.CommentSpacerView>
 

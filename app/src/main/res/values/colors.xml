@@ -287,6 +287,8 @@
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>
 
+    <color name="feed_background_alpha">#a0161618</color>
+
     <color name="tag_background">#2A2E31</color>
     <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>

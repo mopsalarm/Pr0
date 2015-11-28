@@ -50,6 +50,7 @@ import com.pr0gramm.app.parcel.TagListParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.CommentService;
 import com.pr0gramm.app.services.DownloadService;
+import com.pr0gramm.app.services.ImmutableFavedComment;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
@@ -1032,6 +1033,30 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onCommentAuthorClicked(Comment comment) {
         onUserClicked(comment.getName());
+    }
+
+    @Override
+    public void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite) {
+        Observable<Void> result;
+        if (markAsFavorite) {
+            result = commentService.save(ImmutableFavedComment.builder()
+                    .id(comment.getId())
+                    .name(comment.getName())
+                    .content(comment.getContent())
+                    .created(comment.getCreated())
+                    .up(comment.getUp())
+                    .down(comment.getDown())
+                    .mark(comment.getMark())
+                    .thumb(feedItem.getThumb())
+                    .itemId(feedItem.getId())
+                    .flags(feedItem.getFlags())
+                    .build());
+        } else {
+            result = commentService.delete(comment.getId());
+        }
+
+        result.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                .subscribe(Actions.empty(), defaultOnError());
     }
 
     @Override

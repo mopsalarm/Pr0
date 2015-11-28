@@ -89,7 +89,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public void setFavedComments(TLongSet favedComments) {
-        this.favedComments = favedComments;
+        boolean hasChanged = !this.favedComments.equals(favedComments);
+        if (hasChanged) {
+            this.favedComments = favedComments;
+            notifyDataSetChanged();
+        }
     }
 
     public List<Comment> getComments() {
@@ -100,7 +104,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
         return new CommentView(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.comment_vote_buttons, parent, false));
+                .inflate(R.layout.comment_layout, parent, false));
     }
 
     @Override
@@ -155,9 +159,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 : R.color.feed_background));
 
         if (view.kFav != null) {
-            view.kFav.setTextColor(favedComments.contains(comment.getId())
+            boolean isFavorite = favedComments.contains(comment.getId());
+
+            view.kFav.setTextColor(isFavorite
                     ? ContextCompat.getColor(context, R.color.primary)
                     : ContextCompat.getColor(context, R.color.grey_700));
+
+            view.kFav.setOnClickListener(v -> {
+                commentActionListener.onCommentMarkAsFavoriteClicked(comment, !isFavorite);
+            });
         }
     }
 
@@ -231,6 +241,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         void onAnswerClicked(Comment comment);
 
         void onCommentAuthorClicked(Comment comment);
+
+        void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite);
     }
 
     /**

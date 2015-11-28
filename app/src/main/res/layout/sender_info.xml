@@ -5,7 +5,7 @@
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
        android:orientation="vertical"
-       tools:showIn="@layout/comment_common">
+       tools:showIn="@layout/comment_layout">
 
     <LinearLayout
         android:id="@+id/username_container"
