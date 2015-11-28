@@ -23,7 +23,7 @@ import static java.lang.System.identityHashCode;
 /**
  */
 public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatus> {
-    private static final Logger logger = LoggerFactory.getLogger(GifLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger("GifLoader");
 
     private final Downloader downloader;
     private final File temporaryPath;

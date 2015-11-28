@@ -24,7 +24,7 @@ import javax.inject.Inject;
 /**
  */
 public class SearchUserDialog extends BaseDialogFragment {
-    private static final Logger logger = LoggerFactory.getLogger(SearchUserDialog.class);
+    private static final Logger logger = LoggerFactory.getLogger("SearchUserDialog");
 
     private TextInputLayout inputView;
 

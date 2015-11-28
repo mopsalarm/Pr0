@@ -33,7 +33,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDial
  * Global application class for pr0gramm app.
  */
 public class Pr0grammApplication extends SugarApp {
-    private static final Logger logger = LoggerFactory.getLogger(Pr0grammApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger("Pr0grammApplication");
 
     final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
             .appModule(new AppModule(this))

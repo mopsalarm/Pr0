@@ -26,7 +26,7 @@ import butterknife.ButterKnife;
 /**
  */
 public class NewTagDialogFragment extends BaseDialogFragment {
-    private static final Logger logger = LoggerFactory.getLogger(NewTagDialogFragment.class);
+    private static final Logger logger = LoggerFactory.getLogger("NewTagDialogFragment");
 
     private MultiAutoCompleteTextView tagInput;
 

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  */
 public class TagInputView {
-    private static final Logger logger = LoggerFactory.getLogger(TagInputView.class);
+    private static final Logger logger = LoggerFactory.getLogger("TagInputView");
 
     private TagInputView() {
     }

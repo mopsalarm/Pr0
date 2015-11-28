@@ -34,7 +34,7 @@ import static java.lang.Math.max;
  * Represents a feed.
  */
 public class Feed {
-    private static final Logger logger = LoggerFactory.getLogger(Feed.class);
+    private static final Logger logger = LoggerFactory.getLogger("Feed");
     public static final String FEED_FIELD_FILTER = "filter";
     public static final String FEED_FIELD_ITEMS = "items";
     public static final String FEED_FIELD_CONTENT_TYPE = "contentType";

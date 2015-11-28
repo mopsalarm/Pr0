@@ -29,23 +29,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.functions.Action1;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Stopwatch.createStarted;
 import static com.google.common.collect.Lists.transform;
-import static com.pr0gramm.app.orm.CachedVote.Type;
 import static com.pr0gramm.app.orm.CachedVote.Type.ITEM;
 import static com.pr0gramm.app.orm.CachedVote.find;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
 @Singleton
 public class VoteService {
-    private static final Logger logger = LoggerFactory.getLogger(VoteService.class);
+    private static final Logger logger = LoggerFactory.getLogger("VoteService");
 
     private final Api api;
 

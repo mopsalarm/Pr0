@@ -21,7 +21,7 @@ import static com.google.common.collect.Iterables.filter;
  * This should prevent further out of memory errors.
  */
 public class GuavaPicassoCache implements Cache {
-    private static final Logger logger = LoggerFactory.getLogger(GuavaPicassoCache.class);
+    private static final Logger logger = LoggerFactory.getLogger("GuavaPicassoCache");
     private static final long MAX_CACHE_ITEM_SIZE = 128 * 128 * 4;
 
     private final com.google.common.cache.Cache<String, Bitmap> cache;

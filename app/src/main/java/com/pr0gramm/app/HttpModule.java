@@ -35,7 +35,7 @@ import dagger.Provides;
  */
 @Module
 public class HttpModule {
-    private static final Logger logger = LoggerFactory.getLogger(HttpModule.class);
+    private static final Logger logger = LoggerFactory.getLogger("HttpModule");
 
     @Provides
     @Singleton
@@ -55,7 +55,7 @@ public class HttpModule {
 
         client.setProxySelector(settings.useApiProxy() ? new CustomProxySelector() : null);
 
-        final Logger logger = LoggerFactory.getLogger(OkHttpClient.class);
+        final Logger logger = LoggerFactory.getLogger("OkHttpClient");
         client.networkInterceptors().add(chain -> {
             Stopwatch watch = Stopwatch.createStarted();
             Request request = chain.request();

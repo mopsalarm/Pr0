@@ -44,7 +44,7 @@ import static org.joda.time.Duration.standardDays;
  */
 @Singleton
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger("UserService");
 
     private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
     private static final String KEY_LAST_USER_INFO = "UserService.lastUserInfo";

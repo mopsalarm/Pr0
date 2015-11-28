@@ -40,7 +40,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 /**
  */
 public class PostPagerFragment extends BaseFragment {
-    private static final Logger logger = LoggerFactory.getLogger(PostPagerFragment.class);
+    private static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";

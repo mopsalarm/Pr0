@@ -25,7 +25,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class SeenService {
-    private static final Logger logger = LoggerFactory.getLogger(SeenService.class);
+    private static final Logger logger = LoggerFactory.getLogger("SeenService");
 
     private final Object lock = new Object();
     private final SettableFuture<ByteBuffer> buffer = SettableFuture.create();

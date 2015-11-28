@@ -42,7 +42,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
 public class ZoomViewActivity extends BaseAppCompatActivity {
-    private static final Logger logger = LoggerFactory.getLogger(ZoomViewActivity.class);
+    private static final Logger logger = LoggerFactory.getLogger("ZoomViewActivity");
     private int maximumBitmapHeight;
     private int maximumBitmapWidth;
 

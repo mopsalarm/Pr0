@@ -15,7 +15,7 @@ import java.util.List;
 /**
  */
 public class CustomProxySelector extends ProxySelector {
-    private static final Logger logger = LoggerFactory.getLogger(CustomProxySelector.class);
+    private static final Logger logger = LoggerFactory.getLogger("CustomProxySelector");
 
     @Override
     public List<Proxy> select(URI uri) {

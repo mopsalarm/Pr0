@@ -25,7 +25,7 @@ import static com.pr0gramm.app.util.AndroidUtility.logToCrashlytics;
  * This dialog fragment shows and error to the user.
  */
 public class ErrorDialogFragment extends DialogFragment {
-    private static final Logger logger = LoggerFactory.getLogger(ErrorDialogFragment.class);
+    private static final Logger logger = LoggerFactory.getLogger("ErrorDialogFragment");
 
     private static WeakReference<OnErrorDialogHandler> GLOBAL_ERROR_DIALOG_HANDLER;
     private static WeakReference<Throwable> PREVIOUS_ERROR = new WeakReference<>(null);

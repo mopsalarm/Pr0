@@ -41,7 +41,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  */
 public class ShareProvider extends ContentProvider {
-    private static final Logger logger = LoggerFactory.getLogger(ShareProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger("ShareProvider");
 
     @Inject
     OkHttpClient httpClient;

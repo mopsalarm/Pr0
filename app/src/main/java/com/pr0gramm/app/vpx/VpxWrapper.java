@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  */
 class VpxWrapper implements Closeable {
-    private static final Logger logger = LoggerFactory.getLogger(VpxWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger("VpxWrapper");
     private final long vpx;
     private boolean closed;
 

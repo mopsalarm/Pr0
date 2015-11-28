@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 /**
  */
 public class OptionMenuHelper {
-    private static final Logger logger = LoggerFactory.getLogger(OptionMenuHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger("OptionMenuHelper");
     private OptionMenuHelper() {
     }
 

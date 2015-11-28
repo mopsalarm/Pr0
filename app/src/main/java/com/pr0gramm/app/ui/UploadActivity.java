@@ -63,17 +63,15 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.Scheduler;
 import rx.util.async.Async;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
 public class UploadActivity extends BaseAppCompatActivity {
-    private static final Logger logger = LoggerFactory.getLogger(UploadActivity.class);
+    private static final Logger logger = LoggerFactory.getLogger("UploadActivity");
 
     @Inject
     UploadService uploadService;

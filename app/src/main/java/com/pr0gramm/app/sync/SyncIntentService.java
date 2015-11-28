@@ -27,12 +27,11 @@ import static android.support.v4.content.WakefulBroadcastReceiver.completeWakefu
 import static com.google.common.base.Stopwatch.createStarted;
 import static com.pr0gramm.app.services.Track.statistics;
 import static com.pr0gramm.app.util.AndroidUtility.toOptional;
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  */
 public class SyncIntentService extends IntentService {
-    private static final Logger logger = getLogger(SyncIntentService.class);
+    private static final Logger logger = LoggerFactory.getLogger("SyncIntentService");
 
     @Inject
     UserService userService;

@@ -33,7 +33,7 @@ import rx.Observable;
  */
 @Singleton
 public class ImportantMessageService {
-    private static final Logger logger = LoggerFactory.getLogger(ImportantMessageService.class);
+    private static final Logger logger = LoggerFactory.getLogger("ImportantMessageService");
 
     private final SingleShotService singleShotService;
     private final ApiInterface apiInterface;

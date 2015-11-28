@@ -48,7 +48,7 @@ import static org.joda.time.Minutes.minutes;
  * This service handles preloading and resolving of preloaded images.
  */
 public class PreloadService extends IntentService {
-    private static final Logger logger = LoggerFactory.getLogger(PreloadService.class);
+    private static final Logger logger = LoggerFactory.getLogger("PreloadService");
     private static final String EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems";
     private static final String EXTRA_CANCEL = "PreloadService.cancel";
 

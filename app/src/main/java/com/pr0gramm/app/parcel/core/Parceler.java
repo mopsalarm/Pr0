@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  */
 public abstract class Parceler<T> implements Parcelable {
-    private static final Logger logger = LoggerFactory.getLogger(Parceler.class);
+    private static final Logger logger = LoggerFactory.getLogger("Parceler");
 
     private final T value;
 

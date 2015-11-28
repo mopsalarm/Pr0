@@ -14,7 +14,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class UnlockService {
-    private static final Logger logger = LoggerFactory.getLogger(UnlockService.class);
+    private static final Logger logger = LoggerFactory.getLogger("UnlockService");
 
     private final Context context;
 

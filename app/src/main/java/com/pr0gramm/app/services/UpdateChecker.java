@@ -24,10 +24,7 @@ import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.http.GET;
 import rx.Observable;
-import rx.Scheduler;
 import rx.util.async.Async;
-
-import static rx.schedulers.Schedulers.io;
 
 /**
  * Class to perform an update check.
@@ -35,7 +32,7 @@ import static rx.schedulers.Schedulers.io;
 public class UpdateChecker {
     public static final String KEY_DOWNLOAD_ID = "UpdateChecker.downloadId";
 
-    private static final Logger logger = LoggerFactory.getLogger(UpdateChecker.class);
+    private static final Logger logger = LoggerFactory.getLogger("UpdateChecker");
 
     private final int currentVersion;
     private final ImmutableList<String> endpoints;

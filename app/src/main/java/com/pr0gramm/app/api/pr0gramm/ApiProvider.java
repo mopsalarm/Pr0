@@ -41,7 +41,7 @@ import rx.Observable;
  */
 @Singleton
 public class ApiProvider implements Provider<Api> {
-    private static final Logger logger = LoggerFactory.getLogger(ApiProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger("ApiProvider");
 
     private final Api apiInstance;
 

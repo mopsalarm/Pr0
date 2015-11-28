@@ -21,7 +21,7 @@ import static org.joda.time.Duration.standardMinutes;
 /**
  */
 public class SyncBroadcastReceiver extends WakefulBroadcastReceiver {
-    private static final Logger logger = LoggerFactory.getLogger(SyncBroadcastReceiver.class);
+    private static final Logger logger = LoggerFactory.getLogger("SyncBroadcastReceiver");
 
     private static final long DEFAULT_SYNC_DELAY = standardMinutes(5).getMillis();
 

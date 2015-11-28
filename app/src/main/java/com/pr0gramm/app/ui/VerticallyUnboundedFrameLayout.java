@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  */
 public class VerticallyUnboundedFrameLayout extends FrameLayout {
-    private static final Logger logger = LoggerFactory.getLogger(VerticallyUnboundedFrameLayout.class);
+    private static final Logger logger = LoggerFactory.getLogger("VerticallyUnboundedFrameLayout");
 
     public VerticallyUnboundedFrameLayout(Context context) {
         super(context);

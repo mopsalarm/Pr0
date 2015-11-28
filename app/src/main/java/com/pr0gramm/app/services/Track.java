@@ -20,7 +20,7 @@ import rx.functions.Action1;
  * opt-out in the applications settings.
  */
 public final class Track {
-    private static final Logger logger = LoggerFactory.getLogger(Track.class);
+    private static final Logger logger = LoggerFactory.getLogger("Track");
 
     private Track() {
     }

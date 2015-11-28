@@ -15,7 +15,7 @@ import java.util.List;
  * It "works" but it is not nice, I guess.
  */
 public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
-    private static final Logger logger = LoggerFactory.getLogger(TagCloudLayoutManager.class);
+    private static final Logger logger = LoggerFactory.getLogger("TagCloudLayoutManager");
 
     private static final int MAX_NUMBER_OF_ROWS = 3;
 

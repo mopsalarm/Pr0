@@ -31,7 +31,7 @@ import rx.Observable;
  */
 @Singleton
 public class DatabasePreloadManager implements PreloadManager {
-    private static final Logger logger = LoggerFactory.getLogger(DatabasePreloadManager.class);
+    private static final Logger logger = LoggerFactory.getLogger("DatabasePreloadManager");
 
     private static final String TABLE_NAME = "preload_2";
     private static final String QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME;

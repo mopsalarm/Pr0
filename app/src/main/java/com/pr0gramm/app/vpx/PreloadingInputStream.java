@@ -18,7 +18,7 @@ import okio.Buffer;
 /**
  */
 public class PreloadingInputStream extends InputStream {
-    private static final Logger logger = LoggerFactory.getLogger(PreloadingInputStream.class);
+    private static final Logger logger = LoggerFactory.getLogger("PreloadingInputStream");
     private static final int CACHE_SIZE = 256 * 1024;
 
     private final Buffer cache = new Buffer();

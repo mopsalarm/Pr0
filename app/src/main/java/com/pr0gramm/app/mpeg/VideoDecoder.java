@@ -13,7 +13,7 @@ import java.util.Arrays;
  */
 @SuppressWarnings("unused")
 public class VideoDecoder {
-    private static final Logger logger = LoggerFactory.getLogger(VideoDecoder.class);
+    private static final Logger logger = LoggerFactory.getLogger("VideoDecoder");
 
     private final InputBitStream stream;
     private final VideoConsumer consumer;

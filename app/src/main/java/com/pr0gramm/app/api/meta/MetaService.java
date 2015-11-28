@@ -34,7 +34,7 @@ import rx.Observable;
  */
 @Singleton
 public class MetaService {
-    private static final Logger logger = LoggerFactory.getLogger(MetaService.class);
+    private static final Logger logger = LoggerFactory.getLogger("MetaService");
     private final Api api;
 
     @Inject

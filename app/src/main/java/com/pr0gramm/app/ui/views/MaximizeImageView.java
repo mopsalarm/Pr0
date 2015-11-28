@@ -16,7 +16,7 @@ import pl.droidsonroids.gif.GifImageView;
 /**
  */
 public class MaximizeImageView extends GifImageView {
-    private static final Logger logger = LoggerFactory.getLogger(MaximizeImageView.class);
+    private static final Logger logger = LoggerFactory.getLogger("MaximizeImageView");
 
     public MaximizeImageView(Context context) {
         super(context);

@@ -46,7 +46,7 @@ import static com.google.common.collect.Iterables.limit;
  */
 @Singleton
 public class NotificationService {
-    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+    private static final Logger logger = LoggerFactory.getLogger("NotificationService");
 
     public static final int NOTIFICATION_NEW_MESSAGE_ID = 5001;
     public static final int NOTIFICATION_PRELOAD_ID = 5002;

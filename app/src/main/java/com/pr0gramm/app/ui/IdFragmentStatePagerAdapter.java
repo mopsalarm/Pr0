@@ -32,7 +32,7 @@ import static com.google.common.collect.Iterators.removeIf;
  * @see android.support.v4.app.FragmentStatePagerAdapter
  */
 public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(IdFragmentStatePagerAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger("IdFragmentStatePagerAdapter");
 
     private static final String TAG = "MyFrgmntStatePgrAdapter";
     private static final boolean DEBUG = false;

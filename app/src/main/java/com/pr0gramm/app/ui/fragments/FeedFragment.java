@@ -113,7 +113,7 @@ import static java.util.Collections.emptyList;
 /**
  */
 public class FeedFragment extends BaseFragment {
-    private static final Logger logger = LoggerFactory.getLogger(FeedFragment.class);
+    private static final Logger logger = LoggerFactory.getLogger("FeedFragment");
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";

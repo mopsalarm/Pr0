@@ -37,7 +37,7 @@ import java.io.IOException;
  * Stripped down version of {@link android.widget.VideoView}.
  */
 public class CustomVideoView extends AspectLayout {
-    private static final Logger logger = LoggerFactory.getLogger(CustomVideoView.class);
+    private static final Logger logger = LoggerFactory.getLogger("CustomVideoView");
 
     // settable by the client
     private Uri mUri;

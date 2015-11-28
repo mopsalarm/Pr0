@@ -31,7 +31,7 @@ import static java.util.Arrays.asList;
  */
 @Singleton
 public class LoginCookieHandler extends CookieHandler {
-    private static final Logger logger = LoggerFactory.getLogger(LoginCookieHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger("LoginCookieHandler");
 
     private static final String PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue";
 

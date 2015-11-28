@@ -26,7 +26,7 @@ import rx.Observable;
  */
 @Singleton
 public class FeedService {
-    private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
+    private static final Logger logger = LoggerFactory.getLogger("FeedService");
 
     private final Api mainApi;
     private final ExtraCategoryApi categoryApi;

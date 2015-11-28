@@ -37,7 +37,7 @@ import static rx.Observable.combineLatest;
  */
 @ContextSingleton
 public class NavigationProvider {
-    private static final Logger logger = LoggerFactory.getLogger(NavigationProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger("NavigationProvider");
 
     private final Context context;
     private final UserService userService;
