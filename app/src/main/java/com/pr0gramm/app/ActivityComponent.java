@@ -29,11 +29,9 @@ import com.pr0gramm.app.ui.views.viewer.ProxyMediaView;
 import com.pr0gramm.app.ui.views.viewer.SoftwareVideoMediaView;
 import com.pr0gramm.app.ui.views.viewer.VideoMediaView;
 
-import javax.inject.Singleton;
-
 import dagger.Subcomponent;
 
-@Singleton
+@ContextSingleton
 @Subcomponent(modules = {ActivityModule.class})
 public interface ActivityComponent {
     void inject(FeedbackActivity feedbackActivity);
