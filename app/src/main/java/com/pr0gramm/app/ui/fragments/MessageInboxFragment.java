@@ -34,9 +34,13 @@ public class MessageInboxFragment extends InboxFragment<Message> {
         if (adapter instanceof MessageAdapter) {
             ((MessageAdapter) adapter).setMessages(messages);
         } else {
-            recyclerView.setAdapter(new MessageAdapter(
-                    getActivity(), messages, actionListener, R.layout.row_inbox_message));
+            recyclerView.setAdapter(newMessageAdapter(messages));
         }
+    }
+
+    protected MessageAdapter newMessageAdapter(List<Message> messages) {
+        return new MessageAdapter(
+                getActivity(), messages, actionListener, R.layout.row_inbox_message);
     }
 
     /**

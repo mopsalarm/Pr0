@@ -94,6 +94,10 @@ public class MessageView extends RelativeLayout {
     }
 
     public void update(Message message, @Nullable String name) {
+        update(message, name, PointsVisibility.CONDITIONAL);
+    }
+
+    public void update(Message message, @Nullable String name, PointsVisibility pointsVisibility) {
         // set the type. if we have an item, we  have a comment
         boolean isComment = message.getItemId() != 0;
         if (type != null) {
@@ -125,10 +129,12 @@ public class MessageView extends RelativeLayout {
         sender.setSenderName(message.getName(), message.getMark());
         sender.setDate(message.getCreated());
 
-        if (isComment && !visible) {
-            sender.setPointsUnknown();
-        } else if (isComment) {
-            sender.setPoints(message.getScore());
+        if (pointsVisibility != PointsVisibility.NEVER && isComment) {
+            if(pointsVisibility == PointsVisibility.ALWAYS || visible) {
+                sender.setPoints(message.getScore());
+            } else {
+                sender.setPointsUnknown();
+            }
         } else {
             sender.hidePointView();
         }
@@ -145,5 +151,9 @@ public class MessageView extends RelativeLayout {
 
         int color = ColorGenerator.MATERIAL.getColor(message.getSenderId());
         return textShapeBuilder.get().buildRect(text.toString(), color);
+    }
+
+    public enum PointsVisibility {
+        ALWAYS, CONDITIONAL, NEVER
     }
 }

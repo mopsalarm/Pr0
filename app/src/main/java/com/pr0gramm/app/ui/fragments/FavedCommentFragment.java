@@ -5,6 +5,8 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.services.CommentService;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.MessageAdapter;
+import com.pr0gramm.app.ui.MessageView;
 
 import java.util.List;
 
@@ -31,6 +33,13 @@ public class FavedCommentFragment extends MessageInboxFragment {
                     .list(settings.getContentType())
                     .map(comments -> transform(comments, CommentService::commentToMessage));
         });
+    }
+
+    @Override
+    protected MessageAdapter newMessageAdapter(List<Message> messages) {
+        MessageAdapter adapter = super.newMessageAdapter(messages);
+        adapter.setPointsVisibility(MessageView.PointsVisibility.NEVER);
+        return adapter;
     }
 
     @Override

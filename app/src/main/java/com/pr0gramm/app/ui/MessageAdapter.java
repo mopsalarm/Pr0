@@ -26,6 +26,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Nullable
     private final String userName;
+    private MessageView.PointsVisibility pointsVisibility = MessageView.PointsVisibility.CONDITIONAL;
 
     public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener, int layout) {
         this.context = context;
@@ -64,7 +65,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         MessageView view = holder.view;
-        view.update(message, userName);
+        view.update(message, userName, pointsVisibility);
 
         if (actionListener != null) {
             view.setOnSenderClickedListener(v -> {
@@ -92,6 +93,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemCount() {
         return messages.size();
+    }
+
+    public void setPointsVisibility(MessageView.PointsVisibility pointsVisibility) {
+        this.pointsVisibility = pointsVisibility;
     }
 
     protected static class MessageViewHolder extends RecyclerView.ViewHolder {
