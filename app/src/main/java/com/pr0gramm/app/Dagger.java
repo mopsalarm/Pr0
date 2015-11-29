@@ -42,6 +42,9 @@ public class Dagger {
     }
 
     static class EagerSingletons {
+        private EagerSingletons() {
+        }
+
         @Inject
         ProxyService proxyService;
 
