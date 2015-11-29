@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -169,10 +170,23 @@ public abstract class MediaView extends FrameLayout {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         } else {
-            int width = MeasureSpec.getSize(widthMeasureSpec);
-            int height = (int) (width / viewAspect) + getPaddingTop() + getPaddingBottom();
-            setMeasuredDimension(width, height);
+            boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
+            int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
+            int maxWidth = MeasureSpec.getSize(widthMeasureSpec);
+
+            int width;
+            int height;
+            if (heightUnspecified || maxWidth / (double) maxHeight < viewAspect) {
+                width = maxWidth;
+                height = (int) (width / viewAspect) + getPaddingTop() + getPaddingBottom();
+
+            } else {
+                height = maxHeight;
+                width = (int) (height * viewAspect);
+            }
+
+            setMeasuredDimension(width, height);
             measureChildren(
                     MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
@@ -182,6 +196,7 @@ public abstract class MediaView extends FrameLayout {
     /**
      * Removes the preview drawable.
      */
+
     public void removePreviewImage() {
         if (this.preview != null) {
             // cancel loading of preview, if there is still a request pending.
@@ -350,10 +365,6 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    public float getViewAspect() {
-        return viewAspect;
-    }
-
     /**
      * Returns the url that this view should display.
      */
@@ -402,6 +413,19 @@ public abstract class MediaView extends FrameLayout {
 
     public MediaView getActualMediaView() {
         return this;
+    }
+
+    @Override
+    public void setLayoutParams(ViewGroup.LayoutParams params) {
+        super.setLayoutParams(params);
+
+        if(params instanceof FrameLayout.LayoutParams) {
+            int gravity = ((LayoutParams) params).gravity;
+            if(preview != null) {
+                ((LayoutParams) preview.getLayoutParams()).gravity = gravity;
+            }
+        }
+
     }
 
     public static class Binder {
@@ -453,6 +477,7 @@ public abstract class MediaView extends FrameLayout {
 
     private static final LayoutParams DEFAULT_PARAMS = new LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER_HORIZONTAL);
 
 }

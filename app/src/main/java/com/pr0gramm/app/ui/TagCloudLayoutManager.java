@@ -17,15 +17,15 @@ import java.util.List;
 public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
     private static final Logger logger = LoggerFactory.getLogger("TagCloudLayoutManager");
 
-    private static final int MAX_NUMBER_OF_ROWS = 3;
-
     private final int gapX, gapY;
+    private final int maxNumberOfRows;
     private Config config = new Config(0, 0, 0);
     private int scrollOffset;
 
-    public TagCloudLayoutManager(int gapX, int gapY) {
+    public TagCloudLayoutManager(int gapX, int gapY, int maxNumberOfRows) {
         this.gapX = gapX;
         this.gapY = gapY;
+        this.maxNumberOfRows = maxNumberOfRows;
     }
 
     @Override
@@ -68,12 +68,12 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
         int parentWidth = View.MeasureSpec.getSize(widthSpec);
 
-        List<Size> sizes = measureAllElements(recycler);
+        List<Size> sizes = measureElements(recycler);
 
         // estimate the needed with using brute force!
         int width = parentWidth;
         Config config = measureConfig(sizes, width);
-        while (config.rows > MAX_NUMBER_OF_ROWS) {
+        while (config.rows > maxNumberOfRows) {
             width += Math.max(10, (int) (width * 0.1));
             config = measureConfig(sizes, width);
         }
@@ -115,7 +115,7 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private List<Size> measureAllElements(RecyclerView.Recycler recycler) {
+    private List<Size> measureElements(RecyclerView.Recycler recycler) {
         List<Size> sizes = new ArrayList<>();
         for (int idx = 0; idx < getItemCount(); idx++) {
             View view = recycler.getViewForPosition(idx);
@@ -152,7 +152,7 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
         }
 
         scrollOffset += scroll;
-        logger.info("scroll: {}, scroll offset after scrolling: {}", scroll, scrollOffset);
+        // logger.info("scroll: {}, scroll offset after scrolling: {}", scroll, scrollOffset);
 
         offsetChildrenHorizontal(-scroll);
         return scroll;

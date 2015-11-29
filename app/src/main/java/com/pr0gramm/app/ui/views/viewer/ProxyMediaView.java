@@ -41,6 +41,9 @@ public abstract class ProxyMediaView extends MediaView {
         }
 
         addView(mediaView, idx);
+
+        // transfer the layout parameters
+        mediaView.setLayoutParams(getLayoutParams());
     }
 
     public void unsetChild() {

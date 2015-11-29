@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -70,7 +69,10 @@ public class InfoLineView extends LinearLayout {
 
     public InfoLineView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        settings = Settings.of(context);
+
+        settings = isInEditMode()
+                ? Settings.of(context.getSharedPreferences("", Context.MODE_PRIVATE))
+                : Settings.of(context);
 
         setOrientation(VERTICAL);
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.feed_background));
@@ -87,15 +89,13 @@ public class InfoLineView extends LinearLayout {
 
         tagsView = findView(this, R.id.tags);
 
+        int tagGaps = getResources().getDimensionPixelSize(R.dimen.tag_gap_size);
         if (settings.tagCloudView()) {
-            int tagGaps = getResources().getDimensionPixelSize(R.dimen.tag_gap_size);
-
             tagsView.setItemAnimator(null);
-            tagsView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps));
+            tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 3));
         } else {
             tagsView.setItemAnimator(null);
-            tagsView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+            tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 1));
         }
 
         voteView.setOnVoteListener(newVote -> {

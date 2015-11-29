@@ -18,6 +18,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -92,6 +94,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
@@ -181,6 +184,7 @@ public class PostFragment extends BaseFragment implements
     private List<Tag> tags;
     private List<Comment> comments;
     private boolean rewindOnLoad;
+    private boolean tabletLayout;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -213,6 +217,7 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        this.tabletLayout = view.findViewById(R.id.infoview) != null;
 
         if (!(getActivity() instanceof ToolbarActivity)) {
             throw new IllegalStateException("Fragment must be child of a ToolbarActivity.");
@@ -221,9 +226,21 @@ public class PostFragment extends BaseFragment implements
         ToolbarActivity activity = (ToolbarActivity) getActivity();
         activity.getScrollHideToolbarListener().reset();
 
-        // use height of the toolbar to configure swipe refresh layout.
         int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
+        if (tabletLayout) {
+            View tabletLayout = ButterKnife.findById(view, R.id.tabletlayout);
+            tabletLayout.setPadding(0, abHeight, 0, 0);
+
+            ((FrameLayout.LayoutParams) voteAnimationIndicator.getLayoutParams()).gravity
+                    = Gravity.CENTER;
+        } else {
+            // use height of the toolbar to configure swipe refresh layout.
+            swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
+
+            scrollHandler = new ScrollHandler(activity);
+            content.addOnScrollListener(scrollHandler);
+        }
+
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!isVideoFullScreen()) {
@@ -231,6 +248,7 @@ public class PostFragment extends BaseFragment implements
                 loadPostDetails();
             }
         });
+
 
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 
@@ -248,9 +266,6 @@ public class PostFragment extends BaseFragment implements
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
         adapter.addAdapter(commentsAdapter);
-
-        scrollHandler = new ScrollHandler(activity);
-        content.addOnScrollListener(scrollHandler);
 
         // restore the postInfo, if possible.
         if (tags != null && comments != null) {
@@ -667,9 +682,12 @@ public class PostFragment extends BaseFragment implements
         // get the vote from the service
         Observable<Vote> cachedVote = voteService.getVote(feedItem).compose(bindToLifecycle());
 
-        infoLineView = new InfoLineView(getActivity());
-        adapter.addAdapter(SingleViewAdapter.ofView(infoLineView));
-
+        //noinspection ConstantConditions
+        infoLineView = ButterKnife.findById(getView(), R.id.infoview);
+        if (infoLineView == null) {
+            infoLineView = new InfoLineView(getActivity());
+            adapter.addAdapter(SingleViewAdapter.ofView(infoLineView));
+        }
 
         boolean isSelfPost = userService.getName()
                 .transform(name -> name.equalsIgnoreCase(feedItem.getUser()))
@@ -717,7 +735,8 @@ public class PostFragment extends BaseFragment implements
 
         if (settings.animatePostOnVote()) {
             // quickly center the vote button
-            scrollHandler.onScrolled(content, 0, 0);
+            if (scrollHandler != null)
+                scrollHandler.onScrolled(content, 0, 0);
 
             String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
             voteAnimationIndicator.setText(text);
@@ -785,48 +804,55 @@ public class PostFragment extends BaseFragment implements
         int idx = playerContainer.indexOfChild(voteAnimationIndicator);
         playerContainer.addView(viewer, idx);
 
-        class PlaceholderView extends View {
-            int fixedHeight = AndroidUtility.dp(getActivity(), 150);
+        if (tabletLayout) {
+            viewer.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER));
+        } else {
+            class PlaceholderView extends View {
+                int fixedHeight = AndroidUtility.dp(getActivity(), 150);
 
-            public PlaceholderView(Context context) {
-                super(context);
+                public PlaceholderView(Context context) {
+                    super(context);
+                }
+
+                @Override
+                protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                    int width = MeasureSpec.getSize(widthMeasureSpec);
+                    setMeasuredDimension(width, fixedHeight);
+                }
+
+                @Override
+                public boolean onTouchEvent(@NonNull MotionEvent event) {
+                    return viewer.onTouchEvent(event);
+                }
             }
 
-            @Override
-            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                int width = MeasureSpec.getSize(widthMeasureSpec);
-                setMeasuredDimension(width, fixedHeight);
-            }
+            PlaceholderView placeholder = new PlaceholderView(getActivity());
 
-            @Override
-            public boolean onTouchEvent(@NonNull MotionEvent event) {
-                return viewer.onTouchEvent(event);
-            }
+            viewer.setPadding(0, padding, 0, 0);
+            viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                int newHeight = viewer.getMeasuredHeight();
+                if (newHeight != placeholder.fixedHeight) {
+                    placeholder.fixedHeight = newHeight;
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        placeholder.requestLayout();
+                    } else {
+                        // it looks like a requestLayout is not honored on pre kitkat devices
+                        // if already in a layout pass.
+                        placeholder.post(placeholder::requestLayout);
+                    }
+
+                    if (isVideoFullScreen()) {
+                        realignFullScreen();
+                    }
+                }
+            });
+
+            adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
         }
-
-        PlaceholderView placeholder = new PlaceholderView(getActivity());
-
-        viewer.setPadding(0, padding, 0, 0);
-        viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            int newHeight = viewer.getMeasuredHeight();
-            if (newHeight != placeholder.fixedHeight) {
-                placeholder.fixedHeight = newHeight;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    placeholder.requestLayout();
-                } else {
-                    // it looks like a requestLayout is not honored on pre kitkat devices
-                    // if already in a layout pass.
-                    placeholder.post(placeholder::requestLayout);
-                }
-
-                if (isVideoFullScreen()) {
-                    realignFullScreen();
-                }
-            }
-        });
-
-        adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
     }
 
     private void onTransitionEnds() {

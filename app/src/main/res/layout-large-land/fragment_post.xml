@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/tabletlayout"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/refresh"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <com.pr0gramm.app.ui.views.Pr0grammFontTextView
+                android:id="@+id/vote_indicator"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="-80dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="M"
+                android:textColor="@color/primary"
+                android:textSize="150dp"
+                android:visibility="gone"
+                tools:ignore="HardcodedText,SpUsage"/>
+
+            <TextView
+                android:id="@+id/repost_hint"
+                android:layout_width="200dp"
+                android:layout_height="32dp"
+                android:layout_gravity="right|top"
+                android:background="@color/transparent_black"
+                android:gravity="center"
+                android:rotation="45"
+                android:text="@string/repost"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:transformPivotX="100dp"
+                android:transformPivotY="-32sp"
+                android:translationX="100dp"
+                android:visibility="gone"/>
+        </FrameLayout>
+
+        <com.pr0gramm.app.ui.views.InfoLineView
+            android:id="@+id/infoview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
+            android:overScrollMode="never"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</RelativeLayout>
