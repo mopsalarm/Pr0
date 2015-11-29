@@ -59,6 +59,7 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
+import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
@@ -1058,6 +1059,17 @@ public class PostFragment extends BaseFragment implements
 
         result.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .subscribe(Actions.empty(), defaultOnError());
+
+        if (singleShotService.isFirstTime("kfav-userscript-hint")) {
+            DialogBuilder.start(getContext())
+                    .content(R.string.hint_kfav_userscript)
+                    .positive(R.string.open_website, di -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"));
+                        getContext().startActivity(intent);
+                    })
+                    .negative(R.string.ignore)
+                    .show();
+        }
     }
 
     @Override

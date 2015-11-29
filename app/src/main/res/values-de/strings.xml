@@ -347,4 +347,6 @@
     <string name="notification_update_available">Update verfügbar</string>
     <string name="notification_update_available_text">Ein neues Update für die pr0gramm App auf Version 1.%s ist verfügbar.</string>
     <string name="update">Update</string>
+    <string name="inbox_type_comment_favorites">k-fav</string>
+    <string name="hint_kfav_userscript">Du hast gerade einen Kommentar als Favoriten markiert. Die Liste aller markierten Favoriten findest du aktuell unter \"Nachrichten → k-fav\".\nWenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
 </resources>

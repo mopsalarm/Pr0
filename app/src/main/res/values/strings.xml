@@ -379,5 +379,6 @@
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version 1.%s is available.</string>
     <string name="inbox_type_comment_favorites">k-fav</string>
+    <string name="hint_kfav_userscript"><![CDATA[You just faved a comment. You can find a list of your favorite comments under \"messages → k-fav\".\nIf you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
 </resources>
 
