@@ -53,4 +53,6 @@ public interface AppComponent {
     DownloadManager downloadManager();
 
     NotificationService notificationService();
+
+    void inject(Dagger.EagerSingletons eagerSingletons);
 }

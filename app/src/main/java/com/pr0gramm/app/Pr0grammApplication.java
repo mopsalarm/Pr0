@@ -78,6 +78,8 @@ public class Pr0grammApplication extends SugarApp {
                 return HandlerThreadScheduler.INSTANCE;
             }
         });
+
+        Dagger.initEagerSingletons(this);
     }
 
     /**
