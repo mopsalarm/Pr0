@@ -89,7 +89,6 @@ public class CommentService {
         // update comments when the login state changes
         userHash
                 .mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
-                .doOnNext(userHash -> logger.info("query comments using {}", userHash))
                 .switchMap(userHash -> userHash == null
                         ? Observable.just(Collections.<FavedComment>emptyList())
                         : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))))
