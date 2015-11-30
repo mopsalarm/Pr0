@@ -19,7 +19,7 @@ public class Dagger {
     }
 
     public static AppComponent appComponent(Context context) {
-        return Pr0grammApplication.get(context).appComponent.get();
+        return ApplicationClass.get(context).appComponent.get();
     }
 
     public static ActivityComponent activityComponent(Activity activity) {

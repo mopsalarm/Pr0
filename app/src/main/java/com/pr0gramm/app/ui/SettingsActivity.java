@@ -16,7 +16,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.Pr0grammApplication;
+import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UnlockService;
@@ -28,21 +28,17 @@ import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.okhttp.OkHttpClient;
 
-import org.joda.time.Instant;
-
 import java.util.List;
 
 import javax.inject.Inject;
 
 import de.psdev.licensesdialog.LicensesDialog;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static org.joda.time.Instant.now;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -255,7 +251,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 if (preferences.getBoolean("pref_use_beta_channel", true)) {
                     DialogBuilder.start(activity)
                             .content(R.string.beta_you_need_to_join_community)
-                            .positive(R.string.okay, di -> Pr0grammApplication.openCommunityWebpage(activity))
+                            .positive(R.string.okay, di -> ApplicationClass.openCommunityWebpage(activity))
                             .show();
                 }
             }

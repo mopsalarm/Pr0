@@ -11,28 +11,38 @@ import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.piwik.sdk.Piwik;
+import org.piwik.sdk.QuickTrack;
+import org.piwik.sdk.Tracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
 
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 import pl.brightinventions.slf4android.LoggerConfiguration;
+import rx.Observable;
 import rx.Scheduler;
 import rx.android.plugins.RxAndroidPlugins;
 import rx.android.plugins.RxAndroidSchedulersHook;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDialogHandler;
 
 /**
  * Global application class for pr0gramm app.
  */
-public class Pr0grammApplication extends SugarApp {
+public class ApplicationClass extends SugarApp {
     private static final Logger logger = LoggerFactory.getLogger("Pr0grammApplication");
 
     final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
@@ -62,6 +72,7 @@ public class Pr0grammApplication extends SugarApp {
                 LoggerConfiguration.configuration()
                         .removeRootLogcatHandler()
                         .addHandlerToRootLogger(new CrashlyticsLogHandler());
+
             } else {
                 // just disable logging
                 LoggerConfiguration.configuration()
@@ -99,7 +110,7 @@ public class Pr0grammApplication extends SugarApp {
         activity.startActivity(intent);
     }
 
-    public static Pr0grammApplication get(Context context) {
-        return (Pr0grammApplication) context.getApplicationContext();
+    public static ApplicationClass get(Context context) {
+        return (ApplicationClass) context.getApplicationContext();
     }
 }

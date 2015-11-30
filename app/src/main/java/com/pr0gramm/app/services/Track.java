@@ -6,6 +6,7 @@ import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.RatingEvent;
 import com.crashlytics.android.answers.SearchEvent;
 import com.crashlytics.android.answers.ShareEvent;
+import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
@@ -34,7 +35,7 @@ public final class Track {
     }
 
     public static void logout() {
-        track(answers -> answers.logCustom(new CustomEvent("Logout")));
+        track(new CustomEvent("Logout"));
     }
 
     public static void search(String query) {
@@ -42,15 +43,15 @@ public final class Track {
     }
 
     public static void writeComment() {
-        track(answers -> answers.logCustom(new CustomEvent("WriteComment")));
+        track(new CustomEvent("WriteComment"));
     }
 
     public static void writeMessage() {
-        track(answers -> answers.logCustom(new CustomEvent("WriteMessage")));
+        track(new CustomEvent("WriteMessage"));
     }
 
     public static void searchImage() {
-        track(answers -> answers.logCustom(new CustomEvent("SearchImage")));
+        track(new CustomEvent("SearchImage"));
     }
 
     public static void share(String type) {
@@ -83,7 +84,7 @@ public final class Track {
     }
 
     public static void download() {
-        track(answers -> answers.logCustom(new CustomEvent("Download")));
+        track(new CustomEvent("Download"));
     }
 
     public static void statistics(Settings settings, boolean signedIn, boolean unlocked) {
@@ -109,35 +110,47 @@ public final class Track {
     }
 
     public static void drawerOpened() {
-        track(answers -> answers.logCustom(new CustomEvent("Drawer opened")));
+        track(new CustomEvent("Drawer opened"));
     }
 
     public static void bookmarks(int size) {
-        track(answers -> answers.logCustom(new CustomEvent("Bookmarks loaded")
+        track(new CustomEvent("Bookmarks loaded")
                 .putCustomAttribute("count", size)
-                .putCustomAttribute("bookmarks", String.valueOf(size))));
+                .putCustomAttribute("bookmarks", String.valueOf(size)));
     }
 
     public static void notificationShown() {
-        track(answers -> answers.logCustom(new CustomEvent("Notification shown")));
+        track(new CustomEvent("Notification shown"));
     }
 
     public static void notificationClicked() {
-        track(answers -> answers.logCustom(new CustomEvent("Notification clicked")));
+        track(new CustomEvent("Notification clicked"));
     }
 
     public static void experimentEvent(String experiment, String caseName, String actionName) {
-        track(answers -> answers.logCustom(new CustomEvent(experiment)
-                .putCustomAttribute(actionName, caseName)));
+        track(new CustomEvent(experiment)
+                .putCustomAttribute(actionName, caseName));
     }
 
     public static void requestFeed(FeedType feedType) {
-        track(answers -> answers.logCustom(new CustomEvent("Load feed")
-                .putCustomAttribute("feed type", feedType.name())));
+        track(new CustomEvent("Load feed")
+                .putCustomAttribute("feed type", feedType.name()));
     }
 
     public static void preloadCurrentFeed() {
-        track(answers -> answers.logCustom(new CustomEvent("Preload current feed")));
+        track(new CustomEvent("Preload current feed"));
+    }
+
+    public static void commentFaved() {
+        track(new CustomEvent("Comment faved"));
+    }
+
+    public static void listFavedComments() {
+        track(new CustomEvent("Faved comments listed"));
+    }
+
+    private static void track(CustomEvent customEvent) {
+        track(answers -> answers.logCustom(customEvent));
     }
 
     /**

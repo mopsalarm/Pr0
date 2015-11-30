@@ -121,6 +121,8 @@ public class CommentService {
     public Observable<Void> save(FavedComment comment) {
         logger.info("save comment-fav with id {}", comment.id());
 
+        Track.commentFaved();
+
         synchronized (favCommentIds) {
             if (favCommentIds.add(comment.id()))
                 updateAfterChange();
@@ -135,6 +137,8 @@ public class CommentService {
 
     public Observable<List<FavedComment>> list(EnumSet<ContentType> contentType) {
         int flags = ContentType.combine(contentType);
+
+        Track.listFavedComments();
 
         // update cache too
         updateCache();

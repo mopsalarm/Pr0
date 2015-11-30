@@ -26,7 +26,7 @@ import android.view.Window;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
-import com.pr0gramm.app.Pr0grammApplication;
+import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -179,7 +179,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                                 " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
                                 " Ich bitte dich, die 'nicht PlayStore'-Version herunterzuladen.")
 
-                        .positive("Herunterladen", v -> Pr0grammApplication.openDownloadFreeVersion(this))
+                        .positive("Herunterladen", v -> ApplicationClass.openDownloadFreeVersion(this))
                         .negative("Jetzt nicht")
                         .show();
             }
