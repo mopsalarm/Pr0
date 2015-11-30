@@ -12,7 +12,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Downloader;
-import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
@@ -53,7 +52,7 @@ public class GifMediaView extends AbstractProgressMediaView {
                 .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
                 .subscribeOn(BackgroundScheduler.instance());
 
-        dlGifSubscription = loader.compose(RxLifecycle.<GifLoader.DownloadStatus>bindView(this)).subscribe(state -> {
+        dlGifSubscription = loader.compose(bindView()).subscribe(state -> {
             onDownloadProgress(state.getProgress());
 
             if (state.isFinished()) {

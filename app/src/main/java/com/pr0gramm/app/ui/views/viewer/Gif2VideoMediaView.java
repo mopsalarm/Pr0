@@ -7,7 +7,6 @@ import android.net.Uri;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.services.gif.GifToVideoService;
 import com.pr0gramm.app.services.proxy.ProxyService;
-import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
@@ -40,7 +39,7 @@ public class Gif2VideoMediaView extends ProxyMediaView {
         String gifUrl = url.toString().replace("https://", "http://");
 
         // and start conversion!
-        conversion = gifToVideoService.toVideo(gifUrl).compose(RxLifecycle.<GifToVideoService.Result>bindView(this)).subscribe(result -> {
+        conversion = gifToVideoService.toVideo(gifUrl).compose(bindView()).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer

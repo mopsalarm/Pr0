@@ -11,7 +11,6 @@ import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
-import com.trello.rxlifecycle.RxLifecycle;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -50,17 +49,17 @@ public class SoftwareVideoMediaView extends MediaView {
             return;
         }
 
-        loading = newVideoPlayer().compose(RxLifecycle.<SoftwareMediaPlayer>bindView(this)).finallyDo(() -> loading = null).subscribe(mpeg -> {
+        loading = newVideoPlayer().compose(bindView()).finallyDo(() -> loading = null).subscribe(mpeg -> {
             hideBusyIndicator();
 
             videoPlayer = mpeg;
             imageView.setImageDrawable(videoPlayer.drawable());
             videoPlayer.videoSize()
-                    .compose(RxLifecycle.<SoftwareMediaPlayer.Size>bindView(this))
+                    .compose(bindView())
                     .subscribe(this::onSizeChanged);
 
             videoPlayer.errors()
-                    .compose(RxLifecycle.<Throwable>bindView(this))
+                    .compose(bindView())
                     .subscribe(defaultOnError());
 
             if (isPlaying()) {

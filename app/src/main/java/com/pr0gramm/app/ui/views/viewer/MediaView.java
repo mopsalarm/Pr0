@@ -30,9 +30,11 @@ import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,8 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
 
@@ -118,6 +122,14 @@ public abstract class MediaView extends FrameLayout {
             preloadHint.setTextColor(ContextCompat.getColor(getContext(), R.color.primary));
             addView(preloadHint);
         }
+    }
+
+    protected <T> Observable.Transformer<T, T> bindView() {
+        return observable -> observable
+                .subscribeOn(BackgroundScheduler.instance())
+                .unsubscribeOn(BackgroundScheduler.instance())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindView(this));
     }
 
     protected abstract void injectComponent(ActivityComponent component);
@@ -416,9 +428,9 @@ public abstract class MediaView extends FrameLayout {
     public void setLayoutParams(ViewGroup.LayoutParams params) {
         super.setLayoutParams(params);
 
-        if(params instanceof FrameLayout.LayoutParams) {
+        if (params instanceof FrameLayout.LayoutParams) {
             int gravity = ((LayoutParams) params).gravity;
-            if(preview != null) {
+            if (preview != null) {
                 ((LayoutParams) preview.getLayoutParams()).gravity = gravity;
             }
         }
