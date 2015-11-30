@@ -30,10 +30,8 @@ public class VideoMediaView extends AbstractProgressMediaView {
     private int retryCount;
     private boolean videoViewInitialized;
 
-    protected VideoMediaView(Activity context, Binder binder,
-                             MediaUri mediaUri, Runnable onViewListener) {
-
-        super(context, binder, R.layout.player_simple_video_view, mediaUri, onViewListener);
+    protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
+        super(context, R.layout.player_simple_video_view, mediaUri, onViewListener);
     }
 
     @Override

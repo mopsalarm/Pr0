@@ -767,8 +767,6 @@ public class PostFragment extends BaseFragment implements
     private void initializeMediaView() {
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
 
-        MediaView.Binder binder = new MediaView.Binder(bindToLifecycle());
-
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(UriHelper.of(getContext()).media(feedItem));
         if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
@@ -783,7 +781,7 @@ public class PostFragment extends BaseFragment implements
             }
         }
 
-        viewer = MediaViews.newInstance(getActivity(), binder, uri, () -> {
+        viewer = MediaViews.newInstance(getActivity(), uri, () -> {
             //  mark this item seen. We do that in a background thread
             seenService.markAsSeen(feedItem);
         });

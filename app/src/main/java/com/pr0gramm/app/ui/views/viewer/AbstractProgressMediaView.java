@@ -23,8 +23,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
 
     private boolean progressEnabled = true;
 
-    public AbstractProgressMediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
-        super(activity, binder, layoutId, mediaUri, onViewListener);
+    public AbstractProgressMediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
+        super(activity, layoutId, mediaUri, onViewListener);
 
         videoProgressView.setVisibility(GONE);
         updateTimeline();

@@ -11,6 +11,7 @@ import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -19,7 +20,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func0;
 import rx.util.async.Async;
@@ -27,7 +27,6 @@ import rx.util.async.Async;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static com.squareup.picasso.Downloader.Response;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -42,8 +41,8 @@ public class SoftwareVideoMediaView extends MediaView {
     private SoftwareMediaPlayer videoPlayer;
     private Subscription loading;
 
-    public SoftwareVideoMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
-        super(context, binder, R.layout.player_image, url, onViewListener);
+    public SoftwareVideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
+        super(context, R.layout.player_image, url, onViewListener);
     }
 
     private void asyncLoadVideo() {
@@ -51,13 +50,18 @@ public class SoftwareVideoMediaView extends MediaView {
             return;
         }
 
-        loading = newVideoPlayer().compose(binder.get()).finallyDo(() -> loading = null).subscribe(mpeg -> {
+        loading = newVideoPlayer().compose(RxLifecycle.<SoftwareMediaPlayer>bindView(this)).finallyDo(() -> loading = null).subscribe(mpeg -> {
             hideBusyIndicator();
 
             videoPlayer = mpeg;
             imageView.setImageDrawable(videoPlayer.drawable());
-            videoPlayer.videoSize().compose(binder.get()).subscribe(this::onSizeChanged);
-            videoPlayer.errors().compose(binder.get()).subscribe(defaultOnError());
+            videoPlayer.videoSize()
+                    .compose(RxLifecycle.<SoftwareMediaPlayer.Size>bindView(this))
+                    .subscribe(this::onSizeChanged);
+
+            videoPlayer.errors()
+                    .compose(RxLifecycle.<Throwable>bindView(this))
+                    .subscribe(defaultOnError());
 
             if (isPlaying()) {
                 videoPlayer.start();

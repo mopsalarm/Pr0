@@ -40,8 +40,8 @@ public class ImageMediaView extends MediaView {
     @Inject
     SingleShotService singleShotService;
 
-    public ImageMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
-        super(context, binder, R.layout.player_image, url, onViewListener);
+    public ImageMediaView(Activity context, MediaUri url, Runnable onViewListener) {
+        super(context, R.layout.player_image, url, onViewListener);
     }
 
     @Override

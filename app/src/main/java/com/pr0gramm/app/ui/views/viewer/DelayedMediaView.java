@@ -26,8 +26,8 @@ public class DelayedMediaView extends ProxyMediaView {
     @Inject
     Picasso picasso;
 
-    public DelayedMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
-        super(context, binder, url, onViewListener);
+    public DelayedMediaView(Activity context, MediaUri url, Runnable onViewListener) {
+        super(context, url, onViewListener);
         hideBusyIndicator();
 
         overlay = LayoutInflater.from(context).inflate(R.layout.player_delayed_overlay, this, false);
@@ -61,7 +61,7 @@ public class DelayedMediaView extends ProxyMediaView {
 
         // create the real view as a child.
         MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
-                binder, mediaUri.withDelay(false), this::onMediaShown);
+                mediaUri.withDelay(false), this::onMediaShown);
 
         mediaView.removePreviewImage();
         setChild(mediaView);

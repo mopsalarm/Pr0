@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import rx.Observable;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
 
@@ -56,7 +55,6 @@ public abstract class MediaView extends FrameLayout {
     private final GestureDetector gestureDetector;
     private boolean mediaShown;
 
-    protected final Binder binder;
     protected final MediaUri mediaUri;
 
     private Runnable onViewListener;
@@ -86,11 +84,10 @@ public abstract class MediaView extends FrameLayout {
     private float viewAspect = -1;
 
     @SuppressLint("SetTextI18n")
-    protected MediaView(Activity activity, Binder binder, @LayoutRes Integer layoutId, MediaUri mediaUri,
+    protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
 
         super(activity);
-        this.binder = binder;
         this.mediaUri = mediaUri;
         this.onViewListener = onViewListener;
 
@@ -426,19 +423,6 @@ public abstract class MediaView extends FrameLayout {
             }
         }
 
-    }
-
-    public static class Binder {
-        private final Observable.Transformer transformer;
-
-        public Binder(Observable.Transformer transformer) {
-            this.transformer = transformer;
-        }
-
-        <T> Observable.Transformer<T, T> get() {
-            //noinspection unchecked
-            return transformer;
-        }
     }
 
     public interface TapListener {

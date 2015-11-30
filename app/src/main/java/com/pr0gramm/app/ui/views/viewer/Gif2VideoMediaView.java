@@ -7,6 +7,7 @@ import android.net.Uri;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.services.gif.GifToVideoService;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
@@ -27,19 +28,19 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     ProxyService proxyService;
 
-    public Gif2VideoMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
-        super(context, binder, url, onViewListener);
-        startWebmConversion(binder, url);
+    public Gif2VideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
+        super(context, url, onViewListener);
+        startWebmConversion(url);
     }
 
-    private void startWebmConversion(Binder binder, MediaUri url) {
+    private void startWebmConversion(MediaUri url) {
         logger.info("Start converting gif to webm");
 
         // normalize to http://
         String gifUrl = url.toString().replace("https://", "http://");
 
         // and start conversion!
-        conversion = gifToVideoService.toVideo(gifUrl).compose(binder.get()).subscribe(result -> {
+        conversion = gifToVideoService.toVideo(gifUrl).compose(RxLifecycle.<GifToVideoService.Result>bindView(this)).subscribe(result -> {
             checkMainThread();
 
             // create the correct child-viewer
@@ -47,11 +48,11 @@ public class Gif2VideoMediaView extends ProxyMediaView {
             if (result.getVideoUrl().isPresent()) {
                 logger.info("Converted successfully, replace with video player");
                 MediaUri webm = url.withUri(Uri.parse(result.getVideoUrl().get()), MediaUri.MediaType.VIDEO);
-                mediaView = MediaViews.newInstance((Activity) getContext(), binder, webm, this::onMediaShown);
+                mediaView = MediaViews.newInstance((Activity) getContext(), webm, this::onMediaShown);
 
             } else {
                 logger.info("Conversion did not work, showing gif");
-                mediaView = new GifMediaView((Activity) getContext(), binder, url, this::onMediaShown);
+                mediaView = new GifMediaView((Activity) getContext(), url, this::onMediaShown);
             }
 
             mediaView.removePreviewImage();

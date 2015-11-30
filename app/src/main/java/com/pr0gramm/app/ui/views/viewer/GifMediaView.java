@@ -12,18 +12,17 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Downloader;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -43,8 +42,8 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     private Subscription dlGifSubscription;
 
-    public GifMediaView(Activity context, Binder binder, MediaUri url, Runnable onViewListener) {
-        super(context, binder, R.layout.player_gif, url, onViewListener);
+    public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
+        super(context, R.layout.player_gif, url, onViewListener);
 
         loadGif();
     }
@@ -54,7 +53,7 @@ public class GifMediaView extends AbstractProgressMediaView {
                 .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
                 .subscribeOn(BackgroundScheduler.instance());
 
-        dlGifSubscription = loader.compose(binder.get()).subscribe(state -> {
+        dlGifSubscription = loader.compose(RxLifecycle.<GifLoader.DownloadStatus>bindView(this)).subscribe(state -> {
             onDownloadProgress(state.getProgress());
 
             if (state.isFinished()) {

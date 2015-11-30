@@ -13,8 +13,8 @@ import rx.functions.Action1;
 public abstract class ProxyMediaView extends MediaView {
     private MediaView child;
 
-    public ProxyMediaView(Activity context, Binder binder, MediaUri uri, Runnable onViewListener) {
-        super(context, binder, R.layout.player_proxy, uri, onViewListener);
+    public ProxyMediaView(Activity context, MediaUri uri, Runnable onViewListener) {
+        super(context, R.layout.player_proxy, uri, onViewListener);
     }
 
     public void setChild(MediaView viewer) {
