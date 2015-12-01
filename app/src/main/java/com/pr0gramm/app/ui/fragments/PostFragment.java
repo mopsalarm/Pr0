@@ -36,6 +36,8 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.jakewharton.rxbinding.view.RxView;
+import com.jakewharton.rxbinding.view.ViewAttachEvent;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
@@ -75,6 +77,7 @@ import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
+import com.pr0gramm.app.ui.bubble.BubbleHint;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -97,6 +100,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Actions;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -726,6 +730,24 @@ public class PostFragment extends BaseFragment implements
         infoLineView.setOnAddTagClickedListener(() -> {
             NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
+        });
+
+        RxView.attachEvents(infoLineView).subscribe(new Action1<ViewAttachEvent>() {
+            private View bubble;
+
+            @Override
+            public void call(ViewAttachEvent ev) {
+                AndroidUtility.removeView(bubble);
+
+                if (ev.kind() == ViewAttachEvent.Kind.ATTACH) {
+                    bubble = new BubbleHint(infoLineView.getRatingView())
+                            .text("Longtap um up/down\nVotes zu sehen.")
+                            .root((ViewGroup) getView())
+                            .show();
+
+                    RxView.clicks(bubble).subscribe(v -> AndroidUtility.removeView(bubble));
+                }
+            }
         });
     }
 

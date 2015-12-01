@@ -236,6 +236,10 @@ public class InfoLineView extends LinearLayout {
         return feedItem.getCreated().isBefore(oneHourAgo);
     }
 
+    public TextView getRatingView() {
+        return ratingView;
+    }
+
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
         private final List<Tag> tags;
         private final Map<Tag, Vote> votes;

@@ -157,9 +157,9 @@ public class AndroidUtility {
         return bundle;
     }
 
-    public static int dp(Context context, int pixel) {
+    public static int dp(Context context, int dpValue) {
         float density = context.getResources().getDisplayMetrics().density;
-        return (int) (pixel * density);
+        return (int) (dpValue * density);
     }
 
     public static boolean isOnMobile(Context context) {

@@ -13,6 +13,17 @@
         <attr name="textSize" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="BubbleView">
+        <attr name="bv_gravity" format="enum">
+            <enum name="top" value="48"/>
+            <enum name="bottom" value="80"/>
+            <enum name="left" value="3"/>
+            <enum name="right" value="5"/>
+        </attr>
+
+        <attr name="bv_bubbleColor" format="color|reference"/>
+    </declare-styleable>
+
     <declare-styleable name="CommentSpacerView">
         <attr name="lineMargin" format="dimension"/>
         <attr name="lineWidth" format="dimension"/>

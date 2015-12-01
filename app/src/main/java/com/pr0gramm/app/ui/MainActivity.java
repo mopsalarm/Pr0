@@ -25,8 +25,8 @@ import android.view.Window;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.ApplicationClass;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
