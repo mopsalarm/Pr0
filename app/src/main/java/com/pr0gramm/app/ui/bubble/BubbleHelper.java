@@ -17,9 +17,6 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.RxLifecycle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -35,9 +32,7 @@ import static com.pr0gramm.app.util.AndroidUtility.removeView;
 /**
  * Builds a bubble that is positioned somewhere.
  */
-public class BubbleHint {
-    private static final Logger logger = LoggerFactory.getLogger("BubbleHint");
-
+public class BubbleHelper {
     private final View target;
     private String text = "no text";
     private int gravity = Gravity.LEFT;
@@ -46,35 +41,35 @@ public class BubbleHint {
     private String hintName;
     private String requireShown;
 
-    public BubbleHint(View target) {
+    public BubbleHelper(View target) {
         this.target = target;
     }
 
-    public BubbleHint text(String text) {
+    public BubbleHelper text(String text) {
         this.text = text;
         return this;
     }
 
-    public BubbleHint text(int text) {
+    public BubbleHelper text(int text) {
         return text(target.getContext().getString(text));
     }
 
-    public BubbleHint gravity(int gravity) {
+    public BubbleHelper gravity(int gravity) {
         this.gravity = gravity;
         return this;
     }
 
-    public BubbleHint root(ViewGroup root) {
+    public BubbleHelper root(ViewGroup root) {
         this.root = root;
         return this;
     }
 
-    public BubbleHint hintName(String name) {
+    public BubbleHelper hintName(String name) {
         this.hintName = name;
         return this;
     }
 
-    public BubbleHint requireShown(String name) {
+    public BubbleHelper requireShown(String name) {
         this.requireShown = name;
         return this;
     }
@@ -85,7 +80,7 @@ public class BubbleHint {
     }
 
     @Nullable
-    private static BubbleView show(BubbleHint builder) {
+    private static BubbleView show(BubbleHelper builder) {
         Context context = builder.target.getContext();
         if (!wouldShow(context, builder.hintName)) {
             // we have shown this hint in the past.
@@ -259,20 +254,20 @@ public class BubbleHint {
         });
     }
 
-    public static BubbleHint leftOf(View target) {
-        return new BubbleHint(target).gravity(Gravity.RIGHT);
+    public static BubbleHelper leftOf(View target) {
+        return new BubbleHelper(target).gravity(Gravity.RIGHT);
     }
 
-    public static BubbleHint rightOf(View target) {
-        return new BubbleHint(target).gravity(Gravity.LEFT);
+    public static BubbleHelper rightOf(View target) {
+        return new BubbleHelper(target).gravity(Gravity.LEFT);
     }
 
-    public static BubbleHint below(View target) {
-        return new BubbleHint(target).gravity(Gravity.TOP);
+    public static BubbleHelper below(View target) {
+        return new BubbleHelper(target).gravity(Gravity.TOP);
     }
 
-    public static BubbleHint above(View target) {
-        return new BubbleHint(target).gravity(Gravity.BOTTOM);
+    public static BubbleHelper above(View target) {
+        return new BubbleHelper(target).gravity(Gravity.BOTTOM);
     }
 
 }

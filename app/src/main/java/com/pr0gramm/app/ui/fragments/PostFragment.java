@@ -77,7 +77,7 @@ import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
-import com.pr0gramm.app.ui.bubble.BubbleHint;
+import com.pr0gramm.app.ui.bubble.BubbleHelper;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -740,11 +740,11 @@ public class PostFragment extends BaseFragment implements
                 RxView.attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
                 (attached, active) -> attached && active);
 
-        if (BubbleHint.wouldShow(getContext(), "Post.Rating.Longtap-y")) {
-            BubbleHint.reattach(trigger, () -> {
+        if (BubbleHelper.wouldShow(getContext(), "Post.Rating.Longtap-y")) {
+            BubbleHelper.reattach(trigger, () -> {
                 // show only if points are not hidden
                 boolean hidden = infoLineView.getRatingView().getVisibility() != View.VISIBLE;
-                return Optional.fromNullable(hidden ? null : BubbleHint.below(infoLineView.getRatingView())
+                return Optional.fromNullable(hidden ? null : BubbleHelper.below(infoLineView.getRatingView())
                         .root((ViewGroup) getView())
                         .hintName("Post.Rating.Longtap-y")
                         .text("Longtap um up/down\nVotes zu sehen.")
