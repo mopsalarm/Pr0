@@ -100,8 +100,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Actions;
+import rx.subjects.BehaviorSubject;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.animation.PropertyValuesHolder.ofFloat;
@@ -189,6 +189,8 @@ public class PostFragment extends BaseFragment implements
     private List<Comment> comments;
     private boolean rewindOnLoad;
     private boolean tabletLayout;
+
+    private final BehaviorSubject<Boolean> stateActiveSubject = BehaviorSubject.create(false);
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -665,6 +667,7 @@ public class PostFragment extends BaseFragment implements
             viewer = null;
         }
 
+        stateActiveSubject.onCompleted();
         super.onDestroy();
     }
 
@@ -732,23 +735,22 @@ public class PostFragment extends BaseFragment implements
             dialog.show(getChildFragmentManager(), null);
         });
 
-        RxView.attachEvents(infoLineView).subscribe(new Action1<ViewAttachEvent>() {
-            private View bubble;
+        Observable<Boolean> trigger = Observable.combineLatest(
+                stateActiveSubject.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW)),
+                RxView.attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
+                (attached, active) -> attached && active);
 
-            @Override
-            public void call(ViewAttachEvent ev) {
-                AndroidUtility.removeView(bubble);
-
-                if (ev.kind() == ViewAttachEvent.Kind.ATTACH) {
-                    bubble = new BubbleHint(infoLineView.getRatingView())
-                            .text("Longtap um up/down\nVotes zu sehen.")
-                            .root((ViewGroup) getView())
-                            .show();
-
-                    RxView.clicks(bubble).subscribe(v -> AndroidUtility.removeView(bubble));
-                }
-            }
-        });
+        if (BubbleHint.wouldShow(getContext(), "Post.Rating.Longtap-y")) {
+            BubbleHint.reattach(trigger, () -> {
+                // show only if points are not hidden
+                boolean hidden = infoLineView.getRatingView().getVisibility() != View.VISIBLE;
+                return Optional.fromNullable(hidden ? null : BubbleHint.below(infoLineView.getRatingView())
+                        .root((ViewGroup) getView())
+                        .hintName("Post.Rating.Longtap-y")
+                        .text("Longtap um up/down\nVotes zu sehen.")
+                        .show());
+            });
+        }
     }
 
     private void showPostVoteAnimation(Vote vote) {
@@ -1019,6 +1021,8 @@ public class PostFragment extends BaseFragment implements
         if (viewer != null) {
             viewer.playMedia();
         }
+
+        stateActiveSubject.onNext(true);
     }
 
     /**
@@ -1030,6 +1034,7 @@ public class PostFragment extends BaseFragment implements
         }
 
         exitFullscreenAnimated(false);
+        stateActiveSubject.onNext(false);
     }
 
     @Override

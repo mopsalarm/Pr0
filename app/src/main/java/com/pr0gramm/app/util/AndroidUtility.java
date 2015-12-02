@@ -1,5 +1,7 @@
 package com.pr0gramm.app.util;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -350,7 +352,7 @@ public class AndroidUtility {
 
         view.setText(text);
 
-        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
             // disable selecting comments because of crash stuff
             view.setTextIsSelectable(false);
         }
@@ -385,5 +387,14 @@ public class AndroidUtility {
         } catch (Exception error) {
             return -1;
         }
+    }
+
+    public static Animator.AnimatorListener endAction(Runnable action) {
+        return new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                action.run();
+            }
+        };
     }
 }

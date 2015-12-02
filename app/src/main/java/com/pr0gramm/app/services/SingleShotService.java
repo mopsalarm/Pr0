@@ -82,7 +82,7 @@ public class SingleShotService {
 
         public boolean isFirstTime(String action) {
             synchronized (lock) {
-                return preferences
+                return !preferences
                         .getStringSet(KEY_ACTIONS, Collections.<String>emptySet())
                         .contains(action);
             }

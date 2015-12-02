@@ -7,6 +7,7 @@ import com.pr0gramm.app.services.DownloadCompleteReceiver;
 import com.pr0gramm.app.services.DownloadUpdateReceiver;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.ShareProvider;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
@@ -38,6 +39,12 @@ public interface AppComponent {
 
     Picasso picasso();
 
+    DownloadManager downloadManager();
+
+    NotificationService notificationService();
+
+    SingleShotService singleShotService();
+
     void inject(SyncIntentService service);
 
     void inject(SettingsActivity.SettingsFragment fragment);
@@ -50,9 +57,6 @@ public interface AppComponent {
 
     void inject(DownloadUpdateReceiver downloadUpdateReceiver);
 
-    DownloadManager downloadManager();
-
-    NotificationService notificationService();
-
     void inject(Dagger.EagerSingletons eagerSingletons);
+
 }
