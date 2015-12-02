@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+
 /**
  */
 public class WrittenCommentFragment extends MessageInboxFragment {
@@ -20,6 +22,9 @@ public class WrittenCommentFragment extends MessageInboxFragment {
     @Override
     protected LoaderHelper<List<Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
+            if (!userService.getName().isPresent())
+                return Observable.empty();
+
             String name = userService.getName().get();
             return getInboxService()
                     .getUserComments(name, EnumSet.allOf(ContentType.class))
