@@ -32,6 +32,7 @@ import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
@@ -61,9 +62,13 @@ import butterknife.ButterKnife;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Action2;
+import rx.functions.Func1;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Arrays.asList;
+import static rx.Observable.empty;
+import static rx.Observable.just;
 
 /**
  * Place to put everything that belongs nowhere. Thanks Obama.
@@ -313,9 +318,9 @@ public class AndroidUtility {
 
     public static <R> Observable<R> toObservable(Optional<R> optional) {
         if (optional.isPresent()) {
-            return Observable.just(optional.get());
+            return just(optional.get());
         } else {
-            return Observable.empty();
+            return empty();
         }
     }
 
@@ -396,5 +401,26 @@ public class AndroidUtility {
                 action.run();
             }
         };
+    }
+
+    public static <T> boolean oneOf(T value, T a, T b) {
+        return Objects.equal(value, a) || Objects.equal(value, b);
+    }
+
+    public static <T> boolean oneOf(T value, T a, T b, T c) {
+        return Objects.equal(value, a) || Objects.equal(value, b) || Objects.equal(value, c);
+    }
+
+    @SafeVarargs
+    public static <T> boolean oneOf(T value, T... values) {
+        return asList(values).contains(value);
+    }
+
+    public static Func1<Boolean, Boolean> isTrue() {
+        return val -> val != null && val;
+    }
+
+    public static <T> Observable<T> emptyIfNull(T value) {
+        return value != null ? just(value) : empty();
     }
 }

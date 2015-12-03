@@ -12,6 +12,7 @@ import android.view.ViewParent;
 
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -116,6 +117,13 @@ public class BubbleHelper {
                 /* and update if changed */
                 .distinctUntilChanged()
                 .compose(RxLifecycle.<Point>bindView(bubble))
+
+                /* and ignore any errors */
+                .onErrorResumeNext(error -> {
+                    error.printStackTrace();
+                    return Observable.empty();
+                })
+
                 .subscribe(point -> {
                     bubble.setTranslationX(point.x);
                     bubble.setTranslationY(point.y);
@@ -148,14 +156,18 @@ public class BubbleHelper {
         return bubble;
     }
 
+    private static final String SSO_PREFIX = BuildConfig.DEBUG
+            ? (System.currentTimeMillis() + "__")
+            : "bubbleHint__";
+
     public static boolean wouldShow(Context context, String name) {
         SingleShotService sso = appComponent(context).singleShotService();
-        return name == null || sso.test().isFirstTime("bubbleHint__" + name);
+        return name == null || sso.test().isFirstTime(SSO_PREFIX + name);
     }
 
     private static void markAsShown(Context context, String name) {
         if (name != null) {
-            appComponent(context).singleShotService().isFirstTime("bubbleHint__" + name);
+            appComponent(context).singleShotService().isFirstTime(SSO_PREFIX + name);
         }
     }
 

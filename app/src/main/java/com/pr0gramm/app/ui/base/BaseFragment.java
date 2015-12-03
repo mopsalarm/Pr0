@@ -18,11 +18,8 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
-
-import static rx.schedulers.Schedulers.io;
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -54,6 +51,11 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.<T>bindFragment(lifecycleSubject));
+    }
+
+    protected final <T> Observable.Transformer<T, T> bindToLifecycleForeground() {
+        //noinspection unchecked
+        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindFragment(lifecycleSubject);
     }
 
     @Override
@@ -124,5 +126,10 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     public void onDetach() {
         lifecycleSubject.onNext(FragmentEvent.DETACH);
         super.onDetach();
+    }
+
+    protected <T> Observable.Transformer<T, T> bindView() {
+        //noinspection unchecked
+        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW);
     }
 }

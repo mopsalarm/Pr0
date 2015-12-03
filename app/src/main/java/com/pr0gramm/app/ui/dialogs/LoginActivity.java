@@ -306,7 +306,7 @@ public class LoginActivity extends BaseAppCompatActivity {
         return new DoIfAuthorizedHelper() {
             @Override
             protected Context getContext() {
-                return fragment.getActivity();
+                return fragment.getContext();
             }
 
             @Override

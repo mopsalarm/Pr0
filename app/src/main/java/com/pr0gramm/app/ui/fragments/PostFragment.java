@@ -78,6 +78,7 @@ import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.bubble.BubbleHelper;
+import com.pr0gramm.app.ui.bubble.BubbleNames;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -89,6 +90,8 @@ import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.FragmentEvent;
+
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -113,7 +116,10 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.util.AndroidUtility.emptyIfNull;
 import static java.util.Collections.emptyMap;
+import static rx.Observable.combineLatest;
+import static rx.Observable.empty;
 
 /**
  * This fragment shows the content of one post.
@@ -122,9 +128,10 @@ public class PostFragment extends BaseFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
+    private final Logger logger = AndroidUtility.logger(this);
+
     private static final String ARG_FEED_ITEM = "PostFragment.post";
 
-    private boolean active;
     private FeedItem feedItem;
     private MediaView viewer;
 
@@ -179,7 +186,7 @@ public class PostFragment extends BaseFragment implements
     private MergeRecyclerAdapter adapter;
     private CommentsAdapter commentsAdapter;
 
-    private Optional<Long> autoScrollTo = Optional.absent();
+    private Optional<Long> autoScrollTo;
     private RecyclerView.OnScrollListener scrollHandler;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
@@ -190,7 +197,7 @@ public class PostFragment extends BaseFragment implements
     private boolean rewindOnLoad;
     private boolean tabletLayout;
 
-    private final BehaviorSubject<Boolean> stateActiveSubject = BehaviorSubject.create(false);
+    private BehaviorSubject<Boolean> activeStateSubject;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -204,6 +211,36 @@ public class PostFragment extends BaseFragment implements
             tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
             comments = Parceler.get(CommentListParceler.class, savedState, "PostFragment.comments");
         }
+
+        autoScrollTo = Optional.absent();
+
+        activeStateSubject = BehaviorSubject.create(false);
+
+        activeState().subscribe(active -> {
+            if (viewer != null) {
+                if (active) {
+                    viewer.playMedia();
+                } else {
+                    viewer.stopMedia();
+                }
+            }
+
+            if (!active) {
+                exitFullscreenAnimated(false);
+            }
+        });
+    }
+
+    private Observable<Boolean> activeState() {
+        Observable<FragmentEvent> startStopLifecycle = lifecycle()
+                .filter(ev -> ev == FragmentEvent.START || ev == FragmentEvent.STOP);
+
+        // now combine with the activeStateSubject and return a new observable with
+        // the "active state".
+        return combineLatest(
+                startStopLifecycle, activeStateSubject,
+                (ev, active) -> active && ev == FragmentEvent.START
+        ).distinctUntilChanged();
     }
 
     @Override
@@ -625,8 +662,19 @@ public class PostFragment extends BaseFragment implements
         if (viewer != null)
             viewer.onStart();
 
-        if (active) {
-            onMarkedActive();
+        if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_COMMENT_FAV)) {
+            activeState()
+                    .delay(5, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                    .filter(active -> active && getView() != null)
+                    .flatMap(active -> emptyIfNull(checkNotNull(getView()).findViewById(R.id.kfav)))
+                    .compose(bindToLifecycleForeground())
+                    .subscribe(target -> {
+                        BubbleHelper.leftOf(target)
+                                .hintName(BubbleNames.POST_COMMENT_FAV)
+                                .text("Merke den Kommentar\nals Favoriten")
+                                .root((ViewGroup) getView())
+                                .show();
+                    });
         }
 
         commentService.favedCommentIds()
@@ -667,7 +715,7 @@ public class PostFragment extends BaseFragment implements
             viewer = null;
         }
 
-        stateActiveSubject.onCompleted();
+        activeStateSubject.onCompleted();
         super.onDestroy();
     }
 
@@ -735,18 +783,19 @@ public class PostFragment extends BaseFragment implements
             dialog.show(getChildFragmentManager(), null);
         });
 
-        Observable<Boolean> trigger = Observable.combineLatest(
-                stateActiveSubject.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW)),
+        Observable<Boolean> trigger = combineLatest(
+                activeStateSubject.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW)),
                 RxView.attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
                 (attached, active) -> attached && active);
 
-        if (BubbleHelper.wouldShow(getContext(), "Post.Rating.Longtap-y")) {
+        if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_RATING_LONGTAP)) {
             BubbleHelper.reattach(trigger, () -> {
                 // show only if points are not hidden
                 boolean hidden = infoLineView.getRatingView().getVisibility() != View.VISIBLE;
-                return Optional.fromNullable(hidden ? null : BubbleHelper.below(infoLineView.getRatingView())
+                return Optional.fromNullable(hidden ? null : BubbleHelper.above(infoLineView.getRatingView())
                         .root((ViewGroup) getView())
-                        .hintName("Post.Rating.Longtap-y")
+                        .hintName(BubbleNames.POST_RATING_LONGTAP)
+                        .requireShown(BubbleNames.POST_COMMENT_FAV)
                         .text("Longtap um up/down\nVotes zu sehen.")
                         .show());
             });
@@ -983,7 +1032,7 @@ public class PostFragment extends BaseFragment implements
         // load the votes for the comments and update, when we found any
         voteService.getCommentVotes(comments)
                 .filter(votes -> !votes.isEmpty())
-                .onErrorResumeNext(Observable.empty())
+                .onErrorResumeNext(empty())
                 .compose(bindToLifecycle())
                 .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.getUser()));
     }
@@ -1002,39 +1051,7 @@ public class PostFragment extends BaseFragment implements
      * @param active The new active status.
      */
     public void setActive(boolean active) {
-        this.active = active;
-
-        if (viewer == null)
-            return;
-
-        if (active) {
-            onMarkedActive();
-        } else {
-            onMarkedInactive();
-        }
-    }
-
-    /**
-     * Called if this fragment becomes the active post fragment.
-     */
-    private void onMarkedActive() {
-        if (viewer != null) {
-            viewer.playMedia();
-        }
-
-        stateActiveSubject.onNext(true);
-    }
-
-    /**
-     * Called if this fragment is not the active post fragment anymore.
-     */
-    private void onMarkedInactive() {
-        if (viewer != null) {
-            viewer.stopMedia();
-        }
-
-        exitFullscreenAnimated(false);
-        stateActiveSubject.onNext(false);
+        activeStateSubject.onNext(active);
     }
 
     @Override
