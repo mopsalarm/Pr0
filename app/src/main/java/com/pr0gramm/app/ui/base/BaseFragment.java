@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.base;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -36,7 +37,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
 
 
     @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(FragmentEvent event) {
+    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull FragmentEvent event) {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
@@ -56,6 +57,16 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     protected final <T> Observable.Transformer<T, T> bindToLifecycleForeground() {
         //noinspection unchecked
         return (Observable.Transformer<T, T>) RxLifecycle.<T>bindFragment(lifecycleSubject);
+    }
+
+    protected final <T> Observable.Transformer<T, T> bindUntilEventForeground(@NonNull FragmentEvent event) {
+        //noinspection unchecked
+        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event);
+    }
+
+    protected <T> Observable.Transformer<T, T> bindView() {
+        //noinspection unchecked
+        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW);
     }
 
     @Override
@@ -126,10 +137,5 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     public void onDetach() {
         lifecycleSubject.onNext(FragmentEvent.DETACH);
         super.onDetach();
-    }
-
-    protected <T> Observable.Transformer<T, T> bindView() {
-        //noinspection unchecked
-        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW);
     }
 }
