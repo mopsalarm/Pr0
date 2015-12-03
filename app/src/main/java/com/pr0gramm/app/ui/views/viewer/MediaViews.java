@@ -4,6 +4,11 @@ import android.app.Activity;
 
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
+import com.trello.rxlifecycle.FragmentEvent;
+
+import rx.Observable;
+
+import static com.trello.rxlifecycle.RxLifecycle.bindView;
 
 /**
  * This class provides static methods to create a new
@@ -43,14 +48,14 @@ public class MediaViews {
                         videoUrl.withProxy(uri.hasProxyFlag()),
                         onViewListener);
             } else {
-                result = new VideoMediaView(activity,  uri, onViewListener);
+                result = new VideoMediaView(activity, uri, onViewListener);
             }
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
             if (shouldUseGifToWebm(uri, settings)) {
-                result = new Gif2VideoMediaView(activity,  uri, onViewListener);
+                result = new Gif2VideoMediaView(activity, uri, onViewListener);
             } else {
-                result = new GifMediaView(activity,  uri, onViewListener);
+                result = new GifMediaView(activity, uri, onViewListener);
             }
 
         } else {
@@ -83,5 +88,24 @@ public class MediaViews {
             return false;
 
         return canUseWebmDecoder(uri, settings) || canUseMpegDecoder(uri);
+    }
+
+    public static void adaptFragmentLifecycle(Observable<FragmentEvent> lifecycle, MediaView view) {
+        lifecycle.compose(bindView(view)).subscribe(event -> {
+            if (event == FragmentEvent.START)
+                view.onStart();
+
+            if (event == FragmentEvent.RESUME)
+                view.onResume();
+
+            if (event == FragmentEvent.PAUSE)
+                view.onPause();
+
+            if (event == FragmentEvent.STOP)
+                view.onStop();
+
+            if (event == FragmentEvent.DESTROY_VIEW)
+                view.onDestroy();
+        });
     }
 }

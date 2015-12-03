@@ -36,7 +36,6 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.view.ViewAttachEvent;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -111,6 +110,7 @@ import static android.animation.PropertyValuesHolder.ofFloat;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
+import static com.jakewharton.rxbinding.view.RxView.attachEvents;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -197,7 +197,7 @@ public class PostFragment extends BaseFragment implements
     private boolean rewindOnLoad;
     private boolean tabletLayout;
 
-    private BehaviorSubject<Boolean> activeStateSubject;
+    private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -214,9 +214,7 @@ public class PostFragment extends BaseFragment implements
 
         autoScrollTo = Optional.absent();
 
-        activeStateSubject = BehaviorSubject.create(false);
-
-        activeState().subscribe(active -> {
+        activeState().compose(bindToLifecycleForeground()).subscribe(active -> {
             if (viewer != null) {
                 if (active) {
                     viewer.playMedia();
@@ -237,10 +235,10 @@ public class PostFragment extends BaseFragment implements
 
         // now combine with the activeStateSubject and return a new observable with
         // the "active state".
-        return combineLatest(
-                startStopLifecycle, activeStateSubject,
-                (ev, active) -> active && ev == FragmentEvent.START
-        ).distinctUntilChanged();
+        Observable<Boolean> combined = combineLatest(startStopLifecycle, activeStateSubject,
+                (ev, active) -> active && ev == FragmentEvent.START);
+
+        return combined.distinctUntilChanged();
     }
 
     @Override
@@ -659,8 +657,6 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        if (viewer != null)
-            viewer.onStart();
 
         if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_COMMENT_FAV)) {
             activeState()
@@ -685,38 +681,9 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (viewer != null)
-            viewer.onResume();
 
         // set ordering
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
-    }
-
-    @Override
-    public void onPause() {
-        if (viewer != null)
-            viewer.onPause();
-
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        if (viewer != null)
-            viewer.onStop();
-
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (viewer != null) {
-            viewer.onDestroy();
-            viewer = null;
-        }
-
-        activeStateSubject.onCompleted();
-        super.onDestroy();
     }
 
     /**
@@ -784,8 +751,8 @@ public class PostFragment extends BaseFragment implements
         });
 
         Observable<Boolean> trigger = combineLatest(
-                activeStateSubject.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW)),
-                RxView.attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
+                activeState().compose(bindToLifecycleForeground()),
+                attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
                 (attached, active) -> attached && active);
 
         if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_RATING_LONGTAP)) {
@@ -858,6 +825,9 @@ public class PostFragment extends BaseFragment implements
             //  mark this item seen. We do that in a background thread
             seenService.markAsSeen(feedItem);
         });
+
+        // inform viewer over fragment lifecycle events!
+        MediaViews.adaptFragmentLifecycle(lifecycle(), viewer);
 
         registerTabListener(viewer);
 
