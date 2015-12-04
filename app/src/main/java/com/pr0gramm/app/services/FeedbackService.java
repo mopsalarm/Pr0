@@ -21,7 +21,6 @@ import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 import rx.util.async.Async;
 
 /**
@@ -37,7 +36,7 @@ public class FeedbackService {
         this.context = context;
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/feedback/v1/")
+                .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build().create(Api.class);

@@ -104,10 +104,10 @@ public class UpdateChecker {
 
         if (betaChannel) {
             urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor + "/");
-            urls.add("http://pr0.wibbly-wobbly.de/beta/" + flavor + "/");
+            urls.add("https://pr0.wibbly-wobbly.de/beta/" + flavor + "/");
         } else {
             urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor + "/");
-            urls.add("http://pr0.wibbly-wobbly.de/stable/" + flavor + "/");
+            urls.add("https://pr0.wibbly-wobbly.de/stable/" + flavor + "/");
         }
 
         return ImmutableList.copyOf(urls);

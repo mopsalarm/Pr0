@@ -229,14 +229,14 @@ public abstract class MediaView extends FrameLayout {
         if (preview != null && previewTarget != null) {
 
             if (isEligibleForThumbyPreview(mediaUri)) {
-                // normalize url before fetching generating thumbnail
+                // normalize url before fetching generated thumbnail
                 String url = mediaUri.getBaseUri().toString()
                         .replace("https://", "http://")
                         .replace(".mpg", ".webm");
 
                 String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
 
-                Uri image = Uri.parse("http://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");
+                Uri image = Uri.parse("https://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");
                 picasso.load(image).noPlaceholder().into(previewTarget);
             }
         }

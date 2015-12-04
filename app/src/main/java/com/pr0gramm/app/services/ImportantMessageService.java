@@ -155,7 +155,7 @@ public class ImportantMessageService {
         ImmutableList.Builder<String> builder = ImmutableList.<String>builder()
                 .add("https://raw.githubusercontent.com/mopsalarm/pr0gramm-updates/master/messages.json")
                 .add("https://mopsalarm.github.io/Pr0/messages.json")
-                .add("http://pr0.wibbly-wobbly.de/messages.json");
+                .add("https://pr0.wibbly-wobbly.de/messages.json");
 
         if (BuildConfig.DEBUG) {
             builder.add("http://" + Debug.MOCK_API_HOST + "/messages.json");

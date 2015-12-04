@@ -46,7 +46,7 @@ public class MetaService {
                 .create();
 
         api = new Retrofit.Builder()
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/meta/v1/")
+                .baseUrl("https://pr0.wibbly-wobbly.de/api/meta/v1/")
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())

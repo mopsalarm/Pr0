@@ -58,7 +58,7 @@ public class CommentService {
     public CommentService(UserService userService, OkHttpClient okHttpClient) {
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/comments/v1/")
+                .baseUrl("https://pr0.wibbly-wobbly.de/api/comments/v1/")
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
                         .registerTypeAdapterFactory(new GsonAdaptersCommentService())
                         .registerTypeAdapter(Instant.class, new InstantTypeAdapter())

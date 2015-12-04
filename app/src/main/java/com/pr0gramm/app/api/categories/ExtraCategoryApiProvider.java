@@ -21,7 +21,7 @@ public class ExtraCategoryApiProvider implements Provider<ExtraCategoryApi> {
     public ExtraCategoryApiProvider(OkHttpClient httpClient, Gson gson) {
         this.api = new Retrofit.Builder()
                 .client(httpClient)
-                .baseUrl("http://pr0.wibbly-wobbly.de/api/categories/v1/")
+                .baseUrl("https://pr0.wibbly-wobbly.de/api/categories/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
