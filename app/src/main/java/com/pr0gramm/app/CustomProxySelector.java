@@ -28,7 +28,8 @@ public class CustomProxySelector extends ProxySelector {
                 return Collections.singletonList(proxy);
             }
         }
-        return Collections.emptyList();
+
+        return Collections.singletonList(Proxy.NO_PROXY);
     }
 
     @Override
