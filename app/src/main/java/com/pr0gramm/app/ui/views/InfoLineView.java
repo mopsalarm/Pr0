@@ -19,6 +19,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.ui.ConservativeLinearLayoutManager;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.TagCloudLayoutManager;
@@ -95,7 +96,9 @@ public class InfoLineView extends LinearLayout {
             tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 3));
         } else {
             tagsView.setItemAnimator(null);
-            tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 1));
+
+            // tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 1));
+            tagsView.setLayoutManager(new ConservativeLinearLayoutManager(getContext(), HORIZONTAL, false));
         }
 
         voteView.setOnVoteListener(newVote -> {

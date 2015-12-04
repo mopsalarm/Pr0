@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.pr0gramm.app.util.AndroidUtility;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,17 +70,21 @@ public class TagCloudLayoutManager extends RecyclerView.LayoutManager {
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
         int parentWidth = View.MeasureSpec.getSize(widthSpec);
 
-        List<Size> sizes = measureElements(recycler);
+        this.config = AndroidUtility.time(logger, "measure tag sizes", () -> {
+            List<Size> sizes = measureElements(recycler);
 
-        // estimate the needed with using brute force!
-        int width = parentWidth;
-        Config config = measureConfig(sizes, width);
-        while (config.rows > maxNumberOfRows) {
-            width += Math.max(10, (int) (width * 0.1));
-            config = measureConfig(sizes, width);
-        }
+            // estimate the needed with using brute force!
+            int width = maxNumberOfRows == 1 ? Integer.MAX_VALUE : parentWidth;
 
-        this.config = config;
+            Config config = measureConfig(sizes, width);
+            while (config.rows > maxNumberOfRows) {
+                width += Math.max(10, (int) (width * 0.1));
+                config = measureConfig(sizes, width);
+            }
+
+            return config;
+        });
+
         setMeasuredDimension(parentWidth, config.height);
     }
 
