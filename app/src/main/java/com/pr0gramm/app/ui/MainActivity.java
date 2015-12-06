@@ -188,10 +188,20 @@ public class MainActivity extends BaseAppCompatActivity implements
         showApiProxyHint();
         addOriginalContentBookmarkOnce();
 
-
         messageService.messages()
                 .compose(bindToLifecycle())
                 .subscribe(def -> messageService.present(this, def), Actions.empty());
+
+        if (Instant.now().isAfter(new Instant(1451602800000L))) {
+            DialogBuilder.start(this)
+                    .content("Oops, die Beta ist 'abgelaufen'. Update doch mal endlich!")
+                    .positive("Website", v -> {
+                        ApplicationClass.openDownloadFreeVersion(this);
+                        finish();
+                    })
+                    .onCancel(di -> finish())
+                    .show();
+        }
     }
 
     @Override
