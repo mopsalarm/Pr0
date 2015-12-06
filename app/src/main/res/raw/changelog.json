@@ -12,6 +12,10 @@
       },
       {
         "type": "Neu",
+        "change": "Alle Zusatzservices verwenden nun nur noch HTTPs"
+      },
+      {
+        "type": "Neu",
         "change": "WIP: Experimentelles Layout für Tablets!"
       }
     ]
