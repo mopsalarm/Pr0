@@ -42,6 +42,7 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
+import com.pr0gramm.app.ui.fragments.NavigationDrawerFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
 import org.joda.time.Duration;
@@ -149,7 +150,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if (savedInstanceState == null) {
-            createDrawerFragment();
+            createNavigationDrawerFragment();
 
             Intent intent = getIntent();
             if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
@@ -264,12 +265,12 @@ public class MainActivity extends BaseAppCompatActivity implements
         updateToolbarBackButton();
         updateActionbarTitle();
 
-        DrawerFragment drawer = getDrawerFragment();
+        NavigationDrawerFragment drawer = getNavigationDrawerFragment();
         if (drawer != null) {
             FeedFilter currentFilter = getCurrentFeedFilter();
 
             // show the current item in the drawer
-            drawer.updateCurrentFilters(currentFilter);
+//            drawer.updateCurrentFilters(currentFilter); TODO
         }
     }
 
@@ -311,8 +312,8 @@ public class MainActivity extends BaseAppCompatActivity implements
         drawerToggle.syncState();
     }
 
-    private void createDrawerFragment() {
-        DrawerFragment fragment = new DrawerFragment();
+    private void createNavigationDrawerFragment() {
+        NavigationDrawerFragment fragment = new NavigationDrawerFragment();
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.left_drawer, fragment)
@@ -471,8 +472,8 @@ public class MainActivity extends BaseAppCompatActivity implements
         new Handler().post(this::onBackStackChanged);
     }
 
-    private DrawerFragment getDrawerFragment() {
-        return (DrawerFragment) getSupportFragmentManager()
+    private NavigationDrawerFragment getNavigationDrawerFragment() {
+        return (NavigationDrawerFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.left_drawer);
     }
 
