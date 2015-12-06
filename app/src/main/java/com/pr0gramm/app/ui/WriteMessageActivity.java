@@ -8,10 +8,16 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
+import android.text.Editable;
+import android.text.Layout;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filterable;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import com.pr0gramm.app.ActivityComponent;
@@ -36,6 +42,7 @@ import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static java.util.Arrays.asList;
 
 /**
  */
@@ -61,7 +68,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     MessageView messageView;
 
     @Bind(R.id.new_message_text)
-    TextView messageText;
+    MultiAutoCompleteTextView messageText;
 
     @Bind(R.id.submit)
     Button buttonSubmit;
@@ -97,6 +104,13 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
                 supportInvalidateOptionsMenu();
             }
         });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line,
+                asList("@Nixname", "@Nixtest", "@mopsalarm"));
+
+        messageText.setTokenizer(new UsernameTokenizer());
+        messageText.setAdapter(adapter);
     }
 
     @Override

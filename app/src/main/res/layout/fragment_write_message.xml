@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
+        <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
             android:id="@+id/new_message_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -26,10 +26,11 @@
             android:hint="@string/write_message_placeholder"
             android:inputType="textMultiLine"
             android:minLines="5"
-            android:padding="8sp">
+            android:padding="8sp"
+            >
 
             <requestFocus/>
-        </EditText>
+        </com.pr0gramm.app.ui.LineMultiAutoCompleteTextView>
 
         <Button
             android:id="@+id/submit"
