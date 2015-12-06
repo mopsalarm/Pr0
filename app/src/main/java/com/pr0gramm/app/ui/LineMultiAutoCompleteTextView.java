@@ -6,17 +6,12 @@ import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
-import android.widget.ListPopupWindow;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -75,18 +70,6 @@ public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTex
         } else {
             anchorView = null;
             setDropDownAnchor(NO_ID);
-        }
-    }
-
-    private Optional<ListPopupWindow> getPopup() {
-        try {
-            Field field = AutoCompleteTextView.class.getDeclaredField("mPopup");
-            field.setAccessible(true);
-            return Optional.fromNullable((ListPopupWindow) field.get(this));
-
-        } catch (Exception error) {
-            logger.warn("Could not get the popup");
-            return Optional.absent();
         }
     }
 }
