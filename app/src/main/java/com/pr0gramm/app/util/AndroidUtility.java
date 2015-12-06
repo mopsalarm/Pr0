@@ -83,6 +83,10 @@ public class AndroidUtility {
     private AndroidUtility() {
     }
 
+    public static boolean atLeast(int sdkVersion) {
+        return Build.VERSION.SDK_INT >= sdkVersion;
+    }
+
     /**
      * Gets the height of the action bar as definied in the style attribute
      * {@link R.attr#actionBarSize} plus the height of the status bar on android

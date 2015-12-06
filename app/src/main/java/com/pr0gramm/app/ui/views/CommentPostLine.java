@@ -13,6 +13,7 @@ import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView;
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.UsernameTokenizer;
+import com.pr0gramm.app.util.ViewUtility;
 
 import butterknife.ButterKnife;
 
@@ -45,7 +46,12 @@ public class CommentPostLine extends FrameLayout {
 
         // setup auto complete in the comment view.
         MetaService metaService = Dagger.appComponent(getContext()).metaService();
+
         View anchorView = findViewById(R.id.auto_complete_popup_anchor);
+
+        // change the anchorViews id so it is unique in the view hierarchy
+        anchorView.setId(ViewUtility.generateViewId());
+
         commentTextView.setAnchorView(anchorView);
         commentTextView.setTokenizer(new UsernameTokenizer());
         commentTextView.setAdapter(new UsernameAutoCompleteAdapter(metaService, getContext(),

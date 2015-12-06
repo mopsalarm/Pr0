@@ -8,6 +8,10 @@
       },
       {
         "type": "Neu",
+        "change": "Autovervollständigung von Usernamen beim Verfassen von Kommentaren und Nachrichten"
+      },
+      {
+        "type": "Neu",
         "change": "WIP: Experimentelles Layout für Tablets!"
       }
     ]

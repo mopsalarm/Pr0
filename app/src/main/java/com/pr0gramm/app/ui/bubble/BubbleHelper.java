@@ -3,7 +3,9 @@ package com.pr0gramm.app.ui.bubble;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,8 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.RxLifecycle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -27,6 +31,7 @@ import rx.functions.Action1;
 import rx.functions.Func0;
 
 import static com.pr0gramm.app.Dagger.appComponent;
+import static com.pr0gramm.app.util.AndroidUtility.atLeast;
 import static com.pr0gramm.app.util.AndroidUtility.endAction;
 import static com.pr0gramm.app.util.AndroidUtility.removeView;
 
@@ -120,7 +125,7 @@ public class BubbleHelper {
 
                 /* and ignore any errors */
                 .onErrorResumeNext(error -> {
-                    error.printStackTrace();
+                    AndroidUtility.removeView(bubble);
                     return Observable.empty();
                 })
 
@@ -229,15 +234,27 @@ public class BubbleHelper {
     }
 
     private static Observable<Void> parentScrolls(View view) {
-        Observable<Void> result = Observable.empty();
+        List<Observable<Void>> result = new ArrayList<>();
+        if (atLeast(Build.VERSION_CODES.M)) {
 
-        ViewParent vp = view.getParent();
-        while (vp instanceof View) {
-            result = result.mergeWith(RxView.scrollChangeEvents((View) vp).map(v -> (Void) null));
-            vp = vp.getParent();
+            ViewParent vp = view.getParent();
+            while (vp instanceof View) {
+                result.add(RxView.scrollChangeEvents((View) vp).map(v -> (Void) null));
+                vp = vp.getParent();
+            }
+        } else {
+            // okay, we just add listeners to classes that support this.
+            ViewParent vp = view.getParent();
+            while (vp instanceof View) {
+                if (vp instanceof RecyclerView) {
+                    result.add(RecyclerViewOnScrollSubscription.onScroll((RecyclerView) vp));
+                }
+
+                vp = vp.getParent();
+            }
         }
 
-        return result;
+        return Observable.merge(result);
     }
 
     private static ViewGroup rootOf(View view) {
