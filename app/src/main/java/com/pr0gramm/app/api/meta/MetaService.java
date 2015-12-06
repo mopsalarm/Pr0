@@ -1,8 +1,12 @@
 package com.pr0gramm.app.api.meta;
 
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
 
 import com.google.common.base.Joiner;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
@@ -20,7 +24,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import retrofit.Call;
 import retrofit.GsonConverterFactory;
+import retrofit.Response;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import retrofit.http.Field;
@@ -30,12 +36,17 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 import rx.Observable;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Collections.emptyList;
+
 /**
  */
 @Singleton
 public class MetaService {
     private static final Logger logger = LoggerFactory.getLogger("MetaService");
+
     private final Api api;
+    private final LoadingCache<String, List<String>> userSuggestionCache;
 
     @Inject
     public MetaService(OkHttpClient httpClient) {
@@ -43,6 +54,7 @@ public class MetaService {
                 .registerTypeAdapterFactory(new GsonAdaptersItemsInfo())
                 .registerTypeAdapterFactory(new GsonAdaptersSizeInfo())
                 .registerTypeAdapterFactory(new GsonAdaptersUserInfo())
+                .registerTypeAdapterFactory(new GsonAdaptersNames())
                 .create();
 
         api = new Retrofit.Builder()
@@ -50,8 +62,13 @@ public class MetaService {
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .validateEagerly()
                 .build()
                 .create(Api.class);
+
+        userSuggestionCache = CacheBuilder.<String, List<String>>newBuilder()
+                .maximumSize(100)
+                .build(CacheLoader.from(this::internalSuggestUsers));
     }
 
     public Observable<ItemsInfo> getItemsInfo(Collection<Long> items) {
@@ -84,6 +101,27 @@ public class MetaService {
                 });
     }
 
+    public List<String> suggestUsers(@NonNull String prefix) {
+        return userSuggestionCache.getUnchecked(prefix);
+    }
+
+    @NonNull
+    private List<String> internalSuggestUsers(@NonNull String prefix) {
+        if (prefix.length() < 3)
+            return emptyList();
+
+        try {
+            Response<Names> reponse = api.suggestUsers(prefix).execute();
+            if (!reponse.isSuccess())
+                return emptyList();
+
+            return firstNonNull(reponse.body().names(), emptyList());
+        } catch (Exception error) {
+            logger.warn("Could not fetch username suggestions for prefix={}: {}", prefix, error);
+            return emptyList();
+        }
+    }
+
     private interface Api {
         @FormUrlEncoded
         @POST("items")
@@ -91,6 +129,9 @@ public class MetaService {
 
         @GET("user/{name}")
         Observable<UserInfo> user(@Path("name") String name);
+
+        @GET("user/suggest/{prefix}")
+        Call<Names> suggestUsers(@Path("prefix") String prefix);
     }
 
     private static final ItemsInfo EMPTY_INFO = ImmutableItemsInfo.builder().build();

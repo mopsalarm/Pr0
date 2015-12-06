@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.app.DownloadManager;
 import android.content.SharedPreferences;
 
+import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.services.DownloadCompleteReceiver;
 import com.pr0gramm.app.services.DownloadUpdateReceiver;
 import com.pr0gramm.app.services.NotificationService;
@@ -45,6 +46,8 @@ public interface AppComponent {
 
     SingleShotService singleShotService();
 
+    MetaService metaService();
+
     void inject(SyncIntentService service);
 
     void inject(SettingsActivity.SettingsFragment fragment);
@@ -58,5 +61,4 @@ public interface AppComponent {
     void inject(DownloadUpdateReceiver downloadUpdateReceiver);
 
     void inject(Dagger.EagerSingletons eagerSingletons);
-
 }

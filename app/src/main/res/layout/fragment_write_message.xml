@@ -25,8 +25,7 @@
                 android:id="@+id/auto_complete_popup_anchor"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
-                android:visibility="invisible"
-                android:background="@color/primary"/>
+                android:visibility="invisible"/>
 
             <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
                 android:id="@+id/new_message_text"

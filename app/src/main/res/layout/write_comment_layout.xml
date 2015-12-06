@@ -3,27 +3,39 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="16dp"
-    android:paddingLeft="8dp"
-    android:paddingTop="8dp"
     android:background="@color/feed_background"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="8dp">
 
-    <EditText
-        android:id="@+id/comment_text"
-        style="@style/Base.TextAppearance.AppCompat.Body1"
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/input_background"
-        android:hint="@string/comment_hint"
-        android:padding="8dp"/>
+        android:layout_marginRight="8dp"
+        android:layout_weight="1">
+
+        <View
+            android:id="@+id/auto_complete_popup_anchor"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:visibility="invisible"/>
+
+        <com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
+            android:id="@+id/comment_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/input_background"
+            android:hint="@string/comment_hint"
+            android:padding="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/comment_post"
-        android:layout_width="wrap_content"
+        android:layout_width="56sp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="bottom|right"
+        android:background="@color/input_background"
+        android:gravity="center"
         android:padding="8dp"
         android:text="@string/post_comment"
         android:textColor="@color/primary"/>

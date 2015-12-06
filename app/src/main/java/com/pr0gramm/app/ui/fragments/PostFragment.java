@@ -378,7 +378,12 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void initializeCommentPostLine() {
+        ViewGroup.MarginLayoutParams layoutParams = new ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
         CommentPostLine line = new CommentPostLine(getActivity());
+        line.setLayoutParams(layoutParams);
         adapter.addAdapter(SingleViewAdapter.ofView(line));
 
         line.getCommentTextView().addTextChangedListener(new SimpleTextWatcher() {

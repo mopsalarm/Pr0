@@ -11,11 +11,11 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -36,7 +36,6 @@ import rx.functions.Actions;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static java.util.Arrays.asList;
 
 /**
  */
@@ -57,6 +56,9 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Inject
     VoteService voteService;
+
+    @Inject
+    MetaService metaService;
 
     @Bind(R.id.message_view)
     MessageView messageView;
@@ -99,12 +101,9 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line,
-                asList("@Nixname", "@Nixtest", "@mopsalarm"));
-
         messageText.setTokenizer(new UsernameTokenizer());
-        messageText.setAdapter(adapter);
+        messageText.setAdapter(new UsernameAutoCompleteAdapter(metaService, this,
+                android.R.layout.simple_dropdown_item_1line));
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor));
 

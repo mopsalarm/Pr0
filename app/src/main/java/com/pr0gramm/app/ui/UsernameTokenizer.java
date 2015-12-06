@@ -4,9 +4,6 @@ import android.widget.MultiAutoCompleteTextView;
 
 import com.google.common.base.CharMatcher;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  */
 public class UsernameTokenizer implements MultiAutoCompleteTextView.Tokenizer {
