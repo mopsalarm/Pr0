@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/comment_post"
-        android:layout_width="56sp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:background="@color/input_background"

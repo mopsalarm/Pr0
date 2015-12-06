@@ -16,7 +16,11 @@
       },
       {
         "type": "Neu",
-        "change": "WIP: Experimentelles Layout für Tablets!"
+        "change": "WIP: Experimentelles Layout für 10 Zoll Tablets!"
+      },
+      {
+        "type": "Neu",
+        "change": "Kleine Sprechblasen-Infoanleitung"
       }
     ]
   },

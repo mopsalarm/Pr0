@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -102,17 +103,19 @@ public class BubbleView extends TextView {
         final int gravity;
         final int radius;
         final int markerSize;
-        final Paint paint;
+        final Paint bgPaint;
         final Path markerPath;
+        private final Path closePath;
+        private final Paint closePaint;
 
         public BubbleDrawable(Context context, int gravity, int bubbleColor) {
             this.gravity = gravity;
             this.radius = AndroidUtility.dp(context, 6);
             this.markerSize = AndroidUtility.dp(context, 10);
 
-            this.paint = new Paint();
-            this.paint.setAntiAlias(true);
-            this.paint.setColor(bubbleColor);
+            this.bgPaint = new Paint();
+            this.bgPaint.setAntiAlias(true);
+            this.bgPaint.setColor(bubbleColor);
 
             if (!asList(Gravity.BOTTOM, Gravity.RIGHT, Gravity.LEFT, Gravity.TOP).contains(gravity))
                 throw new IllegalArgumentException("Invalid gravity given");
@@ -122,6 +125,19 @@ public class BubbleView extends TextView {
             markerPath.lineTo(-markerSize - 1, markerSize + 1);
             markerPath.lineTo(markerSize + 1, markerSize + 1);
             markerPath.close();
+
+            closePaint = new Paint();
+            closePaint.setAntiAlias(true);
+            closePaint.setStrokeWidth(AndroidUtility.dp(context, 2));
+            closePaint.setColor(Color.argb(128, 255, 255, 255));
+            closePaint.setStyle(Paint.Style.STROKE);
+
+            float val = radius / 2;
+            closePath = new Path();
+            closePath.moveTo(-val, -val);
+            closePath.lineTo(val, val);
+            closePath.moveTo(-val, val);
+            closePath.lineTo(val, -val);
         }
 
         @Override
@@ -162,16 +178,25 @@ public class BubbleView extends TextView {
             if (rect.width() <= 0 || rect.height() <= 0)
                 return;
 
-            canvas.drawRoundRect(rect, radius, radius, paint);
+            canvas.drawRoundRect(rect, radius, radius, bgPaint);
 
             canvas.save();
             try {
                 canvas.translate(triMark.x, triMark.y);
                 canvas.rotate(triAngle);
-                canvas.drawPath(markerPath, paint);
+                canvas.drawPath(markerPath, bgPaint);
             } finally {
                 canvas.restore();
             }
+
+            canvas.save();
+            try {
+                canvas.translate(rect.right - radius, rect.top + radius);
+                canvas.drawPath(closePath, closePaint);
+            } finally {
+                canvas.restore();
+            }
+
         }
 
         @Override
