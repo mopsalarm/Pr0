@@ -8,17 +8,11 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
-import android.text.Editable;
-import android.text.Layout;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Filterable;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.TextView;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -68,7 +62,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     MessageView messageView;
 
     @Bind(R.id.new_message_text)
-    MultiAutoCompleteTextView messageText;
+    LineMultiAutoCompleteTextView messageText;
 
     @Bind(R.id.submit)
     Button buttonSubmit;
@@ -111,6 +105,9 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
         messageText.setTokenizer(new UsernameTokenizer());
         messageText.setAdapter(adapter);
+
+        messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor));
+
     }
 
     @Override

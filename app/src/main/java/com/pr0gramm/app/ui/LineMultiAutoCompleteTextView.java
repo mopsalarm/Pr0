@@ -1,27 +1,30 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView;
 import android.text.Layout;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.FrameLayout;
 import android.widget.ListPopupWindow;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
-import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  */
 public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTextView {
     private static final Logger logger = LoggerFactory.getLogger("LineMultiAutoCompleteTextView");
+    private View anchorView;
 
     public LineMultiAutoCompleteTextView(Context context) {
         super(context);
@@ -43,21 +46,36 @@ public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTex
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Layout layout = getLayout();
-                int pos = getSelectionStart();
-                int line = layout.getLineForOffset(pos);
-                int baseline = layout.getLineBottom(line);
+                if (anchorView != null && layout != null) {
+                    int line = layout.getLineForOffset(getSelectionStart());
 
-                int bottom = getHeight();
-                int padding = getTotalPaddingTop();
-                setDropDownVerticalOffset(baseline - bottom + padding);
+                    int lineTop = layout.getLineTop(line);
+                    int lineBottom = layout.getLineBottom(line);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    ifPresent(getPopup(), popup -> {
-                        popup.setDropDownGravity(Gravity.START);
-                    });
+                    // reposition the margin
+                    ViewGroup.MarginLayoutParams params = new FrameLayout.LayoutParams(getWidth(), lineBottom - lineTop);
+                    params.topMargin = getTop() + getTotalPaddingTop() + lineTop;
+                    params.rightMargin = getLeft();
+                    anchorView.setLayoutParams(params);
+
+                    setDropDownVerticalOffset(AndroidUtility.dp(getContext(), 5));
                 }
             }
         });
+    }
+
+    public void setAnchorView(View anchor) {
+        if(anchor != null) {
+            checkArgument(anchor.getId() != NO_ID, "Anchor view must have an id.");
+            checkArgument(anchor.getParent() == getParent(), "Anchor view must have the same parent");
+            checkArgument(getParent() instanceof FrameLayout, "Parent must be a FrameLayout.");
+
+            anchorView = anchor;
+            setDropDownAnchor(anchor.getId());
+        } else {
+            anchorView = null;
+            setDropDownAnchor(NO_ID);
+        }
     }
 
     private Optional<ListPopupWindow> getPopup() {
