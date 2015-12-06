@@ -6,7 +6,6 @@ import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.RatingEvent;
 import com.crashlytics.android.answers.SearchEvent;
 import com.crashlytics.android.answers.ShareEvent;
-import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
@@ -87,7 +86,7 @@ public final class Track {
         track(new CustomEvent("Download"));
     }
 
-    public static void statistics(Settings settings, boolean signedIn, boolean unlocked) {
+    public static void statistics(Settings settings, boolean signedIn) {
         String decoder;
         if (settings.useSoftwareDecoder()) {
             decoder = settings.forceMpegDecoder() ? "mpeg" : "webm";
@@ -105,8 +104,7 @@ public final class Track {
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
                 .putCustomAttribute("image size", String.valueOf(settings.maxImageSize()))
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
-                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))
-                .putCustomAttribute("unlocked", String.valueOf(unlocked))));
+                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 
     public static void drawerOpened() {

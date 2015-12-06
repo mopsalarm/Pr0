@@ -13,13 +13,12 @@ import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -90,9 +89,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
         @Inject
         OkHttpClient okHttpClient;
 
-        @Inject
-        UnlockService unlockService;
-
         private Subscription preloadItemsSubscription;
         public static final List<String> CONTENT_TYPE_KEYS = ImmutableList.of(
                 "pref_feed_type_sfw", "pref_feed_type_nsfw", "pref_feed_type_nsfl");
@@ -120,7 +116,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             // Load the preferences from an XML resource
             updateContentTypeBoxes(getPreferenceManager().getSharedPreferences());
-            updateFlavorSettings();
 
             if (!BuildConfig.DEBUG) {
                 hideDebugPreferences();
@@ -150,15 +145,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
                             preference.setSummary(getString(R.string.pseudo_clean_preloaded_summary_with_size,
                                     totalSize / (1024.f * 1024.f)));
                         });
-            }
-        }
-
-        private void updateFlavorSettings() {
-            if (contentTypesNotVisible()) {
-                Preference pref = findPreference("prefcat_feed_types");
-                if (pref != null) {
-                    getPreferenceScreen().removePreference(pref);
-                }
             }
         }
 
@@ -271,7 +257,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
         private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {
             Settings settings = Settings.of(sharedPreferences);
-            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized() && !contentTypesNotVisible();
+            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized();
 
             for (String ctKey : CONTENT_TYPE_KEYS) {
                 Preference pref = findPreference(ctKey);
@@ -288,10 +274,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
                     }
                 }
             }
-        }
-
-        private boolean contentTypesNotVisible() {
-            return !unlockService.unlocked();
         }
     }
 }

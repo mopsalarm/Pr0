@@ -35,7 +35,6 @@ import com.google.common.collect.Lists;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.meta.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.meta.SizeInfo;
@@ -147,9 +146,6 @@ public class FeedFragment extends BaseFragment {
 
     @Inject
     PreloadManager preloadManager;
-
-    @Inject
-    UnlockService unlockService;
 
     @Inject
     InboxService inboxService;
@@ -640,7 +636,7 @@ public class FeedFragment extends BaseFragment {
             item.setVisible(feedType.preloadable() && !AndroidUtility.isOnMobile(getActivity()));
 
         if ((item = menu.findItem(R.id.action_change_content_type)) != null) {
-            if (userService.isAuthorized() && unlockService.unlocked()) {
+            if (userService.isAuthorized()) {
                 ContentTypeDrawable icon = new ContentTypeDrawable(getActivity(), getSelectedContentType());
                 icon.setTextSize(getResources().getDimensionPixelSize(
                         R.dimen.feed_content_type_action_icon_text_size));

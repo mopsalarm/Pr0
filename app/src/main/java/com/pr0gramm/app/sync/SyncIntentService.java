@@ -7,7 +7,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.UnlockService;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.CommentService;
 import com.pr0gramm.app.services.ImportantMessageService;
@@ -48,9 +47,6 @@ public class SyncIntentService extends IntentService {
     Settings settings;
 
     @Inject
-    UnlockService unlockService;
-
-    @Inject
     CommentService commentService;
 
     @Inject
@@ -66,7 +62,7 @@ public class SyncIntentService extends IntentService {
 
         logger.info("Doing some statistics related trackings");
         if (singleShotService.firstTimeToday("track-settings"))
-            statistics(settings, userService.isAuthorized(), unlockService.unlocked());
+            statistics(settings, userService.isAuthorized());
 
         if (singleShotService.firstTimeToday("background-update-check")) {
             Optional<Update> update = toOptional(new UpdateChecker(this).check());
