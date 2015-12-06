@@ -76,6 +76,9 @@ public class NavigationProvider {
     @BindDrawable(R.drawable.ic_black_action_upload)
     Drawable iconUpload;
 
+    @BindDrawable(R.drawable.ic_drawer_kfav)
+    Drawable iconKFav;
+
     private final Observable<Boolean> extraCategoryApiAvailable;
 
     @Inject
@@ -102,7 +105,8 @@ public class NavigationProvider {
                 .onErrorResumeNext(Observable.just(false))
                 .startWith(true)
                 .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))
-                .cache();
+                .replay(1)
+                .autoConnect();
     }
 
     public Observable<List<NavigationItem>> navigationItems() {
@@ -199,6 +203,12 @@ public class NavigationProvider {
                     .filter(new FeedFilter().withFeedType(FeedType.NEW).withLikes(name))
                     .title(getString(R.string.action_favorites))
                     .icon(iconFavorites)
+                    .build());
+
+            items.add(ImmutableNavigationItem.builder()
+                    .action(ActionType.KFAV)
+                    .title(getString(R.string.action_kfav))
+                    .icon(iconKFav)
                     .build());
         }
 
@@ -313,6 +323,6 @@ public class NavigationProvider {
     }
 
     public enum ActionType {
-        FILTER, BOOKMARK, MESSAGES, UPLOAD
+        FILTER, BOOKMARK, MESSAGES, UPLOAD, KFAV
     }
 }

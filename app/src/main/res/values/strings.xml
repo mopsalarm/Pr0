@@ -8,6 +8,7 @@
     <string name="action_search">Search in %s…</string>
     <string name="action_search_simple">Search</string>
     <string name="action_upload">UPLOAD</string>
+    <string name="action_kfav">K-FAV</string>
     <string name="app_name">pr0gramm</string>
     <string name="banned">You are banned until %1$s. Reason: %2$s</string>
     <string name="cancel">Cancel</string>

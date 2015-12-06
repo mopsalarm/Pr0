@@ -391,26 +391,30 @@ public class DrawerFragment extends BaseFragment {
                 getCallback().onFeedFilterSelectedInNavigation(item.filter().get());
                 break;
 
-            case UPLOAD: {
+            case UPLOAD:
                 showUploadActivity();
                 getCallback().onOtherNavigationItemClicked();
                 break;
-            }
 
             case MESSAGES:
                 showInboxActivity(item.unreadCount());
                 getCallback().onOtherNavigationItemClicked();
                 break;
+
+            case KFAV:
+                showInboxActivity(InboxType.KFAV);
+                break;
         }
     }
 
     private void showInboxActivity(int unreadCount) {
+        showInboxActivity(unreadCount == 0 ? InboxType.ALL : InboxType.UNREAD);
+    }
+
+    private void showInboxActivity(InboxType inboxType) {
         Runnable run = () -> {
             Intent intent = new Intent(getActivity(), InboxActivity.class);
-            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, unreadCount == 0
-                    ? InboxType.ALL.ordinal()
-                    : InboxType.UNREAD.ordinal());
-
+            intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal());
             startActivity(intent);
         };
 

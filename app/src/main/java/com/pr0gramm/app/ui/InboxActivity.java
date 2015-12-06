@@ -138,17 +138,9 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
     }
 
     private void showInboxType(InboxType type) {
-        if (type == InboxType.UNREAD)
-            viewPager.setCurrentItem(0);
-
-        else if (type == InboxType.ALL)
-            viewPager.setCurrentItem(1);
-
-        else if (type == InboxType.PRIVATE)
-            viewPager.setCurrentItem(2);
-
-        else if (type == InboxType.COMMENTS)
-            viewPager.setCurrentItem(3);
+        if(type != null && type.ordinal() < tabsAdapter.getCount()) {
+            viewPager.setCurrentItem(type.ordinal());
+        }
     }
 
     @Override
