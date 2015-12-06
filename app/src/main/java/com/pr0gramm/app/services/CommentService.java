@@ -73,7 +73,7 @@ public class CommentService {
                 .observeOn(BackgroundScheduler.instance())
 
                 .switchMap(state -> state.isAuthorized()
-                        ? userService.accountInfo()
+                        ? userService.accountInfo().onErrorResumeNext(Observable.empty())
                         : Observable.just(null))
 
                 .map(accountInfo -> accountInfo == null ? null : Hashing.md5()
@@ -82,7 +82,6 @@ public class CommentService {
 
                 .distinctUntilChanged()
 
-                .onErrorResumeNext(Observable.empty())
                 .replay(1)
                 .autoConnect();
 
@@ -91,9 +90,8 @@ public class CommentService {
                 .mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
                 .switchMap(userHash -> userHash == null
                         ? Observable.just(Collections.<FavedComment>emptyList())
-                        : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))))
+                        : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))).onErrorResumeNext(Observable.empty()))
 
-                .onErrorResumeNext(Observable.<List<FavedComment>>empty())
                 .subscribeOn(BackgroundScheduler.instance())
                 .subscribe(comments -> {
                     updateCommentIds(new TLongHashSet(transform(comments, FavedComment::id)));
