@@ -194,7 +194,7 @@
     <string name="feedback_title">Feedback</string>
     <string name="pref_tag_cloud_view_summary">Alle Tags werden in mehreren Zeilen dargestellt</string>
     <string name="pref_tag_cloud_view_title">Alle Tags anzeigen</string>
-    <string name="upload_tags">Tags</string>
+    <string name="upload_tags">Tags, kommasepariert</string>
     <string name="upload_title">Upload</string>
     <string name="upload_warning">Achtung, momentan wird nur das Hochladen von Bildern unterstützt. Diese Funktion ist experimentell. Über Feedback würde ich mich freuen!</string>
     <string name="upload_checking_if_upload_is_allowed">Uploadlimit wird überprüft</string>
