@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
@@ -49,8 +50,12 @@ public class TabsAdapter extends FragmentPagerAdapter {
     }
 
     public TabsAdapter(FragmentActivity activity) {
-        super(activity.getSupportFragmentManager());
-        this.context = activity;
+        this(activity, activity.getSupportFragmentManager());
+    }
+
+    public TabsAdapter(Context context, FragmentManager fragmentManager) {
+        super(fragmentManager);
+        this.context = context;
     }
 
     @Override

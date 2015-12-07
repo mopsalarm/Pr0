@@ -10,6 +10,7 @@ import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
@@ -125,6 +126,9 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     public void onDestroyView() {
         lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW);
         super.onDestroyView();
+
+        // always destroy veiws!
+        AndroidUtility.uninjectViews(this);
     }
 
     @Override

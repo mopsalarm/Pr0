@@ -22,7 +22,6 @@ import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.MessageActionListener;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
-import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Instant;
@@ -115,9 +114,8 @@ public abstract class InboxFragment<T> extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         loader.detach();
-        AndroidUtility.uninjectViews(this);
+        super.onDestroyView();
     }
 
     private void reloadInboxContent() {

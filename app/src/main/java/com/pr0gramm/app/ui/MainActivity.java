@@ -40,9 +40,9 @@ import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
+import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
-import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -292,22 +292,26 @@ public class MainActivity extends BaseAppCompatActivity implements
     private FeedFilter getCurrentFeedFilter() {
         // get the filter of the visible fragment.
         FeedFilter currentFilter = null;
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content);
-        if (fragment != null) {
-            if (fragment instanceof FeedFragment) {
-                currentFilter = ((FeedFragment) fragment).getCurrentFilter();
-            }
-
-            if (fragment instanceof PostPagerFragment) {
-                currentFilter = ((PostPagerFragment) fragment).getCurrentFilter();
-            }
+        Fragment fragment = getCurrentFragment();
+        if (fragment instanceof FilterFragment) {
+            currentFilter = ((FilterFragment) fragment).getCurrentFilter();
         }
+
         return currentFilter;
+    }
+
+    private Fragment getCurrentFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.content);
+    }
+
+    private boolean shouldClearOnIntent() {
+        return !(getCurrentFragment() instanceof FavoritesFragment)
+                && getSupportFragmentManager().getBackStackEntryCount() == 0;
     }
 
     private void updateToolbarBackButton() {
         FragmentManager fm = getSupportFragmentManager();
-        drawerToggle.setDrawerIndicatorEnabled(fm.getBackStackEntryCount() == 0);
+        drawerToggle.setDrawerIndicatorEnabled(shouldClearOnIntent());
         drawerToggle.syncState();
     }
 
@@ -415,6 +419,15 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     @Override
+    public void onNavigateToFavorites(String username) {
+        // move to new fragment
+        FavoritesFragment fragment = FavoritesFragment.newInstance(username);
+        moveToFragment(fragment, true);
+
+        drawerLayout.closeDrawers();
+    }
+
+    @Override
     public void onUsernameClicked() {
         Optional<String> name = userService.getName();
         if (name.isPresent()) {
@@ -451,8 +464,10 @@ public class MainActivity extends BaseAppCompatActivity implements
             clearBackStack();
         }
 
-        Fragment fragment = FeedFragment.newInstance(newFilter, start);
+        moveToFragment(FeedFragment.newInstance(newFilter, start), clear);
+    }
 
+    private void moveToFragment(Fragment fragment, boolean clear) {
         // and show the fragment
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -500,7 +515,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             FeedFilter filter = result.get().getFilter();
             Optional<ItemWithComment> start = result.get().getStart();
 
-            boolean clear = getSupportFragmentManager().getBackStackEntryCount() == 0;
+            boolean clear = shouldClearOnIntent();
             gotoFeedFragment(filter, clear, start);
 
         } else {

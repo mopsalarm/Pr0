@@ -301,6 +301,12 @@ public class DrawerFragment extends BaseFragment {
          * drawer gets closed
          */
         void onOtherNavigationItemClicked();
+
+        /**
+         * Navigate to the favorites of the given user
+         * @param username
+         */
+        void onNavigateToFavorites(String username);
     }
 
     private OnFeedFilterSelected getCallback() {
@@ -401,8 +407,8 @@ public class DrawerFragment extends BaseFragment {
                 getCallback().onOtherNavigationItemClicked();
                 break;
 
-            case KFAV:
-                showInboxActivity(InboxType.KFAV);
+            case FAVORITES:
+                getCallback().onNavigateToFavorites(item.filter().get().getLikes().get());
                 break;
         }
     }

@@ -64,6 +64,7 @@ import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.FeedItemViewHolder;
+import com.pr0gramm.app.ui.FilterFragment;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
@@ -111,11 +112,12 @@ import static java.util.Collections.emptyList;
 
 /**
  */
-public class FeedFragment extends BaseFragment {
+public class FeedFragment extends BaseFragment implements FilterFragment {
     private static final Logger logger = LoggerFactory.getLogger("FeedFragment");
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
+    private static final String ARG_USE_TOP_OFFSET = "FeedFragment.useTopOffset";
 
     @Inject
     FeedService feedService;
@@ -170,6 +172,7 @@ public class FeedFragment extends BaseFragment {
 
     private FeedAdapter feedAdapter;
     private FeedLoader loader;
+    private boolean scrollToolbar;
 
     /**
      * Initialize a new feed fragment.
@@ -189,6 +192,8 @@ public class FeedFragment extends BaseFragment {
             autoScrollOnLoad = start.getItemId();
             autoOpenOnLoad = start;
         }
+
+        this.scrollToolbar = useToolbarTopMargin();
     }
 
     @Override
@@ -224,7 +229,6 @@ public class FeedFragment extends BaseFragment {
         // prepare the list of items
         int columnCount = getThumbnailColumns();
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), columnCount);
-        layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(1, columnCount));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
         setFeedAdapter(feedAdapter);
@@ -258,14 +262,24 @@ public class FeedFragment extends BaseFragment {
         feedAdapter = adapter;
 
         MergeRecyclerAdapter merged = new MergeRecyclerAdapter();
-        merged.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
+        if (useToolbarTopMargin()) {
+            merged.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
+        }
+
         merged.addAdapter(adapter);
         recyclerView.setAdapter(merged);
 
+        updateSpanSizeLookup();
+
         queryUserInfo()
-                .first()
+                .take(1)
                 .compose(bindToLifecycle())
                 .subscribe(this::presentUserInfo, Actions.empty());
+    }
+
+    private boolean useToolbarTopMargin() {
+        Bundle arguments = getArguments();
+        return arguments != null && arguments.getBoolean(ARG_USE_TOP_OFFSET, true);
     }
 
     private void presentUserInfo(EnhancedUserInfo value) {
@@ -353,10 +367,20 @@ public class FeedFragment extends BaseFragment {
             return;
         }
 
-        Optional<MergeRecyclerAdapter> adapter = getMainAdapter();
-        if (adapter.isPresent()) {
+        MergeRecyclerAdapter mainAdapter = getMainAdapter().orNull();
+        if (mainAdapter != null) {
+            int offset = 0;
+            ImmutableList<? extends RecyclerView.Adapter<?>> subAdapters = mainAdapter.getAdapters();
+            for (int idx = 0; idx < subAdapters.size(); idx++) {
+                offset = idx;
+
+                if (subAdapters.get(idx) instanceof FeedAdapter) {
+                    break;
+                }
+            }
+
             for (int idx = 0; idx < adapters.length; idx++) {
-                adapter.get().addAdapter(1 + idx, adapters[idx]);
+                mainAdapter.addAdapter(offset + idx, adapters[idx]);
             }
 
             updateSpanSizeLookup();
@@ -410,20 +434,23 @@ public class FeedFragment extends BaseFragment {
     }
 
     private void updateSpanSizeLookup() {
-        ifPresent(getMainAdapter(), getRecyclerViewLayoutManager(), (adapter, layout) -> {
+        MergeRecyclerAdapter mainAdapter = getMainAdapter().orNull();
+        GridLayoutManager layoutManager = getRecyclerViewLayoutManager().orNull();
+        if (mainAdapter != null && layoutManager != null) {
             int itemCount = 0;
-            ImmutableList<? extends RecyclerView.Adapter<?>> adapters = adapter.getAdapters();
-            for (int idx = 0; idx < adapters.size(); idx++) {
-                if (adapters.get(idx) instanceof FeedAdapter)
+            ImmutableList<? extends RecyclerView.Adapter<?>> adapters = mainAdapter.getAdapters();
+            for (RecyclerView.Adapter<?> adapter : adapters) {
+                if (adapter instanceof FeedAdapter)
                     break;
 
-                itemCount += adapters.get(idx).getItemCount();
+                itemCount += adapter.getItemCount();
             }
 
             // skip items!
-            int columnCount = layout.getSpanCount();
-            layout.setSpanSizeLookup(new NMatchParentSpanSizeLookup(itemCount, columnCount));
-        });
+            int columnCount = layoutManager.getSpanCount();
+            layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(itemCount, columnCount));
+        }
+        ;
     }
 
     private static View newFeedStartPaddingView(Context context) {
@@ -445,9 +472,8 @@ public class FeedFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         recyclerView.removeOnScrollListener(onScrollListener);
-        AndroidUtility.uninjectViews(this);
+        super.onDestroyView();
     }
 
     private void removeBusyIndicator() {
@@ -809,7 +835,7 @@ public class FeedFragment extends BaseFragment {
             }
 
             @SuppressLint("CommitTransaction")
-            FragmentTransaction tr = getFragmentManager().beginTransaction()
+            FragmentTransaction tr = getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content, fragment)
                     .addToBackStack(null);
 
@@ -839,13 +865,19 @@ public class FeedFragment extends BaseFragment {
      * @return The type new fragment that can be shown now.
      */
     public static FeedFragment newInstance(FeedFilter feedFilter, Optional<ItemWithComment> start) {
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
-        arguments.putParcelable(ARG_FEED_START, start.orNull());
+        Bundle arguments = newArguments(feedFilter, true, start);
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);
         return fragment;
+    }
+
+    public static Bundle newArguments(FeedFilter feedFilter, boolean useTopOffset, Optional<ItemWithComment> start) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
+        arguments.putParcelable(ARG_FEED_START, start.orNull());
+        arguments.putBoolean(ARG_USE_TOP_OFFSET, useTopOffset);
+        return arguments;
     }
 
     /**
@@ -853,6 +885,7 @@ public class FeedFragment extends BaseFragment {
      *
      * @return The filter this feed uses.
      */
+    @Override
     public FeedFilter getCurrentFilter() {
         if (feedAdapter == null)
             return new FeedFilter();
@@ -1085,7 +1118,7 @@ public class FeedFragment extends BaseFragment {
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (getActivity() instanceof ToolbarActivity) {
+            if (scrollToolbar && getActivity() instanceof ToolbarActivity) {
                 ToolbarActivity activity = (ToolbarActivity) getActivity();
                 activity.getScrollHideToolbarListener().onScrolled(dy);
             }

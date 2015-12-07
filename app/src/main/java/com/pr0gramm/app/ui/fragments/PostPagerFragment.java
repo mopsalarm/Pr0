@@ -20,6 +20,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.ui.FilterFragment;
 import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.PreviewInfo;
@@ -39,7 +40,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
-public class PostPagerFragment extends BaseFragment {
+public class PostPagerFragment extends BaseFragment implements FilterFragment {
     private static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
@@ -224,6 +225,7 @@ public class PostPagerFragment extends BaseFragment {
     /**
      * Returns the feed filter for this fragment.
      */
+    @Override
     public FeedFilter getCurrentFilter() {
         // prevent errors here
         if (feed == null)

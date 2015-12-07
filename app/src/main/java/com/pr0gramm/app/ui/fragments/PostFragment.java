@@ -329,8 +329,6 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-
         if (scrollHandler != null) {
             content.removeOnScrollListener(scrollHandler);
             scrollHandler = null;
@@ -341,7 +339,7 @@ public class PostFragment extends BaseFragment implements
 
         adapter = null;
 
-        AndroidUtility.uninjectViews(this);
+        super.onDestroyView();
     }
 
     @Override

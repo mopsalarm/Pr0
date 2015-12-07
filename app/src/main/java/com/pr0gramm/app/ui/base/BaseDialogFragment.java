@@ -11,6 +11,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.RxLifecycle;
@@ -19,11 +20,8 @@ import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
-
-import static rx.schedulers.Schedulers.io;
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
@@ -110,6 +108,9 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
     public void onDestroyView() {
         lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW);
         super.onDestroyView();
+
+        // always destroy veiws!
+        AndroidUtility.uninjectViews(this);
     }
 
     @Override

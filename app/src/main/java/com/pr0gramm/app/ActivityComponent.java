@@ -15,6 +15,7 @@ import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavedCommentFragment;
+import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PostFragment;
@@ -91,4 +92,6 @@ public interface ActivityComponent {
     void inject(UpdateDialogFragment updateDialogFragment);
 
     void inject(SearchUserDialog searchUserDialog);
+
+    void inject(FavoritesFragment favoritesFragment);
 }

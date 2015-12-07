@@ -199,16 +199,10 @@ public class NavigationProvider {
         if (userInfo.isPresent()) {
             String name = userInfo.get().getName();
             items.add(ImmutableNavigationItem.builder()
-                    .action(ActionType.FILTER)
+                    .action(ActionType.FAVORITES)
                     .filter(new FeedFilter().withFeedType(FeedType.NEW).withLikes(name))
                     .title(getString(R.string.action_favorites))
                     .icon(iconFavorites)
-                    .build());
-
-            items.add(ImmutableNavigationItem.builder()
-                    .action(ActionType.KFAV)
-                    .title(getString(R.string.action_kfav))
-                    .icon(iconKFav)
                     .build());
         }
 
@@ -323,6 +317,6 @@ public class NavigationProvider {
     }
 
     public enum ActionType {
-        FILTER, BOOKMARK, MESSAGES, UPLOAD, KFAV
+        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES
     }
 }
