@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -79,6 +80,11 @@ public class FavoritesFragment extends BaseFragment implements FilterFragment {
         pager.setAdapter(adapter);
 
         tabLayout.setupWithViewPager(pager);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return true;
     }
 
     private void resetToolbar() {
