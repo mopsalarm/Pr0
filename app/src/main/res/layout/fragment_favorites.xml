@@ -10,9 +10,10 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/grey_600"
+        android:background="@color/primary_dark"
         app:tabIndicatorColor="@color/white"
-        app:tabMode="scrollable"/>
+        app:tabMode="scrollable"
+        android:elevation="8dp"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/favorites_pager"

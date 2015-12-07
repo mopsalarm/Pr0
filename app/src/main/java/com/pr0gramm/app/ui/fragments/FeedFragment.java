@@ -117,7 +117,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
-    private static final String ARG_USE_TOP_OFFSET = "FeedFragment.useTopOffset";
+    private static final String ARG_SIMPLE_MODE = "FeedFragment.simpleMode";
 
     @Inject
     FeedService feedService;
@@ -246,11 +246,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
         });
 
-        // use height of the toolbar to configure swipe refresh layout.
-        int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-        int offset = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
-                getStatusBarHeight(getActivity()) : 0;
-        swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
+        if(useToolbarTopMargin()) {
+            // use height of the toolbar to configure swipe refresh layout.
+            int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
+            int offset = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+                    getStatusBarHeight(getActivity()) : 0;
+            swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
+        }
+
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         resetToolbar();
@@ -271,15 +274,21 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         updateSpanSizeLookup();
 
-        queryUserInfo()
-                .take(1)
-                .compose(bindToLifecycle())
-                .subscribe(this::presentUserInfo, Actions.empty());
+        if(!isSimpleMode()) {
+            queryUserInfo()
+                    .take(1)
+                    .compose(bindToLifecycle())
+                    .subscribe(this::presentUserInfo, Actions.empty());
+        }
     }
 
     private boolean useToolbarTopMargin() {
+        return !isSimpleMode();
+    }
+
+    private boolean isSimpleMode() {
         Bundle arguments = getArguments();
-        return arguments != null && arguments.getBoolean(ARG_USE_TOP_OFFSET, true);
+        return arguments != null && !arguments.getBoolean(ARG_SIMPLE_MODE, true);
     }
 
     private void presentUserInfo(EnhancedUserInfo value) {
@@ -872,11 +881,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return fragment;
     }
 
-    public static Bundle newArguments(FeedFilter feedFilter, boolean useTopOffset, Optional<ItemWithComment> start) {
+    public static Bundle newArguments(FeedFilter feedFilter, boolean simpleMode, Optional<ItemWithComment> start) {
         Bundle arguments = new Bundle();
         arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
         arguments.putParcelable(ARG_FEED_START, start.orNull());
-        arguments.putBoolean(ARG_USE_TOP_OFFSET, useTopOffset);
+        arguments.putBoolean(ARG_SIMPLE_MODE, simpleMode);
         return arguments;
     }
 

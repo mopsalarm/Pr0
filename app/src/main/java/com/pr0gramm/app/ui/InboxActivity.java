@@ -16,7 +16,6 @@ import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
-import com.pr0gramm.app.ui.fragments.FavedCommentFragment;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
@@ -79,8 +78,6 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
         tabsAdapter.addTab(R.string.inbox_type_private, PrivateMessageInboxFragment.class, null);
 
         tabsAdapter.addTab(R.string.inbox_type_comments, WrittenCommentFragment.class, null);
-
-        tabsAdapter.addTab(R.string.inbox_type_comment_favorites, FavedCommentFragment.class, null);
 
         viewPager.setAdapter(tabsAdapter);
         viewPager.addOnPageChangeListener(this);
