@@ -340,7 +340,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (!drawerToggle.isDrawerIndicatorEnabled()) {
             if (item.getItemId() == android.R.id.home) {
                 if (!dispatchFakeHomeEvent(item))
-                    // getSupportFragmentManager().popBackStack();
                     onBackPressed();
 
                 return true;
