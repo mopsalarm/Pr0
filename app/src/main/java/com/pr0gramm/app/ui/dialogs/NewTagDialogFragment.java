@@ -41,7 +41,6 @@ public class NewTagDialogFragment extends BaseDialogFragment {
         TagInputView.setup(tagInput);
 
         return DialogBuilder.start(getActivity())
-                .fullWidth()
                 .title(R.string.add_new_tag_title)
                 .content(view, true)
                 .negative(R.string.cancel)

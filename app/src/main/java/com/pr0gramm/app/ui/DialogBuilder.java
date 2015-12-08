@@ -249,7 +249,7 @@ public class DialogBuilder {
     }
 
     public DialogBuilder fullWidth() {
-        this.fullWidth = true;
+        // this.fullWidth = true;
         return this;
     }
 

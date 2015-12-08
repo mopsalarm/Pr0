@@ -62,7 +62,6 @@ public class ChangeLogDialog extends BaseDialogFragment {
 
         return DialogBuilder.start(context)
                 .content(recycler, false)
-                .fullWidth()
                 .positive(R.string.okay, () -> {
                     if (settings.useBetaChannel()) {
                         showFeedbackReminderDialog();
