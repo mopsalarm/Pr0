@@ -5,8 +5,8 @@
 -allowaccessmodification
 -repackageclasses
 
--optimizationpasses 10
--optimizations !method/removal/parameter,class/merging/*
+-optimizationpasses 20
+-optimizations !method/removal/parameter,class/merging/*,field/marking/private,code/simplification/*
 # -dontoptimize
 
 -dontwarn java.nio.**
