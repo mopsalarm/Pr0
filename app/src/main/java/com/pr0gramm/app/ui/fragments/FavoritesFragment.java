@@ -71,8 +71,7 @@ public class FavoritesFragment extends BaseFragment implements FilterFragment {
         fixViewTopOffset(view);
         resetToolbar();
 
-        FeedFilter filter = new FeedFilter().withFeedType(FeedType.NEW).withLikes("Mopsalarm");
-        Bundle feedFragmentArguments = FeedFragment.newArguments(filter, false, Optional.absent());
+        Bundle feedFragmentArguments = FeedFragment.newArguments(feedFilter, false, Optional.absent());
 
         TabsAdapter adapter = new TabsAdapter(getContext(), getChildFragmentManager());
         adapter.addTab(R.string.action_favorites, FeedFragment.class, feedFragmentArguments);
