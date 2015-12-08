@@ -900,9 +900,12 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void onTransitionEnds() {
-        if (viewer != null && scrollHandler != null && content != null) {
+        if (viewer != null && content != null) {
             viewer.onTransitionEnds();
-            scrollHandler.onScrolled(content, 0, 0);
+
+            if(scrollHandler != null) {
+                scrollHandler.onScrolled(content, 0, 0);
+            }
         }
     }
 
