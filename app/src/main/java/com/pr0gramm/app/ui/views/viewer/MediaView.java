@@ -174,7 +174,8 @@ public abstract class MediaView extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         if (viewAspect <= 0) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
@@ -372,6 +373,10 @@ public abstract class MediaView extends FrameLayout {
             this.viewAspect = viewAspect;
             requestLayout();
         }
+    }
+
+    public float getViewAspect() {
+        return viewAspect;
     }
 
     /**

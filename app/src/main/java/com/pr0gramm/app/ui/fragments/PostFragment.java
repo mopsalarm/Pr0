@@ -317,10 +317,7 @@ public class PostFragment extends BaseFragment implements
         loadPostDetails();
 
         // show the repost badge if this is a repost
-        if (isRepost()) {
-            repostHint.setVisibility(View.VISIBLE);
-            repostHint.setRotation(45);
-        }
+        repostHint.setVisibility(isRepost() ? View.VISIBLE : View.GONE);
     }
 
     private boolean isRepost() {
@@ -832,7 +829,7 @@ public class PostFragment extends BaseFragment implements
         // inform viewer over fragment lifecycle events!
         MediaViews.adaptFragmentLifecycle(lifecycle(), viewer);
 
-        registerTabListener(viewer);
+        registerTapListener(viewer);
 
         PreviewInfo previewInfo = this.previewInfo != null
                 ? this.previewInfo : getPreviewInfoFromCache();
@@ -905,6 +902,9 @@ public class PostFragment extends BaseFragment implements
 
             if(scrollHandler != null) {
                 scrollHandler.onScrolled(content, 0, 0);
+            } else {
+                // simulate a scroll to "null"
+                offsetMediaView(0.0f);
             }
         }
     }
@@ -915,7 +915,7 @@ public class PostFragment extends BaseFragment implements
      *
      * @param viewer The viewer to register the tap listener to.
      */
-    private void registerTabListener(MediaView viewer) {
+    private void registerTapListener(MediaView viewer) {
         viewer.setTapListener(new MediaView.TapListener() {
             final boolean isImage = isStaticImage(feedItem);
 

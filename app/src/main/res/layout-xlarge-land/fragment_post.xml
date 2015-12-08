@@ -36,17 +36,17 @@
                 android:id="@+id/repost_hint"
                 android:layout_width="200dp"
                 android:layout_height="32dp"
-                android:layout_gravity="right|top"
+                android:layout_gravity="left|top"
                 android:background="@color/transparent_black"
                 android:gravity="center"
-                android:rotation="45"
+                android:rotation="-45"
                 android:text="@string/repost"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:transformPivotX="100dp"
                 android:transformPivotY="-32sp"
-                android:translationX="100dp"
+                android:translationX="-100dp"
                 android:visibility="gone"/>
         </FrameLayout>
 
@@ -54,8 +54,7 @@
             android:id="@+id/infoview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginLeft="8dp"/>
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

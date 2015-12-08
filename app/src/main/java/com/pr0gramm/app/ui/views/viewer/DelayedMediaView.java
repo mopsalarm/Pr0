@@ -1,7 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -15,6 +13,8 @@ import com.squareup.picasso.Picasso;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
+
+import static com.pr0gramm.app.util.AndroidUtility.endAction;
 
 /**
  */
@@ -63,6 +63,12 @@ public class DelayedMediaView extends ProxyMediaView {
         MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
                 mediaUri.withDelay(false), this::onMediaShown);
 
+        // transfer aspect if known
+        float aspect = getViewAspect();
+        if (aspect > 0) {
+            mediaView.setViewAspect(aspect);
+        }
+
         mediaView.removePreviewImage();
         setChild(mediaView);
 
@@ -71,12 +77,8 @@ public class DelayedMediaView extends ProxyMediaView {
 
         overlay.animate()
                 .alpha(0).scaleX(0.8f).scaleY(0.8f)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        AndroidUtility.removeView(overlay);
-                    }
-                }).start();
+                .setListener(endAction(() -> AndroidUtility.removeView(overlay)))
+                .start();
 
         return true;
     }
