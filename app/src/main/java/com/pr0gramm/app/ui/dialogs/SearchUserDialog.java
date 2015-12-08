@@ -7,12 +7,15 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.widget.AutoCompleteTextView;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment;
 
@@ -31,6 +34,9 @@ public class SearchUserDialog extends BaseDialogFragment {
     @Inject
     UserService userService;
 
+    @Inject
+    MetaService metaService;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -40,6 +46,13 @@ public class SearchUserDialog extends BaseDialogFragment {
         inputView = (TextInputLayout) LayoutInflater
                 .from(context)
                 .inflate(R.layout.search_user_dialog, null);
+
+        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) inputView.getEditText();
+        if (autoCompleteTextView != null) {
+            autoCompleteTextView.setAdapter(new UsernameAutoCompleteAdapter(metaService, context,
+                    "", android.R.layout.simple_dropdown_item_1line));
+        }
+
 
         return DialogBuilder.start(context)
                 .content(inputView)
