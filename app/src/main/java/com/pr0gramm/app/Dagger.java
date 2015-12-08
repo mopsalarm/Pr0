@@ -11,6 +11,8 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
+import proguard.annotation.KeepClassMembers;
+
 /**
  * Provides dagger injection points/components
  */
@@ -41,6 +43,7 @@ public class Dagger {
         });
     }
 
+    @KeepClassMembers
     static class EagerSingletons {
         private EagerSingletons() {
         }
