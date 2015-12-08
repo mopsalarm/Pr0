@@ -14,6 +14,7 @@ import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
@@ -47,6 +48,8 @@ public interface AppComponent {
     SingleShotService singleShotService();
 
     MetaService metaService();
+
+    OkHttpClient okHttpClient();
 
     void inject(SyncIntentService service);
 

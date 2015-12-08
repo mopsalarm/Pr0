@@ -9,11 +9,14 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.orm.SugarApp;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
+import com.squareup.okhttp.OkHttpClient;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -81,6 +84,15 @@ public class ApplicationClass extends SugarApp {
         });
 
         Dagger.initEagerSingletons(this);
+
+        if (BuildConfig.DEBUG) {
+            logger.info("Setup stetho");
+            Stetho.initializeWithDefaults(this);
+
+            OkHttpClient okHttpClient = appComponent.get().okHttpClient();
+            okHttpClient.networkInterceptors().add(new StethoInterceptor());
+        }
+
     }
 
     /**

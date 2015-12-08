@@ -175,6 +175,10 @@ dependencies {
     compile "com.infstory:proguard-annotations:1.0.2"
     compile 'net.sf.trove4j:trove4j:3.0.3'
 
+
+    compile 'com.facebook.stetho:stetho:1.2.0'
+    compile 'com.facebook.stetho:stetho-okhttp:1.2.0'
+
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
 
