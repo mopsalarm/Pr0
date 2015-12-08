@@ -16,7 +16,6 @@ import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.RxLifecycle;
 
@@ -166,8 +165,10 @@ public class BubbleHelper {
             : "bubbleHint__";
 
     public static boolean wouldShow(Context context, String name) {
-        SingleShotService sso = appComponent(context).singleShotService();
-        return name == null || sso.test().isFirstTime(SSO_PREFIX + name);
+        return false;
+
+//        SingleShotService sso = appComponent(context).singleShotService();
+//        return name == null || sso.test().isFirstTime(SSO_PREFIX + name);
     }
 
     private static void markAsShown(Context context, String name) {

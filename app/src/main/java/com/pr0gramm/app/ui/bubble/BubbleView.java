@@ -27,8 +27,6 @@ import static java.util.Arrays.asList;
  */
 public class BubbleView extends TextView {
 
-    private BubbleDrawable background;
-
     public BubbleView(Context context) {
         super(context);
         initView(null);
@@ -75,7 +73,7 @@ public class BubbleView extends TextView {
     }
 
     private void initView(int gravity, int bubbleColor) {
-        background = new BubbleDrawable(getContext(), gravity, bubbleColor);
+        BubbleDrawable background = new BubbleDrawable(getContext(), gravity, bubbleColor);
 
         //noinspection deprecation
         setBackgroundDrawable(background);
