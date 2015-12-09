@@ -20,7 +20,7 @@ import com.pr0gramm.app.R;
  * Helper to build dialogs.
  */
 public class DialogBuilder {
-    public static final int DEFAULT_THEME = R.style.Theme_AppCompat_Light_Dialog;
+    public static final int DEFAULT_THEME = R.style.AppTheme_Popup;
 
     private final Context context;
     private String positive;

@@ -31,6 +31,10 @@
     <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar"/>
     <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar" />
 
+    <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/primary</item>
+    </style>
+
     <style name="Base.AppStyle.DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
