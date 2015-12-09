@@ -316,7 +316,9 @@
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version 1.%s is available.</string>
     <string name="hint_kfav_userscript"><![CDATA[You just faved a comment. You can find a list of your favorite comments under \"favorites → k-fav\".\nIf you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
+    <string name="info_kfav_userscript"><![CDATA[If you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
     <string name="hint_feedback_not_support"><b>Caution:</b> This is not the pr0gramm support. If you dont like it here, if you want to delete a picture or if you dont have sound on pr0gramm, then this is not the right place to ask! This is just for <b>feedback for the app</b>.\nIf you are expecting an answer, you need to provide your username in the field above</string>
+    <string name="info">Info</string>
 </resources>
 
