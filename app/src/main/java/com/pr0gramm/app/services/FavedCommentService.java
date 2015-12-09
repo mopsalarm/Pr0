@@ -228,7 +228,7 @@ public class FavedCommentService {
                 .withCreated(comment.created())
                 .withMark(comment.mark())
 
-                        // we dont have the sender :/
+                /* we dont have the sender :/ */
                 .withSenderId(0)
 
                 .build();
