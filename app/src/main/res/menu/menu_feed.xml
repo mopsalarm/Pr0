@@ -49,5 +49,4 @@
         android:id="@+id/action_preload"
         android:title="@string/action_preload"
         app:showAsAction="never"/>
-
 </menu>

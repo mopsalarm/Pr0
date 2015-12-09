@@ -4,7 +4,6 @@
     <string name="action_favorites">FAVORITES</string>
     <string name="action_feed_type_new">NEW</string>
     <string name="action_feed_type_promoted">TOP</string>
-    <string name="action_messages">MESSAGES</string>
     <string name="action_search">Search in %s…</string>
     <string name="action_search_simple">Search</string>
     <string name="action_upload">UPLOAD</string>
@@ -14,7 +13,6 @@
     <string name="cancel">Cancel</string>
     <string name="download">Download</string>
     <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
-    <string name="dummy_content_type">swf</string>
     <string name="dummy_points">4 points</string>
     <string name="dummy_post_date">3 hours ago</string>
     <string name="dummy_rating">952</string>
@@ -36,9 +34,6 @@
     <string name="ignore">Ignore</string>
     <string name="login">Login</string>
     <string name="login_not_successful">Login not successful. Did you check your password? You might be temporarily banned if you failed to login too often.</string>
-    <string name="menu_login">Login</string>
-    <string name="menu_logout">Logout</string>
-    <string name="menu_settings">Settings</string>
     <string name="must_not_be_empty">Must not be empty</string>
     <string name="new_update_available">New update available. Short overview about what is new: %s</string>
     <string name="okay">OK</string>
@@ -56,15 +51,9 @@
     <string name="pref_feed_type_nsfw_on">Display <i>not safe for work</i> posts (requires login)</string>
     <string name="pref_feed_type_sfw_on">Display <i>safe for work</i> posts</string>
     <string name="pref_feed_types">What to display</string>
-    <string name="pref_load_gif_in_memory">In-memory gif decoding</string>
-    <string name="pref_load_gif_in_memory_off">Stores gif into a temporary file</string>
-    <string name="pref_load_gif_in_memory_on">Loads gif in memory. Might produce memory errors on old devices.</string>
     <string name="pref_max_image_size">Image size</string>
     <string name="pref_max_image_size_summary">Select higher value for better quality with \'musste scrollen\' images</string>
     <string name="pref_privacy">Privacy</string>
-    <string name="pref_webm_use_compat_viewer_off">Might be less stable, but no restart on rotation</string>
-    <string name="pref_webm_use_compat_viewer_on">More stable, but restarts video on rotation</string>
-    <string name="pref_webm_use_compat_viewer">Webm compatibility mode</string>
     <string name="settings">Settings</string>
     <string name="size_huge">Huge</string>
     <string name="size_large">Large</string>
@@ -78,19 +67,11 @@
 
     <string name="indicator_none">No indicator</string>
     <string name="indicator_icon">Icon</string>
-    <string name="indicator_alpha">Translucent</string>
     <string name="pref_seen_indicator_style_summary">Specifies the style how already viewed items are marked in the feed</string>
-    <string name="pref_animate_vote_view">Animate vote buttons</string>
-    <string name="pref_animate_vote_view_on">Plays a small animation if you vote something</string>
-    <string name="pref_animate_vote_view_off">Plays no animation if you vote something</string>
-    <string name="error_out_of_memory_while_decoding_gif">Your system ran out of memory while downloading the gif. You should activate downloading of gifs to a temporary file in the settings.</string>
     <string name="error_socket">A network error occurred. Just try again.</string>
     <string name="dummy_tags" translatable="false">würde, Kreiselficker</string>
     <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
-    <string name="add_new_tag_title">Add new tag</string>
-    <string name="add_new_comment_summary">Write a comment</string>
     <string name="comment_hint">Comment…</string>
-    <string name="add_new_comment_title">Add new comment</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>
     <string name="benis">Benis:</string>
@@ -102,16 +83,10 @@
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
     <string name="logout">Logout</string>
     <string name="are_you_sure_to_logout">Are you sure to logout?</string>
-    <string name="need_to_restart_app">You need to restart the app for this setting to take effect.</string>
-    <string name="benis_delta_up">(%d up s. yesterday)</string>
-    <string name="benis_delta_down">(%d down s. yesterday)</string>
     <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past seven days.</string>
     <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
-    <string name="pref_benis_graph_enabled">Enable benis graph</string>
-    <string name="pref_benis_graph_enabled_summary">The benis graph shows changes to your benis in the last seven days.</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed">Can not load the feed. Please try again.</string>
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
@@ -131,8 +106,6 @@
     <string name="pref_show_pin_button">Show pin action</string>
     <string name="pref_show_pin_button_summary">If you disable this option, the pin-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
     <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
-    <string name="pref_pseudo_feedback">Feedback</string>
-    <string name="pref_pseudo_feedback_summary">Click here to give feedback!</string>
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
     <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
@@ -149,18 +122,11 @@
     <string name="pref_show_notifications_title">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
-    <string name="info_how_to_vote_tags">Tags can now be voted by long pressing the tag! Try it out!</string>
     <string name="could_not_play_video">Could not play video. Try the compatibility settings and if  you still can\'t play any videos, please report feedback.</string>
-    <string name="logcat_error_occurred">Could not dump logfile.</string>
-    <string name="logcat_logfile_created">Logfile was created at %s. Please send this to Mopsalarm.</string>
-    <string name="could_not_play_video_262">Error 262 occurred during video playback. A logfile was created at %s. Please send this to Mopsalarm to help fix this bug.</string>
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
-    <string name="logcat">Logcat</string>
-    <string name="logcat_summary">Saves a logcat at /sdcard/pr0gramm.log</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
     <string name="inbox_activity_title">Inbox</string>
-    <string name="inbox">Inbox</string>
     <string name="action_inbox">MESSAGES</string>
     <string name="inbox_message_private">PRIVATE MESSAGE</string>
     <string name="inbox_message_comment">COMMENT</string>
@@ -168,25 +134,19 @@
     <string name="inbox_type_all">Inbox</string>
     <string name="inbox_type_unread">Unread</string>
     <string name="inbox_nothing_here">No messages\n¯\\_(ツ)_/¯</string>
-    <string name="write_private_message_summary">New message to user %s.</string>
-    <string name="message_hint">Message text</string>
     <string name="action_send">Send</string>
     <string name="prefcat_visual_title">Visual</string>
     <string name="prefcat_settings_title">Settings</string>
     <string name="prefcat_behaviour_summary">Behaviour settings like double tap to vote, notifications and other stuff.</string>
     <string name="prefcat_visual_summary">Customize how some parts of the app should look like.</string>
     <string name="pref_compatibility_summary">Something is not working? Check here!</string>
-    <string name="prev_privacy_summary">Do you have something to hide?</string>
     <string name="pref_use_proxy_title">Use caching</string>
     <string name="pref_use_proxy_summary">Caching is good to save bandwidth and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
-    <string name="rating_not_yet_visible" translatable="false">●●●</string>
     <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
     <string name="pref_confirm_play_on_mobile_summary">Confirm playback on mobile to conserve bandwidth.</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Configure updates and betas here</string>
     <string name="inbox_type_comments">Comments</string>
-    <string name="pref_animate_post_on_vote">Animation on post</string>
-    <string name="pref_animate_post_on_vote_summary">Show an animation on the post while voting</string>
     <string name="pref_load_hq_image_in_zoomview_title">High quality in zoom view</string>
     <string name="pref_load_hq_image_in_zoomview_summary">Automatically load hq version of image in zoom view, if available.</string>
     <string name="share">Share</string>
@@ -229,14 +189,7 @@
     <string name="upload_checking_if_upload_is_allowed">Checking if upload is allowed</string>
     <string name="upload_not_allowed">Upload not allowed</string>
     <string name="upload_not_allowed_description">Limit for today is reached. You need to wait until you are allowed to do another upload (a longer benis is required alternatively!)</string>
-    <string name="dummy_date">May 3rd, 2014</string>
     <string name="user_info_uploads">Goto uploads</string>
-    <string name="userinfo_benis">Benis</string>
-    <string name="userinfo_since">since</string>
-    <string name="userinfo_uploads">Uploads</string>
-    <string name="userinfo_favorites">Favorites</string>
-    <string name="userinfo_tags">Tags</string>
-    <string name="userinfo_comments">Comments</string>
     <string name="dialog_action_add">Add</string>
     <string name="upload_error_blacklisted">This image is blacklisted from pr0gramm.</string>
     <string name="upload_error_internal">Internal error - Gamb fucked up here.</string>
@@ -248,18 +201,14 @@
     <string name="upload_just_try_again">Best thing to do is just to try again.</string>
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure but might be slower or unstable right now.</string>
-    <string name="no">No</string>
     <string name="pref_use_software_decoder_title">Software decoder</string>
     <string name="pref_use_software_decoder_summary">Use a software decoder for video playback. This should help if video playback is not working for you. CAUTION: Your phone might not be fast enough. The software decoder might even increase battery usage if playing many videos.</string>
-    <string name="add_reply_comment_title">Answer to %s</string>
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
     <string name="pref_show_repost_hint_title">Repost hints</string>
     <string name="pref_show_repost_hint_summary">Enable this option to hint reposts in your feed.</string>
     <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
-    <string name="pref_pseudo_licenses_title">Licenses</string>
-    <string name="pref_pseudo_licenses_summary">Show used libraries\' licenses</string>
     <string name="pref_feed_type_login_required">You need to login to change this.</string>
     <string name="action_change_content_type">Change filter</string>
 
@@ -272,31 +221,24 @@
     <string name="user_type_legende">legend</string>
     <string name="user_type_wichtler">wichtler</string>
     <string name="beta_you_need_to_join_community">You need to join the google open beta programm to receive beta updates.</string>
-    <string name="hint_try_mpeg_decoder">If you got problems playing videos, try activating the option "Softwaredecoder" in the settings.</string>
     <string name="user_type_altschwuchtel">oldfag</string>
     <string name="user_type_neuschwuchtel">newfag</string>
     <string name="all">all</string>
     <string name="logout_successful_hint">Logout successful</string>
     <string name="comment_written_successful">Comment added successfully</string>
-    <string name="pref_shared_element_transition_title">Animate open post</string>
-    <string name="pref_shared_element_transition_summary">Animate opening a post. Might be slow on older devices. Android 5+ only.</string>
     <string name="share_post">Link to post</string>
     <string name="share_direct_link">Link to image</string>
     <string name="share_direct">As file</string>
     <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
     <string name="action_feedback">Feedback</string>
-    <string name="muzei_source_name">pr0gramm</string>
-    <string name="muzei_source_description">images from pr0gramm</string>
     <string name="action_search_image">Search on Google</string>
     <string name="pref_show_google_image_button_title">Show search on google</string>
     <string name="pref_show_google_image_button_summary">Show the \"search on google\" button for image posts</string>
     <string name="prefcat_visual__menu_items_title">Menu items</string>
-    <string name="prefcat_visual__animations_title">Animations</string>
     <string name="prefcat_visual__tags">Tags</string>
     <string name="prefcat_behaviour__datausage_title">Data usage</string>
     <string name="prefcat_behaviour__notificatons_title">Notifications</string>
-    <string name="hint_use_gif_to_webm_service">You are on mobile and you did not activate the \'gif to webm\' service. This service converts gifs to webm files and reduces their file size by up to 90%%. Would you like to activate it now? You can always change it back in the settings later.</string>
     <string name="pref_website_title">Website</string>
     <string name="pref_website_summary">Recommend https://mopsalarm.github.io to your friends</string>
     <string name="pref_compatibility_active_title">Activate compatibility</string>
@@ -318,7 +260,6 @@
     <string name="pref_prioritize_op_comments_title">Prioritize op comments</string>
     <string name="pref_prioritize_op_comments_summary">Put comments of the OP at the top</string>
     <string name="hint_check_compatibility_if_videos_dont_play">If videos are not playing in this version, please check the page \"Compatibility\" in the settings.</string>
-    <string name="action_recommend">Recommend</string>
     <string name="share_using">Share using</string>
     <string name="error_webm_native_exception">An error in the webm decoder occurred, the app might get unstable and just stop. If this happens often, you could try to activate the java only decoder.</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
@@ -330,8 +271,6 @@
     <string name="write_message_title">To %s</string>
     <string name="write_message_send">SEND</string>
     <string name="message_must_not_be_empty">The message must not be empty.</string>
-    <string name="hint_drawer_text">Click here for messages and more!</string>
-    <string name="hint_drawer_title">Welcome</string>
     <string name="action_preload">Preload</string>
     <string name="pref_pseudo_clean_preloaded_title">Cleanup preloaded</string>
     <string name="pseudo_clean_preloaded_summary">Click to delete all preloaded files</string>
@@ -343,8 +282,6 @@
     <string name="share_with">Share with…</string>
     <string name="preload_info_hint">Preloading started. The app will automatically remove preloaded files older than one day when you press the preload button. You can clean preloaded files in the settings.</string>
     <string name="preload_not_on_mobile">You need to be on wifi to use preloading.</string>
-    <string name="pref_show_video_progress_title">Enable video position</string>
-    <string name="pref_show_video_progress_summary">Shows the little blue progressbar under a video. Wont work with software decoder for now.</string>
     <string name="hint_musste_scrollen">If \'musste scrollen\'-images are all blurry, go to the settings and increase the maximum image size!</string>
     <string name="action_feed_type_random">RANDOM</string>
     <string name="filter_format_random">Random</string>
@@ -371,7 +308,6 @@
     <string name="warn_api_proxy">All your private data except your password (messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
     <string name="hint_apiproxy_info">If you often have loading problems on wifi, you could try the new api-proxy setting in the compatibility preferences.</string>
     <string name="open_website">Open website</string>
-    <string name="hint_unlock_plugin_required">Apps displaying nsfw/nsfl content are not allowed in the play store. To get more information and to learn, how to see the complete content anyways, see the pr0gramm navigator website.</string>
 
     <string name="user_banned">Banned for %s</string>
     <string name="user_banned_forever">Banned forever</string>
@@ -379,7 +315,6 @@
     <string name="update">Update</string>
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version 1.%s is available.</string>
-    <string name="inbox_type_comment_favorites">k-fav</string>
     <string name="hint_kfav_userscript"><![CDATA[You just faved a comment. You can find a list of your favorite comments under \"favorites → k-fav\".\nIf you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
     <string name="hint_feedback_not_support"><b>Caution:</b> This is not the pr0gramm support. If you dont like it here, if you want to delete a picture or if you dont have sound on pr0gramm, then this is not the right place to ask! This is just for <b>feedback for the app</b>.\nIf you are expecting an answer, you need to provide your username in the field above</string>
