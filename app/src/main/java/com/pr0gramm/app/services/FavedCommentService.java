@@ -108,10 +108,6 @@ public class FavedCommentService {
         }
     }
 
-    public boolean isFavedComment(long commentId) {
-        return favCommentIds.contains(commentId);
-    }
-
     public Observable<TLongSet> favedCommentIds() {
         return favCommentIdsObservable.asObservable();
     }
