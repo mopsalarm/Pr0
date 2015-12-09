@@ -9,6 +9,7 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:paddingTop="4dp"
+    android:theme="@style/AppTheme.Comment"
     app:depth="3"
     app:lineColor="@color/comment_line"
     app:lineMargin="8dp"
@@ -30,29 +31,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="*"
         android:layout_marginTop="4dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:text="*"
         android:textColor="@color/grey_700"
         android:textSize="20sp"
-        android:background="?selectableItemBackgroundBorderless"
         tools:ignore="HardcodedText"/>
 
     <TextView
-        style="@style/Base.TextAppearance.AppCompat.Body1"
         android:id="@+id/comment"
+        style="@style/Base.TextAppearance.AppCompat.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="8dp"
-        android:layout_toRightOf="@+id/voting"
         android:layout_toLeftOf="@+id/kfav"
-        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@+id/voting"
         android:textIsSelectable="true"
         tools:text="@string/dummy_text"/>
 
     <com.pr0gramm.app.ui.views.SenderInfoView
-        layout="@layout/sender_info"
         android:id="@+id/sender_info"
+        layout="@layout/sender_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/comment"

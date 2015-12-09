@@ -229,14 +229,17 @@ public class DrawerFragment extends BaseFragment {
     private void onLoginStateChanged(UserService.LoginState state) {
         if (state.isAuthorized()) {
             Info.User user = state.getInfo().getUser();
+            View.OnClickListener onUsernameClicked = v -> getCallback().onUsernameClicked();
+
             usernameView.setText(user.getName());
-            usernameView.setOnClickListener(v -> getCallback().onUsernameClicked());
+            usernameView.setOnClickListener(onUsernameClicked);
 
             userTypeView.setVisibility(View.VISIBLE);
             userTypeView.setTextColor(ContextCompat.getColor(getContext(),
                     UserClasses.MarkColors.get(user.getMark())));
 
             userTypeView.setText(getString(UserClasses.MarkStrings.get(user.getMark())).toUpperCase());
+            userTypeView.setOnClickListener(onUsernameClicked);
 
             Graph benis = state.getBenisHistory();
 

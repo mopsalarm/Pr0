@@ -28,6 +28,14 @@
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
+    <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorAccent">@color/white</item>
+    </style>
+
+    <style name="AppTheme.Comment">
+        <item name="colorAccent">@color/blue_grey_500</item>
+    </style>
+
     <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar"/>
     <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar" />
 
