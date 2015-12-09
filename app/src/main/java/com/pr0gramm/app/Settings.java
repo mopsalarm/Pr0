@@ -92,10 +92,6 @@ public class Settings {
         return preferences.getBoolean("pref_double_tap_to_upvote", true);
     }
 
-    public boolean benisGraphEnabled() {
-        return preferences.getBoolean("pref_benis_graph_enabled", true);
-    }
-
     public boolean fullscreenZoomView() {
         return preferences.getBoolean("pref_fullscreen_zoom_view", true);
     }

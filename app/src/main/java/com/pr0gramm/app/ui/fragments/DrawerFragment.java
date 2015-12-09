@@ -203,8 +203,6 @@ public class DrawerFragment extends BaseFragment {
                 .subscribe(
                         navigationAdapter::setNavigationItems,
                         ErrorDialogFragment.defaultOnError());
-
-        benisGraph.setVisibility(settings.benisGraphEnabled() ? View.VISIBLE : View.GONE);
     }
 
     /**

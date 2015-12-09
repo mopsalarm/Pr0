@@ -243,12 +243,6 @@
                     android:summary="@string/pref_max_image_size_summary"
                     android:title="@string/pref_max_image_size"/>
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_benis_graph_enabled"
-                    android:summary="@string/pref_benis_graph_enabled_summary"
-                    android:title="@string/pref_benis_graph_enabled"/>
-
             </PreferenceCategory>
 
         </PreferenceScreen>
