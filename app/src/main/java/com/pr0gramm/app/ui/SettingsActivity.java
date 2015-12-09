@@ -31,7 +31,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.psdev.licensesdialog.LicensesDialog;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;
@@ -189,12 +188,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if ("pref_pseudo_feedback".equals(preference.getKey())) {
                 startActivity(new Intent(getActivity(), FeedbackActivity.class));
-                return true;
-            }
-
-            if ("pref_pseudo_licenses".equals(preference.getKey())) {
-                new LicensesDialog.Builder(getActivity()).setNotices(R.raw.licenses)
-                        .setIncludeOwnLicense(true).build().show();
                 return true;
             }
 
