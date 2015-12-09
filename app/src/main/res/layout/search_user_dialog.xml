@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.design.widget.TextInputLayout
+<com.pr0gramm.app.ui.MaxWidthFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:mwfl_maxWidth="400dp">
 
-    <AutoCompleteTextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/receiver"/>
-</android.support.design.widget.TextInputLayout>
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="false"
+            android:text="Enter the name of the user you want to search. If it is an active user, auto completion might help you."
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/receiver"/>
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+</com.pr0gramm.app.ui.MaxWidthFrameLayout>

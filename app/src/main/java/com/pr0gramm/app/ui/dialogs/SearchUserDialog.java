@@ -3,11 +3,12 @@ package com.pr0gramm.app.ui.dialogs;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -29,7 +30,7 @@ import javax.inject.Inject;
 public class SearchUserDialog extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger("SearchUserDialog");
 
-    private TextInputLayout inputView;
+    private EditText inputView;
 
     @Inject
     UserService userService;
@@ -43,19 +44,20 @@ public class SearchUserDialog extends BaseDialogFragment {
         ContextThemeWrapper context = new ContextThemeWrapper(getActivity(),
                 R.style.Theme_AppCompat_Light_Dialog);
 
-        inputView = (TextInputLayout) LayoutInflater
+        View contentView = LayoutInflater
                 .from(context)
                 .inflate(R.layout.search_user_dialog, null);
 
-        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) inputView.getEditText();
+        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) contentView.findViewById(R.id.username);
         if (autoCompleteTextView != null) {
             autoCompleteTextView.setAdapter(new UsernameAutoCompleteAdapter(metaService, context,
                     "", android.R.layout.simple_dropdown_item_1line));
         }
 
+        inputView = autoCompleteTextView;
 
         return DialogBuilder.start(context)
-                .content(inputView)
+                .content(contentView)
                 .positive(R.string.action_search_simple, di -> onSearchClicked())
                 .negative(Dialog::dismiss)
                 .noAutoDismiss()
@@ -63,7 +65,7 @@ public class SearchUserDialog extends BaseDialogFragment {
     }
 
     private void onSearchClicked() {
-        String username = inputView.getEditText().getText().toString().trim();
+        String username = inputView.getText().toString().trim();
 
         userService.info(username)
                 .compose(bindToLifecycle())

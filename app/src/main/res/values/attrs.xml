@@ -43,4 +43,8 @@
     <declare-styleable name="MessageView">
         <attr name="viewLayout" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="MaxWidthFrameLayout">
+        <attr name="mwfl_maxWidth" format="dimension" />
+    </declare-styleable>
 </resources>
