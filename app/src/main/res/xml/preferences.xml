@@ -206,25 +206,6 @@
                     android:title="@string/pref_show_google_image_button_title"/>
             </PreferenceCategory>
 
-
-            <PreferenceCategory
-                android:key="prefcat_visual__animations"
-                android:title="@string/prefcat_visual__animations_title">
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_animate_vote_view"
-                    android:summaryOff="@string/pref_animate_vote_view_off"
-                    android:summaryOn="@string/pref_animate_vote_view_on"
-                    android:title="@string/pref_animate_vote_view"/>
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="pref_animate_post_on_vote"
-                    android:summary="@string/pref_animate_post_on_vote_summary"
-                    android:title="@string/pref_animate_post_on_vote"/>
-            </PreferenceCategory>
-
             <PreferenceCategory
                 android:key="prefcat_visual__tags"
                 android:title="@string/prefcat_visual__tags">

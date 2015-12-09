@@ -773,35 +773,33 @@ public class PostFragment extends BaseFragment implements
         if (vote == null || vote == Vote.NEUTRAL)
             return;
 
-        if (settings.animatePostOnVote()) {
-            // quickly center the vote button
-            if (scrollHandler != null)
-                scrollHandler.onScrolled(content, 0, 0);
+        // quickly center the vote button
+        if (scrollHandler != null)
+            scrollHandler.onScrolled(content, 0, 0);
 
-            String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
-            voteAnimationIndicator.setText(text);
+        String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
+        voteAnimationIndicator.setText(text);
 
-            voteAnimationIndicator.setVisibility(View.VISIBLE);
-            voteAnimationIndicator.setAlpha(0);
-            voteAnimationIndicator.setScaleX(0.7f);
-            voteAnimationIndicator.setScaleY(0.7f);
+        voteAnimationIndicator.setVisibility(View.VISIBLE);
+        voteAnimationIndicator.setAlpha(0);
+        voteAnimationIndicator.setScaleX(0.7f);
+        voteAnimationIndicator.setScaleY(0.7f);
 
-            ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
-                    ofFloat(View.ALPHA, 0, 0.6f, 0.7f, 0.6f, 0),
-                    ofFloat(View.SCALE_X, 0.7f, 1.3f),
-                    ofFloat(View.SCALE_Y, 0.7f, 1.3f));
+        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(voteAnimationIndicator,
+                ofFloat(View.ALPHA, 0, 0.6f, 0.7f, 0.6f, 0),
+                ofFloat(View.SCALE_X, 0.7f, 1.3f),
+                ofFloat(View.SCALE_Y, 0.7f, 1.3f));
 
-            animator.start();
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    View view = PostFragment.this.voteAnimationIndicator;
-                    if (view != null) {
-                        view.setVisibility(View.GONE);
-                    }
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                View view = PostFragment.this.voteAnimationIndicator;
+                if (view != null) {
+                    view.setVisibility(View.GONE);
                 }
-            });
-        }
+            }
+        });
     }
 
     private void initializeMediaView() {

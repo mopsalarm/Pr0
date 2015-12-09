@@ -169,7 +169,7 @@ public class VoteView extends LinearLayout {
         // set new voting state
         state = vote;
 
-        boolean animated = !force && isAnimated();
+        boolean animated = !force;
         updateVoteViewState(animated);
     }
 
@@ -200,10 +200,6 @@ public class VoteView extends LinearLayout {
             viewRateUp.animate().rotation(0).alpha(0.5f).setDuration(duration).start();
             viewRateDown.animate().rotation(360).alpha(1f).setDuration(duration).start();
         }
-    }
-
-    private boolean isAnimated() {
-        return settings.animateVoteView();
     }
 
     /**

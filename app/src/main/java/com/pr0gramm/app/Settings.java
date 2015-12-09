@@ -88,14 +88,6 @@ public class Settings {
         return Enums.getIfPresent(IndicatorStyle.class, value).or(IndicatorStyle.NONE);
     }
 
-    public boolean animateVoteView() {
-        return preferences.getBoolean("pref_animate_vote_view", true);
-    }
-
-    public boolean animatePostOnVote() {
-        return preferences.getBoolean("pref_animate_post_on_vote", true);
-    }
-
     public boolean doubleTapToUpvote() {
         return preferences.getBoolean("pref_double_tap_to_upvote", true);
     }
