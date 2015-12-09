@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.fragments;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.services.CommentService;
+import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.MessageAdapter;
 import com.pr0gramm.app.ui.MessageView;
@@ -21,7 +21,7 @@ public class FavedCommentFragment extends MessageInboxFragment {
     UserService userService;
 
     @Inject
-    CommentService commentService;
+    FavedCommentService favedCommentService;
 
     @Inject
     Settings settings;
@@ -29,9 +29,9 @@ public class FavedCommentFragment extends MessageInboxFragment {
     @Override
     protected LoaderHelper<List<Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
-            return commentService
+            return favedCommentService
                     .list(settings.getContentType())
-                    .map(comments -> transform(comments, CommentService::commentToMessage));
+                    .map(comments -> transform(comments, FavedCommentService::commentToMessage));
         });
     }
 

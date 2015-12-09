@@ -51,8 +51,8 @@ import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.parcel.CommentListParceler;
 import com.pr0gramm.app.parcel.TagListParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
-import com.pr0gramm.app.services.CommentService;
 import com.pr0gramm.app.services.DownloadService;
+import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.ImmutableFavedComment;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.SeenService;
@@ -163,7 +163,7 @@ public class PostFragment extends BaseFragment implements
     DownloadService downloadService;
 
     @Inject
-    CommentService commentService;
+    FavedCommentService favedCommentService;
 
     @Bind(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
@@ -673,7 +673,7 @@ public class PostFragment extends BaseFragment implements
                     });
         }
 
-        commentService.favedCommentIds()
+        favedCommentService.favedCommentIds()
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setFavedComments);
     }
@@ -1083,7 +1083,7 @@ public class PostFragment extends BaseFragment implements
     public void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite) {
         Observable<Void> result;
         if (markAsFavorite) {
-            result = commentService.save(ImmutableFavedComment.builder()
+            result = favedCommentService.save(ImmutableFavedComment.builder()
                     .id(comment.getId())
                     .name(comment.getName())
                     .content(comment.getContent())
@@ -1096,7 +1096,7 @@ public class PostFragment extends BaseFragment implements
                     .flags(feedItem.getFlags())
                     .build());
         } else {
-            result = commentService.delete(comment.getId());
+            result = favedCommentService.delete(comment.getId());
         }
 
         result.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))

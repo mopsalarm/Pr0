@@ -8,7 +8,7 @@ import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
-import com.pr0gramm.app.services.CommentService;
+import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.ImportantMessageService;
 import com.pr0gramm.app.services.MessageDefinition;
 import com.pr0gramm.app.services.NotificationService;
@@ -47,7 +47,7 @@ public class SyncIntentService extends IntentService {
     Settings settings;
 
     @Inject
-    CommentService commentService;
+    FavedCommentService favedCommentService;
 
     @Inject
     ImportantMessageService messageService;
@@ -78,7 +78,7 @@ public class SyncIntentService extends IntentService {
 
         if(singleShotService.firstTimeInHour("auto-sync-comments")) {
             logger.info("sync favorite comments");
-            commentService.updateCache();
+            favedCommentService.updateCache();
         }
 
         logger.info("Performing a sync operation now");

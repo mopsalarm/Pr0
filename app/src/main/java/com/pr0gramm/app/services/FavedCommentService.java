@@ -45,7 +45,7 @@ import static com.google.common.collect.Lists.transform;
  */
 @Singleton
 @Gson.TypeAdapters
-public class CommentService {
+public class FavedCommentService {
     private static final Logger logger = LoggerFactory.getLogger("CommentService");
 
     private final HttpInterface api;
@@ -55,12 +55,12 @@ public class CommentService {
     private final PublishSubject<String> forceUpdateUserHash = PublishSubject.create();
 
     @Inject
-    public CommentService(UserService userService, OkHttpClient okHttpClient) {
+    public FavedCommentService(UserService userService, OkHttpClient okHttpClient) {
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl("https://pr0.wibbly-wobbly.de/api/comments/v1/")
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                        .registerTypeAdapterFactory(new GsonAdaptersCommentService())
+                        .registerTypeAdapterFactory(new GsonAdaptersFavedCommentService())
                         .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
                         .create()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -127,7 +127,7 @@ public class CommentService {
         }
 
         return userHash
-                .filter(CommentService::isUserHashAvailable)
+                .filter(FavedCommentService::isUserHashAvailable)
                 .take(1)
                 .flatMap(hash -> api.save(hash, comment.id(), comment))
                 .ignoreElements();
@@ -142,7 +142,7 @@ public class CommentService {
         updateCache();
 
         return userHash
-                .filter(CommentService::isUserHashAvailable)
+                .filter(FavedCommentService::isUserHashAvailable)
                 .take(1)
                 .flatMap(hash -> api.list(hash, flags));
     }
@@ -156,7 +156,7 @@ public class CommentService {
         }
 
         return userHash
-                .filter(CommentService::isUserHashAvailable)
+                .filter(FavedCommentService::isUserHashAvailable)
                 .take(1)
                 .flatMap(hash -> api.delete(hash, commentId))
                 .ignoreElements();
