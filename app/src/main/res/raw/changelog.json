@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "WIP: Kommentare können nun favorisiert werden. Design ist leider noch nicht richtig 'hübsch'. Vorschläge? Läuft geräteübergreifend im Browser mittels Userscript von Mopsalarm."
+        "change": "Kommentare können nun favorisiert werden. Läuft geräteübergreifend im Browser mittels Userscript von Mopsalarm."
       },
       {
         "type": "Neu",
@@ -16,7 +16,7 @@
       },
       {
         "type": "Neu",
-        "change": "WIP: Experimentelles Layout für 10 Zoll Tablets!"
+        "change": "WIP: Experimentelles Layout für 10 Zoll Tablets! Feedback!?"
       },
       {
         "type": "Neu",
