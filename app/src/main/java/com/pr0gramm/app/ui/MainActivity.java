@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.ApplicationClass;
@@ -48,6 +49,9 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -154,7 +158,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             Intent intent = getIntent();
             if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
                 // load feed-fragment into view
-                gotoFeedFragment(newDefaultFeedFilter(), true);
+                gotoFeedFragment(defaultFeedFilter(), true);
 
             } else {
                 startedWithIntent = true;
@@ -271,6 +275,20 @@ public class MainActivity extends BaseAppCompatActivity implements
             // show the current item in the drawer
             drawer.updateCurrentFilters(currentFilter);
         }
+
+        if(BuildConfig.DEBUG) {
+            printFragmentStack();
+        }
+    }
+
+    private void printFragmentStack() {
+        List<String> names = new ArrayList<>();
+        for (int idx = 0; idx < getSupportFragmentManager().getBackStackEntryCount(); idx++) {
+            FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(idx);
+            names.add(entry.getName());
+        }
+
+        logger.info("stack: root -> {}", Joiner.on(" -> ").join(names));
     }
 
     private void updateActionbarTitle() {
@@ -310,7 +328,6 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void updateToolbarBackButton() {
-        FragmentManager fm = getSupportFragmentManager();
         drawerToggle.setDrawerIndicatorEnabled(shouldClearOnIntent());
         drawerToggle.syncState();
     }
@@ -365,7 +382,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (getSupportFragmentManager().getBackStackEntryCount() == 0 && !startedWithIntent) {
             FeedFilter filter = getCurrentFeedFilter();
             if (filter != null && !isDefaultFilter(filter)) {
-                gotoFeedFragment(newDefaultFeedFilter(), true);
+                gotoFeedFragment(defaultFeedFilter(), true);
                 return;
             }
         }
@@ -374,7 +391,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private boolean isDefaultFilter(FeedFilter filter) {
-        return newDefaultFeedFilter().equals(filter);
+        return defaultFeedFilter().equals(filter);
     }
 
     @Override
@@ -397,12 +414,12 @@ public class MainActivity extends BaseAppCompatActivity implements
                     Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT).show();
 
                     // reset everything!
-                    gotoFeedFragment(newDefaultFeedFilter(), true);
+                    gotoFeedFragment(defaultFeedFilter(), true);
                 })
                 .subscribe(Actions.empty(), defaultOnError());
     }
 
-    private FeedFilter newDefaultFeedFilter() {
+    private FeedFilter defaultFeedFilter() {
         FeedType type = settings.feedStartAtNew() ? FeedType.NEW : FeedType.PROMOTED;
         return new FeedFilter().withFeedType(type);
     }
@@ -457,6 +474,10 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<ItemWithComment> start) {
+        moveToFragment(FeedFragment.newInstance(newFilter, start), clear);
+    }
+
+    private void moveToFragment(Fragment fragment, boolean clear) {
         if (isFinishing())
             return;
 
@@ -464,18 +485,16 @@ public class MainActivity extends BaseAppCompatActivity implements
             clearBackStack();
         }
 
-        moveToFragment(FeedFragment.newInstance(newFilter, start), clear);
-    }
-
-    private void moveToFragment(Fragment fragment, boolean clear) {
         // and show the fragment
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content, fragment);
 
-        if (!clear)
-            transaction.addToBackStack(null);
+        if (!clear) {
+            logger.info("Adding fragment {} to backstrack", fragment.getClass().getName());
+            transaction.addToBackStack("Feed" + fragment);
+        }
 
         try {
             transaction.commit();
@@ -519,7 +538,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             gotoFeedFragment(filter, clear, start);
 
         } else {
-            gotoFeedFragment(newDefaultFeedFilter(), true);
+            gotoFeedFragment(defaultFeedFilter(), true);
         }
     }
 

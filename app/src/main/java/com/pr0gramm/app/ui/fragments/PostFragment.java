@@ -171,7 +171,7 @@ public class PostFragment extends BaseFragment implements
     @Bind(R.id.player_container)
     ViewGroup playerContainer;
 
-    @Bind(R.id.content)
+    @Bind(R.id.post_content)
     RecyclerView content;
 
     @Bind(R.id.vote_indicator)

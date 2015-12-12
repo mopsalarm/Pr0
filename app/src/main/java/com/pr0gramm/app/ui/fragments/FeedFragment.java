@@ -846,7 +846,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             @SuppressLint("CommitTransaction")
             FragmentTransaction tr = getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content, fragment)
-                    .addToBackStack(null);
+                    .addToBackStack("Post" + idx);
 
             if (doTransition) {
                 tr.addSharedElement(preview.orNull(), "TransitionTarget-" + feed.at(idx).getId());

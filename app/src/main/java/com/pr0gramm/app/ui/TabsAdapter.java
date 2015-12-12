@@ -18,17 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapted from https://github.com/android/platform_development/blob/2d52182dfac91014c2975a1bb1afd99a3b14b4e9/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabsPager.java
- * <p>
- * This is a helper class that implements the management of tabs and all
- * details of connecting a ViewPager with associated TabHost.  It relies on a
- * trick.  Normally a tab host has a simple API for supplying a View or
- * Intent that each tab will show.  This is not sufficient for switching
- * between pages.  So instead we make the content part of the tab host
- * 0dp high (it is not shown) and the TabsAdapter supplies its own dummy
- * view to show as the tab content.  It listens to changes in tabs, and takes
- * care of switch to the correct paged in the ViewPager whenever the selected
- * tab changes.
  */
 public class TabsAdapter extends FragmentPagerAdapter {
 
