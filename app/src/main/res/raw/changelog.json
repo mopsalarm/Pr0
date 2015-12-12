@@ -1,5 +1,22 @@
 [
   {
+    "version": 81,
+    "changes": [
+      {
+        "type": "Info",
+        "change": "Dies ist nur ein Bugfix-Release. Sorry dafür!"
+      },
+      {
+        "type": "Fix",
+        "change": "Transparente Posts-Bug gefixt."
+      },
+      {
+        "type": "Fix",
+        "change": "Farben im sfw/nsfw-Wechselmenü korrigiert"
+      }
+    ]
+  },
+  {
     "version": 80,
     "changes": [
       {
