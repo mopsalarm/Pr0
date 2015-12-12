@@ -149,6 +149,22 @@ public class MainActivity extends BaseAppCompatActivity implements
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
 
+        //noinspection PointlessBooleanExpression
+        if (BuildConfig.IS_PLAYSTORE_RELEASE) {
+            DialogBuilder.start(this)
+                    .content("Die App ist nun bereits das zweite Mal nach kurzer Zeit aus dem" +
+                            " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
+                            " Ich bitte dich, die 'nicht PlayStore'-Version herunterzuladen.")
+
+                    .positive("Herunterladen", v -> {
+                        ApplicationClass.openDownloadFreeVersion(this);
+                    })
+                    .onCancel(di -> finish())
+                    .show();
+
+            return;
+        }
+
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
@@ -173,20 +189,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         } else {
             // start the update check.
             UpdateDialogFragment.checkForUpdates(this, false);
-        }
-
-        //noinspection PointlessBooleanExpression
-        if (BuildConfig.IS_PLAYSTORE_RELEASE) {
-            if (singleShotService.firstTimeToday("hint_download_open_version")) {
-                DialogBuilder.start(this)
-                        .content("Die App ist nun bereits das zweite Mal nach kurzer Zeit aus dem" +
-                                " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
-                                " Ich bitte dich, die 'nicht PlayStore'-Version herunterzuladen.")
-
-                        .positive("Herunterladen", v -> ApplicationClass.openDownloadFreeVersion(this))
-                        .negative("Jetzt nicht")
-                        .show();
-            }
         }
 
         showApiProxyHint();
@@ -276,7 +278,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             drawer.updateCurrentFilters(currentFilter);
         }
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             printFragmentStack();
         }
     }
