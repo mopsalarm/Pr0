@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginLeft="8dp"
-    android:background="@color/tag_background">
+    android:background="@drawable/tag_background">
 
     <TextView
         android:id="@+id/tag_text"
