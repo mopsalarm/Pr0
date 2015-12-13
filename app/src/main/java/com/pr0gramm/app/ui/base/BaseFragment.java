@@ -13,8 +13,8 @@ import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.FragmentLifecycleProvider;
 import com.trello.rxlifecycle.RxLifecycle;
-import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
 
 import javax.inject.Inject;
 

@@ -11,8 +11,8 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.ActivityLifecycleProvider;
 import com.trello.rxlifecycle.RxLifecycle;
-import com.trello.rxlifecycle.components.ActivityLifecycleProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +21,13 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
-import static rx.schedulers.Schedulers.io;
 
 /**
- * A {@link android.support.v7.app.AppCompatActivity}
- * with roboguice functionality and its lifecycle exposed as an observable.
+ * A {@link android.support.v7.app.AppCompatActivity} with dagger injection and stuff.
  */
 public abstract class BaseAppCompatActivity extends AppCompatActivity implements ActivityLifecycleProvider {
     protected final Logger logger = LoggerFactory.getLogger(getClass());

@@ -4,15 +4,13 @@ import android.support.annotation.NonNull;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.trello.rxlifecycle.components.FragmentLifecycleProvider;
+import com.trello.rxlifecycle.FragmentLifecycleProvider;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Action1;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static rx.schedulers.Schedulers.io;
 
 /**
  * This class handles loading of feed data.
