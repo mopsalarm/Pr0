@@ -1,5 +1,18 @@
 [
   {
+    "version": 82,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Bereits gesuchte Begriffe werden automatisch vorgeschlagen"
+      },
+      {
+        "type": "Fix",
+        "change": "Layoutfixes"
+      }
+    ]
+  },
+  {
     "version": 81,
     "changes": [
       {

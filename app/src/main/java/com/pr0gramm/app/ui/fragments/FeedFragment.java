@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -14,10 +15,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +56,7 @@ import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.RecentSearchesServices;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
@@ -152,6 +156,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     @Inject
     InboxService inboxService;
 
+    @Inject
+    RecentSearchesServices recentSearchesServices;
+
     @Bind(R.id.list)
     RecyclerView recyclerView;
 
@@ -246,7 +253,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
         });
 
-        if(useToolbarTopMargin()) {
+        if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
             int offset = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
@@ -274,7 +281,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         updateSpanSizeLookup();
 
-        if(!isSimpleMode()) {
+        if (!isSimpleMode()) {
             queryUserInfo()
                     .take(1)
                     .compose(bindToLifecycle())
@@ -779,6 +786,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
      * @param item The item containing the search view.
      */
     private void initializeSearchView(MenuItem item) {
+        final String[] from = new String[]{RecentSearchesServices.COLUMN_TERM};
+        final int[] to = new int[]{android.R.id.text1};
+
+        SimpleCursorAdapter suggestAdapter = new SimpleCursorAdapter(
+                new ContextThemeWrapper(getActivity(), R.style.AppTheme_Popup),
+                android.R.layout.simple_list_item_1, null, from, to, 0);
+
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 
         searchView.setOnSearchClickListener(v -> {
@@ -789,15 +803,44 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String term) {
+                recentSearchesServices.storeTerm(term);
                 performSearch(term);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String term) {
+                suggestAdapter.changeCursor(recentSearchesServices.asCursor(term));
                 return false;
             }
         });
+
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return true;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                // now get the correct value from the cursor
+                Object item = suggestAdapter.getItem(position);
+                if (item instanceof Cursor) {
+                    int idx;
+                    String term;
+                    Cursor cursor = (Cursor) item;
+                    if ((idx = cursor.getColumnIndex(RecentSearchesServices.COLUMN_TERM)) > 0
+                            && (term = cursor.getString(idx)) != null) {
+
+                        searchView.setQuery(term, false);
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        searchView.setSuggestionsAdapter(suggestAdapter);
 
         FragmentActivity activity = getActivity();
         if (activity != null) {

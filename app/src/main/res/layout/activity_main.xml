@@ -22,15 +22,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:background="@color/primary"
-            android:fitsSystemWindows="true"
-            android:elevation="8dp">
+            android:elevation="8dp"
+            android:fitsSystemWindows="true">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:theme="@style/AppTheme.Toolbar"
                 app:popupTheme="@style/AppTheme.Popup"
-                app:theme="@style/AppTheme.Toolbar"/>
+                />
 
         </FrameLayout>
     </FrameLayout>
