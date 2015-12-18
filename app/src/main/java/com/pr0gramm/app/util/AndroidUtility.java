@@ -341,7 +341,11 @@ public class AndroidUtility {
         return new File(uri.getPath());
     }
 
+    private static final Pattern MALICIOUS_COMMENT_CHARS = Pattern.compile("([\\p{Mn}\\p{Mc}\\p{Me}])[\\p{Mn}\\p{Mc}\\p{Me}]+");
+
     public static void linkify(TextView view, String content) {
+        content = MALICIOUS_COMMENT_CHARS.matcher(content).replaceAll("$1");
+
         Uri base = UriHelper.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
