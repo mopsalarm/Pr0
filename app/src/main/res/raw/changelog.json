@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Absturz beim Anzeigen einiger verbockter Kommentare behoben"
+      },
+      {
+        "type": "Fix",
         "change": "Layoutfixes"
       }
     ]
