@@ -290,4 +290,6 @@
     <string name="hint_feedback_not_support"><b>Achtung:</b> Dies nicht der pr0gramm-Support. Wenn du dich hier unwohl fühlst, Bilder löschen möchtest, keinen Sound hast oder irgendeine andere Frage zum pr0gramm, dann bist du hier falsch. Hier gehts um <b>Feedback für die App</b>!\nWenn du eine Antwort erwartest, dann <b>musst</b> du oben deinen pr0gramm Benutzernamen angeben.</string>
     <string name="hint_user_search_dialog">Gib den Namen des Benutzer ein, den du suchst. Wenn es sich um einen aktiven Benutzer handelt, hilft dir eventuell die Autoverfollständigung.</string>
     <string name="info">Info</string>
+    <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in enem WLAN ohne Internetzugang.</string>
+    <string name="error_json">Die Antwort des pr0gramm konnte nicht verarbeitet werden.</string>
 </resources>

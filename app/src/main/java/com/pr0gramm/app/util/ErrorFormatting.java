@@ -10,6 +10,7 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
@@ -147,6 +148,9 @@ public class ErrorFormatting {
         formatters.add(new RetrofitStatusFormatter(
                 err -> err.code() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
+
+        formatters.add(new Formatter<>(JsonSyntaxException.class,
+                R.string.error_json));
 
         formatters.add(new Formatter<>(Throwable.class,
                 err -> Throwables.getRootCause(err) instanceof TimeoutException,

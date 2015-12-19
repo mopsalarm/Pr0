@@ -320,5 +320,7 @@
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
     <string name="hint_feedback_not_support"><b>Caution:</b> This is not the pr0gramm support. If you dont like it here, if you want to delete a picture or if you dont have sound on pr0gramm, then this is not the right place to ask! This is just for <b>feedback for the app</b>.\nIf you are expecting an answer, you need to provide your username in the field above</string>
     <string name="info">Info</string>
+    <string name="error_json">Could not parse the response from the pr0gramm server.</string>
+    <string name="could_not_load_feed_json">Could not load feed. The response looks a bit like as if you are in some wifi that does not allow internet access.</string>
 </resources>
 

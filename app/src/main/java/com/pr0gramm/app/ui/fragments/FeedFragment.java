@@ -34,6 +34,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -1098,6 +1099,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             if (autoOpenOnLoad != null) {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
                         getString(R.string.could_not_load_feed_nsfw));
+
+            } else if (error instanceof JsonSyntaxException) {
+                // show a special error
+                ErrorDialogFragment.showErrorString(getFragmentManager(),
+                        getString(R.string.could_not_load_feed_json));
+
             } else {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
                         getString(R.string.could_not_load_feed));
