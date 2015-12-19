@@ -20,7 +20,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -790,8 +789,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         final int[] to = new int[]{android.R.id.text1};
 
         SimpleCursorAdapter suggestAdapter = new SimpleCursorAdapter(
-                new ContextThemeWrapper(getActivity(), R.style.AppTheme_Popup),
-                android.R.layout.simple_list_item_1, null, from, to, 0);
+                getActivity(),
+                R.layout.hintrow, null, from, to, 0);
 
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 

@@ -11,7 +11,9 @@
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>
+
     <style name="AppTheme.TranslucentStatus" parent="Base.AppTheme"/>
+
     <style name="AppTheme.TranslucentNavbar" parent="Base.AppTheme"/>
 
     <!-- Base application theme. -->
@@ -37,7 +39,8 @@
     </style>
 
     <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar"/>
-    <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar" />
+
+    <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar"/>
 
     <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/primary</item>
