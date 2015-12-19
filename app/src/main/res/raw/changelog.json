@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Layoutfixes"
+      },
+      {
+        "type": "Fix",
+        "change": "Fehlerbehandlung verbessert"
       }
     ]
   },
