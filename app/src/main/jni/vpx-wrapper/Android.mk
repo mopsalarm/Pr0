@@ -15,10 +15,11 @@ LOCAL_SRC_FILES := \
 	../libvpx/third_party/libyuv/source/scale.cc \
 	../libvpx/third_party/libyuv/source/scale_common.cc \
 	../libvpx/third_party/libyuv/source/scale_neon.cc \
+	../libvpx/third_party/libyuv/source/scale_any.cc \
 	../libvpx/third_party/libyuv/source/row_common.cc \
 	../libvpx/third_party/libyuv/source/row_any.cc \
 	../libvpx/third_party/libyuv/source/row_neon.cc \
-	../libvpx/third_party/libyuv/source/row_posix.cc \
+	../libvpx/third_party/libyuv/source/row_gcc.cc \
 	../libvpx/third_party/libyuv/source/video_common.cc \
 	../libvpx/third_party/libyuv/source/convert.cc \
 	../libvpx/third_party/libyuv/source/planar_functions.cc \
