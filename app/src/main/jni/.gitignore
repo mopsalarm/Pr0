@@ -1,0 +1,7 @@
+/*.h
+/*.c
+/config.*
+/Application.mk
+/Makefile
+/libs-*mk
+/armeabi-v7a
