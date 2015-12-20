@@ -4,8 +4,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := vpx-wrapper
 LOCAL_C_INCLUDES := libvpx libvpx/third_party/libyuv/include coffeecatch
 LOCAL_STATIC_LIBRARIES := vpx coffeecatch
-LOCAL_ARM_NEON := true
-LOCAL_LDLIBS += -ljnigraphics -llog
+LOCAL_LDLIBS += -ljnigraphics
 
 LOCAL_SRC_FILES := \
 	vpx-wrapper.c \
@@ -15,10 +14,13 @@ LOCAL_SRC_FILES := \
 	../libvpx/third_party/libyuv/source/scale.cc \
 	../libvpx/third_party/libyuv/source/scale_common.cc \
 	../libvpx/third_party/libyuv/source/scale_neon.cc \
+	../libvpx/third_party/libyuv/source/scale_neon64.cc \
+	../libvpx/third_party/libyuv/source/scale_gcc.cc \
 	../libvpx/third_party/libyuv/source/scale_any.cc \
 	../libvpx/third_party/libyuv/source/row_common.cc \
 	../libvpx/third_party/libyuv/source/row_any.cc \
 	../libvpx/third_party/libyuv/source/row_neon.cc \
+	../libvpx/third_party/libyuv/source/row_neon64.cc \
 	../libvpx/third_party/libyuv/source/row_gcc.cc \
 	../libvpx/third_party/libyuv/source/video_common.cc \
 	../libvpx/third_party/libyuv/source/convert.cc \

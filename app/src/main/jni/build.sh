@@ -3,28 +3,111 @@
 set -e
 cd $(dirname $0)
 
+function default_makefile() {
+  local ARCH=$1
+  cat << EOF
+APP_ABI := $ARCH
+TARGET_PLATFORM := android-14
+APP_PLATFORM := android-14
+APP_CFLAGS := -funwind-tables -Wl,--no-merge-exidx-entries
+EOF
+}
+
+function clean() {
+  rm -rf build_*
+}
+
+function build_x86() {
+  # configure the library to build
+  PATH=$NDK/toolchains/x86-4.9/prebuilt/linux-x86_64/bin:$PATH \
+  CROSS=i686-linux-android- \
+  LDFLAGS="--sysroot=$NDK/platforms/android-14/arch-x86" \
+  libvpx/configure \
+    --extra-cflags="--sysroot=$NDK/platforms/android-14/arch-x86" \
+    --target=x86-android-gcc \
+    --disable-examples --disable-docs --disable-webm-io \
+    --disable-spatial-resampling --disable-postproc \
+    --disable-vp9 --disable-vp10 --disable-vp8-encoder --enable-static \
+    --disable-runtime-cpu-detect --disable-neon --disable-neon-asm \
+    --disable-avx --disable-avx2 --enable-pic \
+    --disable-libyuv --sdk-path=$NDK
+
+  default_makefile "x86" > Application.mk
+
+  $NDK/ndk-build
+}
+
+function build_x86_64() {
+  # configure the library to build
+  libvpx/configure \
+    --target=x86_64-android-gcc \
+    --disable-examples --disable-docs --disable-webm-io \
+    --disable-spatial-resampling --disable-postproc \
+    --disable-vp9 --disable-vp10 --disable-vp8-encoder --enable-static \
+    --disable-runtime-cpu-detect --disable-neon --disable-neon-asm \
+    --disable-avx --disable-avx2 --enable-pic \
+    --disable-libyuv --sdk-path=$NDK
+
+  default_makefile "x86_64" > Application.mk
+
+  $NDK/ndk-build
+}
+
+function build_arm() {
+  # configure the library to build
+  libvpx/configure \
+    --target=armv7-android-gcc \
+    --disable-examples --disable-docs --disable-webm-io \
+    --disable-spatial-resampling --disable-postproc \
+    --disable-vp9 --disable-vp10 --disable-vp8-encoder --enable-static \
+    --disable-libyuv --sdk-path=$NDK
+
+  default_makefile "armeabi-v7a" > Application.mk
+
+  LOCAL_ARM_NEON=true $NDK/ndk-build
+}
+
+function build_arm64() {
+  # configure the library to build
+  PATH=$NDK/toolchains/x86-4.9/prebuilt/linux-x86_64/bin:$PATH \
+  CROSS=i686-linux-android- \
+  LDFLAGS="--sysroot=$NDK/platforms/android-21/arch-arm64" \
+  libvpx/configure \
+    --extra-cflags="--sysroot=$NDK/platforms/android-21/arch-arm64" \
+    --target=armv8-android-gcc \
+    --disable-examples --disable-docs --disable-webm-io \
+    --disable-spatial-resampling --disable-postproc \
+    --disable-vp9 --disable-vp10 --disable-vp8-encoder --enable-static \
+    --disable-libyuv --sdk-path=$NDK
+
+  default_makefile "arm64-v8a" > Application.mk
+
+  LOCAL_ARM_NEON=true $NDK/ndk-build
+}
+
 echo "Using ndk at $NDK"
 
-COMMAND=${1:-build}
+for COMMAND in $* ; do
+  case $COMMAND in
+    build_*)
+      # copy the sources to the build directory
+      BUILD_DIR=$COMMAND/jni
+      rm -rf $BUILD_DIR
+      mkdir -p $BUILD_DIR
+      cp -raf $PWD/libvpx $PWD/coffeecatch $PWD/vpx-wrapper Android.mk $BUILD_DIR
 
-case $COMMAND in
-  build)
-    # configure the library to build
-    ./libvpx/configure --target=armv7-android-gcc \
-      --disable-examples --disable-docs --disable-webm-io \
-      --disable-vp9 --disable-vp8-encoder --enable-static \
-      --disable-libyuv --sdk-path=$NDK
+      # go to the build directory and start the build
+      pushd $BUILD_DIR
+      $COMMAND
 
-    # and build it
-    export NDK_PROJECT_PATH=$PWD/..
-    export APP_BUILD_SCRIPT=$PWD/Android.mk
-    $NDK/ndk-build
-    ;;
+      # install libraries to the correct target direcotry
+      popd
+      cp -rav $BUILD_DIR/../libs ../
+      ;;
 
-  clean)
-    make clean -s
-    rm -rf vpx_config.c vpx_config.h *-armv7-*mk *config.mk armeabi-v7a Makefile
-    rm -rf ../obj
-    ;;
+    clean)
+      clean
+      ;;
 
-esac
+  esac
+done

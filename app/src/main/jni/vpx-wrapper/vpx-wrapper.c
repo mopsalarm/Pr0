@@ -13,8 +13,6 @@
 #include <coffeecatch/coffeecatch.h>
 #include <coffeecatch/coffeejni.h>
 
-#define LOG if(false) __android_log_print(ANDROID_LOG_INFO, "VPX",
-
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
 
@@ -106,12 +104,13 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
 
   jbyte* bytes = (*env)->GetByteArrayElements(env, array, NULL);
+  if(bytes) {
+    if(!vpx_wrapper_put_data(wrapper, bytes + offset, length)) {
+      throw_VpxException(env, wrapper->error);
+    }
 
-  if(!vpx_wrapper_put_data(wrapper, bytes + offset, length)) {
-    throw_VpxException(env, wrapper->error);
+    (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
   }
-
-  (*env)->ReleaseByteArrayElements(env, array, bytes, 0);
 }
 
 static int multiple_of(int what, int value) {
