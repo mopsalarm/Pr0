@@ -72,7 +72,7 @@ function deploy_copy_apk_file() {
 # copy apks and generate update.json in beta branch
 git -C ${UPDATE_REPO_PATH} checkout -B beta
 git -C ${UPDATE_REPO_PATH} pull origin beta
-for FLAVOR in "open" "play" ; do
+for FLAVOR in "open" ; do
   deploy_copy_apk_file ${FLAVOR}
   deploy_make_update_json ${FLAVOR}
 done
