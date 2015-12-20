@@ -68,6 +68,10 @@ function build_arm() {
 }
 
 function build_arm64() {
+  # monkey-patch the libvpx configure script to add
+  # support for arm64
+  sed -i -e s/arm64-darwin-gcc/armv8-android-gcc/g libvpx/configure
+
   # configure the library to build
   PATH=$NDK/toolchains/x86-4.9/prebuilt/linux-x86_64/bin:$PATH \
   CROSS=i686-linux-android- \
