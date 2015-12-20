@@ -1,14 +1,8 @@
-#include <jni.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include <vpx/vp8dx.h>
 #include <vpx/vpx_decoder.h>
 
 #include <libyuv/convert_argb.h>
 #include <libyuv/scale.h>
-
-#include <android/bitmap.h>
 
 #include <coffeecatch/coffeecatch.h>
 #include <coffeecatch/coffeejni.h>
@@ -80,7 +74,7 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_getVpxString(JNIEnv *env) {
 
 
 JNIEXPORT jlong JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxNewWrapper(JNIEnv *env) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxNewWrapper(JNIEnv *env, jobject thiz) {
   struct vpx_wrapper *wrapper = vpx_wrapper_init();
   if(wrapper->error) {
     throw_VpxException(env, wrapper->error);
@@ -92,14 +86,15 @@ Java_com_pr0gramm_app_vpx_VpxWrapper_vpxNewWrapper(JNIEnv *env) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxFreeWrapper(JNIEnv *env, jlong wrapper_addr) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxFreeWrapper(JNIEnv *env, jobject thiz, jlong wrapper_addr) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
   vpx_wrapper_destroy(wrapper);
 }
 
 JNIEXPORT void JNICALL
 Java_com_pr0gramm_app_vpx_VpxWrapper_vpxPutData(JNIEnv *env,
-    jlong wrapper_addr, jbyteArray array, jint offset, jint length) {
+  jobject thiz,
+  jlong wrapper_addr, jbyteArray array, jint offset, jint length) {
 
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
 
@@ -251,7 +246,7 @@ void protected_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bit
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
+Java_com_pr0gramm_app_vpx_VpxWrapper_vpxGetFrame(JNIEnv *env, jobject thiz, jlong wrapper_addr, jobject bitmap, jint pixel_skip) {
   struct vpx_wrapper *wrapper = (struct vpx_wrapper*) wrapper_addr;
 
   jboolean result = false;

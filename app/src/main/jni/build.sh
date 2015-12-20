@@ -93,6 +93,13 @@ echo "Using ndk at $NDK"
 
 for COMMAND in $* ; do
   case $COMMAND in
+    build_all)
+    $0 build_arm
+    $0 build_arm64
+    $0 build_x86
+    $0 build_x86_64
+    ;;
+
     build_*)
       # copy the sources to the build directory
       BUILD_DIR=$COMMAND/jni

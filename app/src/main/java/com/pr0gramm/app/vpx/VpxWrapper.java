@@ -19,8 +19,8 @@ class VpxWrapper implements Closeable {
     private final long vpx;
     private boolean closed;
 
-    private VpxWrapper(long vpx) {
-        this.vpx = vpx;
+    private VpxWrapper() {
+        this.vpx = vpxNewWrapper();
     }
 
     public void put(byte[] data, int offset, int length) {
@@ -55,9 +55,15 @@ class VpxWrapper implements Closeable {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        close();
+        super.finalize();
+    }
+
     public static VpxWrapper newInstance() {
         checkState(hasNativeLibrary, "Native library not loaded. Software decoder is not available");
-        return new VpxWrapper(vpxNewWrapper());
+        return new VpxWrapper();
     }
 
     public static boolean isAvailable() {
@@ -66,13 +72,13 @@ class VpxWrapper implements Closeable {
 
     private static native String getVpxString();
 
-    private static native long vpxNewWrapper();
+    private native long vpxNewWrapper();
 
-    private static native void vpxFreeWrapper(long vpx);
+    private native void vpxFreeWrapper(long vpx);
 
-    private static native void vpxPutData(long vpx, byte[] data, int offset, int length);
+    private native void vpxPutData(long vpx, byte[] data, int offset, int length);
 
-    private static native boolean vpxGetFrame(long vpx, Bitmap bitmap, int pixelSkip);
+    private native boolean vpxGetFrame(long vpx, Bitmap bitmap, int pixelSkip);
 
     private static boolean hasNativeLibrary;
 
