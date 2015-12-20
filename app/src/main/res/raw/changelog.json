@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Fehlerbehandlung verbessert"
+      },
+      {
+        "type": "Fix",
+        "change": "Softwaredekoder jetzt auch auf 64 Bit Systemen und x86(_64) CPUs."
       }
     ]
   },
