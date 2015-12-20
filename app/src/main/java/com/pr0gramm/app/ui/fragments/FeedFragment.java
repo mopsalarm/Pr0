@@ -649,7 +649,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         inflater.inflate(R.menu.menu_feed, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        if (item != null) {
+        if (item != null && getActivity() != null) {
             boolean searchable = getCurrentFilter().getFeedType().searchable();
             if (searchable) {
                 initializeSearchView(item);
