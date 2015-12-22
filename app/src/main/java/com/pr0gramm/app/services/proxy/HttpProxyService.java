@@ -10,6 +10,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
+import com.pr0gramm.app.BuildConfig;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
@@ -144,15 +145,15 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
                 @Override
                 public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
                     int result = super.read(buffer, byteOffset, byteCount);
-                    if (read / 500_000 != (read + result) / 500_000) {
+                    if (BuildConfig.DEBUG && read / 500_000 != (read + result) / 500_000) {
                         int percent = 100 * read / _length;
                         int loaded = (read + result) / 1024;
                         logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
-                    }
 
-                    read += result;
-                    if (read == _length) {
-                        logger.info("Finished sending file {}", url);
+                        read += result;
+                        if (read == _length) {
+                            logger.info("Finished sending file {}", url);
+                        }
                     }
 
                     return result;

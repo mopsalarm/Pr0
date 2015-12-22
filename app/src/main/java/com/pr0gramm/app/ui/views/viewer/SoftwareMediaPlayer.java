@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.mpeg.InputStreamCache;
 import com.pr0gramm.app.ui.VideoDrawable;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
@@ -46,8 +48,23 @@ public abstract class SoftwareMediaPlayer {
     private final Queue<WeakReference<Bitmap>> returned = new LinkedList<>();
     private final AtomicReference<Thread> thread = new AtomicReference<>();
 
+    private final BehaviorSubject<Boolean> bufferingSubject = BehaviorSubject.create();
+
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
+    }
+
+    public Observable<Boolean> buffering() {
+        return bufferingSubject
+                .filter(AndroidUtility.isFalse())
+                .mergeWith(bufferingSubject
+                        .filter(AndroidUtility.isTrue())
+                        .debounce(500, TimeUnit.MILLISECONDS, Schedulers.io()))
+                .distinctUntilChanged();
+    }
+
+    protected void publishIsBuffering(boolean buffering) {
+        bufferingSubject.onNext(buffering);
     }
 
     /**

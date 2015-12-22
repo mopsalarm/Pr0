@@ -46,7 +46,7 @@ public class VideoDrawable extends Drawable {
 
     /**
      * Returns a previously drawn frame from this drawable or null, if no
-     * drawable can be popped right now. This function has a tim
+     * drawable can be popped right now. This function has a timeout
      */
     public Bitmap pop(long timeout, TimeUnit unit) throws InterruptedException {
         checkNotMainThread();

@@ -428,6 +428,10 @@ public class AndroidUtility {
         return val -> val != null && val;
     }
 
+    public static Func1<Boolean, Boolean> isFalse() {
+        return val -> val == null || !val;
+    }
+
     public static <T> Observable<T> emptyIfNull(T value) {
         return value != null ? just(value) : empty();
     }

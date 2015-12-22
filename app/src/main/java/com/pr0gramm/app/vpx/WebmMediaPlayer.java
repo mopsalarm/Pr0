@@ -25,6 +25,8 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
     @SuppressLint("NewApi")
     @Override
     protected void playOnce(InputStream stream) throws IOException {
+        publishIsBuffering(true);
+
         logger.info("opening webm/mkv file");
         MatroskaFile mkv = new MatroskaFile(new InputStreamDataSource(stream));
         mkv.readFile();
@@ -70,48 +72,55 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
             while (true) {
                 // load the next data frame from the container
                 ensureStillRunning();
-                MatroskaFileFrame mkvFrame = mkv.getNextFrame(track.getTrackNo());
-                if (mkvFrame == null)
-                    break;
 
-                // estimate fps
-                long duration = mkvFrame.getTimecode() - previousTimecode;
-                previousTimecode = mkvFrame.getTimecode();
-
-                // fill the decoder with data
-                ensureStillRunning();
-                vpx.put(mkvFrame.getData());
-
-                // skip images on high frame rate.
-                boolean skipThisFrame = false;
-                if (duration < 1000 / 40) {
-                    duration *= 2;
-                    skipThisFrame = ++frameIndex % 2 == 0;
-                }
-
-                publishFrameDelay(duration);
-                if (skipThisFrame)
-                    continue;
-
-                do {
-                    blockWhilePaused();
-
-                    Bitmap bitmap = requestBitmap(pixelWidth, pixelHeight);
-                    boolean success;
-                    try {
-                        success = vpx.get(bitmap, pixelSkip);
-                    } catch (Throwable error) {
-                        returnBitmap(bitmap);
-                        throw new NativeException(error);
-                    }
-
-                    if (success) {
-                        publishBitmap(bitmap);
-                    } else {
-                        returnBitmap(bitmap);
+                publishIsBuffering(true);
+                try {
+                    MatroskaFileFrame mkvFrame = mkv.getNextFrame(track.getTrackNo());
+                    if (mkvFrame == null) {
                         break;
                     }
-                } while (true);
+
+                    // estimate fps
+                    long duration = mkvFrame.getTimecode() - previousTimecode;
+                    previousTimecode = mkvFrame.getTimecode();
+
+                    // fill the decoder with data
+                    ensureStillRunning();
+                    vpx.put(mkvFrame.getData());
+
+                    // skip images on high frame rate.
+                    boolean skipThisFrame = false;
+                    if (duration < 1000 / 40) {
+                        duration *= 2;
+                        skipThisFrame = ++frameIndex % 2 == 0;
+                    }
+
+                    publishFrameDelay(duration);
+                    if (skipThisFrame)
+                        continue;
+
+                    do {
+                        blockWhilePaused();
+
+                        Bitmap bitmap = requestBitmap(pixelWidth, pixelHeight);
+                        boolean success;
+                        try {
+                            success = vpx.get(bitmap, pixelSkip);
+                        } catch (Throwable error) {
+                            returnBitmap(bitmap);
+                            throw new NativeException(error);
+                        }
+
+                        if (success) {
+                            publishBitmap(bitmap);
+                        } else {
+                            returnBitmap(bitmap);
+                            break;
+                        }
+                    } while (true);
+                } finally {
+                    publishIsBuffering(false);
+                }
             }
         }
     }

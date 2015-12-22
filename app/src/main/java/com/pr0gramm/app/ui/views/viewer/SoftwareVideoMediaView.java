@@ -49,11 +49,14 @@ public class SoftwareVideoMediaView extends MediaView {
             return;
         }
 
-        loading = newVideoPlayer().compose(bindView()).finallyDo(() -> loading = null).subscribe(mpeg -> {
+        showBusyIndicator();
+
+        loading = newVideoPlayer().compose(bindView()).finallyDo(() -> loading = null).subscribe(player -> {
             hideBusyIndicator();
 
-            videoPlayer = mpeg;
-            imageView.setImageDrawable(videoPlayer.drawable());
+            imageView.setImageDrawable(player.drawable());
+
+            videoPlayer = player;
             videoPlayer.videoSize()
                     .compose(bindView())
                     .subscribe(this::onSizeChanged);
@@ -61,6 +64,17 @@ public class SoftwareVideoMediaView extends MediaView {
             videoPlayer.errors()
                     .compose(bindView())
                     .subscribe(defaultOnError());
+
+            videoPlayer.buffering()
+                    .compose(bindView())
+                    .subscribe(buffering -> {
+                        logger.info("Setting buffering to {}", buffering);
+                        if (buffering) {
+                            showBusyIndicator();
+                        } else {
+                            hideBusyIndicator();
+                        }
+                    });
 
             if (isPlaying()) {
                 videoPlayer.start();
