@@ -65,6 +65,13 @@ public class RecentSearchesServices {
         }
     }
 
+    public void clearHistory() {
+        synchronized (searches) {
+            searches.clear();
+            persistState();
+        }
+    }
+
     public Cursor asCursor(String query) {
         synchronized (searches) {
             MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, COLUMN_TERM});
@@ -94,7 +101,7 @@ public class RecentSearchesServices {
             String serialized = sharedPreferences.getString(KEY, "[]");
             searches.addAll(gson.fromJson(serialized, LIST_OF_STRINGS.getType()));
 
-        } catch (Exception error) {
+       } catch (Exception error) {
             logger.warn("Could not deserialize recent searches", error);
         }
     }

@@ -19,6 +19,7 @@ import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.RecentSearchesServices;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -87,6 +88,9 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
         @Inject
         OkHttpClient okHttpClient;
+
+        @Inject
+        RecentSearchesServices recentSearchesServices;
 
         private Subscription preloadItemsSubscription;
         public static final List<String> CONTENT_TYPE_KEYS = ImmutableList.of(
@@ -206,6 +210,10 @@ public class SettingsActivity extends BaseAppCompatActivity {
                     preloadManager.deleteBefore(now());
                     return null;
                 }, BackgroundScheduler.instance());
+            }
+
+            if ("pref_pseudo_clear_tag_suggestions".equals(preference.getKey())) {
+                recentSearchesServices.clearHistory();
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

@@ -243,6 +243,13 @@
                     android:summary="@string/pref_max_image_size_summary"
                     android:title="@string/pref_max_image_size"/>
 
+                <Preference
+                    android:key="pref_pseudo_clear_tag_suggestions"
+                    android:persistent="false"
+                    android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
+                    android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
+
+
             </PreferenceCategory>
 
         </PreferenceScreen>

@@ -322,5 +322,7 @@
     <string name="info">Info</string>
     <string name="error_json">Could not parse the response from the pr0gramm server.</string>
     <string name="could_not_load_feed_json">Could not load feed. The response looks a bit like as if you are in some wifi that does not allow internet access.</string>
+    <string name="pref_pseudo_clear_tag_suggestions_title">Clear tag suggestions</string>
+    <string name="pref_pseudo_clear_tag_suggestions_summary">Clear all tag suggestions.</string>
 </resources>
 

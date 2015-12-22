@@ -292,4 +292,6 @@
     <string name="info">Info</string>
     <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in enem WLAN ohne Internetzugang.</string>
     <string name="error_json">Die Antwort des pr0gramm konnte nicht verarbeitet werden.</string>
+    <string name="pref_pseudo_clear_tag_suggestions_summary">Klicke hier um alle Tag-Vorschläge für die Suche zu löschen</string>
+    <string name="pref_pseudo_clear_tag_suggestions_title">Tag-Vorschläge löschen</string>
 </resources>

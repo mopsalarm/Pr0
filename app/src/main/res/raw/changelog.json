@@ -7,6 +7,10 @@
         "change": "Bereits gesuchte Begriffe werden automatisch vorgeschlagen"
       },
       {
+        "type": "Neu",
+        "change": "Die List der gesuchten Begriffe kann wieder geleert werden (Einstellungen -> Visuell)"
+      },
+      {
         "type": "Fix",
         "change": "Absturz beim Anzeigen einiger verbockter Kommentare behoben"
       },
@@ -21,6 +25,10 @@
       {
         "type": "Fix",
         "change": "Softwaredekoder jetzt auch auf 64 Bit Systemen und x86(_64) CPUs."
+      },
+      {
+        "type": "Fix",
+        "change": "Anzeige des Buffer-Indicators, wenn der Softwaredekoder nicht genug Daten hat."
       }
     ]
   },
