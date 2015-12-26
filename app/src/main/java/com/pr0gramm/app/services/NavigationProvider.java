@@ -87,7 +87,8 @@ public class NavigationProvider {
                               SingleShotService singleShotService,
                               ExtraCategoryApiProvider extraCategoryApi) {
 
-        this.context = activity;
+        // we dont want to hold a reference to the activity
+        this.context = activity.getApplicationContext();
 
         this.userService = userService;
         this.inboxService = inboxService;
