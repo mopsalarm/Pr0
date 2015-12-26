@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -29,7 +28,6 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -71,7 +69,6 @@ import com.pr0gramm.app.ui.PermissionHelperActivity;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.Screen;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
-import com.pr0gramm.app.ui.SimpleTextWatcher;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
@@ -381,21 +378,9 @@ public class PostFragment extends BaseFragment implements
         line.setLayoutParams(layoutParams);
         adapter.addAdapter(SingleViewAdapter.ofView(line));
 
-        line.getCommentTextView().addTextChangedListener(new SimpleTextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                String text = s.toString().trim();
-                line.getPostButton().setEnabled(text.length() > 0);
-            }
-        });
-
-        line.getPostButton().setEnabled(false);
-        line.getPostButton().setOnClickListener(view -> {
+        line.comments().subscribe(text -> {
             Runnable action = () -> {
-                EditText textView = line.getCommentTextView();
-                String text = textView.getText().toString().trim();
-                textView.setText("");
-
+                line.clear();
                 writeComment(text);
             };
 
@@ -898,7 +883,7 @@ public class PostFragment extends BaseFragment implements
         if (viewer != null && content != null) {
             viewer.onTransitionEnds();
 
-            if(scrollHandler != null) {
+            if (scrollHandler != null) {
                 scrollHandler.onScrolled(content, 0, 0);
             } else {
                 // simulate a scroll to "null"
