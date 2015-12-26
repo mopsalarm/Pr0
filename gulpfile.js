@@ -38,7 +38,7 @@ gulp.task('scss', function() {
 });
 
 gulp.task('jade', function() {
-  return gulp.src(['jade/index.jade', 'jade/unlocker.jade'])
+  return gulp.src(['jade/index.jade'])
     .pipe(plumber())
     .pipe(jade({pretty: true}))
     .pipe(gulp.dest('dist/'));
