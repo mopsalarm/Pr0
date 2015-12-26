@@ -16,14 +16,18 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.UsernameTokenizer;
 import com.pr0gramm.app.util.ViewUtility;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
 
 /**
  */
 public class CommentPostLine extends FrameLayout {
-    private LineMultiAutoCompleteTextView commentTextView;
-    private View postButton;
+    @Bind(R.id.comment_text)
+    LineMultiAutoCompleteTextView commentTextView;
+
+    @Bind(R.id.comment_post)
+    View postButton;
 
     public CommentPostLine(Context context) {
         super(context);
@@ -41,17 +45,14 @@ public class CommentPostLine extends FrameLayout {
     }
 
     private void init() {
-
         LayoutInflater.from(getContext()).inflate(R.layout.write_comment_layout, this);
-        commentTextView = ButterKnife.findById(this, R.id.comment_text);
-        postButton = findViewById(R.id.comment_post);
+        ButterKnife.bind(this);
 
         // setup auto complete in the comment view.
         MetaService metaService = Dagger.appComponent(getContext()).metaService();
 
-        View anchorView = findViewById(R.id.auto_complete_popup_anchor);
-
         // change the anchorViews id so it is unique in the view hierarchy
+        View anchorView = findViewById(R.id.auto_complete_popup_anchor);
         anchorView.setId(ViewUtility.generateViewId());
 
         commentTextView.setAnchorView(anchorView);
@@ -62,9 +63,7 @@ public class CommentPostLine extends FrameLayout {
         // The post button is only enabled if we have at least one letter.
         RxTextView.afterTextChangeEvents(commentTextView)
                 .map(event -> event.editable().toString().trim().length() > 0)
-                .startWith(false)
                 .subscribe(postButton::setEnabled);
-
     }
 
     /**
@@ -76,7 +75,20 @@ public class CommentPostLine extends FrameLayout {
                 .filter(text -> !text.isEmpty());
     }
 
+    /**
+     * Notified about every text changes after typing
+     */
+    public Observable<String> textChanges() {
+        return RxTextView
+                .afterTextChangeEvents(commentTextView)
+                .map(event -> event.editable().toString());
+    }
+
     public void clear() {
         commentTextView.setText("");
+    }
+
+    public void setCommentDraft(String text) {
+        this.commentTextView.setText(text);
     }
 }

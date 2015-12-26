@@ -87,8 +87,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.FragmentEvent;
 
-import org.slf4j.Logger;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -125,9 +123,8 @@ public class PostFragment extends BaseFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
-    private final Logger logger = AndroidUtility.logger(this);
-
     private static final String ARG_FEED_ITEM = "PostFragment.post";
+    private static final String ARG_COMMENT_DRAFT = "PostFragment.comment-draft";
 
     private FeedItem feedItem;
     private MediaView viewer;
@@ -377,6 +374,9 @@ public class PostFragment extends BaseFragment implements
         CommentPostLine line = new CommentPostLine(getActivity());
         line.setLayoutParams(layoutParams);
         adapter.addAdapter(SingleViewAdapter.ofView(line));
+
+        line.setCommentDraft(getArguments().getString(ARG_COMMENT_DRAFT, ""));
+        line.textChanges().subscribe(text -> getArguments().putString(ARG_COMMENT_DRAFT, text));
 
         line.comments().subscribe(text -> {
             Runnable action = () -> {
