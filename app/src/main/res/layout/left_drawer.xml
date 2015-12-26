@@ -130,6 +130,12 @@
             android:text="@string/action_feedback"/>
 
         <TextView
+            android:id="@+id/action_rules"
+            style="@style/AppStyle.DrawerItem"
+            android:drawableLeft="@drawable/ic_assignment"
+            android:text="@string/action_rules"/>
+
+        <TextView
             android:id="@+id/action_logout"
             style="@style/AppStyle.DrawerItem"
             android:drawableLeft="@drawable/ic_black_action_exit"

@@ -11,6 +11,10 @@
         "change": "Die List der gesuchten Begriffe kann wieder geleert werden (Einstellungen -> Visuell)"
       },
       {
+        "type": "Neu",
+        "change": "Regeln können jetzt, wenn du angemeldet bist, direkt über die Navigation aufgerufen werden"
+      },
+      {
         "type": "Fix",
         "change": "Absturz beim Anzeigen einiger verbockter Kommentare behoben"
       },

@@ -35,6 +35,7 @@ import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
@@ -89,6 +90,9 @@ public class DrawerFragment extends BaseFragment {
 
     @Bind(R.id.benis_graph)
     ImageView benisGraph;
+
+    @Bind(R.id.action_rules)
+    View actionRules;
 
     @Bind(R.id.action_login)
     View loginView;
@@ -154,6 +158,11 @@ public class DrawerFragment extends BaseFragment {
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        actionRules.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), RulesActivity.class);
             startActivity(intent);
         });
 
@@ -250,6 +259,7 @@ public class DrawerFragment extends BaseFragment {
 
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
+            actionRules.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
             usernameView.setOnClickListener(null);
@@ -262,6 +272,7 @@ public class DrawerFragment extends BaseFragment {
 
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
+            actionRules.setVisibility(View.GONE);
         }
     }
 
