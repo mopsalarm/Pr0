@@ -33,6 +33,10 @@
       {
         "type": "Fix",
         "change": "Anzeige des Buffer-Indicators, wenn der Softwaredekoder nicht genug Daten hat."
+      },
+      {
+        "type": "Fix",
+        "change": "Der Text bei einem neuen Kommentar bleibt beim Rotieren erhalten."
       }
     ]
   },
