@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.pr0gramm.app.mpeg.InputStreamCache;
@@ -126,7 +125,7 @@ public abstract class SoftwareMediaPlayer {
 
     }
 
-    public Drawable drawable() {
+    public VideoDrawable drawable() {
         return drawable;
     }
 

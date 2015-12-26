@@ -17,6 +17,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import rx.Observable;
+import rx.subjects.BehaviorSubject;
+
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 
@@ -25,13 +28,13 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 public class VideoDrawable extends Drawable {
     private final BlockingQueue<Bitmap> pending = new ArrayBlockingQueue<>(16);
     private final BlockingQueue<Bitmap> finished = new ArrayBlockingQueue<>(16);
-
+    private final FrameCounter fpsCounter = new FrameCounter();
     private final AtomicBoolean scheduled = new AtomicBoolean();
+
+    private final BehaviorSubject<Void> firstFrameSubject = BehaviorSubject.create();
 
     private long frameDelay = 1000L / 30;
     private Bitmap current;
-
-    private final FrameCounter fpsCounter = new FrameCounter();
 
     /**
      * Pushes a new frame to this drawable to be drawn later.
@@ -133,6 +136,9 @@ public class VideoDrawable extends Drawable {
         return PixelFormat.OPAQUE;
     }
 
+    public Observable<Void> firstFrameAvailable() {
+        return firstFrameSubject.asObservable();
+    }
 
     private static class FrameCounter {
         private final long[] durations = new long[50];

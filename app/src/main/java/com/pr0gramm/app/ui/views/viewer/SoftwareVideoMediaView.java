@@ -11,6 +11,7 @@ import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -23,6 +24,7 @@ import rx.Subscription;
 import rx.functions.Func0;
 import rx.util.async.Async;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static com.squareup.picasso.Downloader.Response;
@@ -77,8 +79,7 @@ public class SoftwareVideoMediaView extends MediaView {
                     });
 
             if (isPlaying()) {
-                videoPlayer.start();
-                onMediaShown();
+                play();
             }
         }, defaultOnError());
     }
@@ -121,9 +122,19 @@ public class SoftwareVideoMediaView extends MediaView {
             asyncLoadVideo();
 
         } else if (videoPlayer != null) {
-            videoPlayer.start();
-            onMediaShown();
+            play();
         }
+    }
+
+    private void play() {
+        checkState(videoPlayer != null, "Can not start video player which is null.");
+
+        videoPlayer.start();
+        videoPlayer.drawable()
+                .firstFrameAvailable()
+                .take(1)
+                .compose(RxLifecycle.<Void>bindView(this))
+                .subscribe(ignored -> onMediaShown());
     }
 
     private void stopAndDestroy() {
