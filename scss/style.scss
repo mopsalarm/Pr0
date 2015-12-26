@@ -245,3 +245,19 @@ html, body, td, input {
   margin-left: 0;
   margin-right: 0;
 }
+
+.faq {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.faq__question {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.33em;
+}
+
+.faq__answer {
+  margin-bottom: 1em;
+}
