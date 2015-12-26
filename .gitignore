@@ -90,3 +90,4 @@ crashlytics-build.properties
 *.keystore
 
 captures/
+droid.js
