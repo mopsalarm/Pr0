@@ -4,9 +4,9 @@ mixin section(classes)
 
 
 doctype html
-html
+html(lang="de")
   // der pr0gramm navigator mag euch auch <3 
-  head(lang="en")
+  head
     meta(charset="UTF-8")
     meta(http-equiv="x-ua-compatible" content="ie=edge")
     title pr0gramm App
@@ -26,10 +26,6 @@ html
     link(rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png")
     link(rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png")
     link(rel="manifest" href="img/favicon/manifest.json")
-    
-    meta(name="msapplication-TileColor" content="#ffffff")
-    meta(name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png")
-    meta(name="theme-color" content="#ffffff")
     
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
@@ -62,7 +58,7 @@ html
                     a.btn.btn-lg.btn-pro(href="#download") Herunterladen
                   .minor
                     | version 
-                    span.version 1.77.2
+                    span.version 1.81.0
       +section('top-continue')
         a(href="#continue")
           i.fa.fa-chevron-down
