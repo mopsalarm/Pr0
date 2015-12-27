@@ -16,7 +16,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
         classpath 'io.fabric.tools:gradle:1.21.2'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.4'
+        classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta3'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -155,7 +155,6 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:3.0.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
-    compile 'com.android.support:cardview-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.guava:guava:19.0'
 
