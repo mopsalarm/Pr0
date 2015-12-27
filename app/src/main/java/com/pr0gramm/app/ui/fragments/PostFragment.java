@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -128,6 +129,7 @@ public class PostFragment extends BaseFragment implements
 
     private FeedItem feedItem;
     private MediaView viewer;
+
 
     @Inject
     FeedService feedService;
@@ -887,7 +889,7 @@ public class PostFragment extends BaseFragment implements
                 scrollHandler.onScrolled(content, 0, 0);
             } else {
                 // simulate a scroll to "null"
-                offsetMediaView(0.0f);
+                offsetMediaView(true, 0.0f);
             }
         }
     }
@@ -1156,22 +1158,32 @@ public class PostFragment extends BaseFragment implements
 
             // get our facts straight
             int recyclerHeight = recyclerView.getHeight();
-            int scrollY = estimateRecyclerViewScrollY(recyclerView).or(recyclerHeight);
+            Optional<Integer> scrollEstimate = estimateRecyclerViewScrollY(recyclerView);
+            boolean viewerVisible = scrollEstimate.isPresent();
 
+            int scrollY = scrollEstimate.or(viewer.getHeight());
             int viewerHeight = viewer.getHeight();
             boolean doFancyScroll = viewerHeight < recyclerHeight;
 
             ScrollHideToolbarListener toolbar = activity.getScrollHideToolbarListener();
-            if (!doFancyScroll || dy < 0 || scrollY > 1f * toolbar.getToolbarHeight()) {
+            if (!doFancyScroll || dy < 0 || scrollY > toolbar.getToolbarHeight()) {
                 toolbar.onScrolled(dy);
             }
 
-            int halfScrollOffset = 0; // toolbar.getToolbarHeight();
-            float scroll = scrollY < halfScrollOffset || !doFancyScroll
-                    ? scrollY
-                    : halfScrollOffset + 0.7f * (scrollY - halfScrollOffset);
+            float scroll = doFancyScroll ? 0.7f * scrollY : scrollY;
 
-            offsetMediaView(scroll);
+            if (doFancyScroll) {
+                int clipTop = (int) (scroll + 0.5f);
+                int clipBottom = viewer.getHeight() - (int) (scrollY - scroll + 0.5f);
+
+                if (clipTop < clipBottom) {
+                    viewer.setClipBoundsCompat(new Rect(0, clipTop, viewer.getRight(), clipBottom));
+                } else {
+                    viewerVisible = false;
+                }
+            }
+
+            offsetMediaView(viewerVisible, scroll);
 
             // position the vote indicator
             float remaining = viewerHeight - scrollY;
@@ -1195,13 +1207,18 @@ public class PostFragment extends BaseFragment implements
     /**
      * Positions the media view using the given offset (on the y axis)
      */
-    private void offsetMediaView(float offset) {
-        // finally position the viewer
-        viewer.setTranslationY(-offset);
+    private void offsetMediaView(boolean viewerVisible, float offset) {
+        if (viewerVisible) {
+            // finally position the viewer
+            viewer.setTranslationY(-offset);
+            viewer.setVisibility(View.VISIBLE);
 
-        // position the repost badge, if it is visible
-        if (repostHint.getVisibility() == View.VISIBLE) {
-            repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
+            // position the repost badge, if it is visible
+            if (repostHint.getVisibility() == View.VISIBLE) {
+                repostHint.setTranslationY(viewer.getPaddingTop() - repostHint.getPivotY() - offset);
+            }
+        } else {
+            viewer.setVisibility(View.INVISIBLE);
         }
     }
 

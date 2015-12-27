@@ -131,7 +131,7 @@ public class SoftwareVideoMediaView extends MediaView {
 
         videoPlayer.start();
         videoPlayer.drawable()
-                .firstFrameAvailable()
+                .frameAvailable()
                 .take(1)
                 .compose(RxLifecycle.<Void>bindView(this))
                 .subscribe(ignored -> onMediaShown());

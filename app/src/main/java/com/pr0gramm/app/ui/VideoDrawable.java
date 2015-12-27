@@ -31,7 +31,7 @@ public class VideoDrawable extends Drawable {
     private final FrameCounter fpsCounter = new FrameCounter();
     private final AtomicBoolean scheduled = new AtomicBoolean();
 
-    private final BehaviorSubject<Void> firstFrameSubject = BehaviorSubject.create();
+    private final BehaviorSubject<Void> frameAvailableSubject = BehaviorSubject.create();
 
     private long frameDelay = 1000L / 30;
     private Bitmap current;
@@ -93,6 +93,8 @@ public class VideoDrawable extends Drawable {
             invalidateSelf();
             ensureScheduled();
 
+            frameAvailableSubject.onNext(null);
+
             fpsCounter.update();
         }
     }
@@ -100,7 +102,7 @@ public class VideoDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         if (current == null) {
-            canvas.drawColor(Color.TRANSPARENT);
+            // canvas.drawColor(Color.TRANSPARENT);
             return;
         }
 
@@ -136,8 +138,8 @@ public class VideoDrawable extends Drawable {
         return PixelFormat.OPAQUE;
     }
 
-    public Observable<Void> firstFrameAvailable() {
-        return firstFrameSubject.asObservable();
+    public Observable<Void> frameAvailable() {
+        return frameAvailableSubject.asObservable();
     }
 
     private static class FrameCounter {

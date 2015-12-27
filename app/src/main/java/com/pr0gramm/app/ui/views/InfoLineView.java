@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -76,7 +75,8 @@ public class InfoLineView extends LinearLayout {
                 : Settings.of(context);
 
         setOrientation(VERTICAL);
-        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.feed_background));
+
+        // setBackgroundColor(ContextCompat.getColor(getContext(), R.color.feed_background));
 
         inflate(context, R.layout.post_info_line, this);
 

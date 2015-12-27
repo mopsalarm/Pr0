@@ -3,8 +3,11 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -49,6 +52,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
+import static com.pr0gramm.app.util.AndroidUtility.atLeast;
 
 /**
  */
@@ -86,6 +90,7 @@ public abstract class MediaView extends FrameLayout {
     ProxyService proxyService;
 
     private float viewAspect = -1;
+    private Rect clipBounds;
 
     @SuppressLint("SetTextI18n")
     protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
@@ -418,6 +423,32 @@ public abstract class MediaView extends FrameLayout {
         if (isPlaying() && onViewListener != null) {
             onViewListener.run();
             onViewListener = null;
+        }
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        if (clipBounds != null) {
+            canvas.save();
+            canvas.clipRect(clipBounds);
+            super.dispatchDraw(canvas);
+            canvas.restore();
+
+        } else {
+            super.dispatchDraw(canvas);
+        }
+    }
+
+    public void setClipBoundsCompat(Rect clipBounds) {
+        if (atLeast(Build.VERSION_CODES.LOLLIPOP)) {
+            setClipBounds(clipBounds);
+        } else {
+            this.clipBounds = clipBounds;
+            if (atLeast(Build.VERSION_CODES.JELLY_BEAN_MR2)) {
+                setClipBounds(clipBounds);
+            } else {
+                invalidate();
+            }
         }
     }
 

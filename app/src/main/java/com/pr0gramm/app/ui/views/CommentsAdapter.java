@@ -159,9 +159,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
         Context context = view.itemView.getContext();
-        view.itemView.setBackgroundColor(ContextCompat.getColor(context, comment.getId() == selectedCommentId
-                ? R.color.selected_comment_background
-                : R.color.feed_background));
+        if(comment.getId() == selectedCommentId) {
+            int color = ContextCompat.getColor(context, R.color.selected_comment_background);
+            view.itemView.setBackgroundColor(color);
+        } else {
+            AndroidUtility.setViewBackground(view.itemView, null);
+        }
 
         if (view.kFav != null) {
             if (showFavCommentButton) {

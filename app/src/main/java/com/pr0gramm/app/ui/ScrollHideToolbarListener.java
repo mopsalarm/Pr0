@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.util.AndroidUtility;
 
 /**
  */
@@ -21,17 +22,32 @@ public class ScrollHideToolbarListener {
     }
 
     private void applyToolbarPosition(boolean animated) {
+        // stop any previous animation
+        if (animation != null) {
+            animation.cancel();
+            animation = null;
+        }
+
+        boolean targetVisible = toolbar.getHeight() != toolbarMarginOffset;
         int y = -toolbarMarginOffset;
         if (animated) {
-            animation = toolbar.animate().translationY(y).setDuration(250);
-            animation.start();
-        } else {
-            if (animation != null) {
-                animation.cancel();
-                animation = null;
+            if (targetVisible) {
+                toolbar.setVisibility(View.VISIBLE);
             }
 
+            animation = toolbar.animate()
+                    .translationY(y)
+                    .setDuration(250)
+                    .setListener(AndroidUtility.endAction(() -> {
+                        if (!targetVisible) {
+                            toolbar.setVisibility(View.INVISIBLE);
+                        }
+                    }));
+
+            animation.start();
+        } else {
             toolbar.setTranslationY(y);
+            toolbar.setVisibility(targetVisible ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
@@ -41,8 +57,9 @@ public class ScrollHideToolbarListener {
             return;
 
         toolbarMarginOffset += dy;
-        if (toolbarMarginOffset > abHeight)
+        if (toolbarMarginOffset >= abHeight) {
             toolbarMarginOffset = abHeight;
+        }
 
         if (toolbarMarginOffset < 0)
             toolbarMarginOffset = 0;
@@ -88,7 +105,7 @@ public class ScrollHideToolbarListener {
     }
 
     public void hide() {
-        if(toolbarMarginOffset != toolbar.getHeight()) {
+        if (toolbarMarginOffset != toolbar.getHeight()) {
             toolbarMarginOffset = toolbar.getHeight();
             applyToolbarPosition(true);
         }
