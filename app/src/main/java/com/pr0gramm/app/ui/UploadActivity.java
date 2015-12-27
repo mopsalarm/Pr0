@@ -34,6 +34,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.RulesService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.services.UriHelper;
@@ -165,6 +166,9 @@ public class UploadActivity extends BaseAppCompatActivity {
         @Inject
         SingleShotService singleShotService;
 
+        @Inject
+        RulesService rulesService;
+
         @Bind(R.id.preview)
         ImageView preview;
 
@@ -216,9 +220,7 @@ public class UploadActivity extends BaseAppCompatActivity {
 
             // add the small print to the view
             TextView smallPrintView = ButterKnife.findById(view, R.id.small_print);
-            int offset = getResources().getDimensionPixelSize(R.dimen.bullet_list_leading_margin);
-            smallPrintView.setText(AndroidUtility.makeBulletList(offset,
-                    getResources().getStringArray(R.array.upload_small_print)));
+            rulesService.displayInto(smallPrintView);
 
             upload.setOnClickListener(v -> onUploadClicked());
 

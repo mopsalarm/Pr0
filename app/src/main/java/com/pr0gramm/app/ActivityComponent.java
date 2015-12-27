@@ -4,6 +4,7 @@ import com.pr0gramm.app.ui.ChangeLogDialog;
 import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.MainActivity;
+import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.WriteMessageActivity;
@@ -94,4 +95,6 @@ public interface ActivityComponent {
     void inject(SearchUserDialog searchUserDialog);
 
     void inject(FavoritesFragment favoritesFragment);
+
+    void inject(RulesActivity rulesActivity);
 }

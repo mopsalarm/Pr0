@@ -246,11 +246,11 @@ public class AndroidUtility {
      * @param leadingMargin In pixels, the space between the left edge of the bullet and the left edge of the text.
      * @param lines         An array of CharSequences. Each CharSequences will be a separate line/bullet-point.
      */
-    public static CharSequence makeBulletList(int leadingMargin, CharSequence... lines) {
+    public static CharSequence makeBulletList(int leadingMargin, List<? extends CharSequence> lines) {
         SpannableStringBuilder sb = new SpannableStringBuilder();
-        for (int idx = 0; idx < lines.length; idx++) {
-            boolean last = idx == lines.length - 1;
-            CharSequence line = lines[idx];
+        for (int idx = 0; idx < lines.size(); idx++) {
+            boolean last = idx == lines.size() - 1;
+            CharSequence line = lines.get(idx);
 
             Spannable spannable = new SpannableString(line + (last ? "" : "\n"));
             spannable.setSpan(new BulletSpan(leadingMargin), 0, spannable.length(),
