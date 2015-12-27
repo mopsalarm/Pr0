@@ -35,7 +35,6 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.jakewharton.rxbinding.view.ViewAttachEvent;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
@@ -74,8 +73,6 @@ import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
-import com.pr0gramm.app.ui.bubble.BubbleHelper;
-import com.pr0gramm.app.ui.bubble.BubbleNames;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -106,13 +103,11 @@ import static android.animation.PropertyValuesHolder.ofFloat;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
-import static com.jakewharton.rxbinding.view.RxView.attachEvents;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static com.pr0gramm.app.util.AndroidUtility.emptyIfNull;
 import static java.util.Collections.emptyMap;
 import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
@@ -629,21 +624,6 @@ public class PostFragment extends BaseFragment implements
     public void onStart() {
         super.onStart();
 
-        if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_COMMENT_FAV)) {
-            activeState()
-                    .delay(5, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-                    .filter(active -> active && getView() != null)
-                    .flatMap(active -> emptyIfNull(checkNotNull(getView()).findViewById(R.id.kfav)))
-                    .compose(bindToLifecycleForeground())
-                    .subscribe(target -> {
-                        BubbleHelper.leftOf(target)
-                                .hintName(BubbleNames.POST_COMMENT_FAV)
-                                .text("Merke den Kommentar\nals Favoriten")
-                                .root((ViewGroup) getView())
-                                .show();
-                    });
-        }
-
         favedCommentService.favedCommentIds()
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setFavedComments);
@@ -721,23 +701,6 @@ public class PostFragment extends BaseFragment implements
             dialog.show(getChildFragmentManager(), null);
         });
 
-        Observable<Boolean> trigger = combineLatest(
-                activeState().compose(bindToLifecycleForeground()),
-                attachEvents(infoLineView).map(ev -> ev.kind() == ViewAttachEvent.Kind.ATTACH),
-                (attached, active) -> attached && active);
-
-        if (BubbleHelper.wouldShow(getContext(), BubbleNames.POST_RATING_LONGTAP)) {
-            BubbleHelper.reattach(trigger, () -> {
-                // show only if points are not hidden
-                boolean hidden = infoLineView.getRatingView().getVisibility() != View.VISIBLE;
-                return Optional.fromNullable(hidden ? null : BubbleHelper.above(infoLineView.getRatingView())
-                        .root((ViewGroup) getView())
-                        .hintName(BubbleNames.POST_RATING_LONGTAP)
-                        .requireShown(BubbleNames.POST_COMMENT_FAV)
-                        .text("Longtap um up/down\nVotes zu sehen.")
-                        .show());
-            });
-        }
     }
 
     private void showPostVoteAnimation(Vote vote) {
