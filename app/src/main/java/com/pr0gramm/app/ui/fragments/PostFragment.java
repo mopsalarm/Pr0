@@ -270,13 +270,16 @@ public class PostFragment extends BaseFragment implements
 
             ((FrameLayout.LayoutParams) voteAnimationIndicator.getLayoutParams()).gravity
                     = Gravity.CENTER;
+
+            scrollHandler = new NoopOnScrollListener();
         } else {
             // use height of the toolbar to configure swipe refresh layout.
             swipeRefreshLayout.setProgressViewOffset(false, 0, (int) (1.5 * abHeight));
 
             scrollHandler = new ScrollHandler(activity);
-            content.addOnScrollListener(scrollHandler);
         }
+
+        content.addOnScrollListener(scrollHandler);
 
         swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -322,10 +325,7 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public void onDestroyView() {
-        if (scrollHandler != null) {
-            content.removeOnScrollListener(scrollHandler);
-            scrollHandler = null;
-        }
+        content.removeOnScrollListener(scrollHandler);
 
         // restore orientation if the user closes this view
         Screen.unlockOrientation(getActivity());
@@ -482,6 +482,8 @@ public class PostFragment extends BaseFragment implements
                 ((ToolbarActivity) activity).getScrollHideToolbarListener().hide();
             }
 
+            viewer.setClipBoundsCompat(null);
+
             activity.supportInvalidateOptionsMenu();
             registerExitFullscreenListener();
 
@@ -540,32 +542,14 @@ public class PostFragment extends BaseFragment implements
 
         swipeRefreshLayout.setVisibility(View.VISIBLE);
 
-        // move to our target values.
-        if (animated) {
-            swipeRefreshLayout.setAlpha(0);
-            ObjectAnimator.ofPropertyValuesHolder(swipeRefreshLayout,
-                    ofFloat(View.ALPHA, 0, 1f))
-                    .setDuration(500)
-                    .start();
+        // reset the values correctly
+        viewer.setRotation(0.f);
+        viewer.setScaleX(1.f);
+        viewer.setScaleY(1.f);
+        viewer.setTranslationX(0.f);
 
-            ObjectAnimator.ofPropertyValuesHolder(viewer,
-                    ofFloat(View.ROTATION, 0),
-                    ofFloat(View.TRANSLATION_Y, 0),
-                    ofFloat(View.SCALE_X, 1),
-                    ofFloat(View.SCALE_Y, 1))
-                    .setDuration(500)
-                    .start();
-
-            if (isRepost()) {
-                repostHint.setVisibility(View.VISIBLE);
-            }
-
-        } else {
-            viewer.setRotation(0.f);
-            viewer.setTranslationY(0.f);
-            viewer.setScaleX(1.f);
-            viewer.setScaleY(1.f);
-        }
+        // simulate scrolling to fix the clipping and translationY
+        simulateScroll();
 
         // go back to normal!
         FragmentActivity activity = getActivity();
@@ -761,8 +745,7 @@ public class PostFragment extends BaseFragment implements
             return;
 
         // quickly center the vote button
-        if (scrollHandler != null)
-            scrollHandler.onScrolled(content, 0, 0);
+        simulateScroll();
 
         String text = vote == Vote.UP ? "+" : (vote == Vote.DOWN ? "-" : "*");
         voteAnimationIndicator.setText(text);
@@ -836,26 +819,7 @@ public class PostFragment extends BaseFragment implements
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER));
         } else {
-            class PlaceholderView extends View {
-                int fixedHeight = AndroidUtility.dp(getActivity(), 150);
-
-                public PlaceholderView(Context context) {
-                    super(context);
-                }
-
-                @Override
-                protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                    int width = MeasureSpec.getSize(widthMeasureSpec);
-                    setMeasuredDimension(width, fixedHeight);
-                }
-
-                @Override
-                public boolean onTouchEvent(@NonNull MotionEvent event) {
-                    return viewer.onTouchEvent(event);
-                }
-            }
-
-            PlaceholderView placeholder = new PlaceholderView(getActivity());
+            PlaceholderView placeholder = new PlaceholderView();
 
             viewer.setPadding(0, padding, 0, 0);
             viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -874,6 +838,8 @@ public class PostFragment extends BaseFragment implements
                     if (isVideoFullScreen()) {
                         realignFullScreen();
                     }
+
+                    simulateScroll();
                 }
             });
 
@@ -884,13 +850,16 @@ public class PostFragment extends BaseFragment implements
     private void onTransitionEnds() {
         if (viewer != null && content != null) {
             viewer.onTransitionEnds();
+            simulateScroll();
+        }
+    }
 
-            if (scrollHandler != null) {
-                scrollHandler.onScrolled(content, 0, 0);
-            } else {
-                // simulate a scroll to "null"
-                offsetMediaView(true, 0.0f);
-            }
+    private void simulateScroll() {
+        if (scrollHandler instanceof ScrollHandler) {
+            scrollHandler.onScrolled(content, 0, 0);
+        } else {
+            // simulate a scroll to "null"
+            offsetMediaView(true, 0.0f);
         }
     }
 
@@ -1144,6 +1113,25 @@ public class PostFragment extends BaseFragment implements
         viewer.setTranslationX(offset);
     }
 
+    private class PlaceholderView extends View {
+        int fixedHeight = AndroidUtility.dp(getActivity(), 150);
+
+        public PlaceholderView() {
+            super(PostFragment.this.getContext());
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int width = MeasureSpec.getSize(widthMeasureSpec);
+            setMeasuredDimension(width, fixedHeight);
+        }
+
+        @Override
+        public boolean onTouchEvent(@NonNull MotionEvent event) {
+            return viewer.onTouchEvent(event);
+        }
+    }
+
     private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
 
@@ -1181,6 +1169,10 @@ public class PostFragment extends BaseFragment implements
                 } else {
                     viewerVisible = false;
                 }
+            } else {
+                // reset bounds. we might have set some previously and want
+                // to clear those bounds now.
+                viewer.setClipBoundsCompat(null);
             }
 
             offsetMediaView(viewerVisible, scroll);

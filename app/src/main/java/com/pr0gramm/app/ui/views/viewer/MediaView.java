@@ -442,8 +442,9 @@ public abstract class MediaView extends FrameLayout {
     public void setClipBoundsCompat(Rect clipBounds) {
         if (atLeast(Build.VERSION_CODES.LOLLIPOP)) {
             setClipBounds(clipBounds);
-        } else {
+        } else if(this.clipBounds != clipBounds) {
             this.clipBounds = clipBounds;
+
             if (atLeast(Build.VERSION_CODES.JELLY_BEAN_MR2)) {
                 setClipBounds(clipBounds);
             } else {
