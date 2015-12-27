@@ -296,4 +296,5 @@
     <string name="pref_pseudo_clear_tag_suggestions_title">Tag-Vorschläge löschen</string>
     <string name="action_rules">REGELN</string>
     <string name="rules_title">Die Regeln</string>
+    <string name="error_fragment_depth">Entschuldige, aber Aufgrund einer Schwäche von Android kannst du das gerade nicht machen: %s</string>
 </resources>

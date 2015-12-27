@@ -326,5 +326,6 @@
     <string name="pref_pseudo_clear_tag_suggestions_summary">Clear all tag suggestions.</string>
     <string name="action_rules">RULES</string>
     <string name="rules_title">The rules</string>
+    <string name="error_fragment_depth">Sorry, due to a limitation of the android framework you can not do this right now: %s</string>
 </resources>
 

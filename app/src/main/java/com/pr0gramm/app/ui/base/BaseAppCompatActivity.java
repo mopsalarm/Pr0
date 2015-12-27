@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
+import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
@@ -79,35 +81,41 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
             return;
         }
 
-        if ((requestCode & (~REQUEST_CODE_MASK)) != 0) {
-            logger.warn("Can use only use lower {} bits for requestCode, int value in range 1..{}",
-                    REQUEST_CODE_EXT_BITS, POW_2[REQUEST_CODE_EXT_BITS] - 1);
-
-            throw new IllegalArgumentException("requestCode not in valid range");
-        }
-
         int chain = 0;
         int depth = 0;
+        try {
+            if ((requestCode & (~REQUEST_CODE_MASK)) != 0) {
+                logger.warn("Can use only use lower {} bits for requestCode, int value in range 1..{}",
+                        REQUEST_CODE_EXT_BITS, POW_2[REQUEST_CODE_EXT_BITS] - 1);
 
-        Fragment node = fragment;
-        do {
-            if (depth > CHAIN_MAX_DEPTH) {
-                throw new IllegalStateException("Too deep structure of fragments, max " + CHAIN_MAX_DEPTH);
+                throw new IllegalArgumentException("requestCode not in valid range");
             }
 
-            int index = SupportV4App.fragmentIndex(node);
-            if (index < 0) {
-                throw new IllegalStateException("Fragment is out of FragmentManager: " + node);
-            }
+            Fragment node = fragment;
+            do {
+                if (depth > CHAIN_MAX_DEPTH) {
+                    throw new IllegalStateException("Too deep structure of fragments, max " + CHAIN_MAX_DEPTH);
+                }
 
-            if (index >= FRAGMENT_MAX_COUNT) {
-                throw new IllegalStateException("Too many fragments inside (max " + FRAGMENT_MAX_COUNT + "): " + node.getParentFragment());
-            }
+                int index = SupportV4App.fragmentIndex(node);
+                if (index < 0) {
+                    throw new IllegalStateException("Fragment is out of FragmentManager: " + node);
+                }
 
-            chain = (chain << CHAIN_BITS_FOR_INDEX) + (index + 1);
-            node = node.getParentFragment();
-            depth += 1;
-        } while (node != null);
+                if (index >= FRAGMENT_MAX_COUNT) {
+                    throw new IllegalStateException("Too many fragments inside (max " + FRAGMENT_MAX_COUNT + "): " + node.getParentFragment());
+                }
+
+                chain = (chain << CHAIN_BITS_FOR_INDEX) + (index + 1);
+                node = node.getParentFragment();
+                depth += 1;
+            } while (node != null);
+
+        } catch (Exception error) {
+            ErrorDialogFragment.showErrorString(getSupportFragmentManager(),
+                    getString(R.string.error_fragment_depth, error.getMessage()));
+        }
+
 
         int newCode = (chain << REQUEST_CODE_EXT_BITS) + (requestCode & REQUEST_CODE_MASK);
 
