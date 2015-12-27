@@ -251,11 +251,13 @@ public class DrawerFragment extends BaseFragment {
             Graph benis = state.getBenisHistory();
 
             benisView.setText(String.valueOf(user.getScore()));
-            benisContainer.setVisibility(View.VISIBLE);
             benisGraph.setImageDrawable(new GraphDrawable(benis));
 
-            if (benis.points().size() > 2)
+            if (benis.points().size() > 2) {
                 updateBenisDeltaForGraph(benis);
+            } else {
+                updateBenisDelta(0);
+            }
 
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
@@ -278,6 +280,10 @@ public class DrawerFragment extends BaseFragment {
 
     private void updateBenisDeltaForGraph(Graph benis) {
         int delta = (int) (benis.last().y - benis.first().y);
+        updateBenisDelta(delta);
+    }
+
+    private void updateBenisDelta(int delta) {
         if (delta == 0) {
             benisDeltaView.setVisibility(View.GONE);
 
@@ -316,6 +322,7 @@ public class DrawerFragment extends BaseFragment {
 
         /**
          * Navigate to the favorites of the given user
+         *
          * @param username
          */
         void onNavigateToFavorites(String username);
