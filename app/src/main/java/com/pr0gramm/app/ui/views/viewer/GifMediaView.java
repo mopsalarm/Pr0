@@ -56,8 +56,6 @@ public class GifMediaView extends AbstractProgressMediaView {
             onDownloadProgress(state.getProgress());
 
             if (state.isFinished()) {
-                logger.info("loading finished");
-
                 hideBusyIndicator();
 
                 gif = state.getDrawable();

@@ -11,6 +11,9 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 
 import butterknife.Bind;
@@ -18,6 +21,8 @@ import butterknife.Bind;
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView {
+    private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
+
     @Bind(R.id.video)
     CustomVideoView videoView;
 

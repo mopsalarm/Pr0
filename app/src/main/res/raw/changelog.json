@@ -15,6 +15,10 @@
         "change": "Regeln können jetzt, wenn du angemeldet bist, direkt über die Navigation aufgerufen werden"
       },
       {
+        "type": "Neu",
+        "change": "Bilder können in der Tabletansicht gezoomt werden"
+      },
+      {
         "type": "Fix",
         "change": "Absturz beim Anzeigen einiger verbockter Kommentare behoben"
       },

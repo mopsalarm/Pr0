@@ -70,7 +70,6 @@ public class SoftwareVideoMediaView extends MediaView {
             videoPlayer.buffering()
                     .compose(bindView())
                     .subscribe(buffering -> {
-                        logger.info("Setting buffering to {}", buffering);
                         if (buffering) {
                             showBusyIndicator();
                         } else {

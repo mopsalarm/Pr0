@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -57,8 +58,7 @@ import static com.pr0gramm.app.util.AndroidUtility.atLeast;
 /**
  */
 public abstract class MediaView extends FrameLayout {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName()
-            + " " + Integer.toHexString(System.identityHashCode(this)));
+    private static final Logger logger = LoggerFactory.getLogger("MediaView");
 
     private final GestureDetector gestureDetector;
     private boolean mediaShown;
@@ -185,27 +185,34 @@ public abstract class MediaView extends FrameLayout {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         } else {
-            boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
+            Point size = measureToSize(widthMeasureSpec, heightMeasureSpec, viewAspect);
 
-            int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
-            int maxWidth = MeasureSpec.getSize(widthMeasureSpec);
-
-            int width;
-            int height;
-            if (heightUnspecified || maxWidth / (double) maxHeight < viewAspect) {
-                width = maxWidth;
-                height = (int) (width / viewAspect) + getPaddingTop() + getPaddingBottom();
-
-            } else {
-                height = maxHeight;
-                width = (int) (height * viewAspect);
-            }
-
+            int width = size.x, height = size.y;
             setMeasuredDimension(width, height);
             measureChildren(
                     MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         }
+    }
+
+    protected Point measureToSize(int widthMeasureSpec, int heightMeasureSpec, float aspect) {
+        boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
+
+        int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
+        int maxWidth = MeasureSpec.getSize(widthMeasureSpec);
+
+        int width;
+        int height;
+        if (heightUnspecified || maxWidth / (double) maxHeight < aspect) {
+            width = maxWidth;
+            height = (int) (width / aspect) + getPaddingTop() + getPaddingBottom();
+
+        } else {
+            height = maxHeight;
+            width = (int) (height * aspect);
+        }
+
+        return new Point(width, height);
     }
 
     /**
@@ -442,9 +449,8 @@ public abstract class MediaView extends FrameLayout {
     public void setClipBoundsCompat(Rect clipBounds) {
         if (atLeast(Build.VERSION_CODES.LOLLIPOP)) {
             setClipBounds(clipBounds);
-        } else if(this.clipBounds != clipBounds) {
+        } else if (this.clipBounds != clipBounds) {
             this.clipBounds = clipBounds;
-
             if (atLeast(Build.VERSION_CODES.JELLY_BEAN_MR2)) {
                 setClipBounds(clipBounds);
             } else {
