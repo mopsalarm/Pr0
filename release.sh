@@ -67,7 +67,7 @@ function deploy_copy_apk_file() {
 }
 
 # compile code and create apks
-./gradlew clean assembleRelease generateOpenDebugSources
+./gradlew clean assembleOpenRelease generateOpenDebugSources
 
 # copy apks and generate update.json in beta branch
 git -C ${UPDATE_REPO_PATH} checkout -B beta
