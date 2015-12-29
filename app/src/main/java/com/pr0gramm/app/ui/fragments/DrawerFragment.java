@@ -284,17 +284,12 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void updateBenisDelta(int delta) {
-        if (delta == 0) {
-            benisDeltaView.setVisibility(View.GONE);
+        benisDeltaView.setVisibility(View.VISIBLE);
+        benisDeltaView.setTextColor(delta < 0
+                ? ContextCompat.getColor(getContext(), R.color.benis_delta_negative)
+                : ContextCompat.getColor(getContext(), R.color.benis_delta_positive));
 
-        } else {
-            benisDeltaView.setVisibility(View.VISIBLE);
-            benisDeltaView.setTextColor(delta < 0
-                    ? ContextCompat.getColor(getContext(), R.color.benis_delta_negative)
-                    : ContextCompat.getColor(getContext(), R.color.benis_delta_positive));
-
-            benisDeltaView.setText(String.format("%s%d", delta < 0 ? "↓" : "↑", delta));
-        }
+        benisDeltaView.setText(String.format("%s%d", delta < 0 ? "↓" : "↑", delta));
     }
 
     public void updateCurrentFilters(FeedFilter current) {
