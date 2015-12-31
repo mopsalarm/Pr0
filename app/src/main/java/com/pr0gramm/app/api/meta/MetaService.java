@@ -1,6 +1,5 @@
 package com.pr0gramm.app.api.meta;
 
-import android.graphics.PointF;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Joiner;
@@ -91,13 +90,12 @@ public class MetaService {
                             .onResultOf(UserInfo.BenisHistoryEntry::getTimestamp)
                             .sortedCopy(info.getBenisHistory());
 
-                    long offset = history.get(0).getTimestamp();
-                    ImmutableList<PointF> points = FluentIterable.from(history)
-                            .transform(e -> new PointF(e.getTimestamp() - offset, e.getBenis()))
+                    ImmutableList<Graph.Point> points = FluentIterable.from(history)
+                            .transform(e -> new Graph.Point(e.getTimestamp(), e.getBenis()))
                             .toList();
 
                     long now = System.currentTimeMillis() / 1000;
-                    return new Graph(0, now - offset, points);
+                    return new Graph(points.get(0).x, now, points);
                 });
     }
 

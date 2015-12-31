@@ -1,7 +1,5 @@
 package com.pr0gramm.app.services;
 
-import android.graphics.PointF;
-
 import com.google.common.collect.Range;
 
 import java.util.List;
@@ -10,15 +8,15 @@ import java.util.List;
  * A simple value graph.
  */
 public class Graph {
-    private final Range<Float> range;
-    private final List<PointF> points;
+    private final Range<Double> range;
+    private final List<Point> points;
 
-    public Graph(float start, float end, List<PointF> points) {
+    public Graph(double start, double end, List<Point> points) {
         this.range = Range.closed(start, end);
         this.points = points;
     }
 
-    public Range<Float> range() {
+    public Range<Double> range() {
         return range;
     }
 
@@ -26,35 +24,45 @@ public class Graph {
         return points.isEmpty();
     }
 
-    public float maxValue() {
-        float max = points.get(0).y;
-        for (PointF point : points)
+    public double maxValue() {
+        double max = points.get(0).y;
+        for (Point point : points)
             max = Math.max(max, point.y);
 
         return max;
     }
 
-    public float minValue() {
-        float min = points.get(0).y;
-        for (PointF point : points)
+    public double minValue() {
+        double min = points.get(0).y;
+        for (Point point : points)
             min = Math.min(min, point.y);
 
         return min;
     }
 
-    public List<PointF> points() {
+    public List<Point> points() {
         return points;
     }
 
-    public PointF get(int idx) {
+    public Point get(int idx) {
         return points.get(idx);
     }
 
-    public PointF first() {
+    public Point first() {
         return points.get(0);
     }
 
-    public PointF last() {
+    public Point last() {
         return points.get(points.size() - 1);
+    }
+
+    public static class Point {
+        public final double x;
+        public final double y;
+
+        public Point(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }

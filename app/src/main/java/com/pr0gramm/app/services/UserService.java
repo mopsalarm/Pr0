@@ -1,14 +1,15 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
-import android.graphics.PointF;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
@@ -55,6 +56,7 @@ public class UserService {
     private final InboxService inboxService;
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
+    private final MetaService metaService;
 
     private final Gson gson;
     private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(NOT_AUTHORIZED);
@@ -64,7 +66,7 @@ public class UserService {
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
-                       SharedPreferences preferences, Settings settings, Gson gson) {
+                       SharedPreferences preferences, MetaService metaService, Settings settings, Gson gson) {
 
         this.api = api;
         this.seenService = seenService;
@@ -72,6 +74,7 @@ public class UserService {
         this.inboxService = inboxService;
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
+        this.metaService = metaService;
         this.settings = settings;
         this.gson = gson;
 
@@ -109,7 +112,10 @@ public class UserService {
                         .filter(val -> val instanceof Float)
                         .cast(Float.class)
                         .map(LoginProgress::new)
-                        .mergeWith(info().ignoreElements().cast(LoginProgress.class))
+                        .mergeWith(info()
+                                .flatMap(this::initializeBenisGraphUsingMetaService)
+                                .ignoreElements()
+                                .cast(LoginProgress.class))
                         .onErrorResumeNext(Observable.<LoginProgress>empty());
 
             } else {
@@ -273,18 +279,38 @@ public class UserService {
         Stopwatch watch = Stopwatch.createStarted();
 
         Duration historyLength = standardDays(7);
-        Instant start = Instant.now().minus(historyLength);
+        Instant now = Instant.now();
+        Instant start = now.minus(historyLength);
 
         // get the values and transform them
-        ImmutableList<PointF> points = FluentIterable
+        ImmutableList<Graph.Point> points = FluentIterable
                 .from(getBenisValuesAfter(userId, start))
                 .transform(record -> {
-                    float x = record.getTimeMillis() - start.getMillis();
-                    return new PointF(x, record.getBenis());
+                    double x = record.getTimeMillis();
+                    return new Graph.Point(x, record.getBenis());
                 }).toList();
 
         logger.info("Loading benis graph took " + watch);
-        return new Graph(0, historyLength.getMillis(), points);
+        return new Graph(start.getMillis(), now.getMillis(), points);
+    }
+
+    private Observable<Void> initializeBenisGraphUsingMetaService(Info userInfo) {
+        Info.User user = userInfo.getUser();
+
+        return metaService.getBenisHistory(user.getName())
+                .doOnNext(graph -> {
+                    SugarTransactionHelper.doInTransaction(() -> {
+                        for (Graph.Point points : graph.points()) {
+                            Instant time = new Instant((long) (points.x * 1000L));
+                            int benisValue = (int) points.y;
+                            new BenisRecord(user.getId(), time, benisValue).save();
+                        }
+                    });
+
+                    loginStateObservable.onNext(createLoginState(Optional.of(userInfo)));
+                })
+                .ignoreElements()
+                .cast(Void.class);
     }
 
     /**

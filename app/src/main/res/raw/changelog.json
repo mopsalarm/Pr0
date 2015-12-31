@@ -7,6 +7,10 @@
         "change": "'musste scrollen' Blder sind nun schärfer! Vollbildmodus für Bilder ist auch verbessert. Falls es nun bei großen Bildern Abstürze gibt, bitte Bescheid geben!"
       },
       {
+        "type": "Neu",
+        "change": "Benisgraph wird nun nach dem Login mit deiner initialen Benishistory gefüllt."
+      },
+      {
         "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
       }
