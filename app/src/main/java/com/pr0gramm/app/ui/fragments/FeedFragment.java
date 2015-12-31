@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -1003,6 +1004,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             with(fragment -> {
                 Uri imageUri = UriHelper.of(fragment.getContext()).thumbnail(item);
                 fragment.picasso.load(imageUri)
+                        .config(Bitmap.Config.RGB_565)
                         .placeholder(new ColorDrawable(0xff333333))
                         .into(view.image);
 
