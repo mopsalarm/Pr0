@@ -43,7 +43,7 @@ public class SoftwareVideoMediaView extends MediaView {
     private Subscription loading;
 
     public SoftwareVideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_image, url, onViewListener);
+        super(context, R.layout.player_software_decoder, url, onViewListener);
     }
 
     private void asyncLoadVideo() {
