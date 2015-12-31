@@ -1,11 +1,18 @@
+#include <jni.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include <vpx/vp8dx.h>
 #include <vpx/vpx_decoder.h>
 
 #include <libyuv/convert_argb.h>
 #include <libyuv/scale.h>
 
+#include <android/bitmap.h>
+
 #include <coffeecatch/coffeecatch.h>
 #include <coffeecatch/coffeejni.h>
+
 
 struct vpx_wrapper {
   const vpx_codec_iface_t *decoder;
@@ -209,8 +216,22 @@ jboolean real_vpxGetFrame(JNIEnv *env, struct vpx_wrapper *wrapper, jobject bitm
   int y, x;
   switch (image->fmt) {
     case VPX_IMG_FMT_I420:
-      I420ToABGR(plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
-        target, bitmap_info.stride, width, height);
+      switch(bitmap_info.format) {
+        case ANDROID_BITMAP_FORMAT_RGBA_8888:
+          I420ToABGR(plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
+                     target, bitmap_info.stride, width, height);
+          break;
+
+        case ANDROID_BITMAP_FORMAT_RGB_565:
+          I420ToRGB565(plane_y, stride_y, plane_u, stride_u, plane_v, stride_v,
+                     target, bitmap_info.stride, width, height);
+          break;
+
+        default:
+          throw_VpxException(env, "Bitmap with invalid format given to getFrame");
+          break;
+      }
+
       break;
 
     default:

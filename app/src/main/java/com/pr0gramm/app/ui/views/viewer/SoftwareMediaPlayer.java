@@ -190,7 +190,7 @@ public abstract class SoftwareMediaPlayer {
         if (bitmapCount.get() < 3) {
             ensureStillRunning();
             bitmapCount.incrementAndGet();
-            return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            return Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
 
         } else {
             Bitmap bitmap = dequeBitmap();
