@@ -1,5 +1,14 @@
 [
   {
+    "version": 83,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Benisgraph ist wieder da. Sorry!"
+      }
+    ]
+  },
+  {
     "version": 82,
     "changes": [
       {

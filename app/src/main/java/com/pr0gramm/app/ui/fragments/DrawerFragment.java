@@ -252,6 +252,7 @@ public class DrawerFragment extends BaseFragment {
 
             benisView.setText(String.valueOf(user.getScore()));
             benisGraph.setImageDrawable(new GraphDrawable(benis));
+            benisContainer.setVisibility(View.VISIBLE);
 
             if (benis.points().size() > 2) {
                 updateBenisDeltaForGraph(benis);
