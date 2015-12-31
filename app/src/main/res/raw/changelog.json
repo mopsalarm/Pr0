@@ -3,6 +3,10 @@
     "version": 83,
     "changes": [
       {
+        "type": "Neu",
+        "change": "'musste scrollen' Blder sind nun schärfer! Vollbildmodus für Bilder ist auch verbessert. Falls es nun bei großen Bildern Abstürze gibt, bitte Bescheid geben!"
+      },
+      {
         "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
       }
