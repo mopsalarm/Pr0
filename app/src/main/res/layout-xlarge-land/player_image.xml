@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <it.sephiroth.android.library.imagezoom.ImageViewTouch
+    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,5 +19,11 @@
         android:lineSpacingMultiplier="1.3"
         android:text="@string/could_not_load_image"
         android:textColor="@color/primary"
+        android:visibility="gone"/>
+
+    <View
+        android:id="@+id/tabletlayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:visibility="gone"/>
 </merge>

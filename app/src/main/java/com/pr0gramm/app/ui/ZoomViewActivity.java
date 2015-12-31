@@ -2,49 +2,37 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.ColorRes;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ImageView;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.f2prateek.dart.InjectExtra;
 import com.google.common.base.Strings;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.squareup.picasso.Callback;
+import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
-import it.sephiroth.android.library.imagezoom.ImageViewTouchBase;
 
-import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
 public class ZoomViewActivity extends BaseAppCompatActivity {
-    private static final Logger logger = LoggerFactory.getLogger("ZoomViewActivity");
-    private int maximumBitmapHeight;
-    private int maximumBitmapWidth;
+    private final String tag = "ZoomViewActivity" + System.currentTimeMillis();
 
     @InjectExtra("ZoomViewActivity.item")
     FeedItem item;
@@ -53,7 +41,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     boolean loadHqIfAvailable;
 
     @Bind(R.id.image)
-    ImageViewTouch imageView;
+    SubsamplingScaleImageView imageView;
 
     @Bind(R.id.busy_indicator)
     View busyIndicator;
@@ -65,13 +53,13 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     Picasso picasso;
 
     @Inject
+    Downloader downloader;
+
+    @Inject
     Settings settings;
 
     @Inject
     ProxyService proxyService;
-
-    // a handler for this activity
-    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,12 +68,18 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         // normal content view
         setContentView(R.layout.activity_zoom_view);
 
-        imageView.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
-
-        // additional canvas view to estimate maximum image size
-        addTemporaryCanvasView();
+        imageView.setDebug(BuildConfig.DEBUG);
+        imageView.setBitmapDecoderFactory(() -> new ImageDecoders.PicassoDecoder(tag, picasso));
+        imageView.setRegionDecoderFactory(() -> new ImageDecoders.PicassoRegionDecoder(downloader));
+        imageView.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
+            @Override
+            public void onImageLoaded() {
+                hideBusyIndicator();
+            }
+        });
 
         hq.setImageDrawable(getColoredHqIcon(R.color.grey_700));
+        loadImage();
     }
 
     @Override
@@ -117,7 +111,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        picasso.cancelRequest(imageView);
+        picasso.cancelTag(tag);
         super.onDestroy();
     }
 
@@ -130,7 +124,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void loadImage() {
         Uri url = proxyWrap(UriHelper.of(this).media(item));
-        loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
+        loadImageWithUrl(url);
 
         if (Strings.isNullOrEmpty(item.getFullsize())) {
             hq.setVisibility(View.GONE);
@@ -146,7 +140,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         hq.animate().alpha(1).start();
 
         Uri url = proxyWrap(UriHelper.of(this).media(item, true));
-        loadImageWithUrl(url, maximumBitmapWidth, maximumBitmapHeight);
+        loadImageWithUrl(url);
     }
 
     private Uri proxyWrap(Uri uri) {
@@ -157,15 +151,10 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         return getTintentDrawable(this, R.drawable.ic_action_high_quality, colorId);
     }
 
-    private void loadImageWithUrl(Uri url, int maximumBitmapWidth, int maximumBitmapHeight) {
+    private void loadImageWithUrl(Uri url) {
         showBusyIndicator();
-
-        picasso.cancelRequest(imageView);
-        picasso.load(url)
-                .resize(maximumBitmapWidth, maximumBitmapHeight)
-                .onlyScaleDown()
-                .centerInside()
-                .into(imageView, imageCallback);
+        picasso.cancelTag(tag);
+        imageView.setImage(ImageSource.uri(url));
     }
 
     private void showBusyIndicator() {
@@ -174,83 +163,5 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void hideBusyIndicator() {
         busyIndicator.setVisibility(View.GONE);
-    }
-
-    /**
-     * Adds a temporary canvas view to estimate the maximum texture size.
-     */
-    private void addTemporaryCanvasView() {
-        // adds the canvas view.
-        addContentView(new CanvasView(this), new ViewGroup.LayoutParams(1, 1));
-    }
-
-    /**
-     * Tries to remove the given canvas view from the activity.
-     */
-    private void removeCanvasView(CanvasView view) {
-        ViewParent parent = view.getParent();
-        if (parent instanceof ViewGroup) {
-            ((ViewGroup) parent).removeView(view);
-        } else {
-            logger.warn("Could not remove temporary view canvas!");
-        }
-    }
-
-    private final Callback imageCallback = new Callback() {
-        @Override
-        public void onSuccess() {
-            checkMainThread();
-            hideBusyIndicator();
-        }
-
-        @Override
-        public void onError() {
-            checkMainThread();
-            hideBusyIndicator();
-
-            if (!isFinishing() && getWindow() != null) {
-                ErrorDialogFragment.showErrorString(
-                        getSupportFragmentManager(),
-                        "Could not load the image in full size");
-            }
-        }
-    };
-
-    private class CanvasView extends View {
-        private final AtomicBoolean drawCalled = new AtomicBoolean();
-
-        public CanvasView(Context context) {
-            super(context);
-
-            setWillNotDraw(false);
-            setDrawingCacheEnabled(false);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            if (drawCalled.compareAndSet(false, true)) {
-                // only perform the loading on  ce
-                onCanvasAvailable(canvas);
-            }
-        }
-
-        private void onCanvasAvailable(Canvas canvas) {
-            int maximumBitmapWidth = Math.max(2048, canvas.getMaximumBitmapWidth());
-            int maximumBitmapHeight = Math.max(2048, canvas.getMaximumBitmapHeight());
-            logger.info("Maximum image size is " + maximumBitmapWidth + "x" + maximumBitmapHeight);
-
-            // now start loading the image and remove this view again
-            handler.post(() -> {
-                ZoomViewActivity.this.maximumBitmapWidth = maximumBitmapWidth;
-                ZoomViewActivity.this.maximumBitmapHeight = maximumBitmapHeight;
-                removeCanvasView(this);
-
-                if (loadHqIfAvailable && !Strings.isNullOrEmpty(item.getFullsize())) {
-                    loadHqImage();
-                } else {
-                    loadImage();
-                }
-            });
-        }
     }
 }
