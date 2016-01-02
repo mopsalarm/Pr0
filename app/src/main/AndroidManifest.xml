@@ -17,6 +17,7 @@
         android:icon="@drawable/ic_app"
         android:label="@string/app_name"
         tools:replace="android:icon"
+        android:largeHeap="true"
         >
 
         <meta-data
