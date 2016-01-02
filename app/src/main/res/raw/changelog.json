@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
+      },
+      {
+        "type": "Fix",
+        "change": "Transitions wieder gefixt."
       }
     ]
   },
