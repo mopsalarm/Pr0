@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util;
 
 import android.graphics.Bitmap;
+import android.support.v4.graphics.BitmapCompat;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -33,10 +34,14 @@ public class GuavaPicassoCache implements Cache {
         this.maxSize = maxSize;
         cache = CacheBuilder.<String, Bitmap>newBuilder()
                 .softValues()
-                .weigher((String key, Bitmap bitmap) -> bitmap.getByteCount())
+                .weigher((String key, Bitmap bitmap) -> bitmapByteCount(bitmap))
                 .maximumWeight(maxSize)
                 .recordStats()
                 .build();
+    }
+
+    private int bitmapByteCount(Bitmap bitmap) {
+        return BitmapCompat.getAllocationByteCount(bitmap);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class GuavaPicassoCache implements Cache {
 
     @Override
     public void set(String key, Bitmap bitmap) {
-        if (bitmap.getByteCount() <= MAX_CACHE_ITEM_SIZE) {
+        if (bitmapByteCount(bitmap) <= MAX_CACHE_ITEM_SIZE) {
             cache.put(key, bitmap);
         }
 
@@ -57,7 +62,7 @@ public class GuavaPicassoCache implements Cache {
     public int size() {
         int size = 0;
         for (Bitmap bitmap : cache.asMap().values())
-            size += bitmap.getByteCount();
+            size += bitmapByteCount(bitmap);
 
         return size;
     }
@@ -81,8 +86,7 @@ public class GuavaPicassoCache implements Cache {
     }
 
     public static GuavaPicassoCache defaultSizedGuavaCache() {
-        // go for about 10% of the runtimes memory
-        int maxMemory = (int) Runtime.getRuntime().maxMemory() / 10;
+        int maxMemory = Math.max(1024 * 1024, (int) (Runtime.getRuntime().maxMemory() / 20L));
         return new GuavaPicassoCache(maxMemory);
     }
 }
