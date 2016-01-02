@@ -142,6 +142,7 @@ retrolambda {
 }
 
 repositories {
+    maven { url "https://jitpack.io" }
     maven { url "https://maven.fabric.io/public" }
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url 'http://dl.bintray.com/amulyakhare/maven' }
@@ -174,6 +175,7 @@ dependencies {
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.4.1'
     compile 'org.nanohttpd:nanohttpd:2.2.0'
+    compile 'com.github.akodiakson:sdkcheck:0.2.2'
 
 
     compile 'com.facebook.stetho:stetho:1.2.0'

@@ -3,8 +3,8 @@ package com.pr0gramm.app.vpx;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
 
@@ -52,12 +52,12 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         int maxPixelWidth, maxPixelHeight;
 
         // on ics we'll activate low quality mode!
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            maxPixelWidth = 512;
-            maxPixelHeight = 512;
-        } else {
+        if (Sdk.isAtLeastJellyBean()) {
             maxPixelWidth = 1024;
             maxPixelHeight = 1024;
+        } else {
+            maxPixelWidth = 512;
+            maxPixelHeight = 512;
         }
 
         while (pixelWidth > maxPixelWidth || pixelHeight > maxPixelHeight) {

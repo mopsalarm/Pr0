@@ -1,11 +1,13 @@
 package com.pr0gramm.app.ui.views;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.pr0gramm.app.R;
 
 import org.slf4j.Logger;
@@ -61,8 +63,9 @@ public class MaximizeImageView extends GifImageView {
         setMeasuredDimension(width, height);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private int getMaximumHeightCompat() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        if (Sdk.isAtLeastJellyBean())
             return getMaxHeight();
 
         return getContext().getResources().getDimensionPixelSize(R.dimen.max_image_view_height);

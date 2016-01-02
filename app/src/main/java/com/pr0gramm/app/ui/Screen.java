@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
-import android.os.Build;
 import android.view.Display;
 import android.view.Surface;
 
@@ -29,16 +28,10 @@ public class Screen {
         final Display display = activity.getWindowManager().getDefaultDisplay();
         final int rotation = display.getRotation();
 
-        final int width, height;
-        if (Build.VERSION.SDK_INT >= 13) {
-            Point size = new Point();
-            display.getSize(size);
-            width = size.x;
-            height = size.y;
-        } else {
-            width = display.getWidth();
-            height = display.getHeight();
-        }
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
 
         switch (rotation) {
             case Surface.ROTATION_90:

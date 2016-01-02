@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,6 +31,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -642,7 +642,7 @@ public class PostFragment extends BaseFragment implements
      * tags and the comments.
      */
     private void loadPostDetails() {
-        int delay = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ? 500 : 100;
+        int delay = Sdk.isAtLeastKitKat() ? 500 : 100;
 
         feedService.loadPostDetails(feedItem.getId())
                 .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
@@ -790,7 +790,7 @@ public class PostFragment extends BaseFragment implements
                 if (newHeight != placeholder.fixedHeight) {
                     placeholder.fixedHeight = newHeight;
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    if (Sdk.isAtLeastKitKat()) {
                         placeholder.requestLayout();
                     } else {
                         // it looks like a requestLayout is not honored on pre kitkat devices

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -257,7 +259,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-            int offset = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+            int offset = Sdk.isAtLeastKitKat() ?
                     getStatusBarHeight(getActivity()) : 0;
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
@@ -877,14 +879,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 Drawable image = preview.get().getDrawable();
                 fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
 
-                // enable transition, if possible
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    TransitionInflater inflater = TransitionInflater.from(getActivity());
-                    fragment.setSharedElementEnterTransition(
-                            inflater.inflateTransition(android.R.transition.move));
-
-                    doTransition = true;
-                }
+                doTransition = enableTransition(fragment);
             }
 
             @SuppressLint("CommitTransaction")
@@ -901,6 +896,19 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         } catch (IllegalStateException error) {
             logger.warn("Error while showing post", error);
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private boolean enableTransition(PostPagerFragment fragment) {
+        // enable transition, if possible
+        if (Sdk.isAtLeastKitKat()) {
+            TransitionInflater inflater = TransitionInflater.from(getActivity());
+            fragment.setSharedElementEnterTransition(
+                    inflater.inflateTransition(R.transition.move));
+
+            return true;
+        }
+        return false;
     }
 
     private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {

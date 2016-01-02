@@ -2,6 +2,7 @@ package com.pr0gramm.app.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -83,10 +85,6 @@ public class AndroidUtility {
     private AndroidUtility() {
     }
 
-    public static boolean atLeast(int sdkVersion) {
-        return Build.VERSION.SDK_INT >= sdkVersion;
-    }
-
     /**
      * Gets the height of the action bar as definied in the style attribute
      * {@link R.attr#actionBarSize} plus the height of the status bar on android
@@ -96,7 +94,7 @@ public class AndroidUtility {
      */
     public static int getActionBarContentOffset(Context context) {
         int offset = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Sdk.isAtLeastKitKat()) {
             offset = getStatusBarHeight(context);
         }
 
@@ -328,8 +326,9 @@ public class AndroidUtility {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void setViewBackground(View view, Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (Sdk.isAtLeastJellyBean()) {
             view.setBackground(drawable);
         } else {
             view.setBackgroundDrawable(drawable);

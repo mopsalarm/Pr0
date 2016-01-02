@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -23,6 +24,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.pr0gramm.app.ActivityComponent;
@@ -53,7 +55,6 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
-import static com.pr0gramm.app.util.AndroidUtility.atLeast;
 
 /**
  */
@@ -446,12 +447,13 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setClipBoundsCompat(Rect clipBounds) {
-        if (atLeast(Build.VERSION_CODES.LOLLIPOP)) {
+        if (Sdk.isAtLeastLollipop()) {
             setClipBounds(clipBounds);
         } else if (this.clipBounds != clipBounds) {
             this.clipBounds = clipBounds;
-            if (atLeast(Build.VERSION_CODES.JELLY_BEAN_MR2)) {
+            if (Sdk.isAtLeastJellyBeanMR2()) {
                 setClipBounds(clipBounds);
             } else {
                 invalidate();

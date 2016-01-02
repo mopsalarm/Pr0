@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
@@ -116,7 +116,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Sdk.isAtLeastLollipop()) {
             // enable transition on lollipop and above
             supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         }

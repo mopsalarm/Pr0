@@ -14,6 +14,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -152,7 +153,7 @@ public class ShareProvider extends ContentProvider {
                 // do nothing
                 try {
                     logger.warn("Could not stream data to client", error);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    if (Sdk.isAtLeastKitKat()) {
                         output.closeWithError(error.toString());
                     } else {
                         output.close();
