@@ -11,6 +11,10 @@
         "change": "Benisgraph wird nun nach dem Login mit deiner initialen Benishistory gefüllt."
       },
       {
+        "type": "Neu",
+        "change": "Videofortschrittsbalken nun auch mit Softwaredekoder."
+      },
+      {
         "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
       }

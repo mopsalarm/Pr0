@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
@@ -32,7 +33,7 @@ import static com.squareup.picasso.Downloader.Response;
 /**
  */
 @SuppressLint("ViewConstructor")
-public class SoftwareVideoMediaView extends MediaView {
+public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     @Bind(R.id.image)
     ImageView imageView;
 
@@ -111,6 +112,18 @@ public class SoftwareVideoMediaView extends MediaView {
         }, BackgroundScheduler.instance());
     }
 
+    @Override
+    protected Optional<Float> getVideoProgress() {
+        SoftwareMediaPlayer player = this.videoPlayer;
+        if (player != null && player.getDuration() > 0) {
+            float progress = player.getCurrentPosition() / (float) player.getDuration();
+            if (progress >= 0 && progress <= 1) {
+                return Optional.of(progress);
+            }
+        }
+
+        return Optional.absent();
+    }
 
     private void onSizeChanged(SoftwareMediaPlayer.Size size) {
         setViewAspect(size.getAspectRatio());

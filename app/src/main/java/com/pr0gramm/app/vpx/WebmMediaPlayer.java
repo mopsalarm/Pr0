@@ -31,6 +31,9 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         MatroskaFile mkv = new MatroskaFile(new InputStreamDataSource(stream));
         mkv.readFile();
 
+        // total duration of the video in ms.
+        duration = Math.max(duration, (long) mkv.getDuration());
+
         // get video info
         MatroskaFileTrack track = findFirstVideoTrack(mkv).get();
         MatroskaFileTrack.MatroskaVideoTrack videoInfo = track.getVideo();
@@ -48,7 +51,7 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
 
         int maxPixelWidth, maxPixelHeight;
 
-        // on kitkat we'll activate low quality mode!
+        // on ics we'll activate low quality mode!
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             maxPixelWidth = 512;
             maxPixelHeight = 512;
@@ -79,6 +82,8 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
                     if (mkvFrame == null) {
                         break;
                     }
+
+                    currentPosition = mkvFrame.getTimecode();
 
                     // estimate fps
                     long duration = mkvFrame.getTimecode() - previousTimecode;

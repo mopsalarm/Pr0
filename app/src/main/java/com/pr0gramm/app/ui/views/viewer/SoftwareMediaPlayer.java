@@ -49,6 +49,9 @@ public abstract class SoftwareMediaPlayer {
 
     private final BehaviorSubject<Boolean> bufferingSubject = BehaviorSubject.create();
 
+    protected long duration = -1;
+    protected long currentPosition = -0;
+
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
     }
@@ -262,6 +265,14 @@ public abstract class SoftwareMediaPlayer {
 
         returnBitmap(bitmap);
         ensureStillRunning();
+    }
+
+    public long getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 
     protected void publishFrameDelay(long delay) {
