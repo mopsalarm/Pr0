@@ -172,6 +172,10 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
             stream = response.body().byteStream();
         }
 
+        if(BuildConfig.DEBUG && response.cacheResponse() != null) {
+            logger.info("Response came from the cache");
+        }
+
         Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
         result.addHeader("Accept-Range", "bytes");
 

@@ -8,7 +8,6 @@ import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.services.proxy.HttpProxyService;
 import com.pr0gramm.app.services.proxy.ProxyService;
-import com.pr0gramm.app.util.GuavaPicassoCache;
 import com.pr0gramm.app.util.SmallBufferSocketFactory;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.ConnectionPool;
@@ -43,7 +42,7 @@ public class HttpModule {
         File cacheDir = new File(context.getCacheDir(), "imgCache");
 
         OkHttpClient client = new OkHttpClient();
-        client.setCache(new Cache(cacheDir, 100 * 1024 * 1024));
+        client.setCache(new Cache(cacheDir, 256 * 1024 * 1024));
         client.setCookieHandler(cookieHandler);
         client.setSocketFactory(new SmallBufferSocketFactory());
 
@@ -107,7 +106,7 @@ public class HttpModule {
     @Singleton
     public Picasso picasso(Context context, Downloader downloader) {
         return new Picasso.Builder(context)
-                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
+                // .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(downloader)
                 .build();
     }
