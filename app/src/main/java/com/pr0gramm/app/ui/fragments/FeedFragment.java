@@ -21,6 +21,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -902,8 +903,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         // enable transition, if possible
         if (Sdk.isAtLeastLollipop()) {
             TransitionInflater inflater = TransitionInflater.from(getActivity());
-            fragment.setSharedElementEnterTransition(
-                    inflater.inflateTransition(android.R.transition.move));
+            Transition transition = inflater.inflateTransition(android.R.transition.move);
+            fragment.setSharedElementEnterTransition(transition);
 
             return true;
         }
