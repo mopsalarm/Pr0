@@ -39,6 +39,9 @@ import static java.lang.System.currentTimeMillis;
 public class HttpProxyService extends NanoHTTPD implements ProxyService {
     private static final Logger logger = LoggerFactory.getLogger("HttpProxyService");
 
+    private static final Response ERROR_RESPONSE = newFixedLengthResponse(
+            Response.Status.INTERNAL_ERROR, "text/plain", null);
+
     private final String nonce;
     private final OkHttpClient okHttpClient;
     private final int port;
@@ -108,9 +111,9 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
             logger.info("Decoded request to {}", url);
             return proxyUri(session, url);
 
-        } catch (Exception e) {
-            logger.error("Could not proxy for url " + decodedUrl, e);
-            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", e.toString());
+        } catch (Throwable error) {
+            logger.error("Could not proxy for url " + decodedUrl, error);
+            return ERROR_RESPONSE;
         }
     }
 
