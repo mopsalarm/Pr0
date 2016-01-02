@@ -1,6 +1,7 @@
 package com.pr0gramm.app;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -8,6 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.services.proxy.HttpProxyService;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.util.GuavaPicassoCache;
 import com.pr0gramm.app.util.SmallBufferSocketFactory;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.ConnectionPool;
@@ -106,7 +108,8 @@ public class HttpModule {
     @Singleton
     public Picasso picasso(Context context, Downloader downloader) {
         return new Picasso.Builder(context)
-                // .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
+                .defaultBitmapConfig(Bitmap.Config.RGB_565)
+                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(downloader)
                 .build();
     }

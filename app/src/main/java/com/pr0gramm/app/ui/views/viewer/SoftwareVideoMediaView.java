@@ -45,6 +45,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
 
     public SoftwareVideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_software_decoder, url, onViewListener);
+        imageView.setVisibility(INVISIBLE);
     }
 
     private void asyncLoadVideo() {
@@ -123,6 +124,12 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
         }
 
         return Optional.absent();
+    }
+
+    @Override
+    public void onTransitionEnds() {
+        super.onTransitionEnds();
+        imageView.setVisibility(VISIBLE);
     }
 
     private void onSizeChanged(SoftwareMediaPlayer.Size size) {

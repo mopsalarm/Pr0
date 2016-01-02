@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:scaleType="fitCenter"
-    app:aspect="2"
+    app:aspect="1.75"
     tools:showIn="@layout/player_gif"/>
     
     

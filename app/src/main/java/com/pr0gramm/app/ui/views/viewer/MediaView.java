@@ -92,6 +92,8 @@ public abstract class MediaView extends FrameLayout {
 
     private float viewAspect = -1;
     private Rect clipBounds;
+    private boolean transitionEnded;
+    private boolean previewRemoved;
 
     @SuppressLint("SetTextI18n")
     protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
@@ -146,6 +148,8 @@ public abstract class MediaView extends FrameLayout {
      */
     public void setPreviewImage(PreviewInfo info, String transitionName) {
         if (preview != null) {
+            ViewCompat.setTransitionName(preview, transitionName);
+
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
 
@@ -173,8 +177,6 @@ public abstract class MediaView extends FrameLayout {
                 // no preview for this item, remove the view
                 removePreviewImage();
             }
-
-            ViewCompat.setTransitionName(preview, transitionName);
         }
     }
 
@@ -216,12 +218,17 @@ public abstract class MediaView extends FrameLayout {
         return new Point(width, height);
     }
 
+    public boolean hasTransitionEnded() {
+        return transitionEnded;
+    }
+
     /**
      * Removes the preview drawable.
      */
 
     public void removePreviewImage() {
-        if (this.preview != null) {
+        previewRemoved = true;
+        if (transitionEnded && this.preview != null) {
             // cancel loading of preview, if there is still a request pending.
             picasso.cancelRequest(preview);
 
@@ -240,8 +247,12 @@ public abstract class MediaView extends FrameLayout {
      * transition for the preview image ends.
      */
     public void onTransitionEnds() {
-        if (preview != null && previewTarget != null) {
+        transitionEnded = true;
 
+        if(previewRemoved)
+            removePreviewImage();
+
+        if (preview != null && previewTarget != null) {
             if (isEligibleForThumbyPreview(mediaUri)) {
                 // normalize url before fetching generated thumbnail
                 String url = mediaUri.getBaseUri().toString()

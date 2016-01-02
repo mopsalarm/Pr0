@@ -64,6 +64,7 @@ public class ImageMediaView extends MediaView {
             logger.info("Media view has a zoomview now");
         }
 
+        imageView.setVisibility(INVISIBLE);
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setZoomEnabled(zoomView);
 
@@ -121,6 +122,12 @@ public class ImageMediaView extends MediaView {
             imageView.setImage(ImageSource.uri(getEffectiveUri()));
             viewInitialized = true;
         }
+    }
+
+    @Override
+    public void onTransitionEnds() {
+        super.onTransitionEnds();
+        imageView.setVisibility(VISIBLE);
     }
 
     @Override

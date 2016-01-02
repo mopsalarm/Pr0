@@ -469,7 +469,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             int columnCount = layoutManager.getSpanCount();
             layoutManager.setSpanSizeLookup(new NMatchParentSpanSizeLookup(itemCount, columnCount));
         }
-        ;
     }
 
     private static View newFeedStartPaddingView(Context context) {
@@ -898,13 +897,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private boolean enableTransition(PostPagerFragment fragment) {
         // enable transition, if possible
-        if (Sdk.isAtLeastKitKat()) {
+        if (Sdk.isAtLeastLollipop()) {
             TransitionInflater inflater = TransitionInflater.from(getActivity());
             fragment.setSharedElementEnterTransition(
-                    inflater.inflateTransition(R.transition.move));
+                    inflater.inflateTransition(android.R.transition.move));
 
             return true;
         }
@@ -1017,7 +1016,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                         .into(view.image);
 
                 view.itemView.setOnClickListener(v -> {
-                    ViewCompat.setTransitionName(view.image, "TransitionTarget");
+                    ViewCompat.setTransitionName(view.image, "TransitionTarget-" + item.getId());
                     fragment.onItemClicked(position, Optional.<Long>absent(), Optional.of(view.image));
                 });
 
