@@ -15,6 +15,10 @@
         "change": "Videofortschrittsbalken nun auch mit Softwaredekoder."
       },
       {
+        "type": "Neu",
+        "change": "Menüeintrag im Feed um die gleiche Suche in 'top' oder 'neu' nochmal auszuführen."
+      },
+      {
         "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
       },

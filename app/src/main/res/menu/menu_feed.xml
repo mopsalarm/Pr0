@@ -46,6 +46,11 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/action_feedtype"
+        android:title="@string/action_switch_to_new"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/action_preload"
         android:title="@string/action_preload"
         app:showAsAction="never"/>

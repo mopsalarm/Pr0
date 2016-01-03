@@ -680,6 +680,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         if ((item = menu.findItem(R.id.action_preload)) != null)
             item.setVisible(feedType.preloadable() && !AndroidUtility.isOnMobile(getActivity()));
 
+        if ((item = menu.findItem(R.id.action_feedtype)) != null) {
+            item.setVisible(!filter.isBasic() &&
+                    EnumSet.of(FeedType.PROMOTED, FeedType.NEW, FeedType.PREMIUM).contains(feedType));
+
+            item.setTitle(switchFeedTypeTarget(filter) == FeedType.PROMOTED
+                    ? R.string.action_switch_to_top
+                    : R.string.action_switch_to_new);
+        }
+
         if ((item = menu.findItem(R.id.action_change_content_type)) != null) {
             if (userService.isAuthorized()) {
                 ContentTypeDrawable icon = new ContentTypeDrawable(getActivity(), getSelectedContentType());
@@ -695,6 +704,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 item.setVisible(false);
             }
         }
+    }
+
+    private FeedType switchFeedTypeTarget(FeedFilter filter) {
+        return filter.getFeedType() != FeedType.PROMOTED ? FeedType.PROMOTED : FeedType.NEW;
     }
 
     private void updateContentTypeItems(Menu menu) {
@@ -735,6 +748,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
 
         return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+    }
+
+    @OnOptionsItemSelected(R.id.action_feedtype)
+    public void switchFeedType() {
+        FeedFilter filter = getCurrentFilter();
+        filter = filter.withFeedType(switchFeedTypeTarget(filter));
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
     }
 
     @OnOptionsItemSelected(R.id.action_refresh)
