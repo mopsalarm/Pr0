@@ -15,14 +15,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.orm.Bookmark.byFilter;
 import static com.pr0gramm.app.orm.Bookmark.of;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -106,6 +104,6 @@ public class BookmarkService {
      * @return The bookmark for that filter
      */
     public Observable<Bookmark> create(FeedFilter filter) {
-        return create(filter, FeedFilterFormatter.format(context, filter));
+        return create(filter, FeedFilterFormatter.format(context, filter).title);
     }
 }

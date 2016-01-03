@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
@@ -294,15 +295,18 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void updateActionbarTitle() {
-        String title;
-        FeedFilter filter = getCurrentFeedFilter();
-        if (filter == null) {
-            title = getString(R.string.pr0gramm);
-        } else {
-            title = FeedFilterFormatter.format(this, filter);
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            FeedFilter filter = getCurrentFeedFilter();
+            if (filter == null) {
+                bar.setTitle(R.string.pr0gramm);
+                bar.setSubtitle(null);
+            } else {
+                FeedFilterFormatter.FeedTitle feed = FeedFilterFormatter.format(this, filter);
+                bar.setTitle(feed.title);
+                bar.setSubtitle(feed.subtitle);
+            }
         }
-
-        setTitle(title);
     }
 
     /**

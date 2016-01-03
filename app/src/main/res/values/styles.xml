@@ -57,6 +57,8 @@
         <item name="android:clickable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">16dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="AppStyle.DrawerItem" parent="Base.AppStyle.DrawerItem"/>

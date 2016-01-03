@@ -18,31 +18,35 @@ public class FeedFilterFormatter {
      * @param context The current context
      * @param filter  The filter that is to be converted into a string
      */
-    public static String format(@Nullable Context context, FeedFilter filter) {
+    public static FeedTitle format(@Nullable Context context, FeedFilter filter) {
         // prevent null pointer exceptions
         if (context == null)
-            return "";
+            return new FeedTitle("", "", "");
 
-        StringBuilder result = new StringBuilder();
-
-        if (filter.isBasic()) {
-            result.append(feedTypeToString(context, filter));
-
-        } else {
+        if (!filter.isBasic()) {
             if (filter.getTags().isPresent()) {
-                result.append(filter.getTags().get());
-                result.append(" in ");
-                result.append(feedTypeToString(context, filter));
+                return new FeedTitle(
+                        filter.getTags().get(),
+                        " in ",
+                        feedTypeToString(context, filter));
             }
 
-            if (filter.getUsername().isPresent())
-                result.append(context.getString(R.string.filter_format_tag_by)).append(" ").append(filter.getUsername().get());
+            if (filter.getUsername().isPresent()) {
+                return new FeedTitle(
+                        context.getString(R.string.filter_format_tag_by) + " " + filter.getUsername().get(),
+                        " in ",
+                        feedTypeToString(context, filter));
+            }
 
-            if (filter.getLikes().isPresent())
-                result.append(context.getString(R.string.filter_format_fav_of)).append(" ").append(filter.getLikes().get());
+            if (filter.getLikes().isPresent()) {
+                return new FeedTitle(
+                        context.getString(R.string.filter_format_fav_of) + " " + filter.getLikes().get(),
+                        " in ",
+                        feedTypeToString(context, filter));
+            }
         }
 
-        return result.toString().trim();
+        return new FeedTitle(feedTypeToString(context, filter), "", "");
     }
 
     public static String feedTypeToString(Context context, FeedFilter filter) {
@@ -67,6 +71,22 @@ public class FeedFilterFormatter {
 
             default:
                 throw new IllegalArgumentException("Invalid feed type");
+        }
+    }
+
+    public static final class FeedTitle {
+        public final String title;
+        public final String subtitle;
+        public final String separator;
+
+        public FeedTitle(String title, String separator, String subtitle) {
+            this.title = title;
+            this.subtitle = subtitle;
+            this.separator = separator;
+        }
+
+        public String singleline() {
+            return title + separator + subtitle;
         }
     }
 }

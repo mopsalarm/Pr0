@@ -755,7 +755,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         onBookmarkableStateChanged(false);
 
         FeedFilter filter = getCurrentFilter();
-        String title = FeedFilterFormatter.format(getActivity(), filter);
+        String title = FeedFilterFormatter.format(getActivity(), filter).singleline();
         ((MainActionHandler) getActivity()).pinFeedFilter(filter, title);
     }
 
