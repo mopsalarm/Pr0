@@ -767,7 +767,7 @@ public class PostFragment extends BaseFragment implements
 
         if (previewInfo != null) {
             viewer.setPreviewImage(previewInfo, "TransitionTarget-" + feedItem.getId());
-            if(Sdk.isAtLeastLollipop()) {
+            if (Sdk.isAtLeastLollipop()) {
                 viewer.postDelayed(this::onTransitionEnds, 350);
             } else {
                 viewer.post(this::onTransitionEnds);
@@ -805,6 +805,8 @@ public class PostFragment extends BaseFragment implements
                     if (isVideoFullScreen()) {
                         realignFullScreen();
                     }
+
+                    simulateScroll();
                 }
             });
 
