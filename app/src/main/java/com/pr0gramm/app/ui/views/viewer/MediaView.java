@@ -52,6 +52,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
@@ -151,8 +152,10 @@ public abstract class MediaView extends FrameLayout {
 
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
-        super.setPadding(left, top, right, bottom);
-        applyBlurredBackground();
+        if (getPaddingLeft() != left || getPaddingTop() != top || getPaddingRight() != right || getPaddingBottom() != bottom) {
+            super.setPadding(left, top, right, bottom);
+            applyBlurredBackground();
+        }
     }
 
     private void applyBlurredBackground() {
@@ -472,18 +475,27 @@ public abstract class MediaView extends FrameLayout {
     }
 
     @Override
+    protected void dispatchDraw(Canvas canvas) {
+        drawWithClipBounds(canvas, c -> super.dispatchDraw(canvas));
+    }
+
+    @Override
     public void draw(Canvas canvas) {
+        drawWithClipBounds(canvas, super::draw);
+    }
+
+    private void drawWithClipBounds(Canvas canvas, Action1<Canvas> action) {
         if (clipBounds != null) {
             canvas.save();
 
             // clip and draw!
             canvas.clipRect(clipBounds);
-            super.draw(canvas);
+            action.call(canvas);
 
             canvas.restore();
 
         } else {
-            super.draw(canvas);
+            action.call(canvas);
         }
     }
 

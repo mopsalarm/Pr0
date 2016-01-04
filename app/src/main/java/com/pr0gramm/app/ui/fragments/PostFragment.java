@@ -806,8 +806,6 @@ public class PostFragment extends BaseFragment implements
                     if (isVideoFullScreen()) {
                         realignFullScreen();
                     }
-
-                    simulateScroll();
                 }
             });
 
@@ -818,7 +816,6 @@ public class PostFragment extends BaseFragment implements
     private void onTransitionEnds() {
         if (viewer != null && content != null) {
             viewer.onTransitionEnds();
-            simulateScroll();
         }
     }
 
