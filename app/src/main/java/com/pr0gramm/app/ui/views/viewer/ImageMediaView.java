@@ -54,7 +54,6 @@ public class ImageMediaView extends MediaView {
     @Inject
     SingleShotService singleShotService;
 
-
     public ImageMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_image, url, onViewListener);
 

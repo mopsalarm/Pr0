@@ -1,11 +1,16 @@
 package com.pr0gramm.app.services;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
-import com.pr0gramm.app.api.meta.SizeInfo;
+import com.pr0gramm.app.api.meta.MetaApi;
+import com.pr0gramm.app.api.meta.MetaApi.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
@@ -33,6 +38,10 @@ public class LocalCacheService {
 
     private final Cache<Long, SizeInfo> thumbCache = CacheBuilder.newBuilder()
             .maximumSize(10_000)
+            .build();
+
+    private final Cache<Long, Bitmap> lowQualityPreviewCache = CacheBuilder.newBuilder()
+            .maximumSize(5_000)
             .build();
 
     private final Cache<String, EnhancedUserInfo> userInfoCache = CacheBuilder.newBuilder()
@@ -119,5 +128,37 @@ public class LocalCacheService {
     public Optional<EnhancedUserInfo> getUserInfo(Set<ContentType> contentTypes, String name) {
         String key = name.trim().toLowerCase() + ContentType.combine(contentTypes);
         return Optional.fromNullable(userInfoCache.getIfPresent(key));
+    }
+
+    /**
+     * Store a pixels info. This method parses it into a bitmap object.
+     */
+    public void cacheLowQualityPreviews(MetaApi.PreviewInfo previewInfo) {
+        if (previewInfo.width() > 64 || previewInfo.height() > 64)
+            return;
+
+        byte[] bytes = BaseEncoding.base64().decode(previewInfo.pixels().replace("\n", ""));
+        int[] pixels = new int[previewInfo.width() * previewInfo.height()];
+        for (int idx = 0; idx < pixels.length; idx++) {
+            int r5 = (bytes[2 * idx] >> 3);
+            int g5 = (((bytes[2 * idx + 1] & 0xE0) >> 5) | ((bytes[2 * idx] & 0x07) << 3));
+            int b5 = bytes[2 * idx + 1] & 0x1F;
+            int r8 = (r5 * 527 + 23) >> 6;
+            int g8 = (g5 * 259 + 33) >> 6;
+            int b8 = (b5 * 527 + 23) >> 6;
+
+            pixels[idx] = Color.rgb(r8, g8, b8);
+        }
+
+        // generate image
+        Bitmap bitmap = Bitmap.createBitmap(pixels,
+                previewInfo.width(), previewInfo.height(),
+                Bitmap.Config.RGB_565);
+
+        lowQualityPreviewCache.put(previewInfo.id(), bitmap);
+    }
+
+    public Bitmap lowQualityPreview(long id) {
+        return lowQualityPreviewCache.getIfPresent(id);
     }
 }

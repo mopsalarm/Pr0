@@ -344,7 +344,7 @@ public class UploadActivity extends BaseAppCompatActivity {
         private void onImageFile(File file) {
             this.file = file;
 
-            logger.info("loading image file into preview.");
+            logger.info("loading image file into pixels.");
             picasso.load(file).into(preview, new Callback() {
                 @Override
                 public void onSuccess() {

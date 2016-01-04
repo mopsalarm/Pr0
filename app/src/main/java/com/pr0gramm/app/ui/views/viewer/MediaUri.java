@@ -5,16 +5,18 @@ import android.net.Uri;
 /**
  */
 public final class MediaUri {
+    private final long id;
     private final Uri uri;
     private final MediaType mediaType;
     private final boolean proxy;
     private final boolean delay;
 
-    public MediaUri(Uri uri, MediaType mediaType) {
-        this(uri, mediaType, false, false);
+    private MediaUri(long id, Uri uri, MediaType mediaType) {
+        this(id, uri, mediaType, false, false);
     }
 
-    private MediaUri(Uri uri, MediaType mediaType, boolean proxy, boolean delay) {
+    private MediaUri(long id, Uri uri, MediaType mediaType, boolean proxy, boolean delay) {
+        this.id = id;
         this.uri = uri;
         this.mediaType = mediaType;
         this.proxy = proxy;
@@ -34,19 +36,23 @@ public final class MediaUri {
     }
 
     public MediaUri withDelay(boolean value) {
-        return new MediaUri(uri, mediaType, proxy, value);
+        return new MediaUri(id, uri, mediaType, proxy, value);
     }
 
     public MediaUri withProxy(boolean value) {
-        return new MediaUri(uri, mediaType, value, delay);
+        return new MediaUri(id, uri, mediaType, value, delay);
     }
 
     public MediaUri withUri(Uri uri, MediaType mediaType) {
-        return new MediaUri(uri, mediaType, true, delay);
+        return new MediaUri(id, uri, mediaType, true, delay);
     }
 
     public MediaType getMediaType() {
         return mediaType;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public boolean isLocal() {
@@ -65,7 +71,7 @@ public final class MediaUri {
     /**
      * Returns a media uri and guesses the media type from the uri.
      */
-    public static MediaUri of(Uri uri) {
+    public static MediaUri of(long id, Uri uri) {
         String name = uri.getLastPathSegment();
         if (name == null)
             throw new IllegalArgumentException("uri must have a file component");
@@ -77,10 +83,10 @@ public final class MediaUri {
         if (name.toLowerCase().matches(".*\\.(webm|mpe?g|mp4)"))
             type = MediaType.VIDEO;
 
-        return new MediaUri(uri, type);
+        return new MediaUri(id, uri, type);
     }
 
-    public static MediaUri of(String uri) {
-        return of(Uri.parse(uri));
+    public static MediaUri of(long id, String uri) {
+        return of(id, Uri.parse(uri));
     }
 }

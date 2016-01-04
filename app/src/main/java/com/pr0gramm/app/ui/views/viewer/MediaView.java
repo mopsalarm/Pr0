@@ -7,7 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
@@ -32,7 +34,9 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -88,6 +92,9 @@ public abstract class MediaView extends FrameLayout {
     Picasso picasso;
 
     @Inject
+    LocalCacheService localCacheService;
+
+    @Inject
     ProxyService proxyService;
 
     private float viewAspect = -1;
@@ -130,6 +137,23 @@ public abstract class MediaView extends FrameLayout {
             preloadHint.setTextColor(ContextCompat.getColor(getContext(), R.color.primary));
             addView(preloadHint);
         }
+
+        updateBackgroundWithPadding(0, 0, 0, 0);
+    }
+
+    @Override
+    public void setPadding(int left, int top, int right, int bottom) {
+        super.setPadding(left, top, right, bottom);
+        updateBackgroundWithPadding(left, top, right, bottom);
+    }
+
+    private void updateBackgroundWithPadding(int left, int top, int right, int bottom) {
+        if (!previewRemoved) {
+            Bitmap bitmap = localCacheService.lowQualityPreview(mediaUri.getId());
+            Drawable bitmapDrawable = new BackgroundBitmapDrawable(new BitmapDrawable(getResources(), bitmap));
+            Drawable insetDrawable = new InsetDrawable(bitmapDrawable, left, top, right, bottom);
+            AndroidUtility.setViewBackground(this, insetDrawable);
+        }
     }
 
     protected <T> Observable.Transformer<T, T> bindView() {
@@ -143,8 +167,8 @@ public abstract class MediaView extends FrameLayout {
     protected abstract void injectComponent(ActivityComponent component);
 
     /**
-     * Sets the preview image for this media view. You need to provide a width and height.
-     * Those values will be used to place the preview image correctly.
+     * Sets the pixels image for this media view. You need to provide a width and height.
+     * Those values will be used to place the pixels image correctly.
      */
     public void setPreviewImage(PreviewInfo info, String transitionName) {
         if (preview != null) {
@@ -153,7 +177,7 @@ public abstract class MediaView extends FrameLayout {
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
 
-                // clamp while loading the preview.
+                // clamp while loading the pixels.
                 aspect = Math.max(aspect, 1 / 3.0f);
 
                 preview.setAspect(aspect);
@@ -169,12 +193,12 @@ public abstract class MediaView extends FrameLayout {
                             .networkPolicy(NetworkPolicy.OFFLINE)
                             .into(previewTarget);
                 } else {
-                    // quickly load the preview into this view
+                    // quickly load the pixels into this view
                     picasso.load(info.getPreviewUri()).into(previewTarget);
                 }
 
             } else {
-                // no preview for this item, remove the view
+                // no pixels for this item, remove the view
                 removePreviewImage();
             }
         }
@@ -223,17 +247,22 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
-     * Removes the preview drawable.
+     * Removes the pixels drawable.
      */
 
     public void removePreviewImage() {
         previewRemoved = true;
-        if (transitionEnded && this.preview != null) {
-            // cancel loading of preview, if there is still a request pending.
-            picasso.cancelRequest(preview);
+        if (transitionEnded) {
+            if (this.preview != null) {
+                // cancel loading of pixels, if there is still a request pending.
+                picasso.cancelRequest(preview);
 
-            AndroidUtility.removeView(preview);
-            this.preview = null;
+                AndroidUtility.removeView(preview);
+                this.preview = null;
+            }
+
+            // remove the background
+            AndroidUtility.setViewBackground(this, null);
         }
     }
 
@@ -244,12 +273,12 @@ public abstract class MediaView extends FrameLayout {
 
     /**
      * This method must be called after a shared element
-     * transition for the preview image ends.
+     * transition for the pixels image ends.
      */
     public void onTransitionEnds() {
         transitionEnded = true;
 
-        if(previewRemoved)
+        if (previewRemoved)
             removePreviewImage();
 
         if (preview != null && previewTarget != null) {
@@ -268,7 +297,7 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
-     * Return true, if the thumby service can produce a preview for this url.
+     * Return true, if the thumby service can produce a pixels for this url.
      * This is currently possible for gifs and videos.
      */
     private static boolean isEligibleForThumbyPreview(MediaUri url) {
@@ -500,8 +529,8 @@ public abstract class MediaView extends FrameLayout {
     }
 
     /**
-     * Puts the loaded image into the preview container, if there
-     * still is a preview container.
+     * Puts the loaded image into the pixels container, if there
+     * still is a pixels container.
      */
     private static class PreviewTarget implements Target {
         private final WeakReference<MediaView> mediaView;

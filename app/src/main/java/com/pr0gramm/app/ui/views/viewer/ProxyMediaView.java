@@ -32,7 +32,7 @@ public abstract class ProxyMediaView extends MediaView {
     }
 
     /**
-     * Adds the proxied child above the preview.
+     * Adds the proxied child above the pixels.
      */
     protected void addProxiedChild(MediaView mediaView) {
         int idx = getChildCount();

@@ -739,7 +739,7 @@ public class PostFragment extends BaseFragment implements
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
 
         // initialize a new viewer fragment
-        MediaUri uri = MediaUri.of(UriHelper.of(getContext()).media(feedItem));
+        MediaUri uri = MediaUri.of(feedItem.getId(), UriHelper.of(getContext()).media(feedItem));
         if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
             Settings.ConfirmOnMobile confirmOnMobile = settings.confirmPlayOnMobile(getContext());
             if (confirmOnMobile == Settings.ConfirmOnMobile.ALL) {
@@ -789,6 +789,7 @@ public class PostFragment extends BaseFragment implements
             PlaceholderView placeholder = new PlaceholderView();
 
             viewer.setPadding(0, padding, 0, 0);
+
             viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
                 int newHeight = viewer.getMeasuredHeight();
                 if (newHeight != placeholder.fixedHeight) {

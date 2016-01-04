@@ -258,7 +258,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment {
     }
 
     /**
-     * Sets the preview that should be used in the transition.
+     * Sets the pixels that should be used in the transition.
      */
     public void setPreviewInfo(PreviewInfo previewInfo) {
         this.previewInfo = previewInfo;

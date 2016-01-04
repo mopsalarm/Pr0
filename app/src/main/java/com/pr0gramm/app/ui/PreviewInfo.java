@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 /**
- * Info about a preview. Can be given to a post fragment to create
+ * Info about a pixels. Can be given to a post fragment to create
  * the fragment animation on newer versions of android.
  */
 public final class PreviewInfo {

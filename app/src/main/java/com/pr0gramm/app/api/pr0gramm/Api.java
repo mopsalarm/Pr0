@@ -1,6 +1,5 @@
 package com.pr0gramm.app.api.pr0gramm;
 
-import com.pr0gramm.app.api.meta.UserInfo;
 import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Info;

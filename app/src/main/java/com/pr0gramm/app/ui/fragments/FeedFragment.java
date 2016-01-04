@@ -42,9 +42,9 @@ import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.meta.ItemsInfo;
+import com.pr0gramm.app.api.meta.MetaApi;
+import com.pr0gramm.app.api.meta.MetaApi.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
-import com.pr0gramm.app.api.meta.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.ContentType;
@@ -895,7 +895,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
 
             if (preview.isPresent()) {
-                // pass preview info to target fragment.
+                // pass pixels info to target fragment.
                 Drawable image = preview.get().getDrawable();
                 fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
 
@@ -932,9 +932,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
-        Optional<SizeInfo> sizeInfo = getSizeInfo(item);
-        int sizeWidth = sizeInfo.transform(SizeInfo::getWidth).or(-1);
-        int sizeHeight = sizeInfo.transform(SizeInfo::getHeight).or(-1);
+        Optional<MetaApi.SizeInfo> sizeInfo = getSizeInfo(item);
+        int sizeWidth = sizeInfo.transform(MetaApi.SizeInfo::getWidth).or(-1);
+        int sizeHeight = sizeInfo.transform(MetaApi.SizeInfo::getHeight).or(-1);
         return new PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
     }
 
@@ -986,7 +986,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return seenService.isSeen(item);
     }
 
-    private Optional<SizeInfo> getSizeInfo(FeedItem item) {
+    private Optional<MetaApi.SizeInfo> getSizeInfo(FeedItem item) {
         return localCacheService.getSizeInfo(item.getId());
     }
 
@@ -1115,8 +1115,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 itemsInfo.getReposts().size(),
                 itemsInfo.getSizes().size());
 
-        for (SizeInfo sizeInfo : itemsInfo.getSizes())
+        for (MetaApi.SizeInfo sizeInfo : itemsInfo.getSizes())
             localCacheService.cacheSizeInfo(sizeInfo);
+
+        for (MetaApi.PreviewInfo previewInfo : itemsInfo.getPreviews())
+            localCacheService.cacheLowQualityPreviews(previewInfo);
 
         // cache the items as reposts
         localCacheService.cacheReposts(itemsInfo.getReposts());

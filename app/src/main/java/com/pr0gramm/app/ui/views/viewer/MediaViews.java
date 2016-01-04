@@ -42,7 +42,7 @@ public class MediaViews {
             if (shouldUseSoftwareDecoder(uri, settings)) {
                 MediaUri videoUrl = uri;
                 if (shouldUseMpegDecoder(uri, settings))
-                    videoUrl = MediaUri.of(uri.toString().replace(".webm", ".mpg"));
+                    videoUrl = MediaUri.of(uri.getId(), uri.toString().replace(".webm", ".mpg"));
 
                 result = new SoftwareVideoMediaView(activity,
                         videoUrl.withProxy(uri.hasProxyFlag()),
