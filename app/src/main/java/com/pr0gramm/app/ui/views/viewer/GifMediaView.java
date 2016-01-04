@@ -43,6 +43,7 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_gif, url, onViewListener);
+        imageView.setVisibility(INVISIBLE);
 
         loadGif();
     }
@@ -81,6 +82,12 @@ public class GifMediaView extends AbstractProgressMediaView {
             BusyIndicator bar = (BusyIndicator) progressView;
             bar.setProgress(progress);
         }
+    }
+
+    @Override
+    public void onTransitionEnds() {
+        super.onTransitionEnds();
+        imageView.setVisibility(VISIBLE);
     }
 
     @Override
