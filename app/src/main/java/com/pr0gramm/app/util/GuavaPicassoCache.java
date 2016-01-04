@@ -86,7 +86,7 @@ public class GuavaPicassoCache implements Cache {
     }
 
     public static GuavaPicassoCache defaultSizedGuavaCache() {
-        int maxMemory = Math.max(1024 * 1024, (int) (Runtime.getRuntime().maxMemory() / 20L));
+        int maxMemory = Math.max(2 * 1024 * 1024, (int) (Runtime.getRuntime().maxMemory() / 20L));
         return new GuavaPicassoCache(maxMemory);
     }
 }

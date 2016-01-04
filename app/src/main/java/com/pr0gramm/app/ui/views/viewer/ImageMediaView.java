@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
@@ -84,21 +85,40 @@ public class ImageMediaView extends MediaView {
 
             @Override
             public void onReady() {
-                float ratio = imageView.getSWidth() / (float) imageView.getSHeight();
-                float ratioCapped = Math.max(ratio, CAP_IMAGE_RATIO);
-
-                setViewAspect(ratioCapped);
-
-                float maxScale = imageView.getWidth() / (float) imageView.getSWidth();
-                float minScale = zoomView
-                        ? imageView.getHeight() / (float) imageView.getSHeight()
-                        : maxScale * (ratio / ratioCapped);
-
-                imageView.setMinScale(minScale);
-                imageView.setMaxScale(maxScale);
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                applyScaling();
             }
         });
+
+        // re-apply scaling after layout.
+        RxView.layoutChanges(imageView)
+                .filter(event -> imageView.getSWidth() > 0 && imageView.getSHeight() > 0)
+                .subscribe(event -> applyScaling());
+    }
+
+    private void applyScaling() {
+        float ratio = imageView.getSWidth() / (float) imageView.getSHeight();
+        float ratioCapped = Math.max(ratio, CAP_IMAGE_RATIO);
+        if (ratio < CAP_IMAGE_RATIO) {
+            removeBlurredBackground();
+        }
+
+        setViewAspect(ratioCapped);
+
+        float viewWidth = imageView.getWidth();
+        float viewHeight = imageView.getHeight();
+        float minScale, maxScale;
+        if (zoomView) {
+            maxScale = viewWidth / imageView.getSWidth();
+            minScale = viewHeight / imageView.getSHeight();
+        } else {
+            minScale = maxScale = (viewWidth / imageView.getSWidth()) * (ratio / ratioCapped);
+        }
+
+        logger.info("scaling: {}, {}", minScale, maxScale);
+        imageView.setMinScale(minScale);
+        imageView.setMaxScale(maxScale);
+        imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+        imageView.resetScaleAndCenter();
     }
 
     @Override
@@ -109,6 +129,9 @@ public class ImageMediaView extends MediaView {
     @Override
     public void setViewAspect(float viewAspect) {
         if (!zoomView) {
+            if (viewAspect < CAP_IMAGE_RATIO)
+                removeBlurredBackground();
+
             super.setViewAspect(viewAspect);
         }
     }

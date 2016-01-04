@@ -53,7 +53,7 @@ public class GifMediaView extends AbstractProgressMediaView {
                 .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
                 .subscribeOn(BackgroundScheduler.instance());
 
-        dlGifSubscription = loader.compose(bindView()).subscribe(state -> {
+        dlGifSubscription = loader.compose(backgroundBindView()).subscribe(state -> {
             onDownloadProgress(state.getProgress());
 
             if (state.isFinished()) {

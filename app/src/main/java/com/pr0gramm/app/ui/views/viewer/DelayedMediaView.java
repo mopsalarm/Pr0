@@ -61,7 +61,7 @@ public class DelayedMediaView extends ProxyMediaView {
 
         // create the real view as a child.
         MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
-                mediaUri.withDelay(false), this::onMediaShown);
+                getMediaUri().withDelay(false), this::onMediaShown);
 
         // transfer aspect if known
         float aspect = getViewAspect();

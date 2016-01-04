@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge>
-
     <include layout="@layout/player_preview_image"/>
     <include layout="@layout/player_progress"/>
-
 </merge>

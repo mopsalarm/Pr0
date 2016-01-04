@@ -55,22 +55,22 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
 
         showBusyIndicator();
 
-        loading = newVideoPlayer().compose(bindView()).finallyDo(() -> loading = null).subscribe(player -> {
+        loading = newVideoPlayer().compose(backgroundBindView()).finallyDo(() -> loading = null).subscribe(player -> {
             hideBusyIndicator();
 
             imageView.setImageDrawable(player.drawable());
 
             videoPlayer = player;
             videoPlayer.videoSize()
-                    .compose(bindView())
+                    .compose(backgroundBindView())
                     .subscribe(this::onSizeChanged);
 
             videoPlayer.errors()
-                    .compose(bindView())
+                    .compose(backgroundBindView())
                     .subscribe(defaultOnError());
 
             videoPlayer.buffering()
-                    .compose(bindView())
+                    .compose(backgroundBindView())
                     .subscribe(buffering -> {
                         if (buffering) {
                             showBusyIndicator();

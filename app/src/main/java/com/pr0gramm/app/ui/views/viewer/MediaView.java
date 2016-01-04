@@ -5,38 +5,30 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
-import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.graphics.drawable.DrawableUtils;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
@@ -60,6 +52,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.BehaviorSubject;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
 
@@ -68,28 +61,34 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
 public abstract class MediaView extends FrameLayout {
     private static final Logger logger = LoggerFactory.getLogger("MediaView");
 
+    private static final float MIN_PREVIEW_ASPECT = 1 / 3.0f;
+
+    private final PreviewTarget previewTarget = new PreviewTarget(this);
+    private final BehaviorSubject<Void> onViewListener = BehaviorSubject.create();
     private final GestureDetector gestureDetector;
+    private final MediaUri mediaUri;
+
+    @Nullable
+    private BackgroundBitmapDrawable blurredBackground;
+
     private boolean mediaShown;
-
-    protected final MediaUri mediaUri;
-
-    private Runnable onViewListener;
-
     private TapListener tapListener;
     private boolean started;
     private boolean resumed;
     private boolean playing;
 
-    private PreviewTarget previewTarget;
+    private float viewAspect = -1;
+    private boolean transitionEnded;
+    private boolean previewRemoveRequested;
 
     @Nullable
-    private View progress;
+    private Rect clipBounds;
 
     @Nullable
-    protected AspectImageView preview;
+    private View busyIndicator;
 
-    @Inject
-    Settings settings;
+    @Nullable
+    private AspectImageView preview;
 
     @Inject
     Picasso picasso;
@@ -100,39 +99,47 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     ProxyService proxyService;
 
-    private float viewAspect = -1;
-    private Rect clipBounds;
-    private boolean transitionEnded;
-    private boolean previewRemoved;
 
-    @SuppressLint("SetTextI18n")
     protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
 
         super(activity);
         this.mediaUri = mediaUri;
-        this.onViewListener = onViewListener;
+        this.onViewListener.subscribe(event -> onViewListener.run());
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
             LayoutInflater.from(activity).inflate(layoutId, this);
+            ButterKnife.bind(this);
 
-            progress = findViewById(R.id.progress);
-            preview = (AspectImageView) findViewById(R.id.preview);
-            previewTarget = new PreviewTarget(this);
-        } else {
-            preview = null;
+            preview = ButterKnife.findById(this, R.id.preview);
+            busyIndicator = ButterKnife.findById(this, R.id.busy_indicator);
         }
-
-        // inject all the stuff!
-        injectComponent(Dagger.activityComponent(activity));
-        ButterKnife.bind(this);
 
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(activity, gestureListener);
 
-        showBusyIndicator();
+        // inject all the stuff!
+        injectComponent(Dagger.activityComponent(activity));
 
+        showBusyIndicator();
+        showPreloadedIndicator();
+        addBlurredBackground();
+    }
+
+    private void addBlurredBackground() {
+        // try to get a preview
+        Bitmap bitmap = localCacheService.lowQualityPreview(mediaUri.getId());
+        if (bitmap != null) {
+            blurredBackground = new BackgroundBitmapDrawable(
+                    new BitmapDrawable(getResources(), bitmap));
+
+            applyBlurredBackground();
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showPreloadedIndicator() {
         if (BuildConfig.DEBUG && mediaUri.isLocal()) {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
@@ -140,26 +147,23 @@ public abstract class MediaView extends FrameLayout {
             preloadHint.setTextColor(ContextCompat.getColor(getContext(), R.color.primary));
             addView(preloadHint);
         }
-
-        updateBackgroundWithPadding(0, 0, 0, 0);
     }
 
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
         super.setPadding(left, top, right, bottom);
-        updateBackgroundWithPadding(left, top, right, bottom);
+        applyBlurredBackground();
     }
 
-    private void updateBackgroundWithPadding(int left, int top, int right, int bottom) {
-        if (!previewRemoved) {
-            Bitmap bitmap = localCacheService.lowQualityPreview(mediaUri.getId());
-            Drawable bitmapDrawable = new BackgroundBitmapDrawable(new BitmapDrawable(getResources(), bitmap));
-            Drawable insetDrawable = new InsetDrawable(bitmapDrawable, left, top, right, bottom);
-            AndroidUtility.setViewBackground(this, insetDrawable);
+    private void applyBlurredBackground() {
+        if (hasPreviewView() && blurredBackground != null) {
+            // update the views background with the correct insets
+            AndroidUtility.setViewBackground(this, new InsetDrawable(blurredBackground,
+                    getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom()));
         }
     }
 
-    protected <T> Observable.Transformer<T, T> bindView() {
+    protected <T> Observable.Transformer<T, T> backgroundBindView() {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
@@ -167,6 +171,9 @@ public abstract class MediaView extends FrameLayout {
                 .compose(RxLifecycle.<T>bindView(this));
     }
 
+    /**
+     * Implement to do dependency injection.
+     */
     protected abstract void injectComponent(ActivityComponent component);
 
     /**
@@ -174,16 +181,18 @@ public abstract class MediaView extends FrameLayout {
      * Those values will be used to place the pixels image correctly.
      */
     public void setPreviewImage(PreviewInfo info, String transitionName) {
-        if (preview != null) {
+        if (hasPreviewView()) {
+            assert preview != null;
+
             ViewCompat.setTransitionName(preview, transitionName);
 
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
 
-                // clamp while loading the pixels.
-                aspect = Math.max(aspect, 1 / 3.0f);
+                // we cap the preview aspect so that the preview is in the users view
+                // (at least on portrait)
+                preview.setAspect(Math.max(aspect, MIN_PREVIEW_ASPECT));
 
-                preview.setAspect(aspect);
                 setViewAspect(aspect);
             }
 
@@ -191,33 +200,55 @@ public abstract class MediaView extends FrameLayout {
                 preview.setImageDrawable(info.getPreview());
 
             } else if (info.getPreviewUri() != null) {
-                if (getMediaUri().isLocal()) {
+                if (mediaIsPreloaded()) {
                     picasso.load(info.getPreviewUri())
-                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .networkPolicy(NetworkPolicy.OFFLINE, NetworkPolicy.NO_STORE)
                             .into(previewTarget);
+
                 } else {
                     // quickly load the pixels into this view
                     picasso.load(info.getPreviewUri()).into(previewTarget);
                 }
 
             } else {
-                // no pixels for this item, remove the view
+                // We have no preview image or this image, so we can remove the view entirely
                 removePreviewImage();
             }
         }
     }
 
+    private boolean mediaIsPreloaded() {
+        return getMediaUri().isLocal();
+    }
+
+    private boolean hasPreviewView() {
+        return preview != null;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         if (viewAspect <= 0) {
+            // If we dont have a view aspect, we will let the content decide
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         } else {
-            Point size = measureToSize(widthMeasureSpec, heightMeasureSpec, viewAspect);
+            boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
 
-            int width = size.x, height = size.y;
+            // we shouldnt get larger than this.
+            int maxWidth = MeasureSpec.getSize(widthMeasureSpec);
+            int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+            int width;
+            int height;
+            if (heightUnspecified || maxWidth / (double) maxHeight < viewAspect) {
+                width = maxWidth;
+                height = (int) (maxWidth / viewAspect) + getPaddingTop() + getPaddingBottom();
+            } else {
+                width = (int) (maxHeight * viewAspect);
+                height = maxHeight;
+            }
+
+            // use the calculated sizes!
             setMeasuredDimension(width, height);
             measureChildren(
                     MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
@@ -225,48 +256,29 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    protected Point measureToSize(int widthMeasureSpec, int heightMeasureSpec, float aspect) {
-        boolean heightUnspecified = MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED;
-
-        int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
-        int maxWidth = MeasureSpec.getSize(widthMeasureSpec);
-
-        int width;
-        int height;
-        if (heightUnspecified || maxWidth / (double) maxHeight < aspect) {
-            width = maxWidth;
-            height = (int) (width / aspect) + getPaddingTop() + getPaddingBottom();
-
-        } else {
-            height = maxHeight;
-            width = (int) (height * aspect);
-        }
-
-        return new Point(width, height);
-    }
-
     public boolean hasTransitionEnded() {
         return transitionEnded;
     }
 
     /**
-     * Removes the pixels drawable.
+     * Removes the preview image from this view.
+     * This will not remove the view until the transition ended.
      */
-
     public void removePreviewImage() {
-        previewRemoved = true;
+        previewRemoveRequested = true;
+
         if (transitionEnded) {
-            if (this.preview != null) {
-                // cancel loading of pixels, if there is still a request pending.
-                picasso.cancelRequest(preview);
-
-                AndroidUtility.removeView(preview);
-                this.preview = null;
-            }
-
-            // remove the background
-            AndroidUtility.setViewBackground(this, null);
+            picasso.cancelRequest(previewTarget);
+            AndroidUtility.removeView(preview);
         }
+
+        // always remove the background
+        removeBlurredBackground();
+    }
+
+    protected void removeBlurredBackground() {
+        blurredBackground = null;
+        AndroidUtility.setViewBackground(this, null);
     }
 
     @Override
@@ -281,31 +293,13 @@ public abstract class MediaView extends FrameLayout {
     public void onTransitionEnds() {
         transitionEnded = true;
 
-        if (previewRemoved)
+        if (previewRemoveRequested) {
             removePreviewImage();
 
-        if (preview != null && previewTarget != null) {
-            if (isEligibleForThumbyPreview(mediaUri)) {
-                // normalize url before fetching generated thumbnail
-                String url = mediaUri.getBaseUri().toString()
-                        .replace("https://", "http://")
-                        .replace(".mpg", ".webm");
-
-                String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
-
-                Uri image = Uri.parse("https://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");
-                picasso.load(image).noPlaceholder().into(previewTarget);
-            }
+        } else if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
+            Uri uri = ThumbyService.thumbUri(mediaUri);
+            picasso.load(uri).noPlaceholder().into(previewTarget);
         }
-    }
-
-    /**
-     * Return true, if the thumby service can produce a pixels for this url.
-     * This is currently possible for gifs and videos.
-     */
-    private static boolean isEligibleForThumbyPreview(MediaUri url) {
-        MediaUri.MediaType type = url.getMediaType();
-        return type == MediaUri.MediaType.VIDEO || type == MediaUri.MediaType.GIF;
     }
 
     /**
@@ -343,11 +337,11 @@ public abstract class MediaView extends FrameLayout {
      * this with a call to {@link #hideBusyIndicator()}
      */
     protected void showBusyIndicator() {
-        if (progress != null) {
-            if (progress.getParent() == null)
-                addView(progress);
+        if (busyIndicator != null) {
+            if (busyIndicator.getParent() == null)
+                addView(busyIndicator);
 
-            progress.setVisibility(View.VISIBLE);
+            busyIndicator.setVisibility(View.VISIBLE);
         }
     }
 
@@ -355,19 +349,17 @@ public abstract class MediaView extends FrameLayout {
      * Hides the busy indicator that was shown in {@link #showBusyIndicator()}.
      */
     protected void hideBusyIndicator() {
-        if (progress != null) {
-            progress.setVisibility(View.GONE);
-
-            ViewParent parent = progress.getParent();
-            if (parent instanceof ViewGroup) {
-                ((ViewGroup) parent).removeView(progress);
-            }
-        }
+        AndroidUtility.removeView(busyIndicator);
     }
 
     @Nullable
     public View getProgressView() {
-        return progress;
+        return busyIndicator;
+    }
+
+    @Nullable
+    public AspectImageView getPreviewView() {
+        return preview;
     }
 
     public boolean isStarted() {
@@ -438,7 +430,7 @@ public abstract class MediaView extends FrameLayout {
     /**
      * Returns the url that this view should display.
      */
-    protected MediaUri getMediaUri() {
+    public MediaUri getMediaUri() {
         return mediaUri;
     }
 
@@ -472,21 +464,26 @@ public abstract class MediaView extends FrameLayout {
         mediaShown = true;
 
         if (isPlaying() && onViewListener != null) {
-            onViewListener.run();
-            onViewListener = null;
+            if (!onViewListener.hasCompleted()) {
+                onViewListener.onNext(null);
+                onViewListener.onCompleted();
+            }
         }
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
+    public void draw(Canvas canvas) {
         if (clipBounds != null) {
             canvas.save();
+
+            // clip and draw!
             canvas.clipRect(clipBounds);
-            super.dispatchDraw(canvas);
+            super.draw(canvas);
+
             canvas.restore();
 
         } else {
-            super.dispatchDraw(canvas);
+            super.draw(canvas);
         }
     }
 
@@ -516,9 +513,11 @@ public abstract class MediaView extends FrameLayout {
     public void setLayoutParams(ViewGroup.LayoutParams params) {
         super.setLayoutParams(params);
 
+        // forward the gravity to the preview if possible
         if (params instanceof FrameLayout.LayoutParams) {
             int gravity = ((LayoutParams) params).gravity;
-            if (preview != null) {
+            if (hasPreviewView()) {
+                assert preview != null;
                 ((LayoutParams) preview.getLayoutParams()).gravity = gravity;
             }
         }

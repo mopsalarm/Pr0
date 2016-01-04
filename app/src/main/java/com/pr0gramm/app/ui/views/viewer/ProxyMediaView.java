@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.view.View;
 
 import com.pr0gramm.app.R;
 
@@ -32,12 +33,13 @@ public abstract class ProxyMediaView extends MediaView {
     }
 
     /**
-     * Adds the proxied child above the pixels.
+     * Adds the proxied child above the preview.
      */
     protected void addProxiedChild(MediaView mediaView) {
         int idx = getChildCount();
-        if (preview != null && preview.getParent() == this) {
-            idx = indexOfChild(preview) + 1;
+        View previewView = getPreviewView();
+        if (previewView != null && previewView.getParent() == this) {
+            idx = indexOfChild(previewView) + 1;
         }
 
         addView(mediaView, idx);

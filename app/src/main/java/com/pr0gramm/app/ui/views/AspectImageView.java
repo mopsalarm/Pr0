@@ -37,7 +37,7 @@ public class AspectImageView extends ImageView {
     }
 
     /**
-     * Sets the aspect of this image. This will not trigger a relayout.
+     * Sets the aspect of this image.
      *
      * @param aspect Sets the aspect of the image.
      */

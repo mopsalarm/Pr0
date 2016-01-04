@@ -134,7 +134,7 @@ public class LocalCacheService {
      * Store a pixels info. This method parses it into a bitmap object.
      */
     public void cacheLowQualityPreviews(MetaApi.PreviewInfo previewInfo) {
-        if (previewInfo.width() > 64 || previewInfo.height() > 64)
+        if (previewInfo.width() > 256 || previewInfo.height() > 256)
             return;
 
         byte[] bytes = BaseEncoding.base64().decode(previewInfo.pixels().replace("\n", ""));
