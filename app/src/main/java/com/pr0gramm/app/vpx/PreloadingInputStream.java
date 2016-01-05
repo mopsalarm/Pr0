@@ -3,6 +3,7 @@ package com.pr0gramm.app.vpx;
 import android.support.annotation.NonNull;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import org.slf4j.Logger;
@@ -140,7 +141,7 @@ public class PreloadingInputStream extends InputStream {
 
     @Override
     public void close() {
-        thread.interrupt();
+        Closeables.closeQuietly(input);
         Uninterruptibles.joinUninterruptibly(thread);
     }
 }

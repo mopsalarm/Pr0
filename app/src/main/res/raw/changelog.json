@@ -20,6 +20,14 @@
       },
       {
         "type": "Fix",
+        "change": "Caching von Metainformationen verbessert"
+      },
+      {
+        "type": "Fix",
+        "change": "Bilder werden wieder komplett dargestellt"
+      },
+      {
+        "type": "Fix",
         "change": "Benisgraph ist wieder da. Sorry!"
       },
       {

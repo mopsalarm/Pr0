@@ -41,7 +41,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
  * deltas might arise because of cha0s own caching.
  */
 @Singleton
-public class LocalCacheService {
+public class InMemoryCacheService {
     private static final Logger logger = LoggerFactory.getLogger("LocalCacheService");
 
     private final Cache<Long, ImmutableList<Tag>> tagsCache = CacheBuilder.newBuilder()
@@ -62,7 +62,7 @@ public class LocalCacheService {
     private final AtomicReference<long[]> repostCache = new AtomicReference<>(new long[0]);
 
     @Inject
-    public LocalCacheService() {
+    public InMemoryCacheService() {
     }
 
     /**

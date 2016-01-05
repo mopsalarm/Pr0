@@ -107,10 +107,6 @@ public abstract class SoftwareMediaPlayer {
     public void stop() {
         paused.set(false);
         running.set(false);
-
-        Thread thread = this.thread.get();
-        if (thread != null)
-            thread.interrupt();
     }
 
     public void pause() {

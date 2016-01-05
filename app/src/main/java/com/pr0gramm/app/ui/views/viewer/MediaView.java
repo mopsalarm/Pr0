@@ -30,7 +30,7 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
-import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
 import com.pr0gramm.app.ui.PreviewInfo;
@@ -96,7 +96,7 @@ public abstract class MediaView extends FrameLayout {
     Picasso picasso;
 
     @Inject
-    LocalCacheService localCacheService;
+    InMemoryCacheService inMemoryCacheService;
 
     @Inject
     ProxyService proxyService;
@@ -131,7 +131,7 @@ public abstract class MediaView extends FrameLayout {
 
     private void addBlurredBackground() {
         // try to get a preview
-        Bitmap bitmap = localCacheService.lowQualityPreview(mediaUri.getId());
+        Bitmap bitmap = inMemoryCacheService.lowQualityPreview(mediaUri.getId());
         if (bitmap != null) {
             blurredBackground = new BackgroundBitmapDrawable(
                     new BitmapDrawable(getResources(), bitmap));
@@ -192,11 +192,6 @@ public abstract class MediaView extends FrameLayout {
 
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
-
-                // we cap the preview aspect so that the preview is in the users view
-                // (at least on portrait)
-                preview.setAspect(Math.max(aspect, MIN_PREVIEW_ASPECT));
-
                 setViewAspect(aspect);
             }
 
@@ -425,6 +420,11 @@ public abstract class MediaView extends FrameLayout {
      * the view is estimated from its parents width.
      */
     public void setViewAspect(float viewAspect) {
+        if (hasPreviewView()) {
+            assert preview != null;
+            preview.setAspect(Math.max(viewAspect, MIN_PREVIEW_ASPECT));
+        }
+
         if (this.viewAspect != viewAspect) {
             this.viewAspect = viewAspect;
             requestLayout();
@@ -541,7 +541,7 @@ public abstract class MediaView extends FrameLayout {
     }
 
     protected void cacheMediaSize(int width, int height) {
-        localCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
+        inMemoryCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
                 .id(mediaUri.getId())
                 .width(width)
                 .height(height)

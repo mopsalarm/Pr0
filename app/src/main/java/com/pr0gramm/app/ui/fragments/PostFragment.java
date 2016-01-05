@@ -53,7 +53,7 @@ import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.ImmutableFavedComment;
-import com.pr0gramm.app.services.LocalCacheService;
+import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.ShareProvider;
@@ -146,7 +146,7 @@ public class PostFragment extends BaseFragment implements
     SingleShotService singleShotService;
 
     @Inject
-    LocalCacheService localCacheService;
+    InMemoryCacheService inMemoryCacheService;
 
     @Inject
     UserService userService;
@@ -316,7 +316,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private boolean isRepost() {
-        return localCacheService.isRepost(feedItem);
+        return inMemoryCacheService.isRepost(feedItem);
     }
 
     @Override
@@ -885,7 +885,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void displayTags(List<Tag> tags_) {
-        List<Tag> tags = localCacheService.enhanceTags(feedItem.getId(), tags_);
+        List<Tag> tags = inMemoryCacheService.enhanceTags(feedItem.getId(), tags_);
         this.tags = ImmutableList.copyOf(tags);
 
         // show tags now
@@ -1077,7 +1077,7 @@ public class PostFragment extends BaseFragment implements
     @Nullable
     private PreviewInfo getPreviewInfoFromCache() {
         Uri previewUri = UriHelper.of(getActivity()).thumbnail(feedItem);
-        return localCacheService.getSizeInfo(feedItem.getId())
+        return inMemoryCacheService.getSizeInfo(feedItem.getId())
                 .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
                 .orNull();
     }

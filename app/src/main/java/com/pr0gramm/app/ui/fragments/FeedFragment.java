@@ -58,8 +58,8 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
+import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.InboxService;
-import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.RecentSearchesServices;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -152,7 +152,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     SingleShotService singleShotService;
 
     @Inject
-    LocalCacheService localCacheService;
+    InMemoryCacheService inMemoryCacheService;
 
     @Inject
     PreloadManager preloadManager;
@@ -423,7 +423,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         if (queryString != null) {
             EnumSet<ContentType> contentTypes = getSelectedContentType();
-            Optional<EnhancedUserInfo> cached = localCacheService.getUserInfo(contentTypes, queryString);
+            Optional<EnhancedUserInfo> cached = inMemoryCacheService.getUserInfo(contentTypes, queryString);
 
             if (cached.isPresent()) {
                 return Observable.just(cached.get());
@@ -446,7 +446,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
             return Observable.zip(first, second, third, ImmutableEnhancedUserInfo::of)
                     .cast(EnhancedUserInfo.class)
-                    .doOnNext(info -> localCacheService.cacheUserInfo(contentTypes, info));
+                    .doOnNext(info -> inMemoryCacheService.cacheUserInfo(contentTypes, info));
 
         } else {
             return Observable.empty();
@@ -987,7 +987,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private Optional<MetaApi.SizeInfo> getSizeInfo(FeedItem item) {
-        return localCacheService.getSizeInfo(item.getId());
+        return inMemoryCacheService.getSizeInfo(item.getId());
     }
 
     private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
@@ -1045,7 +1045,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 view.setIsPreloaded(fragment.preloadManager.exists(item.getId()));
 
                 // check if this item was already seen.
-                if (fragment.localCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
+                if (fragment.inMemoryCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
                     view.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
@@ -1103,9 +1103,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     private void loadMetaData(List<Long> items) {
         // this is to clear any reference to the fragment in doOnNext
-        LocalCacheService localCacheService = this.localCacheService;
+        InMemoryCacheService inMemoryCacheService = this.inMemoryCacheService;
         metaService.getItemsInfo(items)
-                .doOnNext(localCacheService::cache)
+                .doOnNext(inMemoryCacheService::cache)
                 .onErrorResumeNext(Observable.<ItemsInfo>empty())
                 .compose(bindToLifecycle())
                 .subscribe(this::onMetaServiceResponse, Actions.empty());
