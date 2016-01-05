@@ -14,6 +14,10 @@ import com.pr0gramm.app.api.meta.MetaApi.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.util.AndroidUtility;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,19 +30,26 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.impl.sync.TSynchronizedLongObjectMap;
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
+
 /**
  * This service helps to locally cache deltas to the pr0gramm. Those
  * deltas might arise because of cha0s own caching.
  */
 @Singleton
 public class LocalCacheService {
+    private static final Logger logger = LoggerFactory.getLogger("LocalCacheService");
+
     private final Cache<Long, ImmutableList<Tag>> tagsCache = CacheBuilder.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
-    private final Cache<Long, SizeInfo> thumbCache = CacheBuilder.newBuilder()
-            .maximumSize(10_000)
-            .build();
+    private final TLongObjectMap<SizeInfo> sizeInfoCache = new TSynchronizedLongObjectMap<>(
+            new TLongObjectHashMap<>());
 
     private final Cache<Long, Bitmap> lowQualityPreviewCache = CacheBuilder.newBuilder()
             .maximumSize(5_000)
@@ -82,11 +93,11 @@ public class LocalCacheService {
     }
 
     public void cacheSizeInfo(SizeInfo info) {
-        thumbCache.put(info.getId(), info);
+        sizeInfoCache.put(info.getId(), info);
     }
 
     public Optional<SizeInfo> getSizeInfo(long itemId) {
-        return Optional.fromNullable(thumbCache.getIfPresent(itemId));
+        return Optional.fromNullable(sizeInfoCache.get(itemId));
     }
 
     /**
@@ -160,5 +171,23 @@ public class LocalCacheService {
 
     public Bitmap lowQualityPreview(long id) {
         return lowQualityPreviewCache.getIfPresent(id);
+    }
+
+    /**
+     * Cache all the details from the given {@link com.pr0gramm.app.api.meta.MetaApi.ItemsInfo}
+     */
+    public void cache(MetaApi.ItemsInfo itemsInfo) {
+        checkNotMainThread();
+
+        for (MetaApi.SizeInfo sizeInfo : itemsInfo.getSizes())
+            cacheSizeInfo(sizeInfo);
+
+        AndroidUtility.time(logger, "Caching low quality image previews", () -> {
+            for (MetaApi.PreviewInfo previewInfo : itemsInfo.getPreviews())
+                cacheLowQualityPreviews(previewInfo);
+        });
+
+        // cache the items as reposts
+        cacheReposts(itemsInfo.getReposts());
     }
 }

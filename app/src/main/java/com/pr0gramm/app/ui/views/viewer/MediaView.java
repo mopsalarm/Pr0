@@ -29,6 +29,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
 import com.pr0gramm.app.services.LocalCacheService;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
@@ -273,10 +274,14 @@ public abstract class MediaView extends FrameLayout {
         if (transitionEnded) {
             picasso.cancelRequest(previewTarget);
             AndroidUtility.removeView(preview);
+            removeBlurredBackground();
+            onPreviewRemoved();
         }
+    }
 
-        // always remove the background
-        removeBlurredBackground();
+    protected void onPreviewRemoved() {
+        // implement action that should be executed
+        // the moment the preview is removed
     }
 
     protected void removeBlurredBackground() {
@@ -533,7 +538,14 @@ public abstract class MediaView extends FrameLayout {
                 ((LayoutParams) preview.getLayoutParams()).gravity = gravity;
             }
         }
+    }
 
+    protected void cacheMediaSize(int width, int height) {
+        localCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
+                .id(mediaUri.getId())
+                .width(width)
+                .height(height)
+                .build());
     }
 
     public interface TapListener {

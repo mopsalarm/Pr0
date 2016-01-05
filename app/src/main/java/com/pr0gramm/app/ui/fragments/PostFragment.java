@@ -35,6 +35,7 @@ import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
@@ -786,11 +787,14 @@ public class PostFragment extends BaseFragment implements
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER));
         } else {
-            PlaceholderView placeholder = new PlaceholderView();
-
             viewer.setPadding(0, padding, 0, 0);
 
-            viewer.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            // we add a placeholder to the first element of the recycler view.
+            // this placeholder will mirror the size of the viewer.
+            PlaceholderView placeholder = new PlaceholderView();
+            adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
+
+            RxView.layoutChanges(viewer).subscribe(event -> {
                 int newHeight = viewer.getMeasuredHeight();
                 if (newHeight != placeholder.fixedHeight) {
                     placeholder.fixedHeight = newHeight;
@@ -809,7 +813,11 @@ public class PostFragment extends BaseFragment implements
                 }
             });
 
-            adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
+            RxView.layoutChanges(placeholder).subscribe(event -> {
+                // simulate scroll after layouting the placeholder to
+                // reflect changes to the viewers clipping.
+                simulateScroll();
+            });
         }
     }
 

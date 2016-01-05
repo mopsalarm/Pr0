@@ -27,6 +27,7 @@ import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static com.squareup.picasso.Downloader.Response;
 
@@ -126,14 +127,9 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
         return Optional.absent();
     }
 
-    @Override
-    public void onTransitionEnds() {
-        super.onTransitionEnds();
-        imageView.setVisibility(VISIBLE);
-    }
-
     private void onSizeChanged(SoftwareMediaPlayer.Size size) {
         setViewAspect(size.getAspectRatio());
+        cacheMediaSize(size.getWidth(), size.getHeight());
     }
 
     private void loadAndPlay() {
@@ -148,12 +144,21 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     private void play() {
         checkState(videoPlayer != null, "Can not start video player which is null.");
 
-        videoPlayer.start();
         videoPlayer.drawable()
                 .frameAvailable()
                 .take(1)
                 .compose(RxLifecycle.<Void>bindView(this))
-                .subscribe(ignored -> onMediaShown());
+                .subscribe(ignored -> {
+                    checkMainThread();
+                    onMediaShown();
+                });
+
+        videoPlayer.start();
+    }
+
+    @Override
+    protected void onPreviewRemoved() {
+        imageView.setVisibility(VISIBLE);
     }
 
     private void stopAndDestroy() {

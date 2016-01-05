@@ -1102,27 +1102,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void loadMetaData(List<Long> items) {
-        Observable<ItemsInfo> metaData = metaService.getItemsInfo(items)
-                .doOnNext(this::cacheInfoResponse);
-
-        metaData.compose(bindToLifecycle())
+        // this is to clear any reference to the fragment in doOnNext
+        LocalCacheService localCacheService = this.localCacheService;
+        metaService.getItemsInfo(items)
+                .doOnNext(localCacheService::cache)
                 .onErrorResumeNext(Observable.<ItemsInfo>empty())
+                .compose(bindToLifecycle())
                 .subscribe(this::onMetaServiceResponse, Actions.empty());
-    }
-
-    private void cacheInfoResponse(ItemsInfo itemsInfo) {
-        logger.info("merge info about {} reposts and {} sizes",
-                itemsInfo.getReposts().size(),
-                itemsInfo.getSizes().size());
-
-        for (MetaApi.SizeInfo sizeInfo : itemsInfo.getSizes())
-            localCacheService.cacheSizeInfo(sizeInfo);
-
-        for (MetaApi.PreviewInfo previewInfo : itemsInfo.getPreviews())
-            localCacheService.cacheLowQualityPreviews(previewInfo);
-
-        // cache the items as reposts
-        localCacheService.cacheReposts(itemsInfo.getReposts());
     }
 
     private void onFeedError(Throwable error) {

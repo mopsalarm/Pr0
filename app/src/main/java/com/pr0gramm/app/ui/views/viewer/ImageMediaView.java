@@ -85,6 +85,7 @@ public class ImageMediaView extends MediaView {
 
             @Override
             public void onReady() {
+                cacheMediaSize(imageView.getSWidth(), imageView.getSHeight());
                 applyScaling();
             }
         });

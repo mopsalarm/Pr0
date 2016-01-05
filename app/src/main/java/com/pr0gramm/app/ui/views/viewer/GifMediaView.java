@@ -85,8 +85,7 @@ public class GifMediaView extends AbstractProgressMediaView {
     }
 
     @Override
-    public void onTransitionEnds() {
-        super.onTransitionEnds();
+    protected void onPreviewRemoved() {
         imageView.setVisibility(VISIBLE);
     }
 
