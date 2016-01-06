@@ -178,6 +178,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
 
         Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
         result.addHeader("Accept-Range", "bytes");
+        result.addHeader("Cache-Content", "no-cache");
 
         // forward content range header
         String contentRange = response.header("Content-Range");

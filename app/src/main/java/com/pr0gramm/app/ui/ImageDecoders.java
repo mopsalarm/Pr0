@@ -36,12 +36,16 @@ public class ImageDecoders {
 
         @Override
         public Bitmap decode(Context context, Uri uri) throws Exception {
-            return picasso
-                    .load(uri)
-                    .tag(tag)
-                    .config(Bitmap.Config.RGB_565)
-                    .memoryPolicy(MemoryPolicy.NO_CACHE)
-                    .get();
+            try {
+                return picasso
+                        .load(uri)
+                        .tag(tag)
+                        .config(Bitmap.Config.RGB_565)
+                        .memoryPolicy(MemoryPolicy.NO_CACHE)
+                        .get();
+            } catch (OutOfMemoryError error) {
+                throw new RuntimeException(error);
+            }
         }
     }
 

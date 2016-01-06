@@ -175,6 +175,12 @@ public abstract class MediaView extends FrameLayout {
                 .compose(RxLifecycle.<T>bindView(this));
     }
 
+    protected <T> Observable.Transformer<T, T> simpleBindView() {
+        return observable -> observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.<T>bindView(this));
+    }
+
     /**
      * Implement to do dependency injection.
      */

@@ -10,15 +10,13 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
-import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.picasso.Downloader;
+import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import pl.droidsonroids.gif.GifDrawable;
-import rx.Observable;
-import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -28,7 +26,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 @SuppressLint("ViewConstructor")
 public class GifMediaView extends AbstractProgressMediaView {
     @Inject
-    Downloader downloader;
+    OkHttpClient downloader;
 
     @Inject
     Settings settings;
@@ -38,44 +36,44 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     // the gif that is shown
     private GifDrawable gif;
-
-    private Subscription dlGifSubscription;
+    private final CompositeSubscription dlGifSubscription = new CompositeSubscription();
 
     public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_gif, url, onViewListener);
+        super(context, R.layout.player_gif, url.withProxy(true), onViewListener);
         imageView.setVisibility(INVISIBLE);
 
         loadGif();
     }
 
     private void loadGif() {
-        Observable<GifLoader.DownloadStatus> loader = GifLoader
+        dlGifSubscription.add(GifLoader
                 .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
-                .subscribeOn(BackgroundScheduler.instance());
+                .compose(backgroundBindView())
+                .subscribe(this::onDownloadStatus, defaultOnError()));
+    }
 
-        dlGifSubscription = loader.compose(backgroundBindView()).subscribe(state -> {
-            onDownloadProgress(state.getProgress());
+    private void onDownloadStatus(GifLoader.DownloadStatus state) {
+        checkMainThread();
 
-            if (state.isFinished()) {
-                hideBusyIndicator();
+        onDownloadProgress(state.progress);
 
-                gif = state.getDrawable();
-                imageView.setImageDrawable(this.gif);
-                setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
+        if (state.finished()) {
+            hideBusyIndicator();
 
-                if (isPlaying()) {
-                    onMediaShown();
-                } else {
-                    gif.stop();
-                }
+            gif = state.drawable;
+            imageView.setImageDrawable(this.gif);
+            setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
+
+            if (isPlaying()) {
+                onMediaShown();
+            } else {
+                gif.stop();
             }
-        }, defaultOnError());
+        }
     }
 
     private void onDownloadProgress(float progress) {
         checkMainThread();
-
-        // logger.info("Download at " + ((int) (100 * progress)) + " percent.");
 
         View progressView = getProgressView();
         if (progressView instanceof BusyIndicator) {
@@ -127,8 +125,10 @@ public class GifMediaView extends AbstractProgressMediaView {
     @Override
     public void playMedia() {
         super.playMedia();
-        if (gif != null && isPlaying())
+        if (gif != null && isPlaying()) {
             gif.start();
+            onMediaShown();
+        }
     }
 
     @Override
@@ -147,15 +147,15 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         // unsubscribe and cancel downloader
-        if (dlGifSubscription != null)
-            dlGifSubscription.unsubscribe();
+        dlGifSubscription.unsubscribe();
 
         imageView.setImageDrawable(null);
 
-        if (gif != null)
+        if (gif != null) {
             gif.recycle();
-
-        super.onDestroy();
+        }
     }
 }

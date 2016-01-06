@@ -3,7 +3,10 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
-import com.squareup.picasso.Downloader;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import java.io.RandomAccessFile;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
 import rx.Subscriber;
+import rx.subscriptions.Subscriptions;
 
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static java.lang.System.identityHashCode;
@@ -25,12 +29,12 @@ import static java.lang.System.identityHashCode;
 public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatus> {
     private static final Logger logger = LoggerFactory.getLogger("GifLoader");
 
-    private final Downloader downloader;
+    private final OkHttpClient okHttpClient;
     private final File temporaryPath;
     private final Uri uri;
 
-    GifLoader(Downloader downloader, File temporaryPath, Uri uri) {
-        this.downloader = downloader;
+    GifLoader(OkHttpClient okHttpClient, File temporaryPath, Uri uri) {
+        this.okHttpClient = okHttpClient;
         this.temporaryPath = temporaryPath;
         this.uri = uri;
     }
@@ -46,10 +50,17 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             }
 
             // request the gif file
-            Downloader.Response response = downloader.load(uri, 0);
-
-            // and load + parse it
-            loadGifUsingTempFile(subscriber, response);
+            Request request = new Request.Builder().url(uri.toString()).build();
+            Call call = okHttpClient.newCall(request);
+            subscriber.add(Subscriptions.create(call::cancel));
+            Response response = call.execute();
+            if (response.isSuccessful()) {
+                // and load + parse it
+                loadGifUsingTempFile(subscriber, response);
+            } else {
+                subscriber.onError(new IOException(
+                        "Could not download gif, response code: " + response.code()));
+            }
         } catch (Throwable error) {
             logger.warn("Error during loading", error);
 
@@ -65,7 +76,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
      */
     @SuppressLint("NewApi")
     private void loadGifUsingTempFile(Subscriber<? super GifLoader.DownloadStatus> subscriber,
-                                      Downloader.Response response) throws IOException {
+                                      Response response) throws IOException {
 
         File temporary = new File(temporaryPath, "tmp" + identityHashCode(subscriber) + ".gif");
 
@@ -81,9 +92,10 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
 
             // copy data to the file.
             long lastStatusTime = System.currentTimeMillis();
-            try (InputStream stream = response.getInputStream()) {
+            float contentLength = (float) response.body().contentLength();
+            try (InputStream stream = response.body().byteStream()) {
                 int length, count = 0;
-                byte[] buffer = new byte[4 * 1024];
+                byte[] buffer = new byte[16 * 1024];
                 while ((length = stream.read(buffer)) >= 0) {
                     storage.write(buffer, 0, length);
                     count += length;
@@ -96,7 +108,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
                     // publish download progress every 100ms
                     long now = System.currentTimeMillis();
                     if (now - lastStatusTime > 250) {
-                        subscriber.onNext(new DownloadStatus(count / (float) response.getContentLength()));
+                        subscriber.onNext(new DownloadStatus(count / contentLength));
                         lastStatusTime = now;
                     }
                 }
@@ -124,14 +136,14 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
     }
 
     public static Observable<DownloadStatus> loader(
-            Downloader downloader, File temporaryPath, Uri url) {
+            OkHttpClient okHttpClient, File temporaryPath, Uri url) {
 
-        return Observable.create(new GifLoader(downloader, temporaryPath, url));
+        return Observable.create(new GifLoader(okHttpClient, temporaryPath, url));
     }
 
     public static class DownloadStatus {
-        private final GifDrawable drawable;
-        private final float progress;
+        public final GifDrawable drawable;
+        public final float progress;
 
         private DownloadStatus(float progress) {
             this.drawable = null;
@@ -143,15 +155,7 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
             this.progress = 1.f;
         }
 
-        public float getProgress() {
-            return progress;
-        }
-
-        public GifDrawable getDrawable() {
-            return drawable;
-        }
-
-        public boolean isFinished() {
+        public boolean finished() {
             return drawable != null;
         }
     }

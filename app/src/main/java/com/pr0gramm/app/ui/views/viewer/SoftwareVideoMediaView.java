@@ -15,6 +15,7 @@ import com.squareup.picasso.Downloader;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.inject.Inject;
@@ -22,14 +23,16 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
+import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
-import static com.squareup.picasso.Downloader.Response;
 
 /**
  */
@@ -41,49 +44,58 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     @Inject
     Downloader downloader;
 
-    private SoftwareMediaPlayer videoPlayer;
+
     private Subscription loading;
+    private SoftwareMediaPlayer videoPlayer;
 
     public SoftwareVideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_software_decoder, url, onViewListener);
+        // we always proxy because of caching and stuff
+        super(context, R.layout.player_software_decoder, url.withProxy(true), onViewListener);
         imageView.setVisibility(INVISIBLE);
     }
 
-    private void asyncLoadVideo() {
+    private void loadVideoAsync() {
         if (loading != null || videoPlayer != null) {
             return;
         }
 
         showBusyIndicator();
 
-        loading = newVideoPlayer().compose(backgroundBindView()).finallyDo(() -> loading = null).subscribe(player -> {
-            hideBusyIndicator();
+        loading = newVideoPlayer()
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bindView(this))
+                .finallyDo(() -> loading = null)
+                .subscribe(this::onVideoPlayerAvailable, defaultOnError());
+    }
 
-            imageView.setImageDrawable(player.drawable());
+    private void onVideoPlayerAvailable(SoftwareMediaPlayer player) {
+        checkMainThread();
 
-            videoPlayer = player;
-            videoPlayer.videoSize()
-                    .compose(backgroundBindView())
-                    .subscribe(this::onSizeChanged);
+        imageView.setImageDrawable(player.drawable());
 
-            videoPlayer.errors()
-                    .compose(backgroundBindView())
-                    .subscribe(defaultOnError());
+        videoPlayer = player;
 
-            videoPlayer.buffering()
-                    .compose(backgroundBindView())
-                    .subscribe(buffering -> {
-                        if (buffering) {
-                            showBusyIndicator();
-                        } else {
-                            hideBusyIndicator();
-                        }
-                    });
+        videoPlayer.videoSize()
+                .compose(simpleBindView())
+                .subscribe(this::onSizeChanged);
 
-            if (isPlaying()) {
-                play();
-            }
-        }, defaultOnError());
+        videoPlayer.errors()
+                .compose(simpleBindView())
+                .subscribe(defaultOnError());
+
+        videoPlayer.buffering()
+                .compose(simpleBindView())
+                .subscribe(buffering -> {
+                    if (buffering) {
+                        showBusyIndicator();
+                    } else {
+                        hideBusyIndicator();
+                    }
+                });
+
+        if (isPlaying()) {
+            play();
+        }
     }
 
     /**
@@ -91,27 +103,45 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
      * an observable that produces the player when it is initialize.
      */
     private Observable<SoftwareMediaPlayer> newVideoPlayer() {
-        return Async.fromCallable(() -> {
-            Uri uri = getEffectiveUri();
+        BehaviorSubject<SoftwareMediaPlayer> result = BehaviorSubject.create();
 
-            // open the uri.
-            InputStream inputStream;
-            if ("file".equals(uri.getScheme())) {
-                inputStream = new FileInputStream(toFile(uri));
-            } else {
-                Response response = downloader.load(uri, 0);
-                inputStream = response.getInputStream();
+        BackgroundScheduler.instance().createWorker().schedule(() -> {
+            try {
+                // open the uri.
+                InputStream inputStream = openMediaInputStream();
+
+                String urlString = getMediaUri().toString();
+                if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg")) {
+                    result.onNext(new MpegSoftwareMediaPlayer(getContext(), inputStream));
+                    result.onCompleted();
+                    return;
+                }
+
+                if (urlString.endsWith(".webm")) {
+                    result.onNext(new WebmMediaPlayer(getContext(), inputStream));
+                    result.onCompleted();
+                    return;
+                }
+
+                result.onError(new RuntimeException("invalid video format at " + urlString));
+
+            } catch (IOException error) {
+                result.onError(error);
             }
+        });
 
-            String urlString = getMediaUri().toString();
-            if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg"))
-                return new MpegSoftwareMediaPlayer(getContext(), inputStream);
+        return result;
+    }
 
-            if (urlString.endsWith(".webm"))
-                return new WebmMediaPlayer(getContext(), inputStream);
+    private InputStream openMediaInputStream() throws IOException {
+        checkNotMainThread();
 
-            throw new RuntimeException("Unknown video type");
-        }, BackgroundScheduler.instance());
+        Uri uri = getEffectiveUri();
+        if ("file".equals(uri.getScheme())) {
+            return new FileInputStream(toFile(uri));
+        } else {
+            return downloader.load(uri, 0).getInputStream();
+        }
     }
 
     @Override
@@ -134,7 +164,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
 
     private void loadAndPlay() {
         if (videoPlayer == null && loading == null) {
-            asyncLoadVideo();
+            loadVideoAsync();
 
         } else if (videoPlayer != null) {
             play();
@@ -219,7 +249,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     private static class DestroyAction implements Func0<Object> {
         private final SoftwareMediaPlayer player;
 
-        public DestroyAction(SoftwareMediaPlayer player) {
+        DestroyAction(SoftwareMediaPlayer player) {
             this.player = player;
         }
 
