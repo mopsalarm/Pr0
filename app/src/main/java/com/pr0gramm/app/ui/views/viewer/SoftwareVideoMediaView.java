@@ -113,13 +113,11 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
                 String urlString = getMediaUri().toString();
                 if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg")) {
                     result.onNext(new MpegSoftwareMediaPlayer(getContext(), inputStream));
-                    result.onCompleted();
                     return;
                 }
 
                 if (urlString.endsWith(".webm")) {
                     result.onNext(new WebmMediaPlayer(getContext(), inputStream));
-                    result.onCompleted();
                     return;
                 }
 
@@ -130,7 +128,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
             }
         });
 
-        return result;
+        return result.take(1);
     }
 
     private InputStream openMediaInputStream() throws IOException {

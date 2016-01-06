@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -52,7 +53,19 @@ public class AspectImageView extends ImageView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+        float aspect = aspectOrDefault();
         int width = getMeasuredWidth();
         setMeasuredDimension(width, (int) (width / aspect));
+    }
+
+    private float aspectOrDefault() {
+        Drawable drawable = getDrawable();
+        if (aspect > 0) {
+            return aspect;
+        } else if (drawable != null) {
+            return (float) drawable.getIntrinsicWidth() / drawable.getIntrinsicHeight();
+        } else {
+            return 1.75f;
+        }
     }
 }

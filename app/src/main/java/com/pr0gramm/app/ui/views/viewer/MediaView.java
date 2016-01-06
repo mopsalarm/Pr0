@@ -428,7 +428,9 @@ public abstract class MediaView extends FrameLayout {
     public void setViewAspect(float viewAspect) {
         if (hasPreviewView()) {
             assert preview != null;
-            preview.setAspect(Math.max(viewAspect, MIN_PREVIEW_ASPECT));
+            preview.setAspect(viewAspect > 0
+                    ? Math.max(viewAspect, MIN_PREVIEW_ASPECT)
+                    : -1 );
         }
 
         if (this.viewAspect != viewAspect) {

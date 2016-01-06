@@ -63,17 +63,9 @@ public class DelayedMediaView extends ProxyMediaView {
         MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
                 getMediaUri().withDelay(false), this::onMediaShown);
 
-        // transfer aspect if known
-        float aspect = getViewAspect();
-        if (aspect > 0) {
-            mediaView.setViewAspect(aspect);
-        }
-
         mediaView.removePreviewImage();
+        mediaView.onTransitionEnds();
         setChild(mediaView);
-
-        // transfer the current height from the thumbnail to the video.
-        setMinimumHeight(overlay.getMeasuredHeight());
 
         overlay.animate()
                 .alpha(0).scaleX(0.8f).scaleY(0.8f)

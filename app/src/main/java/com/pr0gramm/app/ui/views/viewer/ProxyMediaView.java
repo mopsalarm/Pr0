@@ -22,10 +22,11 @@ public abstract class ProxyMediaView extends MediaView {
         unsetChild();
         hideBusyIndicator();
 
+        addMediaViewChild(child = viewer);
+
         // disable view aspect, let the child determine our size
         setViewAspect(-1);
 
-        addProxiedChild(child = viewer);
         bootupChild();
 
         // forward double clicks
@@ -35,17 +36,17 @@ public abstract class ProxyMediaView extends MediaView {
     /**
      * Adds the proxied child above the preview.
      */
-    protected void addProxiedChild(MediaView mediaView) {
+    protected void addMediaViewChild(MediaView mediaView) {
         int idx = getChildCount();
         View previewView = getPreviewView();
         if (previewView != null && previewView.getParent() == this) {
             idx = indexOfChild(previewView) + 1;
         }
 
-        addView(mediaView, idx);
-
         // transfer the layout parameters
         mediaView.setLayoutParams(getLayoutParams());
+        mediaView.setViewAspect(getViewAspect());
+        addView(mediaView, idx);
     }
 
     public void unsetChild() {
