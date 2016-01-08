@@ -75,6 +75,11 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
             @Override
             public void onImageLoaded() {
                 hideBusyIndicator();
+
+                imageView.setMaxScale(Math.max(
+                        2 * (float) imageView.getWidth() / imageView.getSWidth(),
+                        2 * (float) imageView.getHeight() / imageView.getSWidth()
+                ));
             }
         });
 
