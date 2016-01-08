@@ -701,7 +701,6 @@ public class PostFragment extends BaseFragment implements
             NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
         });
-
     }
 
     private void showPostVoteAnimation(Vote vote) {

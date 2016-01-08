@@ -18,11 +18,11 @@ public abstract class ProxyMediaView extends MediaView {
         super(context, R.layout.player_proxy, uri, onViewListener);
     }
 
-    public void setChild(MediaView viewer) {
-        unsetChild();
+    public void setChild(MediaView child) {
+        removeChildView();
         hideBusyIndicator();
 
-        addMediaViewChild(child = viewer);
+        setChildView(child);
 
         // disable view aspect, let the child determine our size
         setViewAspect(-1);
@@ -36,7 +36,7 @@ public abstract class ProxyMediaView extends MediaView {
     /**
      * Adds the proxied child above the preview.
      */
-    protected void addMediaViewChild(MediaView mediaView) {
+    private void setChildView(MediaView mediaView) {
         int idx = getChildCount();
         View previewView = getPreviewView();
         if (previewView != null && previewView.getParent() == this) {
@@ -47,15 +47,18 @@ public abstract class ProxyMediaView extends MediaView {
         mediaView.setLayoutParams(getLayoutParams());
         mediaView.setViewAspect(getViewAspect());
         addView(mediaView, idx);
+
+        child = mediaView;
     }
 
-    public void unsetChild() {
-        showBusyIndicator();
+    private void removeChildView() {
         if (child == null)
             return;
 
         teardownChild();
         removeView(child);
+
+        child = null;
     }
 
     private void bootupChild() {
@@ -113,9 +116,7 @@ public abstract class ProxyMediaView extends MediaView {
 
     @Override
     public void rewind() {
-        if (child != null) {
-            child.rewind();
-        }
+        propagate(MediaView::rewind);
     }
 
     @Override
@@ -144,8 +145,7 @@ public abstract class ProxyMediaView extends MediaView {
     @Override
     public void onTransitionEnds() {
         super.onTransitionEnds();
-        if (child != null)
-            child.onTransitionEnds();
+        propagate(MediaView::onTransitionEnds);
     }
 
     private void propagate(Action1<MediaView> action) {
