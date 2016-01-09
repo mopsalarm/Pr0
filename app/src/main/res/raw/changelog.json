@@ -33,6 +33,10 @@
       {
         "type": "Fix",
         "change": "Transitions wieder gefixt."
+      },
+      {
+        "type": "Fix",
+        "change": "Regeln sind nun nummeriert."
       }
     ]
   },
