@@ -102,7 +102,6 @@ public final class Track {
                 .putCustomAttribute("repost hint", String.valueOf(settings.markRepostsInFeed()))
                 .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
-                .putCustomAttribute("image size", String.valueOf(settings.maxImageSize()))
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }

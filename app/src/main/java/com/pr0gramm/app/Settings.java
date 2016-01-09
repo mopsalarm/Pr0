@@ -72,10 +72,6 @@ public class Settings {
         return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }
 
-    public int maxImageSize() {
-        return Integer.parseInt(preferences.getString("pref_max_image_size", "2048"));
-    }
-
     public String downloadLocation(Context context) {
         String def = context.getString(R.string.pref_downloadLocation_default);
         return preferences.getString("pref_downloadLocation", def);

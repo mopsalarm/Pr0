@@ -235,20 +235,11 @@
                     android:summary="@string/pref_seen_indicator_style_summary"
                     android:title="@string/pref_seen_indicator_style"/>
 
-                <ListPreference
-                    android:defaultValue="@string/pref_max_image_size_default"
-                    android:entries="@array/pref_max_image_size_human"
-                    android:entryValues="@array/pref_max_image_size_values"
-                    android:key="pref_max_image_size"
-                    android:summary="@string/pref_max_image_size_summary"
-                    android:title="@string/pref_max_image_size"/>
-
                 <Preference
                     android:key="pref_pseudo_clear_tag_suggestions"
                     android:persistent="false"
                     android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
                     android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
-
 
             </PreferenceCategory>
 
