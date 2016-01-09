@@ -190,6 +190,7 @@ public class PostFragment extends BaseFragment implements
     private boolean tabletLayout;
 
     private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
+    private boolean adminMode;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -219,6 +220,13 @@ public class PostFragment extends BaseFragment implements
                 exitFullscreenAnimated(false);
             }
         });
+
+        // check if we are admin or not
+        userService.loginState()
+                .filter(UserService.LoginState::userIsAdmin)
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycleSimple())
+                .subscribe(event -> adminMode = true);
     }
 
     private Observable<Boolean> activeState() {
@@ -444,6 +452,9 @@ public class PostFragment extends BaseFragment implements
 
         if ((item = menu.findItem(R.id.action_search_image)) != null)
             item.setVisible(isImage && settings.showGoogleImageButton());
+
+        if((item = menu.findItem(R.id.action_delete_item)) != null)
+            item.setVisible(adminMode);
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
@@ -701,20 +712,12 @@ public class PostFragment extends BaseFragment implements
             NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
         });
-
-
-        userService.loginState()
-                .filter(UserService.LoginState::userIsAdmin)
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(bindToLifecycleSimple())
-                .subscribe(event -> bindAdminEventListeners());
     }
 
-    private void bindAdminEventListeners() {
-        infoLineView.favoriteLongClicked().subscribe(event -> {
-            ItemAdminDialog dialog = ItemAdminDialog.newInstance(feedItem);
-            dialog.show(getFragmentManager(), null);
-        });
+    @OnOptionsItemSelected(R.id.action_delete_item)
+    public void showDeleteItemDialog() {
+        ItemAdminDialog dialog = ItemAdminDialog.newInstance(feedItem);
+        dialog.show(getFragmentManager(), null);
     }
 
     private void showPostVoteAnimation(Vote vote) {

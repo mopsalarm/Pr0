@@ -37,6 +37,8 @@ public class AdminService {
 
 
     public static final ImmutableList<String> REASONS = ImmutableList.of(
+            "Repost",
+            "Auf Anfrage",
             "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
             "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
             "Regel #3 - Tierporn",
@@ -45,7 +47,5 @@ public class AdminService {
             "Regel #6 - Infos zu Privatpersonen",
             "Regel #7 - Bildqualität",
             "Regel #8 - Ähnliche Bilder in Reihe",
-            "Regel #12 - Warez/Logins zu Pay Sites",
-            "Repost",
-            "Auf Anfrage");
+            "Regel #12 - Warez/Logins zu Pay Sites");
 }

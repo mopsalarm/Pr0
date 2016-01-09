@@ -48,4 +48,10 @@
         android:title="@string/action_search_image"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/action_delete_item"
+        android:title="@string/action_delete_item"
+        app:showAsAction="never"/>
+
+
 </menu>
