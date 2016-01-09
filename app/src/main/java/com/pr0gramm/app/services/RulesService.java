@@ -80,7 +80,9 @@ public class RulesService {
         Matcher matcher = Pattern.compile("<li>(.+?)</li>").matcher(rules);
         while (matcher.find()) {
             String rule = matcher.group(1).replaceAll("<[^>]+>", "").trim();
-            list.add((idx + 1) + ". " + rule);
+            list.add("#" + (idx + 1) + "  " + rule);
+
+            idx += 1;
         }
 
         Resources resources = rulesView.getContext().getResources();
