@@ -87,6 +87,7 @@ import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 
@@ -103,8 +104,10 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
+import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
@@ -1102,13 +1105,23 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void loadMetaData(List<Long> items) {
+        WeakReference<FeedFragment> fragment = new WeakReference<>(this);
+        PublishSubject<ItemsInfo> finishSubject = PublishSubject.create();
+        finishSubject
+                .compose(bindToLifecycleSimple())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(info -> {
+                    FeedFragment thisRef = fragment.get();
+                    thisRef.onMetaServiceResponse(info);
+                });
+
         // this is to clear any reference to the fragment in doOnNext
         InMemoryCacheService inMemoryCacheService = this.inMemoryCacheService;
         metaService.getItemsInfo(items)
-                .doOnNext(inMemoryCacheService::cache)
+                .doOnNext(finishSubject::onNext)
                 .onErrorResumeNext(Observable.<ItemsInfo>empty())
-                .compose(bindToLifecycle())
-                .subscribe(this::onMetaServiceResponse, Actions.empty());
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(inMemoryCacheService::cache, Actions.empty());
     }
 
     private void onFeedError(Throwable error) {
