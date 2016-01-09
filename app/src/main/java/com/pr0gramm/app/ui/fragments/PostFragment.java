@@ -654,7 +654,7 @@ public class PostFragment extends BaseFragment implements
      * tags and the comments.
      */
     private void loadPostDetails() {
-        int delay = Sdk.isAtLeastKitKat() ? 500 : 100;
+        int delay = Sdk.isAtLeastLollipop() ? 500 : 100;
 
         feedService.loadPostDetails(feedItem.getId())
                 .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
