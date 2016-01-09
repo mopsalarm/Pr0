@@ -55,7 +55,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
                 .compose(RxLifecycle.<T>bindFragment(lifecycleSubject));
     }
 
-    protected final <T> Observable.Transformer<T, T> bindToLifecycleForeground() {
+    protected final <T> Observable.Transformer<T, T> bindToLifecycleSimple() {
         //noinspection unchecked
         return (Observable.Transformer<T, T>) RxLifecycle.<T>bindFragment(lifecycleSubject);
     }

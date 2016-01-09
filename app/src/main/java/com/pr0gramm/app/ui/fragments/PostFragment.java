@@ -206,7 +206,7 @@ public class PostFragment extends BaseFragment implements
 
         autoScrollTo = Optional.absent();
 
-        activeState().compose(bindToLifecycleForeground()).subscribe(active -> {
+        activeState().compose(bindToLifecycleSimple()).subscribe(active -> {
             if (viewer != null) {
                 if (active) {
                     viewer.playMedia();
@@ -700,6 +700,20 @@ public class PostFragment extends BaseFragment implements
         infoLineView.setOnAddTagClickedListener(() -> {
             NewTagDialogFragment dialog = new NewTagDialogFragment();
             dialog.show(getChildFragmentManager(), null);
+        });
+
+
+        userService.loginState()
+                .filter(UserService.LoginState::userIsAdmin)
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycleSimple())
+                .subscribe(event -> bindAdminEventListeners());
+    }
+
+    private void bindAdminEventListeners() {
+        infoLineView.favoriteLongClicked().subscribe(event -> {
+            ItemAdminDialog dialog = ItemAdminDialog.newInstance(feedItem);
+            dialog.show(getFragmentManager(), null);
         });
     }
 

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -234,6 +235,9 @@ public class LoginCookieHandler extends CookieHandler {
         public String n;
         public String id;
         public Object paid;
+
+        @SerializedName("a")
+        public Object admin;
     }
 
     /**

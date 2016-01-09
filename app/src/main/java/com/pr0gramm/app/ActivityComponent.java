@@ -18,6 +18,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavedCommentFragment;
 import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
+import com.pr0gramm.app.ui.fragments.ItemAdminDialog;
 import com.pr0gramm.app.ui.fragments.MessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
@@ -97,4 +98,6 @@ public interface ActivityComponent {
     void inject(FavoritesFragment favoritesFragment);
 
     void inject(RulesActivity rulesActivity);
+
+    void inject(ItemAdminDialog itemAdminDialog);
 }

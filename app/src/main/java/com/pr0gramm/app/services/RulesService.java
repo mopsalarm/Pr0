@@ -75,10 +75,12 @@ public class RulesService {
     }
 
     private void displayInto(TextView rulesView, String rules) {
+        int idx = 0;
         List<String> list = new ArrayList<>();
         Matcher matcher = Pattern.compile("<li>(.+?)</li>").matcher(rules);
         while (matcher.find()) {
-            list.add(matcher.group(1).replaceAll("<[^>]+>", ""));
+            String rule = matcher.group(1).replaceAll("<[^>]+>", "").trim();
+            list.add((idx + 1) + ". " + rule);
         }
 
         Resources resources = rulesView.getContext().getResources();

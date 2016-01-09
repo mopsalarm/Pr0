@@ -37,7 +37,6 @@ import rx.util.async.Async;
 
 import static com.pr0gramm.app.Settings.resetContentTypeSettings;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
-import static com.pr0gramm.app.services.UserService.LoginState.NOT_AUTHORIZED;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
 
@@ -59,8 +58,10 @@ public class UserService {
     private final MetaService metaService;
 
     private final Gson gson;
-    private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(NOT_AUTHORIZED);
     private final Settings settings;
+
+    private final BehaviorSubject<LoginState> loginStateObservable =
+            BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
 
     @Inject
     public UserService(Api api,
@@ -78,7 +79,7 @@ public class UserService {
         this.settings = settings;
         this.gson = gson;
 
-        restoreLatestUserInfo();
+        this.restoreLatestUserInfo();
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
     }
 
@@ -88,7 +89,7 @@ public class UserService {
     private void restoreLatestUserInfo() {
         Observable.just(preferences.getString(KEY_LAST_USER_INFO, null))
                 .filter(value -> value != null)
-                .map(encoded -> createLoginState(Optional.of(gson.fromJson(encoded, Info.class))))
+                .map(encoded -> createLoginState(gson.fromJson(encoded, Info.class)))
                 .subscribeOn(BackgroundScheduler.instance())
                 .doOnNext(info -> logger.info("Restoring user info: {}", info))
                 .filter(info -> isAuthorized())
@@ -106,7 +107,7 @@ public class UserService {
     public Observable<LoginProgress> login(String username, String password) {
         return api.login(username, password).flatMap(login -> {
             Observable<LoginProgress> syncState;
-            if (login.isSuccess()) {
+            if (login.success()) {
                 // perform initial sync.
                 syncState = syncWithProgress()
                         .filter(val -> val instanceof Float)
@@ -146,7 +147,7 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
-            loginStateObservable.onNext(NOT_AUTHORIZED);
+            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
 
             // removing cookie from requests
             cookieHandler.clearLoginCookie(false);
@@ -246,7 +247,7 @@ public class UserService {
             record.save();
 
             // updates the login state and ui
-            loginStateObservable.onNext(createLoginState(Optional.of(info)));
+            loginStateObservable.onNext(createLoginState(info));
 
             // and store the login state for later
             persistLatestUserInfo(info);
@@ -267,12 +268,21 @@ public class UserService {
         }
     }
 
-    private LoginState createLoginState(Optional<Info> info) {
+    private LoginState createLoginState(Info info) {
         checkNotMainThread();
 
-        int userId = info.get().getUser().getId();
+        int userId = info.getUser().getId();
         Graph benisHistory = loadBenisHistory(userId);
-        return new LoginState(info.get(), benisHistory);
+        return new LoginState(info, benisHistory, userIsAdmin());
+    }
+
+    private boolean userIsAdmin() {
+        return cookieHandler.getCookie().transform(this::isTruthValue).or(false);
+    }
+
+    private boolean isTruthValue(LoginCookieHandler.Cookie cookie) {
+        String repr = String.valueOf(cookie.admin);
+        return repr.startsWith("1") || "true".equalsIgnoreCase(repr);
     }
 
     private Graph loadBenisHistory(int userId) {
@@ -307,7 +317,7 @@ public class UserService {
                         }
                     });
 
-                    loginStateObservable.onNext(createLoginState(Optional.of(userInfo)));
+                    loginStateObservable.onNext(createLoginState(userInfo));
                 })
                 .ignoreElements()
                 .cast(Void.class);
@@ -337,14 +347,12 @@ public class UserService {
     public static final class LoginState {
         private final Info info;
         private final Graph benisHistory;
+        private final boolean userIsAdmin;
 
-        private LoginState() {
-            this(null, null);
-        }
-
-        private LoginState(Info info, Graph benisHistory) {
+        private LoginState(Info info, Graph benisHistory, boolean userIsAdmin) {
             this.info = info;
             this.benisHistory = benisHistory;
+            this.userIsAdmin = userIsAdmin;
         }
 
         public boolean isAuthorized() {
@@ -359,7 +367,11 @@ public class UserService {
             return benisHistory;
         }
 
-        public static final LoginState NOT_AUTHORIZED = new LoginState();
+        public boolean userIsAdmin() {
+            return isAuthorized() && userIsAdmin;
+        }
+
+        public static final LoginState NOT_AUTHORIZED = new LoginState(null, null, false);
     }
 
     public static final class LoginProgress {

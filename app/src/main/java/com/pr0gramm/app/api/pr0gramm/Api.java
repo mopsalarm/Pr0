@@ -123,6 +123,20 @@ public interface Api {
                             @Field("checkSimilar") int checkSimilar,
                             @Field("key") String key);
 
+
+    // Extra stuff for admins
+    @FormUrlEncoded
+    @POST("api/items/delete")
+    Observable<Nothing> deleteItem(
+            @Field("_nonce") Nonce none,
+            @Field("id") long id,
+            @Field("reason") String reason,
+            @Field("customReason") String customReason,
+            @Field("notifyUser") String notifyUser,
+            @Field("banUser") String banUser,
+            @Field("days") Integer days);
+
+
     final class Nonce {
         public final String value;
 

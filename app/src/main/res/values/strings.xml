@@ -329,5 +329,10 @@
     <string name="error_fragment_depth">Sorry, due to a limitation of the android framework you can not do this right now: %s</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
+    <string name="ban">Ban</string>
+    <string name="hint_block_user_for">Block user for (days)</string>
+    <string name="notify_user">Notify user</string>
+    <string name="reason">Reason</string>
+    <string name="delete">Delete</string>
 </resources>
 

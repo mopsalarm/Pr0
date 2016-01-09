@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -75,8 +76,6 @@ public class InfoLineView extends LinearLayout {
                 : Settings.of(context);
 
         setOrientation(VERTICAL);
-
-        // setBackgroundColor(ContextCompat.getColor(getContext(), R.color.feed_background));
 
         inflate(context, R.layout.post_info_line, this);
 
@@ -239,8 +238,8 @@ public class InfoLineView extends LinearLayout {
         return feedItem.getCreated().isBefore(oneHourAgo);
     }
 
-    public TextView getRatingView() {
-        return ratingView;
+    public Observable<Void> favoriteLongClicked() {
+        return RxView.longClicks(voteFavoriteView);
     }
 
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {

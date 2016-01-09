@@ -177,7 +177,7 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private void onLoginResponse(Login response) {
-        if (response.isSuccess()) {
+        if (response.success()) {
             SyncBroadcastReceiver.scheduleNextSync(this);
 
             // signal success
@@ -187,14 +187,14 @@ public class LoginActivity extends BaseAppCompatActivity {
             Track.loginSuccessful();
 
         } else {
-            Login.BanInfo ban = response.getBanInfo();
-            if (ban != null && ban.isBanned()) {
+            Login.BanInfo ban = response.banInfo();
+            if (ban != null && ban.banned()) {
                 CharSequence date = DateUtils.getRelativeDateTimeString(this,
-                        ban.getTill().toDateTime(DateTimeZone.getDefault()),
+                        ban.till().toDateTime(DateTimeZone.getDefault()),
                         Weeks.ONE,
                         DateUtils.FORMAT_SHOW_DATE);
 
-                String reason = ban.getReason();
+                String reason = ban.reason();
                 showErrorString(getSupportFragmentManager(), getString(R.string.banned, date, reason));
 
             } else {
