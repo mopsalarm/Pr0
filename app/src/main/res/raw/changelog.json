@@ -19,6 +19,10 @@
         "change": "Menüeintrag im Feed um die gleiche Suche in 'top' oder 'neu' nochmal auszuführen."
       },
       {
+        "type": "Neu",
+        "change": "Dies ist nun die offizielle pr0gramm app. Wow!"
+      },
+      {
         "type": "Fix",
         "change": "Caching von Metainformationen verbessert"
       },

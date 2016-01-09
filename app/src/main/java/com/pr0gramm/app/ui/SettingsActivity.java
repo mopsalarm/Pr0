@@ -196,7 +196,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             }
 
             if ("pref_pseudo_recommend".equals(preference.getKey())) {
-                String text = "Probiere mal die pr0gramm App aus: https://mopsalarm.github.io/";
+                String text = "Probiere mal die offizielle pr0gramm App aus: https://app.pr0gramm.com/";
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
                 intent.putExtra(Intent.EXTRA_SUBJECT, "pr0gramm app");

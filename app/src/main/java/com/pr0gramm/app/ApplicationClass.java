@@ -107,7 +107,7 @@ public class ApplicationClass extends SugarApp {
 
     public static void openDownloadFreeVersion(Activity activity) {
         Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://mopsalarm.github.io/Pr0#download"));
+                Uri.parse("https://app.pr0gramm.com/#download"));
 
         activity.startActivity(intent);
     }
