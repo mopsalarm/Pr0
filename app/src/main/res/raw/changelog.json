@@ -1,5 +1,14 @@
 [
   {
+    "version": 84,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Ladeanimation bei Java-Dekoder"
+      }
+    ]
+  },
+  {
     "version": 83,
     "changes": [
       {
