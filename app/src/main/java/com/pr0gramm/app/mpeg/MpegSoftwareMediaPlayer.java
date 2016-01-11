@@ -19,6 +19,8 @@ public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements Vide
 
     @Override
     protected void playOnce(InputStream stream) throws Exception {
+        publishIsBuffering(true);
+
         logger.info("creating video decoder instance");
         VideoDecoder decoder = new VideoDecoder(this, stream);
 
@@ -40,6 +42,8 @@ public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements Vide
 
     @Override
     public void pictureDecoded(PictureBuffer picture) {
+        publishIsBuffering(false);
+
         Bitmap bitmap = requestBitmap(picture.width, picture.height);
         try {
             // post information about the newly received size info
@@ -47,6 +51,7 @@ public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements Vide
 
             bitmap.setPixels(picture.pixels, 0, picture.codedWidth, 0, 0,
                     picture.width, picture.height);
+
         } catch (Exception error) {
             returnBitmap(bitmap);
             throw error;
