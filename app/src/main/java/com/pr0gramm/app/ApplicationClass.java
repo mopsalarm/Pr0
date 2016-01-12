@@ -12,6 +12,7 @@ import com.f2prateek.dart.Dart;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.orm.SugarApp;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
@@ -49,6 +50,7 @@ public class ApplicationClass extends SugarApp {
 
         JodaTimeAndroid.init(this);
 
+        Settings settings = Settings.of(this);
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.");
             StrictMode.enableDefaults();
@@ -56,7 +58,6 @@ public class ApplicationClass extends SugarApp {
             Dart.setDebug(true);
 
         } else {
-            Settings settings = Settings.of(this);
             if (settings.analyticsEnabled()) {
                 logger.info("Initialize Fabric");
                 Fabric.with(this, new Crashlytics());
@@ -93,6 +94,17 @@ public class ApplicationClass extends SugarApp {
             okHttpClient.networkInterceptors().add(new StethoInterceptor());
         }
 
+        SingleShotService singleShotService = appComponent.get().singleShotService();
+        if (singleShotService.isFirstTime("migrate.MpegDecoderToVPX")) {
+            if (settings.raw().getBoolean("pref_force_mpeg_decoder", false)) {
+                logger.info("Switch to normal software decoder");
+
+                settings.edit()
+                        .putBoolean("pref_force_mpeg_decoder", false)
+                        .putBoolean("pref_use_software_decoder", true)
+                        .apply();
+            }
+        }
     }
 
     /**
