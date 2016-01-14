@@ -27,9 +27,7 @@
         android:layout_marginLeft="56dp"
         android:singleLine="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColorLink="@color/blue_grey_500"
         android:textIsSelectable="true"
-        android:theme="@style/AppTheme.Comment"
         tools:text="@string/dummy_text"
         />
 

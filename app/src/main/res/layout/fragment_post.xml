@@ -18,7 +18,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="M"
-            android:textColor="@color/primary"
+            android:textColor="?colorPrimary"
             android:textSize="150dp"
             android:visibility="gone"
             tools:ignore="HardcodedText,SpUsage"/>

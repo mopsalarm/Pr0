@@ -109,7 +109,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
             android:text="@string/upload_small_print_footer"
-            android:textColor="@color/primary"/>
+            android:textColor="?colorPrimary"/>
 
     </LinearLayout>
 </ScrollView>

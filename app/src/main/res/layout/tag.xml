@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         app:orientation="horizontal"
         app:defaultColor="@color/secondary_text_default_material_dark"
-        app:markedColor="@color/primary"
+        app:markedColor="?colorPrimary"
         app:textSize="22sp"
         app:spacing="4sp"
         android:paddingRight="8dp"

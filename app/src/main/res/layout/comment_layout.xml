@@ -9,7 +9,6 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:paddingTop="4dp"
-    android:theme="@style/AppTheme.Comment"
     app:depth="3"
     app:lineColor="@color/comment_line"
     app:lineMargin="8dp"
@@ -21,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         app:defaultColor="@color/grey_700"
-        app:markedColor="@color/primary"
+        app:markedColor="?colorPrimary"
         app:orientation="vertical"
         app:spacing="4sp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
