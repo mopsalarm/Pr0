@@ -19,6 +19,7 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -141,7 +142,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void loadHqImage() {
         hq.setOnClickListener(null);
-        hq.setImageDrawable(getColoredHqIcon(R.color.orange_primary));
+        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.primaryColor(this)));
         hq.animate().alpha(1).start();
 
         Uri url = proxyWrap(UriHelper.of(this).media(item, true));

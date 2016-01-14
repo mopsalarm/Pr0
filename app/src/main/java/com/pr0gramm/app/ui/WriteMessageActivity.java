@@ -24,6 +24,7 @@ import com.pr0gramm.app.parcel.MessageParceler;
 import com.pr0gramm.app.parcel.NewCommentParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
@@ -87,7 +88,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         updateMessageView();
 
         // colorize the button
-        int primary = ContextCompat.getColor(this, R.color.orange_primary);
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> sendMessageNow());
 

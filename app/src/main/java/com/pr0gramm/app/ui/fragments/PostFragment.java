@@ -104,6 +104,7 @@ import static android.animation.PropertyValuesHolder.ofFloat;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -285,14 +286,13 @@ public class PostFragment extends BaseFragment implements
 
         content.addOnScrollListener(scrollHandler);
 
-        swipeRefreshLayout.setColorSchemeResources(R.color.orange_primary);
+        swipeRefreshLayout.setColorSchemeResources(primaryColor(getContext()));
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!isVideoFullScreen()) {
                 rewindOnLoad = true;
                 loadPostDetails();
             }
         });
-
 
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 
@@ -453,7 +453,7 @@ public class PostFragment extends BaseFragment implements
         if ((item = menu.findItem(R.id.action_search_image)) != null)
             item.setVisible(isImage && settings.showGoogleImageButton());
 
-        if((item = menu.findItem(R.id.action_delete_item)) != null)
+        if ((item = menu.findItem(R.id.action_delete_item)) != null)
             item.setVisible(adminMode);
     }
 

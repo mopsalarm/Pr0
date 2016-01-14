@@ -29,6 +29,7 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.NavigationProvider;
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedbackActivity;
@@ -136,7 +137,7 @@ public class DrawerFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // get "marked" color
-        int primary = ContextCompat.getColor(getActivity(), R.color.orange_primary);
+        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor(getContext()));
         markedColor = ColorStateList.valueOf(primary);
 
         // add some space on the top for the translucent status bar

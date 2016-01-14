@@ -36,6 +36,7 @@ import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.RulesService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -225,7 +226,7 @@ public class UploadActivity extends BaseAppCompatActivity {
             upload.setOnClickListener(v -> onUploadClicked());
 
             // give the upload-button the primary-tint
-            int color = ContextCompat.getColor(getActivity(), R.color.orange_primary);
+            int color = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor(getContext()));
             ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
         }
 

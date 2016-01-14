@@ -34,6 +34,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static org.joda.time.Duration.standardMinutes;
 
@@ -92,7 +93,7 @@ public abstract class InboxFragment<T> extends BaseFragment {
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
-        swipeRefreshLayout.setColorSchemeResources(R.color.orange_primary);
+        swipeRefreshLayout.setColorSchemeResources(primaryColor(getContext()));
 
         showBusyIndicator();
 

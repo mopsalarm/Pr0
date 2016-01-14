@@ -40,6 +40,9 @@ import javax.inject.Inject;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
+import static com.pr0gramm.app.R.color.grey_700;
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+
 
 /**
  */
@@ -131,7 +134,8 @@ public class ChangeLogDialog extends BaseDialogFragment {
             if (item instanceof Version) {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
-                holder.setTextColorId(version.current ? R.color.orange_primary : R.color.grey_700);
+                holder.setTextColorId(version.current
+                        ? primaryColor(holder.itemView.getContext()) : grey_700);
             }
         }
 

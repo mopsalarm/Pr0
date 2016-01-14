@@ -31,6 +31,7 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
 import com.pr0gramm.app.ui.PreviewInfo;
@@ -146,7 +147,7 @@ public abstract class MediaView extends FrameLayout {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
             preloadHint.setLayoutParams(DEFAULT_PARAMS);
-            preloadHint.setTextColor(ContextCompat.getColor(getContext(), R.color.orange_primary));
+            preloadHint.setTextColor(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor(getContext())));
             addView(preloadHint);
         }
     }

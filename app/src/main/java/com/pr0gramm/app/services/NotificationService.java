@@ -41,6 +41,7 @@ import rx.Observable;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.limit;
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 
 /**
  */
@@ -147,7 +148,7 @@ public class NotificationService {
                 .setShowWhen(timestamp != 0)
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(ContextCompat.getColor(context, R.color.orange_primary), 500, 500)
+                .setLights(ContextCompat.getColor(context, primaryColor(context)), 500, 500)
                 .build();
 
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, notification);

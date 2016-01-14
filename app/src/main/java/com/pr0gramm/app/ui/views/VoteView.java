@@ -16,6 +16,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.Vote;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 
 /**
  * A plus and a minus sign to handle votes.
@@ -50,7 +51,7 @@ public class VoteView extends LinearLayout {
         }
 
         int orientation = 0, spacing = 0, textSize = 24;
-        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.orange_primary));
+        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, primaryColor(context)));
         markedColorDown = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
         defaultColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
 

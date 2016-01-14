@@ -20,6 +20,7 @@ import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
@@ -171,7 +172,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 boolean isFavorite = favedComments.contains(comment.getId());
 
                 view.kFav.setTextColor(isFavorite
-                        ? ContextCompat.getColor(context, R.color.orange_primary)
+                        ? ContextCompat.getColor(context, ThemeHelper.primaryColor(context))
                         : ContextCompat.getColor(context, R.color.grey_700));
 
                 view.kFav.setVisibility(View.VISIBLE);

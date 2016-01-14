@@ -13,6 +13,7 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.FeedbackService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
@@ -52,7 +53,7 @@ public class FeedbackActivity extends BaseAppCompatActivity {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
-        int primary = ContextCompat.getColor(this, R.color.orange_primary);
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> submitClicked());
 

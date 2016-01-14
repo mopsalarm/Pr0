@@ -5,7 +5,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 import com.pnikosis.materialishprogress.ProgressWheel;
-import com.pr0gramm.app.R;
+
+import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 
 /**
  */
@@ -21,7 +22,7 @@ public class BusyIndicator extends ProgressWheel {
     }
 
     private void init() {
-        setBarColor(ContextCompat.getColor(getContext(), R.color.orange_primary));
+        setBarColor(ContextCompat.getColor(getContext(), primaryColor(getContext())));
         spin();
     }
 }

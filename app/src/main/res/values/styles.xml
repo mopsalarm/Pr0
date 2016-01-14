@@ -46,7 +46,7 @@
     <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar"/>
 
     <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">?colorPrimary</item>
+        <item name="colorAccent">@color/orange_primary</item>
     </style>
 
     <style name="Base.AppStyle.DrawerItem" parent="Base.TextAppearance.AppCompat.Button">

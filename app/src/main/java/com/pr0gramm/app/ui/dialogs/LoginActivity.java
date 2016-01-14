@@ -44,6 +44,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 
+import static com.pr0gramm.app.services.ThemeHelper.primaryColorDark;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
@@ -92,7 +93,7 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private void updateActivityBackground() {
-        int fallbackColor = ContextCompat.getColor(this, R.color.orange_primary_dark);
+        int fallbackColor = ContextCompat.getColor(this, primaryColorDark(this));
         Drawable background = new WrapCrashingDrawable(fallbackColor,
                 ResourcesCompat.getDrawable(getResources(), R.drawable.login_background_orange, getTheme()));
 
