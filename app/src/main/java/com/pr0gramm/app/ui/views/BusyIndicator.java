@@ -21,7 +21,7 @@ public class BusyIndicator extends ProgressWheel {
     }
 
     private void init() {
-        setBarColor(ContextCompat.getColor(getContext(), R.color.primary));
+        setBarColor(ContextCompat.getColor(getContext(), R.color.orange_primary));
         spin();
     }
 }

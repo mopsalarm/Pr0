@@ -4,8 +4,8 @@
     <gradient
         android:centerX="50%"
         android:centerY="35%"
-        android:endColor="@color/primary_dark"
+        android:endColor="@color/orange_primary_dark"
         android:gradientRadius="300dp"
-        android:startColor="@color/primary"
+        android:startColor="@color/orange_primary"
         android:type="radial"/>
 </shape>

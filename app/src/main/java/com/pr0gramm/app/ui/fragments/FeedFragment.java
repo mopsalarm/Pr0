@@ -268,7 +268,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
 
-        swipeRefreshLayout.setColorSchemeResources(R.color.primary);
+        swipeRefreshLayout.setColorSchemeResources(R.color.orange_primary);
 
         resetToolbar();
 

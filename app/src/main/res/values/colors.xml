@@ -279,16 +279,14 @@
 
 
     <!-- Colors for the app -->
-    <color name="primary">#ee4d2e</color>
-    <color name="primary_dark">#ffb33924</color>
-    <color name="accent">@color/primary</color>
+    <color name="orange_primary">#ee4d2e</color>
+    <color name="orange_primary_dark">#ffb33924</color>
+    <color name="orange_accent">@color/orange_primary</color>
 
     <color name="feed_background">#161618</color>
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>
-
     <color name="feed_background_alpha">#a0161618</color>
-
     <color name="tag_background">#2A2E31</color>
     <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>

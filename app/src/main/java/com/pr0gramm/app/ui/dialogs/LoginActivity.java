@@ -92,9 +92,9 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private void updateActivityBackground() {
-        int fallbackColor = ContextCompat.getColor(this, R.color.primary_dark);
+        int fallbackColor = ContextCompat.getColor(this, R.color.orange_primary_dark);
         Drawable background = new WrapCrashingDrawable(fallbackColor,
-                ResourcesCompat.getDrawable(getResources(), R.drawable.login_background, getTheme()));
+                ResourcesCompat.getDrawable(getResources(), R.drawable.login_background_orange, getTheme()));
 
         AndroidUtility.setViewBackground(findViewById(R.id.content), background);
     }

@@ -87,7 +87,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         updateMessageView();
 
         // colorize the button
-        int primary = ContextCompat.getColor(this, R.color.primary);
+        int primary = ContextCompat.getColor(this, R.color.orange_primary);
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> sendMessageNow());
 

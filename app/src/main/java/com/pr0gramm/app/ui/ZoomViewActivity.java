@@ -141,7 +141,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void loadHqImage() {
         hq.setOnClickListener(null);
-        hq.setImageDrawable(getColoredHqIcon(R.color.primary));
+        hq.setImageDrawable(getColoredHqIcon(R.color.orange_primary));
         hq.animate().alpha(1).start();
 
         Uri url = proxyWrap(UriHelper.of(this).media(item, true));

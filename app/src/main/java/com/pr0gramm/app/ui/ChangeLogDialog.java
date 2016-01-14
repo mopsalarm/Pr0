@@ -131,7 +131,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
             if (item instanceof Version) {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
-                holder.setTextColorId(version.current ? R.color.primary : R.color.grey_700);
+                holder.setTextColorId(version.current ? R.color.orange_primary : R.color.grey_700);
             }
         }
 

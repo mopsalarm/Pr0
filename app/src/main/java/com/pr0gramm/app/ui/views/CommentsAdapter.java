@@ -171,7 +171,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 boolean isFavorite = favedComments.contains(comment.getId());
 
                 view.kFav.setTextColor(isFavorite
-                        ? ContextCompat.getColor(context, R.color.primary)
+                        ? ContextCompat.getColor(context, R.color.orange_primary)
                         : ContextCompat.getColor(context, R.color.grey_700));
 
                 view.kFav.setVisibility(View.VISIBLE);

@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
-        android:background="@drawable/rounded_corner_background"
+        android:background="?roundedCornerBackgroundLogin"
         android:paddingRight="3dp"
         android:paddingLeft="3dp"
         android:paddingBottom="2dp"
