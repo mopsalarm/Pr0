@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.pr0gramm.app.ui.bubble.BubbleView
-    style="@style/DefaultBubble"
-    text="This is the content\nof the bubble."
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:bv_gravity="top"/>
