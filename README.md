@@ -1,6 +1,6 @@
-# pr0gramm Android App
+# Offizielle pr0gramm Android App
 
-Die aktuelle Version der pr0gramm-App gibt es unter: https://mopsalarm.github.io/Pr0
+Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0gramm.com
 
 ## Features
 * Anschauen des Feeds und einzelner Posts
@@ -25,6 +25,8 @@ Die aktuelle Version der pr0gramm-App gibt es unter: https://mopsalarm.github.io
 * Eine Einstellung die Festlegt, dass *gif*s und *webm*s erst nach einem Knopfdruck geladen werden.
 * OP Anzeige in den Kommentaren
 * Hochladen neuer Bilder direkt vom Handy
+* neue und bessere Kategorien
+* Vorladen von Bildern und Videos
 * mehr
 
 ## Geplante Features zum Datensparen
@@ -33,4 +35,3 @@ Die aktuelle Version der pr0gramm-App gibt es unter: https://mopsalarm.github.io
 ## Benötigt
 * Hilfe beim Testen, Bugs, etc
 * Tipps fürs Layout (auch für Tablet)
-* Tipps, wie man den Navigation-Drawer besser implementiert (ViewPager?)
