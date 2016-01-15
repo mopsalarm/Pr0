@@ -51,7 +51,7 @@ public class VoteView extends LinearLayout {
         }
 
         int orientation = 0, spacing = 0, textSize = 24;
-        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, primaryColor(context)));
+        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, primaryColor()));
         markedColorDown = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
         defaultColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white));
 

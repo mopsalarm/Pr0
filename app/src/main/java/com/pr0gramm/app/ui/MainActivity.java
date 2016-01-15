@@ -123,9 +123,9 @@ public class MainActivity extends BaseAppCompatActivity implements
             supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         }
 
+        setTheme(theme().translucentStatus);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).translucentStatus);
         setContentView(R.layout.activity_main);
 
         // use toolbar as action bar

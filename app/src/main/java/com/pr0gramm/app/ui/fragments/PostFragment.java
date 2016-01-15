@@ -286,7 +286,7 @@ public class PostFragment extends BaseFragment implements
 
         content.addOnScrollListener(scrollHandler);
 
-        swipeRefreshLayout.setColorSchemeResources(primaryColor(getContext()));
+        swipeRefreshLayout.setColorSchemeResources(primaryColor());
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!isVideoFullScreen()) {
                 rewindOnLoad = true;

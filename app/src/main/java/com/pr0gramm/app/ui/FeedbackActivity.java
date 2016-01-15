@@ -46,9 +46,9 @@ public class FeedbackActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).basic);
         setContentView(R.layout.activity_feedback);
 
         ActionBar actionbar = getSupportActionBar();
@@ -56,7 +56,7 @@ public class FeedbackActivity extends BaseAppCompatActivity {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
-        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor());
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> submitClicked());
 

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
 
+import com.google.common.base.Enums;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.Themes;
 
 import javax.annotation.Nonnull;
@@ -13,32 +15,30 @@ import javax.annotation.Nonnull;
  */
 public final class ThemeHelper {
     @Nullable
-    private static Themes THEME;
+    private static Themes THEME = Themes.ORANGE;
 
     private ThemeHelper() {
     }
 
     @ColorRes
-    public static int primaryColor(Context context) {
-        return theme(context).primaryColor;
+    public static int primaryColor() {
+        return theme().primaryColor;
     }
 
     @ColorRes
-    public static int primaryColorDark(Context context) {
-        return theme(context).primaryColorDark;
+    public static int primaryColorDark() {
+        return theme().primaryColorDark;
     }
 
     @Nonnull
-    public static Themes theme(Context context) {
-        if (THEME == null) {
-            THEME = Themes.ORANGE;
-        }
-
-        return THEME;
+    public static Themes theme() {
+        return THEME != null ? THEME : Themes.ORANGE;
     }
 
 
-    public static void invalidate() {
-        THEME = null;
+    public static void updateTheme(Context context) {
+        Settings settings = Settings.of(context);
+        String name = settings.themeName();
+        THEME = Enums.getIfPresent(Themes.class, name).or(Themes.ORANGE);
     }
 }

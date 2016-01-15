@@ -31,9 +31,9 @@ public class RulesActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).basic);
         setContentView(R.layout.activity_rules);
 
         rulesService.displayInto(rulesView);

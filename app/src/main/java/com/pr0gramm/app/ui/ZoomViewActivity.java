@@ -65,11 +65,11 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().fullscreen);
         super.onCreate(savedInstanceState);
 
         // normal content view
 
-        setTheme(theme(this).fullscreen);
         setContentView(R.layout.activity_zoom_view);
 
         imageView.setDebug(BuildConfig.DEBUG);
@@ -145,7 +145,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void loadHqImage() {
         hq.setOnClickListener(null);
-        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.primaryColor(this)));
+        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.primaryColor()));
         hq.animate().alpha(1).start();
 
         Uri url = proxyWrap(UriHelper.of(this).media(item, true));

@@ -138,7 +138,7 @@ public class DrawerFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
 
         // get "marked" color
-        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor(getContext()));
+        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
         markedColor = ColorStateList.valueOf(primary);
 
         // add some space on the top for the translucent status bar

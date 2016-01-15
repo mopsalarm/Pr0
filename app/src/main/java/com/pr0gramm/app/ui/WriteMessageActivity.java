@@ -73,9 +73,9 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).basic);
         setContentView(R.layout.fragment_write_message);
 
         ActionBar actionbar = getSupportActionBar();
@@ -91,7 +91,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         updateMessageView();
 
         // colorize the button
-        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor());
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> sendMessageNow());
 

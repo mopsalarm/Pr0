@@ -93,7 +93,7 @@ public abstract class InboxFragment<T> extends BaseFragment {
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
-        swipeRefreshLayout.setColorSchemeResources(primaryColor(getContext()));
+        swipeRefreshLayout.setColorSchemeResources(primaryColor());
 
         showBusyIndicator();
 

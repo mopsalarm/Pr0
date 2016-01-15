@@ -147,7 +147,7 @@ public abstract class MediaView extends FrameLayout {
             TextView preloadHint = new TextView(getContext());
             preloadHint.setText("preloaded");
             preloadHint.setLayoutParams(DEFAULT_PARAMS);
-            preloadHint.setTextColor(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor(getContext())));
+            preloadHint.setTextColor(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()));
             addView(preloadHint);
         }
     }

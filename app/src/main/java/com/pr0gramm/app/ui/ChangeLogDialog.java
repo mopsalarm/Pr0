@@ -57,7 +57,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
         Settings settings = Settings.of(getActivity());
 
         ContextThemeWrapper context = new ContextThemeWrapper(
-                getActivity(), theme(getActivity()).popup);
+                getActivity(), theme().popup);
 
         List<ChangeGroup> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -137,7 +137,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
                 holder.setTextColorId(version.current
-                        ? primaryColor(holder.itemView.getContext()) : grey_700);
+                        ? primaryColor() : grey_700);
             }
         }
 

@@ -337,7 +337,7 @@
     <string name="theme_orange">Bewährtes Orange</string>
     <string name="theme_green">Angenehmes Grün</string>
     <string name="prefcat_theme">Theme</string>
-    <string name="pref_theme_summary">You can select one out of multiple themes. Do you prefer <i>Bewährtes Orange</i> or are you a fan of <i>Angenehmes Grün</i>?</string>
+    <string name="pref_theme_summary">You can select one out of multiple themes. Do you like <i>Bewährtes Orange</i> or do you prefer <i>Angenehmes Grün</i>?</string>
     <string name="pref_theme_title">Select app theme</string>
 </resources>
 

@@ -8,6 +8,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
@@ -20,6 +21,7 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.RecentSearchesServices;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -37,6 +39,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static org.joda.time.Instant.now;
 
 /**
@@ -44,6 +47,7 @@ import static org.joda.time.Instant.now;
 public class SettingsActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
 
         String category = null;
@@ -177,25 +181,26 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
-            if ("pref_pseudo_update".equals(preference.getKey())) {
+            String preferenceKey = preference.getKey();
+            if ("pref_pseudo_update".equals(preferenceKey)) {
                 BaseAppCompatActivity activity = (BaseAppCompatActivity) getActivity();
                 UpdateDialogFragment.checkForUpdates(activity, true);
                 return true;
             }
 
-            if ("pref_pseudo_changelog".equals(preference.getKey())) {
+            if ("pref_pseudo_changelog".equals(preferenceKey)) {
                 AppCompatActivity activity = (AppCompatActivity) getActivity();
                 ChangeLogDialog dialog = new ChangeLogDialog();
                 dialog.show(activity.getSupportFragmentManager(), null);
                 return true;
             }
 
-            if ("pref_pseudo_feedback".equals(preference.getKey())) {
+            if ("pref_pseudo_feedback".equals(preferenceKey)) {
                 startActivity(new Intent(getActivity(), FeedbackActivity.class));
                 return true;
             }
 
-            if ("pref_pseudo_recommend".equals(preference.getKey())) {
+            if ("pref_pseudo_recommend".equals(preferenceKey)) {
                 String text = "Probiere mal die offizielle pr0gramm App aus: https://app.pr0gramm.com/";
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
@@ -204,7 +209,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 startActivity(Intent.createChooser(intent, getString(R.string.share_using)));
             }
 
-            if ("pref_pseudo_clean_preloaded".equals(preference.getKey())) {
+            if ("pref_pseudo_clean_preloaded".equals(preferenceKey)) {
                 Async.start(() -> {
                     // remove all the files!
                     preloadManager.deleteBefore(now());
@@ -212,7 +217,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 }, BackgroundScheduler.instance());
             }
 
-            if ("pref_pseudo_clear_tag_suggestions".equals(preference.getKey())) {
+            if ("pref_pseudo_clear_tag_suggestions".equals(preferenceKey)) {
                 recentSearchesServices.clearHistory();
             }
 
@@ -253,6 +258,18 @@ public class SettingsActivity extends BaseAppCompatActivity {
                             .positive()
                             .show();
                 }
+            }
+
+            if ("pref_theme".equals(key)) {
+                // get the correct theme for the app!
+                ThemeHelper.updateTheme(getActivity());
+
+                final Intent intent = getActivity().getIntent();
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                TaskStackBuilder.create(getActivity())
+                        .addNextIntentWithParentStack(intent)
+                        .startActivities();
             }
         }
 

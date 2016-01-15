@@ -79,9 +79,9 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().whiteAccent);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).whiteAccent);
         setContentView(R.layout.activity_login);
 
         // restore last username
@@ -93,7 +93,7 @@ public class LoginActivity extends BaseAppCompatActivity {
         submitView.setOnClickListener(v -> onLoginClicked());
 
         // tint the button
-        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor());
         ViewCompat.setBackgroundTintList(submitView, ColorStateList.valueOf(primary));
 
         updateActivityBackground();
@@ -109,7 +109,7 @@ public class LoginActivity extends BaseAppCompatActivity {
         if (drawableId == 0)
             return;
 
-        int fallbackColor = ContextCompat.getColor(this, primaryColorDark(this));
+        int fallbackColor = ContextCompat.getColor(this, primaryColorDark());
         Drawable background = createBackgroundDrawable(drawableId, fallbackColor);
         AndroidUtility.setViewBackground(findViewById(R.id.content), background);
     }

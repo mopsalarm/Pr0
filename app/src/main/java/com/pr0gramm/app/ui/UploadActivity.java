@@ -81,9 +81,9 @@ public class UploadActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
 
-        setTheme(theme(this).basic);
         setContentView(R.layout.activity_upload);
 
         ActionBar actionBar = getSupportActionBar();
@@ -229,7 +229,7 @@ public class UploadActivity extends BaseAppCompatActivity {
             upload.setOnClickListener(v -> onUploadClicked());
 
             // give the upload-button the primary-tint
-            int color = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor(getContext()));
+            int color = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
             ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
         }
 

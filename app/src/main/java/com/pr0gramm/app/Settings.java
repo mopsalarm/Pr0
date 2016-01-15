@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Enums;
 import com.google.common.primitives.Ints;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.ui.Themes;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
 
 import java.util.EnumSet;
@@ -190,6 +191,10 @@ public class Settings {
     public int bestOfBenisThreshold() {
         String value = preferences.getString("pref_bestof_threshold", "2000");
         return firstNonNull(Ints.tryParse(value), 0);
+    }
+
+    public String themeName() {
+        return preferences.getString("pref_theme", Themes.ORANGE.name());
     }
 
     public boolean showCategoryBestOf() {

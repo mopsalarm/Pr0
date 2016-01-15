@@ -10,6 +10,7 @@
         <item name="colorPrimaryDark">@color/orange_primary_dark</item>
         <item name="colorAccent">@color/orange_accent</item>
         <item name="loginBackground">@drawable/login_background_orange</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
         <item name="drawerTheme">@style/DrawerTheme.Orange</item>
         <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
     </style>
@@ -19,6 +20,7 @@
         <item name="colorPrimaryDark">@color/green_primary_dark</item>
         <item name="colorAccent">@color/green_accent</item>
         <item name="loginBackground">@drawable/login_background_green</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
         <item name="drawerTheme">@style/DrawerTheme.Green</item>
         <item name="popupTheme">@style/AppTheme.Popup.Green</item>
     </style>
@@ -28,6 +30,7 @@
         <item name="colorPrimaryDark">@color/olive_primary_dark</item>
         <item name="colorAccent">@color/olive_accent</item>
         <item name="loginBackground">@drawable/login_background_olive</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_olive</item>
         <item name="drawerTheme">@style/DrawerTheme.Olive</item>
         <item name="popupTheme">@style/AppTheme.Popup.Olive</item>
     </style>
@@ -37,6 +40,7 @@
         <item name="colorPrimaryDark">@color/pink_primary_dark</item>
         <item name="colorAccent">@color/pink_accent</item>
         <item name="loginBackground">@drawable/login_background_pink</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_pink</item>
         <item name="drawerTheme">@style/DrawerTheme.Pink</item>
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
     </style>

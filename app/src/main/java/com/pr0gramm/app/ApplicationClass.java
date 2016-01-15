@@ -13,6 +13,7 @@ import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.orm.SugarApp;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
@@ -105,6 +106,9 @@ public class ApplicationClass extends SugarApp {
                         .apply();
             }
         }
+
+        // get the correct theme for the app!
+        ThemeHelper.updateTheme(this);
     }
 
     /**

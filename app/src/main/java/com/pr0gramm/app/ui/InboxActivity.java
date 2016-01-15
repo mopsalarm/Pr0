@@ -52,6 +52,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(theme().noActionBar);
         super.onCreate(savedInstanceState);
 
         if (!userService.isAuthorized()) {
@@ -60,7 +61,6 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
             return;
         }
 
-        setTheme(theme(this).noActionBar);
         setContentView(R.layout.activity_inbox);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
