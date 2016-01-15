@@ -42,8 +42,7 @@
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_convert_gif_to_webm">Convert gif to webm</string>
-    <string name="pref_convert_gif_to_webm_off">Download full gif files</string>
-    <string name="pref_convert_gif_to_webm_on">Reduces traffic on gifs by up to 90%!</string>
+    <string name="pref_convert_gif_to_webm_summary">Reduces traffic on gifs by up to 90%!</string>
     <string name="pref_crashlytics_enabled">Anonymous crash reports</string>
     <string name="pref_crashlytics_enabled_off">Deactivating this will make the life of the developer harder!</string>
     <string name="pref_crashlytics_enabled_on">Sends anonymous crash reports on errors</string>
@@ -337,5 +336,8 @@
     <string name="action_delete_item">Delete item</string>
     <string name="theme_orange">Bewährtes Orange</string>
     <string name="theme_green">Angenehmes Grün</string>
+    <string name="prefcat_theme">Theme</string>
+    <string name="pref_theme_summary">You can select one out of multiple themes. Do you prefer <i>Bewährtes Orange</i> or are you a fan of <i>Angenehmes Grün</i>?</string>
+    <string name="pref_theme_title">Select app theme</string>
 </resources>
 

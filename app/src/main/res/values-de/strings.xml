@@ -40,8 +40,7 @@
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_convert_gif_to_webm">Konvertiere gif zu webm</string>
-    <string name="pref_convert_gif_to_webm_off">Gifs herunterladen</string>
-    <string name="pref_convert_gif_to_webm_on">Reduziert Traffic um bis zu 90%</string>
+    <string name="pref_convert_gif_to_webm_summary">Reduziert Traffic um bis zu 90%</string>
     <string name="pref_crashlytics_enabled">Anonyme Bugreports</string>
     <string name="pref_crashlytics_enabled_off">Deaktivieren macht das Leben für die Entwickler schwerer</string>
     <string name="pref_crashlytics_enabled_on">Sende anonyme Bugreports wenn ein Fehler auftritt</string>

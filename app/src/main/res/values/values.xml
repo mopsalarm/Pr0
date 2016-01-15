@@ -84,4 +84,25 @@
         <item>7000</item>
     </string-array>
 
+
+
+    <string name="pref_theme_default" translatable="false">ORANGE</string>
+    <string name="theme_olive">Olivgrün des Friedens</string>
+    <string name="theme_pink">Altes Pink</string>
+    <string name="theme_fliese">Fliesentischbraun</string>
+
+    <string-array name="pref_theme_values">
+        <item>ORANGE</item>
+        <item>GREEN</item>
+        <item>OLIVE</item>
+        <item>PINK</item>
+    </string-array>
+
+    <string-array name="pref_theme_human">
+        <item>@string/theme_orange</item>
+        <item>@string/theme_green</item>
+        <item>@string/theme_olive</item>
+        <item>@string/theme_pink</item>
+    </string-array>
+
 </resources>

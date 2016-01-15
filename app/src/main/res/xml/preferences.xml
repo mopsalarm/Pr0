@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <PreferenceCategory
-        android:key="prefcat_feed_types"
-        android:title="@string/pref_feed_types">
+        android:title="@string/prefcat_theme">
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_feed_type_sfw"
-            android:summary="@string/pref_feed_type_sfw_on"
-            android:title="@string/type_sfw"/>
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_feed_type_nsfw"
-            android:summary="@string/pref_feed_type_nsfw_on"
-            android:title="@string/type_nsfw"/>
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_feed_type_nsfl"
-            android:summary="@string/pref_feed_type_nsfl_on"
-            android:title="@string/type_nsfl"/>
-
+        <ListPreference
+            android:defaultValue="@string/pref_theme_default"
+            android:entries="@array/pref_theme_human"
+            android:entryValues="@array/pref_theme_values"
+            android:key="pref_theme"
+            android:summary="@string/pref_theme_summary"
+            android:title="@string/pref_theme_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -47,8 +36,7 @@
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_convert_gif_to_webm"
-                    android:summaryOff="@string/pref_convert_gif_to_webm_off"
-                    android:summaryOn="@string/pref_convert_gif_to_webm_on"
+                    android:summaryOn="@string/pref_convert_gif_to_webm"
                     android:title="@string/pref_convert_gif_to_webm"/>
 
                 <ListPreference
