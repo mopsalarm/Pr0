@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AppTheme.Orange.NoActionBar.TranslucentStatus">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="AppTheme.Green.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="AppTheme.Olive.NoActionBar.TranslucentStatus">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="AppTheme.Pink.NoActionBar.TranslucentStatus">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
@@ -14,6 +23,16 @@
     </style>
 
     <style name="AppTheme.Green.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="AppTheme.Olive.NoActionBar.Fullscreen">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="AppTheme.Pink.NoActionBar.Fullscreen">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>

@@ -288,6 +288,16 @@
     <color name="green_primary_dark">#137e64</color>
     <color name="green_accent">@color/green_primary</color>
 
+    <!-- Colors for the app -->
+    <color name="olive_primary">#b0ad05</color>
+    <color name="olive_primary_dark">#797703</color>
+    <color name="olive_accent">@color/olive_primary</color>
+
+    <!-- Colors for the app -->
+    <color name="pink_primary">#ff0082</color>
+    <color name="pink_primary_dark">#b7005d</color>
+    <color name="pink_accent">@color/pink_primary</color>
+
     <color name="feed_background">#161618</color>
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>
