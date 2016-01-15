@@ -8,6 +8,7 @@
     android:background="?colorPrimary"
     android:elevation="8dp"
     android:fitsSystemWindows="true"
+    tools:context=".ui.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <android.support.v7.widget.Toolbar
