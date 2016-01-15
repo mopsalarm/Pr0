@@ -62,6 +62,7 @@ import rx.Observable;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
@@ -124,6 +125,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         super.onCreate(savedInstanceState);
 
+        setTheme(theme(this).translucentStatus);
         setContentView(R.layout.activity_main);
 
         // use toolbar as action bar

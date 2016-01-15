@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
@@ -12,10 +14,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
@@ -24,6 +28,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
@@ -44,6 +49,7 @@ import rx.Subscriber;
 import rx.Subscription;
 
 import static com.pr0gramm.app.services.ThemeHelper.primaryColorDark;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
@@ -74,6 +80,8 @@ public class LoginActivity extends BaseAppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(theme(this).whiteAccent);
         setContentView(R.layout.activity_login);
 
         // restore last username
@@ -83,6 +91,10 @@ public class LoginActivity extends BaseAppCompatActivity {
         }
 
         submitView.setOnClickListener(v -> onLoginClicked());
+
+        // tint the button
+        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor(this));
+        ViewCompat.setBackgroundTintList(submitView, ColorStateList.valueOf(primary));
 
         updateActivityBackground();
     }
@@ -98,21 +110,28 @@ public class LoginActivity extends BaseAppCompatActivity {
             return;
 
         int fallbackColor = ContextCompat.getColor(this, primaryColorDark(this));
-        Drawable background = new WrapCrashingDrawable(fallbackColor,
-                ResourcesCompat.getDrawable(getResources(), drawableId, getTheme()));
-
+        Drawable background = createBackgroundDrawable(drawableId, fallbackColor);
         AndroidUtility.setViewBackground(findViewById(R.id.content), background);
     }
 
+    private Drawable createBackgroundDrawable(int drawableId, int fallbackColor) {
+        Drawable background;
+        if(Sdk.isAtLeastKitKat()) {
+            background = new WrapCrashingDrawable(fallbackColor,
+                    ResourcesCompat.getDrawable(getResources(), drawableId, getTheme()));
+        } else {
+            background = new ColorDrawable(fallbackColor);
+        }
+        return background;
+    }
+
     private int getBackgroundDrawableIdFromTheme() {
-        int drawableId;
         TypedArray array = getTheme().obtainStyledAttributes(R.style.AppTheme, new int[]{R.attr.loginBackground});
         try {
-            drawableId = array.getResourceId(R.styleable.AppTheme_loginBackground, 0);
+            return array.getResourceId(R.styleable.AppTheme_loginBackground, 0);
         } finally {
             array.recycle();
         }
-        return drawableId;
     }
 
     private void enableView(boolean enable) {

@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
 public class ZoomViewActivity extends BaseAppCompatActivity {
@@ -67,6 +68,8 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // normal content view
+
+        setTheme(theme(this).fullscreen);
         setContentView(R.layout.activity_zoom_view);
 
         imageView.setDebug(BuildConfig.DEBUG);

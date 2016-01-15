@@ -41,8 +41,8 @@ import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
 import static com.pr0gramm.app.R.color.grey_700;
-import static com.pr0gramm.app.services.ThemeHelper.popupTheme;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 
 /**
@@ -56,7 +56,8 @@ public class ChangeLogDialog extends BaseDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Settings settings = Settings.of(getActivity());
 
-        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), popupTheme(getActivity()));
+        ContextThemeWrapper context = new ContextThemeWrapper(
+                getActivity(), theme(getActivity()).popup);
 
         List<ChangeGroup> changes = changelog(context);
         LayoutInflater inflater = LayoutInflater.from(context);

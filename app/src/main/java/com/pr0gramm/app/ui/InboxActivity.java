@@ -24,6 +24,8 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 
+import static com.pr0gramm.app.services.ThemeHelper.theme;
+
 /**
  * The activity that displays the inbox.
  */
@@ -58,6 +60,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
             return;
         }
 
+        setTheme(theme(this).noActionBar);
         setContentView(R.layout.activity_inbox);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

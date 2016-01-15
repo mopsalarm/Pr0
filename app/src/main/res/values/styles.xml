@@ -65,13 +65,13 @@
     </style>
 
     <!-- Just placeholder for newer versions of androids -->
-    <style name="AppTheme.Orange.NoActionBar.TranslucentNavbar"/>
+    <style name="AppTheme.Orange.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Green.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Orange.NoActionBar.TranslucentStatus"/>
-    <style name="AppTheme.Green.NoActionBar.TranslucentNavbar"/>
     <style name="AppTheme.Green.NoActionBar.TranslucentStatus"/>
 
-    <!-- ###### This is for the drawer ###### -->
 
+    <!-- ###### This is for the drawer ###### -->
     <style name="DrawerTheme.Orange" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/orange_primary</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
@@ -81,7 +81,6 @@
         <item name="colorPrimary">@color/green_primary</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
     </style>
-
 
     <!-- This is all color independent! -->
     <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

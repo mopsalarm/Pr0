@@ -69,6 +69,7 @@ import rx.util.async.Async;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 /**
  */
@@ -81,6 +82,8 @@ public class UploadActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(theme(this).basic);
         setContentView(R.layout.activity_upload);
 
         ActionBar actionBar = getSupportActionBar();

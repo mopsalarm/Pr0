@@ -2,33 +2,43 @@ package com.pr0gramm.app.services;
 
 import android.content.Context;
 import android.support.annotation.ColorRes;
-import android.support.annotation.StyleRes;
+import android.support.annotation.Nullable;
 
-import com.pr0gramm.app.R;
+import com.pr0gramm.app.ui.Themes;
+
+import javax.annotation.Nonnull;
 
 /**
  * A little service to get theme stuff.
  */
 public final class ThemeHelper {
+    @Nullable
+    private static Themes THEME;
+
     private ThemeHelper() {
     }
 
     @ColorRes
     public static int primaryColor(Context context) {
-        return R.color.green_primary;
+        return theme(context).primaryColor;
     }
 
     @ColorRes
     public static int primaryColorDark(Context context) {
-        return R.color.green_primary_dark;
+        return theme(context).primaryColorDark;
     }
 
-    @StyleRes
-    public static int appTheme(Context context) {
-        return R.style.AppTheme_Green;
+    @Nonnull
+    public static Themes theme(Context context) {
+        if (THEME == null) {
+            THEME = Themes.ORANGE;
+        }
+
+        return THEME;
     }
 
-    public static int popupTheme(Context context) {
-        return R.style.AppTheme_Popup_Green;
+
+    public static void invalidate() {
+        THEME = null;
     }
 }

@@ -41,7 +41,7 @@ public class DialogBuilder {
 
     private DialogBuilder(Context context) {
         this.context = context;
-        this.theme = ThemeHelper.popupTheme(context);
+        this.theme = ThemeHelper.theme(context).popup;
     }
 
     public DialogBuilder content(String content) {

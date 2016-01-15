@@ -12,6 +12,8 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 
+import static com.pr0gramm.app.services.ThemeHelper.theme;
+
 /**
  * A new activity that just shows the rules
  */
@@ -30,6 +32,8 @@ public class RulesActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(theme(this).basic);
         setContentView(R.layout.activity_rules);
 
         rulesService.displayInto(rulesView);

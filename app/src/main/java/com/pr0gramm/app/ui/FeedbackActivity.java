@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import butterknife.Bind;
 import rx.functions.Actions;
 
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
@@ -46,6 +47,8 @@ public class FeedbackActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(theme(this).basic);
         setContentView(R.layout.activity_feedback);
 
         ActionBar actionbar = getSupportActionBar();

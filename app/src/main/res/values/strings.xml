@@ -335,5 +335,7 @@
     <string name="reason">Reason</string>
     <string name="delete">Delete</string>
     <string name="action_delete_item">Delete item</string>
+    <string name="theme_orange">Bewährtes Orange</string>
+    <string name="theme_green">Angenehmes Grün</string>
 </resources>
 
