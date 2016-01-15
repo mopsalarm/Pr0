@@ -14,7 +14,6 @@ import android.view.MenuItem;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
@@ -234,16 +233,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
                     DialogBuilder.start(activity)
                             .content(R.string.gif_as_webm_might_be_buggy)
                             .positive()
-                            .show();
-                }
-            }
-
-            //noinspection PointlessBooleanExpression,ConstantConditions
-            if ("pref_use_beta_channel".equals(key) && BuildConfig.IS_PLAYSTORE_RELEASE) {
-                if (preferences.getBoolean("pref_use_beta_channel", true)) {
-                    DialogBuilder.start(activity)
-                            .content(R.string.beta_you_need_to_join_community)
-                            .positive(R.string.okay, di -> ApplicationClass.openCommunityWebpage(activity))
                             .show();
                 }
             }

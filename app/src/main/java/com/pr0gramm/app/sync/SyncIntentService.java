@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
-import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
@@ -59,11 +58,6 @@ public class SyncIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (BuildConfig.IS_PLAYSTORE_RELEASE) {
-            logger.info("not supported anymore");
-            return;
-        }
-
         Dagger.appComponent(this).inject(this);
 
         logger.info("Doing some statistics related trackings");

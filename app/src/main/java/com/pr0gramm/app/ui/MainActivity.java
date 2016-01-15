@@ -27,7 +27,6 @@ import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -151,22 +150,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
-
-        //noinspection PointlessBooleanExpression
-        if (BuildConfig.IS_PLAYSTORE_RELEASE) {
-            DialogBuilder.start(this)
-                    .content("Die App ist nun bereits das zweite Mal nach kurzer Zeit aus dem" +
-                            " Google PlayStore herausgeflogen. Damit gebe ich jetzt erstmal auf." +
-                            " Ich bitte dich, die 'nicht PlayStore'-Version herunterzuladen.")
-
-                    .positive("Herunterladen", v -> {
-                        ApplicationClass.openDownloadFreeVersion(this);
-                    })
-                    .onCancel(di -> finish())
-                    .show();
-
-            return;
-        }
 
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
