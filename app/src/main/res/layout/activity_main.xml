@@ -24,6 +24,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="?android:windowBackground"
-        android:theme="@style/Theme.AppCompat.Light"/>
+        android:theme="?drawerTheme"/>
 
 </android.support.v4.widget.DrawerLayout>

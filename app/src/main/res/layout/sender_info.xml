@@ -16,7 +16,7 @@
         android:layout_gravity="bottom">
 
         <TextView
-            style="@style/AppStyle.OpBadge"
+            style="@style/OpBadge"
             android:id="@+id/badge_op"
             android:layout_marginRight="4dp"
             />
