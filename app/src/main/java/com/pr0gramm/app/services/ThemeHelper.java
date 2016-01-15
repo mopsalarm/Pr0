@@ -15,16 +15,20 @@ public final class ThemeHelper {
 
     @ColorRes
     public static int primaryColor(Context context) {
-        return R.color.orange_primary;
+        return R.color.green_primary;
     }
 
     @ColorRes
     public static int primaryColorDark(Context context) {
-        return R.color.orange_primary_dark;
+        return R.color.green_primary_dark;
     }
 
     @StyleRes
     public static int appTheme(Context context) {
-        return R.style.AppTheme;
+        return R.style.AppTheme_Green;
+    }
+
+    public static int popupTheme(Context context) {
+        return R.style.AppTheme_Popup_Green;
     }
 }

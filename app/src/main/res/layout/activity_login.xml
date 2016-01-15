@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:paddingLeft="64dp"
-              android:paddingRight="64dp"
-              android:id="@+id/content">
+<LinearLayout
+    android:id="@+id/content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="64dp"
+    android:paddingRight="64dp"
+    tools:context=".ui.dialogs.LoginActivity">
 
     <ImageView
         android:layout_width="match_parent"
@@ -18,8 +20,7 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:theme="@style/AppTheme.LoginScreen.WhiteAccent">
+        android:layout_marginTop="16dp">
 
         <EditText
             android:id="@+id/username"
@@ -32,8 +33,7 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:theme="@style/AppTheme.LoginScreen.WhiteAccent">
+        android:layout_marginTop="16dp">
 
         <EditText
             android:id="@+id/password"

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -319,8 +320,6 @@ public class DrawerFragment extends BaseFragment {
 
         /**
          * Navigate to the favorites of the given user
-         *
-         * @param username
          */
         void onNavigateToFavorites(String username);
     }
@@ -336,7 +335,8 @@ public class DrawerFragment extends BaseFragment {
 
         @Override
         public NavigationItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
+            Context context = parent.getContext();
+            View view = LayoutInflater.from(context).inflate(viewType, parent, false);
             return new NavigationItemViewHolder(view);
         }
 

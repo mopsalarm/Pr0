@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -93,11 +92,27 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private void updateActivityBackground() {
+        @DrawableRes
+        int drawableId = getBackgroundDrawableIdFromTheme();
+        if (drawableId == 0)
+            return;
+
         int fallbackColor = ContextCompat.getColor(this, primaryColorDark(this));
         Drawable background = new WrapCrashingDrawable(fallbackColor,
-                ResourcesCompat.getDrawable(getResources(), R.drawable.login_background_orange, getTheme()));
+                ResourcesCompat.getDrawable(getResources(), drawableId, getTheme()));
 
         AndroidUtility.setViewBackground(findViewById(R.id.content), background);
+    }
+
+    private int getBackgroundDrawableIdFromTheme() {
+        int drawableId;
+        TypedArray array = getTheme().obtainStyledAttributes(R.style.AppTheme, new int[]{R.attr.loginBackground});
+        try {
+            drawableId = array.getResourceId(R.styleable.AppTheme_loginBackground, 0);
+        } finally {
+            array.recycle();
+        }
+        return drawableId;
     }
 
     private void enableView(boolean enable) {
@@ -287,25 +302,5 @@ public class LoginActivity extends BaseAppCompatActivity {
                 fragment.startActivityForResult(intent, requestCode);
             }
         };
-    }
-
-    private static class WrapCrashingDrawable extends LevelListDrawable {
-        @ColorInt
-        private final int fallbackColor;
-
-        public WrapCrashingDrawable(@ColorInt int fallbackColor, Drawable drawable) {
-            this.fallbackColor = fallbackColor;
-            addLevel(0, 2, drawable);
-            setLevel(1);
-        }
-
-        @Override
-        public void draw(Canvas canvas) {
-            try {
-                super.draw(canvas);
-            } catch (Exception ignored) {
-                canvas.drawColor(fallbackColor);
-            }
-        }
     }
 }

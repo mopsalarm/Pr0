@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
             android:orientation="vertical"
-            android:theme="@style/Theme.AppCompat.Light"
-            app:theme="@style/Theme.AppCompat.Light"
+            android:theme="?drawerTheme"
             tools:background="?android:windowBackground">
 
     <LinearLayout
@@ -119,31 +117,31 @@
 
         <TextView
             android:id="@+id/action_settings"
-            style="@style/AppStyle.DrawerItem"
+            style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_grey_action_settings"
             android:text="@string/action_settings"/>
 
         <TextView
             android:id="@+id/action_feedback"
-            style="@style/AppStyle.DrawerItem"
+            style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_grey_action_feedback"
             android:text="@string/action_feedback"/>
 
         <TextView
             android:id="@+id/action_rules"
-            style="@style/AppStyle.DrawerItem"
+            style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_assignment"
             android:text="@string/action_rules"/>
 
         <TextView
             android:id="@+id/action_logout"
-            style="@style/AppStyle.DrawerItem"
+            style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_black_action_exit"
             android:text="@string/action_logout"/>
 
         <TextView
             android:id="@+id/action_login"
-            style="@style/AppStyle.DrawerItem"
+            style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_grey_action_login"
             android:text="@string/action_login"/>
     </LinearLayout>

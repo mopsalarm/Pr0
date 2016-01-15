@@ -3,8 +3,7 @@
               android:orientation="horizontal"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:padding="16dp"
-              android:theme="@style/AppTheme.Popup">
+              android:padding="16dp">
 
     <com.pr0gramm.app.ui.views.BusyIndicator
         android:id="@+id/progress"

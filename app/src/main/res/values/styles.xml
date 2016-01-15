@@ -1,55 +1,89 @@
 <resources>
+    <!-- root of all our themes! -->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="android:textColorLink">@color/blue_grey_500</item>
+        <item name="android:windowBackground">@color/feed_background</item>
+    </style>
 
-    <!-- Base application theme. -->
-    <style name="Base.AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme.Orange">
         <item name="colorPrimary">@color/orange_primary</item>
         <item name="colorPrimaryDark">@color/orange_primary_dark</item>
         <item name="colorAccent">@color/orange_accent</item>
-        <item name="android:windowBackground">@color/feed_background</item>
+        <item name="loginBackground">@drawable/login_background_orange</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
+        <item name="drawerTheme">@style/DrawerTheme.Orange</item>
+        <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
+    </style>
+
+    <style name="AppTheme.Green">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryDark">@color/green_primary_dark</item>
+        <item name="colorAccent">@color/green_accent</item>
+        <item name="android:textColorLink">@color/blue_grey_500</item>
+        <item name="loginBackground">@drawable/login_background_green</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
+        <item name="drawerTheme">@style/DrawerTheme.Green</item>
+        <item name="popupTheme">@style/AppTheme.Popup.Green</item>
+    </style>
+
+    <!-- Now do the same for popups -->
+    <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog"/>
+
+    <style name="AppTheme.Popup.Orange">
+        <item name="colorAccent">@color/orange_primary</item>
+    </style>
+
+    <style name="AppTheme.Popup.Green">
+        <item name="colorAccent">@color/green_primary</item>
+    </style>
+
+    <!-- now specialize by overriding specific flags. -->
+    <style name="AppTheme.Orange.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
-
-        <item name="android:textColorLink">@color/blue_grey_500</item>
-        <item name="backgroundLogin">@drawable/login_background_orange</item>
-        <item name="roundedCornerBackgroundLogin">@drawable/rounded_corner_background_orange</item>
     </style>
 
-    <style name="AppTheme" parent="Base.AppTheme"/>
-
-    <style name="AppTheme.TranslucentStatus" parent="Base.AppTheme"/>
-
-    <style name="AppTheme.TranslucentNavbar" parent="Base.AppTheme"/>
-
-    <!-- Base application theme. -->
-    <style name="Base.AppTheme.ActionBar" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/orange_primary</item>
-        <item name="colorPrimaryDark">@color/orange_primary_dark</item>
-        <item name="colorAccent">@color/orange_accent</item>
-        <item name="android:windowBackground">@color/feed_background</item>
-        <item name="android:textColorLink">@color/blue_grey_500</item>
-        <item name="backgroundLogin">@drawable/login_background_orange</item>
-        <item name="roundedCornerBackgroundLogin">@drawable/rounded_corner_background_orange</item>
+    <style name="AppTheme.Green.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="AppTheme.LoginScreen.WhiteAccent" parent="AppTheme">
+    <style name="AppTheme.Orange.NoActionBar.WhiteAccent">
         <item name="colorControlNormal">@color/white</item>
         <item name="colorControlActivated">@color/white</item>
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
+    <style name="AppTheme.Green.NoActionBar.WhiteAccent">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
+
+    <!-- ###### This is for the drawer ###### -->
+
+    <style name="DrawerTheme.Orange" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
+    </style>
+
+    <style name="DrawerTheme.Green" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
+    </style>
+
+
+    <!-- This is all color independent! -->
     <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="colorAccent">@color/white</item>
     </style>
 
-    <style name="AppTheme.ActionBar" parent="Base.AppTheme.ActionBar"/>
-
-    <style name="AppTheme.ActionBar.Simple" parent="Base.AppTheme.ActionBar"/>
-
-    <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/orange_primary</item>
-    </style>
-
-    <style name="Base.AppStyle.DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
+    <style name="DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">16dp</item>
@@ -64,20 +98,16 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="AppStyle.DrawerItem" parent="Base.AppStyle.DrawerItem"/>
-
-    <style name="Base.AppStyle.OpBadge" parent="Base.TextAppearance.AppCompat.Caption">
+    <style name="AppStyle.OpBadge" parent="Base.TextAppearance.AppCompat.Caption">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/rounded_corner_background_orange</item>
+        <item name="android:background">?attr/roundedCornerBackground</item>
         <item name="android:text">@string/badge_op</item>
         <item name="android:paddingTop">1dp</item>
         <item name="android:paddingBottom">0dp</item>
         <item name="android:paddingLeft">2dp</item>
         <item name="android:paddingRight">2dp</item>
     </style>
-
-    <style name="AppStyle.OpBadge" parent="Base.AppStyle.OpBadge"/>
 
     <style name="UserInfo_Kpi_Header">
         <item name="android:layout_width">wrap_content</item>

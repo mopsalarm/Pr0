@@ -283,6 +283,11 @@
     <color name="orange_primary_dark">#ffb33924</color>
     <color name="orange_accent">@color/orange_primary</color>
 
+    <!-- Colors for the app -->
+    <color name="green_primary">#1db992</color>
+    <color name="green_primary_dark">#137e64</color>
+    <color name="green_accent">@color/green_primary</color>
+
     <color name="feed_background">#161618</color>
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>

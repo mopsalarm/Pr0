@@ -2,7 +2,6 @@
 <FrameLayout
     android:id="@+id/toolbar_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -16,6 +15,5 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:theme="@style/AppTheme.Toolbar"
-        app:popupTheme="@style/AppTheme.Popup"
         />
 </FrameLayout>

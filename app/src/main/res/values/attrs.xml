@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="backgroundLogin" format="reference"/>
-    <attr name="roundedCornerBackgroundLogin" format="reference"/>
+    <declare-styleable name="AppTheme">
+        <attr name="loginBackground" format="reference"/>
+        <attr name="roundedCornerBackground" format="reference"/>
+        <attr name="drawerTheme" format="reference"/>
+    </declare-styleable>
 
     <declare-styleable name="VoteView">
         <attr name="orientation" format="enum">
@@ -44,10 +47,10 @@
     </declare-styleable>
 
     <declare-styleable name="MessageView">
-        <attr name="viewLayout" format="reference" />
+        <attr name="viewLayout" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="MaxWidthFrameLayout">
-        <attr name="mwfl_maxWidth" format="dimension" />
+        <attr name="mwfl_maxWidth" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -15,13 +15,12 @@ import android.widget.Button;
 import android.widget.ScrollView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.services.ThemeHelper;
 
 /**
  * Helper to build dialogs.
  */
 public class DialogBuilder {
-    public static final int DEFAULT_THEME = R.style.AppTheme_Popup;
-
     private final Context context;
     private String positive;
     private String neutral;
@@ -37,11 +36,12 @@ public class DialogBuilder {
     private boolean cancelable = true;
     private DialogInterface.OnShowListener onShowListener;
     private DialogInterface.OnCancelListener onCancelListener;
-    private int theme = DEFAULT_THEME;
+    private int theme;
     private boolean fullWidth;
 
     private DialogBuilder(Context context) {
         this.context = context;
+        this.theme = ThemeHelper.popupTheme(context);
     }
 
     public DialogBuilder content(String content) {
