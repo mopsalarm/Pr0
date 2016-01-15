@@ -14,7 +14,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
         classpath 'io.fabric.tools:gradle:1.21.2'
         classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta3'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
@@ -151,7 +151,7 @@ dependencies {
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.4.1'
     compile 'org.nanohttpd:nanohttpd:2.2.0'
-    compile 'com.github.akodiakson:sdkcheck:0.2.2'
+    compile 'com.github.akodiakson:sdkcheck:0.2.4'
 
 
     compile 'com.facebook.stetho:stetho:1.2.0'
@@ -183,9 +183,9 @@ dependencies {
         transitive = true;
     }
 
-    apt 'org.immutables:value:2.1.5'
-    provided 'org.immutables:value:2.1.5'
-    provided 'org.immutables:gson:2.1.5'
+    apt 'org.immutables:value:2.1.7'
+    provided 'org.immutables:value:2.1.7'
+    provided 'org.immutables:gson:2.1.7'
 
     compile 'com.google.dagger:dagger:2.0.2'
     apt 'com.google.dagger:dagger-compiler:2.0.2'
