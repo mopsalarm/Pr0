@@ -276,7 +276,7 @@ public class UserService {
         return new LoginState(info, benisHistory, userIsAdmin());
     }
 
-    private boolean userIsAdmin() {
+    public boolean userIsAdmin() {
         return cookieHandler.getCookie().transform(this::isTruthValue).or(false);
     }
 

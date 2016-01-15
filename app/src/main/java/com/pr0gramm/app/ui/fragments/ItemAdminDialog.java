@@ -32,6 +32,7 @@ import butterknife.ButterKnife;
 import rx.Observable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.pr0gramm.app.services.ThemeHelper.popupContext;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
@@ -71,7 +72,7 @@ public class ItemAdminDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getContext())
+        return new AlertDialog.Builder(popupContext(getContext()))
                 .setView(R.layout.admin_delete_item)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, null)

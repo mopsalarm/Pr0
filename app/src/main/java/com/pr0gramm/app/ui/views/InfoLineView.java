@@ -34,6 +34,7 @@ import butterknife.ButterKnife;
 import rx.Observable;
 import rx.functions.Actions;
 
+import static com.pr0gramm.app.Dagger.appComponent;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.findView;
 import static java.lang.Math.min;
@@ -51,6 +52,7 @@ public class InfoLineView extends LinearLayout {
 
     private final Settings settings;
     private final View ratingUnknownView;
+    private final boolean admin;
     private OnDetailClickedListener onDetailClickedListener;
     private VoteView.OnVoteListener onVoteListener;
 
@@ -73,6 +75,8 @@ public class InfoLineView extends LinearLayout {
         settings = isInEditMode()
                 ? Settings.of(context.getSharedPreferences("", Context.MODE_PRIVATE))
                 : Settings.of(context);
+
+        admin = appComponent(context).userService().userIsAdmin();
 
         setOrientation(VERTICAL);
 
@@ -159,7 +163,7 @@ public class InfoLineView extends LinearLayout {
         if (feedItem == null)
             return;
 
-        if (isOneHourOld() || isSelfPost) {
+        if (isOneHourOld() || isSelfPost || admin) {
             int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
             ratingView.setText(String.valueOf(rating));
             ratingView.setOnLongClickListener(v -> {

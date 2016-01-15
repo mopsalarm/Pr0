@@ -305,7 +305,7 @@ public class PostFragment extends BaseFragment implements
         initializeInfoLine();
         initializeCommentPostLine();
 
-        commentsAdapter = new CommentsAdapter(userService.getName().or(""));
+        commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or(""));
         commentsAdapter.setCommentActionListener(this);
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         commentsAdapter.setShowFavCommentButton(userService.isAuthorized());

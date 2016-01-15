@@ -45,6 +45,7 @@ import static org.joda.time.Instant.now;
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
+    private final boolean admin;
     private final String selfName;
     private ImmutableList<CommentEntry> comments;
     private Optional<String> op;
@@ -56,7 +57,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private TLongSet favedComments = new TLongHashSet();
     private boolean showFavCommentButton;
 
-    public CommentsAdapter(String selfName) {
+    public CommentsAdapter(boolean admin, String selfName) {
+        this.admin = admin;
         this.selfName = selfName;
 
         setHasStableIds(true);
@@ -130,7 +132,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         AndroidUtility.linkify(view.comment, comment.getContent());
 
         // show the points
-        if (equalsIgnoreCase(comment.getName(), selfName)
+        if (admin
+                || equalsIgnoreCase(comment.getName(), selfName)
                 || comment.getCreated().isBefore(scoreVisibleThreshold)) {
 
             view.senderInfo.setPoints(getCommentScore(entry));
@@ -160,7 +163,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
         Context context = view.itemView.getContext();
-        if(comment.getId() == selectedCommentId) {
+        if (comment.getId() == selectedCommentId) {
             int color = ContextCompat.getColor(context, R.color.selected_comment_background);
             view.itemView.setBackgroundColor(color);
         } else {

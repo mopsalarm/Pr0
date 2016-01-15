@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.common.base.Ascii;
+import com.pr0gramm.app.AppComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -35,6 +36,7 @@ public class MessageView extends RelativeLayout {
                     .bold()
                     .endConfig());
 
+    private final boolean admin;
     private final TextView text;
     private final TextView type;
     private final ImageView image;
@@ -55,7 +57,6 @@ public class MessageView extends RelativeLayout {
     public MessageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-
         int layoutId = R.layout.message_view;
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -72,8 +73,9 @@ public class MessageView extends RelativeLayout {
 
         inflate(context, layoutId, this);
 
-        picasso = isInEditMode() ? null :
-                Dagger.appComponent(context).picasso();
+        AppComponent appComponent = Dagger.appComponent(context);
+        picasso = isInEditMode() ? null : appComponent.picasso();
+        admin = !isInEditMode() && appComponent.userService().userIsAdmin();
 
         text = (TextView) findViewById(R.id.message_text);
         type = (TextView) findViewById(R.id.message_type);
@@ -109,7 +111,6 @@ public class MessageView extends RelativeLayout {
         // the text of the message
         AndroidUtility.linkify(text, message.getMessage());
 
-
         // draw the image for this post
         if (isComment) {
             String url = "http://thumb.pr0gramm.com/" + message.getThumb();
@@ -129,8 +130,8 @@ public class MessageView extends RelativeLayout {
         sender.setSenderName(message.getName(), message.getMark());
         sender.setDate(message.getCreated());
 
-        if (pointsVisibility != PointsVisibility.NEVER && isComment) {
-            if(pointsVisibility == PointsVisibility.ALWAYS || visible) {
+        if (admin || pointsVisibility != PointsVisibility.NEVER && isComment) {
+            if (admin || pointsVisibility == PointsVisibility.ALWAYS || visible) {
                 sender.setPoints(message.getScore());
             } else {
                 sender.setPointsUnknown();
