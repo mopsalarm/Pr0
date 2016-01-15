@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Ladeanimation bei Java-Dekoder"
+      },
+      {
+        "type": "Fix",
+        "change": "Wechsel automatisch vom Java-Dekoder auf den WEBM-Software Dekoder"
       }
     ]
   },

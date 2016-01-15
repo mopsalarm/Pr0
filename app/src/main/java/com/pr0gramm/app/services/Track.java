@@ -103,6 +103,7 @@ public final class Track {
                 .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
+                .putCustomAttribute("theme", settings.themeName().toLowerCase())
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 
@@ -112,7 +113,6 @@ public final class Track {
 
     public static void bookmarks(int size) {
         track(new CustomEvent("Bookmarks loaded")
-                .putCustomAttribute("count", size)
                 .putCustomAttribute("bookmarks", String.valueOf(size)));
     }
 
