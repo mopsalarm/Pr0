@@ -87,8 +87,8 @@
 
 
     <string name="pref_theme_default" translatable="false">ORANGE</string>
-    <string name="theme_olive">Olivgrün des Friedens</string>
-    <string name="theme_pink">Altes Pink</string>
+    <string name="theme_olive" translatable="false">Olivgrün des Friedens</string>
+    <string name="theme_pink" translatable="false">Altes Pink</string>
     <string name="theme_fliese">Fliesentischbraun</string>
 
     <string-array name="pref_theme_values">

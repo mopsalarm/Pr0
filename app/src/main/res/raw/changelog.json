@@ -3,6 +3,10 @@
     "version": 84,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Themes"
+      },
+      {
         "type": "Fix",
         "change": "Ladeanimation bei Java-Dekoder"
       }

@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
+import static com.pr0gramm.app.services.ThemeHelper.theme;
+
 /**
  */
 public class SearchUserDialog extends BaseDialogFragment {
@@ -41,8 +43,7 @@ public class SearchUserDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(),
-                R.style.Theme_AppCompat_Light_Dialog);
+        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), theme().popup);
 
         View contentView = LayoutInflater
                 .from(context)

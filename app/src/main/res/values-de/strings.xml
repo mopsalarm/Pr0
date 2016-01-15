@@ -296,4 +296,15 @@
     <string name="action_rules">REGELN</string>
     <string name="rules_title">Die Regeln</string>
     <string name="error_fragment_depth">Entschuldige, aber Aufgrund einer Schwäche von Android kannst du das gerade nicht machen: %s</string>
+    <string name="action_switch_to_new">In \'neu\' öffnen</string>
+    <string name="action_switch_to_top">In \'top\' öffnen</string>
+    <string name="action_delete_item">Löschen</string>
+    <string name="ban">Ban</string>
+    <string name="delete">Löschen</string>
+    <string name="hint_block_user_for">User blocken (Tage)</string>
+    <string name="notify_user">U. benachrichtigen</string>
+    <string name="pref_theme_title">Theme auswählen</string>
+    <string name="pref_theme_summary">Du kannst zwischen verschiedenen Themes wählen. Gefällt dir <i>Bewährtes Orange</i> oder stehst du eher auf <i>Angenehmes Grün</i>?</string>
+    <string name="prefcat_theme">Theme</string>
+    <string name="reason">Grund</string>
 </resources>
