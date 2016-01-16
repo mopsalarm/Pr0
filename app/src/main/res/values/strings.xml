@@ -69,7 +69,7 @@
     <string name="pref_seen_indicator_style_summary">Specifies the style how already viewed items are marked in the feed</string>
     <string name="error_socket">A network error occurred. Just try again.</string>
     <string name="dummy_tags" translatable="false">würde, Kreiselficker</string>
-    <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags with a comma.</string>
+    <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags <b>with a comma.</b></string>
     <string name="comment_hint">Comment…</string>
     <string name="action_answer">Answer</string>
     <string name="post_comment">Post</string>
