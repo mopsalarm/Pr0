@@ -18,8 +18,8 @@ public enum Themes {
             R.style.AppTheme_Orange_NoActionBar,
             R.style.AppTheme_Orange_NoActionBar_Fullscreen,
             R.style.AppTheme_Orange_NoActionBar_TranslucentStatus,
-            R.style.AppTheme_Orange_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup),
+            R.style.AppTheme_Orange_NoActionBar_WhiteAccent
+    ),
 
     GREEN(R.string.theme_green,
             R.color.green_primary,
@@ -28,8 +28,8 @@ public enum Themes {
             R.style.AppTheme_Green_NoActionBar,
             R.style.AppTheme_Green_NoActionBar_Fullscreen,
             R.style.AppTheme_Green_NoActionBar_TranslucentStatus,
-            R.style.AppTheme_Green_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup),
+            R.style.AppTheme_Green_NoActionBar_WhiteAccent
+    ),
 
     OLIVE(R.string.theme_olive,
             R.color.olive_primary,
@@ -38,8 +38,8 @@ public enum Themes {
             R.style.AppTheme_Olive_NoActionBar,
             R.style.AppTheme_Olive_NoActionBar_Fullscreen,
             R.style.AppTheme_Olive_NoActionBar_TranslucentStatus,
-            R.style.AppTheme_Olive_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup),
+            R.style.AppTheme_Olive_NoActionBar_WhiteAccent
+    ),
 
     PINK(R.string.theme_pink,
             R.color.pink_primary,
@@ -48,8 +48,8 @@ public enum Themes {
             R.style.AppTheme_Pink_NoActionBar,
             R.style.AppTheme_Pink_NoActionBar_Fullscreen,
             R.style.AppTheme_Pink_NoActionBar_TranslucentStatus,
-            R.style.AppTheme_Pink_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup);
+            R.style.AppTheme_Pink_NoActionBar_WhiteAccent
+    );
 
     @StringRes
     public final int title;
@@ -75,9 +75,6 @@ public enum Themes {
     @StyleRes
     public final int whiteAccent;
 
-    @StyleRes
-    public final int popup;
-
     Themes(@StringRes int title,
            @ColorRes int primaryColor,
            @ColorRes int primaryColorDark,
@@ -85,8 +82,7 @@ public enum Themes {
            @StyleRes int noActionBar,
            @StyleRes int fullscreen,
            @StyleRes int translucentStatus,
-           @StyleRes int whiteAccent,
-           @StyleRes int popup) {
+           @StyleRes int whiteAccent) {
 
         this.title = title;
         this.primaryColor = primaryColor;
@@ -96,7 +92,6 @@ public enum Themes {
         this.fullscreen = fullscreen;
         this.translucentStatus = translucentStatus;
         this.whiteAccent = whiteAccent;
-        this.popup = popup;
     }
 
     public String title(Context context) {

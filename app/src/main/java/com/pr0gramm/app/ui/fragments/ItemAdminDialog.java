@@ -79,9 +79,13 @@ public class ItemAdminDialog extends BaseDialogFragment {
     }
 
     private void onDeleteClicked() {
-        String reason = customReasonText.getText().toString();
+        String reason = customReasonText.getText().toString().trim();
         boolean notifyUser = this.notifyUser.isChecked();
         boolean ban = blockUser.isChecked();
+
+        if (reason.isEmpty()) {
+            return;
+        }
 
         Observable<Void> response = deleteItem(reason, notifyUser, ban);
         response.compose(bindToLifecycle())
