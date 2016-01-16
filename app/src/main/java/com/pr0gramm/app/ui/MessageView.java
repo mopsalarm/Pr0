@@ -130,7 +130,7 @@ public class MessageView extends RelativeLayout {
         sender.setSenderName(message.getName(), message.getMark());
         sender.setDate(message.getCreated());
 
-        if (admin || pointsVisibility != PointsVisibility.NEVER && isComment) {
+        if ((admin || pointsVisibility != PointsVisibility.NEVER) && isComment) {
             if (admin || pointsVisibility == PointsVisibility.ALWAYS || visible) {
                 sender.setPoints(message.getScore());
             } else {
