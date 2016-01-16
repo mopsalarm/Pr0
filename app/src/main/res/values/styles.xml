@@ -13,6 +13,8 @@
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
         <item name="drawerTheme">@style/DrawerTheme.Orange</item>
         <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Orange</item>
+        <item name="appIcon">@drawable/ic_app_orange</item>
     </style>
 
     <style name="AppTheme.Green">
@@ -23,6 +25,8 @@
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
         <item name="drawerTheme">@style/DrawerTheme.Green</item>
         <item name="popupTheme">@style/AppTheme.Popup.Green</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Green</item>
+        <item name="appIcon">@drawable/ic_app_green</item>
     </style>
 
     <style name="AppTheme.Olive">
@@ -33,6 +37,8 @@
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_olive</item>
         <item name="drawerTheme">@style/DrawerTheme.Olive</item>
         <item name="popupTheme">@style/AppTheme.Popup.Olive</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Olive</item>
+        <item name="appIcon">@drawable/ic_app_olive</item>
     </style>
 
     <style name="AppTheme.Pink">
@@ -44,6 +50,7 @@
         <item name="drawerTheme">@style/DrawerTheme.Pink</item>
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Pink</item>
+        <item name="appIcon">@drawable/ic_app_pink</item>
     </style>
 
     <!-- Now do the same for popup menus -->
@@ -152,22 +159,18 @@
     <!-- ###### This is for the drawer ###### -->
     <style name="DrawerTheme.Orange" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/orange_primary</item>
-        <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
     </style>
 
     <style name="DrawerTheme.Green" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/green_primary</item>
-        <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
     </style>
 
     <style name="DrawerTheme.Olive" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/olive_primary</item>
-        <item name="roundedCornerBackground">@drawable/rounded_corner_background_olive</item>
     </style>
 
     <style name="DrawerTheme.Pink" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/pink_primary</item>
-        <item name="roundedCornerBackground">@drawable/rounded_corner_background_pink</item>
     </style>
 
     <!-- This is all color independent! -->

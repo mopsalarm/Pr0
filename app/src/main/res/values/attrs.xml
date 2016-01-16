@@ -4,6 +4,7 @@
         <attr name="loginBackground" format="reference"/>
         <attr name="roundedCornerBackground" format="reference"/>
         <attr name="drawerTheme" format="reference"/>
+        <attr name="appIcon" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="VoteView">

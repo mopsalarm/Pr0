@@ -17,7 +17,7 @@
             android:id="@+id/user_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background_material_dark"
+            android:background="#303030"
             android:elevation="8dp"
             android:orientation="vertical"
             android:padding="16dp">
@@ -26,7 +26,7 @@
                 android:id="@+id/user_image"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:src="@drawable/ic_app"/>
+                android:src="?appIcon"/>
 
             <TextView
                 android:id="@+id/username"

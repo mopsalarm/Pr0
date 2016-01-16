@@ -102,7 +102,7 @@ public class VideoDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         if (current == null) {
-            // canvas.drawColor(Color.TRANSPARENT);
+            // canvas.eraseColor(Color.TRANSPARENT);
             return;
         }
 
