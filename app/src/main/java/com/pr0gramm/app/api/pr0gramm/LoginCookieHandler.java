@@ -166,10 +166,6 @@ public class LoginCookieHandler implements CookieJar {
         return Optional.fromNullable(httpCookie != null ? httpCookie.value() : null);
     }
 
-    public OnCookieChangedListener getOnCookieChangedListener() {
-        return onCookieChangedListener;
-    }
-
     public void setOnCookieChangedListener(OnCookieChangedListener onCookieChangedListener) {
         this.onCookieChangedListener = onCookieChangedListener;
     }
