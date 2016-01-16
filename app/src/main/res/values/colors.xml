@@ -328,4 +328,5 @@
 
     <color name="public_benis_graph_background">@color/grey_800</color>
     <color name="public_benis_graph_stroke">@color/grey_700</color>
+    <color name="drawer_background">#fafafa</color>
 </resources>
