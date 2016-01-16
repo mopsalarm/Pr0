@@ -51,6 +51,7 @@ public class HttpModule {
                 .cache(new Cache(cacheDir, 256 * 1024 * 1024))
                 .socketFactory(new SmallBufferSocketFactory())
 
+                .cookieJar(cookieHandler)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
