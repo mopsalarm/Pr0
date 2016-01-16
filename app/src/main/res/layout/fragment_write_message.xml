@@ -3,7 +3,8 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:context=".ui.WriteMessageActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,8 +35,8 @@
                 android:background="@color/input_background"
                 android:gravity="start|top"
                 android:hint="@string/write_message_placeholder"
-                android:inputType="textMultiLine|textAutoCorrect"
                 android:minLines="5"
+                android:singleLine="false"
                 android:padding="8sp"
                 >
 
