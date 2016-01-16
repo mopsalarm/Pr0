@@ -35,8 +35,8 @@
                 android:background="@color/input_background"
                 android:gravity="start|top"
                 android:hint="@string/write_message_placeholder"
+                android:inputType="textMultiLine"
                 android:minLines="5"
-                android:singleLine="false"
                 android:padding="8sp"
                 >
 

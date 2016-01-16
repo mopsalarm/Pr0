@@ -73,9 +73,14 @@ public class MessageView extends RelativeLayout {
 
         inflate(context, layoutId, this);
 
-        AppComponent appComponent = Dagger.appComponent(context);
-        picasso = isInEditMode() ? null : appComponent.picasso();
-        admin = !isInEditMode() && appComponent.userService().userIsAdmin();
+        if (!isInEditMode()) {
+            AppComponent appComponent = Dagger.appComponent(context);
+            admin = appComponent.userService().userIsAdmin();
+            picasso = appComponent.picasso();
+        } else {
+            admin = false;
+            picasso = null;
+        }
 
         text = (TextView) findViewById(R.id.message_text);
         type = (TextView) findViewById(R.id.message_type);
