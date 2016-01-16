@@ -19,7 +19,7 @@ public enum Themes {
             R.style.AppTheme_Orange_NoActionBar_Fullscreen,
             R.style.AppTheme_Orange_NoActionBar_TranslucentStatus,
             R.style.AppTheme_Orange_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup_Orange),
+            R.style.AppTheme_Popup),
 
     GREEN(R.string.theme_green,
             R.color.green_primary,
@@ -29,7 +29,7 @@ public enum Themes {
             R.style.AppTheme_Green_NoActionBar_Fullscreen,
             R.style.AppTheme_Green_NoActionBar_TranslucentStatus,
             R.style.AppTheme_Green_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup_Green),
+            R.style.AppTheme_Popup),
 
     OLIVE(R.string.theme_olive,
             R.color.olive_primary,
@@ -39,7 +39,7 @@ public enum Themes {
             R.style.AppTheme_Olive_NoActionBar_Fullscreen,
             R.style.AppTheme_Olive_NoActionBar_TranslucentStatus,
             R.style.AppTheme_Olive_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup_Olive),
+            R.style.AppTheme_Popup),
 
     PINK(R.string.theme_pink,
             R.color.pink_primary,
@@ -49,7 +49,7 @@ public enum Themes {
             R.style.AppTheme_Pink_NoActionBar_Fullscreen,
             R.style.AppTheme_Pink_NoActionBar_TranslucentStatus,
             R.style.AppTheme_Pink_NoActionBar_WhiteAccent,
-            R.style.AppTheme_Popup_Pink);
+            R.style.AppTheme_Popup);
 
     @StringRes
     public final int title;

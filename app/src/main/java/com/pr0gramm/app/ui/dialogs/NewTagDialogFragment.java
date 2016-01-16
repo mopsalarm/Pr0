@@ -3,8 +3,6 @@ package com.pr0gramm.app.ui.dialogs;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.MultiAutoCompleteTextView;
 
 import com.google.common.base.Splitter;
@@ -17,7 +15,6 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  */
@@ -28,17 +25,16 @@ public class NewTagDialogFragment extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_tags, null);
-        ButterKnife.bind(this, view);
-
-        // add tag-completion
-        TagInputView.setup(tagInput);
-
         return DialogBuilder.start(getActivity())
-                .content(view, true)
+                .layout(R.layout.dialog_add_tags)
                 .negative(R.string.cancel)
                 .positive(R.string.dialog_action_add, this::onOkayClicked)
                 .build();
+    }
+
+    @Override
+    protected void onDialogViewCreated() {
+        TagInputView.setup(tagInput);
     }
 
     private void onOkayClicked() {

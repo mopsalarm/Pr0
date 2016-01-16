@@ -6,46 +6,38 @@ import android.content.DialogInterface;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ScrollView;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.services.ThemeHelper;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Helper to build dialogs.
  */
+@ParametersAreNonnullByDefault
 public class DialogBuilder {
     private final Context context;
-    private String positive;
-    private String neutral;
-    private String negative;
+    private final AlertDialog.Builder builder;
 
-    private String content;
-    private View view;
-    private String title;
-    private OnClickListener positiveOnClick;
-    private OnClickListener negativeOnClick;
-    private OnClickListener neutralOnClick;
     private boolean autoDismiss = true;
-    private boolean cancelable = true;
+    private OnClickListener positiveOnClick = DO_NOTHING;
+    private OnClickListener negativeOnClick = DO_NOTHING;
+    private OnClickListener neutralOnClick = DO_NOTHING;
     private DialogInterface.OnShowListener onShowListener;
     private DialogInterface.OnCancelListener onCancelListener;
-    private int theme;
-    private boolean fullWidth;
 
     private DialogBuilder(Context context) {
+        // this.theme = ThemeHelper.theme().popup;
         this.context = context;
-        this.theme = ThemeHelper.theme().popup;
+        this.builder = new AlertDialog.Builder(context);
+
+        // default
+        builder.setCancelable(false);
     }
 
     public DialogBuilder content(String content) {
-        this.content = content;
+        this.builder.setMessage(content);
         return this;
     }
 
@@ -54,7 +46,7 @@ public class DialogBuilder {
     }
 
     public DialogBuilder title(String title) {
-        this.title = title;
+        builder.setTitle(title);
         return this;
     }
 
@@ -67,16 +59,13 @@ public class DialogBuilder {
         return this;
     }
 
-    public DialogBuilder content(View view) {
-        return content(view, true);
-    }
-
     public DialogBuilder layout(@LayoutRes int view) {
-        return content(LayoutInflater.from(context).inflate(view, null));
+        builder.setView(view);
+        return this;
     }
 
     public DialogBuilder positive() {
-        return positive(getString(R.string.okay), null);
+        return positive(getString(R.string.okay));
     }
 
     public DialogBuilder positive(@StringRes int text, OnClickListener onClick) {
@@ -88,17 +77,18 @@ public class DialogBuilder {
     }
 
     public DialogBuilder positive(String text) {
-        return positive(text, null);
+        builder.setPositiveButton(text, null);
+        return this;
     }
 
     public DialogBuilder positive(String text, OnClickListener onClick) {
-        this.positive = text;
+        builder.setPositiveButton(text, null);
         this.positiveOnClick = onClick;
         return this;
     }
 
     public DialogBuilder negative(@StringRes int text) {
-        return negative(getString(text), null);
+        return negative(getString(text));
     }
 
     public DialogBuilder negative(OnClickListener onClick) {
@@ -110,17 +100,18 @@ public class DialogBuilder {
     }
 
     public DialogBuilder negative(String text) {
-        return negative(text, null);
+        builder.setNegativeButton(text, null);
+        return this;
     }
 
     public DialogBuilder negative(String text, OnClickListener onClick) {
-        this.negative = text;
+        builder.setNegativeButton(text, null);
         this.negativeOnClick = onClick;
         return this;
     }
 
     public DialogBuilder neutral(@StringRes int text) {
-        return neutral(getString(text), null);
+        return neutral(getString(text));
     }
 
     public DialogBuilder neutral(@StringRes int text, OnClickListener onClick) {
@@ -132,28 +123,13 @@ public class DialogBuilder {
     }
 
     public DialogBuilder neutral(String text) {
-        return neutral(text, null);
-    }
-
-    public DialogBuilder neutral(String text, OnClickListener onClick) {
-        this.neutral = text;
-        this.neutralOnClick = onClick;
+        builder.setNeutralButton(text, null);
         return this;
     }
 
-    public DialogBuilder content(View view, boolean wrapInScroll) {
-        if (wrapInScroll) {
-            ScrollView scroll = new ScrollView(context);
-            scroll.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-
-            scroll.addView(view);
-            this.view = scroll;
-        } else {
-            this.view = view;
-        }
-
+    public DialogBuilder neutral(String text, OnClickListener onClick) {
+        builder.setNeutralButton(text, null);
+        this.neutralOnClick = onClick;
         return this;
     }
 
@@ -173,22 +149,6 @@ public class DialogBuilder {
     }
 
     public Dialog build() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, theme)
-                .setTitle(title)
-                .setMessage(content)
-                .setView(view)
-                .setCancelable(cancelable);
-
-        if (positive != null)
-            builder.setPositiveButton(positive, null);
-
-        if (negative != null)
-            builder.setNegativeButton(negative, null);
-
-        if (neutral != null)
-            builder.setNeutralButton(neutral, null);
-
-
         AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(di -> {
@@ -205,34 +165,17 @@ public class DialogBuilder {
 
         dialog.setOnCancelListener(onCancelListener);
 
-        if (fullWidth) {
-            //Grab the window of the dialog, and change the width
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            Window window = dialog.getWindow();
-            lp.copyFrom(window.getAttributes());
-
-            //This makes the dialog take up the full width
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            window.setAttributes(lp);
-        }
-
         return dialog;
     }
 
-    public DialogBuilder theme(int theme) {
-        this.theme = theme;
-        return this;
-    }
-
     private void onButtonClicked(int button, AlertDialog dialog) {
-        if (button == Dialog.BUTTON_POSITIVE && positiveOnClick != null)
+        if (button == Dialog.BUTTON_POSITIVE)
             positiveOnClick.onClick(dialog);
 
-        if (button == Dialog.BUTTON_NEGATIVE && negativeOnClick != null)
+        if (button == Dialog.BUTTON_NEGATIVE)
             negativeOnClick.onClick(dialog);
 
-        if (button == Dialog.BUTTON_NEUTRAL && neutralOnClick != null)
+        if (button == Dialog.BUTTON_NEUTRAL)
             neutralOnClick.onClick(dialog);
 
         if (autoDismiss)
@@ -244,12 +187,7 @@ public class DialogBuilder {
     }
 
     public DialogBuilder cancelable() {
-        this.cancelable = false;
-        return this;
-    }
-
-    public DialogBuilder fullWidth() {
-        // this.fullWidth = true;
+        builder.setCancelable(true);
         return this;
     }
 
@@ -271,4 +209,7 @@ public class DialogBuilder {
             Dialog.BUTTON_NEGATIVE,
             Dialog.BUTTON_POSITIVE,
             Dialog.BUTTON_NEUTRAL};
+
+    private static final OnClickListener DO_NOTHING = dialog -> {
+    };
 }

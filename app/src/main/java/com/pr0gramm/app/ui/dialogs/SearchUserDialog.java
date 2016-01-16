@@ -4,11 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -25,14 +21,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import static com.pr0gramm.app.services.ThemeHelper.theme;
+import butterknife.Bind;
 
 /**
  */
 public class SearchUserDialog extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger("SearchUserDialog");
 
-    private EditText inputView;
+    @Bind(R.id.username)
+    AutoCompleteTextView inputView;
 
     @Inject
     UserService userService;
@@ -43,26 +40,19 @@ public class SearchUserDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), theme().popup);
-
-        View contentView = LayoutInflater
-                .from(context)
-                .inflate(R.layout.search_user_dialog, null);
-
-        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) contentView.findViewById(R.id.username);
-        if (autoCompleteTextView != null) {
-            autoCompleteTextView.setAdapter(new UsernameAutoCompleteAdapter(metaService, context,
-                    "", android.R.layout.simple_dropdown_item_1line));
-        }
-
-        inputView = autoCompleteTextView;
-
-        return DialogBuilder.start(context)
-                .content(contentView)
+        return DialogBuilder.start(getContext())
+                .layout(R.layout.search_user_dialog)
                 .positive(R.string.action_search_simple, di -> onSearchClicked())
                 .negative(Dialog::dismiss)
                 .noAutoDismiss()
                 .build();
+    }
+
+    @Override
+    protected void onDialogViewCreated() {
+        inputView.setAdapter(new UsernameAutoCompleteAdapter(metaService, getThemedContext(),
+                "", android.R.layout.simple_dropdown_item_1line));
+
     }
 
     private void onSearchClicked() {

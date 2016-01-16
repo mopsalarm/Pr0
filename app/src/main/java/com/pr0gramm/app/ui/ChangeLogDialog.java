@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,12 +36,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.Bind;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
 import static com.pr0gramm.app.R.color.grey_700;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 
 /**
@@ -51,28 +50,28 @@ public class ChangeLogDialog extends BaseDialogFragment {
     @Inject
     Settings settings;
 
+    @Bind(R.id.changelog)
+    RecyclerView recyclerView;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Settings settings = Settings.of(getActivity());
-
-        ContextThemeWrapper context = new ContextThemeWrapper(
-                getActivity(), theme().popup);
-
-        List<ChangeGroup> changes = changelog(context);
-        LayoutInflater inflater = LayoutInflater.from(context);
-        RecyclerView recycler = (RecyclerView) inflater.inflate(R.layout.changelog, null);
-        recycler.setAdapter(new ChangeAdapter(changes));
-        recycler.setLayoutManager(new LinearLayoutManager(context));
-
-        return DialogBuilder.start(context)
-                .content(recycler, false)
+        return DialogBuilder.start(getContext())
+                .layout(R.layout.changelog)
                 .positive(R.string.okay, () -> {
                     if (settings.useBetaChannel()) {
                         showFeedbackReminderDialog();
                     }
                 })
                 .build();
+    }
+
+    @Override
+    protected void onDialogViewCreated() {
+        List<ChangeGroup> changes = loadChangelog(getContext());
+        recyclerView.setAdapter(new ChangeAdapter(changes));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void showFeedbackReminderDialog() {
@@ -217,7 +216,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private static List<ChangeGroup> changelog(Context context) {
+    private static List<ChangeGroup> loadChangelog(Context context) {
         try {
             try (InputStream input = context.getResources().openRawResource(R.raw.changelog)) {
                 InputStreamReader reader = new InputStreamReader(input, Charsets.UTF_8);

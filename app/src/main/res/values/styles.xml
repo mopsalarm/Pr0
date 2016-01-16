@@ -43,10 +43,11 @@
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_pink</item>
         <item name="drawerTheme">@style/DrawerTheme.Pink</item>
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Pink</item>
     </style>
 
-    <!-- Now do the same for popups -->
-    <style name="AppTheme.Popup" parent="Theme.AppCompat.Light.Dialog"/>
+    <!-- Now do the same for popup menus -->
+    <style name="AppTheme.Popup" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="AppTheme.Popup.Orange">
         <item name="colorAccent">@color/orange_primary</item>
@@ -61,6 +62,24 @@
     </style>
 
     <style name="AppTheme.Popup.Pink">
+        <item name="colorAccent">@color/pink_primary</item>
+    </style>
+    
+    <!-- And for everything based on alert dialogs -->
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+    <style name="AppTheme.Dialog.Orange">
+        <item name="colorAccent">@color/orange_primary</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Green">
+        <item name="colorAccent">@color/green_primary</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Olive">
+        <item name="colorAccent">@color/olive_primary</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Pink">
         <item name="colorAccent">@color/pink_primary</item>
     </style>
 

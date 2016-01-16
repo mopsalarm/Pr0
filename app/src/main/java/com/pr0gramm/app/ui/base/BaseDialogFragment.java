@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui.base;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -19,6 +21,7 @@ import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -84,6 +87,16 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
     public void onStart() {
         super.onStart();
         lifecycleSubject.onNext(FragmentEvent.START);
+
+        // bind dialog. It is only created in on start.
+        Dialog dialog = getDialog();
+        if (dialog != null) {
+            ButterKnife.bind(this, dialog);
+            onDialogViewCreated();
+        }
+    }
+
+    protected void onDialogViewCreated() {
     }
 
     @Override
@@ -134,5 +147,10 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
             // propagate to fragment
             ((DialogDismissListener) activity).onDialogDismissed(this);
         }
+    }
+
+    protected Context getThemedContext() {
+        Dialog dialog = getDialog();
+        return dialog != null ? dialog.getContext() : getContext();
     }
 }

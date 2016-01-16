@@ -7,7 +7,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -15,7 +14,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
-import butterknife.ButterKnife;
+import butterknife.Bind;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -25,22 +24,24 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 /**
  */
 public class BusyDialogFragment extends DialogFragment {
-    private BusyIndicator progress;
+    @Bind(R.id.progress)
+    BusyIndicator progress;
+
+    @Bind(R.id.text)
+    TextView message;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.progress_dialog, null);
-
-        TextView text = ButterKnife.findById(view, R.id.text);
-        text.setText(getDialogText());
-
-        this.progress = ButterKnife.findById(view, R.id.progress);
-
         return DialogBuilder.start(getActivity())
-                .content(view)
+                .layout(R.layout.progress_dialog)
                 .cancelable()
                 .build();
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        message.setText(getDialogText());
     }
 
     private String getDialogText() {
