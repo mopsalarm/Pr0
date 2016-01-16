@@ -1,7 +1,9 @@
+- var appVersion = "1.833"
+- var appVersionStr = "1.83.3"
+
 mixin section(classes)
   .section.row(class=classes)
     block
-
 
 doctype html
 html(lang="de")
@@ -58,7 +60,7 @@ html(lang="de")
                     a.btn.btn-lg.btn-pro(href="#download") Herunterladen
                   .minor
                     | version 
-                    span.version 1.82.2
+                    span.version= appVersionStr
       +section('top-continue')
         a(href="#continue")
           i.fa.fa-chevron-down
