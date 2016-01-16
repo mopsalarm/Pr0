@@ -1,7 +1,5 @@
 package com.pr0gramm.app.ui.fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DownloadManager;
@@ -741,15 +739,12 @@ public class PostFragment extends BaseFragment implements
                 ofFloat(View.SCALE_Y, 0.7f, 1.3f));
 
         animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                View view = PostFragment.this.voteAnimationIndicator;
-                if (view != null) {
-                    view.setVisibility(View.GONE);
-                }
+        animator.addListener(AndroidUtility.endAction(() -> {
+            View view = PostFragment.this.voteAnimationIndicator;
+            if (view != null) {
+                view.setVisibility(View.GONE);
             }
-        });
+        }));
     }
 
     private void initializeMediaView() {
