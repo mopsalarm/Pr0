@@ -127,8 +127,11 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
 
         long size = file.length();
         FileInputStream stream = new FileInputStream(file);
-        return newFixedLengthResponse(Response.Status.OK,
+        Response response = newFixedLengthResponse(Response.Status.OK,
                 guessContentType(file.toString()), stream, size);
+
+        response.setGzipEncoding(false);
+        return response;
     }
 
     private Response proxyHttpUri(IHTTPSession session, final String url) throws IOException {
@@ -177,6 +180,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         }
 
         Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
+        result.setGzipEncoding(false);
         result.addHeader("Accept-Range", "bytes");
         result.addHeader("Cache-Content", "no-cache");
 
