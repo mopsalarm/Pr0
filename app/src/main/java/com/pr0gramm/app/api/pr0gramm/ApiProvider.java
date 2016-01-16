@@ -12,8 +12,6 @@ import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +27,14 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import retrofit.BaseUrl;
-import retrofit.GsonConverterFactory;
-import retrofit.HttpException;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.GET;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import retrofit2.BaseUrl;
+import retrofit2.GsonConverterFactory;
+import retrofit2.HttpException;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.GET;
 import rx.Observable;
 
 /**
@@ -72,7 +72,7 @@ public class ApiProvider implements Provider<Api> {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .client(client)
-                .validateEagerly()
+                .validateEagerly(true)
                 .build()
                 .create(Api.class);
     }

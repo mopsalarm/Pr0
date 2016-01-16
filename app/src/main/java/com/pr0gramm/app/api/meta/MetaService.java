@@ -17,7 +17,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.pr0gramm.app.services.Graph;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,11 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
+import okhttp3.OkHttpClient;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
 import rx.Observable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -59,7 +59,7 @@ public class MetaService {
                 .client(httpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .validateEagerly()
+                .validateEagerly(true)
                 .build()
                 .create(MetaApi.class);
 

@@ -27,12 +27,12 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import okhttp3.OkHttpClient;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;
@@ -239,7 +239,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if ("pref_use_api_proxy".equals(key)) {
                 boolean useProxy = preferences.getBoolean(key, false);
-                okHttpClient.setProxySelector(useProxy ? new CustomProxySelector() : null);
+                CustomProxySelector selector = (CustomProxySelector) okHttpClient.proxySelector();
+                selector.setActive(useProxy);
 
                 if (useProxy) {
                     DialogBuilder.start(activity)

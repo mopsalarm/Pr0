@@ -9,7 +9,6 @@ import com.pr0gramm.app.api.pr0gramm.response.ImmutableMessage;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -27,15 +26,16 @@ import javax.inject.Singleton;
 import gnu.trove.TCollections;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.Body;
-import retrofit.http.DELETE;
-import retrofit.http.GET;
-import retrofit.http.PUT;
-import retrofit.http.Path;
-import retrofit.http.Query;
+import okhttp3.OkHttpClient;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -65,7 +65,7 @@ public class FavedCommentService {
                         .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
                         .create()))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .validateEagerly()
+                .validateEagerly(true)
                 .build()
                 .create(HttpInterface.class);
 

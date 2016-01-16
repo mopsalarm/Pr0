@@ -43,7 +43,7 @@ import org.joda.time.Weeks;
 import javax.inject.Inject;
 
 import butterknife.Bind;
-import retrofit.HttpException;
+import retrofit2.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;

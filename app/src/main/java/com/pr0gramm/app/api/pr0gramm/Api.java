@@ -14,14 +14,14 @@ import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.api.pr0gramm.response.Upload;
 import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
-import com.squareup.okhttp.RequestBody;
 
-import retrofit.http.Body;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Query;
+import okhttp3.RequestBody;
+import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**

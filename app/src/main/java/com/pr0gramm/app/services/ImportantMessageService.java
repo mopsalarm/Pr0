@@ -10,7 +10,6 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.scripting.Interpreter;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +19,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.GET;
-import retrofit.http.Url;
+import okhttp3.OkHttpClient;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Url;
 import rx.Observable;
 
 /**

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.google.common.base.Stopwatch;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
@@ -11,13 +12,7 @@ import com.pr0gramm.app.services.proxy.HttpProxyService;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.util.GuavaPicassoCache;
 import com.pr0gramm.app.util.SmallBufferSocketFactory;
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.ConnectionPool;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.squareup.picasso.Downloader;
-import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
 import org.slf4j.Logger;
@@ -31,6 +26,11 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.Cache;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  */
@@ -41,45 +41,45 @@ public class HttpModule {
     @Provides
     @Singleton
     public OkHttpClient okHttpClient(Context context, Settings settings, LoginCookieHandler cookieHandler) {
+        final Logger okLogger = LoggerFactory.getLogger("OkHttpClient");
+
         File cacheDir = new File(context.getCacheDir(), "imgCache");
+        CustomProxySelector proxySelector = new CustomProxySelector();
+        proxySelector.setActive(settings.useApiProxy());
 
-        OkHttpClient client = new OkHttpClient();
-        client.setCache(new Cache(cacheDir, 256 * 1024 * 1024));
-        client.setCookieHandler(cookieHandler);
-        client.setSocketFactory(new SmallBufferSocketFactory());
+        return new OkHttpClient.Builder()
+                .cache(new Cache(cacheDir, 256 * 1024 * 1024))
+                .socketFactory(new SmallBufferSocketFactory())
 
-        client.setReadTimeout(15, TimeUnit.SECONDS);
-        client.setWriteTimeout(15, TimeUnit.SECONDS);
-        client.setConnectTimeout(10, TimeUnit.SECONDS);
-        client.setConnectionPool(new ConnectionPool(4, 1000));
-        client.setRetryOnConnectionFailure(true);
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .connectionPool(new ConnectionPool(4, 3, TimeUnit.SECONDS))
+                .retryOnConnectionFailure(true)
 
-        client.setProxySelector(settings.useApiProxy() ? new CustomProxySelector() : null);
+                .proxySelector(proxySelector)
+                .addNetworkInterceptor(chain -> {
+                    Stopwatch watch = Stopwatch.createStarted();
+                    Request request = chain.request();
 
-        final Logger logger = LoggerFactory.getLogger("OkHttpClient");
-        client.networkInterceptors().add(chain -> {
-            Stopwatch watch = Stopwatch.createStarted();
-            Request request = chain.request();
+                    okLogger.info("performing {} http request for {}", request.method(), request.url());
+                    try {
+                        Response response = chain.proceed(request);
+                        okLogger.info("{} ({}) took {}", request.url(), response.code(), watch);
+                        return response;
 
-            logger.info("performing {} http request for {}", request.method(), request.urlString());
-            try {
-                Response response = chain.proceed(request);
-                logger.info("{} ({}) took {}", request.urlString(), response.code(), watch);
-                return response;
-
-            } catch (Exception error) {
-                logger.warn("{} produced error: {}", request.urlString(), error);
-                throw error;
-            }
-        });
-
-        return client;
+                    } catch (Exception error) {
+                        okLogger.warn("{} produced error: {}", request.url(), error);
+                        throw error;
+                    }
+                })
+                .build();
     }
 
     @Provides
     @Singleton
     public Downloader downloader(OkHttpClient client) {
-        return new OkHttpDownloader(client);
+        return new OkHttp3Downloader(client);
     }
 
     @Provides

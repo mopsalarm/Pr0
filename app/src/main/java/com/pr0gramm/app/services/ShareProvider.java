@@ -23,9 +23,6 @@ import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.feed.FeedItem;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +33,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.inject.Inject;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

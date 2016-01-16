@@ -19,9 +19,6 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.joda.time.Instant;
 import org.slf4j.Logger;
@@ -37,6 +34,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import rx.functions.Action1;
 
 import static com.google.common.collect.Lists.newArrayList;

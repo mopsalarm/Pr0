@@ -10,11 +10,11 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.BusyIndicator;
-import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import okhttp3.OkHttpClient;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.subscriptions.CompositeSubscription;
 

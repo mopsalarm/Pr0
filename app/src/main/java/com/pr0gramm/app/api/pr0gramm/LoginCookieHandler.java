@@ -4,24 +4,24 @@ import android.content.SharedPreferences;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.CookieHandler;
-import java.net.HttpCookie;
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
@@ -31,7 +31,7 @@ import static java.util.Arrays.asList;
 /**
  */
 @Singleton
-public class LoginCookieHandler extends CookieHandler {
+public class LoginCookieHandler implements CookieJar {
     private static final Logger logger = LoggerFactory.getLogger("LoginCookieHandler");
 
     private static final String PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue";
@@ -40,7 +40,7 @@ public class LoginCookieHandler extends CookieHandler {
     private final SharedPreferences preferences;
     private final Gson gson = new Gson();
 
-    private HttpCookie httpCookie;
+    private okhttp3.Cookie httpCookie;
     private OnCookieChangedListener onCookieChangedListener;
     private Optional<Cookie> parsedCookie = Optional.absent();
 
@@ -56,72 +56,53 @@ public class LoginCookieHandler extends CookieHandler {
     }
 
     @Override
-    public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) {
-        if (isNoApiRequest(uri))
-            return requestHeaders;
+    public List<okhttp3.Cookie> loadForRequest(HttpUrl url) {
+        if (isNoApiRequest(url))
+            return Collections.emptyList();
 
-        if (httpCookie == null || httpCookie.getValue() == null)
-            return Collections.emptyMap();
+        if (httpCookie == null || httpCookie.value() == null)
+            return Collections.emptyList();
 
-        // logger.debug("LoginCookieHandler", "Add login cookie to request: " + httpCookie.getValue());
-        return cookiesToHeaders(Collections.singletonList(httpCookie));
+        return Collections.singletonList(httpCookie);
     }
 
     @Override
-    public void put(URI uri, Map<String, List<String>> responseHeaders) {
-        if (isNoApiRequest(uri)) return;
+    public void saveFromResponse(HttpUrl url, List<okhttp3.Cookie> cookies) {
+        if (isNoApiRequest(url))
+            return;
 
-        for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-            if (!"Set-Cookie".equalsIgnoreCase(entry.getKey()))
-                continue;
-
-            List<String> values = entry.getValue();
-            for (String value : values) {
-                List<HttpCookie> cookies;
-                try {
-                    cookies = HttpCookie.parse(value);
-                } catch (IllegalArgumentException err) {
-                    logger.warn("LoginCookieHandler", "invalid cookie format", err);
-                    continue;
-                }
-
-                for (HttpCookie cookie : cookies)
-                    handleCookie(cookie);
+        for (okhttp3.Cookie cookie : cookies) {
+            if (isLoginCookie(cookie)) {
+                setLoginCookie(cookie);
             }
         }
     }
 
-    private boolean isNoApiRequest(URI uri) {
-        return !uri.getHost().equalsIgnoreCase("pr0gramm.com") && !uri.getHost().contains(Debug.MOCK_API_HOST);
+    private boolean isNoApiRequest(HttpUrl uri) {
+        return !uri.host().equalsIgnoreCase("pr0gramm.com") && !uri.host().contains(Debug.MOCK_API_HOST);
     }
 
-    private void handleCookie(HttpCookie cookie) {
-        if (isLoginCookie(cookie)) {
-            // logger.debug("LoginCookieHandler", "Got login cookie: " + cookie.getValue());
-            setLoginCookie(cookie);
-        }
-    }
+    private boolean isLoginCookie(okhttp3.Cookie cookie) {
+        return "me".equals(cookie.name()) && !Strings.isNullOrEmpty(cookie.value());
 
-    private boolean isLoginCookie(HttpCookie cookie) {
-        if (!"me".equals(cookie.getName()))
-            return false;
-
-        String value = String.valueOf(cookie.getValue());
-        return !"null".equals(value);
     }
 
     private void setLoginCookie(String value) {
-        // logger.info("Set login cookie called: " + value);
-
         // convert to a http cookie
-        HttpCookie cookie = new HttpCookie("me", value);
-        cookie.setVersion(0);
-        setLoginCookie(cookie);
+        setLoginCookie(new okhttp3.Cookie.Builder()
+                .name("me")
+                .value(value)
+                .domain("pr0gramm.com")
+                .build());
     }
 
-    private void setLoginCookie(HttpCookie cookie) {
+    private void setLoginCookie(okhttp3.Cookie cookie) {
+        if (BuildConfig.DEBUG) {
+            logger.info("Set login cookie: {}", cookie);
+        }
+
         synchronized (lock) {
-            boolean notChanged = httpCookie != null && equal(cookie.getValue(), httpCookie.getValue());
+            boolean notChanged = httpCookie != null && equal(cookie.value(), httpCookie.value());
             if (notChanged)
                 return;
 
@@ -133,7 +114,7 @@ public class LoginCookieHandler extends CookieHandler {
 
                 // store cookie for next time
                 preferences.edit()
-                        .putString(PREF_LOGIN_COOKIE, cookie.getValue())
+                        .putString(PREF_LOGIN_COOKIE, cookie.value())
                         .apply();
 
             } else {
@@ -160,12 +141,12 @@ public class LoginCookieHandler extends CookieHandler {
     /**
      * Tries to parse the cookie into a {@link LoginCookieHandler.Cookie} instance.
      */
-    private Optional<Cookie> parseCookie(HttpCookie cookie) {
-        if (cookie == null || cookie.getValue() == null)
+    private Optional<Cookie> parseCookie(okhttp3.Cookie cookie) {
+        if (cookie == null || cookie.value() == null)
             return Optional.absent();
 
         try {
-            String value = AndroidUtility.urlDecode(cookie.getValue(), Charsets.UTF_8);
+            String value = AndroidUtility.urlDecode(cookie.value(), Charsets.UTF_8);
             return Optional.of(gson.fromJson(value, Cookie.class));
         } catch (Exception err) {
             logger.warn("Could not parse login cookie!", err);
@@ -179,7 +160,7 @@ public class LoginCookieHandler extends CookieHandler {
      * Gets the value of the login cookie, if any.
      */
     public Optional<String> getLoginCookie() {
-        return Optional.fromNullable(httpCookie != null ? httpCookie.getValue() : null);
+        return Optional.fromNullable(httpCookie != null ? httpCookie.value() : null);
     }
 
     public OnCookieChangedListener getOnCookieChangedListener() {
@@ -238,37 +219,6 @@ public class LoginCookieHandler extends CookieHandler {
 
         @SerializedName("a")
         public Object admin;
-    }
-
-    /**
-     * Got this one from {@link java.net.CookieManager}
-     *
-     * @param cookies The cookies to encode.
-     * @return A map that can be returned from
-     * {@link java.net.CookieHandler#get(java.net.URI, java.util.Map)}.
-     */
-    private static Map<String, List<String>> cookiesToHeaders(List<HttpCookie> cookies) {
-        if (cookies.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        StringBuilder result = new StringBuilder();
-
-        // If all cookies are version 1, add a version 1 header. No header for version 0 cookies.
-        int minVersion = 1;
-        for (HttpCookie cookie : cookies) {
-            minVersion = Math.min(minVersion, cookie.getVersion());
-        }
-        if (minVersion == 1) {
-            result.append("$Version=\"1\"; ");
-        }
-
-        result.append(cookies.get(0).toString());
-        for (int i = 1; i < cookies.size(); i++) {
-            result.append("; ").append(cookies.get(i).toString());
-        }
-
-        return Collections.singletonMap("Cookie", Collections.singletonList(result.toString()));
     }
 
     public interface OnCookieChangedListener {

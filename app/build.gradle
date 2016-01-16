@@ -136,11 +136,12 @@ dependencies {
     compile 'com.google.guava:guava:19.0'
 
     compile 'net.danlew:android.joda:2.9.1'
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
-    compile 'com.squareup.okhttp:okhttp:2.7.2'
+    compile 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
+    compile 'com.squareup.okhttp3:okhttp:3.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.11'
     compile 'com.github.satyan:sugar:1.4'
     compile 'com.github.tony19:named-regexp:0.2.3'
@@ -155,7 +156,8 @@ dependencies {
 
 
     compile 'com.facebook.stetho:stetho:1.2.0'
-    compile 'com.facebook.stetho:stetho-okhttp:1.2.0'
+    // add when we have ohttp3 support in stetho
+    // compile 'com.facebook.stetho:stetho-okhttp:1.2.0'
 
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'

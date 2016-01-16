@@ -10,7 +10,6 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,12 +19,13 @@ import java.lang.reflect.Modifier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.POST;
+import okhttp3.OkHttpClient;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.POST;
 import rx.Observable;
 import rx.util.async.Async;
 

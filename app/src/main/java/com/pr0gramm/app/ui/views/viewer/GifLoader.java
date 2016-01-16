@@ -3,11 +3,6 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
 import rx.Subscriber;

@@ -24,9 +24,9 @@
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn net.i2p.**
 -dontwarn org.apache.http.**
--dontwarn retrofit.client.**
+-dontwarn com.squareup.okhttp.**
 -dontwarn android.net.http.**
--dontwarn retrofit.Platform$Java8
+-dontwarn retrofit2.Platform$Java8
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 

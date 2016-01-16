@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.http.GET;
+import retrofit2.Call;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.http.GET;
 import rx.Observable;
 import rx.util.async.Async;
 

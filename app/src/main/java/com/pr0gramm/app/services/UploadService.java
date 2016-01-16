@@ -10,9 +10,6 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.RequestBody;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,13 +21,13 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okio.BufferedSink;
-import retrofit.HttpException;
+import retrofit2.HttpException;
 import rx.Observable;
-import rx.Scheduler;
 import rx.subjects.BehaviorSubject;
-
-import static rx.schedulers.Schedulers.io;
 
 /**
  */
@@ -92,7 +89,8 @@ public class UploadService {
             }
         };
 
-        RequestBody body = new MultipartBuilder().type(MultipartBuilder.FORM)
+        MultipartBody body = new MultipartBody.Builder()
+                .setType(MediaType.parse("multipart/form-data"))
                 .addFormDataPart("image", file.getName(), output)
                 .build();
 

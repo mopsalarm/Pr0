@@ -2,18 +2,18 @@ package com.pr0gramm.app.services.gif;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
-import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.OkHttpClient;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
-import retrofit.http.GET;
-import retrofit.http.Path;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
 import rx.Observable;
 
 /**

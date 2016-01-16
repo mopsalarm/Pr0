@@ -3,13 +3,6 @@ package com.pr0gramm.app.services;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +12,12 @@ import java.util.Arrays;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;

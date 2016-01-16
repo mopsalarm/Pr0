@@ -7,9 +7,6 @@ import com.google.common.base.Strings;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import java.util.ArrayList;
@@ -20,6 +17,9 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;

@@ -1,15 +1,15 @@
 package com.pr0gramm.app.api.categories;
 
 import com.google.gson.Gson;
-import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
+import okhttp3.OkHttpClient;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Retrofit;
+import retrofit2.RxJavaCallAdapterFactory;
 
 /**
  */

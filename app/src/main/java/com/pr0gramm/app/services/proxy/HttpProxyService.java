@@ -11,8 +11,6 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
 import com.pr0gramm.app.BuildConfig;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +26,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import fi.iki.elonen.NanoHTTPD;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
@@ -136,7 +136,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
 
     private Response proxyHttpUri(IHTTPSession session, final String url) throws IOException {
         Request request = buildRequest(url, session);
-        com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+        okhttp3.Response response = okHttpClient.newCall(request).execute();
 
         Response.IStatus status = translateStatus(response.code(), response.message());
         String contentType = response.header("Content-Type", guessContentType(url));
@@ -203,7 +203,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
      *
      * @return The content length.
      */
-    private Optional<Integer> parseContentLength(com.squareup.okhttp.Response response) {
+    private Optional<Integer> parseContentLength(okhttp3.Response response) {
         Integer parsed = Ints.tryParse(response.header("Content-Length", ""));
         if (parsed != null && parsed <= 0) {
             parsed = null;

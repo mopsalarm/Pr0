@@ -2,9 +2,9 @@ package com.pr0gramm.app.api.categories;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 
-import retrofit.http.GET;
-import retrofit.http.HEAD;
-import retrofit.http.Query;
+import retrofit2.http.GET;
+import retrofit2.http.HEAD;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**

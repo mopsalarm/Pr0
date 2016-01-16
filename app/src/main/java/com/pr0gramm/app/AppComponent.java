@@ -14,12 +14,12 @@ import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
 import com.pr0gramm.app.ui.SettingsActivity;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
+import okhttp3.OkHttpClient;
 
 /**
  */
