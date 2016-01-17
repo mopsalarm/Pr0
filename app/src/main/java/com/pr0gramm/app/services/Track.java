@@ -104,6 +104,7 @@ public final class Track {
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
                 .putCustomAttribute("theme", settings.themeName().toLowerCase())
+                .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 
