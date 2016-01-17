@@ -3,7 +3,7 @@ import subprocess
 source_colors = ["ee4d2e", "b83621"]
 
 themes = {
-    "orange": ["ee4d2e", "b83621"],
+    "orange": ["d23b22", "b83621"],
     "green": ["1db992", "137e64"],
     "olive": ["b0ad05", "797703"],
     "pink": ["ff0082", "b7005d"]
