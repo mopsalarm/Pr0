@@ -23,12 +23,26 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs6" />
+     id="defs6">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4154"
+       x="-0.03594866"
+       width="1.0718973"
+       y="-0.036051487"
+       height="1.072103">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.63378516"
+         id="feGaussianBlur4156" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -42,13 +56,21 @@
      inkscape:window-height="1021"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="9.2709556"
-     inkscape:cx="31.741498"
-     inkscape:cy="39.744466"
-     inkscape:window-x="763"
-     inkscape:window-y="195"
+     inkscape:zoom="11.313708"
+     inkscape:cx="6.8163888"
+     inkscape:cy="14.20828"
+     inkscape:window-x="1309"
+     inkscape:window-y="210"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2" />
+  <rect
+     ry="2.7567651"
+     y="3.7423587"
+     x="2.8417931"
+     height="42.192001"
+     width="42.312687"
+     id="rect4136"
+     style="fill:#000000;fill-opacity:0.29411766;stroke:none;filter:url(#filter4154)" />
   <rect
      style="fill:#1db992;fill-opacity:1;stroke:none"
      id="rect2987"
@@ -58,7 +80,7 @@
      y="2.9033759"
      ry="2.7567651" />
   <path
-     style="fill:#137e64;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="fill:#137e64;fill-opacity:0.5;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
      d="m 24.544687,22.046296 -2.740103,1.066756 -11.9121252,10.824452 11.4310392,11.15912 21.073689,0 c 1.527249,0 2.76102,-1.233771 2.76102,-2.761019 l 0,-3.806861 -8.73277,-8.230765 -2.060307,0.972631 -9.820443,-9.224314 z"
      id="path3761"
      inkscape:connector-curvature="0" />

@@ -23,12 +23,26 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs6" />
+     id="defs6">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4154"
+       x="-0.03594866"
+       width="1.0718973"
+       y="-0.036051487"
+       height="1.072103">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.63378516"
+         id="feGaussianBlur4156" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -42,15 +56,23 @@
      inkscape:window-height="1021"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="9.2709556"
-     inkscape:cx="31.741498"
-     inkscape:cy="39.744466"
-     inkscape:window-x="763"
-     inkscape:window-y="195"
+     inkscape:zoom="11.313708"
+     inkscape:cx="6.8163888"
+     inkscape:cy="14.20828"
+     inkscape:window-x="1309"
+     inkscape:window-y="210"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2" />
   <rect
-     style="fill:#ee4d2e;fill-opacity:1;stroke:none"
+     ry="2.7567651"
+     y="3.7423587"
+     x="2.8417931"
+     height="42.192001"
+     width="42.312687"
+     id="rect4136"
+     style="fill:#000000;fill-opacity:0.29411766;stroke:none;filter:url(#filter4154)" />
+  <rect
+     style="fill:#d23b22;fill-opacity:1;stroke:none"
      id="rect2987"
      width="42.312687"
      height="42.192001"

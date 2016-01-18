@@ -298,6 +298,11 @@
     <color name="pink_primary_dark">#b7005d</color>
     <color name="pink_accent">@color/pink_primary</color>
 
+    <!-- Colors for the app -->
+    <color name="blue_primary">#008fff</color>
+    <color name="blue_primary_dark">#0067b6</color>
+    <color name="blue_accent">@color/blue_primary</color>
+
     <color name="feed_background">#161618</color>
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>
