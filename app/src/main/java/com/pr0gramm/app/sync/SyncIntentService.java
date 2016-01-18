@@ -9,8 +9,6 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.services.FavedCommentService;
-import com.pr0gramm.app.services.ImportantMessageService;
-import com.pr0gramm.app.services.MessageDefinition;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Update;
@@ -21,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
-import rx.functions.Actions;
 
 import static android.support.v4.content.WakefulBroadcastReceiver.completeWakefulIntent;
 import static com.google.common.base.Stopwatch.createStarted;
@@ -49,9 +45,6 @@ public class SyncIntentService extends IntentService {
     @Inject
     FavedCommentService favedCommentService;
 
-    @Inject
-    ImportantMessageService messageService;
-
     public SyncIntentService() {
         super(SyncIntentService.class.getSimpleName());
     }
@@ -70,11 +63,6 @@ public class SyncIntentService extends IntentService {
                 notificationService.showUpdateNotification(update.get());
             }
         }
-
-        logger.info("Look for important messages.");
-        messageService.messages()
-                .filter(MessageDefinition::notification)
-                .subscribe(def -> messageService.present(this, def), Actions.empty());
 
         if (singleShotService.firstTimeInHour("auto-sync-comments")) {
             logger.info("sync favorite comments");

@@ -33,7 +33,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
-import com.pr0gramm.app.services.ImportantMessageService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
@@ -108,9 +107,6 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Inject
     PermissionHelper permissionHelper;
 
-    @Inject
-    ImportantMessageService messageService;
-
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
     private boolean startedWithIntent;
@@ -179,10 +175,6 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         showApiProxyHint();
         addOriginalContentBookmarkOnce();
-
-        messageService.messages()
-                .compose(bindToLifecycle())
-                .subscribe(def -> messageService.present(this, def), Actions.empty());
     }
 
     @Override
