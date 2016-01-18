@@ -41,6 +41,16 @@ public enum Themes {
             R.style.AppTheme_Olive_NoActionBar_WhiteAccent
     ),
 
+    BLUE(R.string.theme_blue,
+            R.color.blue_primary,
+            R.color.blue_primary_dark,
+            R.style.AppTheme_Blue,
+            R.style.AppTheme_Blue_NoActionBar,
+            R.style.AppTheme_Blue_NoActionBar_Fullscreen,
+            R.style.AppTheme_Blue_NoActionBar_TranslucentStatus,
+            R.style.AppTheme_Blue_NoActionBar_WhiteAccent
+    ),
+    
     PINK(R.string.theme_pink,
             R.color.pink_primary,
             R.color.pink_primary_dark,

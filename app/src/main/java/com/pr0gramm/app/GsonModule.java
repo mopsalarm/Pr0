@@ -20,7 +20,6 @@ import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersSync;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersUpload;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersUserComments;
-import com.pr0gramm.app.services.GsonAdaptersMessageDefinition;
 import com.pr0gramm.app.services.GsonAdaptersUpdate;
 
 import org.joda.time.Instant;
@@ -55,7 +54,6 @@ public class GsonModule {
             .registerTypeAdapterFactory(new GsonAdaptersAccountInfo())
             .registerTypeAdapterFactory(new GsonAdaptersInfo())
             .registerTypeAdapterFactory(new GsonAdaptersUpdate())
-            .registerTypeAdapterFactory(new GsonAdaptersMessageDefinition())
             .create();
 
     @Singleton

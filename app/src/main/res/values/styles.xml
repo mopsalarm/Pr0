@@ -53,6 +53,18 @@
         <item name="appIcon">@drawable/ic_app_pink</item>
     </style>
 
+    <style name="AppTheme.Blue">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryDark">@color/blue_primary_dark</item>
+        <item name="colorAccent">@color/blue_accent</item>
+        <item name="loginBackground">@drawable/login_background_blue</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_blue</item>
+        <item name="drawerTheme">@style/DrawerTheme.Blue</item>
+        <item name="popupTheme">@style/AppTheme.Popup.Blue</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Blue</item>
+        <item name="appIcon">@drawable/ic_app_blue</item>
+    </style>
+
     <!-- Now do the same for popup menus -->
     <style name="AppTheme.Popup" parent="ThemeOverlay.AppCompat.Light"/>
 
@@ -71,7 +83,11 @@
     <style name="AppTheme.Popup.Pink">
         <item name="colorAccent">@color/pink_primary</item>
     </style>
-    
+
+    <style name="AppTheme.Popup.Blue">
+        <item name="colorAccent">@color/blue_primary</item>
+    </style>
+
     <!-- And for everything based on alert dialogs -->
     <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
     <style name="AppTheme.Dialog.Orange">
@@ -88,6 +104,10 @@
 
     <style name="AppTheme.Dialog.Pink">
         <item name="colorAccent">@color/pink_primary</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Blue">
+        <item name="colorAccent">@color/blue_primary</item>
     </style>
 
     <!-- now specialize by overriding specific flags. -->
@@ -118,7 +138,14 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
-    
+
+    <style name="AppTheme.Blue.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
     <!-- This one is used in the login page -->
     <style name="AppTheme.Orange.NoActionBar.WhiteAccent">
         <item name="colorControlNormal">@color/white</item>
@@ -144,16 +171,24 @@
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
+    <style name="AppTheme.Blue.NoActionBar.WhiteAccent">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
     <!-- Just placeholder for newer versions of androids -->
     <style name="AppTheme.Orange.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Green.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Olive.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Pink.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Blue.NoActionBar.Fullscreen"/>
 
     <style name="AppTheme.Orange.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Green.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Olive.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Pink.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Blue.NoActionBar.TranslucentStatus"/>
 
 
     <!-- ###### This is for the drawer ###### -->
@@ -171,6 +206,10 @@
 
     <style name="DrawerTheme.Pink" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/pink_primary</item>
+    </style>
+
+    <style name="DrawerTheme.Blue" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/blue_primary</item>
     </style>
 
     <!-- This is all color independent! -->

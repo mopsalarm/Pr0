@@ -85,16 +85,18 @@
     </string-array>
 
 
-
     <string name="pref_theme_default" translatable="false">ORANGE</string>
     <string name="theme_olive" translatable="false">Olivgrün des Friedens</string>
     <string name="theme_pink" translatable="false">Altes Pink</string>
-    <string name="theme_fliese">Fliesentischbraun</string>
+    <string name="theme_blue" translatable="false">Episches Blau</string>
+    <string name="theme_orange" translatable="false">Bewährtes Orange</string>
+    <string name="theme_green" translatable="false">Angenehmes Grün</string>
 
     <string-array name="pref_theme_values">
         <item>ORANGE</item>
         <item>GREEN</item>
         <item>OLIVE</item>
+        <item>BLUE</item>
         <item>PINK</item>
     </string-array>
 
@@ -102,6 +104,7 @@
         <item>@string/theme_orange</item>
         <item>@string/theme_green</item>
         <item>@string/theme_olive</item>
+        <item>@string/theme_blue</item>
         <item>@string/theme_pink</item>
     </string-array>
 

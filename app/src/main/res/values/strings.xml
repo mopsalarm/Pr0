@@ -334,8 +334,6 @@
     <string name="reason">Reason</string>
     <string name="delete">Delete</string>
     <string name="action_delete_item">Delete item</string>
-    <string name="theme_orange" translatable="false">Bewährtes Orange</string>
-    <string name="theme_green" translatable="false">Angenehmes Grün</string>
     <string name="prefcat_theme">Theme</string>
     <string name="pref_theme_summary">You can select one out of multiple themes. Do you like <i>Bewährtes Orange</i> or do you prefer <i>Angenehmes Grün</i>?</string>
     <string name="pref_theme_title">Select app theme</string>

@@ -8,7 +8,7 @@ fi
 SVG=$1
 PNG=$(basename $SVG .svg).png
 
-mkdir -p ../app/src/main/res/drawable-hdpi
+mkdir -p ../app/src/main/res/drawablhdpi
 inkscape -d$((90*240/160)) --export-png=../app/src/main/res/drawable-hdpi/$PNG $SVG
 optipng -o7 ../app/src/main/res/drawable-hdpi/$PNG
 git add ../app/src/main/res/drawable-hdpi/$PNG
