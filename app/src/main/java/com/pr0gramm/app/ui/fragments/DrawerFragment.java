@@ -451,7 +451,9 @@ public class DrawerFragment extends BaseFragment {
     private void showDialogToRemoveBookmark(Bookmark bookmark) {
         DialogBuilder.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
-                .positive(R.string.yes, () -> bookmarkService.delete(bookmark))
+                .cancelable()
+                .negative(R.string.cancel)
+                .positive(R.string.delete, () -> bookmarkService.delete(bookmark))
                 .show();
     }
 
