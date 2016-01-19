@@ -105,6 +105,7 @@ public final class Track {
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))
                 .putCustomAttribute("theme", settings.themeName().toLowerCase())
                 .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
+                .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 
@@ -145,6 +146,10 @@ public final class Track {
 
     public static void listFavedComments() {
         track(new CustomEvent("Faved comments listed"));
+    }
+
+    public static void quickPeek() {
+        track(new CustomEvent("Quick peek used"));
     }
 
     private static void track(CustomEvent customEvent) {

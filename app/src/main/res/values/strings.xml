@@ -337,5 +337,7 @@
     <string name="prefcat_theme">Theme</string>
     <string name="pref_theme_summary">You can select one out of multiple themes. Do you like <i>Bewährtes Orange</i> or do you prefer <i>Angenehmes Grün</i>?</string>
     <string name="pref_theme_title">Select app theme</string>
+    <string name="pref_enable_quick_peek_title">Quick preview</string>
+    <string name="pref_enable_quick_peek_summary">Hold the finger on an item in the feed to quickly show an item.</string>
 </resources>
 

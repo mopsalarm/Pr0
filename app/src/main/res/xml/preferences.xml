@@ -61,6 +61,12 @@
 
                 <CheckBoxPreference
                     android:defaultValue="true"
+                    android:key="pref_enable_quick_peek"
+                    android:summary="@string/pref_enable_quick_peek_summary"
+                    android:title="@string/pref_enable_quick_peek_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
                     android:key="pref_show_repost_hint"
                     android:summary="@string/pref_show_repost_hint_summary"
                     android:title="@string/pref_show_repost_hint_title"/>

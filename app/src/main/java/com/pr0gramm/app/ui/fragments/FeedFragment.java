@@ -1015,13 +1015,17 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
 
             @Override
-            public void onItemLongClick(View view, int position) {
-                if (itemClicked(view)) {
-                    swipeRefreshLayout.setEnabled(false);
-
+            public boolean onItemLongClick(View view, int position) {
+                if (settings.enableQuickPeek() && itemClicked(view)) {
                     FeedItemViewHolder holder = viewHolder(view);
                     PopupPlayer popup = PopupPlayer.newInstance(getContext(), holder.item);
                     popup.show(getFragmentManager(), POPUP_PLAYER_FRAGMENT_TAG);
+
+                    swipeRefreshLayout.setEnabled(false);
+                    Track.quickPeek();
+                    return true;
+                } else {
+                    return false;
                 }
             }
 
@@ -1308,7 +1312,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 recyclerView.addOnItemTouchListener(itemClickListener);
             }
 
-            if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+            if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                 recyclerView.removeOnItemTouchListener(itemClickListener);
             }
         }

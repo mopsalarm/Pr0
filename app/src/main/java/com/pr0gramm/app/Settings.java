@@ -209,6 +209,10 @@ public class Settings {
         return preferences.getBoolean("pref_use_api_proxy", false);
     }
 
+    public boolean enableQuickPeek() {
+        return preferences.getBoolean("pref_enable_quick_peek", true);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }
