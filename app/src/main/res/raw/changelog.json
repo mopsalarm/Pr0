@@ -1,5 +1,14 @@
 [
   {
+    "version": 86,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Lesezeichen löschen Dialog ist jetzt abbrechbar"
+      }
+    ]
+  },
+  {
     "version": 85,
     "changes": [
       {
