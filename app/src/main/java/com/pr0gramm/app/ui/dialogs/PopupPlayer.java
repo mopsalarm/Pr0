@@ -20,12 +20,16 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews;
 
 import javax.inject.Inject;
 
+import proguard.annotation.KeepName;
+import proguard.annotation.KeepPublicClassMemberNames;
+
 /**
  */
+@KeepPublicClassMemberNames
 public class PopupPlayer extends BaseDialogFragment {
-    private static final String KEY_ITEM = "BaseDialogFragment.itemy";
+    private static final String KEY_ITEM = "BaseDialogFragment.item";
 
-    @InjectExtra(KEY_ITEM)
+    // @InjectExtra(KEY_ITEM)
     FeedItem item;
 
     @Inject
@@ -40,6 +44,8 @@ public class PopupPlayer extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        item = getArguments().getParcelable(KEY_ITEM);
+
         MediaUri uri = MediaUri.of(getActivity(), item);
         mediaView = MediaViews.newInstance(getActivity(), uri, Runnables.doNothing());
 
