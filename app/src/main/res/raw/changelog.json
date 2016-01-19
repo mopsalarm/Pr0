@@ -3,6 +3,10 @@
     "version": 86,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Instagram ähnliches 'quick-peek'. Im Feed etwas länger auf ein Vorschaubildchen drücken. Deaktivierbar unter Einstellungen/Visuell."
+      },
+      {
         "type": "Fix",
         "change": "Lesezeichen löschen Dialog ist jetzt abbrechbar"
       }
