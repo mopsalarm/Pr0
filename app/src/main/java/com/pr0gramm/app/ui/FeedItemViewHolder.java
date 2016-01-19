@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.feed.FeedItem;
 
 import static butterknife.ButterKnife.findById;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,6 +18,9 @@ public final class FeedItemViewHolder extends RecyclerView.ViewHolder {
     public final ImageView repost;
     public final View preloaded;
     public final ImageView image;
+
+    public FeedItem item;
+    public int index;
 
     public FeedItemViewHolder(View itemView) {
         super(itemView);

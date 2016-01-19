@@ -1,6 +1,10 @@
 package com.pr0gramm.app.ui.views.viewer;
 
+import android.content.Context;
 import android.net.Uri;
+
+import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.UriHelper;
 
 /**
  */
@@ -88,5 +92,9 @@ public final class MediaUri {
 
     public static MediaUri of(long id, String uri) {
         return of(id, Uri.parse(uri));
+    }
+
+    public static MediaUri of(Context context, FeedItem item) {
+        return of(item.getId(), UriHelper.of(context).media(item));
     }
 }

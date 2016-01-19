@@ -1,7 +1,10 @@
 package com.pr0gramm.app.services;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
@@ -14,6 +17,7 @@ import com.pr0gramm.app.api.meta.MetaApi.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
@@ -60,9 +64,11 @@ public class InMemoryCacheService {
             .build();
 
     private final AtomicReference<long[]> repostCache = new AtomicReference<>(new long[0]);
+    private final UriHelper uriHelper;
 
     @Inject
-    public InMemoryCacheService() {
+    public InMemoryCacheService(Context context) {
+        this.uriHelper = UriHelper.of(context);
     }
 
     /**
@@ -189,5 +195,13 @@ public class InMemoryCacheService {
 
         // cache the items as reposts
         cacheReposts(itemsInfo.getReposts());
+    }
+
+    @Nullable
+    public PreviewInfo getPreviewInfo(FeedItem feedItem) {
+        Uri previewUri = uriHelper.thumbnail(feedItem);
+        return getSizeInfo(feedItem.getId())
+                .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
+                .orNull();
     }
 }

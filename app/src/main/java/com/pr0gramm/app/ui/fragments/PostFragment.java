@@ -56,7 +56,6 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -216,7 +215,7 @@ public class PostFragment extends BaseFragment implements
             }
 
             if (!active) {
-                exitFullscreenAnimated(false);
+                exitFullscreen();
             }
         });
 
@@ -538,10 +537,6 @@ public class PostFragment extends BaseFragment implements
     }
 
     public void exitFullscreen() {
-        exitFullscreenAnimated(true);
-    }
-
-    private void exitFullscreenAnimated(boolean animated) {
         if (!isVideoFullScreen())
             return;
 
@@ -751,7 +746,7 @@ public class PostFragment extends BaseFragment implements
         int padding = AndroidUtility.getActionBarContentOffset(getActivity());
 
         // initialize a new viewer fragment
-        MediaUri uri = MediaUri.of(feedItem.getId(), UriHelper.of(getContext()).media(feedItem));
+        MediaUri uri = MediaUri.of(getContext(), feedItem);
         if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
             Settings.ConfirmOnMobile confirmOnMobile = settings.confirmPlayOnMobile(getContext());
             if (confirmOnMobile == Settings.ConfirmOnMobile.ALL) {
@@ -775,7 +770,7 @@ public class PostFragment extends BaseFragment implements
         registerTapListener(viewer);
 
         PreviewInfo previewInfo = this.previewInfo != null
-                ? this.previewInfo : getPreviewInfoFromCache();
+                ? this.previewInfo : inMemoryCacheService.getPreviewInfo(feedItem);
 
         if (previewInfo != null) {
             viewer.setPreviewImage(previewInfo, "TransitionTarget-" + feedItem.getId());
@@ -1083,14 +1078,6 @@ public class PostFragment extends BaseFragment implements
             imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         } catch (Exception ignored) {
         }
-    }
-
-    @Nullable
-    private PreviewInfo getPreviewInfoFromCache() {
-        Uri previewUri = UriHelper.of(getActivity()).thumbnail(feedItem);
-        return inMemoryCacheService.getSizeInfo(feedItem.getId())
-                .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
-                .orNull();
     }
 
     public void mediaHorizontalOffset(int offset) {

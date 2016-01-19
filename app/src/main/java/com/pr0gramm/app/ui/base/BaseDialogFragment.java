@@ -153,4 +153,22 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
         Dialog dialog = getDialog();
         return dialog != null ? dialog.getContext() : getContext();
     }
+
+    @Override
+    public void dismiss() {
+        try {
+            super.dismiss();
+        } catch (Exception ignored) {
+            // i never want that!
+        }
+    }
+
+    @Override
+    public void dismissAllowingStateLoss() {
+        try {
+            super.dismissAllowingStateLoss();
+        } catch (Exception ignored) {
+            // i never want that!
+        }
+    }
 }

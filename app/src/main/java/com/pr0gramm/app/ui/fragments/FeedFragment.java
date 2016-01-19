@@ -78,10 +78,12 @@ import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.PreviewInfo;
+import com.pr0gramm.app.ui.RecyclerItemClickListener;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
+import com.pr0gramm.app.ui.dialogs.PopupPlayer;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
@@ -111,6 +113,7 @@ import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
@@ -130,6 +133,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
     private static final String ARG_SIMPLE_MODE = "FeedFragment.simpleMode";
+    public static final String POPUP_PLAYER_FRAGMENT_TAG = "PopupPlayer";
 
     @Inject
     FeedService feedService;
@@ -188,6 +192,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private FeedAdapter feedAdapter;
     private FeedLoader loader;
     private boolean scrollToolbar;
+    private RecyclerItemClickListener itemClickListener;
 
     /**
      * Initialize a new feed fragment.
@@ -249,7 +254,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         setFeedAdapter(feedAdapter);
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.setCanSwipeUpPredicate(() -> !feedAdapter.getFeed().isAtStart());
+        swipeRefreshLayout.setCanSwipeUpPredicate(() -> feedAdapter.getFeed().isAtStart());
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Feed feed = feedAdapter.getFeed();
@@ -273,7 +278,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         resetToolbar();
 
+        createRecyclerViewClickListener();
         recyclerView.addOnScrollListener(onScrollListener);
+        recyclerView.addOnItemTouchListener(itemClickListener);
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -911,8 +918,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     .replace(R.id.content, fragment)
                     .addToBackStack("Post" + idx);
 
-            if (doTransition) {
-                tr.addSharedElement(preview.orNull(), "TransitionTarget-" + feed.at(idx).getId());
+            if (doTransition && preview.isPresent()) {
+                ImageView image = preview.get();
+                ViewCompat.setTransitionName(image, "TransitionTarget-" + image.getId());
+                tr.addSharedElement(image, "TransitionTarget-" + feed.at(idx).getId());
             }
 
             tr.commitAllowingStateLoss();
@@ -994,6 +1003,54 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return inMemoryCacheService.getSizeInfo(item.getId());
     }
 
+
+    private void createRecyclerViewClickListener() {
+        this.itemClickListener = new RecyclerItemClickListener(getActivity(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if (itemClicked(view)) {
+                    FeedItemViewHolder holder = viewHolder(view);
+                    onItemClicked(holder.index, absent(), of(holder.image));
+                }
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                if (itemClicked(view)) {
+                    swipeRefreshLayout.setEnabled(false);
+
+                    FeedItemViewHolder holder = viewHolder(view);
+                    PopupPlayer popup = PopupPlayer.newInstance(getContext(), holder.item);
+                    popup.show(getFragmentManager(), POPUP_PLAYER_FRAGMENT_TAG);
+                }
+            }
+
+            @Override
+            public void onLongClickStopped() {
+                dismissPopupPlayer();
+            }
+
+            private boolean itemClicked(View view) {
+                return view.getTag() instanceof FeedItemViewHolder;
+            }
+
+            private FeedItemViewHolder viewHolder(View view) {
+                return (FeedItemViewHolder) view.getTag();
+            }
+        });
+    }
+
+    private void dismissPopupPlayer() {
+        swipeRefreshLayout.setEnabled(true);
+
+        PopupPlayer popup = (PopupPlayer) getFragmentManager()
+                .findFragmentByTag(POPUP_PLAYER_FRAGMENT_TAG);
+
+        if (popup != null) {
+            popup.dismissAllowingStateLoss();
+        }
+    }
+
     private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
         private final WeakReference<FeedFragment> parent;
         private final Feed feed;
@@ -1030,7 +1087,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
 
         @Override
-        public void onBindViewHolder(FeedItemViewHolder view, int position) {
+        public void onBindViewHolder(FeedItemViewHolder holder, int position) {
             FeedItem item = feed.at(position);
 
             with(fragment -> {
@@ -1038,25 +1095,24 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 fragment.picasso.load(imageUri)
                         .config(Bitmap.Config.RGB_565)
                         .placeholder(new ColorDrawable(0xff333333))
-                        .into(view.image);
+                        .into(holder.image);
 
-                view.itemView.setOnClickListener(v -> {
-                    ViewCompat.setTransitionName(view.image, "TransitionTarget-" + item.getId());
-                    fragment.onItemClicked(position, Optional.<Long>absent(), Optional.of(view.image));
-                });
+                holder.itemView.setTag(holder);
+                holder.index = position;
+                holder.item = item;
 
                 // show preload-badge
-                view.setIsPreloaded(fragment.preloadManager.exists(item.getId()));
+                holder.setIsPreloaded(fragment.preloadManager.exists(item.getId()));
 
                 // check if this item was already seen.
                 if (fragment.inMemoryCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
-                    view.setIsRepost();
+                    holder.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
-                    view.setIsSeen();
+                    holder.setIsSeen();
 
                 } else {
-                    view.clear();
+                    holder.clear();
                 }
             });
         }
@@ -1248,6 +1304,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     ToolbarActivity activity = (ToolbarActivity) getActivity();
                     activity.getScrollHideToolbarListener().onScrollFinished(y);
                 }
+
+                recyclerView.addOnItemTouchListener(itemClickListener);
+            }
+
+            if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                recyclerView.removeOnItemTouchListener(itemClickListener);
             }
         }
     };

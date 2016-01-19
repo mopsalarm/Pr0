@@ -12,6 +12,7 @@ import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
+import com.pr0gramm.app.ui.dialogs.PopupPlayer;
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
@@ -100,4 +101,7 @@ public interface ActivityComponent {
     void inject(RulesActivity rulesActivity);
 
     void inject(ItemAdminDialog itemAdminDialog);
+
+    void inject(PopupPlayer popupPlayer);
+
 }
