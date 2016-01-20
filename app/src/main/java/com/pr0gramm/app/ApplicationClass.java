@@ -96,7 +96,7 @@ public class ApplicationClass extends SugarApp {
 
         SingleShotService singleShotService = appComponent.get().singleShotService();
         if (singleShotService.isFirstTime("migrate.MpegDecoderToVPX")) {
-            if (settings.raw().getBoolean("pref_force_mpeg_decoder", false)) {
+            if (settings.forceMpegDecoder()) {
                 logger.info("Switch to normal software decoder");
 
                 settings.edit()

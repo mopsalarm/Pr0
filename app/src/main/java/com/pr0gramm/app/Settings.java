@@ -223,10 +223,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.edit();
     }
 
-    public SharedPreferences raw() {
-        return preferences;
-    }
-
     public static Settings of(Context context) {
         return new Settings(context.getApplicationContext());
     }
