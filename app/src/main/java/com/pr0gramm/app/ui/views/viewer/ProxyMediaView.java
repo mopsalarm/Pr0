@@ -119,12 +119,6 @@ public abstract class ProxyMediaView extends MediaView {
     }
 
     @Override
-    public void onDestroy() {
-        propagate(MediaView::onDestroy);
-        super.onDestroy();
-    }
-
-    @Override
     public void onTransitionEnds() {
         super.onTransitionEnds();
         propagate(MediaView::onTransitionEnds);

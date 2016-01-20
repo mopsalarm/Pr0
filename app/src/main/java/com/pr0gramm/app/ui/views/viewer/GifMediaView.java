@@ -6,17 +6,17 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.services.GifDrawableLoader;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
-import okhttp3.OkHttpClient;
 import pl.droidsonroids.gif.GifDrawable;
-import rx.subscriptions.CompositeSubscription;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -26,33 +26,40 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 @SuppressLint("ViewConstructor")
 public class GifMediaView extends AbstractProgressMediaView {
     @Inject
-    OkHttpClient downloader;
+    Settings settings;
 
     @Inject
-    Settings settings;
+    GifDrawableLoader gifDrawableLoader;
 
     @Bind(R.id.image)
     ImageView imageView;
 
     // the gif that is shown
     private GifDrawable gif;
-    private final CompositeSubscription dlGifSubscription = new CompositeSubscription();
 
     public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_gif, url.withProxy(true), onViewListener);
         imageView.setVisibility(INVISIBLE);
-
         loadGif();
+
+        // cleanup on detach!
+        RxView.detaches(this).subscribe(event -> {
+            imageView.setImageDrawable(null);
+
+            if (gif != null) {
+                gif.recycle();
+                gif = null;
+            }
+        });
     }
 
     private void loadGif() {
-        dlGifSubscription.add(GifLoader
-                .loader(downloader, getContext().getCacheDir(), getEffectiveUri())
+        gifDrawableLoader.load(getEffectiveUri())
                 .compose(backgroundBindView())
-                .subscribe(this::onDownloadStatus, defaultOnError()));
+                .subscribe(this::onDownloadStatus, defaultOnError());
     }
 
-    private void onDownloadStatus(GifLoader.DownloadStatus state) {
+    private void onDownloadStatus(GifDrawableLoader.DownloadStatus state) {
         checkMainThread();
 
         onDownloadProgress(state.progress);
@@ -142,20 +149,6 @@ public class GifMediaView extends AbstractProgressMediaView {
     public void rewind() {
         if (gif != null && isPlaying()) {
             gif.seekTo(0);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // unsubscribe and cancel downloader
-        dlGifSubscription.unsubscribe();
-
-        imageView.setImageDrawable(null);
-
-        if (gif != null) {
-            gif.recycle();
         }
     }
 }

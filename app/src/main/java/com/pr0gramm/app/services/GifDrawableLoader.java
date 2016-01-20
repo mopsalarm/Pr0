@@ -1,7 +1,10 @@
-package com.pr0gramm.app.ui.views.viewer;
+package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
+
+import com.pr0gramm.app.services.proxy.ProxyService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -25,47 +31,52 @@ import static java.lang.System.identityHashCode;
 
 /**
  */
-public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatus> {
+@Singleton
+public class GifDrawableLoader {
     private static final Logger logger = LoggerFactory.getLogger("GifLoader");
 
     private final OkHttpClient okHttpClient;
-    private final File temporaryPath;
-    private final Uri uri;
+    private final File fileCache;
 
-    GifLoader(OkHttpClient okHttpClient, File temporaryPath, Uri uri) {
+    @Inject
+    public GifDrawableLoader(Context context, OkHttpClient okHttpClient, ProxyService proxyService) {
         this.okHttpClient = okHttpClient;
-        this.temporaryPath = temporaryPath;
-        this.uri = uri;
+        this.fileCache = context.getCacheDir();
     }
 
-    @Override
-    public void call(Subscriber<? super GifLoader.DownloadStatus> subscriber) {
-        try {
-            if ("file".equals(uri.getScheme())) {
-                File file = toFile(uri);
-                subscriber.onNext(new DownloadStatus(new GifDrawable(file)));
-                subscriber.onCompleted();
-                return;
-            }
+    public Observable<DownloadStatus> load(Uri uri) {
+        return Observable.<DownloadStatus>create(subscriber -> {
+            try {
+                if ("file".equals(uri.getScheme())) {
+                    File file = toFile(uri);
+                    subscriber.onNext(new DownloadStatus(new GifDrawable(file)));
+                    subscriber.onCompleted();
+                    return;
+                }
 
-            // request the gif file
-            Request request = new Request.Builder().url(uri.toString()).build();
-            Call call = okHttpClient.newCall(request);
-            subscriber.add(Subscriptions.create(call::cancel));
-            Response response = call.execute();
-            if (response.isSuccessful()) {
-                // and load + parse it
-                loadGifUsingTempFile(subscriber, response);
-            } else {
-                subscriber.onError(new IOException(
-                        "Could not download gif, response code: " + response.code()));
-            }
-        } catch (Throwable error) {
-            logger.warn("Error during loading", error);
+                // request the gif file
+                Call call = okHttpClient.newCall(new Request.Builder()
+                        .url(uri.toString())
+                        .build());
 
-            if (!subscriber.isUnsubscribed())
-                subscriber.onError(error);
-        }
+                // stop the call on unsubscribe
+                subscriber.add(Subscriptions.create(call::cancel));
+
+                Response response = call.execute();
+                if (response.isSuccessful()) {
+                    loadGifUsingTempFile(subscriber, response);
+
+                } else {
+                    subscriber.onError(new IOException(
+                            "Could not download gif, response code: " + response.code()));
+                }
+            } catch (Throwable error) {
+                logger.warn("Error during loading", error);
+
+                if (!subscriber.isUnsubscribed())
+                    subscriber.onError(error);
+            }
+        }).serialize();
     }
 
     /**
@@ -74,10 +85,10 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
      * after loading the gif (or on failure).
      */
     @SuppressLint("NewApi")
-    private void loadGifUsingTempFile(Subscriber<? super GifLoader.DownloadStatus> subscriber,
+    private void loadGifUsingTempFile(Subscriber<? super GifDrawableLoader.DownloadStatus> subscriber,
                                       Response response) throws IOException {
 
-        File temporary = new File(temporaryPath, "tmp" + identityHashCode(subscriber) + ".gif");
+        File temporary = new File(fileCache, "tmp" + identityHashCode(subscriber) + ".gif");
 
         logger.info("storing data into temporary file");
         RandomAccessFile storage = new RandomAccessFile(temporary, "rw");
@@ -132,12 +143,6 @@ public class GifLoader implements Observable.OnSubscribe<GifLoader.DownloadStatu
                 storage.close();
             }
         }
-    }
-
-    public static Observable<DownloadStatus> loader(
-            OkHttpClient okHttpClient, File temporaryPath, Uri url) {
-
-        return Observable.create(new GifLoader(okHttpClient, temporaryPath, url));
     }
 
     public static class DownloadStatus {

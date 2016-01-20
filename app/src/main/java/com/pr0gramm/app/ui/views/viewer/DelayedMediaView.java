@@ -44,11 +44,6 @@ public class DelayedMediaView extends ProxyMediaView {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     protected void injectComponent(ActivityComponent component) {
         component.inject(this);
     }

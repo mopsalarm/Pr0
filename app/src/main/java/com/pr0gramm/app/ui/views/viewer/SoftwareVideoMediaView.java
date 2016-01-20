@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
@@ -52,6 +53,11 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
         // we always proxy because of caching and stuff
         super(context, R.layout.player_software_decoder, url.withProxy(true), onViewListener);
         imageView.setVisibility(INVISIBLE);
+
+        RxView.detaches(this).subscribe(event -> {
+            imageView.setImageDrawable(null);
+            stopAndDestroy();
+        });
     }
 
     private void loadVideoAsync() {
@@ -235,13 +241,6 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     public void stopMedia() {
         super.stopMedia();
         stopAndDestroy();
-    }
-
-    @Override
-    public void onDestroy() {
-        imageView.setImageDrawable(null);
-        stopAndDestroy();
-        super.onDestroy();
     }
 
     private static class DestroyAction implements Func0<Object> {

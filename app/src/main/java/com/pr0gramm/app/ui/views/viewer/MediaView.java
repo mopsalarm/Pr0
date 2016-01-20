@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
@@ -76,7 +77,6 @@ public abstract class MediaView extends FrameLayout {
 
     private boolean mediaShown;
     private TapListener tapListener;
-    private boolean started;
     private boolean resumed;
     private boolean playing;
 
@@ -128,6 +128,16 @@ public abstract class MediaView extends FrameLayout {
         showBusyIndicator();
         showPreloadedIndicator();
         addBlurredBackground();
+
+        RxView.detaches(this).subscribe(event -> {
+            picasso.cancelRequest(previewTarget);
+
+            if (playing)
+                stopMedia();
+
+            if (resumed)
+                onPause();
+        });
     }
 
     private void addBlurredBackground() {
@@ -386,16 +396,6 @@ public abstract class MediaView extends FrameLayout {
 
     public void onResume() {
         resumed = true;
-    }
-
-    public void onDestroy() {
-        picasso.cancelRequest(previewTarget);
-
-        if (playing)
-            stopMedia();
-
-        if (resumed)
-            onPause();
     }
 
     public TapListener getTapListener() {

@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.Observable;
 
-import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
@@ -24,8 +22,6 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 @SuppressLint("ViewConstructor")
 public class Gif2VideoMediaView extends ProxyMediaView {
     private static final Logger logger = LoggerFactory.getLogger("Gif2VideoMediaView");
-
-    private Subscription conversion = Subscriptions.unsubscribed();
 
     @Inject
     GifToVideoService gifToVideoService;
@@ -35,45 +31,45 @@ public class Gif2VideoMediaView extends ProxyMediaView {
 
     public Gif2VideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, url, onViewListener);
-        startWebmConversion(url);
+        startWebmConversion();
     }
 
-    private void startWebmConversion(MediaUri url) {
+    private void startWebmConversion() {
         logger.info("Start converting gif to webm");
 
         // normalize to http://
-        String gifUrl = url.toString().replace("https://", "http://");
+        String gifUrl = getMediaUri().toString().replace("https://", "http://");
 
         // and start conversion!
-        conversion = gifToVideoService.toVideo(gifUrl).compose(backgroundBindView()).subscribe(result -> {
-            checkMainThread();
+        gifToVideoService.toVideo(gifUrl)
+                .compose(backgroundBindView())
+                .onErrorResumeNext(Observable.just(new GifToVideoService.Result(gifUrl)))
+                .limit(1)
+                .subscribe(this::handleConversionResult);
+    }
 
-            // create the correct child-viewer
-            MediaView mediaView;
-            if (result.getVideoUrl().isPresent()) {
-                logger.info("Converted successfully, replace with video player");
-                MediaUri webm = url.withUri(Uri.parse(result.getVideoUrl().get()), MediaUri.MediaType.VIDEO);
-                mediaView = MediaViews.newInstance((Activity) getContext(), webm, this::onMediaShown);
+    private void handleConversionResult(GifToVideoService.Result result) {
+        checkMainThread();
 
-            } else {
-                logger.info("Conversion did not work, showing gif");
-                mediaView = new GifMediaView((Activity) getContext(), url, this::onMediaShown);
-            }
+        // create the correct child-viewer
+        MediaView mediaView;
+        if (result.getVideoUrl().isPresent()) {
+            logger.info("Converted successfully, replace with video player");
+            Uri videoUri = Uri.parse(result.getVideoUrl().get());
+            MediaUri webm = getMediaUri().withUri(videoUri, MediaUri.MediaType.VIDEO);
+            mediaView = MediaViews.newInstance((Activity) getContext(), webm, this::onMediaShown);
 
-            mediaView.removePreviewImage();
-            setChild(mediaView);
+        } else {
+            logger.info("Conversion did not work, showing gif");
+            mediaView = new GifMediaView((Activity) getContext(), getMediaUri(), this::onMediaShown);
+        }
 
-        }, defaultOnError());
+        mediaView.removePreviewImage();
+        setChild(mediaView);
     }
 
     @Override
     protected void injectComponent(ActivityComponent component) {
         component.inject(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        conversion.unsubscribe();
-        super.onDestroy();
     }
 }

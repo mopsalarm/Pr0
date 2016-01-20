@@ -94,6 +94,11 @@ public class ImageMediaView extends MediaView {
                 .filter(event -> imageView.getSWidth() > 0 && imageView.getSHeight() > 0)
                 .subscribe(event -> applyScaling());
 
+        RxView.detaches(this).subscribe(event -> {
+            picasso.cancelTag(tag);
+            AndroidUtility.removeView(imageView);
+        });
+
         // start loading
         imageView.setImage(ImageSource.uri(getEffectiveUri()));
     }
@@ -143,14 +148,6 @@ public class ImageMediaView extends MediaView {
     public void onTransitionEnds() {
         super.onTransitionEnds();
         imageView.setVisibility(VISIBLE);
-    }
-
-    @Override
-    public void onDestroy() {
-        picasso.cancelTag(tag);
-        AndroidUtility.removeView(imageView);
-
-        super.onDestroy();
     }
 
     private void showErrorIndicator() {

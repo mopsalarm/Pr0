@@ -70,7 +70,6 @@ public class PopupPlayer extends BaseDialogFragment {
 
         mediaView.stopMedia();
         mediaView.onPause();
-        mediaView.onDestroy();
     }
 
     public static PopupPlayer newInstance(Context context, FeedItem item) {

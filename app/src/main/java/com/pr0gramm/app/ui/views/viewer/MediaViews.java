@@ -97,9 +97,6 @@ public class MediaViews {
 
             if (event == FragmentEvent.PAUSE)
                 view.onPause();
-
-            if (event == FragmentEvent.DESTROY_VIEW)
-                view.onDestroy();
         });
     }
 }
