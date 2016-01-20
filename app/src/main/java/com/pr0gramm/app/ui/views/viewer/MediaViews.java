@@ -92,17 +92,11 @@ public class MediaViews {
 
     public static void adaptFragmentLifecycle(Observable<FragmentEvent> lifecycle, MediaView view) {
         lifecycle.compose(bindView(view)).subscribe(event -> {
-            if (event == FragmentEvent.START)
-                view.onStart();
-
             if (event == FragmentEvent.RESUME)
                 view.onResume();
 
             if (event == FragmentEvent.PAUSE)
                 view.onPause();
-
-            if (event == FragmentEvent.STOP)
-                view.onStop();
 
             if (event == FragmentEvent.DESTROY_VIEW)
                 view.onDestroy();

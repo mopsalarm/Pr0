@@ -35,7 +35,6 @@ public class ImageMediaView extends MediaView {
 
     private final String tag = "ImageMediaView" + System.identityHashCode(this);
     private final boolean zoomView;
-    private boolean viewInitialized;
 
     @Bind(R.id.image)
     SubsamplingScaleImageView imageView;
@@ -94,6 +93,9 @@ public class ImageMediaView extends MediaView {
         RxView.layoutChanges(imageView)
                 .filter(event -> imageView.getSWidth() > 0 && imageView.getSHeight() > 0)
                 .subscribe(event -> applyScaling());
+
+        // start loading
+        imageView.setImage(ImageSource.uri(getEffectiveUri()));
     }
 
     private void applyScaling() {
@@ -134,16 +136,6 @@ public class ImageMediaView extends MediaView {
                 removeBlurredBackground();
 
             super.setViewAspect(viewAspect);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (!viewInitialized) {
-            imageView.setImage(ImageSource.uri(getEffectiveUri()));
-            viewInitialized = true;
         }
     }
 

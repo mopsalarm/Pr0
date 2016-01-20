@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.Window;
 
-import com.f2prateek.dart.InjectExtra;
 import com.google.common.util.concurrent.Runnables;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.feed.FeedItem;
@@ -20,7 +19,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews;
 
 import javax.inject.Inject;
 
-import proguard.annotation.KeepName;
 import proguard.annotation.KeepPublicClassMemberNames;
 
 /**
@@ -57,7 +55,6 @@ public class PopupPlayer extends BaseDialogFragment {
         }
 
         mediaView.onTransitionEnds();
-        mediaView.onStart();
         mediaView.onResume();
         mediaView.playMedia();
 
@@ -73,7 +70,6 @@ public class PopupPlayer extends BaseDialogFragment {
 
         mediaView.stopMedia();
         mediaView.onPause();
-        mediaView.onStop();
         mediaView.onDestroy();
     }
 

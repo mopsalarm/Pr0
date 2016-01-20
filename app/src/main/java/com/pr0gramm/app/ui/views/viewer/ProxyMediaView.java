@@ -63,9 +63,6 @@ public abstract class ProxyMediaView extends MediaView {
 
     private void bootupChild() {
         if (child != null) {
-            if (isStarted())
-                child.onStart();
-
             if (isResumed())
                 child.onResume();
 
@@ -84,16 +81,7 @@ public abstract class ProxyMediaView extends MediaView {
 
             if (isResumed())
                 child.onPause();
-
-            if (isStarted())
-                child.onStop();
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        propagate(MediaView::onStart);
     }
 
     @Override
@@ -128,12 +116,6 @@ public abstract class ProxyMediaView extends MediaView {
     public void onPause() {
         propagate(MediaView::onPause);
         super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        propagate(MediaView::onStop);
-        super.onStop();
     }
 
     @Override

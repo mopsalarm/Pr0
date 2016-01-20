@@ -372,24 +372,12 @@ public abstract class MediaView extends FrameLayout {
         return preview;
     }
 
-    public boolean isStarted() {
-        return started;
-    }
-
     public boolean isResumed() {
         return resumed;
     }
 
     public boolean isPlaying() {
         return playing;
-    }
-
-    public void onStart() {
-        started = true;
-    }
-
-    public void onStop() {
-        started = false;
     }
 
     public void onPause() {
@@ -408,9 +396,6 @@ public abstract class MediaView extends FrameLayout {
 
         if (resumed)
             onPause();
-
-        if (started)
-            onStop();
     }
 
     public TapListener getTapListener() {
