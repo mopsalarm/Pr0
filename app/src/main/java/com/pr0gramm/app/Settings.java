@@ -9,11 +9,15 @@ import com.google.common.primitives.Ints;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.ui.Themes;
 import com.pr0gramm.app.ui.fragments.IndicatorStyle;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import java.util.EnumSet;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Objects.equal;
@@ -21,17 +25,19 @@ import static com.google.common.base.Objects.equal;
 /**
  */
 @Singleton
-public class Settings {
+public class Settings implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private final PublishSubject<String> preferenceChanged = PublishSubject.create();
     private final SharedPreferences preferences;
 
     @Inject
     public Settings(Context context) {
+        this(PreferenceManager.getDefaultSharedPreferences(context));
         PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     private Settings(SharedPreferences preferences) {
         this.preferences = preferences;
+        this.preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     public boolean getContentTypeSfw() {
@@ -236,6 +242,20 @@ public class Settings {
                 .putBoolean("pref_feed_type_nsfw", false)
                 .putBoolean("pref_feed_type_nsfl", false)
                 .apply();
+    }
+
+    /**
+     * An observable that reacts to changes of properties.
+     * All actions are happening on the main thread.
+     */
+    public Observable<String> change() {
+        return preferenceChanged.asObservable();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        AndroidUtility.checkMainThread();
+        preferenceChanged.onNext(key);
     }
 
     public enum ConfirmOnMobile {

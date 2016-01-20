@@ -434,4 +434,8 @@ public class AndroidUtility {
     public static <T> Observable<T> emptyIfNull(T value) {
         return value != null ? just(value) : empty();
     }
+
+    public static <T> Func1<T, Boolean> isNotNull() {
+        return val -> val != null;
+    }
 }

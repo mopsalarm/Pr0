@@ -122,6 +122,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
+import static com.pr0gramm.app.util.AndroidUtility.isNotNull;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
@@ -192,7 +193,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private FeedAdapter feedAdapter;
     private FeedLoader loader;
     private boolean scrollToolbar;
-    private RecyclerItemClickListener itemClickListener;
 
     /**
      * Initialize a new feed fragment.
@@ -280,7 +280,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         createRecyclerViewClickListener();
         recyclerView.addOnScrollListener(onScrollListener);
-        recyclerView.addOnItemTouchListener(itemClickListener);
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -1005,43 +1004,38 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
 
     private void createRecyclerViewClickListener() {
-        this.itemClickListener = new RecyclerItemClickListener(getActivity(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                if (itemClicked(view)) {
-                    FeedItemViewHolder holder = viewHolder(view);
-                    onItemClicked(holder.index, absent(), of(holder.image));
-                }
-            }
+        RecyclerItemClickListener listener = new RecyclerItemClickListener(getActivity(), recyclerView);
 
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                if (settings.enableQuickPeek() && itemClicked(view)) {
-                    FeedItemViewHolder holder = viewHolder(view);
-                    PopupPlayer popup = PopupPlayer.newInstance(getContext(), holder.item);
-                    popup.show(getFragmentManager(), POPUP_PLAYER_FRAGMENT_TAG);
+        listener.itemClicked()
+                .map(FeedFragment::extractFeedItemHolder)
+                .filter(isNotNull())
+                .subscribe(holder -> onItemClicked(holder.index, absent(), of(holder.image)));
 
-                    swipeRefreshLayout.setEnabled(false);
-                    Track.quickPeek();
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+        listener.itemLongClicked()
+                .map(FeedFragment::extractFeedItemHolder)
+                .filter(isNotNull())
+                .subscribe(holder -> openQuickPeek(holder.item));
 
-            @Override
-            public void onLongClickStopped() {
-                dismissPopupPlayer();
-            }
+        listener.itemLongClickEnded().subscribe(event -> dismissPopupPlayer());
 
-            private boolean itemClicked(View view) {
-                return view.getTag() instanceof FeedItemViewHolder;
-            }
+        settings.change()
+                .compose(bindToLifecycleSimple())
+                .startWith("")
+                .subscribe(key -> listener.enableLongClick(settings.enableQuickPeek()));
+    }
 
-            private FeedItemViewHolder viewHolder(View view) {
-                return (FeedItemViewHolder) view.getTag();
-            }
-        });
+    private void openQuickPeek(FeedItem item) {
+        PopupPlayer popup = PopupPlayer.newInstance(getContext(), item);
+        popup.show(getFragmentManager(), POPUP_PLAYER_FRAGMENT_TAG);
+
+        swipeRefreshLayout.setEnabled(false);
+        Track.quickPeek();
+    }
+
+    @Nullable
+    private static FeedItemViewHolder extractFeedItemHolder(View view) {
+        Object tag = view.getTag();
+        return tag instanceof FeedItemViewHolder ? (FeedItemViewHolder) tag : null;
     }
 
     private void dismissPopupPlayer() {
@@ -1308,12 +1302,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     ToolbarActivity activity = (ToolbarActivity) getActivity();
                     activity.getScrollHideToolbarListener().onScrollFinished(y);
                 }
-
-                recyclerView.addOnItemTouchListener(itemClickListener);
-            }
-
-            if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                recyclerView.removeOnItemTouchListener(itemClickListener);
             }
         }
     };
