@@ -144,43 +144,18 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         InputStream stream;
         final Optional<Integer> length = parseContentLength(response);
         if (length.isPresent()) {
-            stream = ByteStreams.limit(new FilterInputStream(response.body().byteStream()) {
-                int read = 0;
-                final int _length = length.get();
-
-                @Override
-                public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
-                    int result = super.read(buffer, byteOffset, byteCount);
-                    if (BuildConfig.DEBUG && read / 500_000 != (read + result) / 500_000) {
-                        int percent = 100 * read / _length;
-                        int loaded = (read + result) / 1024;
-                        logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
-
-                        read += result;
-                        if (read == _length) {
-                            logger.info("Finished sending file {}", url);
-                        }
-                    }
-
-                    return result;
-                }
-
-                @Override
-                public int available() throws IOException {
-                    // fake a large value here, so ByteStreams.limit can fix it :/
-                    return Integer.MAX_VALUE;
-                }
-            }, length.get().longValue());
+            stream = new BlockingInputStream(response, length.get(), url);
         } else {
             stream = response.body().byteStream();
         }
 
-        if(BuildConfig.DEBUG && response.cacheResponse() != null) {
+        if (BuildConfig.DEBUG && response.cacheResponse() != null) {
             logger.info("Response came from the cache");
         }
 
         Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
         result.setGzipEncoding(false);
+        result.setChunkedTransfer(false);
         result.addHeader("Accept-Range", "bytes");
         result.addHeader("Cache-Content", "no-cache");
 
@@ -255,5 +230,40 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
                 return code + " " + firstNonNull(description, "unknown");
             }
         };
+    }
+
+    /**
+     * Reads data in exactly the requested block sizes, if possible.
+     * Also prints debug information, if available.
+     */
+    private static class BlockingInputStream extends FilterInputStream {
+        private int read;
+        private final String url;
+        private final int length;
+
+        public BlockingInputStream(okhttp3.Response response, int length, String url) {
+            super(response.body().byteStream());
+
+            this.url = url;
+            this.length = length;
+        }
+
+        @Override
+        public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            int result = ByteStreams.read(in, buffer, byteOffset, byteCount);
+
+            if (BuildConfig.DEBUG && read / 500_000 != (read + result) / 500_000) {
+                int percent = 100 * read / length;
+                int loaded = (read + result) / 1024;
+                logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
+
+                read += result;
+                if (read == length) {
+                    logger.info("Finished sending file {}", url);
+                }
+            }
+
+            return result == 0 ? -1 : result;
+        }
     }
 }

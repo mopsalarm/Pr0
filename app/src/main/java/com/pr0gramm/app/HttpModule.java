@@ -57,8 +57,8 @@ public class HttpModule {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(new ConnectionPool(4, 3, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
-
                 .proxySelector(proxySelector)
+
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();
                     Request request = chain.request();
