@@ -501,7 +501,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     @Override
     public void onDestroyView() {
-        recyclerView.removeOnScrollListener(onScrollListener);
+        if(recyclerView != null) {
+            recyclerView.removeOnScrollListener(onScrollListener);
+        }
+
         super.onDestroyView();
     }
 

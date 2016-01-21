@@ -173,22 +173,12 @@ public class MainActivity extends BaseAppCompatActivity implements
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
-        showApiProxyHint();
         addOriginalContentBookmarkOnce();
     }
 
     @Override
     protected void injectComponent(ActivityComponent appComponent) {
         appComponent.inject(this);
-    }
-
-    private void showApiProxyHint() {
-        if (singleShotService.isFirstTime("hint_apiproxy_info")) {
-            DialogBuilder.start(this)
-                    .content(R.string.hint_apiproxy_info)
-                    .positive()
-                    .show();
-        }
     }
 
     /**
