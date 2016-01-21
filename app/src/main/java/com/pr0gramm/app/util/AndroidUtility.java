@@ -24,7 +24,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.text.style.BulletSpan;
 import android.text.util.Linkify;
 import android.view.View;
@@ -364,12 +363,7 @@ public class AndroidUtility {
 
         view.setText(text);
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
-            // disable selecting comments because of crash stuff
-            view.setTextIsSelectable(false);
-        }
-
-        view.setMovementMethod(LinkMovementMethod.getInstance());
+        view.setMovementMethod(new NonCrashingLinkMovementMethod());
     }
 
     /**
