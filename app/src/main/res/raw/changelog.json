@@ -9,6 +9,18 @@
       {
         "type": "Fix",
         "change": "Lesezeichen löschen Dialog ist jetzt abbrechbar"
+      },
+      {
+        "type": "Fix (Hoffentlich)",
+        "change": "Text in den Kommentaren sollte auch unter Android 6 wieder markierbar sein."
+      },
+      {
+        "type": "Fix",
+        "change": "Autokorrektur sollte wieder beim Nachrichten/Kommentare schreiben funktionieren"
+      },
+      {
+        "type": "Fix",
+        "change": "Crash beim Drehen des Geräts während man 'quick-peek' offen hat."
       }
     ]
   },

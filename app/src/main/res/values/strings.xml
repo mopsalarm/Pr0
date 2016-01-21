@@ -167,21 +167,6 @@
     <string name="upload_title">Upload</string>
     <string name="upload_tags">Tags, comma-separated</string>
 
-    <string-array name="upload_small_print">
-        <item>nsfw/nsfl Bilder müssen vor dem Upload entsprechend markiert werden!</item>
-        <item>Keine suggestiven Bilder oder Gore von/mit Minderjährigen/Babys/Föten.</item>
-        <item>Keine Tierpornos. Kein stumpfer Rassismus, kein rechtes Gedankengut, keine Nazi-Nostalgie.</item>
-        <item>Keine Werbung; keine Affiliate Links in den Bildern; kein Spam.</item>
-        <item>Keine Informationen oder Bilder von Privatpersonen; Keine Klarnamen in den Uploads, Tags oder Kommentaren.</item>
-        <item>Ein Mindestmaß an Bildqualität wird erwartet. Bildmaterial mit starken Kompressionsartefakten, übermäßig großen Watermarks oder unsinnig beschnittene/skalierte Bilder werden gelöscht.</item>
-        <item>Keine Bilder mit ähnlichem Inhalt in Reihe.</item>
-        <item>Zugehöriger Content kann in den Kommentaren verlinkt werden.</item>
-        <item>Kommentare wie “Tag deinen Scheiß” und ähnliches gehören nicht in die Tags. Genaueres im FAQ: Was gehört in die Tags?</item>
-        <item>Downvote-Spam, Vote-Manipulation und Tag-Vandalismus werden nicht geduldet.</item>
-        <item>Pro Benutzer ist nur ein Account erlaubt. Indizien für Multiaccounts sind gegenseitige Upvotes oder Spamaktionen.</item>
-        <item>Keine Warez, gestohlene Logins zu Pay Sites o.ä</item>
-    </string-array>
-
     <string name="upload_small_print_footer" translatable="false">Unfähigkeit, diese Regeln zu befolgen, wird mit einer Sperrung Deines Accounts honoriert. Diskussionen um die Sperrung werden die Sperrung verlängern.</string>
     <string name="upload_small_print_header" translatable="false">DAS KLEINGEDRUCKTE – LIES ES!</string>
     <string name="upload_warning">Warning, right now, only uploading images is supported and highly experimental. Please send Feedback.</string>

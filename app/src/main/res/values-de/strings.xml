@@ -48,8 +48,6 @@
     <string name="pref_feed_type_nsfw_on">Zeige <i>not safe for work</i> posts (Login nötig)</string>
     <string name="pref_feed_types">Filter</string>
     <string name="pref_feed_type_sfw_on">Zeige <i>safe for work</i> posts</string>
-    <string name="pref_max_image_size">Bildgröße</string>
-    <string name="pref_max_image_size_summary">Wähle einen höheren Wert für bessere Darstellung bei \'musste scrollen\' Bildern</string>
     <string name="pref_privacy">Privatsphäre</string>
     <string name="settings">Einstellungen</string>
     <string name="size_huge">Riesig</string>
@@ -108,7 +106,7 @@
     <string name="nothing_there">Nichts gefunden\n¯\\_(ツ)_/¯</string>
     <string name="action_feed_type_premium">STELZ</string>
     <string name="error_login_required_exception">Schaut so aus, als wäre was mit deinem Login-Cookie kaputt. Hast du dich vielleicht im Browser abgemeldet?</string>
-    <string name="feedback_reminder">Dies ist eine Beta. Bitte Informiere mich über den Feedback-Knopf in den Einstellungen, wenn dir irgendetwas (nicht) gefällt!</string>
+    <string name="feedback_reminder">Dies ist eine Beta. Bitte Informiere mich über den Feedbackknopf in den Einstellungen, wenn dir irgendetwas (nicht) gefällt!</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="notify_new_message_title">Eine neue Nachricht</string>
     <string name="notify_new_messages_title">%d neue Nachrichten</string>
@@ -200,10 +198,10 @@
     <string name="share_direct">Als Datei</string>
     <string name="share_post">Link zum Post</string>
     <string name="prefcat_misc">Verschiedenes</string>
-    <string name="action_search_image">Bild googlen</string>
+    <string name="action_search_image">Bild googeln</string>
     <string name="action_feedback">Feedback</string>
-    <string name="pref_show_google_image_button_summary">Zeigt den Bild googlen Button im Post-Menü</string>
-    <string name="pref_show_google_image_button_title">Zeige Bild googlen</string>
+    <string name="pref_show_google_image_button_summary">Zeigt den Bild googeln Button im Post-Menü</string>
+    <string name="pref_show_google_image_button_title">Zeige Bild googeln</string>
     <string name="prefcat_behaviour__datausage_title">Datenverbrauch</string>
     <string name="prefcat_behaviour__notificatons_title">Benachrichtigungen</string>
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
@@ -228,7 +226,7 @@
     <string name="pref_force_mpeg_decoder_summary">Erzwingt die Verwendung eines puren Java Dekoders. ACHTUNG: Reduziert die Qualität der abgespielten Videos. </string>
     <string name="pref_prioritize_op_comments_title">Priorisiere OP</string>
     <string name="pref_prioritize_op_comments_summary">Kommentare von OP werden nach oben einsortiert.</string>
-    <string name="hint_check_compatibility_if_videos_dont_play">Wenn Videos in dieser App-Version nicht richtig abgespielt werden, prüfe bitte die Seite "Kompatibilität" in den Einstellungen.</string>
+    <string name="hint_check_compatibility_if_videos_dont_play">Wenn Videos in dieser Version nicht richtig abgespielt werden, prüfe bitte die Seite "Kompatibilität" in den Einstellungen.</string>
     <string name="share_using">Teilen mit</string>
     <string name="error_webm_native_exception">Es ist ein Fehler im webm-Dekoder aufgetreten, die App beendet sich evnt. gleich von alleine. Wenn dies öfters auftritt, deaktiviere den Softwaredekoder oder aktiviere den puren Java Dekoder.</string>
     <string name="kpi_desc_comments">KOMMENTARE</string>
@@ -251,7 +249,6 @@
 
     <string name="preload_info_hint">Vorladen begonnen. Die App wird automatisch vorgeladene Dateien älter als einen Tag löschen, wenn du wieder auf Vorladen drückst. Alle vorgeladenen Dateien kannst du unter Einstellungen löschen.</string>
     <string name="preload_not_on_mobile">Vorladen ist nur im WLAN unterstützt.</string>
-    <string name="hint_musste_scrollen">Wenn \'musste scrollen\' Bilder häufig unscharf sind, erhöhe die maximale Bildgröße in den Einstellungen!</string>
     <string name="action_feed_type_random">ZUFALL</string>
     <string name="filter_format_random">Zufall</string>
     <string name="pref_show_category_random_summary">Aktiviere die Zufall-Kategorie, die zufällige Bilder aus dem pr0gramm anzeigt!</string>
@@ -275,7 +272,6 @@
     <string name="pref_use_api_proxy_summary">Verwende einen externen Proxy für API-Anfragen. Dies kann helfen, wenn du ständig Verbindungsprobleme im WLAN hast und Posts nicht laden. ACHTUNG: Dies sendet private Daten über den externen Proxy-Server (aber NICHT dein Passwort).</string>
     <string name="pref_use_api_proxy_title">Api Proxy</string>
     <string name="warn_api_proxy">All deine privaten Daten außer deinem Passwort (Nachrichten und so) werden über einen externen Proxy übertragen. Bitte sei dir darüber im Klaren, wenn du diese Funktion verwendest.</string>
-    <string name="hint_apiproxy_info">Wenn du oft Probleme damit hast, dass im WLAN Posts nicht geladen werden, versuche die neue Api-Proxy Einstellung in den Kompatibilitätseinstellungen.</string>
     <string name="open_website">Website öffnen</string>
     <string name="user_registered">Registriert am %s</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
@@ -286,10 +282,10 @@
     <string name="hint_kfav_userscript">Du hast gerade einen Kommentar als Favoriten markiert. Die Liste aller markierten Favoriten findest du aktuell unter \"Favoriten → k-fav\".\nWenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
     <string name="info_kfav_userscript">Wenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
     <string name="action_kfav">K-FAV</string>
-    <string name="hint_feedback_not_support"><b>Achtung:</b> Dies nicht der pr0gramm-Support. Wenn du dich hier unwohl fühlst, Bilder löschen möchtest, keinen Sound hast oder irgendeine andere Frage zum pr0gramm, dann bist du hier falsch. Hier gehts um <b>Feedback für die App</b>!\nWenn du eine Antwort erwartest, dann <b>musst</b> du oben deinen pr0gramm Benutzernamen angeben.</string>
-    <string name="hint_user_search_dialog">Gib den Namen des Benutzer ein, den du suchst. Wenn es sich um einen aktiven Benutzer handelt, hilft dir eventuell die Autoverfollständigung.</string>
+    <string name="hint_feedback_not_support"><b>Achtung:</b> Dies nicht der pr0gramm-Support. Wenn du dich hier unwohl fühlst, Bilder löschen möchtest, keinen Sound hast oder irgendeine andere Frage zum pr0gramm, dann bist du hier falsch. Hier geht es um <b>Feedback für die App</b>!\nWenn du eine Antwort erwartest, dann <b>musst</b> du oben deinen pr0gramm Benutzernamen angeben.</string>
+    <string name="hint_user_search_dialog">Gib den Namen des Benutzer ein, den du suchst. Wenn es sich um einen aktiven Benutzer handelt, hilft dir eventuell die Autovervollständigung.</string>
     <string name="info">Info</string>
-    <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in enem WLAN ohne Internetzugang.</string>
+    <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in einem WLAN ohne Internetzugang.</string>
     <string name="error_json">Die Antwort des pr0gramm konnte nicht verarbeitet werden.</string>
     <string name="pref_pseudo_clear_tag_suggestions_summary">Klicke hier um alle Tag-Vorschläge für die Suche zu löschen</string>
     <string name="pref_pseudo_clear_tag_suggestions_title">Tag-Vorschläge löschen</string>
@@ -307,4 +303,6 @@
     <string name="pref_theme_summary">Du kannst zwischen verschiedenen Themes wählen. Gefällt dir <i>Bewährtes Orange</i> oder stehst du eher auf <i>Angenehmes Grün</i>?</string>
     <string name="prefcat_theme">Theme</string>
     <string name="reason">Grund</string>
+    <string name="pref_enable_quick_peek_title">Schnell Vorschau</string>
+    <string name="pref_enable_quick_peek_summary">Halte den Finger auf ein Bild im Feed gedrückt um einee Vorschau zu bekommen.</string>
 </resources>
