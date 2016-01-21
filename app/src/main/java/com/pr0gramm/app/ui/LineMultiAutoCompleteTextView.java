@@ -6,6 +6,7 @@ import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 
 import com.pr0gramm.app.util.AndroidUtility;
@@ -37,6 +38,11 @@ public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTex
     }
 
     private void initialize() {
+        // fix auto complete
+        int inputType = getInputType();
+        inputType &= ~EditorInfo.TYPE_TEXT_FLAG_AUTO_COMPLETE;
+        setRawInputType(inputType);
+
         addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
