@@ -206,9 +206,9 @@ public class VoteView extends LinearLayout {
     /**
      * Sets the size of the views.
      */
-    public void setSize(int size) {
-        viewRateUp.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-        viewRateDown.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+    public void setTextSize(int type, int size) {
+        viewRateUp.setTextSize(type, size);
+        viewRateDown.setTextSize(type, size);
     }
 
     /**
