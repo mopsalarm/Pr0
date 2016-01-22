@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
@@ -76,6 +75,7 @@ import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
+import com.pr0gramm.app.ui.views.Pr0grammIconView;
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
@@ -165,7 +165,7 @@ public class PostFragment extends BaseFragment implements
     RecyclerView content;
 
     @Bind(R.id.vote_indicator)
-    TextView voteAnimationIndicator;
+    Pr0grammIconView voteAnimationIndicator;
 
     @Bind(R.id.repost_hint)
     View repostHint;

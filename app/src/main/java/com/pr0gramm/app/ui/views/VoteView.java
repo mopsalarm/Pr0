@@ -9,10 +9,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.Vote;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -22,9 +20,8 @@ import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
  * A plus and a minus sign to handle votes.
  */
 public class VoteView extends LinearLayout {
-    private final TextView viewRateUp;
-    private final TextView viewRateDown;
-    private final Settings settings;
+    private final Pr0grammIconView viewRateUp;
+    private final Pr0grammIconView viewRateDown;
 
     private ColorStateList markedColor;
     private ColorStateList markedColorDown;
@@ -43,12 +40,6 @@ public class VoteView extends LinearLayout {
 
     public VoteView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-        if (isInEditMode()) {
-            settings = null;
-        } else {
-            settings = Settings.of(context);
-        }
 
         int orientation = 0, spacing = 0, textSize = 24;
         markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, primaryColor()));
@@ -108,10 +99,11 @@ public class VoteView extends LinearLayout {
         viewRateDown.setOnClickListener(v -> triggerDownVoteClicked());
     }
 
-    private TextView newVoteButton(Context context, int textSize, String text) {
-        TextView view = new Pr0grammFontTextView(context);
+    private Pr0grammIconView newVoteButton(Context context, int textSize, String text) {
+        Pr0grammIconView view = new Pr0grammIconView(context);
         view.setText(text);
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        view.setTextColor(defaultColor);
         view.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));

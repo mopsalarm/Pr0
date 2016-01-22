@@ -36,13 +36,14 @@
             app:fillColor="?android:textColorSecondary"
             app:radius="6sp"/>
 
-        <com.pr0gramm.app.ui.views.Pr0grammFontTextView
+        <com.pr0gramm.app.ui.views.Pr0grammIconView
             android:id="@+id/action_favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:text="*"
-            android:textSize="28sp"/>
+            app:iv_text="*"
+            app:iv_textColor="?android:textColorSecondary"
+            app:iv_textSize="28sp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

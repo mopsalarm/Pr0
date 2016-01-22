@@ -67,7 +67,6 @@ public class CommentSpacerView extends RelativeLayout {
     @Override
     @SuppressLint("DrawAllocation")
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         Path path = new Path();
         for (int i = 1; i < depth; i++) {
             float x = i * lineMargin - lineWidth;

@@ -25,16 +25,16 @@
         app:spacing="4sp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
 
-    <com.pr0gramm.app.ui.views.Pr0grammFontTextView
+    <com.pr0gramm.app.ui.views.Pr0grammIconView
         android:id="@+id/kfav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginTop="4dp"
         android:background="?selectableItemBackgroundBorderless"
-        android:text="*"
-        android:textColor="@color/grey_700"
-        android:textSize="20sp"
+        app:iv_text="*"
+        app:iv_textColor="@color/grey_700"
+        app:iv_textSize="20sp"
         tools:ignore="HardcodedText"/>
 
     <TextView

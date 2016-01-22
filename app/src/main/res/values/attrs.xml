@@ -20,6 +20,12 @@
         <attr name="textSize" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="IconView">
+        <attr name="iv_textSize" format="dimension"/>
+        <attr name="iv_textColor" format="color"/>
+        <attr name="iv_text" format="string"/>
+    </declare-styleable>
+
     <declare-styleable name="BubbleView">
         <attr name="bv_gravity" format="enum">
             <enum name="top" value="48"/>

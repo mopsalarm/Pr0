@@ -234,7 +234,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
-        final TextView kFav;
+        final Pr0grammIconView kFav;
 
         public CommentView(View itemView) {
             super(itemView);

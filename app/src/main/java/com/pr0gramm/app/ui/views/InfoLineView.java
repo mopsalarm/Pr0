@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -48,9 +49,11 @@ public class InfoLineView extends LinearLayout {
     private final TextView dateView;
     private final UsernameView usernameView;
     private final RecyclerView tagsView;
-    private final TextView voteFavoriteView;
+    private final Pr0grammIconView voteFavoriteView;
 
+    @Nullable
     private final Settings settings;
+
     private final View ratingUnknownView;
     private final boolean admin;
     private OnDetailClickedListener onDetailClickedListener;
@@ -72,11 +75,8 @@ public class InfoLineView extends LinearLayout {
     public InfoLineView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        settings = isInEditMode()
-                ? Settings.of(context.getSharedPreferences("", Context.MODE_PRIVATE))
-                : Settings.of(context);
-
-        admin = appComponent(context).userService().userIsAdmin();
+        settings = isInEditMode() ? null : Settings.of(context);
+        admin = !isInEditMode() && appComponent(context).userService().userIsAdmin();
 
         setOrientation(VERTICAL);
 
@@ -93,7 +93,7 @@ public class InfoLineView extends LinearLayout {
         tagsView = findView(this, R.id.tags);
 
         int tagGaps = getResources().getDimensionPixelSize(R.dimen.tag_gap_size);
-        if (settings.tagCloudView()) {
+        if (settings != null && settings.tagCloudView()) {
             tagsView.setItemAnimator(null);
             tagsView.setLayoutManager(new TagCloudLayoutManager(tagGaps, tagGaps, 3));
         } else {
@@ -251,7 +251,7 @@ public class InfoLineView extends LinearLayout {
             setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
             this.votes = ImmutableMap.copyOf(votes);
-            this.alwaysVoteViews = !settings.hideTagVoteButtons();
+            this.alwaysVoteViews = settings != null && !settings.hideTagVoteButtons();
         }
 
         @Override
