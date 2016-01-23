@@ -1238,5 +1238,4 @@ public class PostFragment extends BaseFragment implements
     private static boolean isStaticImage(FeedItem image) {
         return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
-
 }

@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.common.base.Stopwatch;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -59,6 +60,7 @@ public class HttpModule {
                 .retryOnConnectionFailure(true)
                 .proxySelector(proxySelector)
 
+                .addNetworkInterceptor(new StethoInterceptor())
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();
                     Request request = chain.request();
