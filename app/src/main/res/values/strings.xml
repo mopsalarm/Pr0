@@ -107,7 +107,7 @@
     <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
-    <string name="feedback_reminder">You are on the beta channel. Please inform me if something is not working correctly. You can send feedback by going to the settings menu.</string>
+    <string name="feedback_reminder">You are on the beta channel. Send feedback on problems, please.</string>
     <string name="error_login_required_exception">Looks like there was some problem with your login cookie. This shouldn\'t happen, and maybe Gamb changed something at the pr0gramm api level.</string>
     <string name="action_refresh">Refresh</string>
     <string name="pref_show_refresh_button">Show refresh action</string>

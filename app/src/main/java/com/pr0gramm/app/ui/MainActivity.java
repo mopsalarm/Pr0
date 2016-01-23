@@ -89,6 +89,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Bind(R.id.toolbar_container)
     View toolbarContainer;
 
+    @Bind(R.id.content)
+    View contentContainer;
+
     @Inject
     UserService userService;
 
@@ -168,12 +171,23 @@ public class MainActivity extends BaseAppCompatActivity implements
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
 
+        } else if (shouldShowFeedbackReminder()) {
+            //noinspection ResourceType
+            Snackbar.make(contentContainer, R.string.feedback_reminder, 10000).show();
+
         } else {
-            // start the update check.
+            // start the update check again
             UpdateDialogFragment.checkForUpdates(this, false);
         }
 
         addOriginalContentBookmarkOnce();
+    }
+
+    private boolean shouldShowFeedbackReminder() {
+        // By design it is | and not ||. We want both conditions to
+        // be evaluated for the sideeffects
+        return singleShotService.firstTimeInVersion("hint_feedback_reminder")
+                | singleShotService.firstTimeToday("hint_feedback_reminder");
     }
 
     @Override

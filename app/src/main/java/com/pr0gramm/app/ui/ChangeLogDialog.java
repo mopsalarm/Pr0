@@ -56,14 +56,9 @@ public class ChangeLogDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Settings settings = Settings.of(getActivity());
         return DialogBuilder.start(getContext())
                 .layout(R.layout.changelog)
-                .positive(R.string.okay, () -> {
-                    if (settings.useBetaChannel()) {
-                        showFeedbackReminderDialog();
-                    }
-                })
+                .positive()
                 .build();
     }
 
@@ -72,13 +67,6 @@ public class ChangeLogDialog extends BaseDialogFragment {
         List<ChangeGroup> changes = loadChangelog(getContext());
         recyclerView.setAdapter(new ChangeAdapter(changes));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    }
-
-    private void showFeedbackReminderDialog() {
-        DialogBuilder.start(getActivity())
-                .content(R.string.feedback_reminder)
-                .positive()
-                .show();
     }
 
     @Override

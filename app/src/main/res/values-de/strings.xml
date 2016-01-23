@@ -106,7 +106,7 @@
     <string name="nothing_there">Nichts gefunden\n¯\\_(ツ)_/¯</string>
     <string name="action_feed_type_premium">STELZ</string>
     <string name="error_login_required_exception">Schaut so aus, als wäre was mit deinem Login-Cookie kaputt. Hast du dich vielleicht im Browser abgemeldet?</string>
-    <string name="feedback_reminder">Dies ist eine Beta. Bitte Informiere mich über den Feedbackknopf in den Einstellungen, wenn dir irgendetwas (nicht) gefällt!</string>
+    <string name="feedback_reminder">Dies ist eine Betaversion. Bitte sende Feedback bei Problemen.</string>
     <string name="filter_format_premium">Stelz</string>
     <string name="notify_new_message_title">Eine neue Nachricht</string>
     <string name="notify_new_messages_title">%d neue Nachrichten</string>
