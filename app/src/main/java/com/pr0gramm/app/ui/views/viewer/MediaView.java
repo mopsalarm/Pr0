@@ -125,7 +125,6 @@ public abstract class MediaView extends FrameLayout {
         // inject all the stuff!
         injectComponent(Dagger.activityComponent(activity));
 
-        showBusyIndicator();
         showPreloadedIndicator();
         addBlurredBackground();
 

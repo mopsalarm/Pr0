@@ -54,8 +54,11 @@ public class GifMediaView extends AbstractProgressMediaView {
     }
 
     private void loadGif() {
+        showBusyIndicator();
+
         gifDrawableLoader.load(getEffectiveUri())
                 .compose(backgroundBindView())
+                .finallyDo(this::hideBusyIndicator)
                 .subscribe(this::onDownloadStatus, defaultOnError());
     }
 
@@ -65,8 +68,6 @@ public class GifMediaView extends AbstractProgressMediaView {
         onDownloadProgress(state.progress);
 
         if (state.finished()) {
-            hideBusyIndicator();
-
             gif = state.drawable;
             imageView.setImageDrawable(this.gif);
             setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());

@@ -16,6 +16,7 @@ public abstract class ProxyMediaView extends MediaView {
 
     public ProxyMediaView(Activity context, MediaUri uri, Runnable onViewListener) {
         super(context, R.layout.player_proxy, uri, onViewListener);
+        showBusyIndicator();
     }
 
     public void setChild(MediaView child) {

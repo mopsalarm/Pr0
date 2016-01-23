@@ -101,6 +101,7 @@ public class ImageMediaView extends MediaView {
 
         // start loading
         imageView.setImage(ImageSource.uri(getEffectiveUri()));
+        showBusyIndicator();
     }
 
     private void applyScaling() {

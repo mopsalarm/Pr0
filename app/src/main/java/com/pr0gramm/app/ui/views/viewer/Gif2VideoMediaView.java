@@ -45,6 +45,7 @@ public class Gif2VideoMediaView extends ProxyMediaView {
                 .compose(backgroundBindView())
                 .onErrorResumeNext(Observable.just(new GifToVideoService.Result(gifUrl)))
                 .limit(1)
+                .finallyDo(this::hideBusyIndicator)
                 .subscribe(this::handleConversionResult);
     }
 
