@@ -219,6 +219,13 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_enable_quick_peek", true);
     }
 
+    public VolumeNavigationType volumeNavigation() {
+        String pref = preferences.getString("pref_volume_navigation", "disabled");
+        return Enums
+                .getIfPresent(VolumeNavigationType.class, pref.toUpperCase())
+                .or(VolumeNavigationType.DISABLED);
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }
@@ -264,5 +271,9 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         ConfirmOnMobile(int stringValue) {
             this.value = stringValue;
         }
+    }
+
+    public enum VolumeNavigationType {
+        DISABLED, UP, DOWN;
     }
 }

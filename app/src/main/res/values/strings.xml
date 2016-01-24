@@ -50,8 +50,6 @@
     <string name="pref_feed_type_nsfw_on">Display <i>not safe for work</i> posts (requires login)</string>
     <string name="pref_feed_type_sfw_on">Display <i>safe for work</i> posts</string>
     <string name="pref_feed_types">What to display</string>
-    <string name="pref_max_image_size">Image size</string>
-    <string name="pref_max_image_size_summary">Select higher value for better quality with \'musste scrollen\' images</string>
     <string name="pref_privacy">Privacy</string>
     <string name="settings">Settings</string>
     <string name="size_huge">Huge</string>
@@ -266,7 +264,6 @@
     <string name="share_with">Share with…</string>
     <string name="preload_info_hint">Preloading started. The app will automatically remove preloaded files older than one day when you press the preload button. You can clean preloaded files in the settings.</string>
     <string name="preload_not_on_mobile">You need to be on wifi to use preloading.</string>
-    <string name="hint_musste_scrollen">If \'musste scrollen\'-images are all blurry, go to the settings and increase the maximum image size!</string>
     <string name="action_feed_type_random">RANDOM</string>
     <string name="filter_format_random">Random</string>
     <string name="action_feed_type_controversial">CONTROVERSIAL</string>
@@ -290,7 +287,6 @@
     <string name="pref_use_api_proxy_summary">Uses an external proxy server for all api requests. This might help with connection problems on wifi. ATTENTION: This will naturally send all your private data over an external server (but NOT your password).</string>
     <string name="pref_use_api_proxy_title">Api Proxy</string>
     <string name="warn_api_proxy">All your private data except your password (messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
-    <string name="hint_apiproxy_info">If you often have loading problems on wifi, you could try the new api-proxy setting in the compatibility preferences.</string>
     <string name="open_website">Open website</string>
 
     <string name="user_banned">Banned for %s</string>
@@ -324,5 +320,10 @@
     <string name="pref_theme_title">Select app theme</string>
     <string name="pref_enable_quick_peek_title">Quick preview</string>
     <string name="pref_enable_quick_peek_summary">Hold the finger on an item in the feed to quickly show an item.</string>
+    <string name="pref_volume_navigation_title">Volume keys</string>
+    <string name="pref_volume_navigation_summary">You can use the volume keys for navigation between images.</string>
+    <string name="pref_volume_navigation_human__disabled">Disabled</string>
+    <string name="pref_volume_navigation_human__up">Volume up shows next image</string>
+    <string name="pref_volume_navigation_human__down">Volume up shows previous image</string>
 </resources>
 

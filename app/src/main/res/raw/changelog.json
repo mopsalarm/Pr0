@@ -7,6 +7,10 @@
         "change": "Instagram ähnliches 'quick-peek'. Im Feed etwas länger auf ein Vorschaubildchen drücken. Deaktivierbar unter Einstellungen/Visuell."
       },
       {
+        "type": "Neu",
+        "change": "Navigation mithilfe der Lautstärketasten"
+      },
+      {
         "type": "Fix",
         "change": "Lesezeichen löschen Dialog ist jetzt abbrechbar"
       },

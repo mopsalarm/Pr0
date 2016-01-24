@@ -108,4 +108,18 @@
         <item>@string/theme_pink</item>
     </string-array>
 
+    <string name="pref_volume_navigation_default" translatable="false">disabled</string>
+
+    <string-array name="pref_volume_navigation_values">
+        <item>disabled</item>
+        <item>up</item>
+        <item>down</item>
+    </string-array>
+
+    <string-array name="pref_volume_navigation_human">
+        <item>@string/pref_volume_navigation_human__disabled</item>
+        <item>@string/pref_volume_navigation_human__up</item>
+        <item>@string/pref_volume_navigation_human__down</item>
+    </string-array>
+
 </resources>

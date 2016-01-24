@@ -113,6 +113,15 @@
                 android:key="prefcat_behaviour__post"
                 android:title="@string/prefcat_post">
 
+                <ListPreference
+                    android:defaultValue="@string/pref_volume_navigation_default"
+                    android:entries="@array/pref_volume_navigation_human"
+                    android:entryValues="@array/pref_volume_navigation_values"
+                    android:key="pref_volume_navigation"
+                    android:summary="@string/pref_volume_navigation_summary"
+                    android:title="@string/pref_volume_navigation_title"/>
+
+
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_single_tap_for_fullscreen"

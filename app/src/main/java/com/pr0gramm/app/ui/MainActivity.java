@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -43,6 +44,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
+import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -263,6 +265,37 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (BuildConfig.DEBUG) {
             printFragmentStack();
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Settings.VolumeNavigationType navigationType = settings.volumeNavigation();
+        Fragment fragment = getCurrentFragment();
+        if (fragment instanceof PostPagerFragment && navigationType != Settings.VolumeNavigationType.DISABLED) {
+            PostPagerFragment pager = (PostPagerFragment) fragment;
+
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                if (navigationType == Settings.VolumeNavigationType.UP) {
+                    pager.moveToNext();
+                } else {
+                    pager.moveToPrev();
+                }
+
+                return true;
+            }
+
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                if (navigationType == Settings.VolumeNavigationType.UP) {
+                    pager.moveToPrev();
+                } else {
+                    pager.moveToNext();
+                }
+
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
     }
 
     private void printFragmentStack() {

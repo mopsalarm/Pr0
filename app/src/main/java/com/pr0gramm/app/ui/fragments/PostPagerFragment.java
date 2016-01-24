@@ -264,6 +264,18 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment {
         this.previewInfo = previewInfo;
     }
 
+    public void moveToNext() {
+        int newIndex = viewPager.getCurrentItem() + 1;
+        if (newIndex < viewPager.getAdapter().getCount())
+            viewPager.setCurrentItem(newIndex);
+    }
+
+    public void moveToPrev() {
+        int newIndex = viewPager.getCurrentItem() - 1;
+        if (newIndex >= 0)
+            viewPager.setCurrentItem(newIndex);
+    }
+
     private static class PostAdapter extends IdFragmentStatePagerAdapter implements Feed.FeedListener {
         private final Feed proxy;
         private final FeedLoader loader;
