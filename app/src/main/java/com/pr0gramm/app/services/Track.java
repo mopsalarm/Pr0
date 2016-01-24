@@ -106,6 +106,8 @@ public final class Track {
                 .putCustomAttribute("theme", settings.themeName().toLowerCase())
                 .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
                 .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
+                .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
+                .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
     }
 

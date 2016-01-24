@@ -4,11 +4,11 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Instagram ähnliches 'quick-peek'. Im Feed etwas länger auf ein Vorschaubildchen drücken. Deaktivierbar unter Einstellungen/Visuell."
+        "change": "Instagram ähnliches 'quick-peek'. Im Feed etwas länger auf ein Vorschaubildchen drücken. Deaktivierbar unter Einstellungen/Verhalten."
       },
       {
         "type": "Neu",
-        "change": "Navigation mithilfe der Lautstärketasten"
+        "change": "Navigation mithilfe der Lautstärketasten (Muss unter Einstellungen/Verhalten/Post aktiviert werden)"
       },
       {
         "type": "Fix",
