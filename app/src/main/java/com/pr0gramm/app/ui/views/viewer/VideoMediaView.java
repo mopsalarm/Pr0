@@ -49,6 +49,8 @@ public class VideoMediaView extends AbstractProgressMediaView {
         super.playMedia();
 
         if (!videoViewInitialized) {
+            showBusyIndicator();
+
             videoViewInitialized = true;
             videoView.setVideoURI(getEffectiveUri());
             videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
@@ -142,6 +144,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
                         .positive()
                         .show();
 
+                hideBusyIndicator();
                 return true;
             }
 
