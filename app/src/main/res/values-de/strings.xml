@@ -18,6 +18,7 @@
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>
+    <string name="error_connect_exception_https">HTTPS Verbindung konnte nicht aufgebaut werden: %s</string>
     <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden.</string>
     <string name="error_exception_of_type">Es ist ein Fehler ohne weitere Nachricht aufgetreten: %s</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
@@ -80,6 +81,7 @@
     <string name="pref_double_tap_to_upvote">Doppelklick für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppelklick auf ein Bild oder Video führt einen Upvote aus</string>
     <string name="could_not_load_feed">Kann den Feed nicht laden. Ist pr0gramm gerade nicht erreichbar?</string>
+    <string name="could_not_load_feed_https">Kann den Feed über https nicht laden. Ist pr0gramm gerade nicht über https erreichbar?</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
     <string name="pref_fullscreen_zoom_view_summary">Aktiviere diese Einstellung, um Status- und Navigationsleiste in der Zoomansicht zu verstecken.</string>

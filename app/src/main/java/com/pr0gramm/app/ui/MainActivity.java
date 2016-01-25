@@ -184,14 +184,14 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         addOriginalContentBookmarkOnce();
 
-        if(singleShotService.isFirstTime("workaround.disable_https_20160125") && settings.useHttps()) {
+        if(singleShotService.isFirstTime("workaround.disable_https_20160125-1") && settings.useHttps()) {
             settings.edit()
                     .putBoolean("pref_use_https", false)
                     .apply();
 
             DialogBuilder.start(this)
                     .title("Achtung")
-                    .content("HTTPS wurde temporär deaktiviert. HTTPs ist leider gerade kaputt - " +
+                    .contentWithLinks("HTTPS wurde temporär deaktiviert. HTTPs ist leider gerade kaputt - " +
                             "auch im Browser.. Für mehr Informationen, folge dem pr0gramm auf " +
                             "Twitter: https://twitter.com/pr0gramm.")
                     .positive()

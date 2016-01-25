@@ -34,6 +34,7 @@ import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -97,6 +98,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
+import java.net.ConnectException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -501,7 +503,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     @Override
     public void onDestroyView() {
-        if(recyclerView != null) {
+        if (recyclerView != null) {
             recyclerView.removeOnScrollListener(onScrollListener);
         }
 
@@ -1182,6 +1184,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 .subscribe(inMemoryCacheService::cache, Actions.empty());
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private void onFeedError(Throwable error) {
         logger.error("Error loading the feed", error);
 
@@ -1194,6 +1197,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 // show a special error
                 ErrorDialogFragment.showErrorString(getFragmentManager(),
                         getString(R.string.could_not_load_feed_json));
+
+            } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.useHttps()) {
+                ErrorDialogFragment.showErrorString(getFragmentManager(),
+                        getString(R.string.could_not_load_feed_https));
 
             } else {
                 ErrorDialogFragment.showErrorString(getFragmentManager(),

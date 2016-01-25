@@ -175,8 +175,14 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(Throwable.class,
                 err -> Throwables.getRootCause(err) instanceof ConnectException,
                 (err, context) -> {
-                    return context.getString(R.string.error_connect_exception,
-                            String.valueOf(err.getLocalizedMessage()));
+                    ConnectException error = (ConnectException) Throwables.getRootCause(err);
+                    if(error.toString().contains(":443")) {
+                        return context.getString(R.string.error_connect_exception_https,
+                                String.valueOf(err.getLocalizedMessage()));
+                    } else {
+                        return context.getString(R.string.error_connect_exception,
+                                String.valueOf(err.getLocalizedMessage()));
+                    }
                 }).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,

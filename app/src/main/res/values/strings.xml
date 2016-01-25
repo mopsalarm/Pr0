@@ -19,6 +19,7 @@
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Could not connect to host: %s</string>
+    <string name="error_connect_exception_https">Could not connect to host via https: %s</string>
     <string name="error_conversion">An error occurred while decoding the api response</string>
     <string name="error_exception_of_type">No message provided, type of error was %s</string>
     <string name="error_host_not_found">A hostname could not be resolved. Please check your connectivty.</string>
@@ -86,6 +87,7 @@
 
     <string name="zoom">Zoom</string>
     <string name="could_not_load_feed">Can not load the feed. Please try again.</string>
+    <string name="could_not_load_feed_https">Can not load the feed via https. Please try again.</string>
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
     <string name="pref_pseudo_changelog">Changelog</string>

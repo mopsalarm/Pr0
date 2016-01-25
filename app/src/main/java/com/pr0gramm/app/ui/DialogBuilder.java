@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
+import android.text.SpannableString;
+import android.text.util.Linkify;
 import android.widget.Button;
 
 import com.pr0gramm.app.R;
@@ -36,9 +38,15 @@ public class DialogBuilder {
         builder.setCancelable(false);
     }
 
-    public DialogBuilder content(String content) {
+    public DialogBuilder content(CharSequence content) {
         this.builder.setMessage(content);
         return this;
+    }
+
+    public DialogBuilder contentWithLinks(String content) {
+        SpannableString s = new SpannableString(content);
+        Linkify.addLinks(s, Linkify.WEB_URLS);
+        return content(s);
     }
 
     public DialogBuilder content(@StringRes int content, Object... args) {
