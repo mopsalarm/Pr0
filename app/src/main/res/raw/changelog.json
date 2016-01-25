@@ -25,6 +25,10 @@
       {
         "type": "Fix",
         "change": "Crash beim Drehen des Geräts während man 'quick-peek' offen hat."
+      },
+      {
+        "type": "Fix",
+        "change": "HTTPS workaround, da der Server kaputt ist."
       }
     ]
   },

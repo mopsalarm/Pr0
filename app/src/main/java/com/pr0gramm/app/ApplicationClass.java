@@ -88,10 +88,6 @@ public class ApplicationClass extends SugarApp {
         if (BuildConfig.DEBUG) {
             logger.info("Setup stetho");
             Stetho.initializeWithDefaults(this);
-
-            // Setup network interceptor for okhttp.
-            // OkHttpClient okHttpClient = appComponent.get().okHttpClient();
-            // okHttpClient.networkInterceptors().add(new StethoInterceptor());
         }
 
         SingleShotService singleShotService = appComponent.get().singleShotService();
