@@ -183,27 +183,14 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         addOriginalContentBookmarkOnce();
-
-        if(singleShotService.isFirstTime("workaround.disable_https_20160125-1") && settings.useHttps()) {
-            settings.edit()
-                    .putBoolean("pref_use_https", false)
-                    .apply();
-
-            DialogBuilder.start(this)
-                    .title("Achtung")
-                    .contentWithLinks("HTTPS wurde temporär deaktiviert. HTTPs ist leider gerade kaputt - " +
-                            "auch im Browser.. Für mehr Informationen, folge dem pr0gramm auf " +
-                            "Twitter: https://twitter.com/pr0gramm.")
-                    .positive()
-                    .show();
-        }
     }
 
     private boolean shouldShowFeedbackReminder() {
         // By design it is | and not ||. We want both conditions to
         // be evaluated for the sideeffects
-        return singleShotService.firstTimeInVersion("hint_feedback_reminder")
-                | singleShotService.firstTimeToday("hint_feedback_reminder");
+        return (singleShotService.firstTimeInVersion("hint_feedback_reminder")
+                | singleShotService.firstTimeToday("hint_feedback_reminder"))
+                && settings.useBetaChannel();
     }
 
     @Override
