@@ -91,3 +91,5 @@ crashlytics-build.properties
 
 captures/
 droid.js
+
+upload_auth

@@ -2,19 +2,17 @@
 
 set -eu -o pipefail
 
-if [ $# -eq 1 ] ; then
+if [ $# -eq 0 ] ; then
   VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
-  CHANGELOG="$1"
 
 else
-  echo "usage: $(basename "$0") changelog"
+  echo "usage: $(basename "$0")"
   exit 1
 fi
 
-# path of the update repo
-UPDATE_REPO_PATH=${UPDATE_REPO_PATH:-../pr0gramm-updates}
 VERSION_NEXT=$(( VERSION + 1 ))
-VERSION_PREVIOUS=$(jq .version < ${UPDATE_REPO_PATH}/open/update.json)
+VERSION_PREVIOUS=$(curl -s https://app.pr0gramm.com/beta/open/update.json | jq .version)
+UPLOAD_AUTH=$(<upload_auth)
 
 # check if we are clear to go
 if [ -n "$(git status --porcelain)" ] ; then
@@ -23,16 +21,9 @@ if [ -n "$(git status --porcelain)" ] ; then
   exit 1
 fi
 
-# check if we are clear to go in the update repo
-if [ -n "$(git -C ${UPDATE_REPO_PATH} status --porcelain)" ] ; then
-  echo "Please commit all your changes and clean working directory in ${UPDATE_REPO_PATH}."
-  git -C ${UPDATE_REPO_PATH} status
-  exit 1
-fi
-
 echo "Release steps:"
-echo " * Start release of version $VERSION (current is $VERSION_PREVIOUS)"
-echo " * Copy apk and json files to $UPDATE_REPO_PATH and commit"
+echo " * Start release of version $VERSION (current beta is $VERSION_PREVIOUS)"
+echo " * Upload apk to the update manager using auth '$UPLOAD_AUTH'"
 echo " * Create tag for version v$VERSION"
 echo " * Increase version to $VERSION_NEXT"
 echo ""
@@ -46,39 +37,18 @@ function format_version() {
   echo -n "1."$(( VERSION/10 ))'.'$((VERSION % 10 ))
 }
 
-function deploy_make_update_json() {
+function deploy_upload_apk() {
   local FLAVOR=$1
-  local URL="https://cdn.rawgit.com/mopsalarm/pr0gramm-updates/beta/$FLAVOR/pr0gramm-v1.$VERSION.apk"
-
-  echo "{}" \
-    | jq ".version = $VERSION" \
-    | jq ".versionStr = \"1.$(( VERSION/10 )).$((VERSION % 10 ))\"" \
-    | jq ".changelog = \"$CHANGELOG\"" \
-    | jq ".apk = \"$URL\"" > ${UPDATE_REPO_PATH}/${FLAVOR}/update.json
-
-  git -C ${UPDATE_REPO_PATH} add ${FLAVOR}/update.json
-}
-
-function deploy_copy_apk_file() {
-  local FLAVOR=$1
-  mkdir -p ${UPDATE_REPO_PATH}/${FLAVOR}/
-  cp app/build/outputs/apk/app-${FLAVOR}-release.apk ${UPDATE_REPO_PATH}/${FLAVOR}/pr0gramm-v1.${VERSION}.apk
-  git -C ${UPDATE_REPO_PATH} add ${FLAVOR}/pr0gramm-v1.${VERSION}.apk
+  local APK=app/build/outputs/apk/app-${FLAVOR}-release.apk
+  curl -u "$UPLOAD_AUTH" -F apk=@$APK https://app.pr0gramm.com/update-manager/upload
 }
 
 # compile code and create apks
-./gradlew clean assembleOpenRelease generateOpenDebugSources
+# ./gradlew clean assembleOpenRelease generateOpenDebugSources
 
-# copy apks and generate update.json in beta branch
-git -C ${UPDATE_REPO_PATH} checkout -B beta
-git -C ${UPDATE_REPO_PATH} pull origin beta
 for FLAVOR in "open" ; do
-  deploy_copy_apk_file ${FLAVOR}
-  deploy_make_update_json ${FLAVOR}
+  deploy_upload_apk ${FLAVOR}
 done
-
-# commit those files
-git -C ${UPDATE_REPO_PATH} commit -m "Version $(format_version ${VERSION})"
 
 # create tag for this version
 git tag -a "$(format_version ${VERSION})" \
