@@ -1,6 +1,3 @@
-- var appVersion = "1.842"
-- var appVersionStr = "1.84.2"
-
 mixin section(classes)
   .section.row(class=classes)
     block
@@ -30,7 +27,6 @@ html(lang="de")
     link(rel="manifest" href="img/favicon/manifest.json")
     
     link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css")
-    link(rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css")
     link(rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700")
     link(rel="stylesheet" href="css/style.css")
   
@@ -55,12 +51,9 @@ html(lang="de")
             div
               .download-buttons
                 center
-                  p Jetzt und NUR für Android!
+                  p Die offizielle pr0gramm App, jetzt und NUR für Android!
                   p
                     a.btn.btn-lg.btn-pro(href="#download") Herunterladen
-                  .minor
-                    | version 
-                    span.version= appVersionStr
       +section('top-continue')
         a(href="#continue")
           i.fa.fa-chevron-down
@@ -86,23 +79,12 @@ html(lang="de")
         a(href="https://github.com/schr3j/", target="_blank") schr3j
         |  | 
         a(href="https://github.com/mopsalarm/Pr0", target="_blank") sourcecode
-      br
-      span.heart
-        a(href="http://pr0gramm.com", target="_blank")
-          i.fa.fa-heart
   
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
-  script(src="//cdn.rawgit.com/mopsalarm/pr0gramm-updates/master/update.js")
   
   script.
     $('.top').css('min-height', $(window).height() - 50);
     $('.header').toggleClass('fixed', $(window).scrollTop() > 0);
-    
-    getUpdateJson(function(json) {
-      var versionString = json.versionStr || ("1." + json.version);
-      $(".version").html(versionString);
-      $(".btn-open-download").attr("href", json.apk);
-    });
     
     $(window).resize(function() {
       $('.top').css('min-height', $(window).height() - 50);
