@@ -40,11 +40,13 @@ function format_version() {
 function deploy_upload_apk() {
   local FLAVOR=$1
   local APK=app/build/outputs/apk/app-${FLAVOR}-release.apk
+
+  echo "Upload apk file now..."
   curl -u "$UPLOAD_AUTH" -F apk=@$APK https://app.pr0gramm.com/update-manager/upload
 }
 
 # compile code and create apks
-# ./gradlew clean assembleOpenRelease generateOpenDebugSources
+./gradlew clean assembleOpenRelease generateOpenDebugSources
 
 for FLAVOR in "open" ; do
   deploy_upload_apk ${FLAVOR}
