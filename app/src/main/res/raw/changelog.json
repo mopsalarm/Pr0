@@ -1,5 +1,14 @@
 [
   {
+    "version": 87,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist."
+      }
+    ]
+  },
+  {
     "version": 86,
     "changes": [
       {
