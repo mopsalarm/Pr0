@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist."
+      },
+      {
+        "type": "Fix",
+        "change": "Beim Öffnen von ungelesenen Nachrichten diese nicht wieder als Benachrichtigung anzeigen"
       }
     ]
   },

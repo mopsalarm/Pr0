@@ -53,8 +53,6 @@ public class NotificationService {
     public static final int NOTIFICATION_PRELOAD_ID = 5002;
     public static final int NOTIFICATION_UPDATE_ID = 5003;
 
-    public static final int NOTIFICATION_IMPORTANT_MESSAGES_OFFSET = 6000;
-
     private final Settings settings;
     private final Application context;
     private final NotificationManagerCompat nm;
@@ -166,11 +164,6 @@ public class NotificationService {
         }
     }
 
-
-    public void showImportantMessage(int messageId, Notification notification) {
-        int id = NOTIFICATION_IMPORTANT_MESSAGES_OFFSET + messageId;
-        nm.notify(id, notification);
-    }
 
     private PendingIntent newInboxActivityIntent() {
         Intent intent = new Intent(context, InboxActivity.class);
