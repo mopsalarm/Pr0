@@ -86,6 +86,12 @@ public final class Track {
         track(new CustomEvent("Download"));
     }
 
+    public static void vpxWouldWork(boolean okay) {
+        String valueStr = String.valueOf(okay);
+        track(new CustomEvent("VpxWouldWork")
+                .putCustomAttribute("wouldWork", valueStr));
+    }
+
     public static void statistics(Settings settings, boolean signedIn) {
         String decoder;
         if (settings.useSoftwareDecoder()) {

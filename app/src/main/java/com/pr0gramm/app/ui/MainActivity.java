@@ -187,6 +187,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         VpxChecker.vpxOkay(this).subscribe(okay -> {
             logger.info("Vpx decoder seems to work: {}", okay);
+            Track.vpxWouldWork(okay);
         });
     }
 
