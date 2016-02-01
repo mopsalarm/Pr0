@@ -134,7 +134,7 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         return first != 0 ? first : second;
     }
 
-    private static Optional<MatroskaFileTrack> findFirstVideoTrack(MatroskaFile mkv) {
+    public static Optional<MatroskaFileTrack> findFirstVideoTrack(MatroskaFile mkv) {
         MatroskaFileTrack[] tracks = mkv.getTrackList();
         for (MatroskaFileTrack track : tracks) {
             if (track.getTrackType() == MatroskaFileTrack.TrackType.VIDEO) {
