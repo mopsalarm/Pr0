@@ -62,3 +62,6 @@ git add app/version.gradle
 git commit -m "Increase version to $VERSION_NEXT after release"
 git push
 git push --tags
+
+# link to the release manager
+echo "Go to the release manager at https://$UPLOAD_AUTH@app.pr0gramm.com/update-manager/"
