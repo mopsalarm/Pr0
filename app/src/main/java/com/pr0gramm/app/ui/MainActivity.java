@@ -188,9 +188,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     private boolean shouldShowFeedbackReminder() {
         // By design it is | and not ||. We want both conditions to
         // be evaluated for the sideeffects
-        return (singleShotService.firstTimeInVersion("hint_feedback_reminder")
-                | singleShotService.firstTimeToday("hint_feedback_reminder"))
-                && settings.useBetaChannel();
+        return settings.useBetaChannel()
+                && (singleShotService.firstTimeInVersion("hint_feedback_reminder")
+                | singleShotService.firstTimeToday("hint_feedback_reminder"));
     }
 
     @Override
