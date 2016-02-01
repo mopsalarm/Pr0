@@ -1,9 +1,6 @@
 package com.pr0gramm.app;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
@@ -13,10 +10,12 @@ import com.facebook.stetho.Stetho;
 import com.orm.SugarApp;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
+import com.pr0gramm.app.vpx.VpxChecker;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -104,23 +103,12 @@ public class ApplicationClass extends SugarApp {
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);
-    }
 
-    /**
-     * Opens the community in the playstore.
-     */
-    public static void openCommunityWebpage(Activity activity) {
-        Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://play.google.com/apps/testing/io.github.mopsalarm.pr0gramm.gp2"));
-
-        activity.startActivity(intent);
-    }
-
-    public static void openDownloadFreeVersion(Activity activity) {
-        Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://app.pr0gramm.com/#download"));
-
-        activity.startActivity(intent);
+        // check if we can playback vpx
+        VpxChecker.vpxOkay(this).subscribe(okay -> {
+            logger.info("Vpx decoder seems to work: {}", okay);
+            Track.vpxWouldWork(okay);
+        });
     }
 
     public static ApplicationClass get(Context context) {

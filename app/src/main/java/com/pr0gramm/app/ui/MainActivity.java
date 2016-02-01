@@ -45,7 +45,6 @@ import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
-import com.pr0gramm.app.vpx.VpxChecker;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -184,11 +183,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         addOriginalContentBookmarkOnce();
-
-        VpxChecker.vpxOkay(this).subscribe(okay -> {
-            logger.info("Vpx decoder seems to work: {}", okay);
-            Track.vpxWouldWork(okay);
-        });
     }
 
     private boolean shouldShowFeedbackReminder() {
