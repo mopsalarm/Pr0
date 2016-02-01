@@ -10,7 +10,7 @@ import rx.schedulers.Schedulers;
  * already on some other thread.
  */
 public class BackgroundScheduler extends Scheduler {
-    private final Scheduler immidiateScheduler = Schedulers.immediate();
+    private final Scheduler nowScheduler = Schedulers.trampoline();
     private final Scheduler backgroundScheduler = Schedulers.io();
 
     private BackgroundScheduler() {
@@ -20,7 +20,7 @@ public class BackgroundScheduler extends Scheduler {
     public Worker createWorker() {
         if (isInBackground()) {
             // we are already in background
-            return immidiateScheduler.createWorker();
+            return nowScheduler.createWorker();
         } else {
             // put into background
             return backgroundScheduler.createWorker();
