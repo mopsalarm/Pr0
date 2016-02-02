@@ -1,53 +1,28 @@
 package com.pr0gramm.app.ui.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.Window;
 
 import com.google.common.util.concurrent.Runnables;
-import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.ui.PreviewInfo;
-import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 
-import javax.inject.Inject;
-
-import proguard.annotation.KeepPublicClassMemberNames;
-
 /**
  */
-@KeepPublicClassMemberNames
-public class PopupPlayer extends BaseDialogFragment {
-    private static final String KEY_ITEM = "BaseDialogFragment.item";
-
-    // @InjectExtra(KEY_ITEM)
-    FeedItem item;
-
-    @Inject
-    InMemoryCacheService inMemoryCacheService;
-    private MediaView mediaView;
-
-    @Override
-    protected void injectComponent(ActivityComponent activityComponent) {
-        activityComponent.inject(this);
+public class PopupPlayer {
+    private PopupPlayer() {
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        item = getArguments().getParcelable(KEY_ITEM);
+    public static Dialog newInstance(Activity activity, InMemoryCacheService cacheService, FeedItem item) {
+        MediaUri uri = MediaUri.of(activity, item);
+        MediaView mediaView = MediaViews.newInstance(activity, uri, Runnables.doNothing());
 
-        MediaUri uri = MediaUri.of(getActivity(), item);
-        mediaView = MediaViews.newInstance(getActivity(), uri, Runnables.doNothing());
-
-        PreviewInfo previewInfo = inMemoryCacheService.getPreviewInfo(item);
+        PreviewInfo previewInfo = cacheService.getPreviewInfo(item);
         if (previewInfo != null) {
             mediaView.setPreviewImage(previewInfo, null);
         } else {
@@ -58,26 +33,15 @@ public class PopupPlayer extends BaseDialogFragment {
         mediaView.onResume();
         mediaView.playMedia();
 
-        Dialog dialog = new Dialog(getActivity());
+        Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(mediaView);
+        dialog.setOnDismissListener(di -> {
+            mediaView.stopMedia();
+            mediaView.onPause();
+        });
+
+        dialog.show();
         return dialog;
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-
-        mediaView.stopMedia();
-        mediaView.onPause();
-    }
-
-    public static PopupPlayer newInstance(Context context, FeedItem item) {
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(KEY_ITEM, item);
-
-        PopupPlayer instance = new PopupPlayer();
-        instance.setArguments(arguments);
-        return instance;
     }
 }
