@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Beim Öffnen von ungelesenen Nachrichten diese nicht wieder als Benachrichtigung anzeigen"
+      },
+      {
+        "type": "Fix",
+        "change": "Quickpeek wird beim Rotieren nun versteckt"
       }
     ]
   },

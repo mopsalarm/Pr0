@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -195,6 +196,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private FeedAdapter feedAdapter;
     private FeedLoader loader;
     private boolean scrollToolbar;
+
+    private WeakReference<Dialog> quickPeekDialog;
 
     /**
      * Initialize a new feed fragment.
@@ -1030,8 +1033,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void openQuickPeek(FeedItem item) {
-        PopupPlayer popup = PopupPlayer.newInstance(getContext(), item);
-        popup.show(getFragmentManager(), POPUP_PLAYER_FRAGMENT_TAG);
+        this.quickPeekDialog = new WeakReference<>(
+                PopupPlayer.newInstance(getActivity(), inMemoryCacheService, item));
 
         swipeRefreshLayout.setEnabled(false);
         Track.quickPeek();
@@ -1046,12 +1049,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private void dismissPopupPlayer() {
         swipeRefreshLayout.setEnabled(true);
 
-        PopupPlayer popup = (PopupPlayer) getFragmentManager()
-                .findFragmentByTag(POPUP_PLAYER_FRAGMENT_TAG);
-
-        if (popup != null) {
-            popup.dismissAllowingStateLoss();
-        }
+        Dialog quickPeek = quickPeekDialog.get();
+        if (quickPeek != null)
+            quickPeek.dismiss();
     }
 
     private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
