@@ -208,7 +208,7 @@
     <string name="prefcat_behaviour__notificatons_title">Benachrichtigungen</string>
     <string name="prefcat_visual__menu_items_title">Menueinträge</string>
     <string name="prefcat_visual__tags">Tags</string>
-    <string name="pref_website_summary">Empfehle https://mopsalarm.github.io deinen Freunden</string>
+    <string name="pref_website_summary">Empfehle https://app.pr0gramm.com/ deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
     <string name="pref_compatibility_active_title">Einstellungen aktivieren</string>
     <string name="pref_compatibility_active_summary">Bitte lies die Beschreibungen zu den einzelnen Einstellungen genau, bevor du sie aktivierst! </string>
