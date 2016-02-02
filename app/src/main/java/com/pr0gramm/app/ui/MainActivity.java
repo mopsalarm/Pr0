@@ -175,7 +175,9 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         } else if (shouldShowFeedbackReminder()) {
             //noinspection ResourceType
-            Snackbar.make(contentContainer, R.string.feedback_reminder, 10000).show();
+            Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                    .setAction(R.string.okay, view -> {})
+                    .show();
 
         } else {
             // start the update check again

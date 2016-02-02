@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Quickpeek wird beim Rotieren nun versteckt"
+      },
+      {
+        "type": "Fix",
+        "change": "Okay-Button beim Feedbackhinweis"
       }
     ]
   },
