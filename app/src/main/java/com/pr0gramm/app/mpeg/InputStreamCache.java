@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
+import static com.google.common.io.Closeables.closeQuietly;
+
 /**
  */
 public class InputStreamCache {
@@ -35,11 +37,16 @@ public class InputStreamCache {
         }
     }
 
+    private void closeBackend() {
+        closeQuietly(backend);
+        backend = null;
+    }
+
     private boolean backendIsClosed() {
         return backend == null;
     }
 
-    private void checkIfOpen() {
+    private void validateBackendOpen() {
         if (backendIsClosed()) {
             throw new IllegalStateException("input stream is closed.");
         }
@@ -60,18 +67,17 @@ public class InputStreamCache {
      * Closes and invalidates the cache.
      */
     public void close() throws IOException {
-        InputStream backend = this.backend;
-        if (backend != null)
-            this.backend.close();
+        closeQuietly(backend);
 
-        if (cache != null)
+        if (cache != null) {
             cache.close();
+        }
     }
 
     private class CachingInputStream extends InputStream {
         private ByteBuffer current;
 
-        private void freeze() throws IOException {
+        private void dumpToCache() throws IOException {
             ByteBuffer buffer = current;
             if (buffer != null && buffer.position() > 0) {
                 buffer.flip();
@@ -85,7 +91,7 @@ public class InputStreamCache {
 
         private ByteBuffer get(int space) throws IOException {
             if (current != null && current.remaining() < space) {
-                freeze();
+                dumpToCache();
             }
 
             if (current == null || current.remaining() < space) {
@@ -97,7 +103,7 @@ public class InputStreamCache {
 
         @Override
         public int read() throws IOException {
-            checkIfOpen();
+            validateBackendOpen();
 
             int result = backend.read();
             if (result >= 0) {
@@ -110,7 +116,7 @@ public class InputStreamCache {
 
         @Override
         public int read(@NonNull byte[] bytes, int byteOffset, int byteCount) throws IOException {
-            checkIfOpen();
+            validateBackendOpen();
 
             int result = ByteStreams.read(backend, bytes, byteOffset, byteCount);
             if (result > 0) {
@@ -128,9 +134,8 @@ public class InputStreamCache {
 
         @Override
         public void close() throws IOException {
-            freeze();
-            backend.close();
-            backend = null;
+            dumpToCache();
+            closeBackend();
         }
     }
 }
