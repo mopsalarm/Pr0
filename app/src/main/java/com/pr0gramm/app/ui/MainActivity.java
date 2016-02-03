@@ -434,7 +434,9 @@ public class MainActivity extends BaseAppCompatActivity implements
                 .lift(busyDialog(this))
                 .doOnCompleted(() -> {
                     // show a short information.
-                    Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
+                            .setAction(R.string.okay, view -> {})
+                            .show();
 
                     // reset everything!
                     gotoFeedFragment(defaultFeedFilter(), true);
