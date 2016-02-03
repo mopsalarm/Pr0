@@ -117,7 +117,6 @@ public class UpdateChecker {
     public static void download(Context context, Update update) {
         AppComponent appComponent = Dagger.appComponent(context);
 
-
         Uri apkUrl = Uri.parse(update.apk());
 
         DownloadManager.Request request = new DownloadManager.Request(apkUrl)
@@ -125,6 +124,7 @@ public class UpdateChecker {
                 .setTitle(apkUrl.getLastPathSegment());
 
         long downloadId = appComponent.downloadManager().enqueue(request);
+
         appComponent.sharedPreferences().edit()
                 .putLong(KEY_DOWNLOAD_ID, downloadId)
                 .apply();

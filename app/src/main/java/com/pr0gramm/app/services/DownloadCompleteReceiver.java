@@ -31,26 +31,36 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
         Dagger.appComponent(context).inject(this);
 
         Bundle extras = intent.getExtras();
-        if (extras == null)
+        if (extras == null) {
+            Track.updateError("no extras received");
             return;
+        }
 
         long downloadId = extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-        if (downloadId == -1)
+        if (downloadId == -1) {
+            Track.updateError("no download id found");
             return;
+        }
 
         long expectedId = sharedPreferences.getLong(UpdateChecker.KEY_DOWNLOAD_ID, -1);
-        if (downloadId != expectedId)
+        if (downloadId != expectedId) {
+            Track.updateError("unexpected download id");
             return;
+        }
 
         DownloadManager.Query query = new DownloadManager.Query().setFilterById(downloadId);
         try (Cursor cursor = downloadManager.query(query)) {
-            if (!cursor.moveToNext())
+            if (!cursor.moveToNext()) {
+                Track.updateError("download not found");
                 return;
+            }
 
             int idx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_FILENAME);
             String apk = cursor.getString(idx);
-            if (apk == null)
+            if (apk == null) {
+                Track.updateError("filename not set");
                 return;
+            }
 
             install(context, new File(apk));
         }

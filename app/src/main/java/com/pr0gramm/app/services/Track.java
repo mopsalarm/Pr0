@@ -160,6 +160,10 @@ public final class Track {
         track(new CustomEvent("Quick peek used"));
     }
 
+    public static void updateError(String message) {
+        track(new CustomEvent("UpdateError").putCustomAttribute("message", message));
+    }
+
     private static void track(CustomEvent customEvent) {
         track(answers -> answers.logCustom(customEvent));
     }
