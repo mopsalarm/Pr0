@@ -5,8 +5,10 @@ import android.content.Context;
 import android.os.Build;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Ordering;
 import com.google.common.io.CharStreams;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,7 +31,6 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 import rx.Observable;
-import rx.util.async.Async;
 
 import static java.util.Arrays.asList;
 
@@ -54,12 +57,12 @@ public class FeedbackService {
     public Observable<Nothing> post(String name, String feedback) {
         String version = String.valueOf(AndroidUtility.getPackageVersionCode(context));
 
-        return Async
-                .start(FeedbackService::payload, BackgroundScheduler.instance())
-                .flatMap(logcat -> api.post(name, feedback, version, logcat));
+        return Observable.fromCallable(this::payload)
+                .flatMap(logcat -> api.post(name, feedback, version, logcat))
+                .subscribeOn(BackgroundScheduler.instance());
     }
 
-    private static String payload() {
+    private String payload() {
         try {
             StringBuilder result = new StringBuilder();
 
@@ -69,6 +72,9 @@ public class FeedbackService {
             appendMemoryInfo(result);
             result.append("\n\n");
 
+            appendPreferences(result);
+            result.append("\n\n");
+
             appendLogcat(result);
 
             // convert result to a string
@@ -76,6 +82,19 @@ public class FeedbackService {
 
         } catch (Exception err) {
             return "Could not generate logcat: " + err;
+        }
+    }
+
+    private void appendPreferences(StringBuilder result) {
+        //noinspection unchecked
+        Iterable<Map.Entry<String, Object>> entries = Ordering.natural()
+                .<Map.Entry<String, Object>>onResultOf(Map.Entry::getKey)
+                .sortedCopy((Set) Settings.of(context).raw().getAll().entrySet());
+
+        for (Map.Entry<String, Object> entry : entries) {
+            if (entry.getKey().startsWith("pref_")) {
+                result.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+            }
         }
     }
 

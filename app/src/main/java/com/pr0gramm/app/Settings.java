@@ -226,6 +226,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
                 .or(VolumeNavigationType.DISABLED);
     }
 
+    public SharedPreferences raw() {
+        return preferences;
+    }
+
     public SharedPreferences.Editor edit() {
         return preferences.edit();
     }
