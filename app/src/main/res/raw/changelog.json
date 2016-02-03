@@ -3,8 +3,12 @@
     "version": 87,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Auf der Website gesetztes pr0mium Theme wird nach dem Einloggen eingestellt"
+      },
+      {
         "type": "Fix",
-        "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist."
+        "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist"
       },
       {
         "type": "Fix",

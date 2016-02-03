@@ -58,11 +58,15 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
 
     @Override
     public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
+        return observable -> observable.compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event));
+    }
+
+    public <T> Observable.Transformer<T, T> bindUntilEventAsync(ActivityEvent event) {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event));
+                .compose(bindUntilEvent(event));
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.api.pr0gramm.response.ThemeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Upload;
 import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.Nothing;
@@ -84,6 +85,9 @@ public interface Api {
 
     @GET("/api/user/info")
     Observable<AccountInfo> accountInfo();
+
+    @GET("/api/user/theme")
+    Observable<ThemeInfo> themeInfo();
 
     @GET("/api/profile/info")
     Observable<Info> info(@Query("name") String name, @Query("flags") Integer flags);

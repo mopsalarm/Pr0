@@ -18,6 +18,7 @@ import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersPrivateMessage;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersPrivateMessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersSync;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersTag;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersThemeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersUpload;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersUserComments;
 import com.pr0gramm.app.services.GsonAdaptersUpdate;
@@ -30,7 +31,7 @@ import dagger.Module;
 import dagger.Provides;
 
 /**
- * Provide all the gson stuff!
+ * Provide ALL the gson stuff!
  */
 @Module
 public class GsonModule {
@@ -54,6 +55,7 @@ public class GsonModule {
             .registerTypeAdapterFactory(new GsonAdaptersAccountInfo())
             .registerTypeAdapterFactory(new GsonAdaptersInfo())
             .registerTypeAdapterFactory(new GsonAdaptersUpdate())
+            .registerTypeAdapterFactory(new GsonAdaptersThemeInfo())
             .create();
 
     @Singleton
