@@ -293,12 +293,14 @@
                 android:summary="@string/pref_use_api_proxy_summary"
                 android:title="@string/pref_use_api_proxy_title"/>
 
+            <!--
             <CheckBoxPreference
                 android:defaultValue="true"
                 android:dependency="pref_compatibility_active"
                 android:key="pref_use_proxy"
                 android:summary="@string/pref_use_proxy_summary"
                 android:title="@string/pref_use_proxy_title"/>
+            -->
 
         </PreferenceScreen>
 
