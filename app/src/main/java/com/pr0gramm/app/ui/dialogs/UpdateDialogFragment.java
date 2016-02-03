@@ -98,7 +98,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
         new UpdateChecker(activity).check()
                 .onErrorResumeNext(Observable.empty())
                 .defaultIfEmpty(null)
-                .compose(activity.bindUntilEvent(ActivityEvent.DESTROY))
+                .compose(activity.bindUntilEventAsync(ActivityEvent.DESTROY))
                 .lift(busyOperator)
                 .finallyDo(storeCheckTime)
                 .subscribe(update -> {

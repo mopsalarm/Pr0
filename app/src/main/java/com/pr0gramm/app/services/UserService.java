@@ -18,6 +18,7 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
+import com.pr0gramm.app.ui.Themes;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.joda.time.Duration;
@@ -256,6 +257,17 @@ public class UserService {
         });
     }
 
+    /**
+     * Gets the theme of the current user, or {@link Themes#ORANGE} if
+     * no theme is available.
+     */
+    public Observable<Themes> theme() {
+        return api.themeInfo().map(response -> {
+            Optional<Themes> theme = Themes.byRemoteName(response.theme());
+            return theme.or(Themes.ORANGE);
+        });
+    }
+
     private void persistLatestUserInfo(Info info) {
         try {
             String encoded = gson.toJson(info);
@@ -273,7 +285,7 @@ public class UserService {
 
         int userId = info.getUser().getId();
         Graph benisHistory = loadBenisHistory(userId);
-        return new LoginState(info, benisHistory, userIsAdmin());
+        return new LoginState(info, benisHistory, userIsAdmin(), isPremiumUser());
     }
 
     public boolean userIsAdmin() {
@@ -348,11 +360,13 @@ public class UserService {
         private final Info info;
         private final Graph benisHistory;
         private final boolean userIsAdmin;
+        private final boolean userIsPremium;
 
-        private LoginState(Info info, Graph benisHistory, boolean userIsAdmin) {
+        private LoginState(Info info, Graph benisHistory, boolean userIsAdmin, boolean userIsPremium) {
             this.info = info;
             this.benisHistory = benisHistory;
             this.userIsAdmin = userIsAdmin;
+            this.userIsPremium = userIsPremium;
         }
 
         public boolean isAuthorized() {
@@ -371,7 +385,9 @@ public class UserService {
             return isAuthorized() && userIsAdmin;
         }
 
-        public static final LoginState NOT_AUTHORIZED = new LoginState(null, null, false);
+        public boolean userIsPremium() { return isAuthorized() && userIsPremium; }
+
+        public static final LoginState NOT_AUTHORIZED = new LoginState(null, null, false, false);
     }
 
     public static final class LoginProgress {

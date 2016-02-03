@@ -41,4 +41,15 @@ public final class ThemeHelper {
         String name = settings.themeName();
         THEME = Enums.getIfPresent(Themes.class, name).or(Themes.ORANGE);
     }
+
+    /**
+     * Sets the current theme to the given value and stores it in the settings.
+     */
+    public static void updateTheme(Context context, Themes theme) {
+        Settings.of(context).edit()
+                .putString("pref_theme", theme.name())
+                .apply();
+
+        updateTheme(context);
+    }
 }

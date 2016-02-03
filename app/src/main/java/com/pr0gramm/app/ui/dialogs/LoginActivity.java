@@ -32,8 +32,11 @@ import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.ui.Themes;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
+import com.trello.rxlifecycle.ActivityEvent;
 
 import net.danlew.android.joda.DateUtils;
 
@@ -46,7 +49,7 @@ import butterknife.Bind;
 import retrofit2.HttpException;
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import static com.pr0gramm.app.services.ThemeHelper.primaryColorDark;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -74,8 +77,6 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @Bind(R.id.login)
     Button submitView;
-
-    private Subscription subscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,7 +117,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     private Drawable createBackgroundDrawable(int drawableId, int fallbackColor) {
         Drawable background;
-        if(Sdk.isAtLeastKitKat()) {
+        if (Sdk.isAtLeastKitKat()) {
             background = new WrapCrashingDrawable(fallbackColor,
                     ResourcesCompat.getDrawable(getResources(), drawableId, getTheme()));
         } else {
@@ -159,20 +160,25 @@ public class LoginActivity extends BaseAppCompatActivity {
         // store last username
         prefs.edit().putString(PREF_USERNAME, username).apply();
 
-        subscription = userService.login(username, password)
-                .compose(bindToLifecycle())
+        Context appContext = getApplicationContext();
+        userService.loginState()
+                .filter(UserService.LoginState::userIsPremium)
+                .flatMap(state -> userService.theme()
+                        .subscribeOn(BackgroundScheduler.instance())
+                        .unsubscribeOn(BackgroundScheduler.instance())
+                        .onErrorResumeNext(Observable.<Themes>empty()))
+
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                .subscribe(theme -> ThemeHelper.updateTheme(appContext, theme));
+
+        userService.login(username, password)
+                .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
                 .lift(busyDialog(this, getString(R.string.login_please_wait), UserService.LoginProgress::getProgress))
                 .flatMap(progress -> toObservable(progress.getLogin()))
                 .lift(new LoginErrorInterceptor())
                 .doOnError(err -> enableView(true))
                 .subscribe(this::onLoginResponse, defaultOnError());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (subscription != null)
-            subscription.unsubscribe();
     }
 
     private static class LoginErrorInterceptor implements Observable.Operator<Login, Login> {
