@@ -7,6 +7,10 @@
         "change": "Auf der Website gesetztes pr0mium Theme wird nach dem Einloggen eingestellt"
       },
       {
+        "type": "Neu",
+        "change": "Softwaredekoder wird nun automatisch aktiviert. Falls daraufhin ständig Fehler beim Abspielen von Videos auftreten, bitte Bescheid sagen"
+      },
+      {
         "type": "Fix",
         "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist"
       },

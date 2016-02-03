@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import com.google.common.base.Throwables;
-import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.ebml.matroska.MatroskaFile;
 import org.ebml.matroska.MatroskaFileFrame;
@@ -25,10 +24,12 @@ public class VpxChecker {
     private VpxChecker() {
     }
 
+    /**
+     * Check if the vpx decoder is supported and is working correctly.
+     */
     public static Observable<Boolean> vpxOkay(Context context) {
         return Observable.fromCallable(() -> decodeFirstFrame(context))
                 .map(VpxChecker::decodedCorrectly)
-                .subscribeOn(BackgroundScheduler.instance())
                 .onErrorResumeNext(Observable.just(false))
                 .defaultIfEmpty(false);
     }
