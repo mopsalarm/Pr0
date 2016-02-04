@@ -63,7 +63,8 @@ public class ImageMediaView extends MediaView {
             logger.info("Media view has a zoomview now");
         }
 
-        imageView.setVisibility(INVISIBLE);
+        imageView.setVisibility(VISIBLE);
+        imageView.setAlpha(0.f);
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setZoomEnabled(zoomView);
 
@@ -146,9 +147,17 @@ public class ImageMediaView extends MediaView {
     }
 
     @Override
-    public void onTransitionEnds() {
-        super.onTransitionEnds();
+    protected void onMediaShown() {
         imageView.setVisibility(VISIBLE);
+
+        if (imageView.getAlpha() == 0) {
+            imageView.setAlpha(0.f);
+            imageView.animate().alpha(1)
+                    .setListener(AndroidUtility.endAction(super::onMediaShown))
+                    .start();
+        } else {
+            super.onMediaShown();
+        }
     }
 
     private void showErrorIndicator() {
