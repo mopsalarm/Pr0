@@ -46,7 +46,7 @@ import org.joda.time.Weeks;
 import javax.inject.Inject;
 
 import butterknife.Bind;
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
