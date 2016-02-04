@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -21,7 +22,8 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifHelper;
+import pl.droidsonroids.gif.InputSource;
 import rx.Observable;
 import rx.Subscriber;
 import rx.subscriptions.Subscriptions;
@@ -49,7 +51,7 @@ public class GifDrawableLoader {
             try {
                 if ("file".equals(uri.getScheme())) {
                     File file = toFile(uri);
-                    subscriber.onNext(new DownloadStatus(new GifDrawable(file)));
+                    subscriber.onNext(statusForFile(file));
                     subscriber.onCompleted();
                     return;
                 }
@@ -77,6 +79,10 @@ public class GifDrawableLoader {
                     subscriber.onError(error);
             }
         }).serialize();
+    }
+
+    private DownloadStatus statusForFile(File file) throws IOException {
+        return new DownloadStatus(GifHelper.closingInputSource(new FileInputStream(file)));
     }
 
     /**
@@ -128,11 +134,11 @@ public class GifDrawableLoader {
                 return;
 
             try {
-                GifDrawable drawable = new GifDrawable(storage.getFD());
+                InputSource source = GifHelper.closingInputSource(storage);
 
                 // closing is now delegated to the drawable.
                 close = false;
-                subscriber.onNext(new DownloadStatus(drawable));
+                subscriber.onNext(new DownloadStatus(source));
                 subscriber.onCompleted();
             } catch (Throwable error) {
                 subscriber.onError(error);
@@ -146,21 +152,21 @@ public class GifDrawableLoader {
     }
 
     public static class DownloadStatus {
-        public final GifDrawable drawable;
+        public final InputSource source;
         public final float progress;
 
         private DownloadStatus(float progress) {
-            this.drawable = null;
+            this.source = null;
             this.progress = progress;
         }
 
-        private DownloadStatus(GifDrawable drawable) {
-            this.drawable = drawable;
+        private DownloadStatus(InputSource source) {
+            this.source = source;
             this.progress = 1.f;
         }
 
         public boolean finished() {
-            return drawable != null;
+            return source != null;
         }
     }
 }
