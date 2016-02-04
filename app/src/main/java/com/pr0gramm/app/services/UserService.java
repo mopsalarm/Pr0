@@ -165,6 +165,10 @@ public class UserService {
             // clear the seen items
             seenService.clear();
 
+            // no more read messages.
+            inboxService.forgetReadMessage();
+            inboxService.publishUnreadMessagesCount(0);
+
             // and reset the content user, because only signed in users can
             // see the nsfw and nsfl stuff.
             resetContentTypeSettings(settings);

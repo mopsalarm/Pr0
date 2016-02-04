@@ -26,21 +26,23 @@ import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.UpdateActivity;
+import com.pr0gramm.app.util.SenderDrawableProvider;
 import com.squareup.picasso.Picasso;
 
-import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
+import rx.functions.Actions;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.transform;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 
 /**
@@ -59,12 +61,14 @@ public class NotificationService {
     private final InboxService inboxService;
     private final Picasso picasso;
     private final UriHelper uriHelper;
+    private final UserService userService;
 
     @Inject
-    public NotificationService(Application context, InboxService inboxService, Picasso picasso) {
+    public NotificationService(Application context, InboxService inboxService, Picasso picasso, UserService userService) {
         this.context = context;
         this.inboxService = inboxService;
         this.picasso = picasso;
+        this.userService = userService;
         this.uriHelper = UriHelper.of(context);
         this.settings = Settings.of(context);
         this.nm = NotificationManagerCompat.from(context);
@@ -72,11 +76,11 @@ public class NotificationService {
 
     public void showUpdateNotification(Update update) {
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(newUpdateActivityIntent(update))
+                .setContentIntent(updateActivityIntent(update))
                 .setContentTitle(context.getString(R.string.notification_update_available))
                 .setContentText(context.getString(R.string.notification_update_available_text, update.version() % 100))
                 .setSmallIcon(R.drawable.ic_notify_new_message)
-                .addAction(R.drawable.ic_white_action_save, "Download", newDownloadUpdateIntent(update))
+                .addAction(R.drawable.ic_white_action_save, "Download", downloadUpdateIntent(update))
                 .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
                 .setAutoCancel(true)
                 .build();
@@ -88,24 +92,30 @@ public class NotificationService {
         if (!settings.showNotifications())
             return;
 
+        // try to get the new messages, ignore all errors.
+        inboxService.getInbox()
+                .map(messages -> FluentIterable.from(messages)
+                        .filter(message -> inboxService.messageIsUnread(message.getId()))
+                        .limit(sync.getInboxCount())
+                        .toList())
+                .toBlocking()
+                .subscribe(messages -> showInboxNotification(sync, messages), Actions.empty());
+    }
+
+    private void showInboxNotification(Sync sync, ImmutableList<Message> messages) {
+        if (messages.isEmpty() || !userService.isAuthorized()) {
+            cancelForInbox();
+            return;
+        }
+
         String title = sync.getInboxCount() == 1
                 ? context.getString(R.string.notify_new_message_title)
                 : context.getString(R.string.notify_new_messages_title, sync.getInboxCount());
 
-        // try to get the new messages, ignore all errors.
-        ImmutableList<Message> newMessages = inboxService.getInbox()
-                .map(messages -> limit(messages, sync.getInboxCount()))
-                .map(ImmutableList::copyOf)
-                .onErrorResumeNext(Observable.empty())
-                .toBlocking()
-                .firstOrDefault(ImmutableList.of());
-
-        String summaryText = context.getString(R.string.notify_new_message_summary_text);
-
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(title);
-        inboxStyle.setSummaryText(summaryText);
-        for (Message msg : limit(newMessages, 5)) {
+        inboxStyle.setSummaryText(context.getString(R.string.notify_new_message_summary_text));
+        for (Message msg : limit(messages, 5)) {
             String sender = msg.getName();
             String message = msg.getMessage();
 
@@ -117,34 +127,21 @@ public class NotificationService {
             inboxStyle.addLine(line);
         }
 
-        Optional<Bitmap> thumbnail = Optional.absent();
-        boolean allForTheSamePost = FluentIterable.from(newMessages)
-                .transform(Message::getItemId)
-                .toSet().size() == 1;
 
-        if (allForTheSamePost) {
-            Message message = newMessages.get(0);
-            if (message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
-                thumbnail = loadThumbnail(message);
-            }
-        }
-
-        long timestamp = newMessages.isEmpty() ? 0 : Ordering.natural()
-                .min(FluentIterable.from(newMessages)
-                        .transform(Message::getCreated)
-                        .transform(Instant::getMillis)
-                        .toSortedList(Ordering.natural()));
+        long timestamp = Ordering.natural().min(transform(messages, msg -> msg.getCreated().getMillis()));
+        long maxMessageId = Ordering.natural().max(transform(messages, Message::getId));
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(newInboxActivityIntent())
+                .setContentIntent(inboxActivityIntent(maxMessageId))
                 .setContentTitle(title)
-                .setContentText(summaryText)
+                .setContentText(context.getString(R.string.notify_new_message_summary_text))
                 .setStyle(inboxStyle)
                 .setSmallIcon(R.drawable.ic_notify_new_message)
-                .setLargeIcon(thumbnail.orNull())
+                .setLargeIcon(thumbnail(messages).orNull())
                 .setWhen(timestamp)
                 .setShowWhen(timestamp != 0)
                 .setAutoCancel(true)
+                .setDeleteIntent(markAsReadIntent(maxMessageId))
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
                 .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500)
                 .build();
@@ -152,6 +149,32 @@ public class NotificationService {
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, notification);
 
         Track.notificationShown();
+    }
+
+    /**
+     * Gets an optional "big" thumbnail for the given set of messages.
+     */
+    private Optional<Bitmap> thumbnail(List<Message> messages) {
+        boolean allForTheSamePost = FluentIterable.from(messages)
+                .transform(Message::getItemId)
+                .toSet().size() == 1;
+
+        if (allForTheSamePost) {
+            Message message = messages.get(0);
+            if (message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
+                return loadThumbnail(message);
+            }
+
+            if (message.getItemId() == 0 && !isNullOrEmpty(message.getName())) {
+                int width = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+                int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
+                SenderDrawableProvider provider = new SenderDrawableProvider(context);
+                return Optional.of(provider.makeSenderBitmap(message, width, height));
+            }
+        }
+
+        return Optional.absent();
     }
 
     private Optional<Bitmap> loadThumbnail(Message message) {
@@ -164,11 +187,11 @@ public class NotificationService {
         }
     }
 
-
-    private PendingIntent newInboxActivityIntent() {
+    private PendingIntent inboxActivityIntent(long maxMessageId) {
         Intent intent = new Intent(context, InboxActivity.class);
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
+        intent.putExtra(InboxActivity.EXTRA_MESSAGE_ID, maxMessageId);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         return TaskStackBuilder.create(context)
@@ -176,7 +199,14 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private PendingIntent newUpdateActivityIntent(Update update) {
+    private PendingIntent markAsReadIntent(long maxMessageId) {
+        Intent intent = new Intent(context, InboxNotificationCanceledReceiver.class);
+        intent.putExtra(InboxNotificationCanceledReceiver.EXTRA_MESSAGE_ID, maxMessageId);
+
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private PendingIntent updateActivityIntent(Update update) {
         Intent intent = new Intent(context, UpdateActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(UpdateActivity.EXTRA_UPDATE, update);
@@ -187,7 +217,7 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private PendingIntent newDownloadUpdateIntent(Update update) {
+    private PendingIntent downloadUpdateIntent(Update update) {
         Intent intent = new Intent(context, DownloadUpdateReceiver.class);
         intent.putExtra(DownloadUpdateReceiver.EXTRA_UPDATE, update);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

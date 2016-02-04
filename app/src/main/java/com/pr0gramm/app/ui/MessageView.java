@@ -3,14 +3,11 @@ package com.pr0gramm.app.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.common.base.Ascii;
 import com.pr0gramm.app.AppComponent;
 import com.pr0gramm.app.Dagger;
@@ -18,7 +15,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.pr0gramm.app.util.Lazy;
+import com.pr0gramm.app.util.SenderDrawableProvider;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.Hours;
@@ -29,13 +26,6 @@ import static org.joda.time.Instant.now;
 /**
  */
 public class MessageView extends RelativeLayout {
-    private final Lazy<TextDrawable.IShapeBuilder> textShapeBuilder = Lazy.of(() ->
-            TextDrawable.builder().beginConfig()
-                    .textColor(ContextCompat.getColor(getContext(), R.color.feed_background))
-                    .fontSize(AndroidUtility.dp(getContext(), 24))
-                    .bold()
-                    .endConfig());
-
     private final boolean admin;
     private final TextView text;
     private final TextView type;
@@ -43,6 +33,7 @@ public class MessageView extends RelativeLayout {
     private final SenderInfoView sender;
 
     private final Picasso picasso;
+    private final SenderDrawableProvider senderDrawableProvider;
 
     private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
 
@@ -56,6 +47,8 @@ public class MessageView extends RelativeLayout {
 
     public MessageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        this.senderDrawableProvider = new SenderDrawableProvider(context);
 
         int layoutId = R.layout.message_view;
         if (attrs != null) {
@@ -124,7 +117,7 @@ public class MessageView extends RelativeLayout {
             picasso.cancelRequest(image);
 
             // set a colored drawable with the first two letters of the user
-            image.setImageDrawable(makeSenderDrawable(message));
+            image.setImageDrawable(senderDrawableProvider.makeSenderDrawable(message));
         }
 
         // show the points
@@ -144,19 +137,6 @@ public class MessageView extends RelativeLayout {
         } else {
             sender.hidePointView();
         }
-    }
-
-    private TextDrawable makeSenderDrawable(Message message) {
-        String name = message.getName();
-
-        StringBuilder text = new StringBuilder();
-        text.append(Character.toUpperCase(name.charAt(0)));
-        if (name.length() > 1) {
-            text.append(Character.toLowerCase(name.charAt(1)));
-        }
-
-        int color = ColorGenerator.MATERIAL.getColor(message.getSenderId());
-        return textShapeBuilder.get().buildRect(text.toString(), color);
     }
 
     public enum PointsVisibility {

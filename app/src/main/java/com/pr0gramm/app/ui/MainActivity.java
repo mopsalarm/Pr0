@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -176,7 +177,8 @@ public class MainActivity extends BaseAppCompatActivity implements
         } else if (shouldShowFeedbackReminder()) {
             //noinspection ResourceType
             Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                    .setAction(R.string.okay, view -> {})
+                    .setAction(R.string.okay, view -> {
+                    })
                     .show();
 
         } else {
@@ -435,7 +437,8 @@ public class MainActivity extends BaseAppCompatActivity implements
                 .doOnCompleted(() -> {
                     // show a short information.
                     Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
-                            .setAction(R.string.okay, view -> {})
+                            .setAction(R.string.okay, view -> {
+                            })
                             .show();
 
                     // reset everything!
@@ -597,5 +600,10 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Override
     public Observable<Void> requirePermission(String permission) {
         return permissionHelper.requirePermission(permission);
+    }
+
+    public static void open(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        context.startActivity(intent);
     }
 }

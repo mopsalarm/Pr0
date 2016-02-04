@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.services.DownloadCompleteReceiver;
 import com.pr0gramm.app.services.DownloadUpdateReceiver;
+import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
@@ -64,4 +65,6 @@ public interface AppComponent {
     void inject(DownloadUpdateReceiver downloadUpdateReceiver);
 
     void inject(Dagger.EagerSingletons eagerSingletons);
+
+    void inject(InboxNotificationCanceledReceiver receiver);
 }
