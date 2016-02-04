@@ -49,10 +49,12 @@ public abstract class SoftwareMediaPlayer {
 
     private final BehaviorSubject<Boolean> bufferingSubject = BehaviorSubject.create();
 
+    protected final Context context;
     protected long duration = -1;
     protected long currentPosition = -0;
 
     public SoftwareMediaPlayer(Context context, InputStream inputStream) {
+        this.context = context;
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
     }
 

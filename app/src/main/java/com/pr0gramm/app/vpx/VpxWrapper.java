@@ -1,7 +1,9 @@
 package com.pr0gramm.app.vpx;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.getkeepsafe.relinker.ReLinker;
 import com.google.common.base.Stopwatch;
 
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 class VpxWrapper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger("VpxWrapper");
+
     private final long vpx;
     private boolean closed;
 
@@ -61,8 +64,10 @@ class VpxWrapper implements Closeable {
         super.finalize();
     }
 
-    public static VpxWrapper newInstance() {
+    public static VpxWrapper newInstance(Context context) {
+        loadNativeLibrary(context);
         checkState(hasNativeLibrary, "Native library not loaded. Software decoder is not available");
+
         return new VpxWrapper();
     }
 
@@ -81,13 +86,18 @@ class VpxWrapper implements Closeable {
     private native boolean vpxGetFrame(long vpx, Bitmap bitmap, int pixelSkip);
 
     private static boolean hasNativeLibrary;
+    private static boolean initialized;
 
-    private static void loadNativeLibrary() {
+    public static synchronized void loadNativeLibrary(Context context) {
+        if (initialized)
+            return;
+
+        initialized = true;
         try {
             logger.info("Loading library now");
 
             Stopwatch watch = Stopwatch.createStarted();
-            System.loadLibrary("vpx-wrapper");
+            ReLinker.loadLibrary(context, "vpx-wrapper");
             hasNativeLibrary = true;
 
             logger.info("Native library loaded in {}", watch);
@@ -96,9 +106,5 @@ class VpxWrapper implements Closeable {
         } catch (Throwable error) {
             logger.warn("Could not load library", error);
         }
-    }
-
-    static {
-        loadNativeLibrary();
     }
 }

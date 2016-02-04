@@ -69,7 +69,7 @@ public class WebmMediaPlayer extends SoftwareMediaPlayer {
         logger.info("will use image buffers with size {}x{} and pixelSkip {}",
                 pixelWidth, pixelHeight, pixelSkip);
 
-        try (VpxWrapper vpx = VpxWrapper.newInstance()) {
+        try (VpxWrapper vpx = VpxWrapper.newInstance(context)) {
             int frameIndex = 0;
             long previousTimecode = 0;
             while (true) {

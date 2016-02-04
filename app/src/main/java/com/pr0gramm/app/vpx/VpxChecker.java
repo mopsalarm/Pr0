@@ -60,7 +60,7 @@ public class VpxChecker {
             if (pixelHeight != 64 && pixelWidth != 64)
                 throw new IllegalStateException("Decoded size is not correct");
 
-            try (VpxWrapper vpx = VpxWrapper.newInstance()) {
+            try (VpxWrapper vpx = VpxWrapper.newInstance(context)) {
                 MatroskaFileFrame mkvFrame = mkv.getNextFrame(track.getTrackNo());
                 vpx.put(mkvFrame.getData());
 
