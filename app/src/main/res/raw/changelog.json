@@ -11,12 +11,12 @@
         "change": "Softwaredekoder wird nun automatisch aktiviert. Falls daraufhin ständig Fehler beim Abspielen von Videos auftreten, bitte Bescheid sagen"
       },
       {
-        "type": "Fix",
-        "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist"
+        "type": "Neu",
+        "change": "Benachrichtigungen verbessert. Sie können nun besser/normal 'als gelesen' markiert werden."
       },
       {
         "type": "Fix",
-        "change": "Beim Öffnen von ungelesenen Nachrichten diese nicht wieder als Benachrichtigung anzeigen"
+        "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist"
       },
       {
         "type": "Fix",
