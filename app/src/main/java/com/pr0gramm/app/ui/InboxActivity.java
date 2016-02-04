@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ab.ExperimentService;
+import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
@@ -32,6 +33,7 @@ import static com.pr0gramm.app.services.ThemeHelper.theme;
 public class InboxActivity extends BaseAppCompatActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
     public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
+    public static final String EXTRA_MESSAGE_ID = "InboxActivity.maxMessageId";
 
     @Inject
     UserService userService;
@@ -41,6 +43,9 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Inject
     ExperimentService experimentService;
+
+    @Inject
+    InboxService inboxService;
 
     @Bind(R.id.pager)
     ViewPager viewPager;
@@ -56,7 +61,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
         super.onCreate(savedInstanceState);
 
         if (!userService.isAuthorized()) {
-            openMainActivity();
+            MainActivity.open(this);
             finish();
             return;
         }
@@ -98,6 +103,8 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
         if (getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
             Track.notificationClicked();
         }
+
+        inboxService.markAsRead(getIntent().getLongExtra(EXTRA_MESSAGE_ID, 0));
     }
 
     @Override
@@ -138,7 +145,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
     }
 
     private void showInboxType(InboxType type) {
-        if(type != null && type.ordinal() < tabsAdapter.getCount()) {
+        if (type != null && type.ordinal() < tabsAdapter.getCount()) {
             viewPager.setCurrentItem(type.ordinal());
         }
     }
@@ -165,14 +172,6 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
         if (viewPager != null) {
             outState.putInt("tab", viewPager.getCurrentItem());
         }
-    }
-
-    /**
-     * Starts the main activity.
-     */
-    private void openMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 
     @Override

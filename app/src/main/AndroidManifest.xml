@@ -59,6 +59,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".services.InboxNotificationCanceledReceiver"/>
+
         <service
             android:name=".sync.SyncIntentService"
             android:exported="false"/>
