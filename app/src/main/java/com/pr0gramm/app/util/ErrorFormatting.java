@@ -29,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLException;
 
-import retrofit2.HttpException;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.functions.Func2;
 
 import static com.google.common.primitives.Ints.asList;
