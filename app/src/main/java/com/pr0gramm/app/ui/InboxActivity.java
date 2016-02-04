@@ -101,7 +101,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
         // track if we've clicked the notification!
         if (getIntent().getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
-            Track.notificationClicked();
+            Track.notificationClosed("clicked");
         }
 
         inboxService.markAsRead(getIntent().getLongExtra(EXTRA_MESSAGE_ID, 0));

@@ -130,8 +130,8 @@ public final class Track {
         track(new CustomEvent("Notification shown"));
     }
 
-    public static void notificationClicked() {
-        track(new CustomEvent("Notification clicked"));
+    public static void notificationClosed(String method) {
+        track(new CustomEvent("Notification closed").putCustomAttribute("method", method));
     }
 
     public static void experimentEvent(String experiment, String caseName, String actionName) {
