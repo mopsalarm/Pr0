@@ -24,5 +24,8 @@ public class InboxNotificationCanceledReceiver extends BroadcastReceiver {
         if (messageId > 0) {
             inboxService.markAsRead(messageId);
         }
+
+        // track this action
+        Track.notificationClosed("swiped");
     }
 }
