@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
@@ -15,8 +16,7 @@ import com.pr0gramm.app.ui.views.BusyIndicator;
 import javax.inject.Inject;
 
 import butterknife.Bind;
-import pl.droidsonroids.gif.GifTextureView;
-import pl.droidsonroids.gif.InputSource;
+import pl.droidsonroids.gif.GifDrawable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -32,19 +32,24 @@ public class GifMediaView extends AbstractProgressMediaView {
     GifDrawableLoader gifDrawableLoader;
 
     @Bind(R.id.image)
-    GifTextureView gifTextureView;
+    ImageView imageView;
 
     // the gif that is shown
-    private InputSource inputSource;
+    private GifDrawable gif;
 
     public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_gif, url.withProxy(true), onViewListener);
-        gifTextureView.setVisibility(INVISIBLE);
+        imageView.setVisibility(INVISIBLE);
         loadGif();
 
         // cleanup on detach!
         RxView.detaches(this).subscribe(event -> {
-            gifTextureView.setInputSource(null);
+            imageView.setImageDrawable(null);
+
+            if (gif != null) {
+                gif.recycle();
+                gif = null;
+            }
         });
     }
 
@@ -63,11 +68,14 @@ public class GifMediaView extends AbstractProgressMediaView {
         onDownloadProgress(state.progress);
 
         if (state.finished()) {
-            this.inputSource = state.source;
-            gifTextureView.setInputSource(state.source);
+            gif = state.drawable;
+            imageView.setImageDrawable(this.gif);
+            setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
 
             if (isPlaying()) {
                 onMediaShown();
+            } else {
+                gif.stop();
             }
         }
     }
@@ -84,20 +92,29 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     @Override
     protected void onPreviewRemoved() {
-        gifTextureView.setVisibility(VISIBLE);
+        imageView.setVisibility(VISIBLE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (inputSource != null && isPlaying()) {
-            gifTextureView.setInputSource(inputSource);
+        if (gif != null && isPlaying()) {
+            gif.start();
             onMediaShown();
         }
     }
 
     @Override
     protected Optional<Float> getVideoProgress() {
+        if (gif != null && isPlaying()) {
+            int position = gif.getCurrentFrameIndex();
+            int duration = gif.getNumberOfFrames();
+
+            if (position >= 0 && duration > 0) {
+                return Optional.of(position / (float) duration);
+            }
+        }
+
         return Optional.absent();
     }
 
@@ -109,14 +126,15 @@ public class GifMediaView extends AbstractProgressMediaView {
     @Override
     public void onPause() {
         super.onPause();
-        gifTextureView.setInputSource(null);
+        if (gif != null && isPlaying())
+            gif.pause();
     }
 
     @Override
     public void playMedia() {
         super.playMedia();
-        if (inputSource != null && isPlaying()) {
-            gifTextureView.setInputSource(inputSource);
+        if (gif != null && isPlaying()) {
+            gif.start();
             onMediaShown();
         }
     }
@@ -124,13 +142,14 @@ public class GifMediaView extends AbstractProgressMediaView {
     @Override
     public void stopMedia() {
         super.stopMedia();
-        gifTextureView.setInputSource(null);
+        if (gif != null)
+            gif.stop();
     }
 
     @Override
     public void rewind() {
-        gifTextureView.setInputSource(null);
-        if (isPlaying())
-            gifTextureView.setInputSource(inputSource);
+        if (gif != null && isPlaying()) {
+            gif.seekTo(0);
+        }
     }
 }
