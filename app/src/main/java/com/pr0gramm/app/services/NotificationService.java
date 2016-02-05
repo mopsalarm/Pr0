@@ -95,8 +95,8 @@ public class NotificationService {
         // try to get the new messages, ignore all errors.
         inboxService.getInbox()
                 .map(messages -> FluentIterable.from(messages)
-                        .filter(message -> inboxService.messageIsUnread(message.getId()))
                         .limit(sync.getInboxCount())
+                        .filter(inboxService::messageIsUnread)
                         .toList())
                 .toBlocking()
                 .subscribe(messages -> showInboxNotification(sync, messages), Actions.empty());
@@ -129,10 +129,10 @@ public class NotificationService {
 
 
         long timestamp = Ordering.natural().min(transform(messages, msg -> msg.getCreated().getMillis()));
-        long maxMessageId = Ordering.natural().max(transform(messages, Message::getId));
+        long maxMessageTimestamp = Ordering.natural().max(transform(messages, Message::getCreated)).getMillis();
 
         Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(inboxActivityIntent(maxMessageId))
+                .setContentIntent(inboxActivityIntent(maxMessageTimestamp))
                 .setContentTitle(title)
                 .setContentText(context.getString(R.string.notify_new_message_summary_text))
                 .setStyle(inboxStyle)
@@ -141,7 +141,7 @@ public class NotificationService {
                 .setWhen(timestamp)
                 .setShowWhen(timestamp != 0)
                 .setAutoCancel(true)
-                .setDeleteIntent(markAsReadIntent(maxMessageId))
+                .setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
                 .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500)
                 .build();
@@ -155,23 +155,26 @@ public class NotificationService {
      * Gets an optional "big" thumbnail for the given set of messages.
      */
     private Optional<Bitmap> thumbnail(List<Message> messages) {
+        Message message = messages.get(0);
+
         boolean allForTheSamePost = FluentIterable.from(messages)
                 .transform(Message::getItemId)
                 .toSet().size() == 1;
 
-        if (allForTheSamePost) {
-            Message message = messages.get(0);
-            if (message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
-                return loadThumbnail(message);
-            }
+        if (allForTheSamePost && message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
+            return loadThumbnail(message);
+        }
 
-            if (message.getItemId() == 0 && !isNullOrEmpty(message.getName())) {
-                int width = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-                int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+        boolean allForTheSameUser = FluentIterable.from(messages)
+                .transform(Message::getSenderId)
+                .toSet().size() == 1;
 
-                SenderDrawableProvider provider = new SenderDrawableProvider(context);
-                return Optional.of(provider.makeSenderBitmap(message, width, height));
-            }
+        if (allForTheSameUser && message.getItemId() == 0 && !isNullOrEmpty(message.getName())) {
+            int width = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+            int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+
+            SenderDrawableProvider provider = new SenderDrawableProvider(context);
+            return Optional.of(provider.makeSenderBitmap(message, width, height));
         }
 
         return Optional.absent();
@@ -187,11 +190,11 @@ public class NotificationService {
         }
     }
 
-    private PendingIntent inboxActivityIntent(long maxMessageId) {
+    private PendingIntent inboxActivityIntent(long maxMessageTimestamp) {
         Intent intent = new Intent(context, InboxActivity.class);
         intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
-        intent.putExtra(InboxActivity.EXTRA_MESSAGE_ID, maxMessageId);
+        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, maxMessageTimestamp);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         return TaskStackBuilder.create(context)
@@ -199,9 +202,9 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private PendingIntent markAsReadIntent(long maxMessageId) {
+    private PendingIntent markAsReadIntent(long maxMessageTimestamp) {
         Intent intent = new Intent(context, InboxNotificationCanceledReceiver.class);
-        intent.putExtra(InboxNotificationCanceledReceiver.EXTRA_MESSAGE_ID, maxMessageId);
+        intent.putExtra(InboxNotificationCanceledReceiver.EXTRA_MESSAGE_TIMESTAMP, maxMessageTimestamp);
 
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

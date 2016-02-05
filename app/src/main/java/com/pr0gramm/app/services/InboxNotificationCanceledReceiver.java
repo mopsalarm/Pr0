@@ -11,7 +11,7 @@ import javax.inject.Inject;
 /**
  */
 public class InboxNotificationCanceledReceiver extends BroadcastReceiver {
-    public static final String EXTRA_MESSAGE_ID = "InboxNotificationCanceledReceiver.messageId";
+    public static final String EXTRA_MESSAGE_TIMESTAMP = "InboxNotificationCanceledReceiver.messageTimestamp";
 
     @Inject
     InboxService inboxService;
@@ -20,9 +20,9 @@ public class InboxNotificationCanceledReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Dagger.appComponent(context).inject(this);
 
-        long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, 0);
-        if (messageId > 0) {
-            inboxService.markAsRead(messageId);
+        long timestamp = intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0);
+        if (timestamp > 0) {
+            inboxService.markAsRead(timestamp);
         }
 
         // track this action

@@ -33,7 +33,7 @@ import static com.pr0gramm.app.services.ThemeHelper.theme;
 public class InboxActivity extends BaseAppCompatActivity implements ViewPager.OnPageChangeListener {
     public static final String EXTRA_INBOX_TYPE = "InboxActivity.inboxType";
     public static final String EXTRA_FROM_NOTIFICATION = "InboxActivity.fromNotification";
-    public static final String EXTRA_MESSAGE_ID = "InboxActivity.maxMessageId";
+    public static final String EXTRA_MESSAGE_TIMESTAMP = "InboxActivity.maxMessageId";
 
     @Inject
     UserService userService;
@@ -104,7 +104,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
             Track.notificationClosed("clicked");
         }
 
-        inboxService.markAsRead(getIntent().getLongExtra(EXTRA_MESSAGE_ID, 0));
+        inboxService.markAsRead(getIntent().getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0));
     }
 
     @Override

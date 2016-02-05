@@ -2,7 +2,6 @@ package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -55,8 +54,9 @@ public class InboxService {
         publishUnreadMessagesCount(0);
         return api.inboxUnread().map(MessageFeed::getMessages).doOnNext(messages -> {
             if (messages.size() > 0) {
-                long maxMessageId = Ordering.natural().max(Lists.transform(messages, Message::getId));
-                markAsRead(maxMessageId);
+                markAsRead(Ordering.natural()
+                        .onResultOf(Message::getCreated)
+                        .max(messages));
             }
         });
     }
@@ -88,13 +88,19 @@ public class InboxService {
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from {@link #unreadMessagesCount()}.
      */
-    public void markAsRead(long messageId) {
-        boolean updateRequired = messageIsUnread(messageId);
+    public void markAsRead(Message message) {
+        markAsRead(message.getCreated().getMillis());
+    }
+
+    public void markAsRead(long timestamp) {
+        boolean updateRequired = messageIsUnread(timestamp);
         if (updateRequired) {
-            logger.info("Mark all messages with id less than or equal to {} as read", messageId);
+            logger.info(
+                    "Mark all messages with timestamp less than or equal to {} as read",
+                    timestamp);
 
             preferences.edit()
-                    .putLong(KEY_MAX_READ_MESSAGE_ID, messageId)
+                    .putLong(KEY_MAX_READ_MESSAGE_ID, timestamp)
                     .apply();
         }
     }
@@ -110,10 +116,14 @@ public class InboxService {
 
     /**
      * Returns true if the given message was already read
-     * according to {@link #markAsRead(long)}.
+     * according to {@link #markAsRead(Message)}.
      */
-    public boolean messageIsUnread(long messageId) {
-        return messageId > preferences.getLong(KEY_MAX_READ_MESSAGE_ID, 0);
+    public boolean messageIsUnread(Message message) {
+        return messageIsUnread(message.getCreated().getMillis());
+    }
+
+    public boolean messageIsUnread(long timestamp) {
+        return timestamp > preferences.getLong(KEY_MAX_READ_MESSAGE_ID, 0);
     }
 
     /**
@@ -133,4 +143,5 @@ public class InboxService {
     public Observable<Nothing> send(long receiverId, String message) {
         return api.sendMessage(null, message, receiverId);
     }
+
 }

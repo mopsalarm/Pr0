@@ -7,7 +7,6 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.services.NotificationService;
-import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MessageAdapter;
 
@@ -47,7 +46,6 @@ public class MessageInboxFragment extends InboxFragment<Message> {
         // after showing messages, we'll just remove unread messages and resync
         if (getActivity() != null) {
             notificationService.cancelForInbox();
-            SyncBroadcastReceiver.syncNow(getActivity());
         }
     }
 
