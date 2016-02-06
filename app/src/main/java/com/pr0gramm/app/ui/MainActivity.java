@@ -411,7 +411,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         onBackStackChanged();
 
         // schedule a sync operation every minute
-        Observable.interval(1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
+        Observable.interval(1, 0, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.bindActivity(lifecycle()))
                 .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
     }
