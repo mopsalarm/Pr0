@@ -40,7 +40,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
-public class PostPagerFragment extends BaseFragment implements FilterFragment {
+public class PostPagerFragment extends BaseFragment implements FilterFragment, PostPagerNavigation {
     private static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
@@ -264,12 +264,14 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment {
         this.previewInfo = previewInfo;
     }
 
+    @Override
     public void moveToNext() {
         int newIndex = viewPager.getCurrentItem() + 1;
         if (newIndex < viewPager.getAdapter().getCount())
             viewPager.setCurrentItem(newIndex);
     }
 
+    @Override
     public void moveToPrev() {
         int newIndex = viewPager.getCurrentItem() - 1;
         if (newIndex >= 0)
@@ -343,4 +345,5 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment {
         fragment.setArguments(arguments);
         return fragment;
     }
+
 }

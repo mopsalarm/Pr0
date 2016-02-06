@@ -45,7 +45,7 @@ import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
-import com.pr0gramm.app.ui.fragments.PostPagerFragment;
+import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import java.util.ArrayList;
@@ -260,8 +260,8 @@ public class MainActivity extends BaseAppCompatActivity implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Settings.VolumeNavigationType navigationType = settings.volumeNavigation();
         Fragment fragment = getCurrentFragment();
-        if (fragment instanceof PostPagerFragment && navigationType != Settings.VolumeNavigationType.DISABLED) {
-            PostPagerFragment pager = (PostPagerFragment) fragment;
+        if (fragment instanceof PostPagerNavigation && navigationType != Settings.VolumeNavigationType.DISABLED) {
+            PostPagerNavigation pager = (PostPagerNavigation) fragment;
 
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 if (navigationType == Settings.VolumeNavigationType.UP) {
@@ -287,14 +287,18 @@ public class MainActivity extends BaseAppCompatActivity implements
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Prints the current fragmetn stack. This should only be invoked in debug builds.
+     */
     private void printFragmentStack() {
         List<String> names = new ArrayList<>();
+        names.add("root");
         for (int idx = 0; idx < getSupportFragmentManager().getBackStackEntryCount(); idx++) {
             FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(idx);
             names.add(entry.getName());
         }
 
-        logger.info("stack: root -> {}", Joiner.on(" -> ").join(names));
+        logger.info("stack: {}", Joiner.on(" -> ").join(names));
     }
 
     private void updateActionbarTitle() {
@@ -519,7 +523,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         // trigger a back-stack changed after adding the fragment.
-        new Handler().post(this::onBackStackChanged);
+        handler.post(this::onBackStackChanged);
     }
 
     private DrawerFragment getDrawerFragment() {
