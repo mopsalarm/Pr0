@@ -773,14 +773,7 @@ public class PostFragment extends BaseFragment implements
                 ? this.previewInfo : inMemoryCacheService.getPreviewInfo(feedItem);
 
         if (previewInfo != null) {
-            viewer.setPreviewImage(previewInfo, "TransitionTarget-" + feedItem.getId());
-            if (Sdk.isAtLeastLollipop()) {
-                viewer.postDelayed(this::onTransitionEnds, 350);
-            } else {
-                viewer.post(this::onTransitionEnds);
-            }
-        } else {
-            viewer.post(this::onTransitionEnds);
+            viewer.setPreviewImage(previewInfo);
         }
 
         // add views in the correct order
@@ -824,12 +817,6 @@ public class PostFragment extends BaseFragment implements
                 // reflect changes to the viewers clipping.
                 simulateScroll();
             });
-        }
-    }
-
-    private void onTransitionEnds() {
-        if (viewer != null && content != null) {
-            viewer.onTransitionEnds();
         }
     }
 

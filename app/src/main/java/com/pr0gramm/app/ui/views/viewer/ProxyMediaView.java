@@ -69,9 +69,6 @@ public abstract class ProxyMediaView extends MediaView {
 
             if (isPlaying())
                 child.playMedia();
-
-            if (hasTransitionEnded())
-                child.onTransitionEnds();
         }
     }
 
@@ -117,12 +114,6 @@ public abstract class ProxyMediaView extends MediaView {
     public void onPause() {
         propagate(MediaView::onPause);
         super.onPause();
-    }
-
-    @Override
-    public void onTransitionEnds() {
-        super.onTransitionEnds();
-        propagate(MediaView::onTransitionEnds);
     }
 
     private void propagate(Action1<MediaView> action) {

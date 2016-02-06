@@ -24,12 +24,11 @@ public class PopupPlayer {
 
         PreviewInfo previewInfo = cacheService.getPreviewInfo(item);
         if (previewInfo != null) {
-            mediaView.setPreviewImage(previewInfo, null);
+            mediaView.setPreviewImage(previewInfo);
         } else {
             mediaView.setViewAspect(16f / 9f);
         }
 
-        mediaView.onTransitionEnds();
         mediaView.onResume();
         mediaView.playMedia();
 

@@ -14,7 +14,6 @@ import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -81,8 +80,6 @@ public abstract class MediaView extends FrameLayout {
     private boolean playing;
 
     private float viewAspect = -1;
-    private boolean transitionEnded;
-    private boolean previewRemoveRequested;
 
     @Nullable
     private Rect clipBounds;
@@ -107,6 +104,10 @@ public abstract class MediaView extends FrameLayout {
                         Runnable onViewListener) {
 
         super(activity);
+
+        // inject all the stuff!
+        injectComponent(Dagger.activityComponent(activity));
+
         this.mediaUri = mediaUri;
         this.onViewListener.subscribe(event -> onViewListener.run());
 
@@ -122,8 +123,11 @@ public abstract class MediaView extends FrameLayout {
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(activity, gestureListener);
 
-        // inject all the stuff!
-        injectComponent(Dagger.activityComponent(activity));
+        // test if we need to load the thumby preview.
+        if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
+            Uri uri = ThumbyService.thumbUri(mediaUri);
+            picasso.load(uri).noPlaceholder().into(previewTarget);
+        }
 
         showPreloadedIndicator();
         addBlurredBackground();
@@ -200,11 +204,9 @@ public abstract class MediaView extends FrameLayout {
      * Sets the pixels image for this media view. You need to provide a width and height.
      * Those values will be used to place the pixels image correctly.
      */
-    public void setPreviewImage(PreviewInfo info, String transitionName) {
+    public void setPreviewImage(PreviewInfo info) {
         if (hasPreviewView()) {
             assert preview != null;
-
-            ViewCompat.setTransitionName(preview, transitionName);
 
             if (info.getWidth() > 0 && info.getHeight() > 0) {
                 float aspect = (float) info.getWidth() / (float) info.getHeight();
@@ -271,23 +273,15 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    public boolean hasTransitionEnded() {
-        return transitionEnded;
-    }
-
     /**
      * Removes the preview image from this view.
      * This will not remove the view until the transition ended.
      */
     public void removePreviewImage() {
-        previewRemoveRequested = true;
-
-        if (transitionEnded) {
-            picasso.cancelRequest(previewTarget);
-            AndroidUtility.removeView(preview);
-            removeBlurredBackground();
-            onPreviewRemoved();
-        }
+        picasso.cancelRequest(previewTarget);
+        AndroidUtility.removeView(preview);
+        removeBlurredBackground();
+        onPreviewRemoved();
     }
 
     protected void onPreviewRemoved() {
@@ -303,22 +297,6 @@ public abstract class MediaView extends FrameLayout {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
-    }
-
-    /**
-     * This method must be called after a shared element
-     * transition for the pixels image ends.
-     */
-    public void onTransitionEnds() {
-        transitionEnded = true;
-
-        if (previewRemoveRequested) {
-            removePreviewImage();
-
-        } else if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
-            Uri uri = ThumbyService.thumbUri(mediaUri);
-            picasso.load(uri).noPlaceholder().into(previewTarget);
-        }
     }
 
     /**

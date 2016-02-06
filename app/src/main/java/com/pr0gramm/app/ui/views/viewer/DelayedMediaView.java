@@ -59,7 +59,6 @@ public class DelayedMediaView extends ProxyMediaView {
                 getMediaUri().withDelay(false), this::onMediaShown);
 
         mediaView.removePreviewImage();
-        mediaView.onTransitionEnds();
         setChild(mediaView);
 
         overlay.animate()

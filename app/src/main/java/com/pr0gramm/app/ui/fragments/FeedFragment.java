@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -11,19 +10,15 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -908,46 +903,23 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             return;
 
         try {
-            boolean doTransition = false;
             PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
 
             if (preview.isPresent()) {
                 // pass pixels info to target fragment.
                 Drawable image = preview.get().getDrawable();
                 fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
-
-                doTransition = enableTransition(fragment);
             }
 
-            @SuppressLint("CommitTransaction")
-            FragmentTransaction tr = getActivity().getSupportFragmentManager().beginTransaction()
+            getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content, fragment)
-                    .addToBackStack("Post" + idx);
+                    .addToBackStack("Post" + idx)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
 
-            if (doTransition && preview.isPresent()) {
-                ImageView image = preview.get();
-                ViewCompat.setTransitionName(image, "TransitionTarget-" + image.getId());
-                tr.addSharedElement(image, "TransitionTarget-" + feed.at(idx).getId());
-            }
-
-            tr.commitAllowingStateLoss();
-
-        } catch (IllegalStateException error) {
+        } catch (Exception error) {
             logger.warn("Error while showing post", error);
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private boolean enableTransition(PostPagerFragment fragment) {
-        // enable transition, if possible
-        if (Sdk.isAtLeastLollipop()) {
-            TransitionInflater inflater = TransitionInflater.from(getActivity());
-            Transition transition = inflater.inflateTransition(android.R.transition.move);
-            fragment.setSharedElementEnterTransition(transition);
-
-            return true;
-        }
-        return false;
     }
 
     private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
