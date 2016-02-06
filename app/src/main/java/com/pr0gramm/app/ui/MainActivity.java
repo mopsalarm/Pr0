@@ -409,13 +409,17 @@ public class MainActivity extends BaseAppCompatActivity implements
     protected void onResume() {
         super.onResume();
         onBackStackChanged();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         // schedule a sync operation every minute
-        Observable.interval(1, 0, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
+        Observable.interval(0, 1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.bindActivity(lifecycle()))
                 .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
     }
-
 
     @Override
     public void onLogoutClicked() {
