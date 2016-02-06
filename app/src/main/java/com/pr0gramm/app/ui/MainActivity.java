@@ -46,20 +46,18 @@ import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
-
-import org.joda.time.Duration;
-import org.joda.time.Instant;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -228,20 +226,6 @@ public class MainActivity extends BaseAppCompatActivity implements
             return;
 
         handleUri(intent.getData());
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // trigger updates while the activity is running
-        sendSyncRequest.run();
-    }
-
-    @Override
-    protected void onStop() {
-        handler.removeCallbacks(sendSyncRequest);
-        super.onStop();
     }
 
     @Override
@@ -423,6 +407,11 @@ public class MainActivity extends BaseAppCompatActivity implements
     protected void onResume() {
         super.onResume();
         onBackStackChanged();
+
+        // schedule a sync operation every minute
+        Observable.interval(1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bindActivity(lifecycle()))
+                .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
     }
 
 
@@ -569,26 +558,6 @@ public class MainActivity extends BaseAppCompatActivity implements
             gotoFeedFragment(defaultFeedFilter(), true);
         }
     }
-
-    @SuppressWarnings("Convert2Lambda")
-    private final Runnable sendSyncRequest = new Runnable() {
-        private Instant lastUpdate = new Instant(0);
-
-        @Override
-        public void run() {
-            Instant now = Instant.now();
-            if (Seconds.secondsBetween(lastUpdate, now).getSeconds() > 45) {
-                SyncBroadcastReceiver.syncNow(MainActivity.this);
-            }
-
-            // reschedule
-            Duration delay = Minutes.minutes(1).toStandardDuration();
-            handler.postDelayed(this, delay.getMillis());
-
-            // and remember the last update time
-            lastUpdate = now;
-        }
-    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
