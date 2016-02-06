@@ -91,10 +91,8 @@ public class GifDrawableLoader {
         File temporary = new File(fileCache, "tmp" + identityHashCode(subscriber) + ".gif");
 
         logger.info("storing data into temporary file");
-        RandomAccessFile storage = new RandomAccessFile(temporary, "rw");
 
-        boolean close = true;
-        try {
+        try (RandomAccessFile storage = new RandomAccessFile(temporary, "rw")) {
             // remove entry from filesystem now - the system will remove the data
             // when the stream closes.
             //noinspection ResultOfMethodCallIgnored
@@ -135,11 +133,6 @@ public class GifDrawableLoader {
                 subscriber.onCompleted();
             } catch (Throwable error) {
                 subscriber.onError(error);
-            }
-
-        } finally {
-            if (close) {
-                storage.close();
             }
         }
     }
