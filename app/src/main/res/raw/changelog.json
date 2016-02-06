@@ -15,6 +15,10 @@
         "change": "Benachrichtigungen verbessert. Sie können nun besser/normal 'als gelesen' markiert werden."
       },
       {
+        "type": "Überarbeitet",
+        "change": "Animationen überarbeitet."
+      },
+      {
         "type": "Fix",
         "change": "'Dies ist eine Beta'-Meldung nicht mehr anzeigen, wenn Beta nicht aktiv ist"
       },
