@@ -64,6 +64,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.util.Noop.noop;
 
 
 /**
@@ -175,8 +176,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         } else if (shouldShowFeedbackReminder()) {
             //noinspection ResourceType
             Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                    .setAction(R.string.okay, view -> {
-                    })
+                    .setAction(R.string.okay, noop)
                     .show();
 
         } else {
@@ -209,11 +209,9 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         bookmarkService.get().first().subscribe(bookmarks -> {
             if (bookmarks.isEmpty()) {
-                FeedFilter filter = new FeedFilter()
+                bookmarkService.create(new FeedFilter()
                         .withFeedType(FeedType.PROMOTED)
-                        .withTags("original content");
-
-                bookmarkService.create(filter);
+                        .withTags("original content"));
             }
         }, Actions.empty());
     }
@@ -430,8 +428,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                 .doOnCompleted(() -> {
                     // show a short information.
                     Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
-                            .setAction(R.string.okay, view -> {
-                            })
+                            .setAction(R.string.okay, noop)
                             .show();
 
                     // reset everything!
