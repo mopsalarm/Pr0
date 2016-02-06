@@ -137,7 +137,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
     private static final String ARG_SIMPLE_MODE = "FeedFragment.simpleMode";
-    public static final String POPUP_PLAYER_FRAGMENT_TAG = "PopupPlayer";
 
     @Inject
     FeedService feedService;
