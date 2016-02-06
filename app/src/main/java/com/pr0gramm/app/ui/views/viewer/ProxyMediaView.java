@@ -25,9 +25,6 @@ public abstract class ProxyMediaView extends MediaView {
 
         setChildView(child);
 
-        // disable view aspect, let the child determine our size
-        setViewAspect(-1);
-
         bootupChild();
 
         // forward double clicks
@@ -108,6 +105,13 @@ public abstract class ProxyMediaView extends MediaView {
     @Override
     public MediaView getActualMediaView() {
         return child != null ? child : this;
+    }
+
+    @Override
+    protected void onMediaShown() {
+        setViewAspect(-1);
+        removePreviewImage();
+        super.onMediaShown();
     }
 
     @Override

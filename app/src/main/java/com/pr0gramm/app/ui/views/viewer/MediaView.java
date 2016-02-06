@@ -125,12 +125,6 @@ public abstract class MediaView extends FrameLayout {
         // register the detector to handle double taps
         gestureDetector = new GestureDetector(activity, gestureListener);
 
-        // test if we need to load the thumby preview.
-        if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
-            Uri uri = ThumbyService.thumbUri(mediaUri);
-            picasso.load(uri).noPlaceholder().into(previewTarget);
-        }
-
         showPreloadedIndicator();
         addBlurredBackground();
 
@@ -143,6 +137,16 @@ public abstract class MediaView extends FrameLayout {
             if (resumed)
                 onPause();
         });
+
+        if (ThumbyService.isEligibleForPreview(mediaUri)) {
+            RxView.attaches(this).limit(1).subscribe(event -> {
+                // test if we need to load the thumby preview.
+                if (hasPreviewView()) {
+                    Uri uri = ThumbyService.thumbUri(mediaUri);
+                    picasso.load(uri).noPlaceholder().into(previewTarget);
+                }
+            });
+        }
     }
 
     private void addBlurredBackground() {
@@ -557,6 +561,7 @@ public abstract class MediaView extends FrameLayout {
                     Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), nextImage};
                     TransitionDrawable drawable = new TransitionDrawable(drawables);
                     drawable.startTransition(500);
+
                     mediaView.setPreviewDrawable(drawable);
                 } else {
                     mediaView.setPreviewDrawable(nextImage);
