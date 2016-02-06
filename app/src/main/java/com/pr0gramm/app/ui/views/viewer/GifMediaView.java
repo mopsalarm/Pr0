@@ -20,6 +20,7 @@ import pl.droidsonroids.gif.GifDrawable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.endAction;
 
 /**
  */
@@ -39,7 +40,7 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         super(context, R.layout.player_gif, url.withProxy(true), onViewListener);
-        imageView.setVisibility(INVISIBLE);
+        imageView.setAlpha(0.f);
         loadGif();
 
         // cleanup on detach!
@@ -70,11 +71,15 @@ public class GifMediaView extends AbstractProgressMediaView {
         if (state.finished()) {
             gif = state.drawable;
             imageView.setImageDrawable(this.gif);
+
             setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());
 
             if (isPlaying()) {
-                onMediaShown();
+                imageView.animate().alpha(1.f)
+                        .setListener(endAction(this::onMediaShown))
+                        .start();
             } else {
+                imageView.setAlpha(1.f);
                 gif.stop();
             }
         }
