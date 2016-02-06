@@ -24,7 +24,7 @@ public class PopupPlayer {
 
         PreviewInfo previewInfo = cacheService.getPreviewInfo(item);
         if (previewInfo != null) {
-            mediaView.setPreviewImage(previewInfo);
+            mediaView.setPreviewInfo(previewInfo);
         } else {
             mediaView.setViewAspect(16f / 9f);
         }

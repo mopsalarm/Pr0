@@ -131,7 +131,6 @@ public class GifDrawableLoader {
                 GifDrawable drawable = new GifDrawable(storage.getFD());
 
                 // closing is now delegated to the drawable.
-                close = false;
                 subscriber.onNext(new DownloadStatus(drawable));
                 subscriber.onCompleted();
             } catch (Throwable error) {

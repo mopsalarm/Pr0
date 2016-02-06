@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ApiProvider;
@@ -29,6 +30,7 @@ import dagger.Module;
 import dagger.Provides;
 import okhttp3.Cache;
 import okhttp3.ConnectionPool;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -59,6 +61,8 @@ public class HttpModule {
                 .connectionPool(new ConnectionPool(4, 3, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
                 .proxySelector(proxySelector)
+
+                .addInterceptor(new DebugInterceptor())
 
                 .addNetworkInterceptor(new StethoInterceptor())
                 .addNetworkInterceptor(chain -> {
@@ -120,5 +124,16 @@ public class HttpModule {
     @Provides
     public Api api(ApiProvider apiProvider) {
         return apiProvider.get();
+    }
+
+    private static class DebugInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            if (BuildConfig.DEBUG) {
+                Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+            }
+
+            return chain.proceed(chain.request());
+        }
     }
 }

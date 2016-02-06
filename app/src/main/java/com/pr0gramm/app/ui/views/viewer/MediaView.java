@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
@@ -89,6 +90,7 @@ public abstract class MediaView extends FrameLayout {
 
     @Nullable
     private AspectImageView preview;
+    private Drawable previewDrawable;
 
     @Inject
     Picasso picasso;
@@ -204,33 +206,33 @@ public abstract class MediaView extends FrameLayout {
      * Sets the pixels image for this media view. You need to provide a width and height.
      * Those values will be used to place the pixels image correctly.
      */
-    public void setPreviewImage(PreviewInfo info) {
-        if (hasPreviewView()) {
-            assert preview != null;
+    public void setPreviewInfo(PreviewInfo info) {
+        if (!hasPreviewView())
+            return;
 
-            if (info.getWidth() > 0 && info.getHeight() > 0) {
-                float aspect = (float) info.getWidth() / (float) info.getHeight();
-                setViewAspect(aspect);
-            }
+        assert preview != null;
+        if (info.getWidth() > 0 && info.getHeight() > 0) {
+            float aspect = (float) info.getWidth() / (float) info.getHeight();
+            setViewAspect(aspect);
+        }
 
-            if (info.getPreview() != null) {
-                preview.setImageDrawable(info.getPreview());
+        if (info.getPreview() != null) {
+            setPreviewDrawable(info.getPreview());
 
-            } else if (info.getPreviewUri() != null) {
-                if (mediaIsPreloaded()) {
-                    picasso.load(info.getPreviewUri())
-                            .networkPolicy(NetworkPolicy.OFFLINE, NetworkPolicy.NO_STORE)
-                            .into(previewTarget);
-
-                } else {
-                    // quickly load the pixels into this view
-                    picasso.load(info.getPreviewUri()).into(previewTarget);
-                }
+        } else if (info.getPreviewUri() != null) {
+            if (mediaIsPreloaded()) {
+                picasso.load(info.getPreviewUri())
+                        .networkPolicy(NetworkPolicy.OFFLINE, NetworkPolicy.NO_STORE)
+                        .into(previewTarget);
 
             } else {
-                // We have no preview image or this image, so we can remove the view entirely
-                removePreviewImage();
+                // quickly load the pixels into this view
+                picasso.load(info.getPreviewUri()).into(previewTarget);
             }
+
+        } else {
+            // We have no preview image or this image, so we can remove the view entirely
+            removePreviewImage();
         }
     }
 
@@ -455,6 +457,7 @@ public abstract class MediaView extends FrameLayout {
         drawWithClipBounds(canvas, c -> super.dispatchDraw(canvas));
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void draw(Canvas canvas) {
         drawWithClipBounds(canvas, super::draw);
@@ -519,6 +522,14 @@ public abstract class MediaView extends FrameLayout {
                 .build());
     }
 
+    @SuppressWarnings("ConstantConditions")
+    public void setPreviewDrawable(Drawable previewDrawable) {
+        if (hasPreviewView()) {
+            this.preview.setImageDrawable(previewDrawable);
+            this.previewDrawable = previewDrawable;
+        }
+    }
+
     public interface TapListener {
         boolean onSingleTap();
 
@@ -540,8 +551,18 @@ public abstract class MediaView extends FrameLayout {
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             MediaView mediaView = this.mediaView.get();
             if (mediaView != null && mediaView.preview != null) {
-                mediaView.preview.setImageBitmap(bitmap);
+                Drawable nextImage = new BitmapDrawable(mediaView.getResources(), bitmap);
+
+                if (mediaView.previewDrawable != null) {
+                    Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), nextImage};
+                    TransitionDrawable drawable = new TransitionDrawable(drawables);
+                    drawable.startTransition(500);
+                    mediaView.setPreviewDrawable(drawable);
+                } else {
+                    mediaView.setPreviewDrawable(nextImage);
+                }
             }
+
         }
 
         @Override
@@ -557,5 +578,4 @@ public abstract class MediaView extends FrameLayout {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             Gravity.CENTER_HORIZONTAL);
-
 }

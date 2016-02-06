@@ -773,7 +773,7 @@ public class PostFragment extends BaseFragment implements
                 ? this.previewInfo : inMemoryCacheService.getPreviewInfo(feedItem);
 
         if (previewInfo != null) {
-            viewer.setPreviewImage(previewInfo);
+            viewer.setPreviewInfo(previewInfo);
         }
 
         // add views in the correct order
