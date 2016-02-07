@@ -1,11 +1,9 @@
 package com.pr0gramm.app;
 
-import android.app.DownloadManager;
 import android.content.SharedPreferences;
 
 import com.pr0gramm.app.api.meta.MetaService;
-import com.pr0gramm.app.services.DownloadCompleteReceiver;
-import com.pr0gramm.app.services.DownloadUpdateReceiver;
+import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.ShareProvider;
@@ -42,8 +40,6 @@ public interface AppComponent {
 
     Picasso picasso();
 
-    DownloadManager downloadManager();
-
     NotificationService notificationService();
 
     SingleShotService singleShotService();
@@ -52,17 +48,15 @@ public interface AppComponent {
 
     OkHttpClient okHttpClient();
 
+    DownloadService downloadService();
+
     void inject(SyncIntentService service);
 
     void inject(SettingsActivity.SettingsFragment fragment);
 
-    void inject(DownloadCompleteReceiver downloadCompleteReceiver);
-
     void inject(ShareProvider shareProvider);
 
     void inject(PreloadService preloadService);
-
-    void inject(DownloadUpdateReceiver downloadUpdateReceiver);
 
     void inject(Dagger.EagerSingletons eagerSingletons);
 

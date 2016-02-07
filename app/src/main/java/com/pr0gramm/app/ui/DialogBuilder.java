@@ -171,7 +171,8 @@ public class DialogBuilder {
                 onShowListener.onShow(dialog);
         });
 
-        dialog.setOnCancelListener(onCancelListener);
+        if(onCancelListener != null)
+            dialog.setOnCancelListener(onCancelListener);
 
         return dialog;
     }

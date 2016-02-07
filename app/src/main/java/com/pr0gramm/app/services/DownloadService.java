@@ -1,12 +1,17 @@
 package com.pr0gramm.app.services;
 
+import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingInputStream;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
@@ -16,9 +21,20 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import rx.Observable;
+import rx.subscriptions.Subscriptions;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  */
@@ -28,12 +44,14 @@ public class DownloadService {
     private final Settings settings;
     private final ProxyService proxyService;
     private final DownloadManager downloadManager;
+    private final OkHttpClient okHttpClient;
 
     @Inject
-    public DownloadService(DownloadManager downloadManager, ProxyService proxyService, Context context) {
+    public DownloadService(DownloadManager downloadManager, ProxyService proxyService, Context context, OkHttpClient okHttpClient) {
         this.context = context;
         this.proxyService = proxyService;
         this.downloadManager = downloadManager;
+        this.okHttpClient = okHttpClient;
 
         this.settings = Settings.of(context);
     }
@@ -84,5 +102,79 @@ public class DownloadService {
 
         Track.download();
         return Optional.absent();
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public Observable<Status> downloadToFile(String uri) {
+        return Observable.create(subscriber -> {
+            try {
+                File tempFile = File.createTempFile(
+                        "pr0gramm-update", ".apk",
+                        firstNonNull(context.getExternalCacheDir(), context.getCacheDir()));
+
+                try (OutputStream output = new FileOutputStream(tempFile)) {
+                    // now do the request
+                    Request request = new Request.Builder().url(uri).build();
+                    Call call = okHttpClient.newCall(request);
+                    subscriber.add(Subscriptions.create(call::cancel));
+
+                    Response response = call.execute();
+                    Interval interval = new Interval(250);
+                    try (CountingInputStream input = new CountingInputStream(response.body().byteStream())) {
+                        int count;
+                        byte[] buffer = new byte[1024 * 32];
+                        while ((count = ByteStreams.read(input, buffer, 0, buffer.length)) > 0) {
+                            output.write(buffer, 0, count);
+
+                            if (interval.check()) {
+                                float progress = input.getCount() / (float) response.body().contentLength();
+                                subscriber.onNext(new Status(progress, null));
+                            }
+                        }
+                    }
+                }
+
+                subscriber.onNext(new Status(1, tempFile));
+                subscriber.onCompleted();
+
+            } catch (Throwable error) {
+                subscriber.onError(error);
+            }
+        });
+    }
+
+    private static class Interval {
+        private final long interval;
+        private long last = System.currentTimeMillis();
+
+        private Interval(long interval) {
+            this.interval = interval;
+        }
+
+        public boolean check() {
+            long now = System.currentTimeMillis();
+            if (now - last > interval) {
+                last = now;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    public static class Status {
+        @Nullable
+        public final File file;
+        public final float progress;
+
+        Status(float progress, @Nullable File file) {
+            this.progress = progress;
+            this.file = file;
+        }
+
+        public boolean finished() {
+            return file != null;
+        }
     }
 }

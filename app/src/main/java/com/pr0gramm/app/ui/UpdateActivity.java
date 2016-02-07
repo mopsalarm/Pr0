@@ -5,10 +5,11 @@ import android.support.v4.app.DialogFragment;
 
 import com.f2prateek.dart.InjectExtra;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Update;
+import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
-import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 
 /**
  * This activity is just there to host the update dialog fragment.
@@ -21,11 +22,11 @@ public class UpdateActivity extends BaseAppCompatActivity implements DialogDismi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(ThemeHelper.theme().basic);
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            UpdateDialogFragment dialog = UpdateDialogFragment.newInstance(update);
-            dialog.show(getSupportFragmentManager(), null);
+            UpdateChecker.download(this, update);
         }
     }
 
@@ -33,7 +34,6 @@ public class UpdateActivity extends BaseAppCompatActivity implements DialogDismi
     protected void injectComponent(ActivityComponent appComponent) {
         // nothing to do here
     }
-
 
     @Override
     public void onDialogDismissed(DialogFragment dialog) {

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.Update;
@@ -49,7 +50,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
     private Dialog updateAvailableDialog(final Update update) {
         return DialogBuilder.start(getActivity())
                 .content(getString(R.string.new_update_available, update.changelog()))
-                .positive(R.string.download, () -> UpdateChecker.download(getContext(), update))
+                .positive(R.string.download, () -> UpdateChecker.download(getActivity(), update))
                 .negative(R.string.ignore)
                 .build();
     }
@@ -79,7 +80,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
     public static void checkForUpdates(BaseAppCompatActivity activity, boolean interactive) {
         SharedPreferences shared = Dagger.appComponent(activity).sharedPreferences();
 
-        if (!interactive) {
+        if (!interactive && !BuildConfig.DEBUG) {
             Instant last = new Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0));
             if (last.isAfter(now().minus(standardHours(1))))
                 return;

@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
@@ -57,7 +58,7 @@ public class SyncIntentService extends IntentService {
         if (singleShotService.firstTimeToday("track-settings"))
             statistics(settings, userService.isAuthorized());
 
-        if (singleShotService.firstTimeToday("background-update-check")) {
+        if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
             Optional<Update> update = toOptional(new UpdateChecker(this).check());
             if (update.isPresent()) {
                 notificationService.showUpdateNotification(update.get());

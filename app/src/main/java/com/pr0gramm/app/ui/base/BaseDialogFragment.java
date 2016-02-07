@@ -119,6 +119,9 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
 
     @Override
     public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance())
+            getDialog().setDismissMessage(null);
+
         lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW);
         super.onDestroyView();
 

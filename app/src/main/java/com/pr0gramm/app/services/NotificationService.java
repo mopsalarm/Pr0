@@ -80,7 +80,7 @@ public class NotificationService {
                 .setContentTitle(context.getString(R.string.notification_update_available))
                 .setContentText(context.getString(R.string.notification_update_available_text, update.version() % 100))
                 .setSmallIcon(R.drawable.ic_notify_new_message)
-                .addAction(R.drawable.ic_white_action_save, "Download", downloadUpdateIntent(update))
+                .addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
                 .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
                 .setAutoCancel(true)
                 .build();
@@ -220,11 +220,6 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private PendingIntent downloadUpdateIntent(Update update) {
-        Intent intent = new Intent(context, DownloadUpdateReceiver.class);
-        intent.putExtra(DownloadUpdateReceiver.EXTRA_UPDATE, update);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
 
     public void cancelForInbox() {
         nm.cancel(NOTIFICATION_NEW_MESSAGE_ID);

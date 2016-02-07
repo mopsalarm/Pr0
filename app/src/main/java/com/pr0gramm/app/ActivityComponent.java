@@ -15,6 +15,7 @@ import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.PopupPlayer;
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
+import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavedCommentFragment;
 import com.pr0gramm.app.ui.fragments.FavoritesFragment;
@@ -104,4 +105,5 @@ public interface ActivityComponent {
 
     void inject(PopupPlayer popupPlayer);
 
+    void inject(DownloadUpdateDialog dialog);
 }

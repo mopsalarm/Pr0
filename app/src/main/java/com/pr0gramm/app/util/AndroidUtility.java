@@ -389,7 +389,11 @@ public class AndroidUtility {
 
     public static int getPackageVersionCode(Context context) {
         try {
-            return getPackageInfo(context).versionCode;
+            if (BuildConfig.DEBUG) {
+                return 100;
+            } else {
+                return getPackageInfo(context).versionCode;
+            }
         } catch (Exception error) {
             return -1;
         }

@@ -312,4 +312,5 @@
     <string name="pref_volume_navigation_human__up">\'Lauter\' zeigt das nächste Bild</string>
     <string name="pref_volume_navigation_summary">Benutze die Lautstärketasten um zwischen Bildern zu navigieren.</string>
     <string name="pref_volume_navigation_title">Lautstärketasten</string>
+    <string name="please_wait_update_hint">Bitte warte, während das Update herunterladen wird.</string>
 </resources>
