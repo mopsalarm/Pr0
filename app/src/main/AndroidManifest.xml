@@ -51,14 +51,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".services.DownloadUpdateReceiver"/>
-
-        <receiver android:name=".services.DownloadCompleteReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".services.InboxNotificationCanceledReceiver"/>
 
         <service
