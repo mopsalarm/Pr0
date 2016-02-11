@@ -1,21 +1,29 @@
 package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.squareup.picasso.Picasso;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -33,11 +41,69 @@ import rx.subjects.BehaviorSubject;
  */
 @Singleton
 public class UploadService {
+    public static final long MAX_UPLOAD_SIZE = (BuildConfig.DEBUG ? 1 : 4) * 1024 * 1024;
+    public static final long MAX_UPLOAD_SIZE_PAID = (BuildConfig.DEBUG ? 1 : 8) * 1024 * 1024;
+
+    private static final Logger logger = LoggerFactory.getLogger("UploadService");
+
     private final Api api;
+    private final UserService userService;
+    private final Picasso picasso;
 
     @Inject
-    public UploadService(Api api) {
+    public UploadService(Api api, UserService userService, Picasso picasso) {
         this.api = api;
+        this.userService = userService;
+        this.picasso = picasso;
+    }
+
+    private Observable<Long> maxSize() {
+        return userService.loginState()
+                .take(1)
+                .map(state -> state.userIsPremium() ? MAX_UPLOAD_SIZE_PAID : MAX_UPLOAD_SIZE);
+    }
+
+    public Observable<Boolean> sizeOkay(File file) {
+        return maxSize().map(maxSize -> file.length() < maxSize);
+    }
+
+    @SuppressLint("NewApi")
+    public Observable<File> downsize(File file) {
+        return maxSize().flatMap(maxSize -> Observable.fromCallable(() -> {
+            logger.info("Try to scale {}kb image down to max of {}kb",
+                    file.length() / 1024, maxSize / 1024);
+
+            Bitmap bitmap = picasso.load(file)
+                    .config(Bitmap.Config.ARGB_8888)
+                    .centerInside()
+                    .resize(2048, 2048)
+                    .onlyScaleDown()
+                    .get();
+
+            logger.info("Image loaded at {}x{}px", bitmap.getWidth(), bitmap.getHeight());
+
+            // scale down to temp file
+            File target = File.createTempFile("upload", "jpg", file.getParentFile());
+            target.deleteOnExit();
+
+            Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+            int quality = 90;
+            do {
+                try (OutputStream output = new FileOutputStream(target)) {
+                    logger.info("Compressing to {} at quality={}", format, quality);
+                    if (!bitmap.compress(format, quality, output))
+                        throw new IOException("Could not compress image data");
+
+                    logger.info("Size is now {}kb", target.length() / 1024);
+                }
+
+                // decrease quality to shrink even further
+                quality -= 10;
+            } while (target.length() >= maxSize && quality > 30);
+
+            logger.info("Finished downsizing with an image size of {}kb", target.length() / 1024);
+            return target;
+        }));
     }
 
     private Observable<UploadInfo> upload(File file) {

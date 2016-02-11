@@ -169,7 +169,6 @@
 
     <string name="upload_small_print_footer" translatable="false">Unfähigkeit, diese Regeln zu befolgen, wird mit einer Sperrung Deines Accounts honoriert. Diskussionen um die Sperrung werden die Sperrung verlängern.</string>
     <string name="upload_small_print_header" translatable="false">DAS KLEINGEDRUCKTE – LIES ES!</string>
-    <string name="upload_warning">Warning, right now, only uploading images is supported and highly experimental. Please send Feedback.</string>
     <string name="upload_checking_if_upload_is_allowed">Checking if upload is allowed</string>
     <string name="upload_not_allowed">Upload not allowed</string>
     <string name="upload_not_allowed_description">Limit for today is reached. You need to wait until you are allowed to do another upload (a longer benis is required alternatively!)</string>
@@ -328,5 +327,8 @@
     <string name="pref_volume_navigation_human__up">Volume up shows next image</string>
     <string name="pref_volume_navigation_human__down">Volume up shows previous image</string>
     <string name="please_wait_update_hint">Please wait while update gets downloaded.</string>
+    <string name="down_size">Shrink</string>
+    <string name="hint_image_too_large">The image you are trying to upload is too large. Do you want the app to shrink the image down?</string>
+    <string name="hint_shrank_successful">Image size is now okay.</string>
 </resources>
 

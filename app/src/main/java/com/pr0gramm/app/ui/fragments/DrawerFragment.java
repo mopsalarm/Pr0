@@ -39,12 +39,12 @@ import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
-import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
+import com.pr0gramm.app.ui.upload.UploadActivity;
 
 import java.util.ArrayList;
 import java.util.List;

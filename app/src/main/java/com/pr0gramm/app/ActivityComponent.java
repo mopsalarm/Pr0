@@ -6,7 +6,6 @@ import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
-import com.pr0gramm.app.ui.UploadActivity;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
@@ -26,6 +25,8 @@ import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
+import com.pr0gramm.app.ui.upload.UploadActivity;
+import com.pr0gramm.app.ui.upload.UploadFragment;
 import com.pr0gramm.app.ui.views.viewer.DelayedMediaView;
 import com.pr0gramm.app.ui.views.viewer.Gif2VideoMediaView;
 import com.pr0gramm.app.ui.views.viewer.GifMediaView;
@@ -63,7 +64,7 @@ public interface ActivityComponent {
 
     void inject(PostPagerFragment postPagerFragment);
 
-    void inject(UploadActivity.UploadFragment uploadFragment);
+    void inject(UploadFragment uploadFragment);
 
     void inject(MessageInboxFragment fragment);
 

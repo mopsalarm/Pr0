@@ -4,6 +4,15 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "Wenn ein Bild vor dem Upload zu groß ist, kann die App das nun selbst verkleinern."
+      }
+    ]
+  },
+  {
+    "version": 87,
+    "changes": [
+      {
+        "type": "Neu",
         "change": "Auf der Website gesetztes pr0mium Theme wird nach dem Einloggen eingestellt"
       },
       {

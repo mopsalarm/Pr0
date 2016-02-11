@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.MainThread;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
@@ -13,6 +14,8 @@ import android.widget.Button;
 import com.pr0gramm.app.R;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
  * Helper to build dialogs.
@@ -191,7 +194,9 @@ public class DialogBuilder {
             dialog.dismiss();
     }
 
+    @MainThread
     public static DialogBuilder start(Context context) {
+        checkMainThread();
         return new DialogBuilder(context);
     }
 
