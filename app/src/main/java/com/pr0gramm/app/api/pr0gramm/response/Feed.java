@@ -1,5 +1,7 @@
 package com.pr0gramm.app.api.pr0gramm.response;
 
+import com.google.common.base.Optional;
+
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 import org.joda.time.Instant;
@@ -20,6 +22,8 @@ public interface Feed {
     boolean isAtEnd();
 
     List<Item> getItems();
+
+    Optional<String> getError();
 
     @Value.Immutable
     interface Item {

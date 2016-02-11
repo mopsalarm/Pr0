@@ -1,10 +1,14 @@
 [
   {
-    "version": 87,
+    "version": 88,
     "changes": [
       {
         "type": "Neu",
         "change": "Wenn ein Bild vor dem Upload zu groß ist, kann die App das nun selbst verkleinern."
+      },
+      {
+        "type": "Neu",
+        "change": "Wenn ein Bild wegen falschen Filtereinstellungen aktuell nicht angezeigt werden kann, wirst du nun darüber informiert. Nach dem Ändern der Einstellungen, wird die App nochmal versuchen, das Bild zu öffnen."
       }
     ]
   },

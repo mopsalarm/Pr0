@@ -333,6 +333,11 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             // should not happen
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void onWrongContentType() {
+            // we'll ignore that one here.
+        }
     }
 
     public static PostPagerFragment newInstance(Feed feed, int idx, Optional<Long> commentId) {

@@ -898,6 +898,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void onItemClicked(int idx, Optional<Long> commentId, Optional<ImageView> preview) {
+        // reset auto open.
+        autoOpenOnLoad = null;
+
         Feed feed = feedAdapter.getFeed();
         if (idx < 0 || idx >= feed.size())
             return;
@@ -1133,6 +1136,21 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         public void onRemoveItems() {
             notifyDataSetChanged();
         }
+
+        @Override
+        public void onWrongContentType() {
+            with(FeedFragment::showWrongContentTypeInfo);
+        }
+    }
+
+    private void showWrongContentTypeInfo() {
+        Context context = getActivity();
+        if (context != null) {
+            DialogBuilder.start(context)
+                    .content(R.string.hint_wrong_content_type)
+                    .positive()
+                    .show();
+        }
     }
 
     private void loadMetaData(List<Long> items) {
@@ -1212,7 +1230,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             });
         }
 
-        autoOpenOnLoad = null;
         autoScrollOnLoad = null;
     }
 

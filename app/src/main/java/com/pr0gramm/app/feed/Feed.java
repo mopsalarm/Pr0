@@ -8,7 +8,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.PeekingIterator;
 
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 
 import rx.functions.Action1;
@@ -126,7 +124,16 @@ public class Feed {
         }
 
         if (feedListener != null) {
-            event(listener -> listener.onNewItems(newItems));
+            boolean wrongContentType = feed.getError()
+                    .transform(error -> error.endsWith("Required"))
+                    .or(false);
+
+            event(listener -> {
+                listener.onNewItems(newItems);
+
+                if(wrongContentType)
+                    listener.onWrongContentType();
+            });
         }
     }
 
@@ -254,10 +261,6 @@ public class Feed {
         }
     }
 
-    public Map<Long, FeedItem> asMap() {
-        return Maps.uniqueIndex(items, FeedItem::getId);
-    }
-
     public interface FeedListener {
         /**
          * Called after new items are added to this feed.
@@ -268,5 +271,10 @@ public class Feed {
          * Called if items are removed from the feed
          */
         void onRemoveItems();
+
+        /**
+         * This will be called if we try to get a nsfw image with a sfw feed.
+         */
+        void onWrongContentType();
     }
 }
