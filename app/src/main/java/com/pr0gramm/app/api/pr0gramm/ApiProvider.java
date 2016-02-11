@@ -104,12 +104,9 @@ public class ApiProvider implements Provider<Api> {
             }
 
             if (method.getReturnType() == Observable.class) {
-                // check if this is a get for retry.
-                int retryCount = 2;
+                // only retry a get method, and only do it once.
+                int retryCount = 1;
                 if (method.getAnnotation(GET.class) != null) {
-                    return invokeWithRetry(backend, method, args,
-                            ApiProvider::isHttpError, retryCount);
-                } else {
                     return invokeWithRetry(backend, method, args,
                             ApiProvider::isHttpError, retryCount);
                 }

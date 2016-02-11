@@ -56,11 +56,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Action2;
 import rx.functions.Func1;
@@ -436,4 +438,37 @@ public class AndroidUtility {
     public static <T> Func1<T, Boolean> isNotNull() {
         return val -> val != null;
     }
+
+    /**
+     * @param interval      The base interval to start backing off from. The function is: attemptNum^2 * intervalTime
+     * @param units         The units for interval
+     * @param retryAttempts The max number of attempts to retry this task or -1 to try MAX_INT times,
+     */
+    public static <T> Observable.Transformer<T, T> backoff(
+            long interval, TimeUnit units, int retryAttempts, Scheduler scheduler) {
+
+        return observable -> observable.retryWhen(
+                retryFunc(interval, units, retryAttempts, scheduler),
+                scheduler);
+    }
+
+    private static Func1<? super Observable<? extends Throwable>, ? extends Observable<?>> retryFunc(
+            long interval, final TimeUnit units, int attempts, Scheduler scheduler) {
+        return observable -> {
+            // zip our number of retries to the incoming errors so that we only produce retries
+            // when there's been an error
+            return observable.zipWith(
+                    Observable.range(1, attempts > 0 ? attempts : Integer.MAX_VALUE),
+                    (throwable, attemptNumber) -> attemptNumber)
+                    // flatMap the int attempt number to a timer that will wait the specified delay
+                    .flatMap(attempt -> {
+                        long newInterval = interval * ((long) attempt * (long) attempt);
+                        if (newInterval < 0) {
+                            newInterval = Long.MAX_VALUE;
+                        }
+                        return Observable.timer(newInterval, units, scheduler);
+                    });
+        };
+    }
+
 }
