@@ -287,7 +287,7 @@ public class UploadFragment extends BaseFragment {
         this.file = file;
 
         logger.info("loading image file into pixels.");
-        picasso.load(file).resize(1024, 1024).onlyScaleDown().centerInside().into(preview, new Callback() {
+        picasso.load(file).resize(2048, 2048).onlyScaleDown().centerInside().into(preview, new Callback() {
             @Override
             public void onSuccess() {
                 busyIndicator.setVisibility(View.GONE);
@@ -321,7 +321,7 @@ public class UploadFragment extends BaseFragment {
 
     @MainThread
     private void imageShrankSuccess() {
-        Snackbar.make(getView(), R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
+        Snackbar.make(checkNotNull(getView()), R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
                 .setAction(R.string.okay, Noop.noop)
                 .show();
     }
