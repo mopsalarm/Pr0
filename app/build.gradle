@@ -15,7 +15,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
-        classpath 'io.fabric.tools:gradle:1.21.2'
+        classpath 'io.fabric.tools:gradle:1.21.3'
         classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -150,7 +150,7 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta4'
-    compile 'com.squareup.okhttp3:okhttp:3.1.0'
+    compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.13'
