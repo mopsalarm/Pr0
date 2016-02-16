@@ -11,6 +11,8 @@ import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
 import org.ebml.matroska.MatroskaFile;
 import org.ebml.matroska.MatroskaFileFrame;
 import org.ebml.matroska.MatroskaFileTrack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +20,10 @@ import java.io.InputStream;
 /**
  */
 public class WebmMediaPlayer extends SoftwareMediaPlayer {
+    private static final Logger logger = LoggerFactory.getLogger("WebmMediaPlayer");
+
     public WebmMediaPlayer(Context context, InputStream inputStream) {
-        super(context, inputStream);
+        super(logger, context, inputStream);
     }
 
     @SuppressLint("NewApi")

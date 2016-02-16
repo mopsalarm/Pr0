@@ -5,16 +5,20 @@ import android.graphics.Bitmap;
 
 import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 
 /**
  * Plays mpeg files.
  */
 public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements VideoConsumer {
+    private static final Logger logger = LoggerFactory.getLogger("MpegSoftwareMediaPlayer");
     private PictureBuffer buffer;
 
     public MpegSoftwareMediaPlayer(Context context, InputStream inputStream) {
-        super(context, inputStream);
+        super(logger, context, inputStream);
     }
 
     @Override

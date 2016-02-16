@@ -10,7 +10,6 @@ import com.pr0gramm.app.ui.VideoDrawable;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -33,7 +32,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 /**
  */
 public abstract class SoftwareMediaPlayer {
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger;
 
     private final AtomicBoolean running = new AtomicBoolean();
     private final AtomicBoolean paused = new AtomicBoolean();
@@ -53,7 +52,8 @@ public abstract class SoftwareMediaPlayer {
     protected long duration = -1;
     protected long currentPosition = -0;
 
-    public SoftwareMediaPlayer(Context context, InputStream inputStream) {
+    public SoftwareMediaPlayer(Logger logger, Context context, InputStream inputStream) {
+        this.logger = logger;
         this.context = context;
         this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
     }
