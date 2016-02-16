@@ -108,13 +108,14 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (position >= 0 && position + 1 < adapter.getCount()) {
+                ViewPager pager = PostPagerFragment.this.viewPager;
+                if (pager != null && position >= 0 && position + 1 < adapter.getCount()) {
                     Optional<Fragment> prev = adapter.getFragment(position);
                     Optional<Fragment> next = adapter.getFragment(position + 1);
                     if (prev.isPresent() && next.isPresent()) {
                         ((PostFragment) prev.get()).mediaHorizontalOffset(positionOffsetPixels / 2);
                         ((PostFragment) next.get()).mediaHorizontalOffset(
-                                -viewPager.getWidth() / 2 + positionOffsetPixels / 2);
+                                -pager.getWidth() / 2 + positionOffsetPixels / 2);
                     }
                 }
             }
@@ -336,7 +337,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
 
         @Override
         public void onWrongContentType() {
-            // we'll ignore that one here.
+            // ignore
         }
     }
 

@@ -191,7 +191,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private FeedLoader loader;
     private boolean scrollToolbar;
 
-    private WeakReference<Dialog> quickPeekDialog;
+    private WeakReference<Dialog> quickPeekDialog = new WeakReference<>(null);
 
     /**
      * Initialize a new feed fragment.
@@ -1139,7 +1139,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         @Override
         public void onWrongContentType() {
-            with(FeedFragment::showWrongContentTypeInfo);
+            with(fragment -> fragment.showWrongContentTypeInfo());
         }
     }
 

@@ -9,6 +9,14 @@
       {
         "type": "Neu",
         "change": "Wenn ein Bild wegen falschen Filtereinstellungen aktuell nicht angezeigt werden kann, wirst du nun darüber informiert. Nach dem Ändern der Einstellungen, wird die App nochmal versuchen, das Bild zu öffnen."
+      },
+      {
+        "type": "Neu",
+        "change": "Lange auf den Benis eines Kommentars zeigt dessen up/down Votes an"
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Bugfixes"
       }
     ]
   },
