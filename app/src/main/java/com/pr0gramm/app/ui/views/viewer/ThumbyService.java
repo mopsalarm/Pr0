@@ -6,12 +6,16 @@ import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.pr0gramm.app.BuildConfig;
 
+import java.util.regex.Pattern;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Simple interface to the thumby service.
  */
 public class ThumbyService {
+    private static final Pattern RE_VALID_URI = Pattern.compile("^https?://pr0gramm.com/.*");
+
     private ThumbyService() {
     }
 
@@ -36,6 +40,7 @@ public class ThumbyService {
      */
     public static boolean isEligibleForPreview(MediaUri url) {
         MediaUri.MediaType type = url.getMediaType();
-        return type == MediaUri.MediaType.VIDEO || type == MediaUri.MediaType.GIF;
+        return (type == MediaUri.MediaType.VIDEO || type == MediaUri.MediaType.GIF)
+                && RE_VALID_URI.matcher(url.getBaseUri().toString()).matches();
     }
 }
