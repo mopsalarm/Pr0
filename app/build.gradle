@@ -15,7 +15,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
-        classpath 'io.fabric.tools:gradle:1.21.3'
+        classpath 'io.fabric.tools:gradle:1.21.4'
         classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -180,7 +180,7 @@ dependencies {
     apt 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
 
     // rx java
-    compile 'io.reactivex:rxjava:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.1'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.1.0.0'
