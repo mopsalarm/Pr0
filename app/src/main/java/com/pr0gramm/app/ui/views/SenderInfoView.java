@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pr0gramm.app.R;
 
@@ -54,10 +55,28 @@ public class SenderInfoView extends LinearLayout {
     }
 
     public void setPoints(int points) {
+        setPoints(points, null);
+    }
+
+    private void setPoints(int points, OnLongClickListener listener) {
         String text = getContext().getString(R.string.points, points);
         pointsView.setText(text);
         pointsView.setVisibility(VISIBLE);
+        if (listener != null) {
+            pointsView.setOnLongClickListener(listener);
+        } else {
+            pointsView.setLongClickable(false);
+        }
+
         pointsUnknownView.setVisibility(GONE);
+    }
+
+    public void setPoints(CommentScore commentScore) {
+        setPoints(commentScore.score, v -> {
+            String msg = String.format("%d up, %d down", commentScore.up, commentScore.down);
+            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     public void hidePointView() {

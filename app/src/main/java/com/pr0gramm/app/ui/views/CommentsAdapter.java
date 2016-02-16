@@ -174,6 +174,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             if (showFavCommentButton) {
                 boolean isFavorite = favedComments.contains(comment.getId());
 
+                //noinspection ResourceAsColor
                 view.kFav.setTextColor(isFavorite
                         ? ContextCompat.getColor(context, ThemeHelper.primaryColor())
                         : ContextCompat.getColor(context, R.color.grey_700));
@@ -188,10 +189,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-    private int getCommentScore(CommentEntry entry) {
+    private CommentScore getCommentScore(CommentEntry entry) {
         int score = entry.comment.getUp() - entry.comment.getDown();
         score += entry.vote.getVoteValue() - entry.baseVote.getVoteValue();
-        return score;
+        return new CommentScore(score, entry.comment.getUp(), entry.comment.getDown());
     }
 
     private void doOnAuthorClicked(Comment comment) {
