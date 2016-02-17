@@ -346,6 +346,9 @@ public class AndroidUtility {
     public static void linkify(TextView view, String content) {
         content = MALICIOUS_COMMENT_CHARS.matcher(content).replaceAll("$1");
 
+        // fix amazon links
+        content = new AmazonAffiliate().affiliateLinks(content);
+
         Uri base = UriHelper.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
@@ -354,11 +357,10 @@ public class AndroidUtility {
 
         Linkify.addLinks(text, Linkify.WEB_URLS);
 
-        Linkify.addLinks(text, RE_USERNAME, scheme, null,
-                (match, url) -> {
-                    String user = match.group().substring(1);
-                    return base.buildUpon().path("/user").appendEncodedPath(user).toString();
-                });
+        Linkify.addLinks(text, RE_USERNAME, scheme, null, (match, url) -> {
+            String user = match.group().substring(1);
+            return base.buildUpon().path("/user").appendEncodedPath(user).toString();
+        });
 
         Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null,
                 (match, url) -> base.buildUpon().appendEncodedPath(match.group(1)).toString());
