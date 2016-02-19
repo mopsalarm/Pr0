@@ -54,6 +54,7 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -82,6 +83,8 @@ public class AndroidUtility {
     private static final Pattern RE_USERNAME = Pattern.compile("@[A-Za-z0-9]+");
     private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
     private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
+
+    private static final LinkedHashSet<String> previousExceptions = new LinkedHashSet<>();
 
     private AndroidUtility() {
     }
@@ -148,6 +151,20 @@ public class AndroidUtility {
     }
 
     public static void logToCrashlytics(Throwable error) {
+        if (error == null)
+            return;
+
+        String message = String.valueOf(error.toString());
+        synchronized (previousExceptions) {
+            if (previousExceptions.add(message)) {
+                if (previousExceptions.size() > 10) {
+                    previousExceptions.iterator().remove();
+                }
+            } else {
+                return;
+            }
+        }
+
         try {
             // log to crashlytics for fast error reporting.
             Crashlytics.getInstance().core.logException(error);

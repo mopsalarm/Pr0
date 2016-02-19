@@ -16,7 +16,7 @@ import android.widget.TextView;
 class NonCrashingLinkMovementMethod extends LinkMovementMethod {
     @Override
     public void initialize(TextView widget, Spannable text) {
-        Selection.setSelection(text, text.length());
+        setSelection(text);
     }
 
     @Override
@@ -24,10 +24,10 @@ class NonCrashingLinkMovementMethod extends LinkMovementMethod {
         if ((dir & (View.FOCUS_FORWARD | View.FOCUS_DOWN)) != 0) {
             if (view.getLayout() == null) {
                 // This shouldn't be null, but do something sensible if it is.
-                Selection.setSelection(text, text.length());
+                setSelection(text);
             }
         } else {
-            Selection.setSelection(text, text.length());
+            setSelection(text);
         }
     }
 
@@ -66,5 +66,12 @@ class NonCrashingLinkMovementMethod extends LinkMovementMethod {
         }
 
         return Touch.onTouchEvent(widget, buffer, event);
+    }
+
+    private void setSelection(Spannable text) {
+        try {
+            Selection.setSelection(text, text.length());
+        } catch (Exception ignored) {
+        }
     }
 }

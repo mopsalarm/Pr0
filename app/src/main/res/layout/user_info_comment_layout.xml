@@ -12,7 +12,7 @@
         android:scaleType="centerCrop"
         />
 
-    <TextView
+    <com.pr0gramm.app.ui.ExceptionCatchingTextView
         android:id="@+id/message_text"
         style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
