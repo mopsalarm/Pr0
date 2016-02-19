@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import org.joda.time.Instant;
@@ -70,7 +71,9 @@ public class DatabasePreloadManager implements PreloadManager {
     private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
         return this.database
                 .flatMap(db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS).mapToList(this::readPreloadItem))
-                .map(this::readPreloadEntriesFromCursor);
+                .map(this::readPreloadEntriesFromCursor)
+                .doOnError(AndroidUtility::logToCrashlytics)
+                .onErrorResumeNext(Observable.empty());
     }
 
     private PreloadItem readPreloadItem(Cursor cursor) {

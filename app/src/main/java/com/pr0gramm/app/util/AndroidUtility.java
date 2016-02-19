@@ -156,7 +156,7 @@ public class AndroidUtility {
             // most certainly crashlytics was not activated.
             logger.warn("Looks like crashlytics was not activated. Here is the error:", error);
 
-        } catch (Exception err) {
+        } catch (Throwable err) {
             logger.info("Could not send error to crashlytics", err);
         }
     }

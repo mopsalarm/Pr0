@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import javax.inject.Inject;
 
@@ -39,7 +40,11 @@ public class Dagger {
 
     public static void initEagerSingletons(Application application) {
         AsyncTask.execute(() -> {
-            Dagger.appComponent(application).inject(new EagerSingletons());
+            try {
+                Dagger.appComponent(application).inject(new EagerSingletons());
+            } catch (Throwable error) {
+                AndroidUtility.logToCrashlytics(error);
+            }
         });
     }
 
