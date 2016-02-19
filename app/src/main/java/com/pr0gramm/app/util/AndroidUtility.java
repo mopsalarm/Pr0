@@ -38,6 +38,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.BuildConfig;
@@ -54,7 +56,6 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +85,11 @@ public class AndroidUtility {
     private static final Pattern RE_GENERIC_LINK = Pattern.compile("https?://pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
     private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
 
-    private static final LinkedHashSet<String> previousExceptions = new LinkedHashSet<>();
+    private static final Cache<String, Boolean> previousExceptions =
+            CacheBuilder.<String, Boolean>newBuilder()
+                    .expireAfterWrite(1, TimeUnit.MINUTES)
+                    .maximumSize(32)
+                    .build();
 
     private AndroidUtility() {
     }
@@ -154,15 +159,12 @@ public class AndroidUtility {
         if (error == null)
             return;
 
-        String message = String.valueOf(error.toString());
-        synchronized (previousExceptions) {
-            if (previousExceptions.add(message)) {
-                if (previousExceptions.size() > 10) {
-                    previousExceptions.iterator().remove();
-                }
-            } else {
-                return;
-            }
+        // try to rate limit exceptions.
+        String key = String.valueOf(error.toString());
+        if (Boolean.TRUE.equals(previousExceptions.getIfPresent(key))) {
+            return;
+        } else {
+            previousExceptions.put(key, true);
         }
 
         try {
