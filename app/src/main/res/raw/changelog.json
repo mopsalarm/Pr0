@@ -1,5 +1,18 @@
 [
   {
+    "version": 89,
+    "changes": [
+      {
+        "type": "Info",
+        "change": "Diese Version soll mir bei der Bugsuche helfen."
+      },
+      {
+        "type": "Fix",
+        "change": "Mehr Bugfixes"
+      }
+    ]
+  },
+  {
     "version": 88,
     "changes": [
       {

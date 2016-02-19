@@ -5,9 +5,10 @@
 -allowaccessmodification
 -repackageclasses
 
+-dontpreverify
+
 -optimizationpasses 20
--optimizations !method/removal/parameter,class/merging/*,field/marking/private,code/simplification/*
-# -dontoptimize
+-optimizations !method/removal/parameter,field/marking/private,code/simplification/*,class/merging/vertical,!class/merging/horizontal
 
 -dontwarn java.nio.**
 -dontwarn java.lang.invoke.**
@@ -30,7 +31,7 @@
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
 
--keepattributes *Annotation*,Signature
+-keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
 
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }
