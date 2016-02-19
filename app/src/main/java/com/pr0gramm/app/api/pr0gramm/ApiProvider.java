@@ -1,5 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.google.common.base.Predicate;
@@ -130,19 +131,24 @@ public class ApiProvider implements Provider<Api> {
         Observable<Object> result = (Observable<Object>) method.invoke(api, args);
         for (int i = 0; i < retryCount; i++) {
             result = result.onErrorResumeNext(err -> {
-                if (shouldRetryTest.apply(err)) {
-                    try {
-                        // give the server a small grace period before trying again.
-                        Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+                try {
+                    if (shouldRetryTest.apply(err)) {
+                        try {
+                            // give the server a small grace period before trying again.
+                            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
 
-                        logger.warn("perform retry, calling method {} again", method);
-                        return (Observable<Object>) method.invoke(api, args);
-                    } catch (Exception error) {
-                        return Observable.error(error);
+                            logger.warn("perform retry, calling method {} again", method);
+                            return (Observable<Object>) method.invoke(api, args);
+                        } catch (Exception error) {
+                            return Observable.error(error);
+                        }
+                    } else {
+                        // forward error if it is not a network problem
+                        return Observable.error(err);
                     }
-                } else {
-                    // forward error if it is not a network problem
-                    return Observable.error(err);
+                } catch (Throwable error) {
+                    // error while handling an error? oops!
+                    return Observable.error(error);
                 }
             });
         }
@@ -151,20 +157,22 @@ public class ApiProvider implements Provider<Api> {
     }
 
 
+    @SuppressLint("NewApi")
     private static boolean isHttpError(Throwable error) {
         if (error instanceof HttpException) {
             HttpException httpError = (HttpException) error;
             String errorBody = "";
             try {
-                Reader stream = httpError.response().errorBody().charStream();
-                errorBody = CharStreams.toString(stream);
+                try (Reader stream = httpError.response().errorBody().charStream()) {
+                    errorBody = CharStreams.toString(stream);
+                }
             } catch (IOException ignored) {
             }
 
             logger.warn("Got http error {} {}, with body: {}", httpError.code(),
                     httpError.message(), errorBody);
 
-            return httpError.response().code() / 100 == 5;
+            return httpError.code() / 100 == 5;
         } else {
             return false;
         }

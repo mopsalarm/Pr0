@@ -305,6 +305,8 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
                 }
             }
 
+            // check that we dont exceed the range.
+            position = Math.min(proxy.size() - 1, Math.max(0, position));
             return PostFragment.newInstance(proxy.at(position));
         }
 
