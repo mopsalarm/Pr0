@@ -159,15 +159,15 @@ public class AndroidUtility {
         if (error == null)
             return;
 
-        // try to rate limit exceptions.
-        String key = String.valueOf(error.toString());
-        if (Boolean.TRUE.equals(previousExceptions.getIfPresent(key))) {
-            return;
-        } else {
-            previousExceptions.put(key, true);
-        }
-
         try {
+            // try to rate limit exceptions.
+            String key = String.valueOf(error.toString());
+            if (Boolean.TRUE.equals(previousExceptions.getIfPresent(key))) {
+                return;
+            } else {
+                previousExceptions.put(key, true);
+            }
+
             // log to crashlytics for fast error reporting.
             Crashlytics.getInstance().core.logException(error);
 
