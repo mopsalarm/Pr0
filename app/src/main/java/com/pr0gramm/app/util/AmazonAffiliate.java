@@ -14,7 +14,7 @@ import okhttp3.HttpUrl;
  * i might even profit from it, while you guys lose nothing! Much better than ads, isnt it?
  */
 public class AmazonAffiliate {
-    private static final String AFFILIATE_TAG = "httpsgithub06-21";
+    private static final String AFFILIATE_TAG = "lebeinhamb-21";
     private static final Pattern RE_AMAZON_LINK = Pattern.compile("https?://[^/]+amazon.(de|com)/[^ !.]+");
 
     /**
