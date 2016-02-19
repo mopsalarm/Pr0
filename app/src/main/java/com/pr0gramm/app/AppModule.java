@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.PowerManager;
 
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -40,7 +41,7 @@ public class AppModule {
     public Observable<BriteDatabase> sqlBrite(Application application) {
         return Observable.fromCallable(() -> {
             SQLiteOpenHelper openHelper = new OpenHelper(application);
-            return SqlBrite.create().wrapDatabaseHelper(openHelper);
+            return SqlBrite.create().wrapDatabaseHelper(openHelper, BackgroundScheduler.instance());
         }).cache();
     }
 
