@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,7 +43,7 @@ public abstract class SoftwareMediaPlayer {
     private final VideoDrawable drawable = new VideoDrawable();
     private final AtomicInteger bitmapCount = new AtomicInteger();
 
-    private final Queue<WeakReference<Bitmap>> returned = new LinkedList<>();
+    private final Queue<WeakReference<Bitmap>> returned = new ConcurrentLinkedQueue<>();
     private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     private final BehaviorSubject<Boolean> bufferingSubject = BehaviorSubject.create();
