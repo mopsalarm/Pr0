@@ -84,7 +84,7 @@ public class FeedLoader {
         subscription = response
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .compose(binder.bind())
-                .finallyDo(() -> subscription = null)
+                .doAfterTerminate(() -> subscription = null)
                 .subscribe(this::merge, binder::onError);
     }
 

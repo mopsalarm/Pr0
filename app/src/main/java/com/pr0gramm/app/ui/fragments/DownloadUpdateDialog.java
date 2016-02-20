@@ -68,7 +68,7 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
         progressBar.setMax(1000);
         progress.compose(bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW))
                 .onErrorResumeNext(Observable.empty())
-                .finallyDo(this::dismiss)
+                .doAfterTerminate(this::dismiss)
                 .subscribe(this::updateStatus);
     }
 

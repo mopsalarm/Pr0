@@ -218,7 +218,7 @@ public class UserService {
             progressSubject.onCompleted();
 
             return response;
-        }).finallyDo(progressSubject::onCompleted);
+        }).doAfterTerminate(progressSubject::onCompleted);
 
         return sync.cast(Object.class).mergeWith(progressSubject.throttleFirst(50, TimeUnit.MILLISECONDS));
     }

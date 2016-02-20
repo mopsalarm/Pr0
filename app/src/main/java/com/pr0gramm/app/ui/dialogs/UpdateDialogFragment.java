@@ -101,7 +101,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
                 .defaultIfEmpty(null)
                 .compose(activity.bindUntilEventAsync(ActivityEvent.DESTROY))
                 .lift(busyOperator)
-                .finallyDo(storeCheckTime)
+                .doAfterTerminate(storeCheckTime)
                 .subscribe(update -> {
                     if (interactive || update != null) {
                         UpdateDialogFragment dialog = newInstance(update);

@@ -71,7 +71,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycle.bindView(this))
                 .doOnError(error -> hideBusyIndicator())
-                .finallyDo(() -> loading = null)
+                .doAfterTerminate(() -> loading = null)
                 .subscribe(this::onVideoPlayerAvailable, defaultOnError());
     }
 

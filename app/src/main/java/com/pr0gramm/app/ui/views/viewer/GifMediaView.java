@@ -59,7 +59,7 @@ public class GifMediaView extends AbstractProgressMediaView {
 
         gifDrawableLoader.load(getEffectiveUri())
                 .compose(backgroundBindView())
-                .finallyDo(this::hideBusyIndicator)
+                .doAfterTerminate(this::hideBusyIndicator)
                 .subscribe(this::onDownloadStatus, defaultOnError());
     }
 

@@ -544,7 +544,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             public <T> Observable.Transformer<T, T> bind() {
                 return observable -> observable
                         .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                        .finallyDo(FeedFragment.this::onFeedLoadFinished);
+                        .doAfterTerminate(FeedFragment.this::onFeedLoadFinished);
             }
 
             @Override
