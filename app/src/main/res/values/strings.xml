@@ -331,5 +331,6 @@
     <string name="hint_image_too_large">The image you are trying to upload is too large. Do you want the app to shrink the image down?</string>
     <string name="hint_shrank_successful">Image size is now okay.</string>
     <string name="hint_wrong_content_type">The image can not be displayed using the current filter setting.</string>
+    <string name="hint_upload_something_happen_try_again">Something strange happened. Please try again</string>
 </resources>
 

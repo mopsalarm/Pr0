@@ -316,4 +316,5 @@
     <string name="hint_image_too_large">Das Bild, dass du versuchst hochzuladen, ist zu groß. Soll die App es für dich verkleinern?</string>
     <string name="hint_shrank_successful">Bildgröße ist nun okay.</string>
     <string name="hint_wrong_content_type">Das Bild kann mit den aktuellen Filtereinstellungen nicht angezeigt werden. </string>
+    <string name="hint_upload_something_happen_try_again">Irgendwas komisches ist passiert, bitte probiere es nochmal.</string>
 </resources>

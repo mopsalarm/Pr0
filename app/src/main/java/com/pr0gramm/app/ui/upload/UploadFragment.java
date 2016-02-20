@@ -69,7 +69,6 @@ import rx.Observable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -154,7 +153,14 @@ public class UploadFragment extends BaseFragment {
     }
 
     private void onUploadClicked() {
-        checkState(file != null, "File must be set on the activity");
+        if (file == null) {
+            DialogBuilder.start(getActivity())
+                    .content(R.string.hint_upload_something_happen_try_again)
+                    .positive(R.string.okay, () -> getActivity().finish())
+                    .show();
+
+            return;
+        }
 
         uploadService.sizeOkay(file)
                 .onErrorResumeNext(Observable.empty())
