@@ -115,7 +115,13 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
                 + " v=" + ((Fragment) object).getView());
 
         mSavedState.remove(id);
-        mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment));
+
+        try {
+            mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment));
+        } catch (IllegalStateException ignored) {
+            // looks like this sometimes happen during save if the frgment is not in the
+            // fragment manager. We will ignore it.
+        }
 
         // remove the oldest items
         if (mSavedState.size() > 10) {
