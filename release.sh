@@ -10,6 +10,10 @@ else
   exit 1
 fi
 
+SDK_PATH="$(grep sdk.dir < local.properties | cut -d= -f2)/build-tools/23.0.2/"
+export PATH=${SDK_PATH}:$PATH
+
+
 VERSION_NEXT=$(( VERSION + 1 ))
 VERSION_PREVIOUS=$(curl -s https://app.pr0gramm.com/beta/open/update.json | jq .version)
 UPLOAD_AUTH=$(<upload_auth)
@@ -19,6 +23,11 @@ if [ -n "$(git status --porcelain)" ] ; then
   echo "Please commit all your changes and clean working directory."
   git status
   exit 1
+fi
+
+if ! which zipalign ; then
+    echo "zipalign not found".
+    exit 1
 fi
 
 echo "Release steps:"
@@ -39,10 +48,17 @@ function format_version() {
 
 function deploy_upload_apk() {
   local FLAVOR=$1
-  local APK=app/build/outputs/apk/app-${FLAVOR}-release.apk
+
+  local APK_ALIGNED=app/build/outputs/apk/app-${FLAVOR}-release.apk
+  local APK_UNALIGNED=app/build/outputs/apk/app-${FLAVOR}-release-unaligned.apk
+
+  echo "Running zipalign on apk again"
+  rm -f "${APK_ALIGNED}"
+  zipalign -z 4 ${APK_UNALIGNED} ${APK_ALIGNED}
 
   echo "Upload apk file now..."
-  curl -u "$UPLOAD_AUTH" -F apk=@$APK https://app.pr0gramm.com/update-manager/upload
+  curl -u "$UPLOAD_AUTH" -F apk=@"${APK_ALIGNED}" \
+    https://app.pr0gramm.com/update-manager/upload
 }
 
 # compile code and create apks
