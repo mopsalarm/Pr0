@@ -95,18 +95,7 @@ public class ApplicationClass extends SugarApp {
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);
 
-        // check if we can playback vpx
-        VpxChecker.vpxOkay(this).subscribeOn(BackgroundScheduler.instance()).subscribe(okay -> {
-            logger.info("Vpx decoder seems to work: {}", okay);
-            Track.vpxWouldWork(okay);
-
-            if (okay && singleShotService.isFirstTime("migrate.ActivateVpxDecoder-beta1")) {
-                // activate software decoder by default for this user!
-                settings.edit()
-                        .putBoolean("pref_use_software_decoder", true)
-                        .apply();
-            }
-        });
+        checkVpx(settings, singleShotService);
 
         if (singleShotService.isFirstTime("migrate.MpegDecoderToVPX")) {
             if (settings.forceMpegDecoder()) {
@@ -118,6 +107,28 @@ public class ApplicationClass extends SugarApp {
                         .apply();
             }
         }
+    }
+
+    private void checkVpx(Settings settings, SingleShotService singleShotService) {
+        // check if we can playback vpx
+        VpxChecker.vpxOkay(this).subscribeOn(BackgroundScheduler.instance()).subscribe(okay -> {
+            logger.info("Vpx decoder seems to work: {}", okay);
+            Track.vpxWouldWork(okay);
+
+            if (okay) {
+                if (singleShotService.isFirstTime("migrate.ActivateVpxDecoder-beta1")) {
+                    // activate software decoder by default for this user!
+                    settings.edit()
+                            .putBoolean("pref_use_software_decoder", true)
+                            .apply();
+                }
+            } else {
+                // better disable the decoder
+                settings.edit()
+                        .putBoolean("pref_use_software_decoder", false)
+                        .apply();
+            }
+        });
     }
 
     public static ApplicationClass get(Context context) {
