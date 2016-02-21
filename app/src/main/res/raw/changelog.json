@@ -7,6 +7,14 @@
         "change": "Diese Version soll mir bei der Bugsuche helfen."
       },
       {
+        "type": "Neu",
+        "change": "Anzeige von Info-Nachrichten beim Start (z.B. pr0gramm ist down.)"
+      },
+      {
+        "type": "Fix",
+        "change": "'App bleibt schwarz' Bug behoben!"
+      },
+      {
         "type": "Fix",
         "change": "Mehr Abstürze bei komischen Unicodezeichen in Kommentaren und Nachrichten verhindert."
       },
