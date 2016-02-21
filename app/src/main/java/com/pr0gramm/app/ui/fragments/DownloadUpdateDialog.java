@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.ProgressBar;
@@ -33,9 +32,7 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
     ProgressBar progressBar;
 
     public DownloadUpdateDialog() {
-        logger.info("New instance of DownloadUpdateDialog");
-        setRetainInstance(true);
-        progress = Observable.empty();
+        this(Observable.empty());
     }
 
     @SuppressLint("ValidFragment")
@@ -75,11 +72,5 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
     private void updateStatus(DownloadService.Status status) {
         progressBar.setIndeterminate(status.progress < 0);
         progressBar.setProgress((int) (1000 * status.progress));
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        logger.info("Dismiss");
     }
 }

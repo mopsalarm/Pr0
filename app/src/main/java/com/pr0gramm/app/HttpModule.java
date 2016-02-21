@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.common.base.Stopwatch;
+import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -12,6 +13,7 @@ import com.pr0gramm.app.api.pr0gramm.ApiProvider;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.services.proxy.HttpProxyService;
 import com.pr0gramm.app.services.proxy.ProxyService;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.GuavaPicassoCache;
 import com.pr0gramm.app.util.SmallBufferSocketFactory;
 import com.squareup.picasso.Downloader;
@@ -35,6 +37,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.google.common.base.Preconditions.checkState;
+import static com.pr0gramm.app.util.Noop.noop;
+
 /**
  */
 @Module
@@ -50,6 +55,7 @@ public class HttpModule {
         CustomProxySelector proxySelector = new CustomProxySelector();
         proxySelector.setActive(settings.useApiProxy());
 
+        int version = AndroidUtility.getPackageVersionCode(context);
         return new OkHttpClient.Builder()
                 .cache(new Cache(cacheDir, 256 * 1024 * 1024))
                 .socketFactory(new SmallBufferSocketFactory())
@@ -62,9 +68,11 @@ public class HttpModule {
                 .retryOnConnectionFailure(true)
                 .proxySelector(proxySelector)
 
-                .addInterceptor(new DebugInterceptor())
+                .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
 
-                .addNetworkInterceptor(new StethoInterceptor())
+                .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))
+                .addNetworkInterceptor(BuildConfig.DEBUG ? new StethoInterceptor() : noop)
+
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();
                     Request request = chain.request();
@@ -129,11 +137,27 @@ public class HttpModule {
     private static class DebugInterceptor implements Interceptor {
         @Override
         public Response intercept(Chain chain) throws IOException {
-            if (BuildConfig.DEBUG) {
-                Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
-            }
+            checkState(BuildConfig.DEBUG, "Must only be used in a debug build");
 
+            Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
             return chain.proceed(chain.request());
+        }
+    }
+
+    private static class UserAgentInterceptor implements Interceptor {
+        private final String userAgent;
+
+        UserAgentInterceptor(String userAgent) {
+            this.userAgent = userAgent;
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request().newBuilder()
+                    .header(HttpHeaders.USER_AGENT, userAgent)
+                    .build();
+
+            return chain.proceed(request);
         }
     }
 }

@@ -3,9 +3,17 @@ package com.pr0gramm.app.util;
 import android.content.DialogInterface;
 import android.view.View;
 
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
+
 /**
  */
-public final class Noop implements DialogInterface.OnClickListener, View.OnClickListener {
+public final class Noop implements DialogInterface.OnClickListener,
+        View.OnClickListener,
+        Interceptor {
+
     private Noop() {
     }
 
@@ -20,4 +28,9 @@ public final class Noop implements DialogInterface.OnClickListener, View.OnClick
     }
 
     public static final Noop noop = new Noop();
+
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        return chain.proceed(chain.request());
+    }
 }
