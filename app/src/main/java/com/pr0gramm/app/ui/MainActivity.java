@@ -35,6 +35,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
+import com.pr0gramm.app.services.InfoMessageService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
@@ -112,6 +113,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Inject
     PermissionHelper permissionHelper;
 
+    @Inject
+    InfoMessageService infoMessageService;
+
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
     private boolean startedWithIntent;
@@ -185,6 +189,11 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         addOriginalContentBookmarkOnce();
+
+        infoMessageService.infoMessage()
+                .onErrorResumeNext(Observable.empty())
+                .compose(bindToLifecycle())
+                .subscribe(this::showInfoMessage);
     }
 
     private boolean shouldShowFeedbackReminder() {
@@ -403,6 +412,13 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     private boolean isDefaultFilter(FeedFilter filter) {
         return defaultFeedFilter().equals(filter);
+    }
+
+    private void showInfoMessage(String message) {
+        DialogBuilder.start(this)
+                .content(message)
+                .positive()
+                .show();
     }
 
     @Override
