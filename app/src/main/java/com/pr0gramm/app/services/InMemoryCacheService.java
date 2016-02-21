@@ -60,7 +60,7 @@ public class InMemoryCacheService {
             .build();
 
     private final Cache<String, EnhancedUserInfo> userInfoCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .expireAfterWrite(2, TimeUnit.MINUTES)
             .build();
 
     private final AtomicReference<long[]> repostCache = new AtomicReference<>(new long[0]);
