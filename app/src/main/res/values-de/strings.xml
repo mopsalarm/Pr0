@@ -311,7 +311,7 @@
     <string name="pref_volume_navigation_human__up">\'Lauter\' zeigt das nächste Bild</string>
     <string name="pref_volume_navigation_summary">Benutze die Lautstärketasten um zwischen Bildern zu navigieren.</string>
     <string name="pref_volume_navigation_title">Lautstärketasten</string>
-    <string name="please_wait_update_hint">Bitte warte, während das Update herunterladen wird.</string>
+    <string name="please_wait_update_hint">Bitte warte, während das Update heruntergeladen wird.</string>
     <string name="down_size">Verkleinern</string>
     <string name="hint_image_too_large">Das Bild, dass du versuchst hochzuladen, ist zu groß. Soll die App es für dich verkleinern?</string>
     <string name="hint_shrank_successful">Bildgröße ist nun okay.</string>
