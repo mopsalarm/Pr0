@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import org.joda.time.Instant;
@@ -45,27 +46,36 @@ public class DatabasePreloadManager implements PreloadManager {
     public DatabasePreloadManager(Observable<BriteDatabase> database) {
         this.database = database;
 
-        queryAllItems().subscribe(this::setPreloadCache);
+        // initialize in background.
+        queryAllItems()
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(this::setPreloadCache);
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void setPreloadCache(ImmutableMap<Long, PreloadItem> items) {
         List<PreloadItem> missing = new ArrayList<>();
+        ImmutableMap.Builder<Long, PreloadItem> available = ImmutableMap.builder();
+
         for (PreloadItem item : items.values()) {
             if (!item.thumbnail().exists() || !item.media().exists()) {
                 missing.add(item);
+            } else {
+                available.put(item.itemId(), item);
             }
         }
 
-        if (!missing.isEmpty()) {
-            BriteDatabase db = db();
-            try (BriteDatabase.Transaction tx = db.newTransaction()) {
-                deleteTx(db, missing);
-                tx.markSuccessful();
-            }
-        } else {
-            preloadCache.set(items);
+        if (missing.size() > 0) {
+            // delete missing entries in background.
+            this.database.subscribeOn(BackgroundScheduler.instance()).subscribe(db -> {
+                try (BriteDatabase.Transaction tx = db.newTransaction()) {
+                    deleteTx(db, missing);
+                    tx.markSuccessful();
+                }
+            });
         }
+
+        preloadCache.set(available.build());
     }
 
     private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
