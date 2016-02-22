@@ -167,6 +167,9 @@ public class MainActivity extends BaseAppCompatActivity implements
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true);
 
+                // only check on normal app start
+                checkForInfoMessage();
+
             } else {
                 startedWithIntent = true;
                 onNewIntent(intent);
@@ -189,7 +192,9 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         addOriginalContentBookmarkOnce();
+    }
 
+    private void checkForInfoMessage() {
         infoMessageService.infoMessage()
                 .onErrorResumeNext(Observable.empty())
                 .compose(bindToLifecycle())
