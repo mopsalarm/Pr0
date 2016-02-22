@@ -2,12 +2,10 @@ package com.pr0gramm.app.vpx;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import com.google.common.base.Throwables;
-import com.pr0gramm.app.util.AndroidUtility;
 
 import org.ebml.matroska.MatroskaFile;
 import org.ebml.matroska.MatroskaFileFrame;
@@ -23,44 +21,17 @@ import static com.pr0gramm.app.vpx.WebmMediaPlayer.findFirstVideoTrack;
  * This tests if the vpx decoder works
  */
 public class VpxChecker {
-    private static final int OKAY_UNKNOWN = 0;
-    private static final int OKAY_TRUE = 1;
-    private static final int OKAY_FALSE = 2;
+    private VpxChecker() {
+    }
 
     /**
      * Check if the vpx decoder is supported and is working correctly.
      */
     public static Observable<Boolean> vpxOkay(Context context) {
-        Context appContext = context.getApplicationContext();
-        return Observable.fromCallable(() -> runCheck(appContext))
+        return Observable.fromCallable(() -> decodeFirstFrame(context))
+                .map(VpxChecker::decodedCorrectly)
                 .onErrorResumeNext(Observable.just(false))
                 .defaultIfEmpty(false);
-    }
-
-    @SuppressLint("CommitPrefEdits")
-    private static boolean runCheck(Context context) {
-        int version = AndroidUtility.getPackageVersionCode(context);
-
-        SharedPreferences preferences = context.getSharedPreferences("vpxChecker", Context.MODE_PRIVATE);
-        int okayValue = preferences.getInt(version + ".okay", OKAY_UNKNOWN);
-        if (okayValue != OKAY_UNKNOWN)
-            return okayValue == OKAY_TRUE;
-
-        // remember that we started the process
-        preferences.edit().putInt(version + ".okay", OKAY_FALSE).commit();
-
-        boolean result = false;
-        try {
-            result = decodedCorrectly(decodeFirstFrame(context));
-        } catch (Throwable ignored) {
-        }
-
-        // looks like we finished successfully
-        preferences.edit()
-                .putInt(version + ".okay", result ? OKAY_TRUE : OKAY_FALSE)
-                .commit();
-
-        return result;
     }
 
     private static boolean decodedCorrectly(Bitmap bitmap) {
