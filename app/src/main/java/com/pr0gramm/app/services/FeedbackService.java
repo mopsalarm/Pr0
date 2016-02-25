@@ -105,7 +105,10 @@ public class FeedbackService {
             InputStreamReader reader = new InputStreamReader(process.getInputStream(), Charsets.UTF_8);
             CharStreams.copy(reader, writer);
         } finally {
-            process.destroy();
+            try {
+                process.destroy();
+            } catch (Exception ignored) {
+            }
         }
     }
 
