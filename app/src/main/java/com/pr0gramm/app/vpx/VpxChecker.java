@@ -17,6 +17,7 @@ import java.io.InputStream;
 
 import rx.Observable;
 
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static com.pr0gramm.app.vpx.WebmMediaPlayer.findFirstVideoTrack;
 
 /**
@@ -39,12 +40,21 @@ public class VpxChecker {
 
     @SuppressLint("CommitPrefEdits")
     private static boolean runCheck(Context context) {
+        checkNotMainThread();
+
         int version = AndroidUtility.getPackageVersionCode(context);
 
         SharedPreferences preferences = context.getSharedPreferences("vpxChecker", Context.MODE_PRIVATE);
         int okayValue = preferences.getInt(version + ".okay", OKAY_UNKNOWN);
-        if (okayValue != OKAY_UNKNOWN)
-            return okayValue == OKAY_TRUE;
+        if (okayValue != OKAY_UNKNOWN) {
+            if (okayValue == OKAY_TRUE) {
+                // load the library and make it availbale
+                VpxWrapper.loadNativeLibrary(context);
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         // remember that we started the process
         preferences.edit().putInt(version + ".okay", OKAY_FALSE).commit();
