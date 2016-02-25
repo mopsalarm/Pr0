@@ -3,11 +3,15 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.net.Uri;
+import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.util.BackgroundScheduler;
@@ -72,7 +76,24 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
                 .compose(RxLifecycle.bindView(this))
                 .doOnError(error -> hideBusyIndicator())
                 .doAfterTerminate(() -> loading = null)
+                .doOnNext(this::addPlayerNameIfDebugBuild)
                 .subscribe(this::onVideoPlayerAvailable, defaultOnError());
+    }
+
+    private void addPlayerNameIfDebugBuild(SoftwareMediaPlayer player) {
+        if (BuildConfig.DEBUG) {
+            LayoutParams layout = new LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            layout.gravity = Gravity.RIGHT | Gravity.TOP;
+
+            TextView view = new TextView(getContext());
+            view.setText(player.getClass().getSimpleName());
+            view.setLayoutParams(layout);
+            view.setPadding(8, 8, 8, 8);
+            addView(view);
+        }
     }
 
     private void onVideoPlayerAvailable(SoftwareMediaPlayer player) {

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -110,10 +111,12 @@ public class VideoDrawable extends Drawable {
         Rect bounds = getBounds();
         canvas.drawBitmap(current, null, bounds, null);
 
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             drawCurrentFps(canvas, bounds);
+        }
     }
 
+    @SuppressLint("DefaultLocale")
     private void drawCurrentFps(Canvas canvas, Rect bounds) {
         String fpsString = String.format("%1.2ffps", fpsCounter.fps());
 
