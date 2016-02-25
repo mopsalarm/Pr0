@@ -126,13 +126,15 @@ public class ErrorFormatting {
     private static List<Formatter<?>> makeErrorFormatters() {
         final List<Formatter<?>> formatters = new ArrayList<>();
 
+        final int error_exception_of_type = R.string.error_exception_of_type;
         Func2<Throwable, Context, String> guessMessage = (err, context) -> {
             String message = err.getLocalizedMessage();
             if (Strings.isNullOrEmpty(message))
                 message = err.getMessage();
 
-            if (Strings.isNullOrEmpty(message))
-                message = context.getString(R.string.error_exception_of_type, err.getClass().getSimpleName());
+            if (Strings.isNullOrEmpty(message)) {
+                message = context.getString(error_exception_of_type, err.getClass().getSimpleName());
+            }
 
             return message;
         };
@@ -172,15 +174,17 @@ public class ErrorFormatting {
                 err -> Throwables.getRootCause(err) instanceof SSLException,
                 R.string.error_ssl_error).doNotReport());
 
+        final int error_connect_exception_https = R.string.error_connect_exception_https;
+        final int error_connect_exception = R.string.error_connect_exception;
         formatters.add(new Formatter<>(Throwable.class,
                 err -> Throwables.getRootCause(err) instanceof ConnectException,
                 (err, context) -> {
                     ConnectException error = (ConnectException) Throwables.getRootCause(err);
                     if(error.toString().contains(":443")) {
-                        return context.getString(R.string.error_connect_exception_https,
+                        return context.getString(error_connect_exception_https,
                                 String.valueOf(err.getLocalizedMessage()));
                     } else {
-                        return context.getString(R.string.error_connect_exception,
+                        return context.getString(error_connect_exception,
                                 String.valueOf(err.getLocalizedMessage()));
                     }
                 }).doNotReport());
@@ -199,6 +203,7 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(IllegalStateException.class,
                 err -> err.toString().contains("onSaveInstanceState")).doNotReport());
 
+        final int error_permission_not_granted = R.string.error_permission_not_granted;
         formatters.add(new Formatter<>(PermissionHelper.PermissionNotGranted.class,
                 (error, context) -> {
                     CharSequence permissionName = error.getPermission();
@@ -210,7 +215,7 @@ public class ErrorFormatting {
                     } catch (PackageManager.NameNotFoundException ignored) {
                     }
 
-                    return context.getString(R.string.error_permission_not_granted, permissionName);
+                    return context.getString(error_permission_not_granted, permissionName);
                 }));
 
         // Oops, native error, this should not happen!?
