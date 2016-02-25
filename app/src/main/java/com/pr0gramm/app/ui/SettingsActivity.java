@@ -138,6 +138,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
         private void updatePreloadInfo() {
             Preference preference = getPreferenceManager().findPreference("pref_pseudo_clean_preloaded");
             if (preference != null) {
+                final int pseudo_clean_preloaded_summary_with_size = R.string.pseudo_clean_preloaded_summary_with_size;
                 preloadItemsSubscription = preloadManager.all()
                         .subscribeOn(BackgroundScheduler.instance())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -148,7 +149,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                                 totalSize += item.thumbnail().length();
                             }
 
-                            preference.setSummary(getString(R.string.pseudo_clean_preloaded_summary_with_size,
+                            preference.setSummary(getString(pseudo_clean_preloaded_summary_with_size,
                                     totalSize / (1024.f * 1024.f)));
                         });
             }

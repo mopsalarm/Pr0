@@ -43,20 +43,11 @@
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_convert_gif_to_webm">Convert gif to webm</string>
-    <string name="pref_convert_gif_to_webm_summary">Reduces traffic on gifs by up to 90%!</string>
     <string name="pref_crashlytics_enabled">Anonymous crash reports</string>
     <string name="pref_crashlytics_enabled_off">Deactivating this will make the life of the developer harder!</string>
     <string name="pref_crashlytics_enabled_on">Sends anonymous crash reports on errors</string>
-    <string name="pref_feed_type_nsfl_on">Display <i>not safe for life</i> posts (requires login)</string>
-    <string name="pref_feed_type_nsfw_on">Display <i>not safe for work</i> posts (requires login)</string>
-    <string name="pref_feed_type_sfw_on">Display <i>safe for work</i> posts</string>
-    <string name="pref_feed_types">What to display</string>
     <string name="pref_privacy">Privacy</string>
     <string name="settings">Settings</string>
-    <string name="size_huge">Huge</string>
-    <string name="size_large">Large</string>
-    <string name="size_normal">Normal</string>
-    <string name="size_small">Small</string>
     <string name="type_nsfl">nsfl</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
@@ -97,7 +88,6 @@
     <string name="no_new_update">This is the latest version. There is no new update.</string>
     <string name="action_pin">Pin</string>
     <string name="do_you_want_to_remove_this_bookmark">Do you want to remove this bookmark?</string>
-    <string name="yes">Yes</string>
     <string name="filter_format_tag_by">By</string>
     <string name="filter_format_fav_of">Fav of</string>
     <string name="filter_format_top">Top</string>
@@ -139,8 +129,6 @@
     <string name="prefcat_behaviour_summary">Behaviour settings like double tap to vote, notifications and other stuff.</string>
     <string name="prefcat_visual_summary">Customize how some parts of the app should look like.</string>
     <string name="pref_compatibility_summary">Something is not working? Check here!</string>
-    <string name="pref_use_proxy_title">Use caching</string>
-    <string name="pref_use_proxy_summary">Caching is good to save bandwidth and to speed up loading of previously seen images and videos. Deactivate this, if you can\'t see any images.</string>
     <string name="pref_confirm_play_on_mobile_title">Confirm on mobile</string>
     <string name="pref_confirm_play_on_mobile_summary">Confirm playback on mobile to conserve bandwidth.</string>
     <string name="prefcat_update">Updates</string>
@@ -203,7 +191,6 @@
     <string name="user_type_gesperrt">banned</string>
     <string name="user_type_legende">legend</string>
     <string name="user_type_wichtler">wichtler</string>
-    <string name="beta_you_need_to_join_community">You need to join the google open beta programm to receive beta updates.</string>
     <string name="user_type_altschwuchtel">oldfag</string>
     <string name="user_type_neuschwuchtel">newfag</string>
     <string name="all">all</string>
@@ -310,7 +297,6 @@
     <string name="error_fragment_depth">Sorry, due to a limitation of the android framework you can not do this right now: %s</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
-    <string name="ban">Ban</string>
     <string name="hint_block_user_for">Block user for (days)</string>
     <string name="notify_user">Notify user</string>
     <string name="reason">Reason</string>

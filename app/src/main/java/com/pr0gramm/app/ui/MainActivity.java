@@ -447,12 +447,13 @@ public class MainActivity extends BaseAppCompatActivity implements
         drawerLayout.closeDrawers();
         Track.logout();
 
+        final int logout_successful_hint = R.string.logout_successful_hint;
         userService.logout()
                 .compose(bindToLifecycle())
                 .lift(busyDialog(this))
                 .doOnCompleted(() -> {
                     // show a short information.
-                    Snackbar.make(drawerLayout, R.string.logout_successful_hint, Snackbar.LENGTH_SHORT)
+                    Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
                             .setAction(R.string.okay, noop)
                             .show();
 

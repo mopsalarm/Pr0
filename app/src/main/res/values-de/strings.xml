@@ -41,20 +41,11 @@
     <string name="pr0gramm">pr0gramm</string>
     <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_convert_gif_to_webm">Konvertiere gif zu webm</string>
-    <string name="pref_convert_gif_to_webm_summary">Reduziert Traffic um bis zu 90%</string>
     <string name="pref_crashlytics_enabled">Anonyme Bugreports</string>
     <string name="pref_crashlytics_enabled_off">Deaktivieren macht das Leben für die Entwickler schwerer</string>
     <string name="pref_crashlytics_enabled_on">Sende anonyme Bugreports wenn ein Fehler auftritt</string>
-    <string name="pref_feed_type_nsfl_on">Zeige <i>not safe for life</i> posts (Login nötig)</string>
-    <string name="pref_feed_type_nsfw_on">Zeige <i>not safe for work</i> posts (Login nötig)</string>
-    <string name="pref_feed_types">Filter</string>
-    <string name="pref_feed_type_sfw_on">Zeige <i>safe for work</i> posts</string>
     <string name="pref_privacy">Privatsphäre</string>
     <string name="settings">Einstellungen</string>
-    <string name="size_huge">Riesig</string>
-    <string name="size_large">Groß</string>
-    <string name="size_normal">Mittel</string>
-    <string name="size_small">Klein</string>
     <string name="type_nsfl">nsfl</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
@@ -96,7 +87,6 @@
     <string name="filter_format_new">Neu</string>
     <string name="filter_format_tag_by">Von</string>
     <string name="filter_format_top">Top</string>
-    <string name="yes">Ja</string>
     <string name="login_please_wait">Bitte warten, das Synchronisieren der Votes kann einen Moment länger dauern.</string>
     <string name="pref_show_pin_button">Lesezeichen-Button anzeigen</string>
     <string name="pref_show_pin_button_summary">Du kannst den "Lesezeichen erstellen"-Button ausblenden. Dies hat keinen Einfluss auf bereits angelegte Lesezeichen.</string>
@@ -135,8 +125,6 @@
     <string name="prefcat_visual_title">Visuell</string>
     <string name="pref_confirm_play_on_mobile_summary">Abspielen bestätigten, wenn du dich nicht im WLAN befindest.</string>
     <string name="pref_confirm_play_on_mobile_title">Bestätigung im Mobilnetz</string>
-    <string name="pref_use_proxy_title">Zwischenspeicher</string>
-    <string name="pref_use_proxy_summary">Zwischenspeichern spart Daten und beschleunigt das zweite Ansehen des gleichen Posts. Deaktiviere, falls du keine Bilder mehr sehen kannst. </string>
     <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
     <string name="prefcat_update">Updates</string>
     <string name="prefcat_update_summary">Konfiguriere Updates und Betas hier</string>
@@ -181,7 +169,6 @@
     <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Vielleicht ist der Post, den du sehen wolltest, mit deiner sfw/nsfw Einstellungen nicht sichtbar?</string>
     <string name="pref_feed_type_login_required">Zum Ändern musst du angemeldet sein.</string>
     <string name="action_change_content_type">Filter ändern</string>
-    <string name="beta_you_need_to_join_community">Um an der Beta teilzunehmen, musst du der dem Beta Programm bei Google beitreten.</string>
     <string name="user_type_gesperrt">gesperrt</string>
     <string name="user_type_legende">legende</string>
     <string name="user_type_altschwuchtel">altschwuchtel</string>
@@ -296,7 +283,6 @@
     <string name="action_switch_to_new">In \'neu\' öffnen</string>
     <string name="action_switch_to_top">In \'top\' öffnen</string>
     <string name="action_delete_item">Löschen</string>
-    <string name="ban">Ban</string>
     <string name="delete">Löschen</string>
     <string name="hint_block_user_for">User blocken (Tage)</string>
     <string name="notify_user">U. benachrichtigen</string>

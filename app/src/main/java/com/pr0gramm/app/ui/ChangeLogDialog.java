@@ -205,8 +205,9 @@ public class ChangeLogDialog extends BaseDialogFragment {
 
     @SuppressLint("NewApi")
     private static List<ChangeGroup> loadChangelog(Context context) {
+        final int changelog = R.raw.changelog;
         try {
-            try (InputStream input = context.getResources().openRawResource(R.raw.changelog)) {
+            try (InputStream input = context.getResources().openRawResource(changelog)) {
                 InputStreamReader reader = new InputStreamReader(input, Charsets.UTF_8);
                 return new Gson().fromJson(reader, LIST_OF_CHANGE_GROUPS.getType());
             }
