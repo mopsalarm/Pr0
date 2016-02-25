@@ -16,9 +16,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -26,8 +23,6 @@ import static com.pr0gramm.app.services.ThemeHelper.theme;
 /**
  */
 public class UploadActivity extends BaseAppCompatActivity {
-    private static final Logger logger = LoggerFactory.getLogger("UploadActivity");
-
     @Inject
     UploadService uploadService;
 
@@ -51,7 +46,7 @@ public class UploadActivity extends BaseAppCompatActivity {
 
             uploadService.checkIsRateLimited().compose(bindToLifecycle()).subscribe(limited -> {
                 if (!limited) {
-                    showUploadFragment();
+                    showChooseMediaTypeFragment();
 
                 } else {
                     showUploadLimitReached();
@@ -69,6 +64,13 @@ public class UploadActivity extends BaseAppCompatActivity {
         showSomethingWentWrong();
     }
 
+    private void showChooseMediaTypeFragment() {
+        ChooseMediaTypeFragment fragment = new ChooseMediaTypeFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+    }
+
     private void showSomethingWentWrong() {
         Fragment fragment = new SomethingWentWrongFragment();
         getSupportFragmentManager().beginTransaction()
@@ -83,8 +85,9 @@ public class UploadActivity extends BaseAppCompatActivity {
                 .commit();
     }
 
-    private void showUploadFragment() {
+    void showUploadFragment(String type) {
         Bundle arguments = new Bundle();
+        arguments.putString(UploadFragment.EXTRA_MEDIA_TYPE, type);
 
         Intent intent = getIntent();
         if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {

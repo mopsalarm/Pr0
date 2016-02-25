@@ -50,7 +50,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:backgroundTint="?colorPrimary"
             android:enabled="false"
             android:text="@string/action_send"
             tools:ignore="UnusedAttribute"/>

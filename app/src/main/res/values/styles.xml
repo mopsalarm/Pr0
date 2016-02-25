@@ -3,6 +3,7 @@
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="android:textColorLink">@color/blue_grey_500</item>
         <item name="android:windowBackground">@color/feed_background</item>
+        <item name="buttonStyle">@style/Button</item>
     </style>
 
     <style name="AppTheme.Orange">
@@ -189,6 +190,10 @@
     <style name="AppTheme.Olive.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Pink.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Blue.NoActionBar.TranslucentStatus"/>
+
+    <style name="Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.Button</item>
+    </style>
 
 
     <!-- ###### This is for the drawer ###### -->

@@ -12,7 +12,7 @@ import okhttp3.Response;
  */
 public final class Noop implements DialogInterface.OnClickListener,
         View.OnClickListener,
-        Interceptor {
+        Interceptor, Runnable {
 
     private Noop() {
     }
@@ -32,5 +32,10 @@ public final class Noop implements DialogInterface.OnClickListener,
     @Override
     public Response intercept(Chain chain) throws IOException {
         return chain.proceed(chain.request());
+    }
+
+    @Override
+    public void run() {
+
     }
 }

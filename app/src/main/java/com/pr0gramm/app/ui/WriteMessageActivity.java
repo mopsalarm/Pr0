@@ -3,10 +3,7 @@ package com.pr0gramm.app.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +21,6 @@ import com.pr0gramm.app.parcel.MessageParceler;
 import com.pr0gramm.app.parcel.NewCommentParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
-import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
@@ -90,9 +86,6 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         // and previous message
         updateMessageView();
 
-        // colorize the button
-        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor());
-        ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
         buttonSubmit.setOnClickListener(v -> sendMessageNow());
 
         messageText.addTextChangedListener(new SimpleTextWatcher() {

@@ -27,11 +27,6 @@ public class MimeTypeHelper {
 
     private static final byte[] MAGIC_GIF = "GIF89a".getBytes();
 
-    private static final List<byte[]> MAGIC_MP4 = ImmutableList.of(
-            "ftypmp42".getBytes(),
-            "moov".getBytes(),
-            "isom".getBytes());
-
     private static final List<byte[]> MAGIC_WEBM = ImmutableList.of(
             new byte[]{0x1a, 0x54, (byte) 0xdf, (byte) 0xa3},
             "webm".getBytes());
@@ -46,9 +41,6 @@ public class MimeTypeHelper {
 
         if (Bytes.indexOf(bytes, MAGIC_PNG) == 0)
             return Optional.of("image/png");
-
-        if (Iterables.any(MAGIC_MP4, q -> Bytes.indexOf(bytes, q) != -1))
-            return Optional.of("video/mp4");
 
         if (Iterables.any(MAGIC_WEBM, q -> Bytes.indexOf(bytes, q) != -1))
             return Optional.of("video/webm");
@@ -79,6 +71,5 @@ public class MimeTypeHelper {
             .put("image/png", "png")
             .put("image/gif", "gif")
             .put("video/webm", "webm")
-            .put("video/mp4", "mp4")
             .build();
 }

@@ -4,19 +4,16 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -28,14 +25,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.MimeTypeHelper;
 import com.pr0gramm.app.services.RulesService;
-import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -44,12 +41,14 @@ import com.pr0gramm.app.ui.TagInputView;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
+import com.pr0gramm.app.ui.views.viewer.MediaUri;
+import com.pr0gramm.app.ui.views.viewer.MediaView;
+import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.ErrorFormatting;
 import com.pr0gramm.app.util.Noop;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,21 +78,16 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 public class UploadFragment extends BaseFragment {
     private static final Logger logger = LoggerFactory.getLogger("UploadFragment");
     public static final String EXTRA_LOCAL_URI = "UploadFragment.localUri";
-
-    @Inject
-    Picasso picasso;
+    public static final String EXTRA_MEDIA_TYPE = "UploadFragment.mediaType";
 
     @Inject
     UploadService uploadService;
 
     @Inject
-    SingleShotService singleShotService;
-
-    @Inject
     RulesService rulesService;
 
     @Bind(R.id.preview)
-    ImageView preview;
+    FrameLayout preview;
 
     @Bind(R.id.upload)
     Button upload;
@@ -111,6 +105,7 @@ public class UploadFragment extends BaseFragment {
     RadioGroup contentTypeGroup;
 
     private File file;
+    private MediaUri.MediaType fileMediaType;
 
 
     @Nullable
@@ -133,9 +128,13 @@ public class UploadFragment extends BaseFragment {
             handleImageUri(uri.get());
 
         } else {
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, RequestCodes.SELECT_IMAGE);
+            String type = "image/*";
+            if (getArguments() != null)
+                type = getArguments().getString(EXTRA_MEDIA_TYPE, type);
+
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType(type);
+            startActivityForResult(intent, RequestCodes.SELECT_MEDIA);
         }
 
         // enable auto-complete
@@ -146,10 +145,6 @@ public class UploadFragment extends BaseFragment {
         rulesService.displayInto(smallPrintView);
 
         upload.setOnClickListener(v -> onUploadClicked());
-
-        // give the upload-button the primary-tint
-        int color = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
-        ViewCompat.setBackgroundTintList(upload, ColorStateList.valueOf(color));
     }
 
     private void onUploadClicked() {
@@ -196,6 +191,11 @@ public class UploadFragment extends BaseFragment {
                         logger.info("finished! item id is {}", status.getId());
                         onUploadComplete(status.getId());
 
+                    } else if (status.getProgress() >= 0.99) {
+                        logger.info("uploading, progress is nearly finished");
+                        if (!busyIndicator.isSpinning())
+                            busyIndicator.spin();
+
                     } else if (status.getProgress() >= 0) {
                         float progress = status.getProgress();
                         logger.info("uploading, progress is {}", progress);
@@ -238,7 +238,7 @@ public class UploadFragment extends BaseFragment {
         super.onActivityResult(requestCode, resultCode, intent);
 
         logger.info("got response from image picker: rc={}, intent={}", resultCode, intent);
-        if (requestCode == RequestCodes.SELECT_IMAGE) {
+        if (requestCode == RequestCodes.SELECT_MEDIA) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri image = intent.getData();
                 handleImageUri(image);
@@ -257,7 +257,7 @@ public class UploadFragment extends BaseFragment {
         logger.info("copy image to private memory");
         copy(getActivity(), image)
                 .compose(bindToLifecycle())
-                .subscribe(this::onImageFile, this::onError);
+                .subscribe(this::onMediaFile, this::onError);
     }
 
     private void onError(Throwable throwable) {
@@ -289,30 +289,43 @@ public class UploadFragment extends BaseFragment {
         }
     }
 
-    private void onImageFile(File file) {
+    private void onMediaFile(File file) {
         this.file = file;
 
-        logger.info("loading image file into pixels.");
-        picasso.load(file).resize(2048, 2048).onlyScaleDown().centerInside().into(preview, new Callback() {
-            @Override
-            public void onSuccess() {
-                busyIndicator.setVisibility(View.GONE);
-            }
+        logger.info("loading file into view.");
+        MediaUri uri = MediaUri.of(-1, Uri.fromFile(file));
 
-            @Override
-            public void onError() {
-                UploadFragment.this.onError(new RuntimeException("Could not load image"));
-            }
-        });
+        fileMediaType = uri.getMediaType();
+
+        MediaView viewer = MediaViews.newInstance(getActivity(), uri, Noop.noop);
+        viewer.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        RxView.attaches(viewer)
+                .compose(RxLifecycle.bindView(viewer))
+                .subscribe(event -> viewer.playMedia());
+
+        preview.removeAllViews();
+        preview.addView(viewer);
+
+        busyIndicator.setVisibility(View.GONE);
     }
 
     private void handleSizeNotOkay() {
         checkMainThread();
-        DialogBuilder.start(getActivity())
-                .content(R.string.hint_image_too_large)
-                .positive(R.string.down_size, di -> shrinkImage())
-                .negative(R.string.cancel)
-                .show();
+        if (fileMediaType == MediaUri.MediaType.IMAGE) {
+            DialogBuilder.start(getActivity())
+                    .content(R.string.hint_image_too_large)
+                    .positive(R.string.down_size, di -> shrinkImage())
+                    .negative(android.R.string.no)
+                    .show();
+        } else {
+            DialogBuilder.start(getActivity())
+                    .content(R.string.upload_hint_too_large)
+                    .positive()
+                    .show();
+        }
     }
 
     private void shrinkImage() {
@@ -334,19 +347,39 @@ public class UploadFragment extends BaseFragment {
 
     @SuppressLint("NewApi")
     private static Observable<File> copy(Context context, Uri source) {
-        File target = getTempFileUri(context);
-
         return Observable.fromCallable(() -> {
             try (InputStream input = context.getContentResolver().openInputStream(source)) {
                 checkNotNull(input, "Could not open input stream");
-                try (OutputStream output = new FileOutputStream(target)) {
-                    long copied = ByteStreams.copy(input, output);
-                    logger.info("Copied {} image bytes", copied / 1024);
-                }
-            }
 
-            return target;
+                // read the "header"
+                byte[] bytes = new byte[512];
+                int count = ByteStreams.read(input, bytes, 0, bytes.length);
+
+                // and guess the type
+                Optional<String> ext = MimeTypeHelper.guess(bytes);
+                if (ext.isPresent())
+                    ext = MimeTypeHelper.extension(ext.get());
+
+                // fail if we couldnt get the type
+                if (!ext.isPresent())
+                    throw new MediaNotSupported();
+
+                File target = getTempFileUri(context, ext.get());
+
+                try (OutputStream output = new FileOutputStream(target)) {
+                    output.write(bytes, 0, count);
+
+                    long copied = ByteStreams.copy(input, output);
+                    logger.info("Copied {}kb", copied / 1024);
+                }
+
+                return target;
+            }
         });
+    }
+
+    private static File getTempFileUri(Context context, String ext) {
+        return new File(context.getCacheDir(), "upload." + ext);
     }
 
     private static File getTempFileUri(Context context) {
@@ -391,5 +424,8 @@ public class UploadFragment extends BaseFragment {
                 .get(reason);
 
         return context.getString(firstNonNull(textId, R.string.upload_error_unknown));
+    }
+
+    private static class MediaNotSupported extends RuntimeException {
     }
 }

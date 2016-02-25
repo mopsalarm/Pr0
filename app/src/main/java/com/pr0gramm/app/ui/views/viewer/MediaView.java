@@ -519,11 +519,13 @@ public abstract class MediaView extends FrameLayout {
     }
 
     protected void cacheMediaSize(int width, int height) {
-        inMemoryCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
-                .id(mediaUri.getId())
-                .width(width)
-                .height(height)
-                .build());
+        if(mediaUri.getId() > 0) {
+            inMemoryCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
+                    .id(mediaUri.getId())
+                    .width(width)
+                    .height(height)
+                    .build());
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
