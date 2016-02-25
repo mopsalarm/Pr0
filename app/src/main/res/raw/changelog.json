@@ -1,5 +1,14 @@
 [
   {
+    "version": 90,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Endlich: Upload von .gif und .webm direkt vom Handy aus!"
+      }
+    ]
+  },
+  {
     "version": 89,
     "changes": [
       {
