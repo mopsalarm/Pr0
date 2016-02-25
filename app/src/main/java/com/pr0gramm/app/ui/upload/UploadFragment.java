@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
@@ -261,6 +262,12 @@ public class UploadFragment extends BaseFragment {
     }
 
     private void onError(Throwable throwable) {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        if (Throwables.getRootCause(throwable) instanceof MediaNotSupported) {
+            showCanNotHandleTypeDialog();
+            return;
+        }
+
         logger.error("got some error loading the image", throwable);
         AndroidUtility.logToCrashlytics(throwable);
         getActivity().finish();
@@ -382,8 +389,12 @@ public class UploadFragment extends BaseFragment {
         return new File(context.getCacheDir(), "upload." + ext);
     }
 
-    private static File getTempFileUri(Context context) {
-        return new File(context.getCacheDir(), "upload.jpg");
+    private void showCanNotHandleTypeDialog() {
+        checkMainThread();
+        DialogBuilder.start(getActivity())
+                .content(R.string.upload_error_invalid_type)
+                .positive(R.string.okay, () -> getActivity().finish())
+                .show();
     }
 
     private ContentType getSelectedContentType() {
@@ -427,5 +438,8 @@ public class UploadFragment extends BaseFragment {
     }
 
     private static class MediaNotSupported extends RuntimeException {
+        MediaNotSupported() {
+            super("Media type not supported");
+        }
     }
 }
