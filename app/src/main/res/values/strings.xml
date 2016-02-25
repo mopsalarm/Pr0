@@ -70,8 +70,8 @@
     <string name="dummy_tags" translatable="false">würde, Kreiselficker</string>
     <string name="add_new_tag_summary">Type a new tag to add to the post. You can separate multiple tags <b>with a comma.</b></string>
     <string name="comment_hint">Comment…</string>
-    <string name="action_answer">Answer</string>
-    <string name="post_comment">Post</string>
+    <string name="action_answer">Reply</string>
+    <string name="post_comment">Send</string>
     <string name="benis">Benis:</string>
     <string name="dummy_benis" translatable="false">2048</string>
     <string name="action_settings">SETTINGS</string>
@@ -332,5 +332,9 @@
     <string name="hint_shrank_successful">Image size is now okay.</string>
     <string name="hint_wrong_content_type">The image can not be displayed using the current filter setting.</string>
     <string name="hint_upload_something_happen_try_again">Something strange happened. Please try again</string>
+    <string name="upload_hint_too_large">The media file is too large.</string>
+    <string name="hint_choose_media_type">What kind of media do you want to upload?</string>
+    <string name="media_type_image">Image</string>
+    <string name="media_type_video">Video</string>
 </resources>
 
