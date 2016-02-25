@@ -7,7 +7,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
@@ -41,8 +40,8 @@ import rx.subjects.BehaviorSubject;
  */
 @Singleton
 public class UploadService {
-    public static final long MAX_UPLOAD_SIZE = (BuildConfig.DEBUG ? 1 : 4) * 1024 * 1024;
-    public static final long MAX_UPLOAD_SIZE_PAID = (BuildConfig.DEBUG ? 1 : 8) * 1024 * 1024;
+    public static final long MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
+    public static final long MAX_UPLOAD_SIZE_PAID = 8 * 1024 * 1024;
 
     private static final Logger logger = LoggerFactory.getLogger("UploadService");
 
