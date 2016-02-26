@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -23,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -114,7 +117,12 @@ public class UploadService {
         RequestBody output = new RequestBody() {
             @Override
             public MediaType contentType() {
-                return MediaType.parse(guessMediaType(file));
+                try {
+                    String type = MimeTypeHelper.guess(file).or("image/jpeg");
+                    return MediaType.parse(type);
+                } catch (IOException ignored) {
+                    return MediaType.parse("image/jpeg");
+                }
             }
 
             @Override
@@ -164,23 +172,14 @@ public class UploadService {
         // perform the upload!
         api.upload(body)
                 .doOnEach(n -> Track.upload(size))
-                .map(response -> new UploadInfo(response.getKey()))
+                .map(response -> new UploadInfo(response.getKey(), Collections.emptyList()))
                 .subscribeOn(BackgroundScheduler.instance())
                 .subscribe(result::onNext, result::onError, result::onCompleted);
 
         return result.ignoreElements().mergeWith(result);
     }
 
-    private static String guessMediaType(File file) {
-        String name = file.getName().toLowerCase();
-        if (isPngImage(file)) {
-            return "image/png";
-        } else {
-            return "image/jpeg";
-        }
-    }
-
-    private Observable<Posted> post(String key, ContentType contentType, Set<String> tags) {
+    private Observable<Posted> post(String key, ContentType contentType, Set<String> tags, boolean checkSimilar) {
         String sfwType = contentType.name().toLowerCase();
         String tagStr = FluentIterable.from(tags)
                 .filter(tag -> !INVALID_TAGS.contains(tag.toLowerCase()))
@@ -189,21 +188,29 @@ public class UploadService {
                 .filter(tag -> !"sfw".equals(tag.toLowerCase()))
                 .join(Joiner.on(","));
 
-        return api.post(null, sfwType, tagStr, 0, key);
+        return api.post(null, sfwType, tagStr, checkSimilar ? 1 : 0, key);
     }
 
-    public Observable<UploadInfo> upload(File file, ContentType sfw, Set<String> app) {
+    public Observable<UploadInfo> upload(File file, ContentType sfw, Set<String> tags) {
         return upload(file).flatMap(status -> {
             if (status.key != null) {
-                return post(status.key, sfw, app).flatMap(response -> {
-                    if (response.getError() != null) {
-                        return Observable.error(new UploadFailedException(response.getError()));
-                    } else {
-                        return Observable.just(new UploadInfo(response.getItemId()));
-                    }
-                });
+                return post(status, sfw, tags, true);
             } else {
                 return Observable.just(status);
+            }
+        });
+    }
+
+    public Observable<UploadInfo> post(UploadInfo status, ContentType sfw, Set<String> tags, boolean checkSimilar) {
+        return post(status.key, sfw, tags, checkSimilar).flatMap(response -> {
+            if (response.getSimilar().size() > 0) {
+                return Observable.just(new UploadInfo(status.key, response.getSimilar()));
+
+            } else if (response.getError() != null) {
+                return Observable.error(new UploadFailedException(response.getError()));
+
+            } else {
+                return Observable.just(new UploadInfo(response.getItemId()));
             }
         });
     }
@@ -228,6 +235,7 @@ public class UploadService {
 
     public static class UploadInfo {
         final String key;
+        private final List<HasThumbnail> similar;
         private final long id;
         private final float progress;
 
@@ -235,18 +243,21 @@ public class UploadService {
             this.id = id;
             this.key = null;
             this.progress = -1;
+            this.similar = Collections.emptyList();
         }
 
-        private UploadInfo(String key) {
+        private UploadInfo(String key, List<? extends HasThumbnail> similar) {
             this.id = 0;
             this.key = key;
             this.progress = -1;
+            this.similar = ImmutableList.copyOf(similar);
         }
 
         private UploadInfo(float progress) {
             this.id = 0;
             this.key = null;
             this.progress = progress;
+            this.similar = Collections.emptyList();
         }
 
         public boolean isFinished() {
@@ -259,6 +270,14 @@ public class UploadService {
 
         public long getId() {
             return id;
+        }
+
+        public boolean hasSimilar() {
+            return similar.size() > 0;
+        }
+
+        public List<HasThumbnail> similar() {
+            return similar;
         }
     }
 

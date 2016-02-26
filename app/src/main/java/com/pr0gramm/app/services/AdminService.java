@@ -31,7 +31,7 @@ public class AdminService {
         String pNotifyUser = notifyUser ? "on" : null;
         String blockUser = blockDays != null && blockDays >= 0 ? "on" : null;
         return api
-                .deleteItem(null, item.getId(), "custom", reason, pNotifyUser, blockUser, blockDays)
+                .deleteItem(null, item.id(), "custom", reason, pNotifyUser, blockUser, blockDays)
                 .map(response -> (Void) null);
     }
 

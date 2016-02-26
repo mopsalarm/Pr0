@@ -7,7 +7,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.preloading.PreloadManager;
@@ -44,23 +43,17 @@ public final class UriHelper {
                 .authority(subdomain + ".pr0gramm.com");
     }
 
-    public Uri thumbnail(FeedItem item) {
-        return preloadManager.get(item.getId())
+    public Uri thumbnail(HasThumbnail item) {
+        return preloadManager.get(item.id())
                 .transform(pi -> Uri.fromFile(pi.thumbnail()))
                 .or(() -> noPreload.thumbnail(item));
-    }
-
-    public Uri thumbnail(Message message) {
-        return preloadManager.get(message.getItemId())
-                .transform(pi -> Uri.fromFile(pi.thumbnail()))
-                .or(() -> start("thumb").path(message.getThumb()).build());
     }
 
     public Uri media(FeedItem item, boolean hq) {
         if (hq && !Strings.isNullOrEmpty(item.getFullsize()))
             return noPreload.media(item, true);
 
-        return preloadManager.get(item.getId())
+        return preloadManager.get(item.id())
                 .transform(pi -> Uri.fromFile(pi.media()))
                 .or(() -> noPreload.media(item, false));
     }
@@ -121,8 +114,8 @@ public final class UriHelper {
                     : start("img").path(item.getImage()).build();
         }
 
-        public Uri thumbnail(FeedItem item) {
-            return start("thumb").path(item.getThumb()).build();
+        public Uri thumbnail(HasThumbnail item) {
+            return start("thumb").path(item.thumbnail()).build();
         }
     }
 }

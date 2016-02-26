@@ -179,7 +179,7 @@ public class ShareProvider extends ContentProvider {
      * Returns an uri for the given item to share that item with other apps.
      */
     public static Uri getShareUri(Context context, FeedItem item) {
-        checkArgument(canShare(context, item), "Can not share item %s", item.getId());
+        checkArgument(canShare(context, item), "Can not share item %s", item.id());
 
         String uri = getMediaUri(context, item).toString();
         String path = BaseEncoding.base64Url().encode(uri.getBytes(Charsets.UTF_8));

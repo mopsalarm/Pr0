@@ -176,7 +176,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             }
 
             if (previewInfo != null) {
-                if (activePostFragment.getFeedItem().getId() == getArgumentStartItem(null).getId()) {
+                if (activePostFragment.getFeedItem().id() == getArgumentStartItem(null).id()) {
                     activePostFragment.setPreviewInfo(previewInfo);
                     previewInfo = null;
                 }
@@ -323,7 +323,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
 
         @Override
         protected long getItemId(int position) {
-            return proxy.at(position).getId();
+            return proxy.at(position).id();
         }
 
         @Override

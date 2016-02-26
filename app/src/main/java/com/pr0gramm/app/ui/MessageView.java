@@ -111,7 +111,7 @@ public class MessageView extends RelativeLayout {
 
         // draw the image for this post
         if (isComment) {
-            String url = "http://thumb.pr0gramm.com/" + message.getThumb();
+            String url = "http://thumb.pr0gramm.com/" + message.thumbnail();
             picasso.load(url).into(image);
         } else {
             picasso.cancelRequest(image);

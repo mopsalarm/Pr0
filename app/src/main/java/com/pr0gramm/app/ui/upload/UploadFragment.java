@@ -32,6 +32,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.services.HasThumbnail;
 import com.pr0gramm.app.services.MimeTypeHelper;
 import com.pr0gramm.app.services.RulesService;
 import com.pr0gramm.app.services.UploadService;
@@ -58,6 +59,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -108,6 +110,9 @@ public class UploadFragment extends BaseFragment {
     private File file;
     private MediaUri.MediaType fileMediaType;
 
+    @Nullable
+    private UploadService.UploadInfo uploadInfo;
+
 
     @Nullable
     @Override
@@ -146,6 +151,7 @@ public class UploadFragment extends BaseFragment {
         rulesService.displayInto(smallPrintView);
 
         upload.setOnClickListener(v -> onUploadClicked());
+
     }
 
     private void onUploadClicked() {
@@ -155,6 +161,12 @@ public class UploadFragment extends BaseFragment {
                     .positive(R.string.okay, () -> getActivity().finish())
                     .show();
 
+            return;
+        }
+
+        // we have an already started upload. lets just continue with it
+        if (uploadInfo != null) {
+            startUpload();
             return;
         }
 
@@ -175,22 +187,37 @@ public class UploadFragment extends BaseFragment {
 
         setFormEnabled(false);
 
-        busyIndicator.setVisibility(View.VISIBLE);
-        busyIndicator.setProgress(0.f);
-
         // get those from UI
         ContentType type = getSelectedContentType();
         Set<String> tags = ImmutableSet.copyOf(Splitter.on(",")
                 .trimResults().omitEmptyStrings()
                 .split(this.tags.getText().toString()));
 
+        // start the upload
+        Observable<UploadService.UploadInfo> upload;
+        if (uploadInfo == null) {
+            upload = uploadService.upload(file, type, tags);
+            busyIndicator.setVisibility(View.VISIBLE);
+            busyIndicator.setProgress(0.f);
+        } else {
+            upload = uploadService.post(uploadInfo, type, tags, false);
+            busyIndicator.setVisibility(View.VISIBLE);
+            busyIndicator.spin();
+        }
+
         logger.info("Start upload of type {} with tags {}", type, tags);
-        uploadService.upload(file, type, tags)
-                .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+        upload.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                .doAfterTerminate(() -> busyIndicator.setVisibility(View.GONE))
                 .subscribe(status -> {
                     if (status.isFinished()) {
                         logger.info("finished! item id is {}", status.getId());
                         onUploadComplete(status.getId());
+
+                    } else if (status.hasSimilar()) {
+                        logger.info("Found similar posts. Showing them now");
+                        this.uploadInfo = status;
+                        showSimilarPosts(status.similar());
+                        setFormEnabled(true);
 
                     } else if (status.getProgress() >= 0.99) {
                         logger.info("uploading, progress is nearly finished");
@@ -210,6 +237,17 @@ public class UploadFragment extends BaseFragment {
 
         // scroll back up
         scrollView.fullScroll(View.FOCUS_UP);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void showSimilarPosts(List<HasThumbnail> similar) {
+        ButterKnife.findById(getView(), R.id.similar_hint).setVisibility(View.VISIBLE);
+
+        SimilarImageView view = ButterKnife.findById(getView(), R.id.similar_list);
+        view.setVisibility(View.VISIBLE);
+        view.setThumbnails(similar);
+
+        scrollView.requestChildFocus(view, view);
     }
 
     private void setFormEnabled(boolean enabled) {

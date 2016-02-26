@@ -3,7 +3,6 @@ package com.pr0gramm.app.services;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
 import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.response.ImmutableMessage;
 import com.pr0gramm.app.api.pr0gramm.response.Message;
@@ -193,7 +192,7 @@ public class FavedCommentService {
     public interface FavedComment {
         long id();
 
-        @SerializedName("item_id")
+        @Gson.Named("item_id")
         long itemId();
 
         String name();
@@ -221,7 +220,7 @@ public class FavedCommentService {
                 .withName(comment.name())
                 .withMessage(comment.content())
                 .withScore(comment.up() - comment.down())
-                .withThumb(thumbnail)
+                .withThumbnail(thumbnail)
                 .withCreated(comment.created())
                 .withMark(comment.mark())
 

@@ -86,7 +86,7 @@ public class DownloadService {
         String prefix = Joiner.on("-").join(
                 feedItem.getCreated().toString(format),
                 feedItem.getUser(),
-                "id" + feedItem.getId());
+                "id" + feedItem.id());
 
         String name = prefix.replaceAll("[^A-Za-z0-9_-]+", "") + "." + fileType;
 

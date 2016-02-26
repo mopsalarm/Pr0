@@ -187,7 +187,7 @@ public class Feed {
     }
 
     private long feedTypeId(FeedItem item) {
-        return item.getId(feedFilter.getFeedType());
+        return item.id(feedFilter.getFeedType());
     }
 
     /**
@@ -198,12 +198,12 @@ public class Feed {
         if (item == null)
             return Optional.absent();
 
-        return indexOf(item.getId());
+        return indexOf(item.id());
     }
 
     public Optional<Integer> indexOf(long itemId) {
         for (int idx = 0; idx < items.size(); idx++) {
-            if (itemId == items.get(idx).getId()) {
+            if (itemId == items.get(idx).id()) {
                 return Optional.of(idx);
             }
         }

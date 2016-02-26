@@ -603,7 +603,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         if (changed) {
             Optional<Long> around = autoOpenOnLoad != null
                     ? Optional.of(autoOpenOnLoad.getItemId())
-                    : findLastVisibleFeedItem(newContentType).transform(FeedItem::getId);
+                    : findLastVisibleFeedItem(newContentType).transform(FeedItem::id);
 
             autoScrollOnLoad = around.orNull();
 
@@ -929,7 +929,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         Optional<MetaApi.SizeInfo> sizeInfo = getSizeInfo(item);
         int sizeWidth = sizeInfo.transform(MetaApi.SizeInfo::getWidth).or(-1);
         int sizeHeight = sizeInfo.transform(MetaApi.SizeInfo::getHeight).or(-1);
-        return new PreviewInfo(item.getId(), image, sizeWidth, sizeHeight);
+        return new PreviewInfo(item.id(), image, sizeWidth, sizeHeight);
     }
 
     /**
@@ -981,7 +981,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private Optional<MetaApi.SizeInfo> getSizeInfo(FeedItem item) {
-        return inMemoryCacheService.getSizeInfo(item.getId());
+        return inMemoryCacheService.getSizeInfo(item.id());
     }
 
 
@@ -1079,10 +1079,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 holder.item = item;
 
                 // show preload-badge
-                holder.setIsPreloaded(fragment.preloadManager.exists(item.getId()));
+                holder.setIsPreloaded(fragment.preloadManager.exists(item.id()));
 
                 // check if this item was already seen.
-                if (fragment.inMemoryCacheService.isRepost(item.getId()) && fragment.settings.markRepostsInFeed()) {
+                if (fragment.inMemoryCacheService.isRepost(item.id()) && fragment.settings.markRepostsInFeed()) {
                     holder.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
@@ -1101,7 +1101,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         @Override
         public long getItemId(int position) {
-            return feed.at(position).getId();
+            return feed.at(position).id();
         }
 
         public Set<ContentType> getContentType() {
@@ -1113,7 +1113,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             // check if we prepended items to the list.
             int prependCount = 0;
             for (int idx = 0; idx < newItems.size(); idx++) {
-                if (newItems.get(idx).getId() == getItemId(idx)) {
+                if (newItems.get(idx).id() == getItemId(idx)) {
                     prependCount++;
                 }
             }
@@ -1125,7 +1125,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
 
             // load meta data for the items.
-            List<Long> itemIds = Lists.transform(newItems, FeedItem::getId);
+            List<Long> itemIds = Lists.transform(newItems, FeedItem::id);
             with(fragment -> {
                 fragment.loadMetaData(itemIds);
                 fragment.performAutoOpen();
@@ -1242,7 +1242,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         // look for the index of the item with the given id
         return FluentIterable
                 .from(feedAdapter.getFeed().getItems())
-                .firstMatch(item -> item.getId() == id)
+                .firstMatch(item -> item.id() == id)
                 .transform(item -> feedAdapter.getFeed().indexOf(item).or(-1))
                 .transform(idx -> idx + offset);
     }

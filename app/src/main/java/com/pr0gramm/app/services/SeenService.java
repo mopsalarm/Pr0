@@ -44,7 +44,7 @@ public class SeenService {
     }
 
     public boolean isSeen(FeedItem item) {
-        return isSeen(item.getId());
+        return isSeen(item.id());
     }
 
     public boolean isSeen(long id) {
@@ -67,7 +67,7 @@ public class SeenService {
         if (!this.buffer.isDone())
             return;
 
-        int idx = (int) item.getId() / 8;
+        int idx = (int) item.id() / 8;
 
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
@@ -78,7 +78,7 @@ public class SeenService {
         // only one thread can write the buffer at a time.
         synchronized (lock) {
             byte value = buffer.get(idx);
-            value |= 1 << (7 - item.getId() % 8);
+            value |= 1 << (7 - item.id() % 8);
             buffer.put(idx, value);
         }
     }

@@ -127,7 +127,7 @@ public class InMemoryCacheService {
     }
 
     public boolean isRepost(FeedItem item) {
-        return isRepost(item.getId());
+        return isRepost(item.id());
     }
 
     /**
@@ -200,7 +200,7 @@ public class InMemoryCacheService {
     @Nullable
     public PreviewInfo getPreviewInfo(FeedItem feedItem) {
         Uri previewUri = uriHelper.thumbnail(feedItem);
-        return getSizeInfo(feedItem.getId())
+        return getSizeInfo(feedItem.id())
                 .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
                 .orNull();
     }

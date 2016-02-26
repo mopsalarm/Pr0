@@ -161,7 +161,7 @@ public class NotificationService {
                 .transform(Message::getItemId)
                 .toSet().size() == 1;
 
-        if (allForTheSamePost && message.getItemId() != 0 && !isNullOrEmpty(message.getThumb())) {
+        if (allForTheSamePost && message.getItemId() != 0 && !isNullOrEmpty(message.thumbnail())) {
             return loadThumbnail(message);
         }
 

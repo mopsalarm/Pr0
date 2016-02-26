@@ -7,6 +7,10 @@
         "change": "Endlich: Upload von .gif und .webm direkt vom Handy aus!"
       },
       {
+        "type": "Neu",
+        "change": "Repost Warnung in den Uploadprozess integriert."
+      },
+      {
         "type": "Fix",
         "change": "Webm-Softwaredekoder war versehentlich komplett deaktiviert - darum liefen Videos envt. langsamer als sonst."
       }

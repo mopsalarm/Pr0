@@ -2,8 +2,10 @@ package com.pr0gramm.app.feed;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
+import com.pr0gramm.app.services.HasThumbnail;
 
 import org.joda.time.Instant;
 
@@ -11,7 +13,7 @@ import org.joda.time.Instant;
  * This is an item in pr0gramm feed item to be displayed. It is backed
  * by the data of an {@link com.pr0gramm.app.api.pr0gramm.response.Feed.Item}.
  */
-public class FeedItem implements Parcelable {
+public class FeedItem implements Parcelable, HasThumbnail {
     private final int id;
     private final int promotedId;
     private final String thumb;
@@ -38,7 +40,8 @@ public class FeedItem implements Parcelable {
         flags = (byte) item.getFlags();
     }
 
-    public long getId() {
+    @Override
+    public long id() {
         return id;
     }
 
@@ -46,7 +49,9 @@ public class FeedItem implements Parcelable {
         return promotedId;
     }
 
-    public String getThumb() {
+    @Override
+    @NonNull
+    public String thumbnail() {
         return thumb;
     }
 
@@ -95,7 +100,7 @@ public class FeedItem implements Parcelable {
      *
      * @param type The type of feed.
      */
-    public long getId(FeedType type) {
+    public long id(FeedType type) {
         return type == FeedType.PROMOTED ? promotedId : id;
     }
 

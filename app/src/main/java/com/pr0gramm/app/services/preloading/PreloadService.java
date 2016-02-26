@@ -146,7 +146,7 @@ public class PreloadService extends IntentService {
 
                     // prepare the entry that will be put into the database later
                     PreloadManager.PreloadItem entry = ImmutablePreloadItem.builder()
-                            .itemId(item.getId())
+                            .itemId(item.id())
                             .creation(creation)
                             .media(mediaFile)
                             .thumbnail(thumbFile)
@@ -165,7 +165,7 @@ public class PreloadService extends IntentService {
                     downloaded += 1;
                 } catch (IOException ioError) {
                     failed += 1;
-                    logger.warn("Could not preload image id=" + item.getId(), ioError);
+                    logger.warn("Could not preload image id=" + item.id(), ioError);
                 }
             }
 

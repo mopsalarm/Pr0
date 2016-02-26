@@ -60,7 +60,7 @@ public class FeedLoader {
         subscribeTo(feedService.getFeedItems(ImmutableFeedQuery.builder()
                 .feedFilter(feed.getFeedFilter())
                 .contentTypes(feed.getContentType())
-                .older(oldest.get().getId(feed.getFeedFilter().getFeedType()))
+                .older(oldest.get().id(feed.getFeedFilter().getFeedType()))
                 .build()));
     }
 
@@ -72,7 +72,7 @@ public class FeedLoader {
         subscribeTo(feedService.getFeedItems(ImmutableFeedQuery.builder()
                 .feedFilter(feed.getFeedFilter())
                 .contentTypes(feed.getContentType())
-                .newer(newest.get().getId(feed.getFeedFilter().getFeedType()))
+                .newer(newest.get().id(feed.getFeedFilter().getFeedType()))
                 .build()));
     }
 

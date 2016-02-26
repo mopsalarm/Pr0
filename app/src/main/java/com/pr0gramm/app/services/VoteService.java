@@ -59,11 +59,11 @@ public class VoteService {
      * @param vote The vote to send to the server
      */
     public Observable<Nothing> vote(FeedItem item, Vote vote) {
-        logger.info("Voting feed item {} {}", item.getId(), vote);
+        logger.info("Voting feed item {} {}", item.id(), vote);
         Track.votePost(vote);
 
-        AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.getId(), vote));
-        return api.vote(null, item.getId(), vote.getVoteValue());
+        AsyncTask.execute(() -> storeVoteValueInTx(CachedVote.Type.ITEM, item.id(), vote));
+        return api.vote(null, item.id(), vote.getVoteValue());
     }
 
     public Observable<Nothing> vote(Comment comment, Vote vote) {
@@ -88,7 +88,7 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        return Async.start(() -> find(ITEM, item.getId()), BackgroundScheduler.instance())
+        return Async.start(() -> find(ITEM, item.id()), BackgroundScheduler.instance())
                 .map(vote -> vote.transform(v -> v.vote))
                 .map(vote -> vote.or(Vote.NEUTRAL));
     }
@@ -158,7 +158,7 @@ public class VoteService {
      */
     public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
-        return api.addTags(null, feedItem.getId(), tagString).map(response -> {
+        return api.addTags(null, feedItem.id(), tagString).map(response -> {
             SugarTransactionHelper.doInTransaction(() -> {
                 // auto-apply up-vote to newly created tags
                 for (long tagId : response.getTagIds())
@@ -183,7 +183,7 @@ public class VoteService {
     }
 
     public Observable<NewComment> postComment(FeedItem item, long parentId, String comment) {
-        return postComment(item.getId(), parentId, comment);
+        return postComment(item.id(), parentId, comment);
     }
 
     /**

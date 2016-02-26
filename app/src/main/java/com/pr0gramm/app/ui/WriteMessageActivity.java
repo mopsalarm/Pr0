@@ -236,7 +236,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     public static Intent answerToComment(Context context, Message message) {
         long itemId = message.getItemId();
-        long commentId = message.getId();
+        long commentId = message.id();
 
         Intent intent = intent(context, message);
         intent.putExtra(ARGUMENT_COMMENT_ID, commentId);

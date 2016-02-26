@@ -20,6 +20,12 @@
                 android:layout_height="wrap_content"
                 android:minHeight="96dp"/>
 
+            <!-- Catch all the click events. At least we try it -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"/>
+
             <com.pr0gramm.app.ui.views.BusyIndicator
                 android:id="@+id/busy_indicator"
                 android:layout_width="64dp"
@@ -70,6 +76,34 @@
             android:background="@color/input_background"
             android:hint="@string/upload_tags"
             android:padding="8dp"/>
+
+        <TextView
+            android:id="@+id/similar_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/brighter_background"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:text="@string/hint_similar_image"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?colorPrimary"
+            android:visibility="gone"
+            />
+
+        <com.pr0gramm.app.ui.upload.SimilarImageView
+            android:id="@+id/similar_list"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/brighter_background"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:visibility="gone"
+            />
 
         <Button
             android:id="@+id/upload"

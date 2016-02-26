@@ -3,6 +3,7 @@ package com.pr0gramm.app.api.pr0gramm.response;
 import android.support.annotation.Nullable;
 
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.services.HasThumbnail;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -14,8 +15,8 @@ import org.joda.time.Instant;
 @Value.Immutable
 @Value.Style(init = "with*")
 @Gson.TypeAdapters
-public abstract class Message {
-    public abstract long getId();
+public abstract class Message implements HasThumbnail {
+    public abstract long id();
 
     public abstract Instant getCreated();
 
@@ -32,7 +33,8 @@ public abstract class Message {
     public abstract int getSenderId();
 
     @Nullable
-    public abstract String getThumb();
+    @Gson.Named("thumb")
+    public abstract String thumbnail();
 
     public static Message of(PrivateMessage message) {
         return ImmutableMessage.builder()
@@ -44,21 +46,21 @@ public abstract class Message {
                 .withName(message.getSenderName())
                 .withSenderId(message.getSenderId())
                 .withScore(0)
-                .withThumb(null)
+                .withThumbnail(null)
                 .build();
     }
 
     public static Message of(FeedItem item, Comment comment) {
         return ImmutableMessage.builder()
                 .withId((int) comment.getId())
-                .withItemId((int) item.getId())
+                .withItemId((int) item.id())
                 .withMessage(comment.getContent())
                 .withSenderId(0)
                 .withName(comment.getName())
                 .withMark(comment.getMark())
                 .withScore(comment.getUp() - comment.getDown())
                 .withCreated(comment.getCreated())
-                .withThumb(item.getThumb())
+                .withThumbnail(item.thumbnail())
                 .build();
     }
 
@@ -80,7 +82,7 @@ public abstract class Message {
                 .withName(name)
                 .withSenderId(senderId)
                 .withMessage(comment.getContent())
-                .withThumb(comment.getThumb())
+                .withThumbnail(comment.getThumb())
                 .build();
     }
 }

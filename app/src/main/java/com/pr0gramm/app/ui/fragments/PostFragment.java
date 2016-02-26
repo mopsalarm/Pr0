@@ -649,7 +649,7 @@ public class PostFragment extends BaseFragment implements
     private void loadPostDetails() {
         int delay = Sdk.isAtLeastLollipop() ? 500 : 100;
 
-        feedService.loadPostDetails(feedItem.getId())
+        feedService.loadPostDetails(feedItem.id())
                 .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .subscribe(this::onPostReceived, defaultOnError());
@@ -878,7 +878,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void displayTags(List<Tag> tags_) {
-        List<Tag> tags = inMemoryCacheService.enhanceTags(feedItem.getId(), tags_);
+        List<Tag> tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_);
         this.tags = ImmutableList.copyOf(tags);
 
         // show tags now
@@ -1013,8 +1013,8 @@ public class PostFragment extends BaseFragment implements
                     .up(comment.getUp())
                     .down(comment.getDown())
                     .mark(comment.getMark())
-                    .thumb(feedItem.getThumb())
-                    .itemId(feedItem.getId())
+                    .thumb(feedItem.thumbnail())
+                    .itemId(feedItem.id())
                     .flags(feedItem.getFlags())
                     .build());
         } else {

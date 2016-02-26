@@ -51,7 +51,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public long getItemId(int position) {
-        return messages.get(position).getId();
+        return messages.get(position).id();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 });
 
                 view.setOnClickListener(v -> {
-                    actionListener.onCommentClicked(message.getItemId(), message.getId());
+                    actionListener.onCommentClicked(message.getItemId(), message.id());
                 });
             } else {
                 view.setAnswerClickedListener(v -> {
