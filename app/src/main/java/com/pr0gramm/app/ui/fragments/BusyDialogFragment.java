@@ -7,11 +7,12 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.widget.TextView;
 
+import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import butterknife.Bind;
@@ -23,7 +24,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
  */
-public class BusyDialogFragment extends DialogFragment {
+public class BusyDialogFragment extends BaseDialogFragment {
     @Bind(R.id.progress)
     BusyIndicator progress;
 
@@ -40,7 +41,12 @@ public class BusyDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    protected void injectComponent(ActivityComponent activityComponent) {
+    }
+
+    @Override
+    protected void onDialogViewCreated() {
+        super.onDialogViewCreated();
         message.setText(getDialogText());
     }
 
@@ -83,9 +89,13 @@ public class BusyDialogFragment extends DialogFragment {
         private void dismiss() {
             checkMainThread();
 
-            Fragment dialog = fragmentManager.findFragmentByTag(tag);
-            if (dialog instanceof BusyDialogFragment)
-                ((BusyDialogFragment) dialog).dismissAllowingStateLoss();
+            try {
+                Fragment dialog = fragmentManager.findFragmentByTag(tag);
+                if (dialog instanceof DialogFragment) {
+                    ((DialogFragment) dialog).dismiss();
+                }
+            } catch (Throwable ignored) {
+            }
         }
 
         @Override

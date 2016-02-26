@@ -111,13 +111,13 @@ public class UserService {
             if (login.success()) {
                 // perform initial sync.
                 syncState = syncWithProgress()
-                        .filter(val -> val instanceof Float)
-                        .cast(Float.class)
+                        .ofType(Float.class)
                         .map(LoginProgress::new)
+                        .doAfterTerminate(() -> logger.info("first step terminated"))
                         .mergeWith(info()
                                 .flatMap(this::initializeBenisGraphUsingMetaService)
-                                .ignoreElements()
-                                .cast(LoginProgress.class))
+                                .ofType(LoginProgress.class))
+                        .doOnError(err -> logger.error("Could not perform initial sync during login", err))
                         .onErrorResumeNext(Observable.<LoginProgress>empty());
 
             } else {
@@ -198,29 +198,39 @@ public class UserService {
         if (!isAuthorized())
             return Observable.empty();
 
-        BehaviorSubject<Float> progressSubject = BehaviorSubject.create();
-
         // tell the sync request where to start
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
 
-        Observable<Sync> sync = api.sync(lastSyncId).map(response -> {
+        return api.sync(lastSyncId).flatMap(response -> {
+            Observable<Object> applyVotesObservable = Observable.create(subscriber -> {
+                try {
+                    voteService.applyVoteActions(response.getLog(), p -> {
+                        subscriber.onNext(p);
+                        return !subscriber.isUnsubscribed();
+                    });
+
+                    if (subscriber.isUnsubscribed())
+                        return;
+
+                    // store syncId for next time.
+                    if (response.getLastId() > lastSyncId) {
+                        preferences.edit()
+                                .putLong(KEY_LAST_SYNC_ID, response.getLastId())
+                                .apply();
+                    }
+
+                    subscriber.onCompleted();
+                } catch (Throwable error) {
+                    subscriber.onError(error);
+                }
+            });
+
             inboxService.publishUnreadMessagesCount(response.getInboxCount());
 
-            // store syncId for next time.
-            if (response.getLastId() > lastSyncId) {
-                preferences.edit()
-                        .putLong(KEY_LAST_SYNC_ID, response.getLastId())
-                        .apply();
-            }
-
-            // and apply votes now
-            voteService.applyVoteActions(response.getLog(), progressSubject::onNext);
-            progressSubject.onCompleted();
-
-            return response;
-        }).doAfterTerminate(progressSubject::onCompleted);
-
-        return sync.cast(Object.class).mergeWith(progressSubject.throttleFirst(50, TimeUnit.MILLISECONDS));
+            return applyVotesObservable
+                    .throttleLast(50, TimeUnit.MILLISECONDS, BackgroundScheduler.instance())
+                    .concatWith(Observable.just(response));
+        });
     }
 
     /**
@@ -335,8 +345,7 @@ public class UserService {
 
                     loginStateObservable.onNext(createLoginState(userInfo));
                 })
-                .ignoreElements()
-                .cast(Void.class);
+                .ofType(Void.class);
     }
 
     /**
@@ -389,7 +398,9 @@ public class UserService {
             return isAuthorized() && userIsAdmin;
         }
 
-        public boolean userIsPremium() { return isAuthorized() && userIsPremium; }
+        public boolean userIsPremium() {
+            return isAuthorized() && userIsPremium;
+        }
 
         public static final LoginState NOT_AUTHORIZED = new LoginState(null, null, false, false);
     }

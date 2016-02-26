@@ -2,6 +2,7 @@ package com.pr0gramm.app.services;
 
 import android.os.AsyncTask;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +30,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.functions.Action1;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -131,13 +131,14 @@ public class VoteService {
      *
      * @param actions The actions from the log to apply.
      */
-    public void applyVoteActions(List<Integer> actions, Action1<Float> progressListener) {
+    public void applyVoteActions(List<Integer> actions, Function<Float, Boolean> progressListener) {
         checkArgument(actions.size() % 2 == 0, "not an even number of items");
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTransaction(() -> {
             logger.info("Applying {} vote actions", actions.size() / 2);
 
+            float actionCount = actions.size();
             for (int idx = 0; idx < actions.size(); idx += 2) {
                 VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
                 if (action == null)
@@ -145,7 +146,8 @@ public class VoteService {
 
                 long id = actions.get(idx);
                 storeVoteValue(action.type, id, action.vote);
-                progressListener.call((float) idx / actions.size());
+                if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
+                    return;
             }
         });
 
