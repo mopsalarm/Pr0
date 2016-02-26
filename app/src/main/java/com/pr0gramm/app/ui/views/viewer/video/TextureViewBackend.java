@@ -14,7 +14,7 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
     private final TextureView textureView;
     private final Callbacks callbacks;
 
-    private SurfaceTexture surfaceTexture;
+    private Surface surface;
 
     public TextureViewBackend(Context context, Callbacks callbacks) {
         this.callbacks = callbacks;
@@ -30,7 +30,7 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
 
     @Override
     public void setSurface(MediaPlayer mp) {
-        mp.setSurface(new Surface(surfaceTexture));
+        mp.setSurface(surface);
     }
 
     @Override
@@ -40,14 +40,13 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        surfaceTexture = surface;
+        this.surface = new Surface(surface);
         callbacks.onAvailable(this);
         callbacks.onSizeChanged(this, width, height);
     }
 
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        surfaceTexture = surface;
         callbacks.onSizeChanged(this, width, height);
     }
 
@@ -55,9 +54,9 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         callbacks.onDestroy(this);
 
-        if (surfaceTexture != null) {
-            surfaceTexture.release();
-            surfaceTexture = null;
+        if (this.surface != null) {
+            this.surface.release();
+            this.surface = null;
         }
 
         return true;
@@ -69,6 +68,6 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
 
     @Override
     public boolean hasSurface() {
-        return surfaceTexture != null;
+        return surface != null;
     }
 }
