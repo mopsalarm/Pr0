@@ -421,7 +421,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     private void showInfoMessage(String message) {
         DialogBuilder.start(this)
-                .content(message)
+                .contentWithLinks(message)
                 .positive()
                 .show();
     }

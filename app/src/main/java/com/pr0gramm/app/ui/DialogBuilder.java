@@ -8,10 +8,14 @@ import android.support.annotation.MainThread;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
+import android.text.method.MovementMethod;
 import android.text.util.Linkify;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.util.NonCrashingLinkMovementMethod;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -31,6 +35,7 @@ public class DialogBuilder {
     private OnClickListener neutralOnClick = DO_NOTHING;
     private DialogInterface.OnShowListener onShowListener;
     private DialogInterface.OnCancelListener onCancelListener;
+    private MovementMethod movementMethod;
 
     private DialogBuilder(Context context) {
         // this.theme = ThemeHelper.theme().popup;
@@ -49,6 +54,9 @@ public class DialogBuilder {
     public DialogBuilder contentWithLinks(String content) {
         SpannableString s = new SpannableString(content);
         Linkify.addLinks(s, Linkify.WEB_URLS);
+
+        movementMethod = NonCrashingLinkMovementMethod.getInstance();
+
         return content(s);
     }
 
@@ -170,11 +178,18 @@ public class DialogBuilder {
                 }
             }
 
+            if (movementMethod != null) {
+                View view = dialog.findViewById(android.R.id.message);
+                if (view instanceof TextView) {
+                    ((TextView) view).setMovementMethod(movementMethod);
+                }
+            }
+
             if (onShowListener != null)
                 onShowListener.onShow(dialog);
         });
 
-        if(onCancelListener != null)
+        if (onCancelListener != null)
             dialog.setOnCancelListener(onCancelListener);
 
         return dialog;

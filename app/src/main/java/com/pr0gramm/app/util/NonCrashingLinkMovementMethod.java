@@ -13,7 +13,7 @@ import android.widget.TextView;
 /**
  * Found it on stack overflow.
  */
-class NonCrashingLinkMovementMethod extends LinkMovementMethod {
+public class NonCrashingLinkMovementMethod extends LinkMovementMethod {
     @Override
     public void initialize(TextView widget, Spannable text) {
         setSelection(text);
