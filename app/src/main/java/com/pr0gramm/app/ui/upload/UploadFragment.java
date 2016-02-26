@@ -133,7 +133,7 @@ public class UploadFragment extends BaseFragment {
         if (uri.isPresent()) {
             handleImageUri(uri.get());
 
-        } else {
+        } else if (savedInstanceState == null) {
             String type = "image/*";
             if (getArguments() != null)
                 type = getArguments().getString(EXTRA_MEDIA_TYPE, type);
@@ -151,7 +151,6 @@ public class UploadFragment extends BaseFragment {
         rulesService.displayInto(smallPrintView);
 
         upload.setOnClickListener(v -> onUploadClicked());
-
     }
 
     private void onUploadClicked() {
