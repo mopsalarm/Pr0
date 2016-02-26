@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,13 +61,15 @@ public class ImageDecoders {
             this.downloader = downloader;
         }
 
+        @SuppressLint("NewApi")
         @Override
         public Point init(Context context, Uri uri) throws Exception {
             if ("file".equals(uri.getScheme())) {
                 this.decoder = BitmapRegionDecoder.newInstance(uri.getPath(), false);
             } else {
-                InputStream inputStream = downloader.load(uri, 0).getInputStream();
-                this.decoder = BitmapRegionDecoder.newInstance(inputStream, false);
+                try (InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
+                    this.decoder = BitmapRegionDecoder.newInstance(inputStream, false);
+                }
             }
 
             return new Point(this.decoder.getWidth(), this.decoder.getHeight());
