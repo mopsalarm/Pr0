@@ -11,7 +11,6 @@ import android.view.MenuItem;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.Track;
@@ -40,9 +39,6 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Inject
     NotificationService notificationService;
-
-    @Inject
-    ExperimentService experimentService;
 
     @Inject
     InboxService inboxService;

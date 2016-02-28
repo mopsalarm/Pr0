@@ -9,14 +9,11 @@ import android.view.View;
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.ab.ExperimentService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 import com.trello.rxlifecycle.FragmentLifecycleProvider;
 import com.trello.rxlifecycle.RxLifecycle;
-
-import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import rx.Observable;
@@ -28,9 +25,6 @@ import rx.subjects.BehaviorSubject;
  */
 public abstract class BaseFragment extends Fragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
-
-    @Inject
-    protected ExperimentService experimentService;
 
     @NonNull
     @Override
