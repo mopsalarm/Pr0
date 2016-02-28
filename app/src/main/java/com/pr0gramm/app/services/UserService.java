@@ -113,7 +113,6 @@ public class UserService {
                 syncState = syncWithProgress()
                         .ofType(Float.class)
                         .map(LoginProgress::new)
-                        .doAfterTerminate(() -> logger.info("first step terminated"))
                         .mergeWith(info()
                                 .flatMap(this::initializeBenisGraphUsingMetaService)
                                 .ofType(LoginProgress.class))

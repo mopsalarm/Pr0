@@ -39,6 +39,11 @@ android {
         }
     }
 
+    aaptOptions {
+        // See https://www.reddit.com/r/androiddev/comments/47ni7v/if_you_support_older_versions_of_android_there_is/
+        additionalParameters "--no-version-vectors"
+    }
+
     sourceSets.main {
         jni.srcDirs = []
         jniLibs.srcDir 'src/main/libs'
@@ -184,8 +189,8 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.1.1.0'
-    compile 'com.trello:rxlifecycle:0.4.0'
-    compile 'com.trello:rxlifecycle-components:0.4.0'
+    compile 'com.trello:rxlifecycle:0.5.0'
+    compile 'com.trello:rxlifecycle-components:0.5.0'
 
     compile('pl.brightinventions:slf4android:0.1.2@aar') {
         transitive = true

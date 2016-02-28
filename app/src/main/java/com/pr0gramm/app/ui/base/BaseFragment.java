@@ -32,6 +32,8 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     @Inject
     protected ExperimentService experimentService;
 
+    @NonNull
+    @Override
     public Observable<FragmentEvent> lifecycle() {
         return lifecycleSubject.asObservable();
     }
@@ -43,7 +45,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event));
+                .compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
     }
 
     @Override
@@ -58,16 +60,6 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     protected final <T> Observable.Transformer<T, T> bindToLifecycleSimple() {
         //noinspection unchecked
         return (Observable.Transformer<T, T>) RxLifecycle.<T>bindFragment(lifecycleSubject);
-    }
-
-    protected final <T> Observable.Transformer<T, T> bindUntilEventForeground(@NonNull FragmentEvent event) {
-        //noinspection unchecked
-        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event);
-    }
-
-    protected <T> Observable.Transformer<T, T> bindView() {
-        //noinspection unchecked
-        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW);
     }
 
     @Override

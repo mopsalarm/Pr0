@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.base;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 import com.f2prateek.dart.Dart;
@@ -30,14 +31,15 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
     private ActivityComponent activityComponent;
 
+    @NonNull
     @Override
     public Observable<ActivityEvent> lifecycle() {
         return lifecycleSubject.asObservable();
     }
 
     @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
-        return observable -> observable.compose(RxLifecycle.<T>bindUntilActivityEvent(lifecycleSubject, event));
+    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull ActivityEvent event) {
+        return observable -> observable.compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
     }
 
     public <T> Observable.Transformer<T, T> bindUntilEventAsync(ActivityEvent event) {

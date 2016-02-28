@@ -487,6 +487,7 @@ public class PostFragment extends BaseFragment implements
             }
 
             viewer.setClipBoundsCompat(null);
+            viewer.setVisibility(View.VISIBLE);
 
             activity.supportInvalidateOptionsMenu();
             registerExitFullscreenListener();

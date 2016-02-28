@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -35,18 +36,20 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
     @Inject
     protected ExperimentService experimentService;
 
+    @NonNull
+    @Override
     public Observable<FragmentEvent> lifecycle() {
         return lifecycleSubject.asObservable();
     }
 
 
     @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(FragmentEvent event) {
+    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull FragmentEvent event) {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindUntilFragmentEvent(lifecycleSubject, event));
+                .compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
     }
 
     @Override
