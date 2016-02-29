@@ -2,11 +2,11 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.support.annotation.NonNull;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.pr0gramm.app.R;
-
-import rx.functions.Action1;
 
 /**
  */
@@ -82,24 +82,28 @@ public abstract class ProxyMediaView extends MediaView {
     @Override
     public void onResume() {
         super.onResume();
-        propagate(MediaView::onResume);
+        if (child != null)
+            child.onResume();
     }
 
     @Override
     public void playMedia() {
         super.playMedia();
-        propagate(MediaView::playMedia);
+        if (child != null)
+            child.playMedia();
     }
 
     @Override
     public void stopMedia() {
         super.stopMedia();
-        propagate(MediaView::stopMedia);
+        if (child != null)
+            child.stopMedia();
     }
 
     @Override
     public void rewind() {
-        propagate(MediaView::rewind);
+        if (child != null)
+            child.rewind();
     }
 
     @Override
@@ -116,13 +120,22 @@ public abstract class ProxyMediaView extends MediaView {
 
     @Override
     public void onPause() {
-        propagate(MediaView::onPause);
         super.onPause();
+        if (child != null)
+            child.onPause();
     }
 
-    private void propagate(Action1<MediaView> action) {
-        if (child != null)
-            action.call(child);
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (child != null) {
+            event.offsetLocation(
+                    child.getPaddingLeft() - getPaddingLeft(),
+                    child.getPaddingTop() - getPaddingTop());
+
+            return child.onTouchEvent(event);
+        }
+
+        return super.onTouchEvent(event);
     }
 
     private class ForwardingTapListener implements TapListener {
