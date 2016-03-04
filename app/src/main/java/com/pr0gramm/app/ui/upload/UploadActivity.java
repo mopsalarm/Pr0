@@ -46,7 +46,12 @@ public class UploadActivity extends BaseAppCompatActivity {
 
             uploadService.checkIsRateLimited().compose(bindToLifecycle()).subscribe(limited -> {
                 if (!limited) {
-                    showChooseMediaTypeFragment();
+                    Intent intent = getIntent();
+                    if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
+                        showUploadFragment(null);
+                    } else {
+                        showChooseMediaTypeFragment();
+                    }
 
                 } else {
                     showUploadLimitReached();
@@ -85,14 +90,15 @@ public class UploadActivity extends BaseAppCompatActivity {
                 .commit();
     }
 
-    void showUploadFragment(String type) {
+    void showUploadFragment(@Nullable String type) {
         Bundle arguments = new Bundle();
-        arguments.putString(UploadFragment.EXTRA_MEDIA_TYPE, type);
 
         Intent intent = getIntent();
         if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
             Uri url = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             arguments.putParcelable(UploadFragment.EXTRA_LOCAL_URI, url);
+        } else if (type != null) {
+            arguments.putString(UploadFragment.EXTRA_MEDIA_TYPE, type);
         }
 
         Fragment fragment = new UploadFragment();
