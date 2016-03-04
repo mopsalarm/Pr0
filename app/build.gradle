@@ -139,6 +139,7 @@ repositories {
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url 'http://dl.bintray.com/amulyakhare/maven' }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url 'https://github.com/suckgamony/RapidDecoder/raw/master/repository' }
 }
 
 dependencies {
@@ -191,6 +192,10 @@ dependencies {
     compile 'com.artemzin.rxjava:proguard-rules:1.1.1.0'
     compile 'com.trello:rxlifecycle:0.5.0'
     compile 'com.trello:rxlifecycle-components:0.5.0'
+
+    // improved jpeg support
+    compile 'rapid.decoder:library:0.3.0'
+    compile 'rapid.decoder:jpeg-decoder:0.3.0'
 
     compile('pl.brightinventions:slf4android:0.1.2@aar') {
         transitive = true

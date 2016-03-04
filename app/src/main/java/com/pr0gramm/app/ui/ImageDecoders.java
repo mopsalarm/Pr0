@@ -11,6 +11,9 @@ import android.net.Uri;
 
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder;
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
+import com.google.common.primitives.Bytes;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -18,7 +21,10 @@ import com.squareup.picasso.Picasso;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
+
+import rapid.decoder.BitmapDecoder;
 
 /**
  */
@@ -55,41 +61,82 @@ public class ImageDecoders {
 
         private static final Object DECODER_LOCK = new Object();
         private final Downloader downloader;
-        private BitmapRegionDecoder decoder;
+
+        private BitmapRegionDecoder nativeDecoder;
+
+        private BitmapDecoder rapidDecoder;
 
         public PicassoRegionDecoder(Downloader downloader) {
             this.downloader = downloader;
         }
 
-        @SuppressLint("NewApi")
         @Override
         public Point init(Context context, Uri uri) throws Exception {
+            try {
+                return initNativeDecoder(uri);
+
+            } catch (IOException error) {
+                if (error.toString().contains("failed to decode")) {
+                    nativeDecoder = null;
+                    return initRapidDecoder(uri);
+                }
+
+                throw error;
+            }
+        }
+
+        @SuppressLint("NewApi")
+        private Point initRapidDecoder(Uri uri) throws IOException {
             if ("file".equals(uri.getScheme())) {
-                this.decoder = BitmapRegionDecoder.newInstance(uri.getPath(), false);
+                rapidDecoder = BitmapDecoder.from(uri).useBuiltInDecoder();
+                return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
+            } else {
+                logger.info("Falling back on 'rapid' decoder");
+                byte[] bytes;
+                try(InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
+                    bytes = ByteStreams.toByteArray(inputStream);
+                }
+
+                rapidDecoder = BitmapDecoder.from(bytes).useBuiltInDecoder();
+                return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
+            }
+        }
+
+        @SuppressLint("NewApi")
+        private Point initNativeDecoder(Uri uri) throws IOException {
+            if ("file".equals(uri.getScheme())) {
+                this.nativeDecoder = BitmapRegionDecoder.newInstance(uri.getPath(), false);
             } else {
                 try (InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
-                    this.decoder = BitmapRegionDecoder.newInstance(inputStream, false);
+                    this.nativeDecoder = BitmapRegionDecoder.newInstance(inputStream, false);
                 }
             }
 
-            return new Point(this.decoder.getWidth(), this.decoder.getHeight());
+            return new Point(this.nativeDecoder.getWidth(), this.nativeDecoder.getHeight());
         }
 
         @Override
         public Bitmap decodeRegion(Rect rect, int sampleSize) {
             synchronized (DECODER_LOCK) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = sampleSize;
-                options.inPreferredConfig = Bitmap.Config.RGB_565;
+                if (nativeDecoder != null) {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize = sampleSize;
+                    options.inPreferredConfig = Bitmap.Config.RGB_565;
 
-                Bitmap bitmap = decodeRegion(rect, options);
-                if (bitmap == null) {
-                    throw new RuntimeException("Region decoder returned null bitmap - image format may not be supported");
+                    Bitmap bitmap = decodeRegion(rect, options);
+                    if (bitmap == null) {
+                        throw new RuntimeException("Region decoder returned null bitmap - image format may not be supported");
+                    } else {
+                        logger.info("Decoded region {} with {}, resulting image is {}x{}",
+                                rect, sampleSize, bitmap.getWidth(), bitmap.getHeight());
+
+                        return bitmap;
+                    }
                 } else {
-                    logger.info("Decoded region {} with {}, resulting image is {}x{}",
-                            rect, sampleSize, bitmap.getWidth(), bitmap.getHeight());
-
-                    return bitmap;
+                    return rapidDecoder.reset()
+                            .region(rect)
+                            .scale(rect.width() / sampleSize, rect.height() / sampleSize)
+                            .decode();
                 }
             }
         }
@@ -97,7 +144,7 @@ public class ImageDecoders {
         private Bitmap decodeRegion(Rect rect, BitmapFactory.Options options) {
             Bitmap bitmap;
             try {
-                bitmap = this.decoder.decodeRegion(rect, options);
+                bitmap = this.nativeDecoder.decodeRegion(rect, options);
             } catch (OutOfMemoryError oom) {
                 throw new RuntimeException("Out of memory");
             }
@@ -106,12 +153,21 @@ public class ImageDecoders {
 
         @Override
         public boolean isReady() {
-            return this.decoder != null && !this.decoder.isRecycled();
+            return (this.nativeDecoder != null && !this.nativeDecoder.isRecycled())
+                    || this.rapidDecoder != null;
         }
 
         @Override
         public void recycle() {
-            this.decoder.recycle();
+            if (nativeDecoder != null) {
+                nativeDecoder.recycle();
+                nativeDecoder = null;
+            }
+
+            if (rapidDecoder != null) {
+                rapidDecoder.reset();
+                rapidDecoder = null;
+            }
         }
     }
 }
