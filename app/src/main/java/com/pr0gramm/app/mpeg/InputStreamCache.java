@@ -1,17 +1,20 @@
 package com.pr0gramm.app.mpeg;
 
 import android.content.Context;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 
 import com.google.common.io.ByteStreams;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
+import static com.google.common.io.ByteStreams.copy;
 import static com.google.common.io.Closeables.closeQuietly;
 
 /**
@@ -20,6 +23,7 @@ public class InputStreamCache {
     private final File directory;
     private InputStream backend;
     private RandomAccessFile cache;
+    private CachingInputStream cachingStream;
 
     public InputStreamCache(Context context, InputStream backend) {
         this.directory = context.getCacheDir();
@@ -52,14 +56,33 @@ public class InputStreamCache {
         }
     }
 
-    public InputStream get() throws IOException {
+    public synchronized InputStream get() throws IOException {
         if (backendIsClosed()) {
             // reset the cache and return a new input stream.
             cache.seek(0);
-            return new FileInputStream(cache.getFD());
+
+            ParcelFileDescriptor fd = ParcelFileDescriptor.dup(cache.getFD());
+            return new FilterInputStream(new FileInputStream(cache.getFD())) {
+                @Override
+                public void close() throws IOException {
+                    try {
+                        fd.close();
+                    } catch (IOException ignored) {
+                    }
+
+                    super.close();
+                }
+            };
+        } else if (cachingStream != null) {
+            copy(cachingStream, ByteStreams.nullOutputStream());
+            closeQuietly(cachingStream);
+            cachingStream = null;
+            return get();
+
         } else {
             cache = newCacheFile();
-            return new CachingInputStream();
+            cachingStream = new CachingInputStream();
+            return cachingStream;
         }
     }
 

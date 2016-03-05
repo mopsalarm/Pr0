@@ -12,8 +12,7 @@ import android.net.Uri;
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder;
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-import com.google.common.primitives.Bytes;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -21,10 +20,16 @@ import com.squareup.picasso.Picasso;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import rapid.decoder.BitmapDecoder;
+
+import static com.pr0gramm.app.util.AndroidUtility.toFile;
 
 /**
  */
@@ -59,65 +64,59 @@ public class ImageDecoders {
     public static class PicassoRegionDecoder implements ImageRegionDecoder {
         private static final Logger logger = LoggerFactory.getLogger("PicassoRegionDecoder");
 
-        private static final Object DECODER_LOCK = new Object();
+        // We limit the maximum number of decoders in parallel.
+        private static final Semaphore DECODER_SEMA = new Semaphore(3);
+
         private final Downloader downloader;
 
         private BitmapRegionDecoder nativeDecoder;
-
         private BitmapDecoder rapidDecoder;
+
+        private boolean deleteOnExit;
+        private File tempFile;
 
         public PicassoRegionDecoder(Downloader downloader) {
             this.downloader = downloader;
         }
 
+        @SuppressLint("NewApi")
         @Override
         public Point init(Context context, Uri uri) throws Exception {
+            if ("file".equals(uri.getScheme())) {
+                tempFile = toFile(uri);
+            } else {
+                tempFile = File.createTempFile("image", "tmp", context.getCacheDir());
+                tempFile.deleteOnExit();
+                deleteOnExit = true;
+
+                // download to temp file. not nice, but useful :/
+                try (InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
+                    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+                        ByteStreams.copy(inputStream, output);
+                    }
+                }
+            }
+
             try {
-                return initNativeDecoder(uri);
+                this.nativeDecoder = BitmapRegionDecoder.newInstance(tempFile.getPath(), false);
+                return new Point(this.nativeDecoder.getWidth(), this.nativeDecoder.getHeight());
 
             } catch (IOException error) {
                 if (error.toString().contains("failed to decode")) {
                     nativeDecoder = null;
-                    return initRapidDecoder(uri);
+
+                    rapidDecoder = BitmapDecoder.from(Uri.fromFile(tempFile)).useBuiltInDecoder();
+                    return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
                 }
 
                 throw error;
             }
         }
 
-        @SuppressLint("NewApi")
-        private Point initRapidDecoder(Uri uri) throws IOException {
-            if ("file".equals(uri.getScheme())) {
-                rapidDecoder = BitmapDecoder.from(uri).useBuiltInDecoder();
-                return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
-            } else {
-                logger.info("Falling back on 'rapid' decoder");
-                byte[] bytes;
-                try(InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
-                    bytes = ByteStreams.toByteArray(inputStream);
-                }
-
-                rapidDecoder = BitmapDecoder.from(bytes).useBuiltInDecoder();
-                return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
-            }
-        }
-
-        @SuppressLint("NewApi")
-        private Point initNativeDecoder(Uri uri) throws IOException {
-            if ("file".equals(uri.getScheme())) {
-                this.nativeDecoder = BitmapRegionDecoder.newInstance(uri.getPath(), false);
-            } else {
-                try (InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
-                    this.nativeDecoder = BitmapRegionDecoder.newInstance(inputStream, false);
-                }
-            }
-
-            return new Point(this.nativeDecoder.getWidth(), this.nativeDecoder.getHeight());
-        }
-
         @Override
         public Bitmap decodeRegion(Rect rect, int sampleSize) {
-            synchronized (DECODER_LOCK) {
+            Uninterruptibles.tryAcquireUninterruptibly(DECODER_SEMA, 10, TimeUnit.SECONDS);
+            try {
                 if (nativeDecoder != null) {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inSampleSize = sampleSize;
@@ -138,6 +137,8 @@ public class ImageDecoders {
                             .scale(rect.width() / sampleSize, rect.height() / sampleSize)
                             .decode();
                 }
+            } finally {
+                DECODER_SEMA.release();
             }
         }
 
@@ -167,6 +168,12 @@ public class ImageDecoders {
             if (rapidDecoder != null) {
                 rapidDecoder.reset();
                 rapidDecoder = null;
+            }
+
+            if (deleteOnExit) {
+                if (!tempFile.delete()) {
+                    logger.warn("Could not delete temporary image");
+                }
             }
         }
     }
