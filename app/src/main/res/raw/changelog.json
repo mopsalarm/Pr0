@@ -1,5 +1,18 @@
 [
   {
+    "version": 91,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Probleme beim Laden einiger Bilder behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Probleme beim Einloggen behoben"
+      }
+    ]
+  },
+  {
     "version": 90,
     "changes": [
       {
