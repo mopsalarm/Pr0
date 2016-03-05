@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.upload;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,9 +47,21 @@ public class UploadActivity extends BaseAppCompatActivity {
 
             uploadService.checkIsRateLimited().compose(bindToLifecycle()).subscribe(limited -> {
                 if (!limited) {
+                    String action = null, mediaType = null;
+
+                    // get from intent
                     Intent intent = getIntent();
-                    if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
+                    if (intent != null) {
+                        action = intent.getAction();
+                        mediaType = intent.getStringExtra(UploadFragment.EXTRA_MEDIA_TYPE);
+                    }
+
+                    if (Intent.ACTION_SEND.equals(action)) {
                         showUploadFragment(null);
+
+                    } else if (mediaType != null) {
+                        showUploadFragment(mediaType);
+
                     } else {
                         showChooseMediaTypeFragment();
                     }
@@ -142,4 +155,13 @@ public class UploadActivity extends BaseAppCompatActivity {
             return inflater.inflate(R.layout.fragment_upload_something_went_wrong, container, false);
         }
     }
+
+    public static void openForType(Context context, String mediaType) {
+        Intent intent = new Intent(context, UploadActivity.class);
+        intent.putExtra(UploadFragment.EXTRA_MEDIA_TYPE, mediaType);
+        context.startActivity(intent);
+    }
+
+    public static final String MEDIA_TYPE_IMAGE = "image/*";
+    public static final String MEDIA_TYPE_VIDEO = "video/*";
 }

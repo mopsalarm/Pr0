@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.akodiakson.sdk.simple.Sdk;
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
@@ -47,6 +48,7 @@ import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
+import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import java.util.ArrayList;
@@ -94,6 +96,9 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Bind(R.id.content)
     View contentContainer;
+
+    @Bind(R.id.bottomsheet)
+    BottomSheetLayout bottomSheet;
 
     @Inject
     UserService userService;
@@ -596,6 +601,27 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Override
     public Observable<Void> requirePermission(String permission) {
         return permissionHelper.requirePermission(permission);
+    }
+
+    @Override
+    public void showUploadBottomSheet() {
+        MenuSheetView menuSheetView = new MenuSheetView(this, R.string.hint_upload, item -> {
+            if (bottomSheet != null)
+                bottomSheet.dismissSheet();
+
+            if (item.getItemId() == R.id.action_upload_image) {
+                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_IMAGE);
+            }
+
+            if (item.getItemId() == R.id.action_upload_video) {
+                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_VIDEO);
+            }
+
+            return true;
+        });
+
+        menuSheetView.inflateMenu(R.menu.menu_upload);
+        bottomSheet.showWithSheetView(menuSheetView);
     }
 
     public static void open(Context context) {

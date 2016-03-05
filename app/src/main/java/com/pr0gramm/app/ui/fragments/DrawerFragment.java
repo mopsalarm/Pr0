@@ -37,6 +37,7 @@ import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
@@ -44,7 +45,6 @@ import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
-import com.pr0gramm.app.ui.upload.UploadActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -286,6 +286,7 @@ public class DrawerFragment extends BaseFragment {
         updateBenisDelta(delta);
     }
 
+    @SuppressWarnings("ResourceAsColor")
     private void updateBenisDelta(int delta) {
         benisDeltaView.setVisibility(View.VISIBLE);
         benisDeltaView.setTextColor(delta < 0
@@ -444,7 +445,7 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void showUploadActivity() {
-        Runnable run = () -> startActivity(new Intent(getActivity(), UploadActivity.class));
+        Runnable run = () -> ((MainActionHandler) getActivity()).showUploadBottomSheet();
         doIfAuthorizedHelper.run(run, run);
     }
 

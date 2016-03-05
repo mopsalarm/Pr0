@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:descendantFocusability="blocksDescendants"
+             android:background="?selectableItemBackground"
+             android:gravity="center"
+             android:minHeight="48dp"
+             android:theme="?popupTheme">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        tools:src="@android:drawable/ic_delete"
+        />
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="64dp"
+        android:maxLines="1"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="16sp"
+        tools:text="Delete"
+        />
+
+</FrameLayout>

@@ -10,4 +10,6 @@ public interface MainActionHandler {
     void onFeedFilterSelected(FeedFilter filter);
 
     void pinFeedFilter(FeedFilter filter, String title);
+
+    void showUploadBottomSheet();
 }

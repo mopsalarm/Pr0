@@ -1,29 +1,35 @@
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
+<com.flipboard.bottomsheet.BottomSheetLayout
+    android:id="@+id/bottomsheet"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
-    <FrameLayout
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <FrameLayout
-            android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar"/>
-    </FrameLayout>
+            <FrameLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-    <FrameLayout
-        android:id="@+id/left_drawer"
-        android:layout_width="270dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="?android:windowBackground"
-        android:theme="?drawerTheme"/>
+            <include layout="@layout/toolbar"/>
+        </FrameLayout>
 
-</android.support.v4.widget.DrawerLayout>
+        <FrameLayout
+            android:id="@+id/left_drawer"
+            android:layout_width="270dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="?android:windowBackground"
+            android:theme="?drawerTheme"/>
+
+    </android.support.v4.widget.DrawerLayout>
+</com.flipboard.bottomsheet.BottomSheetLayout>
