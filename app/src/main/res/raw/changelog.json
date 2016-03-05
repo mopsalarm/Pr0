@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Probleme beim Einloggen behoben"
+      },
+      {
+        "type": "Fix",
+        "change": "Unnötige Berechtigung wieder entfernt."
       }
     ]
   },
