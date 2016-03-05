@@ -6,7 +6,7 @@
             android:clickable="true"
             android:orientation="vertical"
             android:theme="?drawerTheme"
-            tools:background="?android:windowBackground">
+            tools:background="@color/drawer_background">
 
     <LinearLayout
         android:layout_width="match_parent"

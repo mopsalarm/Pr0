@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +39,7 @@ import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.WrapContentLinearLayoutManager;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LoginActivity;
@@ -151,8 +151,8 @@ public class DrawerFragment extends BaseFragment {
 
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);
-        navItemsRecyclerView.setLayoutManager(new LinearLayoutManager(
-                getActivity(), LinearLayoutManager.VERTICAL, false));
+        navItemsRecyclerView.setLayoutManager(new WrapContentLinearLayoutManager(
+                getActivity(), WrapContentLinearLayoutManager.VERTICAL, false));
 
         // add the static items to the navigation
         navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(
