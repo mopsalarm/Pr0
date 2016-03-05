@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
@@ -51,6 +52,9 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
 
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
     private ActivityComponent activityComponent;
+
+    @Unbinder
+    ButterKnife.ViewUnbinder<? extends BaseAppCompatActivity> unbinder;
 
     @NonNull
     @Override
@@ -223,11 +227,14 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     protected void onDestroy() {
         lifecycleSubject.onNext(ActivityEvent.DESTROY);
         super.onDestroy();
+
+        if (unbinder != null)
+            unbinder.unbind();
     }
 
     @Override
-    public void onSupportContentChanged() {
-        super.onSupportContentChanged();
+    public void onContentChanged() {
+        super.onContentChanged();
         ButterKnife.bind(this);
     }
 }

@@ -19,7 +19,6 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
-import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -40,8 +39,6 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.UriHelper;
@@ -51,17 +48,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Scheduler;
@@ -207,51 +199,6 @@ public class AndroidUtility {
         DrawableCompat.setTint(icon, resources.getColor(colorId));
         return icon;
     }
-
-    public static void uninjectViews(Object object) {
-        checkMainThread();
-
-        Class<?> objectClass = object.getClass();
-        List<Field> fields = VIEW_FIELDS_CACHE.get(objectClass);
-        if (fields == null) {
-            fields = ImmutableList.copyOf(queryInjectViewFields(objectClass));
-            VIEW_FIELDS_CACHE.put(objectClass, fields);
-        }
-
-        int count = 0;
-        for (Field field : fields) {
-            try {
-                field.setAccessible(true);
-                Object view = field.get(object);
-                if (view instanceof RecyclerView) {
-                    ((RecyclerView) view).setAdapter(null);
-                }
-
-                field.set(object, null);
-                count++;
-            } catch (IllegalAccessException ignored) {
-            }
-        }
-
-        logger.info("Uninjected {} views out of {}", count, objectClass.getSimpleName());
-    }
-
-    private static List<Field> queryInjectViewFields(Class<?> currentClass) {
-        List<Field> fields = new ArrayList<>();
-        while (currentClass != Object.class) {
-            if (currentClass.getName().startsWith("android."))
-                break;
-
-            FluentIterable.of(currentClass.getDeclaredFields())
-                    .filter(field -> field.isAnnotationPresent(Bind.class))
-                    .copyInto(fields);
-
-            currentClass = currentClass.getSuperclass();
-        }
-        return fields;
-    }
-
-    private static final Map<Class<?>, List<Field>> VIEW_FIELDS_CACHE = new HashMap<>();
 
     public static Logger logger(Object instance) {
         String suffix = Integer.toString(System.identityHashCode(instance), Character.MAX_RADIX);
