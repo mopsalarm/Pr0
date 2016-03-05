@@ -29,7 +29,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 /**
  */
 public class ItemAdminDialog extends BaseDialogFragment {
-    private static final String KEY_FEED_ITEM = "ItemAdminDialog.feedItem";
+    private static final String KEY_FEED_ITEM = "ItemAdminDialog__feedItem";
 
     @Inject
     AdminService adminService;

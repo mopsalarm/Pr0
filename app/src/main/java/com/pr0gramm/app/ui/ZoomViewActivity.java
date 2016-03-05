@@ -36,10 +36,10 @@ import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 public class ZoomViewActivity extends BaseAppCompatActivity {
     private final String tag = "ZoomViewActivity" + System.currentTimeMillis();
 
-    @InjectExtra("ZoomViewActivity.item")
+    @InjectExtra("ZoomViewActivity__item")
     FeedItem item;
 
-    @InjectExtra("ZoomViewActivity.hq")
+    @InjectExtra("ZoomViewActivity__hq")
     boolean loadHqIfAvailable;
 
     @Bind(R.id.image)
@@ -126,8 +126,8 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     public static Intent newIntent(Context context, FeedItem item, boolean hq) {
         Intent intent = new Intent(context, ZoomViewActivity.class);
-        intent.putExtra("ZoomViewActivity.item", item);
-        intent.putExtra("ZoomViewActivity.hq", hq);
+        intent.putExtra("ZoomViewActivity__item", item);
+        intent.putExtra("ZoomViewActivity__hq", hq);
         return intent;
     }
 

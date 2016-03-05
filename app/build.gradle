@@ -156,15 +156,15 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta4'
-    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.13'
-    compile 'com.github.satyan:sugar:1.4'
+    compile 'com.github.satyan:sugar:1.5'
     compile 'com.github.tony19:named-regexp:0.2.3'
     compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile 'com.squareup.sqlbrite:sqlbrite:0.6.0'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.6.2'
     compile "com.infstory:proguard-annotations:1.0.2"
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.4.1'
@@ -172,19 +172,19 @@ dependencies {
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
     compile 'com.github.KeepSafe:ReLinker:1.1'
 
-    compile 'com.facebook.stetho:stetho:1.3.0'
-    compile 'com.facebook.stetho:stetho-okhttp3:1.3.0'
+    compile 'com.facebook.stetho:stetho:1.3.1'
+    compile 'com.facebook.stetho:stetho-okhttp3:1.3.1'
 
     compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
     compile 'com.jakewharton:butterknife-annotations:8.0.0-SNAPSHOT'
     apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
 
-    compile("com.f2prateek.dart:dart:2.0.0-RC1") {
+    compile("com.f2prateek.dart:dart:2.0.0") {
         // someone fucked up and added this library.
         // see https://github.com/f2prateek/dart/issues/74
         exclude group: "com.squareup", module: "javapoet"
     }
-    apt 'com.f2prateek.dart:dart-processor:2.0.0-RC1'
+    apt 'com.f2prateek.dart:dart-processor:2.0.0'
 
     // rx java
     compile 'io.reactivex:rxjava:1.1.1'
@@ -206,9 +206,9 @@ dependencies {
         transitive = true;
     }
 
-    apt 'org.immutables:value:2.1.11'
-    provided 'org.immutables:value:2.1.11'
-    provided 'org.immutables:gson:2.1.11'
+    apt 'org.immutables:value:2.1.12'
+    provided 'org.immutables:value:2.1.12'
+    provided 'org.immutables:gson:2.1.12'
 
     compile 'com.google.dagger:dagger:2.0.2'
     apt 'com.google.dagger:dagger-compiler:2.0.2'

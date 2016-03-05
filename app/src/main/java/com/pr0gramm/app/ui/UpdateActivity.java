@@ -15,7 +15,7 @@ import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
  * This activity is just there to host the update dialog fragment.
  */
 public class UpdateActivity extends BaseAppCompatActivity implements DialogDismissListener {
-    public static final String EXTRA_UPDATE = "UpdateActivity.EXTRA_UPDATE";
+    public static final String EXTRA_UPDATE = "UpdateActivity__EXTRA_UPDATE";
 
     @InjectExtra(EXTRA_UPDATE)
     Update update;
