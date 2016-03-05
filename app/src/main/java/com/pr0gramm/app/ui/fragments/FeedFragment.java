@@ -449,12 +449,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     .onErrorResumeNext(Observable.just(Optional.absent()));
 
             Observable<List<UserComments.Comment>> third = inboxService
-                    .getUserComments(queryString, getSelectedContentType())
+                    .getUserComments(queryString, contentTypes)
                     .map(UserComments::getComments)
                     .onErrorResumeNext(Observable.just(emptyList()));
 
             return Observable.zip(first, second, third, ImmutableEnhancedUserInfo::of)
-                    .cast(EnhancedUserInfo.class)
+                    .ofType(EnhancedUserInfo.class)
                     .doOnNext(info -> inMemoryCacheService.cacheUserInfo(contentTypes, info));
 
         } else {
