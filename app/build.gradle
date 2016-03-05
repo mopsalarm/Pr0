@@ -175,8 +175,7 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.3.0'
     compile 'com.facebook.stetho:stetho-okhttp3:1.3.0'
 
-    compile 'com.jakewharton:butterknife:8.0.0-SNAPSHOT'
-    apt 'com.jakewharton:butterknife-compiler:8.0.0-SNAPSHOT'
+    compile 'com.jakewharton:butterknife:7.0.1'
 
     compile("com.f2prateek.dart:dart:2.0.0-RC1") {
         // someone fucked up and added this library.

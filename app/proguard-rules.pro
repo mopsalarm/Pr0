@@ -56,6 +56,11 @@
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
 -keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
 
+# this is for butterknife
+-dontwarn butterknife.internal.**
+-keep class **$$ViewBinder { *; }
+
+
 # this is for dart injection library
 -dontwarn com.f2prateek.dart.internal.**
 -keep class **$$ExtraInjector { *; }

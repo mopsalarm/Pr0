@@ -71,6 +71,10 @@
 -keep class **Henson { *; }
 -keep class **$$IntentBuilder { *; }
 
+# this is for butterknife
+-dontwarn butterknife.internal.**
+-keep class **$$ViewBinder { *; }
+
 # keep enums!
 -keepclassmembers enum * {
     public static **[] values();
