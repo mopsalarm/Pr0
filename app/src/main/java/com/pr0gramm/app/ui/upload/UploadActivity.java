@@ -1,11 +1,13 @@
 package com.pr0gramm.app.ui.upload;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -23,7 +25,7 @@ import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 /**
  */
-public class UploadActivity extends BaseAppCompatActivity {
+public class UploadActivity extends BaseAppCompatActivity implements ChooseMediaTypeFragment.Listener {
     @Inject
     UploadService uploadService;
 
@@ -57,10 +59,10 @@ public class UploadActivity extends BaseAppCompatActivity {
                     }
 
                     if (Intent.ACTION_SEND.equals(action)) {
-                        showUploadFragment(null);
+                        showUploadFragment(null, false);
 
                     } else if (mediaType != null) {
-                        showUploadFragment(mediaType);
+                        showUploadFragment(mediaType, false);
 
                     } else {
                         showChooseMediaTypeFragment();
@@ -83,43 +85,44 @@ public class UploadActivity extends BaseAppCompatActivity {
     }
 
     private void showChooseMediaTypeFragment() {
-        ChooseMediaTypeFragment fragment = new ChooseMediaTypeFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+        show(new ChooseMediaTypeFragment(), false);
     }
 
     private void showSomethingWentWrong() {
-        Fragment fragment = new SomethingWentWrongFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+        show(new SomethingWentWrongFragment(), false);
     }
 
     private void showUploadLimitReached() {
-        Fragment fragment = new UploadLimitReachedFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+        show(new UploadLimitReachedFragment(), false);
     }
 
-    void showUploadFragment(@Nullable String type) {
+    void showUploadFragment(String type, boolean addToBackstack) {
         Bundle arguments = new Bundle();
 
         Intent intent = getIntent();
         if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
             Uri url = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             arguments.putParcelable(UploadFragment.EXTRA_LOCAL_URI, url);
-        } else if (type != null) {
+        } else {
             arguments.putString(UploadFragment.EXTRA_MEDIA_TYPE, type);
         }
 
         Fragment fragment = new UploadFragment();
         fragment.setArguments(arguments);
+        show(fragment, addToBackstack);
+    }
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+    private void show(Fragment fragment, boolean addToBackstack) {
+        @SuppressLint("CommitTransaction")
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment);
+
+        if (addToBackstack) {
+            transaction.addToBackStack(null);
+        }
+
+        transaction.commit();
     }
 
     @Override
@@ -130,6 +133,11 @@ public class UploadActivity extends BaseAppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMediaTypeChosen(String type) {
+        showUploadFragment(type, true);
     }
 
     public static class CheckUploadAllowedFragment extends Fragment {

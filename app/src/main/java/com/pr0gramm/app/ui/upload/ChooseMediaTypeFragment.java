@@ -37,8 +37,12 @@ public class ChooseMediaTypeFragment extends Fragment {
     }
 
     private void openWithType(String type) {
-        UploadActivity uploadActivity = (UploadActivity) getActivity();
-        uploadActivity.showUploadFragment(type);
+        Listener listener = (Listener) getActivity();
+        listener.onMediaTypeChosen(type);
+    }
+
+    public interface Listener {
+        void onMediaTypeChosen(String type);
     }
 }
 
