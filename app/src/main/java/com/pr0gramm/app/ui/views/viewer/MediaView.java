@@ -35,6 +35,7 @@ import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
+import com.pr0gramm.app.ui.FancyThumbnailGenerator;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -101,6 +102,8 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     ProxyService proxyService;
 
+    @Inject
+    FancyThumbnailGenerator fancyThumbnailGenerator;
 
     protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
@@ -221,7 +224,15 @@ public abstract class MediaView extends FrameLayout {
         }
 
         if (info.getPreview() != null) {
-            setPreviewDrawable(info.getPreview());
+            Drawable image = info.getPreview();
+            if (image instanceof BitmapDrawable && info.getHeight() > 0) {
+                float aspect = info.getWidth() / (float) info.getHeight();
+                Bitmap bitmap = ((BitmapDrawable) image).getBitmap();
+                bitmap = fancyThumbnailGenerator.fancyThumbnail(bitmap, aspect);
+                image = new BitmapDrawable(getResources(), bitmap);
+            }
+
+            setPreviewDrawable(image);
 
         } else if (info.getPreviewUri() != null) {
             if (mediaIsPreloaded()) {
@@ -298,6 +309,10 @@ public abstract class MediaView extends FrameLayout {
     protected void removeBlurredBackground() {
         blurredBackground = null;
         AndroidUtility.setViewBackground(this, null);
+    }
+
+    private boolean hasBlurredBackground() {
+        return blurredBackground != null;
     }
 
     @Override
@@ -519,7 +534,7 @@ public abstract class MediaView extends FrameLayout {
     }
 
     protected void cacheMediaSize(int width, int height) {
-        if(mediaUri.getId() > 0) {
+        if (mediaUri.getId() > 0) {
             inMemoryCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
                     .id(mediaUri.getId())
                     .width(width)
@@ -557,16 +572,23 @@ public abstract class MediaView extends FrameLayout {
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             MediaView mediaView = this.mediaView.get();
             if (mediaView != null && mediaView.preview != null) {
-                Drawable nextImage = new BitmapDrawable(mediaView.getResources(), bitmap);
 
                 if (mediaView.previewDrawable != null) {
-                    Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), nextImage};
+                    Drawable newImage = new BitmapDrawable(mediaView.getResources(), bitmap);
+                    Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), newImage};
                     TransitionDrawable drawable = new TransitionDrawable(drawables);
                     drawable.startTransition(500);
 
                     mediaView.setPreviewDrawable(drawable);
                 } else {
-                    mediaView.setPreviewDrawable(nextImage);
+                    // we have no other preview, lets do fancy stuff.
+                    float aspect = mediaView.getViewAspect();
+                    if (aspect > 0 && mediaView.hasBlurredBackground()) {
+                        bitmap = mediaView.fancyThumbnailGenerator.fancyThumbnail(bitmap, aspect);
+                    }
+
+                    Drawable preview = new BitmapDrawable(mediaView.getResources(), bitmap);
+                    mediaView.setPreviewDrawable(preview);
                 }
             }
 
