@@ -585,7 +585,7 @@ public abstract class MediaView extends FrameLayout {
                 } else {
                     // we have no other preview, lets do fancy stuff.
                     float aspect = mediaView.getViewAspect();
-                    if (aspect > 0 && mediaView.hasBlurredBackground()) {
+                    if (aspect > 0) {
                         bitmap = mediaView.fancyThumbnailGenerator.fancyThumbnail(bitmap, aspect);
                     }
 
