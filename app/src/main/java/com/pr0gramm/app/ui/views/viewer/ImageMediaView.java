@@ -153,6 +153,7 @@ public class ImageMediaView extends MediaView {
         if (imageView.getAlpha() == 0) {
             imageView.setAlpha(0.f);
             imageView.animate().alpha(1)
+                    .setDuration(ANIMATION_DURATION)
                     .setListener(AndroidUtility.endAction(super::onMediaShown))
                     .start();
         } else {

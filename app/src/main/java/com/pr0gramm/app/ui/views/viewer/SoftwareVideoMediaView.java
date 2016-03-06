@@ -14,6 +14,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
@@ -44,7 +45,7 @@ import static com.pr0gramm.app.util.AndroidUtility.toFile;
 @SuppressLint("ViewConstructor")
 public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     @Bind(R.id.image)
-    ImageView imageView;
+    ImageView playerView;
 
     @Inject
     Downloader downloader;
@@ -56,10 +57,10 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     public SoftwareVideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
         // we always proxy because of caching and stuff
         super(context, R.layout.player_software_decoder, url.withProxy(true), onViewListener);
-        imageView.setVisibility(INVISIBLE);
+        playerView.setVisibility(INVISIBLE);
 
         RxView.detaches(this).subscribe(event -> {
-            imageView.setImageDrawable(null);
+            playerView.setImageDrawable(null);
             stopAndDestroy();
         });
     }
@@ -99,7 +100,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     private void onVideoPlayerAvailable(SoftwareMediaPlayer player) {
         checkMainThread();
 
-        imageView.setImageDrawable(player.drawable());
+        playerView.setImageDrawable(player.drawable());
 
         videoPlayer = player;
 
@@ -214,7 +215,7 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
 
     @Override
     protected void onPreviewRemoved() {
-        imageView.setVisibility(VISIBLE);
+        playerView.setVisibility(VISIBLE);
     }
 
     private void stopAndDestroy() {
@@ -263,6 +264,22 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
     public void stopMedia() {
         super.stopMedia();
         stopAndDestroy();
+    }
+
+
+    @Override
+    protected void onMediaShown() {
+        playerView.setVisibility(VISIBLE);
+
+        if (playerView.getAlpha() == 0) {
+            playerView.setAlpha(0.f);
+            playerView.animate().alpha(1)
+                    .setDuration(ANIMATION_DURATION)
+                    .setListener(AndroidUtility.endAction(super::onMediaShown))
+                    .start();
+        } else {
+            super.onMediaShown();
+        }
     }
 
     private static class DestroyAction implements Func0<Object> {

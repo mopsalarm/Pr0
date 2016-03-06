@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
+        android:alpha="0"
         android:scaleType="fitCenter"/>
 
     <include layout="@layout/player_progress"/>

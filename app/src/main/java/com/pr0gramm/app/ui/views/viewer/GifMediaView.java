@@ -77,6 +77,7 @@ public class GifMediaView extends AbstractProgressMediaView {
             if (isPlaying()) {
                 imageView.animate().alpha(1.f)
                         .setListener(endAction(this::onMediaShown))
+                        .setDuration(ANIMATION_DURATION)
                         .start();
             } else {
                 imageView.setAlpha(1.f);

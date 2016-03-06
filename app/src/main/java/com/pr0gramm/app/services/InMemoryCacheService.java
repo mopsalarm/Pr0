@@ -172,7 +172,7 @@ public class InMemoryCacheService {
                 previewInfo.width(), previewInfo.height(),
                 Bitmap.Config.RGB_565);
 
-        lowQualityPreviewCache.put(previewInfo.id(), bitmap);
+        // lowQualityPreviewCache.put(previewInfo.id(), bitmap);
     }
 
     public Bitmap lowQualityPreview(long id) {

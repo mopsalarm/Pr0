@@ -68,6 +68,8 @@ public abstract class MediaView extends FrameLayout {
 
     private static final float MIN_PREVIEW_ASPECT = 1 / 3.0f;
 
+    protected static final int ANIMATION_DURATION = 500;
+
     private final PreviewTarget previewTarget = new PreviewTarget(this);
     private final BehaviorSubject<Void> onViewListener = BehaviorSubject.create();
     private final GestureDetector gestureDetector;
@@ -577,7 +579,7 @@ public abstract class MediaView extends FrameLayout {
                     Drawable newImage = new BitmapDrawable(mediaView.getResources(), bitmap);
                     Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), newImage};
                     TransitionDrawable drawable = new TransitionDrawable(drawables);
-                    drawable.startTransition(500);
+                    drawable.startTransition(ANIMATION_DURATION);
 
                     mediaView.setPreviewDrawable(drawable);
                 } else {
