@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Simple interface to the thumby service.
  */
 public class ThumbyService {
-    private static final Pattern RE_VALID_URI = Pattern.compile("^https?://pr0gramm.com/.*");
+    private static final Pattern RE_VALID_URI = Pattern.compile("^https?://[^/]*pr0gramm.com/.*");
 
     private ThumbyService() {
     }
