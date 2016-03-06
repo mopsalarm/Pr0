@@ -1,5 +1,6 @@
 package com.pr0gramm.app;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
 
@@ -7,7 +8,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
 import com.facebook.stetho.Stetho;
-import com.orm.SugarApp;
+import com.orm.SugarContext;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
@@ -35,7 +36,7 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDial
 /**
  * Global application class for pr0gramm app.
  */
-public class ApplicationClass extends SugarApp {
+public class ApplicationClass extends Application {
     private static final Logger logger = LoggerFactory.getLogger("Pr0grammApplication");
 
     final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
@@ -47,6 +48,7 @@ public class ApplicationClass extends SugarApp {
     public void onCreate() {
         super.onCreate();
 
+        SugarContext.init(this);
         JodaTimeAndroid.init(this);
 
         Settings settings = Settings.of(this);
@@ -107,6 +109,12 @@ public class ApplicationClass extends SugarApp {
                         .apply();
             }
         }
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        SugarContext.terminate();
     }
 
     private void checkVpx(Settings settings, SingleShotService singleShotService) {
