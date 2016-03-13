@@ -30,7 +30,6 @@ import javax.inject.Singleton;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import retrofit2.BaseUrl;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.HttpException;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -59,14 +58,13 @@ public class ApiProvider implements Provider<Api> {
     private static Api newRestAdapter(Context context, OkHttpClient client, Gson gson) {
         Settings settings = Settings.of(context);
 
-        BaseUrl baseUrl = () -> {
-            if (BuildConfig.DEBUG && settings.mockApi()) {
-                // activate this to use a mock
-                return HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888");
-            } else {
-                return HttpUrl.parse(UriHelper.of(context).base().toString());
-            }
-        };
+        HttpUrl baseUrl;
+        if (BuildConfig.DEBUG && settings.mockApi()) {
+            // activate this to use a mock
+            baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888");
+        } else {
+            baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString());
+        }
 
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)

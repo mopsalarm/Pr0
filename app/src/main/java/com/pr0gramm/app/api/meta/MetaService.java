@@ -108,7 +108,7 @@ public class MetaService {
 
         try {
             Response<MetaApi.Names> reponse = api.suggestUsers(prefix).execute();
-            if (!reponse.isSuccess())
+            if (!reponse.isSuccessful())
                 return emptyList();
 
             return firstNonNull(reponse.body().names(), emptyList());
