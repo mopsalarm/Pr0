@@ -23,12 +23,15 @@ import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
+import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import rx.Observable;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
@@ -72,20 +75,21 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
         setContentView(R.layout.activity_zoom_view);
 
+
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setBitmapDecoderFactory(() -> new ImageDecoders.PicassoDecoder(tag, picasso));
         imageView.setRegionDecoderFactory(() -> new ImageDecoders.PicassoRegionDecoder(downloader));
-        imageView.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
-            @Override
-            public void onImageLoaded() {
-                hideBusyIndicator();
 
-                imageView.setMaxScale(Math.max(
-                        2 * (float) imageView.getWidth() / imageView.getSWidth(),
-                        2 * (float) imageView.getHeight() / imageView.getSWidth()
-                ));
-            }
-        });
+        rxImageLoaded(imageView)
+                .compose(RxLifecycle.bindActivity(lifecycle()))
+                .subscribe(event -> {
+                    hideBusyIndicator();
+
+                    imageView.setMaxScale(Math.max(
+                            2 * (float) imageView.getWidth() / imageView.getSWidth(),
+                            2 * (float) imageView.getHeight() / imageView.getSWidth()
+                    ));
+                });
 
         hq.setImageDrawable(getColoredHqIcon(R.color.grey_700));
         loadImage();
@@ -163,10 +167,29 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     }
 
     private void showBusyIndicator() {
-        busyIndicator.setVisibility(View.VISIBLE);
+        if (busyIndicator != null) {
+            busyIndicator.setVisibility(View.VISIBLE);
+        }
     }
 
     private void hideBusyIndicator() {
+        if (busyIndicator == null) {
+            AndroidUtility.logToCrashlytics(new NullPointerException("Oops, busyIndicator is already null."));
+            return;
+        }
+
         busyIndicator.setVisibility(View.GONE);
+    }
+
+    private static Observable<Void> rxImageLoaded(SubsamplingScaleImageView view) {
+        return Observable.create(subscriber -> {
+            view.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
+                @Override
+                public void onImageLoaded() {
+                    subscriber.onNext(null);
+                    subscriber.onCompleted();
+                }
+            });
+        });
     }
 }
