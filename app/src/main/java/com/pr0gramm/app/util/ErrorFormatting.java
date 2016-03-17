@@ -20,6 +20,7 @@ import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.ProtocolException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -173,6 +174,10 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(Throwable.class,
                 err -> Throwables.getRootCause(err) instanceof SSLException,
                 R.string.error_ssl_error).doNotReport());
+
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> Throwables.getRootCause(err) instanceof ProtocolException,
+                R.string.error_protocol_exception));
 
         final int error_connect_exception_https = R.string.error_connect_exception_https;
         final int error_connect_exception = R.string.error_connect_exception;

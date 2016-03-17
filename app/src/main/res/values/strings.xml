@@ -324,6 +324,7 @@
     <string name="media_type_video">Video</string>
     <string name="upload_error_invalid_type">This media type is not supported. Please select a jpeg, png, gif or webm file.</string>
     <string name="hint_similar_image">We\'ve found images with a similar fingerprint. Looks like you are trying to post a repost.</string>
-    <string name="hint_upload">Upload...</string>
+    <string name="hint_upload">Upload…</string>
+    <string name="error_protocol_exception">Looks like a network connection closed prematurely. This happens.</string>
 </resources>
 
