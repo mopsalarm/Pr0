@@ -142,8 +142,13 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
                 mCurrentPrimaryItem.setUserVisibleHint(false);
             }
             if (fragment != null) {
-                fragment.setMenuVisibility(true);
-                fragment.setUserVisibleHint(true);
+                try {
+                    fragment.setMenuVisibility(true);
+                    fragment.setUserVisibleHint(true);
+                } catch (NullPointerException ignored) {
+                    // another workaround:
+                    // support library might access a fragment manager that is null.
+                }
             }
             mCurrentPrimaryItem = fragment;
         }

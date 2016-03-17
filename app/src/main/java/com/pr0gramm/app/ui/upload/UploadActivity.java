@@ -122,7 +122,7 @@ public class UploadActivity extends BaseAppCompatActivity implements ChooseMedia
             transaction.addToBackStack(null);
         }
 
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @Override

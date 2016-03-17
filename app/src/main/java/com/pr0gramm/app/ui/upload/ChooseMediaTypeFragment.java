@@ -36,7 +36,7 @@ public class ChooseMediaTypeFragment extends Fragment {
         btnVideo.setOnClickListener(v -> openWithType("video/*"));
     }
 
-    private void openWithType(String type) {
+    void openWithType(String type) {
         Listener listener = (Listener) getActivity();
         listener.onMediaTypeChosen(type);
     }

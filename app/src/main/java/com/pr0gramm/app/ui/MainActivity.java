@@ -417,7 +417,12 @@ public class MainActivity extends BaseAppCompatActivity implements
             }
         }
 
-        super.onBackPressed();
+        try {
+            super.onBackPressed();
+        } catch (IllegalStateException ignored) {
+            // workaround for:
+            // this is sometimes called after onSaveInstanceState
+        }
     }
 
     private boolean isDefaultFilter(FeedFilter filter) {
