@@ -97,6 +97,8 @@ public class ImageMediaView extends MediaView {
 
         RxView.detaches(this).subscribe(event -> {
             picasso.cancelTag(tag);
+            imageView.recycle();
+            imageView.setOnImageEventListener(null);
             AndroidUtility.removeView(imageView);
         });
 
