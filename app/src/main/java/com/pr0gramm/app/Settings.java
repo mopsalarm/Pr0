@@ -29,10 +29,13 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
     private final PublishSubject<String> preferenceChanged = PublishSubject.create();
     private final SharedPreferences preferences;
 
+    public static void initialize(Context context) {
+        PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
+    }
+
     @Inject
     public Settings(Context context) {
         this(PreferenceManager.getDefaultSharedPreferences(context));
-        PreferenceManager.setDefaultValues(context, R.xml.preferences, false);
     }
 
     private Settings(SharedPreferences preferences) {

@@ -51,7 +51,9 @@ public class ApplicationClass extends Application {
         SugarContext.init(this);
         JodaTimeAndroid.init(this);
 
+        Settings.initialize(this);
         Settings settings = Settings.of(this);
+
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.");
             StrictMode.enableDefaults();
