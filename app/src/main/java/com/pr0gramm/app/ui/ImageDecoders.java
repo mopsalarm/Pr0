@@ -8,11 +8,15 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder;
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder;
+import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.pr0gramm.app.Settings;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -24,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -69,8 +74,14 @@ public class ImageDecoders {
 
         private final Downloader downloader;
 
+        @Nullable
         private BitmapRegionDecoder nativeDecoder;
+
+        @Nullable
         private BitmapDecoder rapidDecoder;
+
+        @Nullable
+        private Settings settings;
 
         private boolean deleteOnExit;
         private File tempFile;
@@ -82,6 +93,8 @@ public class ImageDecoders {
         @SuppressLint("NewApi")
         @Override
         public Point init(Context context, Uri uri) throws Exception {
+            this.settings = Settings.of(context);
+
             if ("file".equals(uri.getScheme())) {
                 tempFile = toFile(uri);
             } else {
@@ -105,8 +118,12 @@ public class ImageDecoders {
                 if (error.toString().contains("failed to decode")) {
                     nativeDecoder = null;
 
-                    rapidDecoder = BitmapDecoder.from(Uri.fromFile(tempFile)).useBuiltInDecoder();
-                    return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
+                    return doNeverAgainOnJvmCrash("init-decoder", () -> {
+                        rapidDecoder = BitmapDecoder.from(Uri.fromFile(tempFile)).useBuiltInDecoder();
+                        return new Point(rapidDecoder.sourceWidth(), rapidDecoder.sourceHeight());
+                    }).or(() -> {
+                        throw new IllegalStateException("Wont try fallback decoder.");
+                    });
                 }
 
                 throw error;
@@ -131,11 +148,18 @@ public class ImageDecoders {
 
                         return bitmap;
                     }
-                } else {
-                    return rapidDecoder.reset()
+                } else if (rapidDecoder != null) {
+                    Callable<Bitmap> task = () -> rapidDecoder.reset()
                             .region(rect)
                             .scale(rect.width() / sampleSize, rect.height() / sampleSize)
                             .decode();
+
+                    return doNeverAgainOnJvmCrash("decode", task).or(() -> {
+                        throw new IllegalStateException("Wont try fallback decoder.");
+                    });
+
+                } else {
+                    throw new IllegalStateException("No image decoder available.");
                 }
             } finally {
                 DECODER_SEMA.release();
@@ -143,6 +167,8 @@ public class ImageDecoders {
         }
 
         private Bitmap decodeRegion(Rect rect, BitmapFactory.Options options) {
+            assert this.nativeDecoder != null;
+
             Bitmap bitmap;
             try {
                 bitmap = this.nativeDecoder.decodeRegion(rect, options);
@@ -173,6 +199,30 @@ public class ImageDecoders {
             if (deleteOnExit) {
                 if (!tempFile.delete()) {
                     logger.warn("Could not delete temporary image");
+                }
+            }
+        }
+
+        @SuppressLint("CommitPrefEdits")
+        private <T> Optional<T> doNeverAgainOnJvmCrash(String key, Callable<T> job) {
+            String prefName = "doNeverAgain." + key;
+            if (settings != null && settings.raw().getBoolean(prefName, false)) {
+                return Optional.absent();
+            }
+
+            try {
+                if (settings != null) {
+                    settings.edit().putBoolean(prefName, true).commit();
+                }
+
+                return Optional.fromNullable(job.call());
+
+            } catch (Exception error) {
+                throw Throwables.propagate(error);
+
+            } finally {
+                if (settings != null) {
+                    settings.edit().remove(prefName).commit();
                 }
             }
         }
