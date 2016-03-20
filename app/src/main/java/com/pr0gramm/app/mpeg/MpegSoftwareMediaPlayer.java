@@ -8,6 +8,7 @@ import com.pr0gramm.app.ui.views.viewer.SoftwareMediaPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -17,7 +18,7 @@ public class MpegSoftwareMediaPlayer extends SoftwareMediaPlayer implements Vide
     private static final Logger logger = LoggerFactory.getLogger("MpegSoftwareMediaPlayer");
     private PictureBuffer buffer;
 
-    public MpegSoftwareMediaPlayer(Context context, InputStream inputStream) {
+    public MpegSoftwareMediaPlayer(Context context, InputStream inputStream) throws IOException {
         super(logger, context, inputStream);
     }
 

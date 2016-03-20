@@ -5,13 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.pr0gramm.app.mpeg.GreedyInputStreamCache;
 import com.pr0gramm.app.mpeg.InputStreamCache;
 import com.pr0gramm.app.ui.VideoDrawable;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -52,10 +52,10 @@ public abstract class SoftwareMediaPlayer {
     protected long duration = -1;
     protected long currentPosition = -0;
 
-    public SoftwareMediaPlayer(Logger logger, Context context, InputStream inputStream) {
+    public SoftwareMediaPlayer(Logger logger, Context context, InputStream inputStream) throws IOException {
         this.logger = logger;
         this.context = context;
-        this.inputCache = new InputStreamCache(context, new BufferedInputStream(inputStream));
+        this.inputCache = new GreedyInputStreamCache(context, inputStream);
     }
 
     public Observable<Boolean> buffering() {
@@ -81,13 +81,15 @@ public abstract class SoftwareMediaPlayer {
 
         // wait for playback to stop
         Thread thread = this.thread.get();
-        if (thread != null)
+        if (thread != null) {
+            thread.interrupt();
             Uninterruptibles.joinUninterruptibly(thread);
+        }
 
         try {
             inputCache.close();
         } catch (IOException error) {
-            logger.warn("couldnt close cache");
+            logger.warn("Could not close cache");
         }
     }
 

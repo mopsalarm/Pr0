@@ -22,7 +22,7 @@ import java.io.InputStream;
 public class WebmMediaPlayer extends SoftwareMediaPlayer {
     private static final Logger logger = LoggerFactory.getLogger("WebmMediaPlayer");
 
-    public WebmMediaPlayer(Context context, InputStream inputStream) {
+    public WebmMediaPlayer(Context context, InputStream inputStream) throws IOException {
         super(logger, context, inputStream);
     }
 
