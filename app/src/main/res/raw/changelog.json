@@ -1,5 +1,18 @@
 [
   {
+    "version": 92,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Kommentare zusammenklappbar."
+      },
+      {
+        "type": "Fix",
+        "change": "'Unexpected end of stream' Problem behoben"
+      }
+    ]
+  },
+  {
     "version": 91,
     "changes": [
       {
