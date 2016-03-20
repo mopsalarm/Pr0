@@ -4,11 +4,11 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Kommentare zusammenklappbar."
+        "change": "Kommentare zusammenklappbar - einfach auf den Text klicken."
       },
       {
         "type": "Fix",
-        "change": "'Unexpected end of stream' Problem behoben"
+        "change": "'Unexpected end of stream' Problem behoben."
       }
     ]
   },
