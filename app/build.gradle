@@ -187,7 +187,7 @@ dependencies {
     apt 'com.f2prateek.dart:dart-processor:2.0.0'
 
     // rx java
-    compile 'io.reactivex:rxjava:1.1.1'
+    compile 'io.reactivex:rxjava:1.1.2'
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.1.1.0'
