@@ -22,7 +22,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
-import com.pr0gramm.app.ui.ExceptionCatchingTextView;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
@@ -164,11 +163,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.senderInfo.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
 
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
-
-        // this is a workaround. A non-focused text view
-        if (view.comment instanceof ExceptionCatchingTextView) {
-            ((ExceptionCatchingTextView) view.comment).forceFocus(true);
-        }
 
         if (collapsedComments.contains(comment.getId())) {
             view.collapseBadge.setVisibility(View.VISIBLE);

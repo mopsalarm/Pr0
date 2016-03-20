@@ -10,8 +10,6 @@ import com.pr0gramm.app.util.AndroidUtility;
 /**
  */
 public class ExceptionCatchingTextView extends AppCompatTextView {
-    private boolean forceFocus;
-
     public ExceptionCatchingTextView(Context context) {
         super(context);
     }
@@ -63,14 +61,5 @@ public class ExceptionCatchingTextView extends AppCompatTextView {
             AndroidUtility.logToCrashlytics(error);
             return -1;
         }
-    }
-
-    public void forceFocus(boolean enabled) {
-        this.forceFocus = enabled;
-    }
-
-    @Override
-    public boolean isFocused() {
-        return forceFocus || super.isFocused();
     }
 }
