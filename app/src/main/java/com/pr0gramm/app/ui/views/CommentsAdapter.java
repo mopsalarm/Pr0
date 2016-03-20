@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
+import com.pr0gramm.app.ui.ExceptionCatchingTextView;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
@@ -47,7 +49,7 @@ import static org.joda.time.Instant.now;
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final boolean admin;
     private final String selfName;
-    private ImmutableList<CommentEntry> comments;
+    private ImmutableList<CommentEntry> allComments, comments;
     private Optional<String> op;
     private CommentActionListener commentActionListener;
     private long selectedCommentId;
@@ -55,7 +57,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
     private TLongSet favedComments = new TLongHashSet();
+    private TLongSet collapsedComments = new TLongHashSet();
     private boolean showFavCommentButton;
+    private ImmutableMap<Long, Comment> commentsById;
+    private ImmutableListMultimap<Long, Comment> commentsByParent;
 
     public CommentsAdapter(boolean admin, String selfName) {
         this.admin = admin;
@@ -66,16 +71,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public void set(Collection<Comment> comments, Map<Long, Vote> votes, String op) {
-        ImmutableMap<Long, Comment> byId = Maps.uniqueIndex(comments, Comment::getId);
+        this.commentsById = Maps.uniqueIndex(comments, Comment::getId);
+        this.commentsByParent = Multimaps.index(comments, Comment::getParent);
 
         this.op = Optional.fromNullable(op);
-        this.comments = FluentIterable.from(sort(comments, op)).transform(comment -> {
-            int depth = getCommentDepth(byId, comment);
+        this.allComments = FluentIterable.from(sort(comments, op)).transform(comment -> {
+            int depth = getCommentDepth(commentsById, comment);
             Vote baseVote = firstNonNull(votes.get(comment.getId()), Vote.NEUTRAL);
             return new CommentEntry(comment, baseVote, depth);
         }).toList();
 
-        notifyDataSetChanged();
+        updateCollapsedComments();
     }
 
     public void setShowFavCommentButton(boolean showFavCommentButton) {
@@ -104,10 +110,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-    public List<Comment> getComments() {
-        return FluentIterable.from(comments).transform(c -> c.comment).toList();
-    }
-
     @Override
     public CommentView onCreateViewHolder(ViewGroup parent, int viewType) {
         return new CommentView(LayoutInflater
@@ -120,6 +122,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         super.onViewRecycled(holder);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(CommentView view, int position) {
         CommentEntry entry = comments.get(position);
@@ -162,6 +165,30 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
 
+        // this is a workaround. A non-focused text view
+        if (view.comment instanceof ExceptionCatchingTextView) {
+            ((ExceptionCatchingTextView) view.comment).forceFocus(true);
+        }
+
+        if (collapsedComments.contains(comment.getId())) {
+            view.collapseBadge.setVisibility(View.VISIBLE);
+            view.collapseBadge.setText("+" + countChildren(comment));
+        } else {
+            view.collapseBadge.setVisibility(View.GONE);
+        }
+
+        view.comment.setOnClickListener(v -> {
+            if (countChildren(comment) > 0) {
+                if (collapsedComments.contains(comment.getId())) {
+                    collapsedComments.remove(comment.getId());
+                } else {
+                    collapsedComments.add(comment.getId());
+                }
+
+                updateCollapsedComments();
+            }
+        });
+
         Context context = view.itemView.getContext();
         if (comment.getId() == selectedCommentId) {
             int color = ContextCompat.getColor(context, R.color.selected_comment_background);
@@ -180,13 +207,30 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         : ContextCompat.getColor(context, R.color.grey_700));
 
                 view.kFav.setVisibility(View.VISIBLE);
-                view.kFav.setOnClickListener(v -> {
-                    commentActionListener.onCommentMarkAsFavoriteClicked(comment, !isFavorite);
-                });
+                view.kFav.setOnClickListener(v ->
+                        commentActionListener.onCommentMarkAsFavoriteClicked(comment, !isFavorite));
             } else {
                 view.kFav.setVisibility(View.GONE);
             }
         }
+    }
+
+    private int countChildren(Comment comment) {
+        ImmutableList<Comment> children = commentsByParent.get(comment.getId());
+
+        int count = children.size();
+        for (Comment child : children)
+            count += countChildren(child);
+
+        return count;
+    }
+
+    private void updateCollapsedComments() {
+        this.comments = FluentIterable.from(allComments)
+                .filter(CommentEntry::isVisible)
+                .toList();
+
+        notifyDataSetChanged();
     }
 
     private CommentScore getCommentScore(CommentEntry entry) {
@@ -236,6 +280,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final VoteView vote;
         final SenderInfoView senderInfo;
         final Pr0grammIconView kFav;
+        final TextView collapseBadge;
 
         public CommentView(View itemView) {
             super(itemView);
@@ -245,6 +290,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             vote = ButterKnife.findById(itemView, R.id.voting);
             senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
             kFav = ButterKnife.findById(itemView, R.id.kfav);
+            collapseBadge = ButterKnife.findById(itemView, R.id.collapsed_badge);
         }
 
         public void setCommentDepth(int depth) {
@@ -308,7 +354,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private static final Ordering<Comment> COMMENT_BY_CONFIDENCE =
             Ordering.natural().reverse().onResultOf(Comment::getConfidence);
 
-    private static class CommentEntry {
+    private class CommentEntry {
         final Comment comment;
         final Vote baseVote;
         final int depth;
@@ -321,7 +367,18 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             this.depth = depth;
             this.vote = baseVote;
         }
+
+        boolean isVisible() {
+            Comment comment = this.comment;
+            do {
+                if (collapsedComments.contains(comment.getParent())) {
+                    return false;
+                }
+
+                comment = commentsById.get(comment.getParent());
+            } while (comment != null);
+
+            return true;
+        }
     }
-
-
 }

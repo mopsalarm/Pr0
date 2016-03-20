@@ -39,7 +39,6 @@
 
     <com.pr0gramm.app.ui.ExceptionCatchingTextView
         android:id="@+id/comment"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
@@ -47,6 +46,7 @@
         android:layout_marginRight="8dp"
         android:layout_toLeftOf="@+id/kfav"
         android:layout_toRightOf="@+id/voting"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
         tools:text="@string/dummy_text"/>
 
@@ -58,6 +58,15 @@
         android:layout_alignLeft="@+id/comment"
         android:layout_below="@+id/comment"
         android:layout_marginTop="2dp"/>
+
+    <TextView
+        android:id="@+id/collapsed_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        style="@style/OpBadge"
+        tools:text="+4"/>
 
 </com.pr0gramm.app.ui.views.CommentSpacerView>
 
