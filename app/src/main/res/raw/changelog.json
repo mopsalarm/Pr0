@@ -7,6 +7,10 @@
         "change": "Kommentare zusammenklappbar - einfach ZWEIMAL auf den Text klicken."
       },
       {
+        "type": "Neu",
+        "change": "Links zu Posts und Kommentaren direkt aus der App heraus kopierbar."
+      },
+      {
         "type": "Fix",
         "change": "'Unexpected end of stream' Problem behoben."
       }
