@@ -330,5 +330,6 @@
     <string name="action_collapse">Collapse</string>
     <string name="action_expand">Expand</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="share_to_clipboard">To clipboard</string>
 </resources>
 

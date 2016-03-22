@@ -84,7 +84,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             return new CommentEntry(comment, baseVote, depth);
         }).toList();
 
-        updateCollapsedComments();
+        internUpdateComments();
     }
 
     public void setShowFavCommentButton(boolean showFavCommentButton) {
@@ -171,6 +171,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         if (collapsedComments.contains(comment.getId())) {
             view.collapseBadge.setVisibility(View.VISIBLE);
             view.collapseBadge.setText("+" + countChildren(comment));
+            view.collapseBadge.setOnClickListener(v -> {
+                collapsedComments.remove(comment.getId());
+                internUpdateComments();
+            });
+
         } else {
             view.collapseBadge.setVisibility(View.GONE);
         }
@@ -229,12 +234,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         switch (item.getItemId()) {
             case R.id.action_collapse:
                 collapsedComments.add(comment.getId());
-                updateCollapsedComments();
+                internUpdateComments();
                 return true;
 
             case R.id.action_expand:
                 collapsedComments.remove(comment.getId());
-                updateCollapsedComments();
+                internUpdateComments();
                 return true;
 
             case R.id.action_copy_link:
@@ -257,7 +262,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return count;
     }
 
-    private void updateCollapsedComments() {
+    private void internUpdateComments() {
         this.comments = FluentIterable.from(allComments)
                 .filter(CommentEntry::isVisible)
                 .toList();
