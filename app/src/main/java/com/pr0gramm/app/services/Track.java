@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services;
 
+import android.annotation.SuppressLint;
+
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.LoginEvent;
@@ -10,6 +12,8 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
+import org.joda.time.DateTimeZone;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +81,8 @@ public final class Track {
 
     public static void upload(long size) {
         long categoryStart = size / (512 * 1024) * 512;
+
+        @SuppressLint("DefaultLocale")
         String sizeCategory = String.format("%d-%d kb", categoryStart, categoryStart + 512);
         track(answers -> answers.logCustom(new CustomEvent("Upload")
                 .putCustomAttribute("size", sizeCategory)));
@@ -144,8 +150,12 @@ public final class Track {
                 .putCustomAttribute("feed type", feedType.name()));
     }
 
-    public static void preloadCurrentFeed() {
-        track(new CustomEvent("Preload current feed"));
+    public static void preloadCurrentFeed(int size) {
+        int hour = Instant.now().toDateTime(DateTimeZone.UTC).getHourOfDay();
+
+        track(new CustomEvent("Preload current feed")
+                .putCustomAttribute("hour", String.valueOf(hour))
+                .putCustomAttribute("itemCount", size));
     }
 
     public static void commentFaved() {

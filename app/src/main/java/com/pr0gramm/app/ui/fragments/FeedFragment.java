@@ -805,7 +805,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
 
-        Track.preloadCurrentFeed();
+        Track.preloadCurrentFeed(feedAdapter.getFeed().getItems().size());
 
         if (singleShotService.isFirstTime("preload_info_hint")) {
             DialogBuilder.start(getActivity())
