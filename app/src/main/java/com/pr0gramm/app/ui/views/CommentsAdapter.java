@@ -26,6 +26,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.Comment;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
@@ -234,11 +235,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         switch (item.getItemId()) {
             case R.id.action_collapse:
                 collapsedComments.add(comment.getId());
+                Track.collapseComments("collapse");
                 internUpdateComments();
                 return true;
 
             case R.id.action_expand:
                 collapsedComments.remove(comment.getId());
+                Track.collapseComments("expand");
                 internUpdateComments();
                 return true;
 

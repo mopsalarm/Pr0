@@ -170,8 +170,8 @@ public final class Track {
         track(new CustomEvent("Quick peek used"));
     }
 
-    public static void updateError(String message) {
-        track(new CustomEvent("UpdateError").putCustomAttribute("message", message));
+    public static void collapseComments(String action) {
+        track(new CustomEvent("Collapse Comment").putCustomAttribute("action", action));
     }
 
     private static void track(CustomEvent customEvent) {
@@ -193,4 +193,5 @@ public final class Track {
             logger.warn("Tried to log without initializing crashlytics");
         }
     }
+
 }
