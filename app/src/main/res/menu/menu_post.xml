@@ -21,6 +21,10 @@
                 android:title="@string/share_post"/>
 
             <item
+                android:id="@+id/action_copy_link"
+                android:title="@string/action_copy_link"/>
+
+            <item
                 android:id="@+id/action_share_direct_link"
                 android:title="@string/share_direct_link"/>
 

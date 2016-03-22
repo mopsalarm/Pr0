@@ -74,7 +74,7 @@ public final class UriHelper {
 
     public Uri post(FeedType type, long itemId, long commentId) {
         return start().path(FEED_TYPES.get(type))
-                .appendPath(String.valueOf(itemId) + ":comment" + commentId)
+                .appendEncodedPath(String.valueOf(itemId) + ":comment" + commentId)
                 .build();
     }
 

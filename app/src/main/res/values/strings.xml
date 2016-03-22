@@ -326,5 +326,9 @@
     <string name="hint_similar_image">We\'ve found images with a similar fingerprint. Looks like you are trying to post a repost.</string>
     <string name="hint_upload">Upload…</string>
     <string name="error_protocol_exception">Looks like a network connection closed prematurely. This happens.</string>
+    <string name="action_copy_link">Copy link</string>
+    <string name="action_collapse">Collapse</string>
+    <string name="action_expand">Expand</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>
 

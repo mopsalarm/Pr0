@@ -25,26 +25,13 @@
         app:spacing="4sp"
         app:textSize="@dimen/normal_comment_vote_view_size"/>
 
-    <com.pr0gramm.app.ui.views.Pr0grammIconView
-        android:id="@+id/kfav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="4dp"
-        android:background="?selectableItemBackgroundBorderless"
-        app:iv_text="*"
-        app:iv_textColor="@color/grey_700"
-        app:iv_textSize="20sp"
-        tools:ignore="HardcodedText"/>
-
     <com.pr0gramm.app.ui.ExceptionCatchingTextView
         android:id="@+id/comment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="4dp"
-        android:layout_marginRight="8dp"
-        android:layout_toLeftOf="@+id/kfav"
+        android:layout_marginRight="4dp"
         android:layout_toRightOf="@+id/voting"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
@@ -59,14 +46,61 @@
         android:layout_below="@+id/comment"
         android:layout_marginTop="2dp"/>
 
-    <TextView
-        android:id="@+id/collapsed_badge"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignBottom="@id/sender_info"
         android:layout_alignParentRight="true"
-        style="@style/OpBadge"
-        tools:text="+4"/>
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/collapsed_badge"
+            style="@style/OpBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            tools:text="+4"/>
+
+        <!--
+        <ImageButton
+            android:id="@+id/collapse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_expand_less"
+            android:tint="@color/grey_700"/>
+        -->
+
+        <ImageButton
+            android:id="@+id/kfav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_favorite_border"
+            android:tint="@color/grey_700"/>
+
+        <ImageButton
+            android:id="@+id/reply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_reply"
+            android:tint="?colorPrimary"/>
+
+        <ImageButton
+            android:id="@+id/actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            android:tint="@color/grey_700"/>
+
+    </LinearLayout>
 
 </com.pr0gramm.app.ui.views.CommentSpacerView>
 

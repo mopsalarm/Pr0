@@ -302,7 +302,9 @@ public class PostFragment extends BaseFragment implements
         initializeInfoLine();
         initializeCommentPostLine();
 
-        commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or(""));
+        commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or("")
+        );
+
         commentsAdapter.setCommentActionListener(this);
         commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
@@ -595,6 +597,10 @@ public class PostFragment extends BaseFragment implements
 
             case R.id.action_share_image:
                 ShareHelper.shareImage(getActivity(), feedItem);
+                return true;
+
+            case R.id.action_copy_link:
+                ShareHelper.copyLink(getContext(), feedItem);
                 return true;
 
             default:
@@ -1035,6 +1041,11 @@ public class PostFragment extends BaseFragment implements
                     .negative(R.string.ignore)
                     .show();
         }
+    }
+
+    @Override
+    public void onCopyCommentLink(Comment comment) {
+        ShareHelper.copyLink(getContext(), feedItem, comment);
     }
 
     @Override

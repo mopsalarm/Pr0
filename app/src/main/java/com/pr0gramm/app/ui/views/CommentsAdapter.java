@@ -3,10 +3,14 @@ package com.pr0gramm.app.ui.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -162,7 +166,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         view.comment.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
         view.senderInfo.setAlpha(entry.vote == Vote.DOWN ? 0.5f : 1f);
 
-        view.senderInfo.setOnAnswerClickedListener(v -> doAnswer(comment));
+        view.reply.setOnClickListener(v -> doAnswer(comment));
 
         if (collapsedComments.contains(comment.getId())) {
             view.collapseBadge.setVisibility(View.VISIBLE);
@@ -171,16 +175,23 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             view.collapseBadge.setVisibility(View.GONE);
         }
 
-        view.comment.setOnClickListener(v -> {
+        view.actions.setOnClickListener(v -> {
+            ContextThemeWrapper context = new ContextThemeWrapper(
+                    v.getContext(), R.style.AppTheme_Popup_Orange);
+
+            PopupMenu menu = new PopupMenu(context, v);
+            menu.setOnMenuItemClickListener(item -> onActionMenuClicked(comment, item));
+            menu.inflate(R.menu.comment_actions);
+
             if (countChildren(comment) > 0) {
                 if (collapsedComments.contains(comment.getId())) {
-                    collapsedComments.remove(comment.getId());
+                    menu.getMenu().findItem(R.id.action_expand).setVisible(true);
                 } else {
-                    collapsedComments.add(comment.getId());
+                    menu.getMenu().findItem(R.id.action_collapse).setVisible(true);
                 }
-
-                updateCollapsedComments();
             }
+
+            menu.show();
         });
 
         Context context = view.itemView.getContext();
@@ -195,10 +206,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             if (showFavCommentButton) {
                 boolean isFavorite = favedComments.contains(comment.getId());
 
-                //noinspection ResourceAsColor
-                view.kFav.setTextColor(isFavorite
-                        ? ContextCompat.getColor(context, ThemeHelper.primaryColor())
-                        : ContextCompat.getColor(context, R.color.grey_700));
+                if (isFavorite) {
+                    int color = ContextCompat.getColor(context, ThemeHelper.primaryColor());
+                    view.kFav.setColorFilter(color);
+                    view.kFav.setImageResource(R.drawable.ic_favorite);
+                } else {
+                    int color = ContextCompat.getColor(context, R.color.grey_700);
+                    view.kFav.setColorFilter(color);
+                    view.kFav.setImageResource(R.drawable.ic_favorite_border);
+                }
 
                 view.kFav.setVisibility(View.VISIBLE);
                 view.kFav.setOnClickListener(v ->
@@ -207,6 +223,28 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 view.kFav.setVisibility(View.GONE);
             }
         }
+    }
+
+    private boolean onActionMenuClicked(Comment comment, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_collapse:
+                collapsedComments.add(comment.getId());
+                updateCollapsedComments();
+                return true;
+
+            case R.id.action_expand:
+                collapsedComments.remove(comment.getId());
+                updateCollapsedComments();
+                return true;
+
+            case R.id.action_copy_link:
+                if (commentActionListener != null) {
+                    commentActionListener.onCopyCommentLink(comment);
+                    return true;
+                }
+        }
+
+        return false;
     }
 
     private int countChildren(Comment comment) {
@@ -273,8 +311,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
-        final Pr0grammIconView kFav;
+        final View actions;
+        final ImageView kFav, reply;
         final TextView collapseBadge;
+
 
         public CommentView(View itemView) {
             super(itemView);
@@ -285,6 +325,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
             kFav = ButterKnife.findById(itemView, R.id.kfav);
             collapseBadge = ButterKnife.findById(itemView, R.id.collapsed_badge);
+            reply = ButterKnife.findById(itemView, R.id.reply);
+            actions = ButterKnife.findById(itemView, R.id.actions);
         }
 
         public void setCommentDepth(int depth) {
@@ -301,6 +343,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         void onCommentAuthorClicked(Comment comment);
 
         void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite);
+
+        void onCopyCommentLink(Comment comment);
     }
 
     /**
