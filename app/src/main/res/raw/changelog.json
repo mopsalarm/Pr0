@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "'Unexpected end of stream' Problem behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Lade-Indikator wird nun korrekt ausgeblendet, wenn eine HQ-Version geladen wurde."
       }
     ]
   },

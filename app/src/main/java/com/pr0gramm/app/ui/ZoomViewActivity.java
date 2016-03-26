@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -72,9 +73,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // normal content view
-
         setContentView(R.layout.activity_zoom_view);
-
 
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setBitmapDecoderFactory(() -> new ImageDecoders.PicassoDecoder(tag, picasso));
@@ -100,6 +99,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         appComponent.inject(this);
     }
 
+    @SuppressLint("InlinedApi")
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -187,7 +187,6 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
                 @Override
                 public void onImageLoaded() {
                     subscriber.onNext(null);
-                    subscriber.onCompleted();
                 }
             });
         });
