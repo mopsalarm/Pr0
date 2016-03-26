@@ -4,11 +4,11 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Kommentare zusammenklappbar."
+        "change": "Kommentare zusammenklappbar (drei Punkte)."
       },
       {
         "type": "Neu",
-        "change": "Links zu Posts und Kommentaren direkt aus der App heraus kopierbar."
+        "change": "Links zu Posts und Kommentaren direkt aus der App heraus kopierbar (drei Punkte)."
       },
       {
         "type": "Fix",
