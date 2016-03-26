@@ -36,6 +36,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
+import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
@@ -168,7 +169,7 @@ public class FavedCommentService {
     }
 
     public void updateCache() {
-        userHash.take(1).subscribe(forceUpdateUserHash::onNext);
+        userHash.take(1).subscribe(forceUpdateUserHash::onNext, Actions.empty());
     }
 
     private interface HttpInterface {

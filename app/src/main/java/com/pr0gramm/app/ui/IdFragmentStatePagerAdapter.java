@@ -156,10 +156,14 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
 
     @Override
     public void finishUpdate(ViewGroup container) {
-        if (mCurTransaction != null) {
-            mCurTransaction.commitAllowingStateLoss();
-            mCurTransaction = null;
-            mFragmentManager.executePendingTransactions();
+        try {
+            if (mCurTransaction != null) {
+                mCurTransaction.commitAllowingStateLoss();
+                mCurTransaction = null;
+                mFragmentManager.executePendingTransactions();
+            }
+        } catch (IllegalStateException ignored) {
+            // Sometimes we get a "activity has been destroyed." exception.
         }
     }
 
