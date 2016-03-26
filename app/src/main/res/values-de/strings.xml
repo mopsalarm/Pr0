@@ -123,7 +123,7 @@
     <string name="prefcat_settings_title">Einstellungen</string>
     <string name="prefcat_visual_summary">Hier kannst du einstellen, wie die App aussehen soll.</string>
     <string name="prefcat_visual_title">Visuell</string>
-    <string name="pref_confirm_play_on_mobile_summary">Abspielen bestätigten, wenn du dich nicht im WLAN befindest.</string>
+    <string name="pref_confirm_play_on_mobile_summary">Abspielen bestätigen, wenn du dich nicht im WLAN befindest.</string>
     <string name="pref_confirm_play_on_mobile_title">Bestätigung im Mobilnetz</string>
     <string name="could_not_load_image">Fehler beim Laden\n¯\\_(ツ)_/¯</string>
     <string name="prefcat_update">Updates</string>
