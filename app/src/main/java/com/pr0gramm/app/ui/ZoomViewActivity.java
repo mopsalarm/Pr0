@@ -91,7 +91,12 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
                 });
 
         hq.setImageDrawable(getColoredHqIcon(R.color.grey_700));
-        loadImage();
+
+        if (loadHqIfAvailable && isHqImageAvailable()) {
+            loadHqImage();
+        } else {
+            loadImage();
+        }
     }
 
     @Override
@@ -139,12 +144,16 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         Uri url = UriHelper.of(this).media(item);
         loadImageWithUrl(url);
 
-        if (Strings.isNullOrEmpty(item.getFullsize())) {
+        if (isHqImageAvailable()) {
             hq.setVisibility(View.GONE);
         } else {
             hq.setOnClickListener(v -> loadHqImage());
             hq.animate().alpha(1).start();
         }
+    }
+
+    private boolean isHqImageAvailable() {
+        return Strings.isNullOrEmpty(item.getFullsize());
     }
 
     private void loadHqImage() {

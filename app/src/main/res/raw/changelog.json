@@ -1,5 +1,18 @@
 [
   {
+    "version": 93,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "'Automatisch HQ im Vollbild' funktioniert wieder."
+      },
+      {
+        "type": "Fix",
+        "change": "Ein paar Tippfehler behoben."
+      }
+    ]
+  },
+  {
     "version": 92,
     "changes": [
       {
