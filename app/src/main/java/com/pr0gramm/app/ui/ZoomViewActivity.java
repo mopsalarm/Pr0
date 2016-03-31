@@ -145,15 +145,15 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         loadImageWithUrl(url);
 
         if (isHqImageAvailable()) {
-            hq.setVisibility(View.GONE);
-        } else {
             hq.setOnClickListener(v -> loadHqImage());
             hq.animate().alpha(1).start();
+        } else {
+            hq.setVisibility(View.GONE);
         }
     }
 
     private boolean isHqImageAvailable() {
-        return Strings.isNullOrEmpty(item.getFullsize());
+        return !Strings.isNullOrEmpty(item.getFullsize());
     }
 
     private void loadHqImage() {
