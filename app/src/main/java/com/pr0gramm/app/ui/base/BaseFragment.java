@@ -26,8 +26,7 @@ import rx.subjects.BehaviorSubject;
 public abstract class BaseFragment extends Fragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
-    @Unbinder
-    ButterKnife.ViewUnbinder<? extends BaseFragment> unbinder;
+    private Unbinder unbinder;
 
     @NonNull
     @Override
@@ -83,7 +82,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         lifecycleSubject.onNext(FragmentEvent.CREATE_VIEW);
     }
 
@@ -118,6 +117,7 @@ public abstract class BaseFragment extends Fragment implements FragmentLifecycle
 
         if (unbinder != null) {
             unbinder.unbind();
+            unbinder = null;
         }
     }
 

@@ -30,8 +30,7 @@ import rx.subjects.BehaviorSubject;
 public abstract class BaseDialogFragment extends DialogFragment implements FragmentLifecycleProvider {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
-    @Unbinder
-    ButterKnife.ViewUnbinder<? extends BaseDialogFragment> unbinder;
+    private Unbinder unbinder;
 
     @NonNull
     @Override
@@ -91,7 +90,7 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
         // bind dialog. It is only created in on start.
         Dialog dialog = getDialog();
         if (dialog != null) {
-            ButterKnife.bind(this, dialog);
+            unbinder = ButterKnife.bind(this, dialog);
             onDialogViewCreated();
         }
     }
@@ -125,8 +124,10 @@ public abstract class BaseDialogFragment extends DialogFragment implements Fragm
         lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW);
         super.onDestroyView();
 
-        if (unbinder != null)
+        if (unbinder != null) {
             unbinder.unbind();
+            unbinder = null;
+        }
     }
 
     @Override

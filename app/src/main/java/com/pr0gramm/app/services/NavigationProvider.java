@@ -111,7 +111,7 @@ public class NavigationProvider {
         return extraCategoryApi.get().ping()
                 .map(r -> true)
                 .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
-                .compose(backoff(4, TimeUnit.SECONDS, 5, BackgroundScheduler.instance()))
+                .compose(backoff(1, TimeUnit.SECONDS, 2, BackgroundScheduler.instance()))
                 .startWith(true)
                 .distinctUntilChanged()
                 .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))

@@ -32,8 +32,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
     private ActivityComponent activityComponent;
 
-    @Unbinder
-    ButterKnife.ViewUnbinder<? extends BaseAppCompatActivity> unbinder;
+    private Unbinder unbinder;
 
     @NonNull
     @Override
@@ -115,13 +114,15 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
         lifecycleSubject.onNext(ActivityEvent.DESTROY);
         super.onDestroy();
 
-        if (unbinder != null)
+        if (unbinder != null) {
             unbinder.unbind();
+            unbinder = null;
+        }
     }
 
     @Override
     public void onContentChanged() {
         super.onContentChanged();
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
     }
 }
