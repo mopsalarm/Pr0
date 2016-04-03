@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Healthcheck für Kategorien repariert."
+      },
+      {
+        "type": "Fix",
         "change": "Ein paar Tippfehler behoben."
       }
     ]
