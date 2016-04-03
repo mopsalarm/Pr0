@@ -15,7 +15,6 @@ import com.pr0gramm.app.api.pr0gramm.response.Info;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
-import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -32,7 +30,6 @@ import butterknife.ButterKnife;
 import rx.Observable;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.pr0gramm.app.util.AndroidUtility.backoff;
 import static java.util.Collections.singletonList;
 import static rx.Observable.combineLatest;
 import static rx.Observable.just;
@@ -108,10 +105,9 @@ public class NavigationProvider {
     }
 
     private Observable<Boolean> checkExtraCategoryApi(ExtraCategoryApiProvider extraCategoryApi) {
-        return extraCategoryApi.get().ping()
-                .map(r -> true)
+        return extraCategoryApi.get().ping().map(r -> true)
                 .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
-                .compose(backoff(1, TimeUnit.SECONDS, 2, BackgroundScheduler.instance()))
+                .onErrorResumeNext(just(false))
                 .startWith(true)
                 .distinctUntilChanged()
                 .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))
