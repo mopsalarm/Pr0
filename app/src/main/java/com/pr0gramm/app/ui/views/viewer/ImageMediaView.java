@@ -78,9 +78,11 @@ public class ImageMediaView extends MediaView {
             }
 
             @Override
-            public void onImageLoadError(Exception e) {
+            public void onImageLoadError(Exception error) {
                 hideBusyIndicator();
                 showErrorIndicator();
+
+                AndroidUtility.logToCrashlytics(error);
             }
 
             @Override
