@@ -12,8 +12,9 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.ui.ImageDecoders;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.PicassoDecoder;
+import com.pr0gramm.app.util.decoders.Decoders;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -68,8 +69,8 @@ public class ImageMediaView extends MediaView {
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setZoomEnabled(zoomView);
 
-        imageView.setBitmapDecoderFactory(() -> new ImageDecoders.PicassoDecoder(tag, picasso));
-        imageView.setRegionDecoderFactory(() -> new ImageDecoders.PicassoRegionDecoder(downloader));
+        imageView.setBitmapDecoderFactory(() -> new PicassoDecoder(tag, picasso));
+        imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
         imageView.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
             @Override
             public void onImageLoaded() {
