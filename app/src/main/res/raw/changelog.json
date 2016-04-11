@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Neuladen durch herunterwischen geht wieder."
+      },
+      {
+        "type": "Fix",
+        "change": "Laden von großen Bildern verbessert."
       }
     ]
   },
