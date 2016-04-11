@@ -3,6 +3,7 @@ package com.pr0gramm.app.util.decoders;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -41,11 +42,10 @@ public class AndroidRegionDecoder implements ImageRegionDecoder {
 
     @Override
     public Bitmap decodeRegion(Rect rect, int sampleSize) {
-        throw new IllegalArgumentException();
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inPreferredConfig = config;
-//        options.inSampleSize = sampleSize;
-//        return decoder.decodeRegion(rect, options);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = config;
+        options.inSampleSize = sampleSize;
+        return decoder.decodeRegion(rect, options);
     }
 
     @Override
