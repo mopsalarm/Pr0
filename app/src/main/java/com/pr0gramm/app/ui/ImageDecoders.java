@@ -83,7 +83,7 @@ public class ImageDecoders {
         @Nullable
         private Settings settings;
 
-        private boolean deleteOnExit;
+        private boolean deleteOnRecycle;
         private File tempFile;
 
         public PicassoRegionDecoder(Downloader downloader) {
@@ -98,9 +98,9 @@ public class ImageDecoders {
             if ("file".equals(uri.getScheme())) {
                 tempFile = toFile(uri);
             } else {
-                tempFile = File.createTempFile("image", "tmp", context.getCacheDir());
+                tempFile = File.createTempFile("image", ".tmp", context.getCacheDir());
                 tempFile.deleteOnExit();
-                deleteOnExit = true;
+                deleteOnRecycle = true;
 
                 // download to temp file. not nice, but useful :/
                 try (InputStream inputStream = downloader.load(uri, 0).getInputStream()) {
@@ -112,6 +112,11 @@ public class ImageDecoders {
 
             try {
                 this.nativeDecoder = BitmapRegionDecoder.newInstance(tempFile.getPath(), false);
+                if (!tryToDecode(this.nativeDecoder)) {
+                    throw new IOException("Could not decode sample using native decoder");
+                }
+
+                assert nativeDecoder != null;
                 return new Point(this.nativeDecoder.getWidth(), this.nativeDecoder.getHeight());
 
             } catch (IOException error) {
@@ -196,7 +201,7 @@ public class ImageDecoders {
                 rapidDecoder = null;
             }
 
-            if (deleteOnExit) {
+            if (deleteOnRecycle) {
                 if (!tempFile.delete()) {
                     logger.warn("Could not delete temporary image");
                 }
@@ -226,5 +231,21 @@ public class ImageDecoders {
                 }
             }
         }
+    }
+
+    /**
+     * Tries to decode a region using the given region decoder.
+     *
+     * @param decoder The decoder to try.
+     * @return true, if decoding was successful.
+     */
+    private static boolean tryToDecode(BitmapRegionDecoder decoder) {
+        int width = Math.min(8, decoder.getWidth());
+        int height = Math.min(8, decoder.getHeight());
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        return decoder.decodeRegion(new Rect(0, 0, width, height), options) != null;
     }
 }
