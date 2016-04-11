@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Ein paar Tippfehler behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Neuladen durch herunterwischen geht wieder."
       }
     ]
   },

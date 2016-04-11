@@ -21,7 +21,8 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
 
     @Override
     public boolean canChildScrollUp() {
-        return (canSwipeUpPredicate != null && canSwipeUpPredicate.canSwipeUp()) || super.canChildScrollUp();
+        boolean left = canSwipeUpPredicate != null && canSwipeUpPredicate.canSwipeUp();
+        return left || super.canChildScrollUp();
     }
 
     public void setCanSwipeUpPredicate(CanSwipeUpPredicate canSwipeUpPredicate) {

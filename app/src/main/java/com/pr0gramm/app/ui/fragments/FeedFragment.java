@@ -253,7 +253,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         setFeedAdapter(feedAdapter);
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.setCanSwipeUpPredicate(() -> feedAdapter.getFeed().isAtStart());
+        swipeRefreshLayout.setCanSwipeUpPredicate(() -> !feedAdapter.getFeed().isAtStart());
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Feed feed = feedAdapter.getFeed();
