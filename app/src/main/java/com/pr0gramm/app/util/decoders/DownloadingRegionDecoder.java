@@ -88,25 +88,21 @@ public class DownloadingRegionDecoder implements ImageRegionDecoder {
             decoder.recycle();
 
         } finally {
-            if (deleteImageOnRecycle && imageFile.exists()) {
-                logger.info("Deleting temp image file on recycle");
+            cleanup();
+        }
+    }
 
-                //noinspection ResultOfMethodCallIgnored
-                imageFile.delete();
-            }
+    private void cleanup() {
+        if (deleteImageOnRecycle && imageFile.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            imageFile.delete();
         }
     }
 
     @Override
     protected void finalize() throws Throwable {
+        cleanup();
         super.finalize();
-
-        if (deleteImageOnRecycle && imageFile.exists()) {
-            logger.warn("Deleting temp image file in finalize.");
-
-            //noinspection ResultOfMethodCallIgnored
-            imageFile.delete();
-        }
     }
 
     @SuppressLint("NewApi")
