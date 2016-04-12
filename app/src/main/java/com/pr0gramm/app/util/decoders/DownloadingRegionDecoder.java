@@ -88,7 +88,7 @@ public class DownloadingRegionDecoder implements ImageRegionDecoder {
             decoder.recycle();
 
         } finally {
-            if (deleteImageOnRecycle) {
+            if (deleteImageOnRecycle && imageFile.exists()) {
                 logger.info("Deleting temp image file on recycle");
 
                 //noinspection ResultOfMethodCallIgnored
@@ -101,7 +101,7 @@ public class DownloadingRegionDecoder implements ImageRegionDecoder {
     protected void finalize() throws Throwable {
         super.finalize();
 
-        if (imageFile.exists()) {
+        if (deleteImageOnRecycle && imageFile.exists()) {
             logger.warn("Deleting temp image file in finalize.");
 
             //noinspection ResultOfMethodCallIgnored
