@@ -99,12 +99,17 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/drawer_nav_list"
+        <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:overScrollMode="never"/>
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/drawer_nav_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:overScrollMode="never"/>
+        </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
         <View
             android:layout_width="match_parent"
