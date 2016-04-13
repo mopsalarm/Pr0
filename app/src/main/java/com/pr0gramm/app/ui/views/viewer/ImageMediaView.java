@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.view.View;
+import android.widget.TextView;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -13,6 +13,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.ErrorFormatting;
 import com.pr0gramm.app.util.PicassoDecoder;
 import com.pr0gramm.app.util.decoders.Decoders;
 import com.squareup.picasso.Downloader;
@@ -41,7 +42,7 @@ public class ImageMediaView extends MediaView {
     SubsamplingScaleImageView imageView;
 
     @Bind(R.id.error)
-    View errorIndicator;
+    TextView errorIndicator;
 
     @Inject
     Settings settings;
@@ -81,7 +82,7 @@ public class ImageMediaView extends MediaView {
             @Override
             public void onImageLoadError(Exception error) {
                 hideBusyIndicator();
-                showErrorIndicator();
+                showErrorIndicator(error);
 
                 AndroidUtility.logToCrashlytics(error);
             }
@@ -166,9 +167,14 @@ public class ImageMediaView extends MediaView {
         }
     }
 
-    private void showErrorIndicator() {
+    @SuppressLint("SetTextI18n")
+    private void showErrorIndicator(Exception error) {
         errorIndicator.setVisibility(VISIBLE);
         errorIndicator.setAlpha(0);
         errorIndicator.animate().alpha(1).start();
+
+        // set a more useful error message
+        errorIndicator.setText(getContext().getText(R.string.could_not_load_image)
+                + "\n\n" + ErrorFormatting.getFormatter(error).getMessage(getContext(), error));
     }
 }

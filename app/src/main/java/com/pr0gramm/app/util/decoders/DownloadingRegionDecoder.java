@@ -55,8 +55,11 @@ public class DownloadingRegionDecoder implements ImageRegionDecoder {
             } catch (IOException error) {
                 logger.warn("Could not download image to temp file");
 
-                //noinspection ResultOfMethodCallIgnored
-                imageFile.delete();
+                if (!imageFile.delete())
+                    logger.warn("Could not delete file");
+
+                // re-raise exception
+                throw new IOException("Could not download image to temp file", error);
             }
         }
 
