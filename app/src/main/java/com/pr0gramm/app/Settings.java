@@ -177,6 +177,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_feed_start_at_new", false);
     }
 
+    public boolean feedStartAtSfw() {
+        return preferences.getBoolean("pref_feed_start_at_sfw", false);
+    }
+
     public boolean singleTapForFullscreen() {
         return preferences.getBoolean("pref_single_tap_for_fullscreen", false);
     }

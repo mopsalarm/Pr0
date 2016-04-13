@@ -3,6 +3,10 @@
     "version": 93,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Optional einstellbar, dass die App immer in 'sfw' gestartet wird."
+      },
+      {
         "type": "Fix",
         "change": "'Automatisch HQ im Vollbild' funktioniert wieder."
       },

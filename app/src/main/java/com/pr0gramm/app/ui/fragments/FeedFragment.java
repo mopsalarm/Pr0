@@ -212,6 +212,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             autoOpenOnLoad = start;
         }
 
+        if (savedInstanceState == null && settings.feedStartAtSfw()) {
+            logger.info("Force-switch to sfw only.");
+            settings.edit()
+                    .putBoolean("pref_feed_type_sfw", true)
+                    .putBoolean("pref_feed_type_nsfw", false)
+                    .putBoolean("pref_feed_type_nsfl", false)
+                    .apply();
+        }
+
         this.scrollToolbar = useToolbarTopMargin();
     }
 

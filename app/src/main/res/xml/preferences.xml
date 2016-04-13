@@ -76,6 +76,12 @@
                     android:key="pref_feed_start_at_new"
                     android:summary="@string/pref_feed_start_at_new_summary"
                     android:title="@string/pref_feed_start_at_new_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_feed_start_at_sfw"
+                    android:summary="@string/pref_feed_start_at_sfw_summary"
+                    android:title="@string/pref_feed_start_at_sfw_title"/>
             </PreferenceCategory>
 
             <PreferenceCategory

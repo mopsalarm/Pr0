@@ -316,4 +316,6 @@
     <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
     <string name="action_copy_link">Link kopieren</string>
     <string name="share_to_clipboard">Zwischenablage</string>
+    <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
+    <string name="pref_feed_start_at_sfw_summary">Wechse automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
 </resources>
