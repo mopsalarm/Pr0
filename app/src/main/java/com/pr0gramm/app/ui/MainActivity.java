@@ -147,7 +147,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerLayout.setDrawerListener(new ForwardDrawerListener(drawerToggle) {
+        drawerLayout.addDrawerListener(new ForwardDrawerListener(drawerToggle) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
@@ -165,6 +165,16 @@ public class MainActivity extends BaseAppCompatActivity implements
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if (savedInstanceState == null) {
+            // reset to sfw only.
+            if (settings.feedStartAtSfw()) {
+                logger.info("Force-switch to sfw only.");
+                settings.edit()
+                        .putBoolean("pref_feed_type_sfw", true)
+                        .putBoolean("pref_feed_type_nsfw", false)
+                        .putBoolean("pref_feed_type_nsfl", false)
+                        .apply();
+            }
+
             createDrawerFragment();
 
             Intent intent = getIntent();
