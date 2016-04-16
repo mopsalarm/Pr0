@@ -100,17 +100,6 @@ public class ApplicationClass extends Application {
         ThemeHelper.updateTheme(this);
 
         checkVpx(settings, singleShotService);
-
-        if (singleShotService.isFirstTime("migrate.MpegDecoderToVPX")) {
-            if (settings.forceMpegDecoder()) {
-                logger.info("Switch to normal software decoder");
-
-                settings.edit()
-                        .putBoolean("pref_force_mpeg_decoder", false)
-                        .putBoolean("pref_use_software_decoder", true)
-                        .apply();
-            }
-        }
     }
 
     @Override

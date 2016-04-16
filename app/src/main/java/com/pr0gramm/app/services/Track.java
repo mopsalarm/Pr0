@@ -101,7 +101,7 @@ public final class Track {
     public static void statistics(Settings settings, boolean signedIn) {
         String decoder;
         if (settings.useSoftwareDecoder()) {
-            decoder = settings.forceMpegDecoder() ? "mpeg" : "webm";
+            decoder = "webm";
         } else {
             decoder = "native";
         }

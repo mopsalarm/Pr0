@@ -1,4 +1,4 @@
-package com.pr0gramm.app.mpeg;
+package com.pr0gramm.app.io;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

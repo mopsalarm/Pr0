@@ -1,4 +1,4 @@
-package com.pr0gramm.app.mpeg;
+package com.pr0gramm.app.io;
 
 import java.io.IOException;
 import java.io.InputStream;

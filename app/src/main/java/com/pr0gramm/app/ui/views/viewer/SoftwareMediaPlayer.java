@@ -5,8 +5,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import com.pr0gramm.app.mpeg.GreedyInputStreamCache;
-import com.pr0gramm.app.mpeg.InputStreamCache;
+import com.pr0gramm.app.io.GreedyInputStreamCache;
+import com.pr0gramm.app.io.InputStreamCache;
 import com.pr0gramm.app.ui.VideoDrawable;
 import com.pr0gramm.app.util.AndroidUtility;
 

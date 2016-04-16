@@ -13,7 +13,6 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.mpeg.MpegSoftwareMediaPlayer;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.vpx.WebmMediaPlayer;
@@ -140,17 +139,12 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
                 InputStream inputStream = openMediaInputStream();
 
                 String urlString = getMediaUri().toString();
-                if (urlString.endsWith(".mpg") || urlString.endsWith(".mpeg")) {
-                    result.onNext(new MpegSoftwareMediaPlayer(getContext(), inputStream));
-                    return;
-                }
-
                 if (urlString.endsWith(".webm")) {
                     result.onNext(new WebmMediaPlayer(getContext(), inputStream));
                     return;
                 }
 
-                result.onError(new RuntimeException("invalid video format at " + urlString));
+                result.onError(new RuntimeException("No software-decoder available for video format at " + urlString));
 
             } catch (IOException error) {
                 result.onError(error);

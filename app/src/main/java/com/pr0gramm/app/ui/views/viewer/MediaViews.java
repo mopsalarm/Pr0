@@ -40,12 +40,8 @@ public class MediaViews {
         MediaView result;
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
             if (shouldUseSoftwareDecoder(uri, settings)) {
-                MediaUri videoUrl = uri;
-                if (shouldUseMpegDecoder(uri, settings))
-                    videoUrl = MediaUri.of(uri.getId(), uri.toString().replace(".webm", ".mpg"));
-
                 result = new SoftwareVideoMediaView(activity,
-                        videoUrl.withProxy(uri.hasProxyFlag()),
+                        uri.withProxy(uri.hasProxyFlag()),
                         onViewListener);
             } else {
                 result = new VideoMediaView(activity, uri, onViewListener);
@@ -67,16 +63,7 @@ public class MediaViews {
 
     private static boolean canUseWebmDecoder(MediaUri uri, Settings settings) {
         return uri.getBaseUri().getPath().endsWith(".webm")
-                && WebmMediaPlayer.isAvailable()
-                && !settings.forceMpegDecoder();
-    }
-
-    private static boolean canUseMpegDecoder(MediaUri uri) {
-        return !uri.isLocal() && uri.getBaseUri().toString().matches(".*pr0gramm.*\\.webm");
-    }
-
-    private static boolean shouldUseMpegDecoder(MediaUri uri, Settings settings) {
-        return canUseMpegDecoder(uri) && (settings.forceMpegDecoder() || !WebmMediaPlayer.isAvailable());
+                && WebmMediaPlayer.isAvailable();
     }
 
     private static boolean shouldUseGifToWebm(MediaUri uri, Settings settings) {
@@ -84,10 +71,8 @@ public class MediaViews {
     }
 
     private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
-        if (!settings.useSoftwareDecoder())
-            return false;
+        return settings.useSoftwareDecoder() && canUseWebmDecoder(uri, settings);
 
-        return canUseWebmDecoder(uri, settings) || canUseMpegDecoder(uri);
     }
 
     public static void adaptFragmentLifecycle(Observable<FragmentEvent> lifecycle, MediaView view) {
