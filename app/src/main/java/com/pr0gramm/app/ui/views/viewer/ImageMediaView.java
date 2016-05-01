@@ -84,7 +84,9 @@ public class ImageMediaView extends MediaView {
                 hideBusyIndicator();
                 showErrorIndicator(error);
 
-                AndroidUtility.logToCrashlytics(error);
+                if (settings.useBetaChannel()) {
+                    AndroidUtility.logToCrashlytics(error);
+                }
             }
 
             @Override

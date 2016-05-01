@@ -13,10 +13,8 @@ public class Decoders {
         //noinspection unchecked
         return new DownloadingRegionDecoder(downloader,
                 FallbackRegionDecoder.chain(
-                        new AndroidRegionDecoder(Bitmap.Config.RGB_565)
-                        , new AndroidRegionDecoder(Bitmap.Config.ARGB_8888)
-                        //,new RapidRegionDecoder(Bitmap.Config.RGB_565)
-                        //,new RapidRegionDecoder(Bitmap.Config.ARGB_8888)
+                        new AndroidRegionDecoder(Bitmap.Config.RGB_565),
+                        new AndroidRegionDecoder(Bitmap.Config.ARGB_8888)
                 ));
     }
 }
