@@ -7,6 +7,7 @@ import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersAccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersComment;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersFeed;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersInfo;
+import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersInvited;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersLogin;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersMessage;
 import com.pr0gramm.app.api.pr0gramm.response.GsonAdaptersMessageFeed;
@@ -56,6 +57,7 @@ public class GsonModule {
             .registerTypeAdapterFactory(new GsonAdaptersInfo())
             .registerTypeAdapterFactory(new GsonAdaptersUpdate())
             .registerTypeAdapterFactory(new GsonAdaptersThemeInfo())
+            .registerTypeAdapterFactory(new GsonAdaptersInvited())
             .create();
 
     @Singleton

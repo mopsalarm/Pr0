@@ -320,4 +320,11 @@
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
     <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
     <string name="pref_use_incognito_browser_summary">Öffnet Links in einem inkognito Browser direkt in der App.</string>
+    <string name="action_invite">Invites</string>
+    <string name="error_email">Gültige E-Mail erforderlich</string>
+    <string name="invite_email_in_use">Ein Benutzer mti dieser Addresse wurde bereits eingeladen.</string>
+    <string name="invite_hint_success">Invite verschickt!</string>
+    <string name="invite_no_more_invites">Du hast für diesen Monat keine Invites mehr.</string>
+    <string name="invite_send">Invite verschicken</string>
+    <string name="invites_title">Invites</string>
 </resources>

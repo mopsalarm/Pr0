@@ -222,6 +222,18 @@
         </activity>
 
         <activity
+            android:name=".ui.InviteActivity"
+            android:label="@string/invites_title"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme.Green"
+            android:windowSoftInputMode="stateHidden">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity"/>
+        </activity>
+
+        <activity
             android:name=".ui.upload.UploadActivity"
             android:label="@string/upload_title"
             android:parentActivityName=".ui.MainActivity"

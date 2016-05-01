@@ -7,6 +7,10 @@
         "change": "Incognito Browser in die App integriert. Aktivierbar unter Einstellungen -> Verhalten."
       },
       {
+        "type": "Neu",
+        "change": "Invites können aus der App heraus verschickt werden."
+      },
+      {
         "type": "Fix",
         "change": "In den privaten Nachrichten wird nun der richtige Punkt des Unterhaltungspartners angezeigt."
       },

@@ -3,6 +3,7 @@ package com.pr0gramm.app.api.pr0gramm;
 import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Feed;
 import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.response.Invited;
 import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
 import com.pr0gramm.app.api.pr0gramm.response.NewComment;
@@ -127,6 +128,11 @@ public interface Api {
                             @Field("checkSimilar") int checkSimilar,
                             @Field("key") String key);
 
+
+    @FormUrlEncoded
+    @POST("/api/user/invite")
+    Observable<Invited> invite(@Field("_nonce") Nonce nonce,
+                               @Field("email") String email);
 
     // Extra stuff for admins
     @FormUrlEncoded

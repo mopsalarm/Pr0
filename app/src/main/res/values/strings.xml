@@ -335,5 +335,15 @@
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
     <string name="pref_use_incognito_browser_summary">Open links in a simple incognito browser with no history.</string>
+    <string name="action_invite">Send invite</string>
+    <string name="invites_title">Invites</string>
+    <string name="invite_description" translatable="false">Wenn Du keine Neuschwuchtel oder Fliesentischbesitzer bist und ein paar Invites übrig hast, kannst du hier Deine Freunde zu pr0gramm einladen.</string>
+    <string name="invite_description_warning" translatable="false">Beachte, dass Du für jeden eingeladenen Benutzer bürgst und automatisch bei jedem Ban für die halbe Zeit mit gebannt wirst!</string>
+    <string name="invite_send">Send invite</string>
+    <string translatable="false" name="invite_email_hint">gamb@pr0gramm.com</string>
+    <string name="error_email">Must be a valid email</string>
+    <string name="invite_hint_success">Invite sent!</string>
+    <string name="invite_no_more_invites">You have no more invites this month. Sorry.</string>
+    <string name="invite_email_in_use">A user with this address was already invited.</string>
 </resources>
 

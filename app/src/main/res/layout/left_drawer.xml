@@ -133,6 +133,12 @@
             android:text="@string/action_feedback"/>
 
         <TextView
+            android:id="@+id/action_invite"
+            style="@style/DrawerItem"
+            android:drawableLeft="@drawable/ic_contact_mail_black_24dp"
+            android:text="@string/action_invite"/>
+
+        <TextView
             android:id="@+id/action_rules"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_assignment"

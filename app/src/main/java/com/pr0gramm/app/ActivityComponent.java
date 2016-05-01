@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import com.pr0gramm.app.ui.ChangeLogDialog;
 import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.InboxActivity;
+import com.pr0gramm.app.ui.InviteActivity;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
@@ -107,4 +108,6 @@ public interface ActivityComponent {
     void inject(PopupPlayer popupPlayer);
 
     void inject(DownloadUpdateDialog dialog);
+
+    void inject(InviteActivity inviteActivity);
 }

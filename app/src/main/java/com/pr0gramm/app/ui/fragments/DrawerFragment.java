@@ -38,6 +38,7 @@ import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
+import com.pr0gramm.app.ui.InviteActivity;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
@@ -108,6 +109,9 @@ public class DrawerFragment extends BaseFragment {
     @BindView(R.id.action_settings)
     View settingsView;
 
+    @BindView(R.id.action_invite)
+    View actionInvite;
+
     @BindView(R.id.user_image)
     View userImageView;
 
@@ -159,6 +163,11 @@ public class DrawerFragment extends BaseFragment {
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        actionInvite.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), InviteActivity.class);
             startActivity(intent);
         });
 
