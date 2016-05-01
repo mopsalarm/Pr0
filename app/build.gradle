@@ -130,7 +130,7 @@ android.applicationVariants.all { variant ->
 }
 
 retrolambda {
-    incremental false
+    incremental true
 }
 
 repositories {
@@ -211,4 +211,7 @@ dependencies {
 
     compile 'com.google.dagger:dagger:2.4'
     apt 'com.google.dagger:dagger-compiler:2.4'
+
+    // use a newer version of retrolambda
+    retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
 }
