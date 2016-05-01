@@ -318,4 +318,6 @@
     <string name="share_to_clipboard">Zwischenablage</string>
     <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
+    <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
+    <string name="pref_use_incognito_browser_summary">Öffnet Links in einem inkognito Browser direkt in der App.</string>
 </resources>

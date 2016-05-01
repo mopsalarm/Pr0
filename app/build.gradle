@@ -171,6 +171,7 @@ dependencies {
     compile 'org.nanohttpd:nanohttpd:2.3.0'
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
     compile 'com.github.KeepSafe:ReLinker:1.2.1'
+    compile 'com.thefinestartist:finestwebview:1.2.5'
 
     compile 'com.facebook.stetho:stetho:1.3.1'
     compile 'com.facebook.stetho:stetho-okhttp3:1.3.1'

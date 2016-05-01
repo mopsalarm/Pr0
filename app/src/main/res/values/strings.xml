@@ -333,5 +333,7 @@
     <string name="share_to_clipboard">To clipboard</string>
     <string name="pref_feed_start_at_sfw_title">Default to \'sfw\'</string>
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
+    <string name="pref_use_incognito_browser_title">Incognito browser</string>
+    <string name="pref_use_incognito_browser_summary">Open links in a simple incognito browser with no history.</string>
 </resources>
 

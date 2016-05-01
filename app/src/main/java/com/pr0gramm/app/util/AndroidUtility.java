@@ -24,6 +24,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BulletSpan;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,6 @@ import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
@@ -41,7 +41,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
+import com.pr0gramm.app.ui.PrivateBrowserSpan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +58,12 @@ import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Action2;
 import rx.functions.Func1;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Arrays.asList;
 import static rx.Observable.empty;
 import static rx.Observable.just;
 
@@ -196,7 +196,7 @@ public class AndroidUtility {
     public static Drawable getTintentDrawable(Context context, @DrawableRes int drawableId, @ColorRes int colorId) {
         Resources resources = context.getResources();
         Drawable icon = DrawableCompat.wrap(ResourcesCompat.getDrawable(resources, drawableId, null));
-        DrawableCompat.setTint(icon, resources.getColor(colorId));
+        DrawableCompat.setTint(icon, ResourcesCompat.getColor(resources, colorId, null));
         return icon;
     }
 
@@ -331,6 +331,23 @@ public class AndroidUtility {
         Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null,
                 (match, url) -> base.buildUpon().appendEncodedPath(match.group(1)).toString());
 
+        Settings settings = Settings.of(view.getContext());
+        if (settings.useIncognitoBrowser()) {
+            URLSpan[] spans = text.getSpans(0, text.length(), URLSpan.class);
+            for (URLSpan span : spans) {
+                String url = span.getURL();
+                if (url.contains("://pr0gramm.com/"))
+                    continue;
+
+                int start = text.getSpanStart(span);
+                int end = text.getSpanEnd(span);
+                int flags = text.getSpanFlags(span);
+                text.removeSpan(span);
+
+                text.setSpan(new PrivateBrowserSpan(url), start, end, flags);
+            }
+        }
+
         view.setText(text);
 
         view.setMovementMethod(new NonCrashingLinkMovementMethod());
@@ -378,19 +395,6 @@ public class AndroidUtility {
         };
     }
 
-    public static <T> boolean oneOf(T value, T a, T b) {
-        return Objects.equal(value, a) || Objects.equal(value, b);
-    }
-
-    public static <T> boolean oneOf(T value, T a, T b, T c) {
-        return Objects.equal(value, a) || Objects.equal(value, b) || Objects.equal(value, c);
-    }
-
-    @SafeVarargs
-    public static <T> boolean oneOf(T value, T... values) {
-        return asList(values).contains(value);
-    }
-
     public static Func1<Boolean, Boolean> isTrue() {
         return val -> val != null && val;
     }
@@ -399,44 +403,7 @@ public class AndroidUtility {
         return val -> val == null || !val;
     }
 
-    public static <T> Observable<T> emptyIfNull(T value) {
-        return value != null ? just(value) : empty();
-    }
-
     public static <T> Func1<T, Boolean> isNotNull() {
         return val -> val != null;
     }
-
-    /**
-     * @param interval      The base interval to start backing off from. The function is: attemptNum^2 * intervalTime
-     * @param units         The units for interval
-     * @param retryAttempts The max number of attempts to retry this task or -1 to try MAX_INT times,
-     */
-    public static <T> Observable.Transformer<T, T> backoff(
-            long interval, TimeUnit units, int retryAttempts, Scheduler scheduler) {
-
-        return observable -> observable.retryWhen(
-                retryFunc(interval, units, retryAttempts, scheduler),
-                scheduler);
-    }
-
-    private static Func1<? super Observable<? extends Throwable>, ? extends Observable<?>> retryFunc(
-            long interval, final TimeUnit units, int attempts, Scheduler scheduler) {
-        return observable -> {
-            // zip our number of retries to the incoming errors so that we only produce retries
-            // when there's been an error
-            return observable.zipWith(
-                    Observable.range(1, attempts > 0 ? attempts : Integer.MAX_VALUE),
-                    (throwable, attemptNumber) -> attemptNumber)
-                    // flatMap the int attempt number to a timer that will wait the specified delay
-                    .flatMap(attempt -> {
-                        long newInterval = interval * ((long) attempt * (long) attempt);
-                        if (newInterval < 0) {
-                            newInterval = Long.MAX_VALUE;
-                        }
-                        return Observable.timer(newInterval, units, scheduler);
-                    });
-        };
-    }
-
 }

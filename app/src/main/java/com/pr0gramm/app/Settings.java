@@ -202,6 +202,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return firstNonNull(Ints.tryParse(value), 0);
     }
 
+    public boolean useIncognitoBrowser() {
+        return preferences.getBoolean("pref_use_incognito_browser", false);
+    }
+
     public String themeName() {
         return preferences.getString("pref_theme", Themes.ORANGE.name());
     }

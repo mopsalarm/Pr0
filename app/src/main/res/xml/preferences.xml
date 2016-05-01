@@ -127,7 +127,6 @@
                     android:summary="@string/pref_volume_navigation_summary"
                     android:title="@string/pref_volume_navigation_title"/>
 
-
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_single_tap_for_fullscreen"
@@ -159,6 +158,12 @@
                     android:key="pref_prioritize_op_comments"
                     android:summary="@string/pref_prioritize_op_comments_summary"
                     android:title="@string/pref_prioritize_op_comments_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_use_incognito_browser"
+                    android:summary="@string/pref_use_incognito_browser_summary"
+                    android:title="@string/pref_use_incognito_browser_title"/>
 
             </PreferenceCategory>
 
