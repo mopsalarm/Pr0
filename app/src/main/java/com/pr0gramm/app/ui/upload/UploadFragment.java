@@ -65,7 +65,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
 
@@ -89,22 +89,22 @@ public class UploadFragment extends BaseFragment {
     @Inject
     RulesService rulesService;
 
-    @Bind(R.id.preview)
+    @BindView(R.id.preview)
     FrameLayout preview;
 
-    @Bind(R.id.upload)
+    @BindView(R.id.upload)
     Button upload;
 
-    @Bind(R.id.busy_indicator)
+    @BindView(R.id.busy_indicator)
     BusyIndicator busyIndicator;
 
-    @Bind(R.id.tags)
+    @BindView(R.id.tags)
     MultiAutoCompleteTextView tags;
 
-    @Bind(R.id.scrollView)
+    @BindView(R.id.scrollView)
     ScrollView scrollView;
 
-    @Bind(R.id.content_type_group)
+    @BindView(R.id.content_type_group)
     RadioGroup contentTypeGroup;
 
     private File file;

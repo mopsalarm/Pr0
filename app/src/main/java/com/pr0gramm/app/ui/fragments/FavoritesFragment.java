@@ -24,7 +24,7 @@ import com.pr0gramm.app.util.AndroidUtility;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -33,10 +33,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class FavoritesFragment extends BaseFragment implements FilterFragment {
     private static final String ARG_USERNAME = "FavoritesFragment.username";
 
-    @Bind(R.id.favorites_pager)
+    @BindView(R.id.favorites_pager)
     ViewPager pager;
 
-    @Bind(R.id.tabs)
+    @BindView(R.id.tabs)
     TabLayout tabLayout;
 
     @Inject

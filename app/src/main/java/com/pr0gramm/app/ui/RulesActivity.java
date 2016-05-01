@@ -10,7 +10,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 
@@ -18,7 +18,7 @@ import static com.pr0gramm.app.services.ThemeHelper.theme;
  * A new activity that just shows the rules
  */
 public class RulesActivity extends BaseAppCompatActivity {
-    @Bind(R.id.small_print)
+    @BindView(R.id.small_print)
     TextView rulesView;
 
     @Inject

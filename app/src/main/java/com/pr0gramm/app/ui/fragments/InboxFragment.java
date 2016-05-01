@@ -32,7 +32,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -51,16 +51,16 @@ public abstract class InboxFragment<T> extends BaseFragment {
     @Inject
     Picasso picasso;
 
-    @Bind(R.id.messages)
+    @BindView(R.id.messages)
     RecyclerView messagesView;
 
-    @Bind(android.R.id.empty)
+    @BindView(android.R.id.empty)
     View viewNothingHere;
 
-    @Bind(R.id.busy_indicator)
+    @BindView(R.id.busy_indicator)
     View viewBusyIndicator;
 
-    @Bind(R.id.refresh)
+    @BindView(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
     private LoaderHelper<List<T>> loader;

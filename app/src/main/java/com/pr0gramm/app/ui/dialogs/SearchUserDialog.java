@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 /**
  */
 public class SearchUserDialog extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger("SearchUserDialog");
 
-    @Bind(R.id.username)
+    @BindView(R.id.username)
     AutoCompleteTextView inputView;
 
     @Inject

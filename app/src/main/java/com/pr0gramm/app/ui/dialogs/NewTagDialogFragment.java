@@ -14,12 +14,12 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 /**
  */
 public class NewTagDialogFragment extends BaseDialogFragment {
-    @Bind(R.id.tag)
+    @BindView(R.id.tag)
     MultiAutoCompleteTextView tagInput;
 
     @NonNull

@@ -36,7 +36,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
@@ -50,7 +50,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
     @Inject
     Settings settings;
 
-    @Bind(R.id.changelog)
+    @BindView(R.id.changelog)
     RecyclerView recyclerView;
 
     @NonNull

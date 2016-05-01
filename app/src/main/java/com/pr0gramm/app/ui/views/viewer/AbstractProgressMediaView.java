@@ -10,12 +10,12 @@ import com.pr0gramm.app.Settings;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 /**
  */
 public abstract class AbstractProgressMediaView extends MediaView {
-    @Bind(R.id.video_progress)
+    @BindView(R.id.video_progress)
     ProgressBar videoProgressView;
 
     @Inject

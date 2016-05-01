@@ -102,7 +102,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -169,16 +169,16 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     @Inject
     RecentSearchesServices recentSearchesServices;
 
-    @Bind(R.id.list)
+    @BindView(R.id.list)
     RecyclerView recyclerView;
 
-    @Bind(R.id.progress)
+    @BindView(R.id.progress)
     BusyIndicator busyIndicator;
 
-    @Bind(R.id.refresh)
+    @BindView(R.id.refresh)
     CustomSwipeRefreshLayout swipeRefreshLayout;
 
-    @Bind(R.id.empty)
+    @BindView(R.id.empty)
     View noResultsView;
 
     private boolean userInfoCommentsOpen;

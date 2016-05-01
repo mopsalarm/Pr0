@@ -16,17 +16,17 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.UsernameTokenizer;
 import com.pr0gramm.app.util.ViewUtility;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
 
 /**
  */
 public class CommentPostLine extends FrameLayout {
-    @Bind(R.id.comment_text)
+    @BindView(R.id.comment_text)
     LineMultiAutoCompleteTextView commentTextView;
 
-    @Bind(R.id.comment_post)
+    @BindView(R.id.comment_post)
     View postButton;
 
     public CommentPostLine(Context context) {

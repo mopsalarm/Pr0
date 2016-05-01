@@ -43,7 +43,7 @@ import org.joda.time.Weeks;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
@@ -67,13 +67,13 @@ public class LoginActivity extends BaseAppCompatActivity {
     @Inject
     UserService userService;
 
-    @Bind(R.id.username)
+    @BindView(R.id.username)
     EditText usernameView;
 
-    @Bind(R.id.password)
+    @BindView(R.id.password)
     EditText passwordView;
 
-    @Bind(R.id.login)
+    @BindView(R.id.login)
     Button submitView;
 
     @Override

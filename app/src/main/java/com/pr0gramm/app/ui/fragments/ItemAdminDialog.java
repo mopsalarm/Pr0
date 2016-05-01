@@ -20,7 +20,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -37,19 +37,19 @@ public class ItemAdminDialog extends BaseDialogFragment {
     @InjectExtra(KEY_FEED_ITEM)
     FeedItem item;
 
-    @Bind(R.id.reason)
+    @BindView(R.id.reason)
     ListView reasonListView;
 
-    @Bind(R.id.custom_reason)
+    @BindView(R.id.custom_reason)
     EditText customReasonText;
 
-    @Bind(R.id.block_user)
+    @BindView(R.id.block_user)
     Checkable blockUser;
 
-    @Bind(R.id.block_user_days)
+    @BindView(R.id.block_user_days)
     EditText blockUserForDays;
 
-    @Bind(R.id.notify_user)
+    @BindView(R.id.notify_user)
     Checkable notifyUser;
 
     @Override

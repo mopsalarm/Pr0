@@ -28,7 +28,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -58,13 +58,13 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     @Inject
     MetaService metaService;
 
-    @Bind(R.id.message_view)
+    @BindView(R.id.message_view)
     MessageView messageView;
 
-    @Bind(R.id.new_message_text)
+    @BindView(R.id.new_message_text)
     LineMultiAutoCompleteTextView messageText;
 
-    @Bind(R.id.submit)
+    @BindView(R.id.submit)
     Button buttonSubmit;
 
     @Override

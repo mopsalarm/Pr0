@@ -19,7 +19,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.functions.Actions;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -35,13 +35,13 @@ public class FeedbackActivity extends BaseAppCompatActivity {
     @Inject
     UserService userService;
 
-    @Bind(R.id.submit)
+    @BindView(R.id.submit)
     Button buttonSubmit;
 
-    @Bind(R.id.feedback_name)
+    @BindView(R.id.feedback_name)
     EditText vName;
 
-    @Bind(R.id.feedback_text)
+    @BindView(R.id.feedback_text)
     EditText vText;
 
     @Override

@@ -16,14 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView {
     private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
 
-    @Bind(R.id.video)
+    @BindView(R.id.video)
     CustomVideoView videoView;
 
     @Inject

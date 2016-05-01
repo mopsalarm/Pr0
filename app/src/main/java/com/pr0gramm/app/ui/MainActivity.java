@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
@@ -84,20 +84,20 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    @Bind(R.id.drawer_layout)
+    @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    @Bind(R.id.toolbar)
+    @BindView(R.id.toolbar)
     Toolbar toolbar;
 
     @Nullable
-    @Bind(R.id.toolbar_container)
+    @BindView(R.id.toolbar_container)
     View toolbarContainer;
 
-    @Bind(R.id.content)
+    @BindView(R.id.content)
     View contentContainer;
 
-    @Bind(R.id.bottomsheet)
+    @BindView(R.id.bottomsheet)
     BottomSheetLayout bottomSheet;
 
     @Inject

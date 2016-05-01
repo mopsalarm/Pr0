@@ -51,7 +51,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.functions.Actions;
 
@@ -75,43 +75,43 @@ public class DrawerFragment extends BaseFragment {
     @Inject
     NavigationProvider navigationProvider;
 
-    @Bind(R.id.username)
+    @BindView(R.id.username)
     TextView usernameView;
 
-    @Bind(R.id.user_type)
+    @BindView(R.id.user_type)
     TextView userTypeView;
 
-    @Bind(R.id.kpi_benis)
+    @BindView(R.id.kpi_benis)
     TextView benisView;
 
-    @Bind(R.id.benis_delta)
+    @BindView(R.id.benis_delta)
     TextView benisDeltaView;
 
-    @Bind(R.id.benis_container)
+    @BindView(R.id.benis_container)
     View benisContainer;
 
-    @Bind(R.id.benis_graph)
+    @BindView(R.id.benis_graph)
     ImageView benisGraph;
 
-    @Bind(R.id.action_rules)
+    @BindView(R.id.action_rules)
     View actionRules;
 
-    @Bind(R.id.action_login)
+    @BindView(R.id.action_login)
     View loginView;
 
-    @Bind(R.id.action_logout)
+    @BindView(R.id.action_logout)
     View logoutView;
 
-    @Bind(R.id.action_feedback)
+    @BindView(R.id.action_feedback)
     TextView feedbackView;
 
-    @Bind(R.id.action_settings)
+    @BindView(R.id.action_settings)
     View settingsView;
 
-    @Bind(R.id.user_image)
+    @BindView(R.id.user_image)
     View userImageView;
 
-    @Bind(R.id.drawer_nav_list)
+    @BindView(R.id.drawer_nav_list)
     RecyclerView navItemsRecyclerView;
 
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();

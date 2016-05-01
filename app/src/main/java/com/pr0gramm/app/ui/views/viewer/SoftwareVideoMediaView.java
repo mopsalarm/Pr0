@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -43,7 +43,7 @@ import static com.pr0gramm.app.util.AndroidUtility.toFile;
  */
 @SuppressLint("ViewConstructor")
 public class SoftwareVideoMediaView extends AbstractProgressMediaView {
-    @Bind(R.id.image)
+    @BindView(R.id.image)
     ImageView playerView;
 
     @Inject

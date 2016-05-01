@@ -33,7 +33,7 @@ import com.trello.rxlifecycle.RxLifecycle;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -48,13 +48,13 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     @InjectExtra("ZoomViewActivity__hq")
     boolean loadHqIfAvailable;
 
-    @Bind(R.id.image)
+    @BindView(R.id.image)
     SubsamplingScaleImageView imageView;
 
-    @Bind(R.id.busy_indicator)
+    @BindView(R.id.busy_indicator)
     View busyIndicator;
 
-    @Bind(R.id.hq)
+    @BindView(R.id.hq)
     ImageView hq;
 
     @Inject

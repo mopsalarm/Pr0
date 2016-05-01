@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 /**
  */
@@ -38,10 +38,10 @@ public class ImageMediaView extends MediaView {
     private final String tag = "ImageMediaView" + System.identityHashCode(this);
     private final boolean zoomView;
 
-    @Bind(R.id.image)
+    @BindView(R.id.image)
     SubsamplingScaleImageView imageView;
 
-    @Bind(R.id.error)
+    @BindView(R.id.error)
     TextView errorIndicator;
 
     @Inject

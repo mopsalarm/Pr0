@@ -16,7 +16,7 @@ import com.trello.rxlifecycle.FragmentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 
 import static com.trello.rxlifecycle.RxLifecycle.bindUntilFragmentEvent;
@@ -28,7 +28,7 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
     private static final Logger logger = LoggerFactory.getLogger("DownloadDialog");
     private final Observable<DownloadService.Status> progress;
 
-    @Bind(R.id.progress)
+    @BindView(R.id.progress)
     ProgressBar progressBar;
 
     public DownloadUpdateDialog() {

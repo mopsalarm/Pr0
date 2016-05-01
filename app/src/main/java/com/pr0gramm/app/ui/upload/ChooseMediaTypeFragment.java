@@ -9,16 +9,16 @@ import android.view.ViewGroup;
 
 import com.pr0gramm.app.R;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
  */
 public class ChooseMediaTypeFragment extends Fragment {
-    @Bind(R.id.media_type_image)
+    @BindView(R.id.media_type_image)
     View btnImage;
 
-    @Bind(R.id.media_type_video)
+    @BindView(R.id.media_type_video)
     View btnVideo;
 
     @Nullable

@@ -22,7 +22,7 @@ import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 
@@ -43,10 +43,10 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
     @Inject
     InboxService inboxService;
 
-    @Bind(R.id.pager)
+    @BindView(R.id.pager)
     ViewPager viewPager;
 
-    @Bind(R.id.tabs)
+    @BindView(R.id.tabs)
     TabLayout tabLayout;
 
     private TabsAdapter tabsAdapter;

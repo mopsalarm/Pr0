@@ -33,7 +33,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -50,7 +50,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
     @Inject
     FeedService feedService;
 
-    @Bind(R.id.pager)
+    @BindView(R.id.pager)
     ViewPager viewPager;
 
     private Feed feed;

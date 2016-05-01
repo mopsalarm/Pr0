@@ -15,7 +15,7 @@ import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import pl.droidsonroids.gif.GifDrawable;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -32,7 +32,7 @@ public class GifMediaView extends AbstractProgressMediaView {
     @Inject
     GifDrawableLoader gifDrawableLoader;
 
-    @Bind(R.id.image)
+    @BindView(R.id.image)
     ImageView imageView;
 
     // the gif that is shown

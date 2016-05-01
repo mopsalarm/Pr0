@@ -89,7 +89,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -155,19 +155,19 @@ public class PostFragment extends BaseFragment implements
     @Inject
     FavedCommentService favedCommentService;
 
-    @Bind(R.id.refresh)
+    @BindView(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    @Bind(R.id.player_container)
+    @BindView(R.id.player_container)
     ViewGroup playerContainer;
 
-    @Bind(R.id.post_content)
+    @BindView(R.id.post_content)
     RecyclerView content;
 
-    @Bind(R.id.vote_indicator)
+    @BindView(R.id.vote_indicator)
     Pr0grammIconView voteAnimationIndicator;
 
-    @Bind(R.id.repost_hint)
+    @BindView(R.id.repost_hint)
     View repostHint;
 
     private InfoLineView infoLineView;

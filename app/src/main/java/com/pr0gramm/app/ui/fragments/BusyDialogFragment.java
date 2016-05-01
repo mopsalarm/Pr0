@@ -15,7 +15,7 @@ import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -25,10 +25,10 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 /**
  */
 public class BusyDialogFragment extends BaseDialogFragment {
-    @Bind(R.id.progress)
+    @BindView(R.id.progress)
     BusyIndicator progress;
 
-    @Bind(R.id.text)
+    @BindView(R.id.text)
     TextView message;
 
     @NonNull
