@@ -1,5 +1,14 @@
 [
   {
+    "version": 94,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "In den privaten Nachrichten wird nun der richtige Punkt des Unterhaltungspartners angezeigt."
+      }
+    ]
+  },
+  {
     "version": 93,
     "changes": [
       {

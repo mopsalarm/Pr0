@@ -150,7 +150,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
             boolean outgoing = message.isSent();
 
             int partnerId = outgoing ? message.getRecipientId() : message.getSenderId();
-            int partnerMark = outgoing ? message.getRecipientMark() : message.getRecipientMark();
+            int partnerMark = outgoing ? message.getRecipientMark() : message.getSenderMark();
             String partnerName = outgoing ? message.getRecipientName() : message.getSenderName();
 
             PartnerKey partnerKey = new PartnerKey(partnerId, partnerName, partnerMark);
