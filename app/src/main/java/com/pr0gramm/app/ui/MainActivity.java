@@ -165,8 +165,11 @@ public class MainActivity extends BaseAppCompatActivity implements
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            boolean startedFromLauncher = intent == null || Intent.ACTION_MAIN.equals(intent.getAction());
+
             // reset to sfw only.
-            if (settings.feedStartAtSfw()) {
+            if (settings.feedStartAtSfw() && startedFromLauncher) {
                 logger.info("Force-switch to sfw only.");
                 settings.edit()
                         .putBoolean("pref_feed_type_sfw", true)
@@ -177,8 +180,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
             createDrawerFragment();
 
-            Intent intent = getIntent();
-            if (intent == null || Intent.ACTION_MAIN.equals(intent.getAction())) {
+            if (startedFromLauncher) {
                 // load feed-fragment into view
                 gotoFeedFragment(defaultFeedFilter(), true);
 

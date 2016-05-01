@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "In den privaten Nachrichten wird nun der richtige Punkt des Unterhaltungspartners angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Fehlerhaftes automatisches Aktivieren von 'sfw' behoben."
       }
     ]
   },
