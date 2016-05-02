@@ -2,16 +2,18 @@ package com.pr0gramm.app.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.common.base.Throwables;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InviteService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
+import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.Noop.noop;
 
 /**
@@ -37,11 +40,24 @@ public class InviteActivity extends BaseAppCompatActivity {
     @BindViews({R.id.mail, R.id.send_invite})
     List<View> formFields;
 
+    @BindView(R.id.invites)
+    RecyclerView invites;
+
+    @BindView(R.id.remaining)
+    TextView remainingInvites;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(theme().basic);
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_invite);
+        disableInputViews();
+
+        invites.setLayoutManager(new LinearLayoutManager(this));
+
+        requeryInvites();
     }
 
     @Override
@@ -58,12 +74,40 @@ public class InviteActivity extends BaseAppCompatActivity {
         }
 
         // disable all views
-        ButterKnife.apply(formFields, (view, idx) -> view.setEnabled(false));
+        disableInputViews();
 
         inviteService.send(email)
                 .compose(bindToLifecycle())
-                .doAfterTerminate(() -> ButterKnife.apply(formFields, (view, idx) -> view.setEnabled(true)))
+                .doAfterTerminate(this::requeryInvites)
                 .subscribe(event -> onInviteSent(), this::onInviteError);
+    }
+
+    private void requeryInvites() {
+        inviteService.invites()
+                .compose(bindToLifecycle())
+                .subscribe(this::handleInvites, defaultOnError());
+    }
+
+    private void handleInvites(InviteService.Invites invites) {
+        this.invites.setAdapter(new InviteAdapter(invites.invited()));
+
+        String text = getString(R.string.invite_remaining, invites.inviteCount());
+        remainingInvites.setText(text);
+
+        if (invites.inviteCount() > 0) {
+            enableInputViews();
+        }
+    }
+
+    private void enableInputViews() {
+        ButterKnife.apply(formFields, (view, idx) -> {
+            view.setVisibility(View.VISIBLE);
+            view.setEnabled(true);
+        });
+    }
+
+    private void disableInputViews() {
+        ButterKnife.apply(formFields, (view, idx) -> view.setEnabled(false));
     }
 
     private void onInviteSent() {
@@ -96,10 +140,10 @@ public class InviteActivity extends BaseAppCompatActivity {
                         .positive()
                         .show();
             } else {
-                ErrorDialogFragment.defaultOnError().call(error);
+                defaultOnError().call(error);
             }
         } else {
-            ErrorDialogFragment.defaultOnError().call(error);
+            defaultOnError().call(error);
         }
     }
 }

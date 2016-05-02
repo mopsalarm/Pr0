@@ -273,6 +273,7 @@ public class DrawerFragment extends BaseFragment {
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
             actionRules.setVisibility(View.VISIBLE);
+            actionInvite.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
             usernameView.setOnClickListener(null);
@@ -286,6 +287,7 @@ public class DrawerFragment extends BaseFragment {
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
             actionRules.setVisibility(View.GONE);
+            actionInvite.setVisibility(View.GONE);
         }
     }
 

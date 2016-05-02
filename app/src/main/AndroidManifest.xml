@@ -226,6 +226,7 @@
             android:label="@string/invites_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Green"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
 
             <meta-data

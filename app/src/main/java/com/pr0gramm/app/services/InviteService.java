@@ -3,7 +3,11 @@ package com.pr0gramm.app.services;
 import android.util.Patterns;
 
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 
+import org.immutables.value.Value;
+
+import java.util.List;
 import java.util.regex.Matcher;
 
 import javax.inject.Inject;
@@ -36,6 +40,13 @@ public class InviteService {
         });
     }
 
+    public Observable<Invites> invites() {
+        return api.accountInfo().map(info -> ImmutableInvites.builder()
+                .inviteCount(info.account().invites())
+                .invited(info.invited())
+                .build());
+    }
+
     public static class InviteException extends RuntimeException {
         private final String errorCode;
 
@@ -54,6 +65,13 @@ public class InviteService {
         public boolean emailInUse() {
             return ERROR_IN_USE.equalsIgnoreCase(errorCode);
         }
+    }
+
+    @Value.Immutable
+    public interface Invites {
+        int inviteCount();
+
+        List<AccountInfo.Invite> invited();
     }
 
     public static final String ERROR_EMAIL_FORMAT = "emailInvalid";

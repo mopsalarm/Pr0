@@ -201,7 +201,7 @@
     <string name="share_direct">As file</string>
     <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
-    <string name="action_feedback">Feedback</string>
+    <string name="action_feedback">FEEDBACK</string>
     <string name="action_search_image">Search on Google</string>
     <string name="pref_show_google_image_button_title">Show search on google</string>
     <string name="pref_show_google_image_button_summary">Show the \"search on google\" button for image posts</string>
@@ -335,7 +335,7 @@
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
     <string name="pref_use_incognito_browser_summary">Open links in a simple incognito browser with no history.</string>
-    <string name="action_invite">Send invite</string>
+    <string name="action_invite">INVITES</string>
     <string name="invites_title">Invites</string>
     <string name="invite_description" translatable="false">Wenn Du keine Neuschwuchtel oder Fliesentischbesitzer bist und ein paar Invites übrig hast, kannst du hier Deine Freunde zu pr0gramm einladen.</string>
     <string name="invite_description_warning" translatable="false">Beachte, dass Du für jeden eingeladenen Benutzer bürgst und automatisch bei jedem Ban für die halbe Zeit mit gebannt wirst!</string>
@@ -345,5 +345,10 @@
     <string name="invite_hint_success">Invite sent!</string>
     <string name="invite_no_more_invites">You have no more invites this month. Sorry.</string>
     <string name="invite_email_in_use">A user with this address was already invited.</string>
+    <string name="invites_sent">Sent invites</string>
+    <string name="invite_redeemed" translatable="false">%1$s, %2$s</string>
+    <string name="invite_unredeemed">not redeemed, %s</string>
+    <string name="invite_remaining">Remaining invites: %s</string>
+    <string name="invite_remaining_loading">Remaining invites: loading…</string>
 </resources>
 

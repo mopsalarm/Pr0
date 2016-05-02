@@ -1,39 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".ui.InviteActivity">
 
-    <TextView
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/invite_description"/>
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
 
-    <TextView
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/invite_description_warning"
-        android:textColor="?colorPrimary"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/invite_description"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
-    <EditText
-        android:id="@+id/mail"
-        android:layout_marginTop="16dp"
-        android:inputType="textEmailAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/invite_email_hint"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/invite_description_warning"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?colorPrimary"/>
 
-    <Button
-        android:id="@+id/send_invite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:text="@string/invite_send"/>
-</LinearLayout>
+        <TextView
+            android:id="@+id/remaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            tools:text="@string/invite_remaining_loading"/>
+
+        <EditText
+            android:id="@+id/mail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:hint="@string/invite_email_hint"
+            android:inputType="textEmailAddress"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/send_invite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="16dp"
+            android:text="@string/invite_send"
+            android:visibility="gone"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/invites_sent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/invites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:listitem="@layout/row_invite"
+            />
+    </LinearLayout>
+</ScrollView>
