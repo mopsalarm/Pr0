@@ -1,6 +1,8 @@
 package com.pr0gramm.app.ui;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.TextView;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
+import com.pr0gramm.app.services.UriHelper;
+import com.pr0gramm.app.ui.views.UsernameView;
 
 import java.util.List;
 
@@ -46,24 +50,47 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteView
     public class InviteViewHolder extends RecyclerView.ViewHolder {
         final TextView email;
         final TextView info;
+        final UsernameView username;
 
         public InviteViewHolder(View itemView) {
             super(itemView);
             email = ButterKnife.findById(itemView, R.id.email);
             info = ButterKnife.findById(itemView, R.id.info);
+            username = ButterKnife.findById(itemView, R.id.username);
         }
 
         public void set(AccountInfo.Invite invite) {
             Context context = itemView.getContext();
 
-            email.setText(invite.email());
-
             CharSequence date = getRelativeTimeSpanString(context, invite.created());
             if (invite.name().isPresent()) {
-                info.setText(context.getString(R.string.invite_redeemed, invite.name().get(), date));
+                String name = invite.name().get();
+
+                email.setVisibility(View.GONE);
+                username.setVisibility(View.VISIBLE);
+                username.setUsername(name, invite.mark().or(0));
+
+                info.setText(context.getString(R.string.invite_redeemed, invite.email(), date));
+                itemView.setOnClickListener(v -> openUsersProfile(name));
+
             } else {
+                username.setVisibility(View.GONE);
+                email.setVisibility(View.VISIBLE);
+                email.setText(invite.email());
+
                 info.setText(context.getString(R.string.invite_unredeemed, date));
+                itemView.setOnClickListener(null);
             }
+        }
+
+        private void openUsersProfile(String name) {
+            Context context = itemView.getContext();
+            UriHelper uriHelper = UriHelper.of(context);
+
+            // open users profile
+            Uri url = uriHelper.uploads(name);
+            Intent intent = new Intent(Intent.ACTION_VIEW, url, context, MainActivity.class);
+            context.startActivity(intent);
         }
     }
 }
