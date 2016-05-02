@@ -306,7 +306,6 @@ public class PostFragment extends BaseFragment implements
         );
 
         commentsAdapter.setCommentActionListener(this);
-        commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
         commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
         adapter.addAdapter(commentsAdapter);
 
@@ -639,14 +638,6 @@ public class PostFragment extends BaseFragment implements
         favedCommentService.favedCommentIds()
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setFavedComments);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // set ordering
-        commentsAdapter.setPrioritizeOpComments(settings.prioritizeOpComments());
     }
 
     /**

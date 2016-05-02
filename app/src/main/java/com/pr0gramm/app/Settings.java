@@ -181,10 +181,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_single_tap_for_fullscreen", false);
     }
 
-    public boolean prioritizeOpComments() {
-        return preferences.getBoolean("pref_prioritize_op_comments", true);
-    }
-
     public boolean showCategoryRandom() {
         return preferences.getBoolean("pref_show_category_random", true);
     }

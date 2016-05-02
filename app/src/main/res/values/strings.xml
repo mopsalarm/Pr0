@@ -227,8 +227,6 @@
     <string name="error_ssl_error">Could not perform ssl handshake, maybe you should deactivate https?</string>
     <string name="pref_force_mpeg_decoder_title">Force java decoder</string>
     <string name="pref_force_mpeg_decoder_summary">This forces the usage of a pure java mpeg decoder. The decoder is most compatible. CAUTION: Quality is lower and it might run too slow on old hardware.</string>
-    <string name="pref_prioritize_op_comments_title">Prioritize op comments</string>
-    <string name="pref_prioritize_op_comments_summary">Put comments of the OP at the top</string>
     <string name="hint_check_compatibility_if_videos_dont_play">If videos are not playing in this version, please check the page \"Compatibility\" in the settings.</string>
     <string name="share_using">Share using</string>
     <string name="error_webm_native_exception">An error in the webm decoder occurred, the app might get unstable and just stop. If this happens often, you could try to activate the java only decoder.</string>
