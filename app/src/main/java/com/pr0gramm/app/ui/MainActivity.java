@@ -193,9 +193,18 @@ public class MainActivity extends BaseAppCompatActivity implements
             }
         }
 
+        boolean updateCheck = true;
+        boolean updateCheckDelay = false;
+
         if (singleShotService.firstTimeInVersion("changelog")) {
+            updateCheck = false;
+
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
+
+        } else if (shouldShowIncognitoBrowserReminder()) {
+            updateCheck = false;
+            showHintIncognitoBrowser();
 
         } else if (shouldShowFeedbackReminder()) {
             //noinspection ResourceType
@@ -203,12 +212,39 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .setAction(R.string.okay, noop)
                     .show();
 
-        } else {
-            // start the update check again
-            UpdateDialogFragment.checkForUpdates(this, false);
+            updateCheckDelay = true;
+        }
+
+        if (updateCheck) {
+            Observable.just(null)
+                    .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .compose(RxLifecycle.bindActivity(lifecycle()))
+                    .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
 
         addOriginalContentBookmarkOnce();
+    }
+
+    @Override
+    protected void injectComponent(ActivityComponent appComponent) {
+        appComponent.inject(this);
+    }
+
+    private boolean shouldShowIncognitoBrowserReminder() {
+        return singleShotService.isFirstTime("hint_use_incognito_browser") && !settings.useIncognitoBrowser();
+    }
+
+    private void showHintIncognitoBrowser() {
+        DialogBuilder.start(this)
+                .content(R.string.hint_use_incognito_browser)
+                .negative(android.R.string.no)
+                .positive(android.R.string.yes, () -> {
+                    settings.edit()
+                            .putBoolean("pref_use_incognito_browser", true)
+                            .apply();
+                })
+                .show();
     }
 
     private void checkForInfoMessage() {
@@ -224,11 +260,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         return settings.useBetaChannel()
                 && (singleShotService.firstTimeInVersion("hint_feedback_reminder")
                 | singleShotService.firstTimeToday("hint_feedback_reminder"));
-    }
-
-    @Override
-    protected void injectComponent(ActivityComponent appComponent) {
-        appComponent.inject(this);
     }
 
     /**
