@@ -13,6 +13,7 @@ import com.google.common.base.Throwables;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InviteService;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
 import java.util.List;
@@ -80,6 +81,8 @@ public class InviteActivity extends BaseAppCompatActivity {
                 .compose(bindToLifecycle())
                 .doAfterTerminate(this::requeryInvites)
                 .subscribe(event -> onInviteSent(), this::onInviteError);
+
+        Track.inviteSent();
     }
 
     private void requeryInvites() {

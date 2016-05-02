@@ -147,15 +147,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         // prepare drawer layout
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerLayout.addDrawerListener(new ForwardDrawerListener(drawerToggle) {
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-
-                // i am not quite sure if everyone knows that there is a drawer to open.
-                Track.drawerOpened();
-            }
-        });
+        drawerLayout.addDrawerListener(drawerToggle);
 
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

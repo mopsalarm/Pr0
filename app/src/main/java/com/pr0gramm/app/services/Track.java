@@ -120,11 +120,8 @@ public final class Track {
                 .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
                 .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
                 .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
+                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser()))
                 .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
-    }
-
-    public static void drawerOpened() {
-        track(new CustomEvent("Drawer opened"));
     }
 
     public static void bookmarks(int size) {
@@ -140,11 +137,6 @@ public final class Track {
         track(new CustomEvent("Notification closed").putCustomAttribute("method", method));
     }
 
-    public static void experimentEvent(String experiment, String caseName, String actionName) {
-        track(new CustomEvent(experiment)
-                .putCustomAttribute(actionName, caseName));
-    }
-
     public static void requestFeed(FeedType feedType) {
         track(new CustomEvent("Load feed")
                 .putCustomAttribute("feed type", feedType.name()));
@@ -156,6 +148,10 @@ public final class Track {
         track(new CustomEvent("Preload current feed")
                 .putCustomAttribute("hour", String.valueOf(hour))
                 .putCustomAttribute("itemCount", size));
+    }
+
+    public static void inviteSent() {
+        track(new CustomEvent("Invite sent"));
     }
 
     public static void commentFaved() {
