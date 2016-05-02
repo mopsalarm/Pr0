@@ -4,10 +4,8 @@ import android.util.Patterns;
 
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
-import com.pr0gramm.app.api.pr0gramm.response.ImmutableAccountInfo;
 
 import org.immutables.value.Value;
-import org.joda.time.Instant;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -46,12 +44,12 @@ public class InviteService {
         return api.accountInfo().map(info -> ImmutableInvites.builder()
                 .inviteCount(info.account().invites())
                 .invited(info.invited())
-                .addInvited(ImmutableAccountInfo.Invite.builder()
-                        .email("chaos@pr0gramm.com")
-                        .name("cha0s")
-                        .mark(3)
-                        .created(Instant.now().minus(1000000))
-                        .build())
+//                .addInvited(ImmutableAccountInfo.Invite.builder()
+//                        .email("cha0s@pr0gramm.com")
+//                        .name("cha0s")
+//                        .mark(3)
+//                        .created(Instant.now().minus(1000000))
+//                        .build())
                 .build());
     }
 
