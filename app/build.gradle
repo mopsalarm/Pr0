@@ -190,8 +190,8 @@ dependencies {
     apt 'com.f2prateek.dart:dart-processor:2.0.0'
 
     // rx java
-    compile 'io.reactivex:rxjava:1.1.3'
-    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.4'
+    compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.1.3.0'
     compile 'com.trello:rxlifecycle:0.5.0'
@@ -208,9 +208,9 @@ dependencies {
         transitive = true;
     }
 
-    apt 'org.immutables:value:2.1.18'
-    provided 'org.immutables:value:2.1.18'
-    provided 'org.immutables:gson:2.1.18'
+    apt 'org.immutables:value:2.1.19'
+    provided 'org.immutables:value:2.1.19'
+    provided 'org.immutables:gson:2.1.19'
 
     compile 'com.google.dagger:dagger:2.4'
     apt 'com.google.dagger:dagger-compiler:2.4'
