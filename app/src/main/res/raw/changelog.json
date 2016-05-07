@@ -4,15 +4,19 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Du kannst nun jemanden aus der App heraus stelzen"
+        "change": "Du kannst nun jemanden aus der App heraus stelzen."
       },
       {
         "type": "Fix",
-        "change": "Fehler bei der Anzeige von +/- bei Votes behoben"
+        "change": "Fehler bei der Anzeige von +/- bei Votes behoben."
       },
       {
         "type": "Fix",
-        "change": "Incognito Browser beachtet nun die Rotationseinstellung vom System"
+        "change": "Scrollen in der Navigation verbessert."
+      },
+      {
+        "type": "Fix",
+        "change": "Incognito Browser beachtet nun die Rotationseinstellung vom System."
       }
     ]
   },

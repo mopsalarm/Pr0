@@ -156,6 +156,7 @@ public class DrawerFragment extends BaseFragment {
         // initialize the top navigation items
         navItemsRecyclerView.setAdapter(navigationAdapter);
         navItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        navItemsRecyclerView.setNestedScrollingEnabled(false);
 
         // add the static items to the navigation
         navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(
