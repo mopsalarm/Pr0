@@ -46,7 +46,7 @@
                 android:background="@color/input_background"
                 android:gravity="start|top"
                 android:hint="@string/feedback_feedback"
-                android:inputType="textMultiLine"
+                android:inputType="textMultiLine|textCapSentences"
                 android:minLines="5"
                 android:padding="8sp">
 
