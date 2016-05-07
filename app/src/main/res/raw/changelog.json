@@ -3,6 +3,10 @@
     "version": 95,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Du kannst nun jemanden aus der App heraus stelzen"
+      },
+      {
         "type": "Fix",
         "change": "Fehler bei der Anzeige von +/- bei Votes behoben"
       },

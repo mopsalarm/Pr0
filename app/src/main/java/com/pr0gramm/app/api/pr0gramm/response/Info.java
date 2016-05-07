@@ -27,6 +27,8 @@ public interface Info {
 
     boolean likesArePublic();
 
+    boolean following();
+
     List<UserComments.Comment> getComments();
 
     @Value.Immutable

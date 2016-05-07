@@ -349,5 +349,7 @@
     <string name="invite_remaining">Remaining invites: %s</string>
     <string name="invite_remaining_loading">Remaining invites: loading…</string>
     <string name="hint_use_incognito_browser"><![CDATA[The pr0gramm app now includes a simple incognito browser that can be used if you click on a link. Do you want to activate this browser now? You can change your decision anytime under settings -> behaviour.]]></string>
+    <string name="action_follow">Follow</string>
+    <string name="action_unfollow">Unfollow</string>
 </resources>
 

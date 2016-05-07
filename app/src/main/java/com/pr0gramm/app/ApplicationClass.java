@@ -15,8 +15,8 @@ import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
-import com.pr0gramm.app.util.HandlerThreadScheduler;
 import com.pr0gramm.app.util.Lazy;
+import com.pr0gramm.app.util.LooperScheduler;
 import com.pr0gramm.app.vpx.VpxChecker;
 
 import net.danlew.android.joda.JodaTimeAndroid;
@@ -83,7 +83,7 @@ public class ApplicationClass extends Application {
         RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
             @Override
             public Scheduler getMainThreadScheduler() {
-                return HandlerThreadScheduler.INSTANCE;
+                return LooperScheduler.MAIN;
             }
         });
 

@@ -53,6 +53,7 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
+import com.pr0gramm.app.services.FollowingService;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
@@ -169,6 +170,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     @Inject
     RecentSearchesServices recentSearchesServices;
 
+    @Inject
+    FollowingService followService;
+
     @BindView(R.id.list)
     RecyclerView recyclerView;
 
@@ -192,6 +196,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private boolean scrollToolbar;
 
     private WeakReference<Dialog> quickPeekDialog = new WeakReference<>(null);
+    private String activeUsername;
 
     /**
      * Initialize a new feed fragment.
@@ -279,6 +284,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         createRecyclerViewClickListener();
         recyclerView.addOnScrollListener(onScrollListener);
+
+        // observe changes so we can update the mehu
+        followService.changes()
+                .compose(bindToLifecycleSimple())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(name -> name.equalsIgnoreCase(activeUsername))
+                .subscribe(name -> getActivity().supportInvalidateOptionsMenu());
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -376,6 +388,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 SingleViewAdapter.ofView(view),
                 messages,
                 SingleViewAdapter.ofLayout(R.layout.user_info_footer));
+
+        // we are showing a user.
+        activeUsername = info.getInfo().getUser().getName();
+        getActivity().supportInvalidateOptionsMenu();
     }
 
     private void presentUserUploadsHint(Info info) {
@@ -440,6 +456,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
             Observable<Info> first = userService
                     .info(queryString, getSelectedContentType())
+                    .doOnNext(info -> followService.markAsFollowing(info.getUser().getName(), info.following()))
                     .onErrorResumeNext(Observable.empty());
 
             Observable<Optional<Graph>> second = metaService
@@ -716,6 +733,19 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 item.setVisible(false);
             }
         }
+
+        MenuItem follow = menu.findItem(R.id.action_follow);
+        MenuItem unfollow = menu.findItem(R.id.action_unfollow);
+        if (follow != null && unfollow != null) {
+            if (activeUsername != null && userService.isPremiumUser()) {
+                boolean following = followService.isFollowing(activeUsername);
+                follow.setVisible(!following);
+                unfollow.setVisible(following);
+            } else {
+                follow.setVisible(false);
+                unfollow.setVisible(false);
+            }
+        }
     }
 
     private FeedType switchFeedTypeTarget(FeedFilter filter) {
@@ -813,6 +843,20 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     .positive()
                     .show();
         }
+    }
+
+    @OnOptionsItemSelected(R.id.action_follow)
+    public void onFollowClicked() {
+        followService.follow(activeUsername)
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(Actions.empty(), Actions.empty());
+    }
+
+    @OnOptionsItemSelected(R.id.action_unfollow)
+    public void onUnfollowClicked() {
+        followService.unfollow(activeUsername)
+                .subscribeOn(BackgroundScheduler.instance())
+                .subscribe(Actions.empty(), Actions.empty());
     }
 
     /**

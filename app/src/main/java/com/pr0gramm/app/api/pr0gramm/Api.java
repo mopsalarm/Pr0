@@ -146,6 +146,13 @@ public interface Api {
             @Field("banUser") String banUser,
             @Field("days") Integer days);
 
+    @FormUrlEncoded
+    @POST("api/profile/follow")
+    Observable<Nothing> profileFollow(@Field("_nonce") Nonce nonce, @Field("name") String username);
+
+    @FormUrlEncoded
+    @POST("api/profile/unfollow")
+    Observable<Nothing> profileUnfollow(@Field("_nonce") Nonce nonce, @Field("name") String username);
 
     final class Nonce {
         public final String value;

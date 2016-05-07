@@ -54,4 +54,14 @@
         android:id="@+id/action_preload"
         android:title="@string/action_preload"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_follow"
+        android:title="@string/action_follow"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_unfollow"
+        android:title="@string/action_unfollow"
+        app:showAsAction="never"/>
 </menu>
