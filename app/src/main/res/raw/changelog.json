@@ -1,5 +1,14 @@
 [
   {
+    "version": 95,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Incognito Browser beachtet nun die Rotationseinstellung vom System"
+      }
+    ]
+  },
+  {
     "version": 94,
     "changes": [
       {
