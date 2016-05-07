@@ -693,6 +693,7 @@ public class PostFragment extends BaseFragment implements
             Runnable action = () -> {
                 voteService.vote(tag, vote)
                         .compose(bindToLifecycle())
+                        .doAfterTerminate(() -> infoLineView.addVote(tag, vote))
                         .subscribe(Actions.empty(), defaultOnError());
             };
 

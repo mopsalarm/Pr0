@@ -1139,7 +1139,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         @Override
         public void onWrongContentType() {
-            with(fragment -> fragment.showWrongContentTypeInfo());
+            with(FeedFragment::showWrongContentTypeInfo);
         }
     }
 

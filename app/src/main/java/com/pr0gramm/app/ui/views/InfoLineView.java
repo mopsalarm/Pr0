@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -28,6 +27,7 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +63,7 @@ public class InfoLineView extends LinearLayout {
     private TagVoteListener tagVoteListener;
     private boolean isSelfPost;
     private Runnable onAddTagClickedListener;
+    private TagsAdapter tagsAdapter;
 
     public InfoLineView(Context context) {
         this(context, null);
@@ -214,9 +215,11 @@ public class InfoLineView extends LinearLayout {
         int height = addTagView.getMeasuredHeight();
         tagsView.setMinimumHeight(height);
 
+        tagsAdapter = new TagsAdapter(sorted, tags);
+
         MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
         adapter.addAdapter(SingleViewAdapter.ofView(addTagView));
-        adapter.addAdapter(new TagsAdapter(sorted, tags));
+        adapter.addAdapter(tagsAdapter);
         tagsView.setAdapter(adapter);
     }
 
@@ -241,6 +244,10 @@ public class InfoLineView extends LinearLayout {
         return feedItem.getCreated().isBefore(oneHourAgo);
     }
 
+    public void addVote(Tag tag, Vote vote) {
+        tagsAdapter.updateVote(tag, vote);
+    }
+
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
         private final List<Tag> tags;
         private final Map<Tag, Vote> votes;
@@ -250,7 +257,7 @@ public class InfoLineView extends LinearLayout {
         private TagsAdapter(List<Tag> tags, Map<Tag, Vote> votes) {
             setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
-            this.votes = ImmutableMap.copyOf(votes);
+            this.votes = new HashMap<>(votes);
             this.alwaysVoteViews = settings != null && !settings.hideTagVoteButtons();
         }
 
@@ -312,6 +319,11 @@ public class InfoLineView extends LinearLayout {
         @Override
         public long getItemId(int position) {
             return tags.get(position).getId();
+        }
+
+        public void updateVote(Tag tag, Vote vote) {
+            votes.put(tag, vote);
+            notifyDataSetChanged();
         }
     }
 

@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Fehler bei der Anzeige von +/- bei Votes behoben"
+      },
+      {
+        "type": "Fix",
         "change": "Incognito Browser beachtet nun die Rotationseinstellung vom System"
       }
     ]
