@@ -18,6 +18,7 @@ import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.Lazy;
 import com.pr0gramm.app.util.LooperScheduler;
 import com.pr0gramm.app.vpx.VpxChecker;
+import com.thefinestartist.Base;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -50,6 +51,7 @@ public class ApplicationClass extends Application {
 
         SugarContext.init(this);
         JodaTimeAndroid.init(this);
+        Base.initialize(this);
 
         Settings.initialize(this);
         Settings settings = Settings.of(this);
