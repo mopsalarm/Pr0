@@ -7,6 +7,10 @@
         "change": "Du kannst nun jemanden aus der App heraus stelzen."
       },
       {
+        "type": "Neu",
+        "change": "Einstellung um YouTube und Vimeo Links trotz Incognito Browser in der entsprechenden App zu starten"
+      },
+      {
         "type": "Fix",
         "change": "Fehler bei der Anzeige von +/- bei Votes behoben."
       },

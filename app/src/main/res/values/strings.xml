@@ -351,5 +351,7 @@
     <string name="hint_use_incognito_browser"><![CDATA[The pr0gramm app now includes a simple incognito browser that can be used if you click on a link. Do you want to activate this browser now? You can change your decision anytime under settings -> behaviour.]]></string>
     <string name="action_follow">Follow</string>
     <string name="action_unfollow">Unfollow</string>
+    <string name="pref_override_youtube_links_summary">Show youtube links in YouTube app even if incognito browser is activated.</string>
+    <string name="pref_override_youtube_links_title">YouTube App</string>
 </resources>
 

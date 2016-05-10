@@ -152,12 +152,24 @@
                     android:key="pref_downloadLocation"
                     android:summary="@string/pref_downloadLocation_summary"
                     android:title="@string/pref_downloadLocation_title"/>
+            </PreferenceCategory>
+
+            <PreferenceCategory
+                android:key="prefcat_incognito"
+                android:title="Incognito Browser">
 
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="pref_use_incognito_browser"
                     android:summary="@string/pref_use_incognito_browser_summary"
                     android:title="@string/pref_use_incognito_browser_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:dependency="pref_use_incognito_browser"
+                    android:key="pref_override_youtube_links"
+                    android:summary="@string/pref_override_youtube_links_summary"
+                    android:title="@string/pref_override_youtube_links_title"/>
 
             </PreferenceCategory>
 
@@ -290,15 +302,6 @@
                 android:key="pref_use_api_proxy"
                 android:summary="@string/pref_use_api_proxy_summary"
                 android:title="@string/pref_use_api_proxy_title"/>
-
-            <!--
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:dependency="pref_compatibility_active"
-                android:key="pref_use_proxy"
-                android:summary="@string/pref_use_proxy_summary"
-                android:title="@string/pref_use_proxy_title"/>
-            -->
 
         </PreferenceScreen>
 

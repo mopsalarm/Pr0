@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.text.style.URLSpan;
 import android.view.View;
 
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.thefinestartist.finestwebview.FinestWebView;
@@ -17,18 +19,33 @@ public class PrivateBrowserSpan extends URLSpan {
 
     @Override
     public void onClick(View widget) {
+        String url = getURL();
+
         Settings settings = Settings.of(widget.getContext());
-        if (settings.useIncognitoBrowser()) {
+        boolean useIncognitoBrowser = settings.useIncognitoBrowser();
+
+        // check if youtube-links should be opened in normal app
+        if (useIncognitoBrowser && settings.overrideYouTubeLinks()) {
+            String host = Uri.parse(url).getHost();
+            if (host != null && YOUTUBE_HOSTS.contains(host.toLowerCase()))
+                useIncognitoBrowser = false;
+        }
+
+        if (useIncognitoBrowser) {
             new FinestWebView.Builder(widget.getContext())
                     .theme(ThemeHelper.theme().noActionBar)
                     .iconDefaultColor(Color.WHITE)
                     .toolbarColorRes(ThemeHelper.theme().primaryColor)
                     .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
-                    .show(getURL());
+                    .show(url);
 
         } else {
             // dispatch link normally
             super.onClick(widget);
         }
     }
+
+    private static final ImmutableList<String> YOUTUBE_HOSTS = ImmutableList.of(
+            "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
+            "vimeo.com");
 }

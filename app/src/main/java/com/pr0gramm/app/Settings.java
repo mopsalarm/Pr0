@@ -202,6 +202,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_use_incognito_browser", false);
     }
 
+    public boolean overrideYouTubeLinks() {
+        return preferences.getBoolean("pref_override_youtube_links", false);
+    }
+
     public String themeName() {
         return preferences.getString("pref_theme", Themes.ORANGE.name());
     }

@@ -332,4 +332,6 @@
     <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält nun einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden? Die Option findest du auch unter Einstellungen -> Verhalten .]]></string>
     <string name="action_follow">Stelzen</string>
     <string name="action_unfollow">Unstelzen</string>
+    <string name="pref_override_youtube_links_title">YouTube App</string>
+    <string name="pref_override_youtube_links_summary">Zeige Videos (YouTube, Vimeo) immer in der entsprechenden App, auch wenn der Inkognito Browser aktiviert ist.</string>
 </resources>
