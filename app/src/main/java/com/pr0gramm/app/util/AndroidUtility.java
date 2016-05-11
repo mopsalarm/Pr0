@@ -29,6 +29,7 @@ import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -405,5 +406,15 @@ public class AndroidUtility {
 
     public static <T> Func1<T, Boolean> isNotNull() {
         return val -> val != null;
+    }
+
+    public static void hideSoftKeyboard(View view) {
+        try {
+            InputMethodManager imm = (InputMethodManager) view.getContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        } catch (Exception ignored) {
+        }
     }
 }

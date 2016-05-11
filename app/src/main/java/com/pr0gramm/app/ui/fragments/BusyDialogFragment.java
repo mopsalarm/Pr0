@@ -83,7 +83,11 @@ public class BusyDialogFragment extends BaseDialogFragment {
                 args.putString("text", text);
                 dialog.setArguments(args);
             }
-            dialog.show(fragmentManager, tag);
+
+            try {
+                dialog.show(fragmentManager, tag);
+            } catch (Throwable ignored) {
+            }
         }
 
         private void dismiss() {

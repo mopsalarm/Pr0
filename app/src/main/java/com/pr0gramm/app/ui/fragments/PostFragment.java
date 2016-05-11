@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.fragments;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -25,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -397,6 +395,8 @@ public class PostFragment extends BaseFragment implements
                 .compose(bindToLifecycle())
                 .lift(busyDialog(this))
                 .subscribe(this::onNewComments, defaultOnError());
+
+        AndroidUtility.hideSoftKeyboard(getView());
     }
 
     /**
@@ -1057,18 +1057,6 @@ public class PostFragment extends BaseFragment implements
         displayComments(response.getComments());
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show();
-        hideSoftKeyboard();
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private void hideSoftKeyboard() {
-        try {
-            InputMethodManager imm = (InputMethodManager) getActivity()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-
-            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-        } catch (Exception ignored) {
-        }
     }
 
     public void mediaHorizontalOffset(int offset) {

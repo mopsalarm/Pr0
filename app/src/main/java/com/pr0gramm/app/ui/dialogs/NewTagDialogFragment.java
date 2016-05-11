@@ -11,6 +11,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.TagInputView;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class NewTagDialogFragment extends BaseDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return DialogBuilder.start(getActivity())
                 .layout(R.layout.dialog_add_tags)
-                .negative(R.string.cancel)
+                .negative(R.string.cancel, () -> AndroidUtility.hideSoftKeyboard(tagInput))
                 .positive(R.string.dialog_action_add, this::onOkayClicked)
                 .build();
     }
@@ -50,6 +51,8 @@ public class NewTagDialogFragment extends BaseDialogFragment {
 
         // inform parent
         ((OnAddNewTagsListener) getParentFragment()).onAddNewTags(tags);
+
+        AndroidUtility.hideSoftKeyboard(tagInput);
     }
 
     @Override
