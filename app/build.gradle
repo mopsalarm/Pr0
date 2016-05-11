@@ -171,6 +171,7 @@ dependencies {
     compile 'org.nanohttpd:nanohttpd:2.3.0'
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
     compile 'com.github.KeepSafe:ReLinker:1.2.1'
+    compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
 
     // finestwebview with a fix for older android versions
     compile 'com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202'
