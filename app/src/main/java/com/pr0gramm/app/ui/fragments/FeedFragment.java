@@ -970,7 +970,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
-        Optional<MetaApi.SizeInfo> sizeInfo = getSizeInfo(item);
+        Optional<MetaApi.SizeInfo> sizeInfo = inMemoryCacheService.getSizeInfo(item);
+        ;
         int sizeWidth = sizeInfo.transform(MetaApi.SizeInfo::getWidth).or(-1);
         int sizeHeight = sizeInfo.transform(MetaApi.SizeInfo::getHeight).or(-1);
         return new PreviewInfo(item.id(), image, sizeWidth, sizeHeight);
@@ -1023,11 +1024,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     private boolean isSeen(FeedItem item) {
         return seenService.isSeen(item);
     }
-
-    private Optional<MetaApi.SizeInfo> getSizeInfo(FeedItem item) {
-        return inMemoryCacheService.getSizeInfo(item.id());
-    }
-
 
     private void createRecyclerViewClickListener() {
         RecyclerItemClickListener listener = new RecyclerItemClickListener(getActivity(), recyclerView);

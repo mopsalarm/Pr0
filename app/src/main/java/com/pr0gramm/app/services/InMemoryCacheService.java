@@ -12,6 +12,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
+import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
 import com.pr0gramm.app.api.meta.MetaApi;
 import com.pr0gramm.app.api.meta.MetaApi.SizeInfo;
 import com.pr0gramm.app.api.pr0gramm.response.Tag;
@@ -102,8 +103,16 @@ public class InMemoryCacheService {
         sizeInfoCache.put(info.getId(), info);
     }
 
-    public Optional<SizeInfo> getSizeInfo(long itemId) {
-        return Optional.fromNullable(sizeInfoCache.get(itemId));
+    public Optional<SizeInfo> getSizeInfo(FeedItem item) {
+        if (item.getWidth() > 0 && item.getHeight() > 0) {
+            return Optional.of(ImmutableSizeInfo.builder()
+                    .id(item.id())
+                    .width(item.getWidth())
+                    .height(item.getHeight())
+                    .build());
+        } else {
+            return Optional.fromNullable(sizeInfoCache.get(item.id()));
+        }
     }
 
     /**
@@ -200,7 +209,7 @@ public class InMemoryCacheService {
     @Nullable
     public PreviewInfo getPreviewInfo(FeedItem feedItem) {
         Uri previewUri = uriHelper.thumbnail(feedItem);
-        return getSizeInfo(feedItem.id())
+        return getSizeInfo(feedItem)
                 .transform(info -> new PreviewInfo(info.getId(), previewUri, info.getWidth(), info.getHeight()))
                 .orNull();
     }

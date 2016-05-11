@@ -47,6 +47,12 @@ public interface Feed {
 
         int getFlags();
 
+        Optional<Integer> width();
+
+        Optional<Integer> height();
+
+        Optional<Boolean> audio();
+
         Instant getCreated();
     }
 }

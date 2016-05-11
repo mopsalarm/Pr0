@@ -25,6 +25,8 @@ public class FeedItem implements Parcelable, HasThumbnail {
     private final byte mark;
     private final Instant created;
     private final byte flags;
+    private final int width, height;
+    private final boolean audio;
 
     public FeedItem(Feed.Item item) {
         id = (int) item.getId();
@@ -38,6 +40,9 @@ public class FeedItem implements Parcelable, HasThumbnail {
         mark = (byte) item.getMark();
         created = item.getCreated();
         flags = (byte) item.getFlags();
+        width = item.width().or(0);
+        height = item.height().or(0);
+        audio = item.audio().or(false);
     }
 
     @Override
@@ -87,8 +92,16 @@ public class FeedItem implements Parcelable, HasThumbnail {
         return flags;
     }
 
-    public boolean isContentType(ContentType type) {
-        return (flags & type.getFlag()) != 0;
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public boolean hasAudio() {
+        return audio;
     }
 
     public ContentType getContentType() {
@@ -125,6 +138,9 @@ public class FeedItem implements Parcelable, HasThumbnail {
         dest.writeByte(mark);
         dest.writeInt((int) (created.getMillis() / 1000));
         dest.writeByte(this.flags);
+        dest.writeInt(width);
+        dest.writeInt(height);
+        dest.writeByte(audio ? (byte) 1 : 0);
     }
 
     private FeedItem(Parcel in) {
@@ -138,6 +154,9 @@ public class FeedItem implements Parcelable, HasThumbnail {
         this.mark = in.readByte();
         this.created = new Instant(1000L * in.readInt());
         this.flags = in.readByte();
+        this.width = in.readInt();
+        this.height = in.readInt();
+        this.audio = in.readByte() != 0;
 
         // extract up/down from rating
         this.up = (short) ((rating >> 16) & 0xffff);
