@@ -104,11 +104,11 @@ public class InMemoryCacheService {
     }
 
     public Optional<SizeInfo> getSizeInfo(FeedItem item) {
-        if (item.getWidth() > 0 && item.getHeight() > 0) {
+        if (item.width() > 0 && item.height() > 0) {
             return Optional.of(ImmutableSizeInfo.builder()
                     .id(item.id())
-                    .width(item.getWidth())
-                    .height(item.getHeight())
+                    .width(item.width())
+                    .height(item.height())
                     .build());
         } else {
             return Optional.fromNullable(sizeInfoCache.get(item.id()));

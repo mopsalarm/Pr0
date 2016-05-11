@@ -155,7 +155,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     }
 
     private boolean isHqImageAvailable() {
-        return !Strings.isNullOrEmpty(item.getFullsize());
+        return !Strings.isNullOrEmpty(item.fullsize());
     }
 
     private void loadHqImage() {

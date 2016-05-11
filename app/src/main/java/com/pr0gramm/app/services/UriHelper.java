@@ -50,7 +50,7 @@ public final class UriHelper {
     }
 
     public Uri media(FeedItem item, boolean hq) {
-        if (hq && !Strings.isNullOrEmpty(item.getFullsize()))
+        if (hq && !Strings.isNullOrEmpty(item.fullsize()))
             return noPreload.media(item, true);
 
         return preloadManager.get(item.id())
@@ -110,8 +110,8 @@ public final class UriHelper {
 
         private Uri media(FeedItem item, boolean highQuality) {
             return highQuality
-                    ? start("full").path(item.getFullsize()).build()
-                    : start("img").path(item.getImage()).build();
+                    ? start("full").path(item.fullsize()).build()
+                    : start("img").path(item.image()).build();
         }
 
         public Uri thumbnail(HasThumbnail item) {

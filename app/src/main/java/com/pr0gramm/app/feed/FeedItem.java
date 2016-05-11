@@ -14,18 +14,18 @@ import org.joda.time.Instant;
  * by the data of an {@link com.pr0gramm.app.api.pr0gramm.response.Feed.Item}.
  */
 public class FeedItem implements Parcelable, HasThumbnail {
-    private final int id;
-    private final int promotedId;
+    private final Instant created;
     private final String thumb;
     private final String image;
     private final String fullsize;
     private final String user;
+    private final int id;
+    private final int promotedId;
+    private final int width, height;
     private final short up;
     private final short down;
     private final byte mark;
-    private final Instant created;
     private final byte flags;
-    private final int width, height;
     private final boolean audio;
 
     public FeedItem(Feed.Item item) {
@@ -50,7 +50,7 @@ public class FeedItem implements Parcelable, HasThumbnail {
         return id;
     }
 
-    public long getPromotedId() {
+    public long promotedId() {
         return promotedId;
     }
 
@@ -60,51 +60,51 @@ public class FeedItem implements Parcelable, HasThumbnail {
         return thumb;
     }
 
-    public String getImage() {
+    public String image() {
         return image;
     }
 
-    public String getFullsize() {
+    public String fullsize() {
         return fullsize;
     }
 
-    public String getUser() {
+    public String user() {
         return user;
     }
 
-    public int getUp() {
+    public int up() {
         return up;
     }
 
-    public int getDown() {
+    public int down() {
         return down;
     }
 
-    public int getMark() {
+    public int mark() {
         return mark;
     }
 
-    public Instant getCreated() {
+    public Instant created() {
         return created;
     }
 
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
-    public int getWidth() {
+    public int width() {
         return width;
     }
 
-    public int getHeight() {
+    public int height() {
         return height;
     }
 
-    public boolean hasAudio() {
+    public boolean audio() {
         return audio;
     }
 
-    public ContentType getContentType() {
+    public ContentType contentTypes() {
         return ContentType.valueOf(flags).get();
     }
 

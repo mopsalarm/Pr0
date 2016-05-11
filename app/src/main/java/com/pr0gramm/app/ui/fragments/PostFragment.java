@@ -346,7 +346,7 @@ public class PostFragment extends BaseFragment implements
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
         // add a view over the main view, if the post is not visible now
-        if (!settings.getContentType().contains(feedItem.getContentType())) {
+        if (!settings.getContentType().contains(feedItem.contentTypes())) {
             View overlay = inflater.inflate(R.layout.warn_post_can_not_be_viewed, view, false);
             view.addView(overlay);
 
@@ -666,7 +666,7 @@ public class PostFragment extends BaseFragment implements
         }
 
         boolean isSelfPost = userService.getName()
-                .transform(name -> name.equalsIgnoreCase(feedItem.getUser()))
+                .transform(name -> name.equalsIgnoreCase(feedItem.user()))
                 .or(false);
 
         // display the feed item in the view
@@ -917,7 +917,7 @@ public class PostFragment extends BaseFragment implements
         this.comments = ImmutableList.copyOf(comments);
 
         // show now
-        commentsAdapter.set(comments, emptyMap(), feedItem.getUser());
+        commentsAdapter.set(comments, emptyMap(), feedItem.user());
 
         if (autoScrollTo.isPresent()) {
             scrollToComment(autoScrollTo.get());
@@ -929,7 +929,7 @@ public class PostFragment extends BaseFragment implements
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(empty())
                 .compose(bindToLifecycle())
-                .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.getUser()));
+                .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.user()));
     }
 
     /**
@@ -1014,7 +1014,7 @@ public class PostFragment extends BaseFragment implements
                     .mark(comment.getMark())
                     .thumb(feedItem.thumbnail())
                     .itemId(feedItem.id())
-                    .flags(feedItem.getFlags())
+                    .flags(feedItem.flags())
                     .build());
         } else {
             result = favedCommentService.delete(comment.getId());
@@ -1227,6 +1227,6 @@ public class PostFragment extends BaseFragment implements
      * @param image The url of the image to check
      */
     private static boolean isStaticImage(FeedItem image) {
-        return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
+        return image.image().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 }

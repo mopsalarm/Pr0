@@ -136,13 +136,13 @@ public class InfoLineView extends LinearLayout {
         this.isSelfPost = isSelfPost;
 
         // update the views!
-        usernameView.setUsername(item.getUser(), item.getMark());
-        dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
+        usernameView.setUsername(item.user(), item.mark());
+        dateView.setText(getRelativeTimeSpanString(getContext(), item.created()));
         updateViewState(Vote.NEUTRAL);
 
         usernameView.setOnClickListener(v -> {
             if (onDetailClickedListener != null) {
-                String username = item.getUser();
+                String username = item.user();
                 onDetailClickedListener.onUserClicked(username);
             }
         });
@@ -165,11 +165,11 @@ public class InfoLineView extends LinearLayout {
             return;
 
         if (isOneHourOld() || isSelfPost || admin) {
-            int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
+            int rating = feedItem.up() - feedItem.down() + min(1, vote.getVoteValue());
             ratingView.setText(String.valueOf(rating));
             ratingView.setOnLongClickListener(v -> {
                 Toast.makeText(getContext(),
-                        String.format("%d up, %d down", feedItem.getUp(), feedItem.getDown()),
+                        String.format("%d up, %d down", feedItem.up(), feedItem.down()),
                         Toast.LENGTH_SHORT).show();
 
                 return true;
@@ -241,7 +241,7 @@ public class InfoLineView extends LinearLayout {
 
     public boolean isOneHourOld() {
         Instant oneHourAgo = Instant.now().minus(Duration.standardHours(1));
-        return feedItem.getCreated().isBefore(oneHourAgo);
+        return feedItem.created().isBefore(oneHourAgo);
     }
 
     public void addVote(Tag tag, Vote vote) {

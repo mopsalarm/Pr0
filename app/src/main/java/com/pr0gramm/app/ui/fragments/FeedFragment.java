@@ -650,7 +650,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;
             if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size()) {
                 for (FeedItem item : Lists.reverse(items.subList(0, idx))) {
-                    if (contentType.contains(item.getContentType())) {
+                    if (contentType.contains(item.contentTypes())) {
                         return Optional.of(item);
                     }
                 }
