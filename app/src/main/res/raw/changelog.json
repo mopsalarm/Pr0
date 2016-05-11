@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Caching für die Thumbnails im Feed verbessert."
+      },
+      {
+        "type": "Fix",
         "change": "Fehler bei der Anzeige von +/- bei Votes behoben."
       },
       {

@@ -33,10 +33,8 @@ public class GuavaPicassoCache implements Cache {
 
         this.maxSize = maxSize;
         cache = CacheBuilder.<String, Bitmap>newBuilder()
-                .softValues()
                 .weigher((String key, Bitmap bitmap) -> bitmapByteCount(bitmap))
                 .maximumWeight(maxSize)
-                .recordStats()
                 .build();
     }
 
