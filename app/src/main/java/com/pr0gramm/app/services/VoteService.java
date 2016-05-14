@@ -114,16 +114,8 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     private void storeVoteValue(CachedVote.Type type, long itemId, Vote vote) {
-        // check for a previous item
-        CachedVote cachedVote = CachedVote.find(type, itemId).orNull();
-        if (cachedVote == null) {
-            cachedVote = new CachedVote(type, itemId, vote);
-        } else {
-            cachedVote.vote = vote;
-        }
-
-        // and store an item in the database
-        cachedVote.save();
+        // just store the vote!
+        new CachedVote(type, itemId, vote).save();
     }
 
     /**

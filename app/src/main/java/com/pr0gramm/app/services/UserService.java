@@ -28,11 +28,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
@@ -60,6 +62,8 @@ public class UserService {
 
     private final Gson gson;
     private final Settings settings;
+
+    private final AtomicBoolean fullSyncInProgress = new AtomicBoolean();
 
     private final BehaviorSubject<LoginState> loginStateObservable =
             BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
@@ -107,20 +111,17 @@ public class UserService {
 
     public Observable<LoginProgress> login(String username, String password) {
         return api.login(username, password).flatMap(login -> {
-            Observable<LoginProgress> syncState;
+            Observable<LoginProgress> syncState = Observable.empty();
             if (login.success()) {
-                // perform initial sync.
-                syncState = syncWithProgress()
-                        .ofType(Float.class)
-                        .map(LoginProgress::new)
-                        .mergeWith(info()
-                                .flatMap(this::initializeBenisGraphUsingMetaService)
-                                .ofType(LoginProgress.class))
-                        .doOnError(err -> logger.error("Could not perform initial sync during login", err))
-                        .onErrorResumeNext(Observable.<LoginProgress>empty());
+                // perform initial sync in background.
+                syncWithProgress()
+                        .subscribeOn(BackgroundScheduler.instance())
+                        .subscribe(Actions.empty(), err -> logger.error("Could not perform initial sync during login", err));
 
-            } else {
-                syncState = Observable.empty();
+                // but add benis graph to result.
+                syncState = syncState.mergeWith(info()
+                        .flatMap(this::initializeBenisGraphUsingMetaService)
+                        .ofType(LoginProgress.class));
             }
 
             // wait for sync to complete before emitting login result.
@@ -199,8 +200,15 @@ public class UserService {
 
         // tell the sync request where to start
         long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
+        boolean fullSync = lastSyncId == 0;
 
-        return api.sync(lastSyncId).flatMap(response -> {
+        if (fullSync && !fullSyncInProgress.compareAndSet(false, true)) {
+            // fail fast if full sync is in already in progress.
+            return Observable.empty();
+        }
+
+
+        return api.sync(lastSyncId).doAfterTerminate(() -> fullSyncInProgress.set(false)).flatMap(response -> {
             Observable<Object> applyVotesObservable = Observable.create(subscriber -> {
                 try {
                     voteService.applyVoteActions(response.getLog(), p -> {

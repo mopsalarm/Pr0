@@ -1,5 +1,14 @@
 [
   {
+    "version": 96,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Login stark beschleunigt."
+      }
+    ]
+  },
+  {
     "version": 95,
     "changes": [
       {

@@ -94,7 +94,7 @@
     <string name="filter_format_new">New</string>
     <string name="pref_show_pin_button">Show pin action</string>
     <string name="pref_show_pin_button_summary">If you disable this option, the pin-button to create bookmarks will not be displayed. This affects just the button, not your bookmarks.</string>
-    <string name="login_please_wait">Please wait while performing login and while syncing your votes</string>
+    <string name="login_please_wait">Please wait while performing login…</string>
     <string name="pref_use_beta_channel">Beta channel</string>
     <string name="pref_use_beta_channel_summary">If you activate beta channel, you get new updates earlier.</string>
     <string name="feedback_reminder">You are on the beta channel. Send feedback on problems, please.</string>
