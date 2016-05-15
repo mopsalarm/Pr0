@@ -131,7 +131,7 @@ public class Feed {
             event(listener -> {
                 listener.onNewItems(newItems);
 
-                if(wrongContentType)
+                if (wrongContentType)
                     listener.onWrongContentType();
             });
         }

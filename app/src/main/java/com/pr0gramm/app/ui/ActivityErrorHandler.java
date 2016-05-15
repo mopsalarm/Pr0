@@ -33,7 +33,7 @@ public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHa
                     ? formatter.getMessage(activity, error)
                     : Throwables.getStackTraceAsString(error);
 
-            if(message != null) {
+            if (message != null) {
                 ErrorDialogFragment.showErrorString(activity.getSupportFragmentManager(), message);
             }
 

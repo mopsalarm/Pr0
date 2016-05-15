@@ -66,7 +66,7 @@ public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTex
     }
 
     public void setAnchorView(View anchor) {
-        if(anchor != null) {
+        if (anchor != null) {
             checkArgument(anchor.getId() != NO_ID, "Anchor view must have an id.");
             checkArgument(anchor.getParent() == getParent(), "Anchor view must have the same parent");
             checkArgument(getParent() instanceof FrameLayout, "Parent must be a FrameLayout.");

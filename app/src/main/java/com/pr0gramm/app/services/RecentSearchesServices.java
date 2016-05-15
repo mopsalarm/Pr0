@@ -101,7 +101,7 @@ public class RecentSearchesServices {
             String serialized = sharedPreferences.getString(KEY, "[]");
             searches.addAll(gson.fromJson(serialized, LIST_OF_STRINGS.getType()));
 
-       } catch (Exception error) {
+        } catch (Exception error) {
             logger.warn("Could not deserialize recent searches", error);
         }
     }

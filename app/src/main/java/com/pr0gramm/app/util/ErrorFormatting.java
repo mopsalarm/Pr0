@@ -185,7 +185,7 @@ public class ErrorFormatting {
                 err -> Throwables.getRootCause(err) instanceof ConnectException,
                 (err, context) -> {
                     ConnectException error = (ConnectException) Throwables.getRootCause(err);
-                    if(error.toString().contains(":443")) {
+                    if (error.toString().contains(":443")) {
                         return context.getString(error_connect_exception_https,
                                 String.valueOf(err.getLocalizedMessage()));
                     } else {

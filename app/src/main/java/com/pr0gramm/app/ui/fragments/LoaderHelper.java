@@ -5,13 +5,10 @@ import com.google.common.base.Supplier;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
-
-import static rx.schedulers.Schedulers.io;
 
 /**
  */

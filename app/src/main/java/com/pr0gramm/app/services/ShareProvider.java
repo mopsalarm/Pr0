@@ -217,6 +217,6 @@ public class ShareProvider extends ContentProvider {
             .put("jpeg", "image/jpeg")
             .put("webm", "video/webm")
             .put(".mp4", "video/mp4")
-                    // .put(".gif", "image/gif")
+            // .put(".gif", "image/gif")
             .build();
 }

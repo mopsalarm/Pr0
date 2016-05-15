@@ -34,7 +34,7 @@ public class RecyclerItemClickListener {
 
             @Override
             public void onLongPress(MotionEvent e) {
-                if(longClickEnabled) {
+                if (longClickEnabled) {
                     View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if (childView != null) {
                         longPressTriggered = true;
