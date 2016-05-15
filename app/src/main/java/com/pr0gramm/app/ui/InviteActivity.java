@@ -78,7 +78,7 @@ public class InviteActivity extends BaseAppCompatActivity {
         disableInputViews();
 
         inviteService.send(email)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .doAfterTerminate(this::requeryInvites)
                 .subscribe(event -> onInviteSent(), this::onInviteError);
 
@@ -87,7 +87,7 @@ public class InviteActivity extends BaseAppCompatActivity {
 
     private void requeryInvites() {
         inviteService.invites()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(this::handleInvites, defaultOnError());
     }
 

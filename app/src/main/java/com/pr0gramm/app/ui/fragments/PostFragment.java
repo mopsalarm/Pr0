@@ -203,7 +203,7 @@ public class PostFragment extends BaseFragment implements
 
         autoScrollTo = Optional.absent();
 
-        activeState().compose(bindToLifecycleSimple()).subscribe(active -> {
+        activeState().compose(bindToLifecycle()).subscribe(active -> {
             if (viewer != null) {
                 if (active) {
                     viewer.playMedia();
@@ -221,7 +221,7 @@ public class PostFragment extends BaseFragment implements
         userService.loginState()
                 .filter(UserService.LoginState::userIsAdmin)
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(bindToLifecycleSimple())
+                .compose(bindToLifecycle())
                 .subscribe(event -> adminMode = true);
     }
 
@@ -392,7 +392,7 @@ public class PostFragment extends BaseFragment implements
 
     private void writeComment(String text) {
         voteService.postComment(feedItem, 0, text)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
                 .subscribe(this::onNewComments, defaultOnError());
 
@@ -621,7 +621,7 @@ public class PostFragment extends BaseFragment implements
     public void downloadPostMedia() {
         ((PermissionHelperActivity) getActivity())
                 .requirePermission(WRITE_EXTERNAL_STORAGE)
-                .compose(bindUntilEvent(FragmentEvent.DESTROY))
+                .compose(bindUntilEventAsync(FragmentEvent.DESTROY))
                 .subscribe(ignored -> downloadPostWithPermissionGranted(), defaultOnError());
     }
 
@@ -636,7 +636,7 @@ public class PostFragment extends BaseFragment implements
         super.onStart();
 
         favedCommentService.favedCommentIds()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(commentsAdapter::setFavedComments);
     }
 
@@ -649,7 +649,7 @@ public class PostFragment extends BaseFragment implements
 
         feedService.loadPostDetails(feedItem.id())
                 .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-                .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribe(this::onPostReceived, defaultOnError());
     }
 
@@ -680,7 +680,7 @@ public class PostFragment extends BaseFragment implements
                 showPostVoteAnimation(vote);
 
                 voteService.vote(feedItem, vote)
-                        .compose(bindToLifecycle())
+                        .compose(bindToLifecycleAsync())
                         .subscribe(Actions.empty(), defaultOnError());
             };
 
@@ -692,7 +692,7 @@ public class PostFragment extends BaseFragment implements
         infoLineView.setTagVoteListener((tag, vote) -> {
             Runnable action = () -> {
                 voteService.vote(tag, vote)
-                        .compose(bindToLifecycle())
+                        .compose(bindToLifecycleAsync())
                         .doAfterTerminate(() -> infoLineView.addVote(tag, vote))
                         .subscribe(Actions.empty(), defaultOnError());
             };
@@ -887,7 +887,7 @@ public class PostFragment extends BaseFragment implements
         voteService.getTagVotes(tags)
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(Observable.<Map<Long, Vote>>empty())
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(votes -> infoLineView.setTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
 
@@ -928,7 +928,7 @@ public class PostFragment extends BaseFragment implements
         voteService.getCommentVotes(comments)
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(empty())
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.user()));
     }
 
@@ -952,7 +952,7 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onAddNewTags(List<String> tags) {
         voteService.tag(feedItem, tags)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
                 .subscribe(this::displayTags, defaultOnError());
     }
@@ -977,7 +977,7 @@ public class PostFragment extends BaseFragment implements
     public boolean onCommentVoteClicked(Comment comment, Vote vote) {
         return doIfAuthorizedHelper.run(() -> {
             voteService.vote(comment, vote)
-                    .compose(bindToLifecycle())
+                    .compose(bindToLifecycleAsync())
                     .subscribe(Actions.empty(), defaultOnError());
         });
     }
@@ -1020,7 +1020,7 @@ public class PostFragment extends BaseFragment implements
             result = favedCommentService.delete(comment.getId());
         }
 
-        result.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+        result.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribe(Actions.empty(), defaultOnError());
 
         if (singleShotService.isFirstTime("kfav-userscript-hint")) {

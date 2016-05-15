@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import butterknife.BindView;
 import rx.Observable;
 
-import static com.trello.rxlifecycle.RxLifecycle.bindUntilFragmentEvent;
+import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 
 /**
  * This dialog shows the progress while downloading something.
@@ -63,13 +63,15 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
     protected void onDialogViewCreated() {
         progressBar.setIndeterminate(true);
         progressBar.setMax(1000);
-        progress.compose(bindUntilFragmentEvent(lifecycle(), FragmentEvent.DESTROY_VIEW))
+        progress.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .onErrorResumeNext(Observable.empty())
                 .doAfterTerminate(this::dismiss)
                 .subscribe(this::updateStatus);
     }
 
     private void updateStatus(DownloadService.Status status) {
+        checkMainThread();
+
         progressBar.setIndeterminate(status.progress < 0);
         progressBar.setProgress((int) (1000 * status.progress));
     }

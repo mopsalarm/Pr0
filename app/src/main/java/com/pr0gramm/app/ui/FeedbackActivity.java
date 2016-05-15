@@ -85,7 +85,7 @@ public class FeedbackActivity extends BaseAppCompatActivity {
 
         feedbackService.post(name, feedback)
                 .lift(busyDialog(this))
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .doOnCompleted(this::onSubmitSuccess)
                 .subscribe(Actions.empty(), defaultOnError());
     }

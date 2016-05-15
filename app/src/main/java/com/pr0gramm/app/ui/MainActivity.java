@@ -242,7 +242,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     private void checkForInfoMessage() {
         infoMessageService.infoMessage()
                 .onErrorResumeNext(Observable.empty())
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(this::showInfoMessage);
     }
 
@@ -494,7 +494,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         final int logout_successful_hint = R.string.logout_successful_hint;
         userService.logout()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
                 .doOnCompleted(() -> {
                     // show a short information.

@@ -287,7 +287,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         // observe changes so we can update the mehu
         followService.changes()
-                .compose(bindToLifecycleSimple())
+                .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(name -> name.equalsIgnoreCase(activeUsername))
                 .subscribe(name -> getActivity().supportInvalidateOptionsMenu());
@@ -309,7 +309,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         if (!isSimpleMode()) {
             queryUserInfo()
                     .take(1)
-                    .compose(bindToLifecycle())
+                    .compose(bindToLifecycleAsync())
                     .subscribe(this::presentUserInfo, Actions.empty());
         }
     }
@@ -560,7 +560,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             @Override
             public <T> Observable.Transformer<T, T> bind() {
                 return observable -> observable
-                        .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                        .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                         .doAfterTerminate(FeedFragment.this::onFeedLoadFinished);
             }
 
@@ -595,7 +595,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
             bookmarkService.isBookmarkable(getCurrentFilter())
-                    .compose(bindToLifecycle())
+                    .compose(bindToLifecycleAsync())
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
 
@@ -608,7 +608,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
 
         preloadManager.all()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(ignored -> feedAdapter.notifyDataSetChanged());
     }
 
@@ -1041,7 +1041,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         listener.itemLongClickEnded().subscribe(event -> dismissPopupPlayer());
 
         settings.change()
-                .compose(bindToLifecycleSimple())
+                .compose(bindToLifecycle())
                 .startWith("")
                 .subscribe(key -> listener.enableLongClick(settings.enableQuickPeek()));
     }
@@ -1197,7 +1197,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         WeakReference<FeedFragment> fragment = new WeakReference<>(this);
         PublishSubject<ItemsInfo> finishSubject = PublishSubject.create();
         finishSubject
-                .compose(bindToLifecycleSimple())
+                .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(info -> {
                     FeedFragment thisRef = fragment.get();

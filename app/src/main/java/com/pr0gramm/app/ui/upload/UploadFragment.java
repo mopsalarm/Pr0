@@ -172,7 +172,7 @@ public class UploadFragment extends BaseFragment {
 
         uploadService.sizeOkay(file)
                 .onErrorResumeNext(Observable.empty())
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(sizeOkay -> {
                     if (sizeOkay) {
                         startUpload();
@@ -206,7 +206,7 @@ public class UploadFragment extends BaseFragment {
         }
 
         logger.info("Start upload of type {} with tags {}", type, tags);
-        upload.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+        upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doAfterTerminate(() -> busyIndicator.setVisibility(View.GONE))
                 .subscribe(status -> {
                     if (status.isFinished()) {
@@ -295,7 +295,7 @@ public class UploadFragment extends BaseFragment {
 
         logger.info("copy image to private memory");
         copy(getActivity(), image)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(this::onMediaFile, this::onError);
     }
 
@@ -375,7 +375,7 @@ public class UploadFragment extends BaseFragment {
 
     private void shrinkImage() {
         uploadService.downsize(file)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
                 .subscribe(newFile -> {
                     handleImageUri(Uri.fromFile(newFile));

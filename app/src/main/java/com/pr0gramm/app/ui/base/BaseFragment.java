@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.base;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
@@ -11,8 +10,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
-import com.trello.rxlifecycle.FragmentLifecycleProvider;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.components.support.RxFragment;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -23,39 +21,25 @@ import rx.subjects.BehaviorSubject;
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-public abstract class BaseFragment extends Fragment implements FragmentLifecycleProvider {
+public abstract class BaseFragment extends RxFragment {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
     private Unbinder unbinder;
 
-    @NonNull
-    @Override
-    public Observable<FragmentEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
-    }
-
-
-    @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull FragmentEvent event) {
+    public final <T> Observable.Transformer<T, T> bindUntilEventAsync(@NonNull FragmentEvent event) {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
+                .compose(bindUntilEvent(event));
     }
 
-    @Override
-    public final <T> Observable.Transformer<T, T> bindToLifecycle() {
+    public final <T> Observable.Transformer<T, T> bindToLifecycleAsync() {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindFragment(lifecycleSubject));
-    }
-
-    protected final <T> Observable.Transformer<T, T> bindToLifecycleSimple() {
-        //noinspection unchecked
-        return (Observable.Transformer<T, T>) RxLifecycle.<T>bindFragment(lifecycleSubject);
+                .compose(bindToLifecycle());
     }
 
     @Override

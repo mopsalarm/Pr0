@@ -88,7 +88,7 @@ public class ItemAdminDialog extends BaseDialogFragment {
         }
 
         Observable<Void> response = deleteItem(reason, notifyUser, ban);
-        response.compose(bindToLifecycle())
+        response.compose(bindToLifecycleAsync())
                 .lift(BusyDialogFragment.busyDialog(this))
                 .subscribe(event -> dismiss(), defaultOnError());
 

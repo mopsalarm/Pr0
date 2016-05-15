@@ -215,11 +215,11 @@ public class DrawerFragment extends BaseFragment {
         super.onResume();
 
         userService.loginState()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(this::onLoginStateChanged, Actions.empty());
 
         navigationProvider.navigationItems()
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .subscribe(
                         navigationAdapter::setNavigationItems,
                         ErrorDialogFragment.defaultOnError());

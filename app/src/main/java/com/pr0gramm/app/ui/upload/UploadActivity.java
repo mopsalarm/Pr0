@@ -47,7 +47,7 @@ public class UploadActivity extends BaseAppCompatActivity implements ChooseMedia
                     .replace(R.id.fragment_container, fragment)
                     .commit();
 
-            uploadService.checkIsRateLimited().compose(bindToLifecycle()).subscribe(limited -> {
+            uploadService.checkIsRateLimited().compose(bindToLifecycleAsync()).subscribe(limited -> {
                 if (!limited) {
                     String action = null, mediaType = null;
 

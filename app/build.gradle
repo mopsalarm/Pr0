@@ -195,8 +195,8 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
     compile 'com.artemzin.rxjava:proguard-rules:1.1.5.0'
-    compile 'com.trello:rxlifecycle:0.6.0'
-    compile 'com.trello:rxlifecycle-components:0.6.0'
+    compile 'com.trello:rxlifecycle:0.6.1'
+    compile 'com.trello:rxlifecycle-components:0.6.1'
 
     // bottomsheets
     compile 'com.flipboard:bottomsheet-core:1.5.0'

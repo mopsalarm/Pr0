@@ -1,16 +1,14 @@
 package com.pr0gramm.app.ui.base;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.ActivityEvent;
-import com.trello.rxlifecycle.ActivityLifecycleProvider;
 import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,24 +24,13 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 /**
  * A {@link android.support.v7.app.AppCompatActivity} with dagger injection and stuff.
  */
-public abstract class BaseAppCompatActivity extends AppCompatActivity implements ActivityLifecycleProvider {
+public abstract class BaseAppCompatActivity extends RxAppCompatActivity {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
     private ActivityComponent activityComponent;
 
     private Unbinder unbinder;
-
-    @NonNull
-    @Override
-    public Observable<ActivityEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
-    }
-
-    @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull ActivityEvent event) {
-        return observable -> observable.compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
-    }
 
     public <T> Observable.Transformer<T, T> bindUntilEventAsync(ActivityEvent event) {
         return observable -> observable
@@ -53,8 +40,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
                 .compose(bindUntilEvent(event));
     }
 
-    @Override
-    public final <T> Observable.Transformer<T, T> bindToLifecycle() {
+    public final <T> Observable.Transformer<T, T> bindToLifecycleAsync() {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())

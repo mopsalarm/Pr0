@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
@@ -15,8 +13,7 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
-import com.trello.rxlifecycle.FragmentLifecycleProvider;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -27,34 +24,17 @@ import rx.subjects.BehaviorSubject;
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-public abstract class BaseDialogFragment extends DialogFragment implements FragmentLifecycleProvider {
+public abstract class BaseDialogFragment extends RxAppCompatDialogFragment {
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
     private Unbinder unbinder;
 
-    @NonNull
-    @Override
-    public Observable<FragmentEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
-    }
-
-
-    @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull FragmentEvent event) {
+    public final <T> Observable.Transformer<T, T> bindToLifecycleAsync() {
         return observable -> observable
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.bindUntilEvent(lifecycleSubject, event));
-    }
-
-    @Override
-    public final <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return observable -> observable
-                .subscribeOn(BackgroundScheduler.instance())
-                .unsubscribeOn(BackgroundScheduler.instance())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindFragment(lifecycleSubject));
+                .compose(bindToLifecycle());
     }
 
     @Override

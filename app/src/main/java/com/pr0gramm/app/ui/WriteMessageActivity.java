@@ -155,7 +155,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             long itemId = getItemId();
 
             voteService.postComment(itemId, parentComment, message)
-                    .compose(bindToLifecycle())
+                    .compose(bindToLifecycleAsync())
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
                     .subscribe(newComments -> {
@@ -169,7 +169,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         } else {
             // now send message
             inboxService.send(getReceiverId(), message)
-                    .compose(bindToLifecycle())
+                    .compose(bindToLifecycleAsync())
                     .lift(busyDialog(this))
                     .doOnCompleted(this::finish)
                     .subscribe(Actions.empty(), defaultOnError());

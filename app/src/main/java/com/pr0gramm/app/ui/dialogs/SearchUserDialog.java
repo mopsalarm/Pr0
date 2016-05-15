@@ -59,7 +59,7 @@ public class SearchUserDialog extends BaseDialogFragment {
         String username = inputView.getText().toString().trim();
 
         userService.info(username)
-                .compose(bindToLifecycle())
+                .compose(bindToLifecycleAsync())
                 .lift(BusyDialogFragment.busyDialog(this))
                 .subscribe(this::onSearchSuccess, this::onSearchFailure);
     }
