@@ -37,6 +37,9 @@ public class PrivateBrowserSpan extends URLSpan {
                     .iconDefaultColor(Color.WHITE)
                     .toolbarColorRes(ThemeHelper.theme().primaryColor)
                     .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
+                    .webViewSupportZoom(true)
+                    .webViewBuiltInZoomControls(true)
+                    .webViewDisplayZoomControls(false)
                     .show(url);
 
         } else {

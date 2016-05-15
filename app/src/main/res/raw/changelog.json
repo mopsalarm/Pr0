@@ -5,6 +5,10 @@
       {
         "type": "Neu",
         "change": "Login stark beschleunigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Zweifinger-Zoom geht nun im integrierten Browser."
       }
     ]
   },
