@@ -3,7 +3,7 @@
     "version": 96,
     "changes": [
       {
-        "type": "Neu",
+        "type": "Fix",
         "change": "Login stark beschleunigt."
       },
       {
