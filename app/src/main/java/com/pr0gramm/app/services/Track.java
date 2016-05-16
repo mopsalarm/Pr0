@@ -111,7 +111,6 @@ public final class Track {
                 .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
                 .putCustomAttribute("signed in", String.valueOf(signedIn))
                 .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))
-                .putCustomAttribute("repost hint", String.valueOf(settings.markRepostsInFeed()))
                 .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
                 .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
                 .putCustomAttribute("https", String.valueOf(settings.useHttps()))

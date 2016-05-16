@@ -161,10 +161,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_use_software_decoder", false);
     }
 
-    public boolean markRepostsInFeed() {
-        return preferences.getBoolean("pref_show_repost_hint", true);
-    }
-
     public boolean showGoogleImageButton() {
         return preferences.getBoolean("pref_show_google_image_button", true);
     }

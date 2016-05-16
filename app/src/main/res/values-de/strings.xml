@@ -164,8 +164,6 @@
     <string name="action_new_message">Neue Nachricht</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
-    <string name="pref_show_repost_hint_title">Reposts markieren</string>
-    <string name="pref_show_repost_hint_summary">Zeigt direkt im Feed an, ob es sich bei einem Post um einen Repost handelt.</string>
     <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Vielleicht ist der Post, den du sehen wolltest, mit deiner sfw/nsfw Einstellungen nicht sichtbar?</string>
     <string name="pref_feed_type_login_required">Zum Ändern musst du angemeldet sein.</string>
     <string name="action_change_content_type">Filter ändern</string>

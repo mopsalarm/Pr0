@@ -1122,7 +1122,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 holder.setIsPreloaded(fragment.preloadManager.exists(item.id()));
 
                 // check if this item was already seen.
-                if (fragment.inMemoryCacheService.isRepost(item.id()) && fragment.settings.markRepostsInFeed()) {
+                if (fragment.inMemoryCacheService.isRepost(item.id())) {
                     holder.setIsRepost();
 
                 } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
