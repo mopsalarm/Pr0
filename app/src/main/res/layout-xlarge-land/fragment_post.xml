@@ -55,16 +55,14 @@
         <com.pr0gramm.app.ui.views.InfoLineView
             android:id="@+id/infoview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="400dp"
         android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp">
+        android:layout_alignParentRight="true">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/post_content"
