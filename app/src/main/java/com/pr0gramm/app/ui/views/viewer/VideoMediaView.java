@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -77,6 +78,13 @@ public class VideoMediaView extends AbstractProgressMediaView {
     public void playMedia() {
         super.playMedia();
 
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN && !isHardwareAccelerated()) {
+            hideBusyIndicator();
+            DialogBuilder.start(getContext())
+                    .content(R.string.could_not_play_video)
+                    .positive()
+                    .show();
+        }
 
         // This is not nice,but hey, it works...
         if (hasAudio() && singleShotService.isFirstTime("onboarding-audio-1")) {

@@ -112,6 +112,7 @@
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
     <string name="could_not_play_video">Could not play video. If you can not play any videos, please report feedback.</string>
+    <string name="could_not_play_video_hardware">Could not play video without hardware acceleration. Looks like your system is too old.</string>
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>

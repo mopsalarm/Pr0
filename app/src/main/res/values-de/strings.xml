@@ -338,4 +338,5 @@
     <string name="onboarding_audio__describe_sound">Wenn du den kleinen Lautsprecher unten rechts im Video siehst, dann hat dieses Video eine Tonspur! Klick drauf!</string>
     <string name="onboarding_audio__describe_mute">Ton wird automatisch wieder deaktiviert, wenn du für 10 Minuten kein Video gesehen hast.</string>
     <string name="onboarding_audio__describe_have_fun">Also, Lautstärke aufdrehen und endlich Ton auf pr0gramm erleben!</string>
+    <string name="could_not_play_video_hardware">Video kann ohne Hardwarebeschleunigung nicht wiedergegeben werden. Sieht so aus, als wäre dein System zu alt.</string>
 </resources>
