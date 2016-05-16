@@ -81,7 +81,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
         // This is not nice,but hey, it works...
         if (hasAudio() && singleShotService.isFirstTime("onboarding-audio-1")) {
             showAudioOnboardingFragment();
-            return;
         }
 
         if (!videoViewInitialized) {
