@@ -11,6 +11,16 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"/>
 
+    <ImageView
+        android:id="@+id/mute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="16dp"
+        android:alpha="0.5"
+        android:src="@drawable/ic_volume_on_white_18dp"/>
+
     <include layout="@layout/player_progress"/>
     <include layout="@layout/player_video_progress"/>
 </merge>

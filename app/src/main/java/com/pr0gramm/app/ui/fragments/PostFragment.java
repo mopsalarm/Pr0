@@ -178,6 +178,8 @@ public class PostFragment extends BaseFragment implements
     private RecyclerView.OnScrollListener scrollHandler;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+
+    @Nullable
     private PreviewInfo previewInfo;
 
     private List<Tag> tags;
@@ -364,7 +366,7 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    public void setPreviewInfo(PreviewInfo previewInfo) {
+    public void setPreviewInfo(@Nullable PreviewInfo previewInfo) {
         this.previewInfo = previewInfo;
     }
 
@@ -763,6 +765,8 @@ public class PostFragment extends BaseFragment implements
             seenService.markAsSeen(feedItem);
         });
 
+        viewer.setHasAudio(feedItem.audio());
+
         // inform viewer over fragment lifecycle events!
         MediaViews.adaptFragmentLifecycle(lifecycle(), viewer);
 
@@ -839,7 +843,7 @@ public class PostFragment extends BaseFragment implements
             final boolean isImage = isStaticImage(feedItem);
 
             @Override
-            public boolean onSingleTap() {
+            public boolean onSingleTap(MotionEvent event) {
                 if (isImage && settings.singleTapForFullscreen()) {
                     enterFullscreen();
                 }

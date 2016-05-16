@@ -107,6 +107,8 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     FancyThumbnailGenerator fancyThumbnailGenerator;
 
+    private boolean hasAudio;
+
     protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
                         Runnable onViewListener) {
 
@@ -338,8 +340,8 @@ public abstract class MediaView extends FrameLayout {
         }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            return onSingleTap();
+        public boolean onSingleTapConfirmed(MotionEvent event) {
+            return onSingleTap(event);
         }
     };
 
@@ -348,8 +350,8 @@ public abstract class MediaView extends FrameLayout {
 
     }
 
-    protected boolean onSingleTap() {
-        return tapListener != null && tapListener.onSingleTap();
+    protected boolean onSingleTap(MotionEvent event) {
+        return tapListener != null && tapListener.onSingleTap(event);
     }
 
     /**
@@ -553,8 +555,16 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
+    public void setHasAudio(boolean hasAudio) {
+        this.hasAudio = hasAudio;
+    }
+
+    protected boolean hasAudio() {
+        return hasAudio;
+    }
+
     public interface TapListener {
-        boolean onSingleTap();
+        boolean onSingleTap(MotionEvent event);
 
         boolean onDoubleTap();
     }

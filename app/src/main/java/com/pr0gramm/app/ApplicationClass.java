@@ -82,13 +82,6 @@ public class ApplicationClass extends Application {
         // initialize this to show errors always in the context of the current activity.
         setGlobalErrorDialogHandler(new ActivityErrorHandler(this));
 
-        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
-            @Override
-            public Scheduler getMainThreadScheduler() {
-                return LooperScheduler.MAIN;
-            }
-        });
-
         Dagger.initEagerSingletons(this);
 
         if (BuildConfig.DEBUG) {
@@ -134,5 +127,14 @@ public class ApplicationClass extends Application {
 
     public static ApplicationClass get(Context context) {
         return (ApplicationClass) context.getApplicationContext();
+    }
+
+    static {
+        RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
+            @Override
+            public Scheduler getMainThreadScheduler() {
+                return LooperScheduler.MAIN;
+            }
+        });
     }
 }

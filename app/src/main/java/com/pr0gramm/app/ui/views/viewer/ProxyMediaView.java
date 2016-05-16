@@ -44,6 +44,7 @@ public abstract class ProxyMediaView extends MediaView {
         // transfer the layout parameters
         mediaView.setLayoutParams(getLayoutParams());
         mediaView.setViewAspect(getViewAspect());
+        mediaView.setHasAudio(hasAudio());
         addView(mediaView, idx);
 
         child = mediaView;
@@ -126,6 +127,13 @@ public abstract class ProxyMediaView extends MediaView {
     }
 
     @Override
+    public void setHasAudio(boolean hasAudio) {
+        super.setHasAudio(hasAudio);
+        if (child != null)
+            child.setHasAudio(hasAudio);
+    }
+
+    @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (child != null) {
             event.offsetLocation(
@@ -140,8 +148,8 @@ public abstract class ProxyMediaView extends MediaView {
 
     private class ForwardingTapListener implements TapListener {
         @Override
-        public boolean onSingleTap() {
-            return getTapListener() != null && getTapListener().onSingleTap();
+        public boolean onSingleTap(MotionEvent event) {
+            return getTapListener() != null && getTapListener().onSingleTap(event);
         }
 
         @Override

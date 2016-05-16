@@ -70,6 +70,7 @@ public class CustomVideoView extends AspectLayout {
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
     private MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener;
     private int mSeekWhenPrepared;  // recording the seek position while preparing
+    private int mVolume;
 
     // the backend view.
     private ViewBackend mBackendView;
@@ -145,7 +146,7 @@ public class CustomVideoView extends AspectLayout {
             mMediaPlayer = new MediaPlayer();
 
             mBackendView.setSurface(mMediaPlayer);
-            mMediaPlayer.setVolume(0, 0);
+            mMediaPlayer.setVolume(mVolume, mVolume);
             mMediaPlayer.setOnPreparedListener(mPreparedListener);
             mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);
             mMediaPlayer.setOnCompletionListener(mCompletionListener);
@@ -164,6 +165,17 @@ public class CustomVideoView extends AspectLayout {
             mTargetState = STATE_ERROR;
             mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
         }
+    }
+
+    public void setMuted(boolean muted) {
+        mVolume = muted ? 0 : 1;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setVolume(mVolume, mVolume);
+        }
+    }
+
+    public boolean isMuted() {
+        return mVolume < 0.5;
     }
 
     final MediaPlayer.OnVideoSizeChangedListener mSizeChangedListener =

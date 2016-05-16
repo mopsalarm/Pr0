@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.pr0gramm.app.ActivityComponent;
@@ -49,7 +50,7 @@ public class DelayedMediaView extends ProxyMediaView {
     }
 
     @Override
-    protected boolean onSingleTap() {
+    protected boolean onSingleTap(MotionEvent event) {
         // call this function only exactly once!
         if (!childCreated.compareAndSet(false, true))
             return false;
