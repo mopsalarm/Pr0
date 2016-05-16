@@ -79,7 +79,7 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
 
         // This is not nice,but hey, it works...
-        if (hasAudio() && singleShotService.isFirstTime("onboarding-audio")) {
+        if (hasAudio() && singleShotService.isFirstTime("onboarding-audio-1")) {
             showAudioOnboardingFragment();
             return;
         }
@@ -93,16 +93,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
             videoView.setOnErrorListener(this::onMediaPlayerError);
             videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
             videoView.setOnInfoListener(this::onVideoInfoEvent);
-        }
-
-
-        // if this is the first time we start the media, tell the
-        // user about the changes!
-        if (!settings.useSoftwareDecoder() && singleShotService.firstTimeInVersion("hint_check_compatibility_settings")) {
-            DialogBuilder.start(getContext())
-                    .content(R.string.hint_check_compatibility_if_videos_dont_play)
-                    .positive()
-                    .show();
         }
 
         applyMuteState();

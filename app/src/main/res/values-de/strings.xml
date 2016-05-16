@@ -105,7 +105,7 @@
     <string name="pref_show_notifications_title">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="badge_op">OP</string>
-    <string name="could_not_play_video">Video kann nicht abgespielt werden. Probiere die Video-Kompatibilitätseinstellung oder, wenn du keine Videos sehen kannst, sende bitte Feedback.</string>
+    <string name="could_not_play_video">Video kann nicht abgespielt werden. Wenn du gar keine Videos sehen kannst, sende bitte Feedback.</string>
     <string name="could_not_play_video_io">Video konnte nicht abgespielt werden, da ein Netzwerkfehler aufgetreten ist.</string>
     <string name="pref_keep_screen_on">Bildschirm anlassen</string>
     <string name="pref_keep_screen_on_summary">Der Bildschirm geht nicht aus, während du dir einen Post anguckst.</string>
