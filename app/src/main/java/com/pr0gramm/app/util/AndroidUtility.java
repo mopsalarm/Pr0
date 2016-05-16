@@ -8,12 +8,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
@@ -416,5 +418,13 @@ public class AndroidUtility {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         } catch (Exception ignored) {
         }
+    }
+
+    @ColorInt
+    public static int darken(@ColorInt int color, float amount) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[2] *= (1.f - amount);
+        return Color.HSVToColor(hsv);
     }
 }

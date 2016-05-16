@@ -351,5 +351,11 @@
     <string name="action_unfollow">Unfollow</string>
     <string name="pref_override_youtube_links_summary">Show youtube links in YouTube app even if incognito browser is activated.</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
+    <string name="onboarding_audio__sound">Sound!</string>
+    <string name="onboarding_audio__describe_sound">If you see the little volume icon you know that the video has sound. Click on it to enable it!</string>
+    <string name="onboarding_audio__mute">No, mute!</string>
+    <string name="onboarding_audio__describe_mute">Sound will be automatically disabled if you don\'t watch any video for 10 minutes.</string>
+    <string name="onboarding_audio__have_fun">Have fun!</string>
+    <string name="onboarding_audio__describe_have_fun">So please crank up the volume and enjoy pr0gramm like never before!</string>
 </resources>
 

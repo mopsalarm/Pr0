@@ -332,4 +332,10 @@
     <string name="action_unfollow">Unstelzen</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
     <string name="pref_override_youtube_links_summary">Zeige Videos (YouTube, Vimeo) immer in der entsprechenden App, auch wenn der Inkognito Browser aktiviert ist.</string>
+    <string name="onboarding_audio__sound">Video mit Ton!</string>
+    <string name="onboarding_audio__mute">Nö, Ruhe!</string>
+    <string name="onboarding_audio__have_fun">Viel Spaß!</string>
+    <string name="onboarding_audio__describe_sound">Wenn du den kleinen Lautsprecher unten rechts im Video siehst, dann hat dieses Video eine Tonspur! Klick drauf!</string>
+    <string name="onboarding_audio__describe_mute">Ton wird automatisch wieder deaktiviert, wenn du für 10 Minuten kein Video gesehen hast.</string>
+    <string name="onboarding_audio__describe_have_fun">Also, Lautstärke aufdrehen und endlich Ton auf pr0gramm erleben!</string>
 </resources>
