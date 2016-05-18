@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Workaround gegen 'Image failed to decode using JPEG decoder'."
+      },
+      {
+        "type": "Fix",
         "change": "Login stark beschleunigt."
       },
       {
