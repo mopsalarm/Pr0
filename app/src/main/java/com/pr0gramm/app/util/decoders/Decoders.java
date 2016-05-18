@@ -14,7 +14,9 @@ public class Decoders {
         return new DownloadingRegionDecoder(downloader,
                 FallbackRegionDecoder.chain(
                         new AndroidRegionDecoder(Bitmap.Config.RGB_565),
-                        new AndroidRegionDecoder(Bitmap.Config.ARGB_8888)
+                        new AndroidRegionDecoder(Bitmap.Config.ARGB_8888),
+                        new SimpleRegionDecoder(Bitmap.Config.RGB_565),
+                        new SimpleRegionDecoder(Bitmap.Config.ARGB_8888)
                 ));
     }
 }
