@@ -1,5 +1,14 @@
 [
   {
+    "version": 97,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Votes verschwinden nicht mehr zufällig"
+      }
+    ]
+  },
+  {
     "version": 96,
     "changes": [
       {
