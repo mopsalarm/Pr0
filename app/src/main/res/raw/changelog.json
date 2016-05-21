@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Votes verschwinden nicht mehr zufällig"
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Bugfixes"
       }
     ]
   },
