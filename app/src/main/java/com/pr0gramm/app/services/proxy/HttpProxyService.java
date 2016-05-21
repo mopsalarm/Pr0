@@ -66,7 +66,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
      * @return A random free port number
      */
     private static int getRandomPort() {
-        return (int) (20000 + (Math.random() * 40000));
+        return (int) (10000 + (Math.random() * 40000));
     }
 
     @Override

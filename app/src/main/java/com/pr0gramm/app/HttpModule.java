@@ -100,15 +100,13 @@ public class HttpModule {
     @Provides
     @Singleton
     public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
-        ProxyService result = url -> url;
-
         for (int i = 0; i < 10; i++) {
             try {
                 HttpProxyService proxy = new HttpProxyService(httpClient);
                 proxy.start();
 
                 // return the proxy
-                result = url -> settings.useProxy() ? proxy.proxy(url) : url;
+                return url -> settings.useProxy() ? proxy.proxy(url) : url;
 
             } catch (IOException ioError) {
                 logger.warn("Could not open proxy: {}", ioError.toString());
@@ -116,7 +114,7 @@ public class HttpModule {
         }
 
         logger.warn("Stop trying, using no proxy now.");
-        return result;
+        return url -> url;
     }
 
     @Provides
