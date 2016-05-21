@@ -90,9 +90,8 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        return Async.start(() -> find(ITEM, item.id()), BackgroundScheduler.instance())
-                .map(vote -> vote.transform(v -> v.vote))
-                .map(vote -> vote.or(Vote.NEUTRAL));
+        return Async.fromCallable(() -> find(ITEM, item.id()), BackgroundScheduler.instance())
+                .map(vote -> vote.transform(v -> v.vote).or(Vote.NEUTRAL));
     }
 
     /**

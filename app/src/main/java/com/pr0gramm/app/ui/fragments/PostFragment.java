@@ -656,7 +656,7 @@ public class PostFragment extends BaseFragment implements
     @SuppressWarnings("CodeBlock2Expr")
     private void initializeInfoLine() {
         // get the vote from the service
-        Observable<Vote> cachedVote = voteService.getVote(feedItem).compose(bindToLifecycle());
+        Observable<Vote> cachedVote = voteService.getVote(feedItem).compose(bindToLifecycleAsync());
 
         //noinspection ConstantConditions
         infoLineView = ButterKnife.findById(getView(), R.id.infoview);
