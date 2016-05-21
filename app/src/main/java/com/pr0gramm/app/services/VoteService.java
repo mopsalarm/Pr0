@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.set.hash.TLongHashSet;
 import rx.Observable;
 import rx.util.async.Async;
 
@@ -136,16 +137,21 @@ public class VoteService {
         SugarTransactionHelper.doInTransaction(() -> {
             logger.info("Applying {} vote actions", actions.size() / 2);
             try {
+                TLongHashSet seen = new TLongHashSet();
+
                 float actionCount = actions.size();
-                for (int idx = 0; idx < actions.size(); idx += 2) {
+                for (int idx = actions.size() - 2; idx >= 0; idx -= 2) {
                     VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
                     if (action == null)
                         continue;
 
                     long id = actions.get(idx);
-                    storeVoteValue(action.type, id, action.vote);
-                    if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
-                        return;
+
+                    if (seen.add(CachedVote.voteId(action.type, id))) {
+                        storeVoteValue(action.type, id, action.vote);
+                        if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
+                            return;
+                    }
                 }
             } catch (RuntimeException error) {
                 // doInTransaction consumes exceptions -.-

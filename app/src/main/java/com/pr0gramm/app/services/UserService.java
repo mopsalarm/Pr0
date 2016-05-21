@@ -89,7 +89,7 @@ public class UserService {
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
 
         // reset the votes once.
-        if (sso.isFirstTime("repair-ResetVotes-5")) {
+        if (sso.isFirstTime("repair-ResetVotes-6")) {
             Async.start(() -> {
                 logger.info("Resetting votes to fix table");
 

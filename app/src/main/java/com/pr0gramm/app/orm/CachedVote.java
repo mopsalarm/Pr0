@@ -42,7 +42,7 @@ public class CachedVote extends SugarRecord {
         return find(CachedVote.class, "id in (" + encodedIds + ")");
     }
 
-    private static long voteId(Type type, long itemId) {
+    public static long voteId(Type type, long itemId) {
         return itemId * 10 + type.ordinal();
     }
 
