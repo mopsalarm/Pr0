@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -114,8 +115,7 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     private void storeVoteValue(CachedVote.Type type, long itemId, Vote vote) {
-        // just store the vote!
-        new CachedVote(type, itemId, vote).save();
+        CachedVote.quickSave(type, itemId, vote);
     }
 
     /**
@@ -124,26 +124,43 @@ public class VoteService {
      * @param actions The actions from the log to apply.
      */
     public void applyVoteActions(List<Integer> actions, Function<Float, Boolean> progressListener) {
+        if (actions.isEmpty())
+            return;
+
+        // must be a multiple of two
         checkArgument(actions.size() % 2 == 0, "not an even number of items");
+
+        AtomicReference<RuntimeException> errorRef = new AtomicReference<>();
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTransaction(() -> {
             logger.info("Applying {} vote actions", actions.size() / 2);
+            try {
+                float actionCount = actions.size();
+                for (int idx = 0; idx < actions.size(); idx += 2) {
+                    VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
+                    if (action == null)
+                        continue;
 
-            float actionCount = actions.size();
-            for (int idx = 0; idx < actions.size(); idx += 2) {
-                VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
-                if (action == null)
-                    continue;
-
-                long id = actions.get(idx);
-                storeVoteValue(action.type, id, action.vote);
-                if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
-                    return;
+                    long id = actions.get(idx);
+                    storeVoteValue(action.type, id, action.vote);
+                    if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
+                        return;
+                }
+            } catch (RuntimeException error) {
+                // doInTransaction consumes exceptions -.-
+                errorRef.set(error);
+                throw error;
             }
         });
 
         logger.info("Applying vote actions took {}", watch);
+
+        // re-throw error
+        RuntimeException error = errorRef.get();
+        if (error != null) {
+            throw error;
+        }
     }
 
     /**

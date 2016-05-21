@@ -72,7 +72,8 @@ public class UserService {
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
-                       SharedPreferences preferences, MetaService metaService, Settings settings, Gson gson) {
+                       SharedPreferences preferences, MetaService metaService, Settings settings, Gson gson,
+                       SingleShotService sso) {
 
         this.api = api;
         this.seenService = seenService;
@@ -86,6 +87,23 @@ public class UserService {
 
         this.restoreLatestUserInfo();
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
+
+        // reset the votes once.
+        if (sso.isFirstTime("repair-ResetVotes-5")) {
+            Async.start(() -> {
+                logger.info("Resetting votes to fix table");
+
+                voteService.clear();
+
+                preferences.edit()
+                        .putLong(KEY_LAST_SYNC_ID, 0)
+                        .apply();
+
+                return sync().subscribe(Actions.empty(), err -> {
+                    logger.warn("Could not do full sync after cleaning vote table");
+                });
+            });
+        }
     }
 
     /**
