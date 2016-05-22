@@ -91,6 +91,7 @@ public class GraphDrawable extends Drawable {
         Path path = new Path();
 
         Float previous = null;
+        double previousY = 0;
         for (Graph.Point current : points) {
             float x = (float) ((current.x - minX) / scaleX);
             float y = (float) (scaleY > 0
@@ -101,9 +102,10 @@ public class GraphDrawable extends Drawable {
                 path.moveTo(x, y);
                 previous = x;
 
-            } else if (x - previous > 1) {
+            } else if (x - previous > 1 || Math.abs(y - previousY) > 100) {
                 path.lineTo(x, y);
                 previous = x;
+                previousY = current.y;
             }
         }
 
