@@ -1,5 +1,14 @@
 [
   {
+    "version": 98,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Zur Seite wischen sollte nicht mehr nach ein paar Posts aufhören."
+      }
+    ]
+  },
+  {
     "version": 97,
     "changes": [
       {

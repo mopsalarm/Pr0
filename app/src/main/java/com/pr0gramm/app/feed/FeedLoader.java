@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.trello.rxlifecycle.FragmentLifecycleProvider;
 
 import rx.Observable;
 import rx.Subscription;
@@ -114,9 +113,7 @@ public class FeedLoader {
         void onError(Throwable error);
     }
 
-    public static Binder bindTo(FragmentLifecycleProvider lifecycle, Action1<Throwable> onError) {
-        Observable.Transformer transformer = lifecycle.bindToLifecycle();
-
+    public static Binder bindTo(Observable.Transformer transformer, Action1<Throwable> onError) {
         return new Binder() {
             @Override
             public <T> Observable.Transformer<T, T> bind() {

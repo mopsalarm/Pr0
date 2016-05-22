@@ -25,6 +25,7 @@ import com.pr0gramm.app.ui.IdFragmentStatePagerAdapter;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.base.BaseFragment;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,9 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
 
         // get the feed to show and setup a loader to load more data
         feed = getArgumentFeed(savedInstanceState);
-        FeedLoader loader = new FeedLoader(FeedLoader.bindTo(this, this::onLoadError), feedService, feed);
+        FeedLoader loader = new FeedLoader(
+                FeedLoader.bindTo(bindToLifecycleAsync(), AndroidUtility::logToCrashlytics),
+                feedService, feed);
 
         // create the adapter on the view
         adapter = new PostAdapter(getChildFragmentManager(), feed, loader) {
@@ -129,10 +132,6 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             FeedItem start = getArgumentStartItem(savedInstanceState);
             makeItemCurrent(start);
         }
-    }
-
-    private void onLoadError(Throwable throwable) {
-        logger.warn("Could not load feed.", throwable);
     }
 
     @Override
