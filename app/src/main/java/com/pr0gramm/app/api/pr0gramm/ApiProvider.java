@@ -17,7 +17,6 @@ import com.pr0gramm.app.util.AndroidUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -164,7 +163,11 @@ public class ApiProvider implements Provider<Api> {
                 try (Reader stream = httpError.response().errorBody().charStream()) {
                     errorBody = CharStreams.toString(stream);
                 }
-            } catch (IOException ignored) {
+
+                // now shorten
+                errorBody = errorBody.substring(0, Math.min(512, errorBody.length()));
+
+            } catch (Exception ignored) {
             }
 
             logger.warn("Got http error {} {}, with body: {}", httpError.code(),

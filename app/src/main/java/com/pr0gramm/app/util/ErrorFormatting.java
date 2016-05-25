@@ -153,6 +153,10 @@ public class ErrorFormatting {
                 R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
+                err -> err.code() == 522,
+                R.string.error_origin_timeout_ddos).doNotReport());
+
+        formatters.add(new RetrofitStatusFormatter(
                 err -> err.code() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
 
