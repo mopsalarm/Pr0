@@ -319,7 +319,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             super(itemView);
 
             // get the subviews
-            comment = findById(itemView, R.id.comment);
+            comment = ButterKnife.findById(itemView, R.id.comment);
             vote = ButterKnife.findById(itemView, R.id.voting);
             senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
             kFav = ButterKnife.findById(itemView, R.id.kfav);
