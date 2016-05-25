@@ -19,7 +19,7 @@
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>
     <string name="error_connect_exception_https">HTTPS Verbindung konnte nicht aufgebaut werden: %s</string>
-    <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden.</string>
+    <string name="error_conversion">Die Antwort der pr0gramm-API konnte nicht verarbeitet werden. Bist du vielleicht nicht korrekt im aktuellen WLAN angemeldet?</string>
     <string name="error_exception_of_type">Es ist ein Fehler ohne weitere Nachricht aufgetreten: %s</string>
     <string name="error_host_not_found">Bitte überprüfe deine Internetverbindung.</string>
     <string name="error_not_authorized">Schaut so aus, als wärst du nicht angemeldet oder gebannt.</string>
@@ -333,4 +333,5 @@
     <string name="pref_override_youtube_links_title">YouTube App</string>
     <string name="pref_override_youtube_links_summary">Zeige Videos (YouTube, Vimeo) immer in der entsprechenden App, auch wenn der Inkognito Browser aktiviert ist.</string>
     <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
+    <string name="error_json_mapping">Die Antwort der API konnte nicht verarbeitet werden: %s</string>
 </resources>
