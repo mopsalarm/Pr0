@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
@@ -234,7 +234,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         return feed.getFeedFilter();
     }
 
-    public void onTagClicked(Tag tag) {
+    public void onTagClicked(Api.Tag tag) {
         ((MainActionHandler) getActivity()).onFeedFilterSelected(
                 getCurrentFilter().withTags(tag.getTag()));
     }

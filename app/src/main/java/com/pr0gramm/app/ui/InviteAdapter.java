@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.views.UsernameView;
 
@@ -24,9 +24,9 @@ import static net.danlew.android.joda.DateUtils.getRelativeTimeSpanString;
 /**
  */
 public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteViewHolder> {
-    private final ImmutableList<AccountInfo.Invite> invites;
+    private final ImmutableList<Api.AccountInfo.Invite> invites;
 
-    public InviteAdapter(List<AccountInfo.Invite> invites) {
+    public InviteAdapter(List<Api.AccountInfo.Invite> invites) {
         this.invites = ImmutableList.copyOf(invites);
     }
 
@@ -43,7 +43,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteView
 
     @Override
     public void onBindViewHolder(InviteViewHolder holder, int position) {
-        AccountInfo.Invite invite = invites.get(position);
+        Api.AccountInfo.Invite invite = invites.get(position);
         holder.set(invite);
     }
 
@@ -59,7 +59,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteView
             username = ButterKnife.findById(itemView, R.id.username);
         }
 
-        public void set(AccountInfo.Invite invite) {
+        public void set(Api.AccountInfo.Invite invite) {
             Context context = itemView.getContext();
 
             CharSequence date = getRelativeTimeSpanString(context, invite.created());

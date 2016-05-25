@@ -24,8 +24,8 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
-import com.pr0gramm.app.api.pr0gramm.response.ImmutableLogin;
-import com.pr0gramm.app.api.pr0gramm.response.Login;
+import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
@@ -159,10 +159,10 @@ public class LoginActivity extends BaseAppCompatActivity {
                 .subscribe(this::onLoginResponse, defaultOnError());
     }
 
-    private static class LoginErrorInterceptor implements Observable.Operator<Login, Login> {
+    private static class LoginErrorInterceptor implements Observable.Operator<Api.Login, Api.Login> {
         @Override
-        public Subscriber<? super Login> call(Subscriber<? super Login> subscriber) {
-            return new Subscriber<Login>() {
+        public Subscriber<? super Api.Login> call(Subscriber<? super Api.Login> subscriber) {
+            return new Subscriber<Api.Login>() {
                 @Override
                 public void onCompleted() {
                     subscriber.onCompleted();
@@ -174,7 +174,7 @@ public class LoginActivity extends BaseAppCompatActivity {
                         HttpException err = (HttpException) err_;
                         if (err.code() == 403) {
                             try {
-                                subscriber.onNext(ImmutableLogin.builder().success(false).build());
+                                subscriber.onNext(ImmutableApi.Login.builder().success(false).build());
                                 subscriber.onCompleted();
 
                             } catch (Throwable forward) {
@@ -188,14 +188,14 @@ public class LoginActivity extends BaseAppCompatActivity {
                 }
 
                 @Override
-                public void onNext(Login value) {
+                public void onNext(Api.Login value) {
                     subscriber.onNext(value);
                 }
             };
         }
     }
 
-    private void onLoginResponse(Login response) {
+    private void onLoginResponse(Api.Login response) {
         if (response.success()) {
             SyncBroadcastReceiver.scheduleNextSync(this);
 
@@ -206,7 +206,7 @@ public class LoginActivity extends BaseAppCompatActivity {
             Track.loginSuccessful();
 
         } else {
-            Login.BanInfo ban = response.banInfo();
+            Api.Login.BanInfo ban = response.banInfo();
             if (ban != null && ban.banned()) {
                 CharSequence date = DateUtils.getRelativeDateTimeString(this,
                         ban.till().toDateTime(DateTimeZone.getDefault()),

@@ -13,9 +13,7 @@ import android.widget.Button;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.meta.MetaService;
-import com.pr0gramm.app.api.pr0gramm.response.Comment;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.api.pr0gramm.response.NewComment;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.parcel.MessageParceler;
 import com.pr0gramm.app.parcel.NewCommentParceler;
@@ -190,7 +188,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         if (extras == null)
             return;
 
-        Message message = Parceler.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
+        Api.Message message = Parceler.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
         if (message != null) {
             messageView.update(message, userService.getName().orNull());
             messageView.setVisibility(View.VISIBLE);
@@ -217,7 +215,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return getIntent().getLongExtra(ARGUMENT_ITEM_ID, 0);
     }
 
-    public static Intent intent(Context context, Message message) {
+    public static Intent intent(Context context, Api.Message message) {
         Intent intent = intent(context, message.getSenderId(), message.getName());
         intent.putExtra(ARGUMENT_MESSAGE, new MessageParceler(message));
         return intent;
@@ -230,11 +228,11 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return intent;
     }
 
-    public static Intent answerToComment(Context context, FeedItem feedItem, Comment comment) {
-        return answerToComment(context, Message.of(feedItem, comment));
+    public static Intent answerToComment(Context context, FeedItem feedItem, Api.Comment comment) {
+        return answerToComment(context, Api.Message.of(feedItem, comment));
     }
 
-    public static Intent answerToComment(Context context, Message message) {
+    public static Intent answerToComment(Context context, Api.Message message) {
         long itemId = message.getItemId();
         long commentId = message.id();
 
@@ -244,7 +242,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return intent;
     }
 
-    public static NewComment getNewComment(Intent data) {
+    public static Api.NewComment getNewComment(Intent data) {
         return Parceler.get(NewCommentParceler.class,
                 data.getExtras(), RESULT_EXTRA_NEW_COMMENT);
     }

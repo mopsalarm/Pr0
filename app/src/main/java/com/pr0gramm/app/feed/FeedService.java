@@ -6,8 +6,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.Feed;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
 import com.pr0gramm.app.services.Track;
 
 import org.immutables.value.Value;
@@ -39,7 +37,7 @@ public class FeedService {
         this.settings = settings;
     }
 
-    public Observable<Feed> getFeedItems(FeedQuery query) {
+    public Observable<Api.Feed> getFeedItems(FeedQuery query) {
         FeedFilter feedFilter = query.feedFilter();
         Track.requestFeed(feedFilter.getFeedType());
 
@@ -73,7 +71,7 @@ public class FeedService {
         }
     }
 
-    public Observable<Post> loadPostDetails(long id) {
+    public Observable<Api.Post> loadPostDetails(long id) {
         return mainApi.info(id);
     }
 

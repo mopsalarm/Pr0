@@ -7,8 +7,7 @@ import android.view.MenuItem;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
@@ -21,7 +20,7 @@ import javax.inject.Inject;
 
 /**
  */
-public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
+public class PrivateMessageInboxFragment extends InboxFragment<Api.PrivateMessage>
         implements SearchUserDialog.Listener {
 
     @Inject
@@ -49,18 +48,18 @@ public class PrivateMessageInboxFragment extends InboxFragment<PrivateMessage>
     }
 
     @Override
-    protected LoaderHelper<List<PrivateMessage>> newLoaderHelper() {
+    protected LoaderHelper<List<Api.PrivateMessage>> newLoaderHelper() {
         return LoaderHelper.of(() -> getInboxService().getPrivateMessages());
     }
 
     @Override
-    protected void displayMessages(RecyclerView recyclerView, List<PrivateMessage> messages) {
+    protected void displayMessages(RecyclerView recyclerView, List<Api.PrivateMessage> messages) {
         recyclerView.setAdapter(new PrivateMessageAdapter(getActivity(), messages, actionListener));
     }
 
     @Override
-    public void onUserInfo(Info info) {
-        Info.User user = info.getUser();
+    public void onUserInfo(Api.Info info) {
+        Api.Info.User user = info.getUser();
         boolean isSelfInfo = userService.getName()
                 .transform(user.getName()::equalsIgnoreCase)
                 .or(false);

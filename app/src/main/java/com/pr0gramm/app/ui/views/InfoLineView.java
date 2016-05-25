@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager;
@@ -121,7 +121,7 @@ public class InfoLineView extends LinearLayout {
             }
         });
 
-        setTags(Collections.<Tag, Vote>emptyMap());
+        setTags(Collections.<Api.Tag, Vote>emptyMap());
     }
 
     /**
@@ -193,9 +193,9 @@ public class InfoLineView extends LinearLayout {
         return voteView;
     }
 
-    public void setTags(Map<Tag, Vote> tags) {
-        List<Tag> sorted = Ordering.natural().reverse()
-                .onResultOf(Tag::getConfidence)
+    public void setTags(Map<Api.Tag, Vote> tags) {
+        List<Api.Tag> sorted = Ordering.natural().reverse()
+                .onResultOf(Api.Tag::getConfidence)
                 .sortedCopy(tags.keySet());
 
         View addTagView = LayoutInflater.from(getContext()).inflate(R.layout.tags_add, null);
@@ -244,17 +244,17 @@ public class InfoLineView extends LinearLayout {
         return feedItem.created().isBefore(oneHourAgo);
     }
 
-    public void addVote(Tag tag, Vote vote) {
+    public void addVote(Api.Tag tag, Vote vote) {
         tagsAdapter.updateVote(tag, vote);
     }
 
     private class TagsAdapter extends RecyclerView.Adapter<TagViewHolder> {
-        private final List<Tag> tags;
-        private final Map<Tag, Vote> votes;
+        private final List<Api.Tag> tags;
+        private final Map<Api.Tag, Vote> votes;
         private final boolean alwaysVoteViews;
         private int selected = -1;
 
-        private TagsAdapter(List<Tag> tags, Map<Tag, Vote> votes) {
+        private TagsAdapter(List<Api.Tag> tags, Map<Api.Tag, Vote> votes) {
             setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
             this.votes = new HashMap<>(votes);
@@ -270,7 +270,7 @@ public class InfoLineView extends LinearLayout {
 
         @Override
         public void onBindViewHolder(TagViewHolder holder, int position) {
-            Tag tag = tags.get(position);
+            Api.Tag tag = tags.get(position);
             holder.tag.setText(tag.getTag());
             holder.tag.setOnClickListener(v -> {
                 if (onDetailClickedListener != null)
@@ -321,7 +321,7 @@ public class InfoLineView extends LinearLayout {
             return tags.get(position).getId();
         }
 
-        public void updateVote(Tag tag, Vote vote) {
+        public void updateVote(Api.Tag tag, Vote vote) {
             votes.put(tag, vote);
             notifyDataSetChanged();
         }
@@ -344,7 +344,7 @@ public class InfoLineView extends LinearLayout {
          *
          * @param tag The tag that was clicked.
          */
-        void onTagClicked(Tag tag);
+        void onTagClicked(Api.Tag tag);
 
         /**
          * Called if a user clicks on a username
@@ -355,6 +355,6 @@ public class InfoLineView extends LinearLayout {
     }
 
     public interface TagVoteListener {
-        boolean onVote(Tag tag, Vote vote);
+        boolean onVote(Api.Tag tag, Vote vote);
     }
 }

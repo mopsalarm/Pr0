@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.Api;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,7 +20,7 @@ public class UserInfoFoundView extends FrameLayout {
     private final View uploads;
     private OnUserClickedListener uploadsClickedListener;
 
-    public UserInfoFoundView(Context context, Info userInfo) {
+    public UserInfoFoundView(Context context, Api.Info userInfo) {
         super(context);
         inflate(context, R.layout.user_uploads_link, this);
 
@@ -30,9 +30,9 @@ public class UserInfoFoundView extends FrameLayout {
         set(userInfo);
     }
 
-    public void set(Info info) {
+    public void set(Api.Info info) {
         // user info
-        Info.User user = info.getUser();
+        Api.Info.User user = info.getUser();
         username.setUsername(user.getName(), user.getMark());
 
         uploads.setOnClickListener(view -> {

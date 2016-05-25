@@ -8,7 +8,7 @@ import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SingleShotService;
@@ -77,7 +77,7 @@ public class SyncIntentService extends IntentService {
         Stopwatch watch = createStarted();
         try {
             logger.info("performing sync");
-            Optional<Sync> sync = toOptional(userService.sync());
+            Optional<Api.Sync> sync = toOptional(userService.sync());
 
             logger.info("updating info");
             toOptional(userService.info());

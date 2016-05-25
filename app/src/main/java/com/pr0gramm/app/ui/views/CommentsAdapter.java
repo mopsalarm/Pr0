@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Comment;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
@@ -41,7 +41,6 @@ import butterknife.ButterKnife;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
-import static butterknife.ButterKnife.findById;
 import static com.google.common.base.Ascii.equalsIgnoreCase;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
@@ -62,8 +61,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private TLongSet favedComments = new TLongHashSet();
     private TLongSet collapsedComments = new TLongHashSet();
     private boolean showFavCommentButton;
-    private ImmutableMap<Long, Comment> commentsById;
-    private ImmutableListMultimap<Long, Comment> commentsByParent;
+    private ImmutableMap<Long, Api.Comment> commentsById;
+    private ImmutableListMultimap<Long, Api.Comment> commentsByParent;
 
     public CommentsAdapter(boolean admin, String selfName) {
         this.admin = admin;
@@ -73,9 +72,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         set(emptyList(), emptyMap(), null);
     }
 
-    public void set(Collection<Comment> comments, Map<Long, Vote> votes, String op) {
-        this.commentsById = Maps.uniqueIndex(comments, Comment::getId);
-        this.commentsByParent = Multimaps.index(comments, Comment::getParent);
+    public void set(Collection<Api.Comment> comments, Map<Long, Vote> votes, String op) {
+        this.commentsById = Maps.uniqueIndex(comments, Api.Comment::getId);
+        this.commentsByParent = Multimaps.index(comments, Api.Comment::getParent);
 
         this.op = Optional.fromNullable(op);
         this.allComments = FluentIterable.from(sort(comments, op)).transform(comment -> {
@@ -122,7 +121,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(CommentView view, int position) {
         CommentEntry entry = comments.get(position);
-        Comment comment = entry.comment;
+        Api.Comment comment = entry.comment;
 
         view.setCommentDepth(entry.depth);
         view.senderInfo.setSenderName(comment.getName(), comment.getMark());
@@ -223,7 +222,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-    private boolean onActionMenuClicked(Comment comment, MenuItem item) {
+    private boolean onActionMenuClicked(Api.Comment comment, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_collapse:
                 collapsedComments.add(comment.getId());
@@ -247,11 +246,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return false;
     }
 
-    private int countChildren(Comment comment) {
-        ImmutableList<Comment> children = commentsByParent.get(comment.getId());
+    private int countChildren(Api.Comment comment) {
+        ImmutableList<Api.Comment> children = commentsByParent.get(comment.getId());
 
         int count = children.size();
-        for (Comment child : children)
+        for (Api.Comment child : children)
             count += countChildren(child);
 
         return count;
@@ -271,12 +270,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return new CommentScore(score, entry.comment.getUp(), entry.comment.getDown());
     }
 
-    private void doOnAuthorClicked(Comment comment) {
+    private void doOnAuthorClicked(Api.Comment comment) {
         if (commentActionListener != null)
             commentActionListener.onCommentAuthorClicked(comment);
     }
 
-    private void doAnswer(Comment comment) {
+    private void doAnswer(Api.Comment comment) {
         if (commentActionListener != null)
             commentActionListener.onAnswerClicked(comment);
     }
@@ -336,15 +335,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     public interface CommentActionListener {
 
-        boolean onCommentVoteClicked(Comment comment, Vote vote);
+        boolean onCommentVoteClicked(Api.Comment comment, Vote vote);
 
-        void onAnswerClicked(Comment comment);
+        void onAnswerClicked(Api.Comment comment);
 
-        void onCommentAuthorClicked(Comment comment);
+        void onCommentAuthorClicked(Api.Comment comment);
 
-        void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite);
+        void onCommentMarkAsFavoriteClicked(Api.Comment comment, boolean markAsFavorite);
 
-        void onCopyCommentLink(Comment comment);
+        void onCopyCommentLink(Api.Comment comment);
     }
 
     /**
@@ -352,34 +351,34 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
      *
      * @param comments The comments to sort
      */
-    private List<Comment> sort(Collection<Comment> comments, String op) {
-        ImmutableListMultimap<Long, Comment> byParent =
-                Multimaps.index(comments, Comment::getParent);
+    private List<Api.Comment> sort(Collection<Api.Comment> comments, String op) {
+        ImmutableListMultimap<Long, Api.Comment> byParent =
+                Multimaps.index(comments, Api.Comment::getParent);
 
-        ArrayList<Comment> result = new ArrayList<>();
+        ArrayList<Api.Comment> result = new ArrayList<>();
         appendChildComments(result, byParent, 0, op);
         return result;
     }
 
-    private void appendChildComments(List<Comment> target,
-                                     ListMultimap<Long, Comment> byParent,
+    private void appendChildComments(List<Api.Comment> target,
+                                     ListMultimap<Long, Api.Comment> byParent,
                                      long id, String op) {
 
-        Ordering<Comment> ordering = COMMENT_BY_CONFIDENCE;
+        Ordering<Api.Comment> ordering = COMMENT_BY_CONFIDENCE;
         if (op != null) {
             ordering = Ordering.natural().reverse()
-                    .onResultOf((Comment c) -> op.equalsIgnoreCase(c.getName()))
+                    .onResultOf((Api.Comment c) -> op.equalsIgnoreCase(c.getName()))
                     .compound(ordering);
         }
 
-        List<Comment> children = ordering.sortedCopy(byParent.get(id));
-        for (Comment child : children) {
+        List<Api.Comment> children = ordering.sortedCopy(byParent.get(id));
+        for (Api.Comment child : children) {
             target.add(child);
             appendChildComments(target, byParent, (int) child.getId(), op);
         }
     }
 
-    private static int getCommentDepth(Map<Long, Comment> byId, Comment comment) {
+    private static int getCommentDepth(Map<Long, Api.Comment> byId, Api.Comment comment) {
         int depth = 0;
         while (comment != null) {
             depth++;
@@ -389,17 +388,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         return Math.min(8, depth);
     }
 
-    private static final Ordering<Comment> COMMENT_BY_CONFIDENCE =
-            Ordering.natural().reverse().onResultOf(Comment::getConfidence);
+    private static final Ordering<Api.Comment> COMMENT_BY_CONFIDENCE =
+            Ordering.natural().reverse().onResultOf(Api.Comment::getConfidence);
 
     private class CommentEntry {
-        final Comment comment;
+        final Api.Comment comment;
         final Vote baseVote;
         final int depth;
 
         Vote vote;
 
-        public CommentEntry(Comment comment, Vote baseVote, int depth) {
+        public CommentEntry(Api.Comment comment, Vote baseVote, int depth) {
             this.comment = comment;
             this.baseVote = baseVote;
             this.depth = depth;
@@ -407,7 +406,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         boolean isVisible() {
-            Comment comment = this.comment;
+            Api.Comment comment = this.comment;
             do {
                 if (collapsedComments.contains(comment.getParent())) {
                     return false;

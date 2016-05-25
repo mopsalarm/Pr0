@@ -3,7 +3,6 @@ package com.pr0gramm.app.services;
 import android.util.Patterns;
 
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
 
 import org.immutables.value.Value;
 
@@ -77,7 +76,7 @@ public class InviteService {
     public interface Invites {
         int inviteCount();
 
-        List<AccountInfo.Invite> invited();
+        List<Api.AccountInfo.Invite> invited();
     }
 
     public static final String ERROR_EMAIL_FORMAT = "emailInvalid";

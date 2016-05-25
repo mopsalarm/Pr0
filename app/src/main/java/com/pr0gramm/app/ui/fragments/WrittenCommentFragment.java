@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui.fragments;
 
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.ActivityComponent;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.services.UserService;
 
@@ -20,7 +20,7 @@ public class WrittenCommentFragment extends MessageInboxFragment {
     UserService userService;
 
     @Override
-    protected LoaderHelper<List<Message>> newLoaderHelper() {
+    protected LoaderHelper<List<Api.Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
             if (!userService.getName().isPresent())
                 return Observable.empty();
@@ -31,7 +31,7 @@ public class WrittenCommentFragment extends MessageInboxFragment {
                     .map(userComments -> {
                         //noinspection CodeBlock2Expr
                         return Lists.transform(userComments.getComments(),
-                                comment -> Message.of(userComments.getUser(), comment));
+                                comment -> Api.Message.of(userComments.getUser(), comment));
                     });
         });
     }

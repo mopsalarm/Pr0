@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.FavedCommentService;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -39,7 +39,7 @@ public class FavedCommentFragment extends MessageInboxFragment {
     }
 
     @Override
-    protected LoaderHelper<List<Message>> newLoaderHelper() {
+    protected LoaderHelper<List<Api.Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
             return favedCommentService
                     .list(settings.getContentType())
@@ -48,7 +48,7 @@ public class FavedCommentFragment extends MessageInboxFragment {
     }
 
     @Override
-    protected MessageAdapter newMessageAdapter(List<Message> messages) {
+    protected MessageAdapter newMessageAdapter(List<Api.Message> messages) {
         MessageAdapter adapter = super.newMessageAdapter(messages);
         adapter.setPointsVisibility(MessageView.PointsVisibility.NEVER);
         return adapter;

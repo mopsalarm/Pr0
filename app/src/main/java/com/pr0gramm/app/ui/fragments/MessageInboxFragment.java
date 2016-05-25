@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MessageAdapter;
@@ -16,12 +16,12 @@ import javax.inject.Inject;
 
 /**
  */
-public class MessageInboxFragment extends InboxFragment<Message> {
+public class MessageInboxFragment extends InboxFragment<Api.Message> {
     @Inject
     NotificationService notificationService;
 
     @Override
-    protected LoaderHelper<List<Message>> newLoaderHelper() {
+    protected LoaderHelper<List<Api.Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
             InboxType type = getInboxType();
             if (type == InboxType.UNREAD)
@@ -35,7 +35,7 @@ public class MessageInboxFragment extends InboxFragment<Message> {
     }
 
     @Override
-    protected void displayMessages(RecyclerView recyclerView, List<Message> messages) {
+    protected void displayMessages(RecyclerView recyclerView, List<Api.Message> messages) {
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter instanceof MessageAdapter) {
             ((MessageAdapter) adapter).setMessages(messages);
@@ -49,7 +49,7 @@ public class MessageInboxFragment extends InboxFragment<Message> {
         }
     }
 
-    protected MessageAdapter newMessageAdapter(List<Message> messages) {
+    protected MessageAdapter newMessageAdapter(List<Api.Message> messages) {
         return new MessageAdapter(
                 getActivity(), messages, actionListener, R.layout.row_inbox_message);
     }

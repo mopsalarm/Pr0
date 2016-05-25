@@ -42,8 +42,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.meta.MetaApi;
 import com.pr0gramm.app.api.meta.MetaApi.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.UserComments;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -333,7 +332,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     private void presentUserInfoCell(EnhancedUserInfo info) {
         UserCommentsAdapter messages = new UserCommentsAdapter(getActivity());
-        List<UserComments.Comment> comments = info.getComments();
+        List<Api.UserComments.UserComment> comments = info.getComments();
 
         if (userInfoCommentsOpen) {
             messages.setComments(info.getInfo().getUser(), comments);
@@ -374,7 +373,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 showUserInfoComments(messages.getItemCount() == 0 ? comments : emptyList());
             }
 
-            private void showUserInfoComments(List<UserComments.Comment> comments) {
+            private void showUserInfoComments(List<Api.UserComments.UserComment> comments) {
                 userInfoCommentsOpen = comments.size() > 0;
                 messages.setComments(info.getInfo().getUser(), comments);
                 updateSpanSizeLookup();
@@ -394,7 +393,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         getActivity().supportInvalidateOptionsMenu();
     }
 
-    private void presentUserUploadsHint(Info info) {
+    private void presentUserUploadsHint(Api.Info info) {
         if (isSelfInfo(info))
             return;
 
@@ -454,7 +453,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 return Observable.just(cached.get());
             }
 
-            Observable<Info> first = userService
+            Observable<Api.Info> first = userService
                     .info(queryString, getSelectedContentType())
                     .doOnNext(info -> followService.markAsFollowing(info.getUser().getName(), info.following()))
                     .onErrorResumeNext(Observable.empty());
@@ -465,9 +464,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     .map(Optional::fromNullable)
                     .onErrorResumeNext(Observable.just(Optional.absent()));
 
-            Observable<List<UserComments.Comment>> third = inboxService
+            Observable<List<Api.UserComments.UserComment>> third = inboxService
                     .getUserComments(queryString, contentTypes)
-                    .map(UserComments::getComments)
+                    .map(Api.UserComments::getComments)
                     .onErrorResumeNext(Observable.just(emptyList()));
 
             return Observable.zip(first, second, third, ImmutableEnhancedUserInfo::of)
@@ -1294,7 +1293,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return Optional.fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
     }
 
-    private boolean isSelfInfo(Info info) {
+    private boolean isSelfInfo(Api.Info info) {
         return info.getUser().getName().equalsIgnoreCase(userService.getName().orNull());
     }
 

@@ -4,11 +4,6 @@ import android.content.SharedPreferences;
 
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
-import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
-import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
-import com.pr0gramm.app.api.pr0gramm.response.UserComments;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Nothing;
 
@@ -50,12 +45,12 @@ public class InboxService {
      * Gets the list of unread messages. You can not call this multiple times, because
      * it will mark the messages as read immediately.
      */
-    public Observable<List<Message>> getUnreadMessages() {
+    public Observable<List<Api.Message>> getUnreadMessages() {
         publishUnreadMessagesCount(0);
-        return api.inboxUnread().map(MessageFeed::getMessages).doOnNext(messages -> {
+        return api.inboxUnread().map(Api.MessageFeed::getMessages).doOnNext(messages -> {
             if (messages.size() > 0) {
                 markAsRead(Ordering.natural()
-                        .onResultOf(Message::getCreated)
+                        .onResultOf(Api.Message::getCreated)
                         .max(messages));
             }
         });
@@ -64,21 +59,21 @@ public class InboxService {
     /**
      * Gets the list of inbox messages
      */
-    public Observable<List<Message>> getInbox() {
-        return api.inboxAll().map(MessageFeed::getMessages);
+    public Observable<List<Api.Message>> getInbox() {
+        return api.inboxAll().map(Api.MessageFeed::getMessages);
     }
 
     /**
      * Gets the list of private messages.
      */
-    public Observable<List<PrivateMessage>> getPrivateMessages() {
-        return api.inboxPrivateMessages().map(PrivateMessageFeed::getMessages);
+    public Observable<List<Api.PrivateMessage>> getPrivateMessages() {
+        return api.inboxPrivateMessages().map(Api.PrivateMessageFeed::getMessages);
     }
 
     /**
      * Gets all the comments a user has written
      */
-    public Observable<UserComments> getUserComments(String user, Set<ContentType> contentTypes) {
+    public Observable<Api.UserComments> getUserComments(String user, Set<ContentType> contentTypes) {
         return api.userComments(user,
                 Instant.now().plus(Duration.standardDays(1)).getMillis() / 1000L,
                 ContentType.combine(contentTypes));
@@ -88,7 +83,7 @@ public class InboxService {
      * Marks the given message as read. Also marks all messages below this id as read.
      * This will not affect the observable you get from {@link #unreadMessagesCount()}.
      */
-    public void markAsRead(Message message) {
+    public void markAsRead(Api.Message message) {
         markAsRead(message.getCreated().getMillis());
     }
 
@@ -116,9 +111,9 @@ public class InboxService {
 
     /**
      * Returns true if the given message was already read
-     * according to {@link #markAsRead(Message)}.
+     * according to {@link #markAsRead(Api.Message)}.
      */
-    public boolean messageIsUnread(Message message) {
+    public boolean messageIsUnread(Api.Message message) {
         return messageIsUnread(message.getCreated().getMillis());
     }
 

@@ -21,8 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.api.pr0gramm.response.Sync;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.UpdateActivity;
@@ -88,7 +87,7 @@ public class NotificationService {
         nm.notify(NOTIFICATION_UPDATE_ID, notification);
     }
 
-    public void showForInbox(Sync sync) {
+    public void showForInbox(Api.Sync sync) {
         if (!settings.showNotifications())
             return;
 
@@ -102,7 +101,7 @@ public class NotificationService {
                 .subscribe(messages -> showInboxNotification(sync, messages), Actions.empty());
     }
 
-    private void showInboxNotification(Sync sync, ImmutableList<Message> messages) {
+    private void showInboxNotification(Api.Sync sync, ImmutableList<Api.Message> messages) {
         if (messages.isEmpty() || !userService.isAuthorized()) {
             cancelForInbox();
             return;
@@ -115,7 +114,7 @@ public class NotificationService {
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(title);
         inboxStyle.setSummaryText(context.getString(R.string.notify_new_message_summary_text));
-        for (Message msg : limit(messages, 5)) {
+        for (Api.Message msg : limit(messages, 5)) {
             String sender = msg.getName();
             String message = msg.getMessage();
 
@@ -129,7 +128,7 @@ public class NotificationService {
 
 
         long timestamp = Ordering.natural().min(transform(messages, msg -> msg.getCreated().getMillis()));
-        long maxMessageTimestamp = Ordering.natural().max(transform(messages, Message::getCreated)).getMillis();
+        long maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::getCreated)).getMillis();
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentIntent(inboxActivityIntent(maxMessageTimestamp))
@@ -154,11 +153,11 @@ public class NotificationService {
     /**
      * Gets an optional "big" thumbnail for the given set of messages.
      */
-    private Optional<Bitmap> thumbnail(List<Message> messages) {
-        Message message = messages.get(0);
+    private Optional<Bitmap> thumbnail(List<Api.Message> messages) {
+        Api.Message message = messages.get(0);
 
         boolean allForTheSamePost = FluentIterable.from(messages)
-                .transform(Message::getItemId)
+                .transform(Api.Message::getItemId)
                 .toSet().size() == 1;
 
         if (allForTheSamePost && message.getItemId() != 0 && !isNullOrEmpty(message.thumbnail())) {
@@ -166,7 +165,7 @@ public class NotificationService {
         }
 
         boolean allForTheSameUser = FluentIterable.from(messages)
-                .transform(Message::getSenderId)
+                .transform(Api.Message::getSenderId)
                 .toSet().size() == 1;
 
         if (allForTheSameUser && message.getItemId() == 0 && !isNullOrEmpty(message.getName())) {
@@ -180,7 +179,7 @@ public class NotificationService {
         return Optional.absent();
     }
 
-    private Optional<Bitmap> loadThumbnail(Message message) {
+    private Optional<Bitmap> loadThumbnail(Api.Message message) {
         Uri uri = uriHelper.thumbnail(message);
         try {
             return Optional.of(picasso.load(uri).get());

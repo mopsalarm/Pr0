@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
 import rx.Observable;
@@ -41,7 +42,7 @@ public class FeedLoader {
         // clear old feed
         this.feed.clear();
 
-        Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response;
+        Observable<Api.Feed> response;
         response = feedService.getFeedItems(ImmutableFeedQuery.builder()
                 .feedFilter(feed.getFeedFilter())
                 .contentTypes(feed.getContentType())
@@ -79,7 +80,7 @@ public class FeedLoader {
         return subscription != null;
     }
 
-    private void subscribeTo(Observable<com.pr0gramm.app.api.pr0gramm.response.Feed> response) {
+    private void subscribeTo(Observable<Api.Feed> response) {
         subscription = response
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .compose(binder.bind())
@@ -87,7 +88,7 @@ public class FeedLoader {
                 .subscribe(this::merge, binder::onError);
     }
 
-    private void merge(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
+    private void merge(Api.Feed feed) {
         this.feed.merge(feed);
     }
 

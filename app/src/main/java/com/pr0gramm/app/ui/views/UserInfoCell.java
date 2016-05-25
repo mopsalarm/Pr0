@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.Api.Info;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.util.AndroidUtility;

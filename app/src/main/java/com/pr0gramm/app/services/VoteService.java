@@ -12,9 +12,6 @@ import com.google.common.io.LittleEndianDataInputStream;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.Comment;
-import com.pr0gramm.app.api.pr0gramm.response.NewComment;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
@@ -71,7 +68,7 @@ public class VoteService {
         return api.vote(null, item.id(), vote.getVoteValue());
     }
 
-    public Observable<Nothing> vote(Comment comment, Vote vote) {
+    public Observable<Nothing> vote(Api.Comment comment, Vote vote) {
         logger.info("Voting comment {} {}", comment.getId(), vote);
         Track.voteComment(vote);
 
@@ -79,7 +76,7 @@ public class VoteService {
         return api.voteComment(null, comment.getId(), vote.getVoteValue());
     }
 
-    public Observable<Nothing> vote(Tag tag, Vote vote) {
+    public Observable<Nothing> vote(Api.Tag tag, Vote vote) {
         logger.info("Voting tag {} {}", tag.getId(), vote);
         Track.voteTag(vote);
 
@@ -173,7 +170,7 @@ public class VoteService {
      * Tags the given post. This methods adds the tags to the given post
      * and returns a list of tags.
      */
-    public Observable<List<Tag>> tag(FeedItem feedItem, List<String> tags) {
+    public Observable<List<Api.Tag>> tag(FeedItem feedItem, List<String> tags) {
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
         return api.addTags(null, feedItem.id(), tagString).map(response -> {
             SugarTransactionHelper.doInTransaction(() -> {
@@ -189,7 +186,7 @@ public class VoteService {
     /**
      * Writes a comment to the given post.
      */
-    public Observable<NewComment> postComment(long itemId, long parentId, String comment) {
+    public Observable<Api.NewComment> postComment(long itemId, long parentId, String comment) {
         return api.postComment(null, itemId, parentId, comment)
                 .filter(response -> response.getComments().size() >= 1)
                 .map(response -> {
@@ -199,7 +196,7 @@ public class VoteService {
                 });
     }
 
-    public Observable<NewComment> postComment(FeedItem item, long parentId, String comment) {
+    public Observable<Api.NewComment> postComment(FeedItem item, long parentId, String comment) {
         return postComment(item.id(), parentId, comment);
     }
 
@@ -217,13 +214,13 @@ public class VoteService {
      * @param comments A list of comments to get the votes for.
      * @return A map containing the vote from commentId to vote
      */
-    public Observable<Map<Long, Vote>> getCommentVotes(List<Comment> comments) {
-        List<Long> ids = transform(comments, Comment::getId);
+    public Observable<Map<Long, Vote>> getCommentVotes(List<Api.Comment> comments) {
+        List<Long> ids = transform(comments, Api.Comment::getId);
         return findCachedVotes(CachedVote.Type.COMMENT, ids);
     }
 
-    public Observable<Map<Long, Vote>> getTagVotes(List<Tag> tags) {
-        List<Long> ids = transform(tags, Tag::getId);
+    public Observable<Map<Long, Vote>> getTagVotes(List<Api.Tag> tags) {
+        List<Long> ids = transform(tags, Api.Tag::getId);
         return findCachedVotes(CachedVote.Type.TAG, ids);
     }
 

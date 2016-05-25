@@ -3,13 +3,13 @@ package com.pr0gramm.app.parcel;
 import android.os.Parcel;
 
 import com.google.common.reflect.TypeToken;
-import com.pr0gramm.app.api.pr0gramm.response.NewComment;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.parcel.core.Parceler;
 
 /**
  */
-public class NewCommentParceler extends Parceler<NewComment> {
-    public NewCommentParceler(NewComment value) {
+public class NewCommentParceler extends Parceler<Api.NewComment> {
+    public NewCommentParceler(Api.NewComment value) {
         super(value);
     }
 
@@ -19,8 +19,8 @@ public class NewCommentParceler extends Parceler<NewComment> {
     }
 
     @Override
-    public TypeToken<NewComment> getType() {
-        return new TypeToken<NewComment>() {
+    public TypeToken<Api.NewComment> getType() {
+        return new TypeToken<Api.NewComment>() {
         };
     }
 

@@ -15,7 +15,7 @@ import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
 import com.pr0gramm.app.api.meta.MetaApi;
 import com.pr0gramm.app.api.meta.MetaApi.SizeInfo;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.ui.PreviewInfo;
@@ -49,7 +49,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 public class InMemoryCacheService {
     private static final Logger logger = LoggerFactory.getLogger("LocalCacheService");
 
-    private final Cache<Long, ImmutableList<Tag>> tagsCache = CacheBuilder.newBuilder()
+    private final Cache<Long, ImmutableList<Api.Tag>> tagsCache = CacheBuilder.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
@@ -78,14 +78,14 @@ public class InMemoryCacheService {
      * @param tags_ The list with the tags you know about
      * @return A list containing all previously seen tags for this item.
      */
-    public ImmutableList<Tag> enhanceTags(Long itemId, Iterable<Tag> tags_) {
-        ImmutableList<Tag> tags = ImmutableList.copyOf(tags_);
+    public ImmutableList<Api.Tag> enhanceTags(Long itemId, Iterable<Api.Tag> tags_) {
+        ImmutableList<Api.Tag> tags = ImmutableList.copyOf(tags_);
 
-        ImmutableList<Tag> result = tagsCache.getIfPresent(itemId);
+        ImmutableList<Api.Tag> result = tagsCache.getIfPresent(itemId);
         if (result != null) {
             if (tags.size() > 0) {
                 // combine only, if we have input tags
-                HashSet<Tag> merged = new HashSet<>(result);
+                HashSet<Api.Tag> merged = new HashSet<>(result);
                 merged.removeAll(tags);
                 merged.addAll(tags);
                 result = ImmutableList.copyOf(merged);

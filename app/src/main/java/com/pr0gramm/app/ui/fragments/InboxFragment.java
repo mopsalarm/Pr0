@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.UriHelper;
@@ -192,12 +192,12 @@ public abstract class InboxFragment<T> extends BaseFragment {
 
     protected final MessageActionListener actionListener = new MessageActionListener() {
         @Override
-        public void onAnswerToPrivateMessage(Message message) {
+        public void onAnswerToPrivateMessage(Api.Message message) {
             startActivity(WriteMessageActivity.intent(getActivity(), message));
         }
 
         @Override
-        public void onAnswerToCommentClicked(Message message) {
+        public void onAnswerToCommentClicked(Api.Message message) {
             startActivity(WriteMessageActivity.answerToComment(getActivity(), message));
         }
 

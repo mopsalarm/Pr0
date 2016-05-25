@@ -4,14 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import com.pr0gramm.app.api.pr0gramm.response.Feed;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.HasThumbnail;
 
 import org.joda.time.Instant;
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
- * by the data of an {@link com.pr0gramm.app.api.pr0gramm.response.Feed.Item}.
+ * by the data of an {@link Api.Feed.Item}.
  */
 public class FeedItem implements Parcelable, HasThumbnail {
     private final Instant created;
@@ -28,7 +28,7 @@ public class FeedItem implements Parcelable, HasThumbnail {
     private final byte flags;
     private final boolean audio;
 
-    public FeedItem(Feed.Item item) {
+    public FeedItem(Api.Feed.Item item) {
         id = (int) item.getId();
         promotedId = (int) item.getPromoted();
         thumb = item.getThumb();

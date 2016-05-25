@@ -11,7 +11,7 @@ import com.pr0gramm.app.ContextSingleton;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
@@ -143,7 +143,7 @@ public class NavigationProvider {
      * Adds the default "fixed" items to the menu
      */
     public List<NavigationItem> categoryNavigationItems(
-            Optional<Info.User> userInfo, boolean extraCategory) {
+            Optional<Api.Info.User> userInfo, boolean extraCategory) {
 
         List<NavigationItem> items = new ArrayList<>();
 

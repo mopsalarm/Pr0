@@ -4,8 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.api.InstantTypeAdapter;
-import com.pr0gramm.app.api.pr0gramm.response.ImmutableMessage;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
@@ -213,20 +213,20 @@ public class FavedCommentService {
         int flags();
     }
 
-    public static Message commentToMessage(FavedComment comment) {
+    public static Api.Message commentToMessage(FavedComment comment) {
         String thumbnail = comment.thumb().replaceFirst("^.*pr0gramm.com/", "/");
-        return ImmutableMessage.builder()
-                .withId(comment.id())
-                .withItemId(comment.itemId())
-                .withName(comment.name())
-                .withMessage(comment.content())
-                .withScore(comment.up() - comment.down())
-                .withThumbnail(thumbnail)
-                .withCreated(comment.created())
-                .withMark(comment.mark())
+        return ImmutableApi.Message.builder()
+                .id(comment.id())
+                .itemId(comment.itemId())
+                .name(comment.name())
+                .message(comment.content())
+                .score(comment.up() - comment.down())
+                .thumbnail(thumbnail)
+                .created(comment.created())
+                .mark(comment.mark())
 
                 /* we dont have the sender :/ */
-                .withSenderId(0)
+                .senderId(0)
 
                 .build();
     }

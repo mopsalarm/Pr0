@@ -24,7 +24,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
@@ -160,7 +160,7 @@ public class DrawerFragment extends BaseFragment {
 
         // add the static items to the navigation
         navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(
-                Optional.<Info.User>absent(), false));
+                Optional.<Api.Info.User>absent(), false));
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
@@ -246,7 +246,7 @@ public class DrawerFragment extends BaseFragment {
 
     private void onLoginStateChanged(UserService.LoginState state) {
         if (state.isAuthorized()) {
-            Info.User user = state.getInfo().getUser();
+            Api.Info.User user = state.getInfo().getUser();
             View.OnClickListener onUsernameClicked = v -> getCallback().onUsernameClicked();
 
             usernameView.setText(user.getName());

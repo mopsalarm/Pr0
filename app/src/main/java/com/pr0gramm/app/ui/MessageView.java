@@ -12,7 +12,7 @@ import com.google.common.base.Ascii;
 import com.pr0gramm.app.AppComponent;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.SenderDrawableProvider;
@@ -89,15 +89,15 @@ public class MessageView extends RelativeLayout {
         sender.setOnSenderClickedListener(listener);
     }
 
-    public void update(Message message) {
+    public void update(Api.Message message) {
         update(message, null);
     }
 
-    public void update(Message message, @Nullable String name) {
+    public void update(Api.Message message, @Nullable String name) {
         update(message, name, PointsVisibility.CONDITIONAL);
     }
 
-    public void update(Message message, @Nullable String name, PointsVisibility pointsVisibility) {
+    public void update(Api.Message message, @Nullable String name, PointsVisibility pointsVisibility) {
         // set the type. if we have an item, we  have a comment
         boolean isComment = message.getItemId() != 0;
         if (type != null) {

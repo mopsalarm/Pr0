@@ -6,9 +6,7 @@ import android.net.Uri;
 
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.api.pr0gramm.response.UserComments;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.MainActivity;
@@ -33,7 +31,7 @@ public class UserCommentsAdapter extends MessageAdapter {
     public void onBindViewHolder(MessageViewHolder view, int position) {
         super.onBindViewHolder(view, position);
         view.itemView.setOnClickListener(v -> {
-            Message message = this.messages.get(position);
+            Api.Message message = this.messages.get(position);
 
             UriHelper uriHelper = UriHelper.of(activity);
             Uri uri = uriHelper.post(FeedType.NEW, message.getItemId(), message.id());
@@ -42,9 +40,9 @@ public class UserCommentsAdapter extends MessageAdapter {
         });
     }
 
-    public void setComments(Info.User user, List<UserComments.Comment> comments) {
+    public void setComments(Api.Info.User user, List<Api.UserComments.UserComment> comments) {
         setMessages(FluentIterable.from(comments)
-                .transform(c -> Message.of(user, c))
+                .transform(c -> Api.Message.of(user, c))
                 .toList());
     }
 }

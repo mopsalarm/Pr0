@@ -164,7 +164,7 @@ public class VoteView extends LinearLayout {
 
         boolean animated = !force;
 
-        if(!isInEditMode()) {
+        if (!isInEditMode()) {
             updateVoteViewState(animated);
         }
     }

@@ -12,8 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
-import com.pr0gramm.app.api.pr0gramm.response.PrivateMessage;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.ui.views.UsernameView;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -30,7 +29,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
     private final MessageActionListener actionListener;
 
 
-    public PrivateMessageAdapter(Context context, List<PrivateMessage> messages,
+    public PrivateMessageAdapter(Context context, List<Api.PrivateMessage> messages,
                                  MessageActionListener actionListener) {
 
         this.context = context;
@@ -80,7 +79,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
             });
 
             view.sender.setOnAnswerClickedListener(v -> {
-                actionListener.onAnswerToPrivateMessage(Message.of(item.message));
+                actionListener.onAnswerToPrivateMessage(Api.Message.of(item.message));
             });
         } else {
             // reset the answer click listener
@@ -114,10 +113,10 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
     }
 
     private static class MessageItem {
-        final PrivateMessage message;
+        final Api.PrivateMessage message;
         final PartnerKey partner;
 
-        MessageItem(PrivateMessage message, PartnerKey partner) {
+        MessageItem(Api.PrivateMessage message, PartnerKey partner) {
             this.message = message;
             this.partner = partner;
         }
@@ -145,7 +144,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
         }
     }
 
-    private static ImmutableList<MessageItem> groupAndSort(List<PrivateMessage> messages) {
+    private static ImmutableList<MessageItem> groupAndSort(List<Api.PrivateMessage> messages) {
         List<MessageItem> enhanced = Lists.transform(messages, message -> {
             boolean outgoing = message.isSent();
 

@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 
 /**
  * Creates drawables for users based on their name and id.
@@ -24,12 +24,12 @@ public final class SenderDrawableProvider {
                 .endConfig();
     }
 
-    public TextDrawable makeSenderDrawable(Message message) {
+    public TextDrawable makeSenderDrawable(Api.Message message) {
         int color = ColorGenerator.MATERIAL.getColor(message.getSenderId());
         return shapes.buildRect(iconText(message.getName()), color);
     }
 
-    public Bitmap makeSenderBitmap(Message message, int width, int height) {
+    public Bitmap makeSenderBitmap(Api.Message message, int width, int height) {
         TextDrawable drawable = makeSenderDrawable(message);
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);

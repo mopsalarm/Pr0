@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.api.pr0gramm.response.Posted;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Picasso;
@@ -179,7 +178,7 @@ public class UploadService {
         return result.ignoreElements().mergeWith(result);
     }
 
-    private Observable<Posted> post(String key, ContentType contentType, Set<String> tags, boolean checkSimilar) {
+    private Observable<Api.Posted> post(String key, ContentType contentType, Set<String> tags, boolean checkSimilar) {
         String sfwType = contentType.name().toLowerCase();
         String tagStr = FluentIterable.from(tags)
                 .filter(tag -> !INVALID_TAGS.contains(tag.toLowerCase()))

@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.PeekingIterator;
+import com.pr0gramm.app.api.pr0gramm.Api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class Feed {
     /**
      * Merges this feed with the provided low level feed representation.
      */
-    public void merge(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
+    public void merge(Api.Feed feed) {
         checkMainThread();
 
         atEnd |= feed.isAtEnd();
@@ -140,7 +141,7 @@ public class Feed {
     /**
      * Adds the items from the provided feed to this instance.
      */
-    private List<FeedItem> add(com.pr0gramm.app.api.pr0gramm.response.Feed feed) {
+    private List<FeedItem> add(Api.Feed feed) {
         ImmutableList<FeedItem> newItems = FluentIterable.from(feed.getItems())
                 .transform(FeedItem::new)
                 .toList();

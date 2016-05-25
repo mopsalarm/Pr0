@@ -1,20 +1,18 @@
 package com.pr0gramm.app.api.pr0gramm;
 
-import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
-import com.pr0gramm.app.api.pr0gramm.response.Feed;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.Invited;
-import com.pr0gramm.app.api.pr0gramm.response.Login;
-import com.pr0gramm.app.api.pr0gramm.response.MessageFeed;
-import com.pr0gramm.app.api.pr0gramm.response.NewComment;
-import com.pr0gramm.app.api.pr0gramm.response.NewTag;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
-import com.pr0gramm.app.api.pr0gramm.response.Posted;
-import com.pr0gramm.app.api.pr0gramm.response.PrivateMessageFeed;
-import com.pr0gramm.app.api.pr0gramm.response.Sync;
-import com.pr0gramm.app.api.pr0gramm.response.Upload;
-import com.pr0gramm.app.api.pr0gramm.response.UserComments;
+import com.google.common.base.Optional;
+import com.google.gson.annotations.SerializedName;
+import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
+import com.pr0gramm.app.services.HasThumbnail;
+
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
+import org.joda.time.Instant;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
@@ -27,6 +25,9 @@ import rx.Observable;
 
 /**
  */
+@Value.Enclosing
+@Gson.TypeAdapters
+@Value.Style(get = {"get*", "is*"})
 public interface Api {
     @GET("/api/items/get")
     Observable<Feed> itemsGet(
@@ -160,6 +161,420 @@ public interface Api {
         @Override
         public String toString() {
             return value;
+        }
+    }
+
+
+    @Value.Immutable
+    interface AccountInfo {
+        Account account();
+
+        List<Invite> invited();
+
+        @Value.Immutable
+        interface Account {
+            String email();
+
+            int invites();
+        }
+
+        @Value.Immutable
+        interface Invite {
+            String email();
+
+            Instant created();
+
+            Optional<String> name();
+
+            Optional<Integer> mark();
+        }
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Comment {
+        long getId();
+
+        float getConfidence();
+
+        String getName();
+
+        String getContent();
+
+        Instant getCreated();
+
+        long getParent();
+
+        int getUp();
+
+        int getDown();
+
+        int getMark();
+    }
+
+    /**
+     * Feed class maps the json returned for a call to the
+     * api endpoint <code>/api/items/get</code>.
+     */
+    @Value.Immutable
+    interface Feed {
+        boolean isAtStart();
+
+        boolean isAtEnd();
+
+        List<Item> getItems();
+
+        Optional<String> getError();
+
+        @Value.Immutable
+        interface Item {
+            long getId();
+
+            long getPromoted();
+
+            String getImage();
+
+            String getThumb();
+
+            String getFullsize();
+
+            String getUser();
+
+            int getUp();
+
+            int getDown();
+
+            int getMark();
+
+            int getFlags();
+
+            Optional<Integer> width();
+
+            Optional<Integer> height();
+
+            Optional<Boolean> audio();
+
+            Instant getCreated();
+        }
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Info {
+        User getUser();
+
+        int getLikeCount();
+
+        int getUploadCount();
+
+        int getCommentCount();
+
+        int getTagCount();
+
+        boolean likesArePublic();
+
+        boolean following();
+
+        List<UserComments.UserComment> getComments();
+
+        @Value.Immutable
+        abstract class User {
+            public abstract int getId();
+
+            public abstract int getMark();
+
+            public abstract int getScore();
+
+            public abstract String getName();
+
+            public abstract Instant getRegistered();
+
+            @Value.Default
+            public int isBanned() {
+                return 0;
+            }
+
+            @Nullable
+            public abstract Instant getBannedUntil();
+        }
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Invited {
+        @Nullable
+        String error();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Login {
+        boolean success();
+
+        @SerializedName("ban")
+        @android.support.annotation.Nullable
+        BanInfo banInfo();
+
+        @Value.Immutable
+        interface BanInfo {
+            boolean banned();
+
+            Instant till();
+
+            String reason();
+        }
+    }
+
+    /**
+     * A message received from the pr0gramm api.
+     */
+    @Value.Immutable
+    abstract class Message implements HasThumbnail {
+        public abstract long id();
+
+        public abstract Instant getCreated();
+
+        public abstract long getItemId();
+
+        public abstract int getMark();
+
+        public abstract String getMessage();
+
+        public abstract String getName();
+
+        public abstract int getScore();
+
+        public abstract int getSenderId();
+
+        @android.support.annotation.Nullable
+        @Gson.Named("thumb")
+        public abstract String thumbnail();
+
+        public static Message of(PrivateMessage message) {
+            return ImmutableApi.Message.builder()
+                    .message(message.getMessage())
+                    .id(message.getId())
+                    .itemId(0)
+                    .created(message.getCreated())
+                    .mark(message.getSenderMark())
+                    .name(message.getSenderName())
+                    .senderId(message.getSenderId())
+                    .score(0)
+                    .thumbnail(null)
+                    .build();
+        }
+
+        public static Message of(FeedItem item, Comment comment) {
+            return ImmutableApi.Message.builder()
+                    .id((int) comment.getId())
+                    .itemId((int) item.id())
+                    .message(comment.getContent())
+                    .senderId(0)
+                    .name(comment.getName())
+                    .mark(comment.getMark())
+                    .score(comment.getUp() - comment.getDown())
+                    .created(comment.getCreated())
+                    .thumbnail(item.thumbnail())
+                    .build();
+        }
+
+        public static Message of(UserComments.UserInfo sender, UserComments.UserComment comment) {
+            return of(sender.getId(), sender.getName(), sender.getMark(), comment);
+        }
+
+        public static Message of(Info.User sender, UserComments.UserComment comment) {
+            return of(sender.getId(), sender.getName(), sender.getMark(), comment);
+        }
+
+        public static Message of(int senderId, String name, int mark, UserComments.UserComment comment) {
+            return ImmutableApi.Message.builder()
+                    .id((int) comment.getId())
+                    .created(comment.getCreated())
+                    .score(comment.getUp() - comment.getDown())
+                    .itemId((int) comment.getItemId())
+                    .mark(mark)
+                    .name(name)
+                    .senderId(senderId)
+                    .message(comment.getContent())
+                    .thumbnail(comment.getThumb())
+                    .build();
+        }
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface MessageFeed {
+        List<Message> getMessages();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface NewComment {
+        long getCommentId();
+
+        List<Comment> getComments();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface NewTag {
+        List<Long> getTagIds();
+
+        List<Tag> getTags();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Post {
+        List<Tag> getTags();
+
+        List<Comment> getComments();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    abstract class Posted {
+        @Value.Derived
+        @Gson.Ignore
+        public long getItemId() {
+            //noinspection ConstantConditions
+            return getItem() != null
+                    ? getItem().getId()
+                    : -1;
+        }
+
+        @android.support.annotation.Nullable
+        public abstract String getError();
+
+        @android.support.annotation.Nullable
+        public abstract PostedItem getItem();
+
+        public abstract List<SimilarItem> getSimilar();
+
+        @Value.Immutable
+        public interface PostedItem {
+            long getId();
+        }
+
+        @Value.Immutable
+        public interface SimilarItem extends HasThumbnail {
+            long id();
+
+            @Gson.Named("thumb")
+            String thumbnail();
+        }
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface PrivateMessage {
+        int getId();
+
+        Instant getCreated();
+
+        int getRecipientId();
+
+        int getRecipientMark();
+
+        String getRecipientName();
+
+        int getSenderId();
+
+        int getSenderMark();
+
+        String getSenderName();
+
+        boolean isSent();
+
+        String getMessage();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface PrivateMessageFeed {
+        List<PrivateMessage> getMessages();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Sync {
+        long logLength();
+
+        String log();
+
+        int inboxCount();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface Tag {
+        long getId();
+
+        @Value.Auxiliary
+        float getConfidence();
+
+        @Value.Auxiliary
+        String getTag();
+    }
+
+    @Value.Immutable
+    interface ThemeInfo {
+        String theme();
+    }
+
+    /**
+     * Response after uploading a file.
+     */
+    @Value.Immutable
+    interface Upload {
+        String getKey();
+    }
+
+    /**
+     */
+    @Value.Immutable
+    interface UserComments {
+        UserInfo getUser();
+
+        List<UserComment> getComments();
+
+        @Value.Immutable
+        interface UserComment {
+            long getId();
+
+            long getItemId();
+
+            Instant getCreated();
+
+            String getThumb();
+
+            int getUp();
+
+            int getDown();
+
+            String getContent();
+        }
+
+        @Value.Immutable
+        interface UserInfo {
+            int getId();
+
+            int getMark();
+
+            String getName();
         }
     }
 }

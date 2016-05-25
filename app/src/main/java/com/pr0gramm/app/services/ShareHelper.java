@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.pr0gramm.response.Comment;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;
 
@@ -81,7 +81,7 @@ public class ShareHelper {
         copyToClipboard(context, uri);
     }
 
-    public static void copyLink(Context context, FeedItem feedItem, Comment comment) {
+    public static void copyLink(Context context, FeedItem feedItem, Api.Comment comment) {
         UriHelper helper = UriHelper.of(context);
         String uri = helper.post(FeedType.NEW, feedItem.id(), comment.getId()).toString();
         copyToClipboard(context, uri);

@@ -35,10 +35,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.pr0gramm.response.Comment;
-import com.pr0gramm.app.api.pr0gramm.response.NewComment;
-import com.pr0gramm.app.api.pr0gramm.response.Post;
-import com.pr0gramm.app.api.pr0gramm.response.Tag;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.Vote;
@@ -180,8 +177,8 @@ public class PostFragment extends BaseFragment implements
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private PreviewInfo previewInfo;
 
-    private List<Tag> tags;
-    private List<Comment> comments;
+    private List<Api.Tag> tags;
+    private List<Api.Comment> comments;
     private boolean rewindOnLoad;
     private boolean tabletLayout;
 
@@ -863,7 +860,7 @@ public class PostFragment extends BaseFragment implements
      *
      * @param post The post information that was downloaded.
      */
-    private void onPostReceived(Post post) {
+    private void onPostReceived(Api.Post post) {
         swipeRefreshLayout.setRefreshing(false);
 
         // update from post
@@ -876,8 +873,8 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    private void displayTags(List<Tag> tags_) {
-        List<Tag> tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_);
+    private void displayTags(List<Api.Tag> tags_) {
+        List<Api.Tag> tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_);
         this.tags = ImmutableList.copyOf(tags);
 
         // show tags now
@@ -898,7 +895,7 @@ public class PostFragment extends BaseFragment implements
      * If the current post is a loop, we'll check if it is a loop. If it is,
      * we will hide the little video progress bar.
      */
-    private void hideProgressIfLoop(List<Tag> tags) {
+    private void hideProgressIfLoop(List<Api.Tag> tags) {
         MediaView actualView = viewer != null ? viewer.getActualMediaView() : null;
 
         if (actualView instanceof AbstractProgressMediaView) {
@@ -913,7 +910,7 @@ public class PostFragment extends BaseFragment implements
      *
      * @param comments The list of comments to display.
      */
-    private void displayComments(List<Comment> comments) {
+    private void displayComments(List<Api.Comment> comments) {
         this.comments = ImmutableList.copyOf(comments);
 
         // show now
@@ -974,7 +971,7 @@ public class PostFragment extends BaseFragment implements
 
     @SuppressWarnings("CodeBlock2Expr")
     @Override
-    public boolean onCommentVoteClicked(Comment comment, Vote vote) {
+    public boolean onCommentVoteClicked(Api.Comment comment, Vote vote) {
         return doIfAuthorizedHelper.run(() -> {
             voteService.vote(comment, vote)
                     .compose(bindToLifecycleAsync())
@@ -984,7 +981,7 @@ public class PostFragment extends BaseFragment implements
 
     @SuppressWarnings("CodeBlock2Expr")
     @Override
-    public void onAnswerClicked(Comment comment) {
+    public void onAnswerClicked(Api.Comment comment) {
         Runnable retry = () -> onAnswerClicked(comment);
 
         doIfAuthorizedHelper.run(() -> {
@@ -996,12 +993,12 @@ public class PostFragment extends BaseFragment implements
     }
 
     @Override
-    public void onCommentAuthorClicked(Comment comment) {
+    public void onCommentAuthorClicked(Api.Comment comment) {
         onUserClicked(comment.getName());
     }
 
     @Override
-    public void onCommentMarkAsFavoriteClicked(Comment comment, boolean markAsFavorite) {
+    public void onCommentMarkAsFavoriteClicked(Api.Comment comment, boolean markAsFavorite) {
         Observable<Void> result;
         if (markAsFavorite) {
             result = favedCommentService.save(ImmutableFavedComment.builder()
@@ -1036,12 +1033,12 @@ public class PostFragment extends BaseFragment implements
     }
 
     @Override
-    public void onCopyCommentLink(Comment comment) {
+    public void onCopyCommentLink(Api.Comment comment) {
         ShareHelper.copyLink(getContext(), feedItem, comment);
     }
 
     @Override
-    public void onTagClicked(Tag tag) {
+    public void onTagClicked(Api.Tag tag) {
         if (getParentFragment() instanceof PostPagerFragment)
             ((PostPagerFragment) getParentFragment()).onTagClicked(tag);
     }
@@ -1052,7 +1049,7 @@ public class PostFragment extends BaseFragment implements
             ((PostPagerFragment) getParentFragment()).onUsernameClicked(username);
     }
 
-    private void onNewComments(NewComment response) {
+    private void onNewComments(Api.NewComment response) {
         autoScrollToComment(response.getCommentId());
         displayComments(response.getComments());
 

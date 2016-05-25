@@ -12,10 +12,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
-import com.pr0gramm.app.api.pr0gramm.response.AccountInfo;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
-import com.pr0gramm.app.api.pr0gramm.response.Login;
-import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
 import com.pr0gramm.app.util.BackgroundScheduler;
@@ -111,7 +107,7 @@ public class UserService {
     private void restoreLatestUserInfo() {
         Observable.just(preferences.getString(KEY_LAST_USER_INFO, null))
                 .filter(value -> value != null)
-                .map(encoded -> createLoginState(gson.fromJson(encoded, Info.class)))
+                .map(encoded -> createLoginState(gson.fromJson(encoded, Api.Info.class)))
                 .subscribeOn(BackgroundScheduler.instance())
                 .doOnNext(info -> logger.info("Restoring user info: {}", info))
                 .filter(info -> isAuthorized())
@@ -202,8 +198,8 @@ public class UserService {
      * Performs a sync. This updates the vote cache with all the votes that
      * where performed since the last call to sync.
      */
-    public Observable<Sync> sync() {
-        return syncWithProgress().filter(val -> val instanceof Sync).cast(Sync.class);
+    public Observable<Api.Sync> sync() {
+        return syncWithProgress().filter(val -> val instanceof Api.Sync).cast(Api.Sync.class);
     }
 
     /**
@@ -260,14 +256,14 @@ public class UserService {
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    public Observable<Info> info(String username) {
+    public Observable<Api.Info> info(String username) {
         return api.info(username, null);
     }
 
     /**
      * Retrieves the user data and stores part of the data in the database.
      */
-    public Observable<Info> info(String username, Set<ContentType> contentTypes) {
+    public Observable<Api.Info> info(String username, Set<ContentType> contentTypes) {
         return api.info(username, ContentType.combine(contentTypes));
     }
 
@@ -277,9 +273,9 @@ public class UserService {
      *
      * @return The info, if the user is currently signed in.
      */
-    public Observable<Info> info() {
+    public Observable<Api.Info> info() {
         return Observable.from(getName().asSet()).flatMap(this::info).map(info -> {
-            Info.User user = info.getUser();
+            Api.Info.User user = info.getUser();
 
             // stores the current benis value
             BenisRecord record = new BenisRecord(user.getId(), Instant.now(), user.getScore());
@@ -295,7 +291,7 @@ public class UserService {
         });
     }
 
-    private void persistLatestUserInfo(Info info) {
+    private void persistLatestUserInfo(Api.Info info) {
         try {
             String encoded = gson.toJson(info);
             preferences.edit()
@@ -307,7 +303,7 @@ public class UserService {
         }
     }
 
-    private LoginState createLoginState(Info info) {
+    private LoginState createLoginState(Api.Info info) {
         checkNotMainThread();
 
         int userId = info.getUser().getId();
@@ -343,8 +339,8 @@ public class UserService {
         return new Graph(start.getMillis(), now.getMillis(), points);
     }
 
-    private Observable<Void> initializeBenisGraphUsingMetaService(Info userInfo) {
-        Info.User user = userInfo.getUser();
+    private Observable<Void> initializeBenisGraphUsingMetaService(Api.Info userInfo) {
+        Api.Info.User user = userInfo.getUser();
 
         return metaService.getBenisHistory(user.getName())
                 .doOnNext(graph -> {
@@ -371,24 +367,24 @@ public class UserService {
         return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
-    public static Optional<Info.User> getUser(LoginState loginState) {
+    public static Optional<Api.Info.User> getUser(LoginState loginState) {
         if (loginState.getInfo() == null)
             return Optional.absent();
 
         return Optional.fromNullable(loginState.getInfo().getUser());
     }
 
-    public Observable<AccountInfo> accountInfo() {
+    public Observable<Api.AccountInfo> accountInfo() {
         return api.accountInfo();
     }
 
     public static final class LoginState {
-        private final Info info;
+        private final Api.Info info;
         private final Graph benisHistory;
         private final boolean userIsAdmin;
         private final boolean userIsPremium;
 
-        private LoginState(Info info, Graph benisHistory, boolean userIsAdmin, boolean userIsPremium) {
+        private LoginState(Api.Info info, Graph benisHistory, boolean userIsAdmin, boolean userIsPremium) {
             this.info = info;
             this.benisHistory = benisHistory;
             this.userIsAdmin = userIsAdmin;
@@ -399,7 +395,7 @@ public class UserService {
             return info != null;
         }
 
-        public Info getInfo() {
+        public Api.Info getInfo() {
             return info;
         }
 
@@ -419,7 +415,7 @@ public class UserService {
     }
 
     public static final class LoginProgress {
-        private final Optional<Login> login;
+        private final Optional<Api.Login> login;
         private final float progress;
 
         public LoginProgress(float progress) {
@@ -427,7 +423,7 @@ public class UserService {
             this.login = Optional.absent();
         }
 
-        public LoginProgress(Login login) {
+        public LoginProgress(Api.Login login) {
             this.progress = 1.f;
             this.login = Optional.of(login);
         }
@@ -436,7 +432,7 @@ public class UserService {
             return progress;
         }
 
-        public Optional<Login> getLogin() {
+        public Optional<Api.Login> getLogin() {
             return login;
         }
     }

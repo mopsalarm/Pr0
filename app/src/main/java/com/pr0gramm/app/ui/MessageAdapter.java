@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.google.common.collect.Iterables;
 import com.pr0gramm.app.Dagger;
-import com.pr0gramm.app.api.pr0gramm.response.Message;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.UserService;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
-    protected final List<Message> messages;
+    protected final List<Api.Message> messages;
     private final Context context;
     private final MessageActionListener actionListener;
     private final int itemLayout;
@@ -28,7 +28,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private final String userName;
     private MessageView.PointsVisibility pointsVisibility = MessageView.PointsVisibility.CONDITIONAL;
 
-    public MessageAdapter(Context context, List<Message> messages, MessageActionListener actionListener, int layout) {
+    public MessageAdapter(Context context, List<Api.Message> messages, MessageActionListener actionListener, int layout) {
         this.context = context;
         this.actionListener = actionListener;
         this.messages = new ArrayList<>(messages);
@@ -43,7 +43,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     /**
      * Replace all the messages with the new messages from the given iterable.
      */
-    public void setMessages(Iterable<Message> messages) {
+    public void setMessages(Iterable<Api.Message> messages) {
         this.messages.clear();
         Iterables.addAll(this.messages, messages);
         notifyDataSetChanged();
@@ -63,7 +63,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @SuppressWarnings("CodeBlock2Expr")
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
-        Message message = messages.get(position);
+        Api.Message message = messages.get(position);
         MessageView view = holder.view;
         view.update(message, userName, pointsVisibility);
 

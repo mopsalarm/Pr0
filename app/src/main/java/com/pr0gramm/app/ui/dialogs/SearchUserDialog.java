@@ -9,7 +9,7 @@ import android.widget.AutoCompleteTextView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.meta.MetaService;
-import com.pr0gramm.app.api.pr0gramm.response.Info;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
@@ -64,7 +64,7 @@ public class SearchUserDialog extends BaseDialogFragment {
                 .subscribe(this::onSearchSuccess, this::onSearchFailure);
     }
 
-    private void onSearchSuccess(Info info) {
+    private void onSearchSuccess(Api.Info info) {
         logger.info("Found user info: {} {}", info.getUser().getId(), info.getUser().getName());
 
         Fragment parent = getParentFragment();
@@ -85,6 +85,6 @@ public class SearchUserDialog extends BaseDialogFragment {
     }
 
     public interface Listener {
-        void onUserInfo(Info info);
+        void onUserInfo(Api.Info info);
     }
 }
