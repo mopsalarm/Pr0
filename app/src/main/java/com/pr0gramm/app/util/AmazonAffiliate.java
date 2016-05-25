@@ -42,7 +42,7 @@ public class AmazonAffiliate {
     }
 
     private String modifyAmazonUrl(String url) {
-        return HttpUrl.parse(url).newBuilder()
+        return HttpUrl.parse(url.replaceAll("ref=[a-z0-9_-]+", "")).newBuilder()
                 .setQueryParameter("tag", AFFILIATE_TAG)
                 .build()
                 .toString();
