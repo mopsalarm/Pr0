@@ -18,7 +18,6 @@ import com.pr0gramm.app.api.pr0gramm.response.Login;
 import com.pr0gramm.app.api.pr0gramm.response.Sync;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
-import com.pr0gramm.app.ui.Themes;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.joda.time.Duration;
@@ -293,17 +292,6 @@ public class UserService {
             persistLatestUserInfo(info);
 
             return info;
-        });
-    }
-
-    /**
-     * Gets the theme of the current user, or {@link Themes#ORANGE} if
-     * no theme is available.
-     */
-    public Observable<Themes> theme() {
-        return api.themeInfo().map(response -> {
-            Optional<Themes> theme = Themes.byRemoteName(response.theme());
-            return theme.or(Themes.ORANGE);
         });
     }
 
