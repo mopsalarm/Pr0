@@ -351,5 +351,6 @@
     <string name="action_unfollow">Unfollow</string>
     <string name="pref_override_youtube_links_summary">Show youtube links in YouTube app even if incognito browser is activated.</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
+    <string name="error_rate_limited">Oops, this operation can not be executed. You are currently ratelimited. Maybe you are voting too much too fast?</string>
 </resources>
 

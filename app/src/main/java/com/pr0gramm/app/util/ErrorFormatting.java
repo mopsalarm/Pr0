@@ -145,6 +145,10 @@ public class ErrorFormatting {
                 R.string.error_not_authorized).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
+                err -> err.code() == 429,
+                R.string.error_rate_limited).doNotReport());
+
+        formatters.add(new RetrofitStatusFormatter(
                 err -> err.code() == 404,
                 R.string.error_not_found).doNotReport());
 

@@ -332,4 +332,5 @@
     <string name="action_unfollow">Unstelzen</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
     <string name="pref_override_youtube_links_summary">Zeige Videos (YouTube, Vimeo) immer in der entsprechenden App, auch wenn der Inkognito Browser aktiviert ist.</string>
+    <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
 </resources>
