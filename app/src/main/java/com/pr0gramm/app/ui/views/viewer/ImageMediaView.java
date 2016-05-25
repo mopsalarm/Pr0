@@ -132,7 +132,6 @@ public class ImageMediaView extends MediaView {
             minScale = maxScale = (viewWidth / imageView.getSWidth()) * (ratio / ratioCapped);
         }
 
-        logger.info("scaling: {}, {}", minScale, maxScale);
         imageView.setMinScale(minScale);
         imageView.setMaxScale(maxScale);
         imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
