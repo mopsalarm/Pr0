@@ -51,7 +51,6 @@ public class MetaService {
     public MetaService(OkHttpClient httpClient) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new GsonAdaptersMetaApi())
-                .registerTypeAdapter(byte[].class, new Base64Decoder())
                 .create();
 
         api = new Retrofit.Builder()

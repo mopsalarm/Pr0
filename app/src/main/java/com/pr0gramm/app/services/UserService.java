@@ -48,7 +48,7 @@ import static org.joda.time.Duration.standardDays;
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger("UserService");
 
-    private static final String KEY_LAST_SYNC_ID = "UserService.lastSyncId";
+    private static final String KEY_LAST_LOF_OFFSET = "UserService.lastLogLength";
     private static final String KEY_LAST_USER_INFO = "UserService.lastUserInfo";
 
     private final Api api;
@@ -95,7 +95,7 @@ public class UserService {
                 voteService.clear();
 
                 preferences.edit()
-                        .putLong(KEY_LAST_SYNC_ID, 0)
+                        .putLong(KEY_LAST_LOF_OFFSET, 0)
                         .apply();
 
                 return sync().subscribe(Actions.empty(), err -> {
@@ -172,7 +172,7 @@ public class UserService {
 
             // remove sync id
             preferences.edit()
-                    .remove(KEY_LAST_SYNC_ID)
+                    .remove(KEY_LAST_LOF_OFFSET)
                     .remove(KEY_LAST_USER_INFO)
                     .apply();
 
@@ -216,8 +216,8 @@ public class UserService {
             return Observable.empty();
 
         // tell the sync request where to start
-        long lastSyncId = preferences.getLong(KEY_LAST_SYNC_ID, 0L);
-        boolean fullSync = lastSyncId == 0;
+        long lastLogOffset = preferences.getLong(KEY_LAST_LOF_OFFSET, 0L);
+        boolean fullSync = lastLogOffset == 0;
 
         if (fullSync && !fullSyncInProgress.compareAndSet(false, true)) {
             // fail fast if full sync is in already in progress.
@@ -225,10 +225,10 @@ public class UserService {
         }
 
 
-        return api.sync(lastSyncId).doAfterTerminate(() -> fullSyncInProgress.set(false)).flatMap(response -> {
+        return api.sync(lastLogOffset).doAfterTerminate(() -> fullSyncInProgress.set(false)).flatMap(response -> {
             Observable<Object> applyVotesObservable = Observable.create(subscriber -> {
                 try {
-                    voteService.applyVoteActions(response.getLog(), p -> {
+                    voteService.applyVoteActions(response.log(), p -> {
                         subscriber.onNext(p);
                         return !subscriber.isUnsubscribed();
                     });
@@ -237,9 +237,9 @@ public class UserService {
                         return;
 
                     // store syncId for next time.
-                    if (response.getLastId() > lastSyncId) {
+                    if (response.logLength() > lastLogOffset) {
                         preferences.edit()
-                                .putLong(KEY_LAST_SYNC_ID, response.getLastId())
+                                .putLong(KEY_LAST_LOF_OFFSET, response.logLength())
                                 .apply();
                     }
 
@@ -249,7 +249,7 @@ public class UserService {
                 }
             });
 
-            inboxService.publishUnreadMessagesCount(response.getInboxCount());
+            inboxService.publishUnreadMessagesCount(response.inboxCount());
 
             return applyVotesObservable
                     .throttleLast(50, TimeUnit.MILLISECONDS, BackgroundScheduler.instance())

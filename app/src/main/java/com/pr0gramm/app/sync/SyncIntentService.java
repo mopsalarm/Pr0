@@ -87,7 +87,7 @@ public class SyncIntentService extends IntentService {
 
             // now show results, if any
             if (sync.isPresent()) {
-                if (sync.get().getInboxCount() > 0) {
+                if (sync.get().inboxCount() > 0) {
                     notificationService.showForInbox(sync.get());
                 } else {
                     // remove if no messages are found

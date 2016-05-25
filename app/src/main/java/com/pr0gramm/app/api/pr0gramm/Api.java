@@ -81,7 +81,7 @@ public interface Api {
     Observable<Post> info(@Query("itemId") long itemId);
 
     @GET("/api/user/sync")
-    Observable<Sync> sync(@Query("lastId") long lastId);
+    Observable<Sync> sync(@Query("offset") long offset);
 
     @GET("/api/user/info")
     Observable<AccountInfo> accountInfo();

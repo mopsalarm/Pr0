@@ -95,7 +95,7 @@ public class NotificationService {
         // try to get the new messages, ignore all errors.
         inboxService.getInbox()
                 .map(messages -> FluentIterable.from(messages)
-                        .limit(sync.getInboxCount())
+                        .limit(sync.inboxCount())
                         .filter(inboxService::messageIsUnread)
                         .toList())
                 .toBlocking()
@@ -108,9 +108,9 @@ public class NotificationService {
             return;
         }
 
-        String title = sync.getInboxCount() == 1
+        String title = sync.inboxCount() == 1
                 ? context.getString(R.string.notify_new_message_title)
-                : context.getString(R.string.notify_new_messages_title, sync.getInboxCount());
+                : context.getString(R.string.notify_new_messages_title, sync.inboxCount());
 
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(title);

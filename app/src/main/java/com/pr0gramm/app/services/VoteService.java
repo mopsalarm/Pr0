@@ -5,7 +5,10 @@ import android.os.AsyncTask;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.BaseEncoding;
+import com.google.common.io.LittleEndianDataInputStream;
 import com.orm.SugarRecord;
 import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -21,6 +24,7 @@ import com.pr0gramm.app.util.BackgroundScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import gnu.trove.set.hash.TLongHashSet;
 import rx.Observable;
 import rx.util.async.Async;
 
@@ -123,48 +126,46 @@ public class VoteService {
      *
      * @param actions The actions from the log to apply.
      */
-    public void applyVoteActions(List<Integer> actions, Function<Float, Boolean> progressListener) {
+    public void applyVoteActions(String actions, Function<Float, Boolean> progressListener) {
         if (actions.isEmpty())
             return;
 
-        // must be a multiple of two
-        checkArgument(actions.size() % 2 == 0, "not an even number of items");
+        byte[] decoded = BaseEncoding.base64().decode(actions);
+        checkArgument(decoded.length % 5 == 0, "Length of vote log must be a multiple of 5");
 
-        AtomicReference<RuntimeException> errorRef = new AtomicReference<>();
+        int actionCount = decoded.length / 5;
+        LittleEndianDataInputStream actionStream = new LittleEndianDataInputStream(
+                new ByteArrayInputStream(decoded));
+
+        AtomicReference<Exception> errorRef = new AtomicReference<>();
 
         Stopwatch watch = Stopwatch.createStarted();
         SugarTransactionHelper.doInTransaction(() -> {
-            logger.info("Applying {} vote actions", actions.size() / 2);
+            logger.info("Applying {} vote actions", actionCount);
             try {
-                TLongHashSet seen = new TLongHashSet();
-
-                float actionCount = actions.size();
-                for (int idx = actions.size() - 2; idx >= 0; idx -= 2) {
-                    VoteAction action = VOTE_ACTIONS.get(actions.get(idx + 1));
+                for (int idx = 0; idx < actionCount; idx++) {
+                    long id = actionStream.readInt();
+                    VoteAction action = VOTE_ACTIONS.get(actionStream.readUnsignedByte());
                     if (action == null)
                         continue;
 
-                    long id = actions.get(idx);
-
-                    if (seen.add(CachedVote.voteId(action.type, id))) {
-                        storeVoteValue(action.type, id, action.vote);
-                        if (Boolean.FALSE.equals(progressListener.apply(idx / actionCount)))
-                            return;
-                    }
+                    storeVoteValue(action.type, id, action.vote);
+                    if (Boolean.FALSE.equals(progressListener.apply(idx / (float) actionCount)))
+                        return;
                 }
-            } catch (RuntimeException error) {
+            } catch (Exception error) {
                 // doInTransaction consumes exceptions -.-
                 errorRef.set(error);
-                throw error;
+                throw Throwables.propagate(error);
             }
         });
 
         logger.info("Applying vote actions took {}", watch);
 
         // re-throw error
-        RuntimeException error = errorRef.get();
+        Exception error = errorRef.get();
         if (error != null) {
-            throw error;
+            throw Throwables.propagate(error);
         }
     }
 
