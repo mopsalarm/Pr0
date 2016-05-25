@@ -1,5 +1,18 @@
 [
   {
+    "version": 99,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "API Änderungen zum syncen der Votes implementiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Fehlermeldungen für einige Netzwerkprobleme und fürs Ratelimit verbessert."
+      }
+    ]
+  },
+  {
     "version": 98,
     "changes": [
       {
