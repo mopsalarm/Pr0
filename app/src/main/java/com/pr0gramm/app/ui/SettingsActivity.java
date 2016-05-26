@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
-import com.pr0gramm.app.CustomProxySelector;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -233,19 +232,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
                     DialogBuilder.start(activity)
                             .content(R.string.gif_as_webm_might_be_buggy)
-                            .positive()
-                            .show();
-                }
-            }
-
-            if ("pref_use_api_proxy".equals(key)) {
-                boolean useProxy = preferences.getBoolean(key, false);
-                CustomProxySelector selector = (CustomProxySelector) okHttpClient.proxySelector();
-                selector.setActive(useProxy);
-
-                if (useProxy) {
-                    DialogBuilder.start(activity)
-                            .content(R.string.warn_api_proxy)
                             .positive()
                             .show();
                 }

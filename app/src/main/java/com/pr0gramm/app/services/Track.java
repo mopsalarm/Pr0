@@ -106,7 +106,7 @@ public final class Track {
             decoder = "native";
         }
 
-        track(answers -> answers.logCustom(new CustomEvent("Settings")
+        track(new CustomEvent("Settings")
                 .putCustomAttribute("decoder", decoder)
                 .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
                 .putCustomAttribute("signed in", String.valueOf(signedIn))
@@ -119,8 +119,7 @@ public final class Track {
                 .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
                 .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
                 .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
-                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser()))
-                .putCustomAttribute("api proxy", String.valueOf(settings.useApiProxy()))));
+                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser())));
     }
 
     public static void bookmarks(int size) {

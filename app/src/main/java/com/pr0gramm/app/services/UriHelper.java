@@ -34,7 +34,7 @@ public final class UriHelper {
     }
 
     private String scheme() {
-        return (settings.useHttps() && !settings.useApiProxy()) ? "https" : "http";
+        return settings.useHttps() ? "https" : "http";
     }
 
     private Uri.Builder start(String subdomain) {

@@ -290,13 +290,6 @@
                 android:summary="@string/pref_pseudo_green_video_summary"
                 android:title="@string/pref_pseudo_green_video_title"/>
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:dependency="pref_compatibility_active"
-                android:key="pref_use_api_proxy"
-                android:summary="@string/pref_use_api_proxy_summary"
-                android:title="@string/pref_use_api_proxy_title"/>
-
         </PreferenceScreen>
 
         <PreferenceScreen

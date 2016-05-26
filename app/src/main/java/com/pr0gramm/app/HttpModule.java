@@ -52,8 +52,6 @@ public class HttpModule {
         final Logger okLogger = LoggerFactory.getLogger("OkHttpClient");
 
         File cacheDir = new File(context.getCacheDir(), "imgCache");
-        CustomProxySelector proxySelector = new CustomProxySelector();
-        proxySelector.setActive(settings.useApiProxy());
 
         int version = AndroidUtility.getPackageVersionCode(context);
         return new OkHttpClient.Builder()
@@ -66,7 +64,6 @@ public class HttpModule {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(new ConnectionPool(4, 3, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
-                .proxySelector(proxySelector)
 
                 .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
 
