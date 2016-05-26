@@ -139,7 +139,6 @@ repositories {
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url 'http://dl.bintray.com/amulyakhare/maven' }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    maven { url 'https://github.com/suckgamony/RapidDecoder/raw/master/repository' }
 }
 
 dependencies {

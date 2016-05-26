@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Fehlermeldungen für einige Netzwerkprobleme und fürs Ratelimit verbessert."
+      },
+      {
+        "type": "Fix",
+        "change": "Links auf www.pr0gramm.com wurden versehentlich im Incognito-Browser geöffnet. @JoeNaendi ob du behindert bist?"
       }
     ]
   },
