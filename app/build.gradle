@@ -44,6 +44,7 @@ android {
     aaptOptions {
         // See https://www.reddit.com/r/androiddev/comments/47ni7v/if_you_support_older_versions_of_android_there_is/
         additionalParameters "--no-version-vectors"
+        cruncherEnabled = false
     }
 
     sourceSets.main {
@@ -155,7 +156,7 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
-    compile 'com.squareup.okhttp3:okhttp:3.3.0'
+    compile 'com.squareup.okhttp3:okhttp:3.3.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
@@ -198,7 +199,7 @@ dependencies {
     compile 'com.trello:rxlifecycle-components:0.6.1'
 
     // bottomsheets
-    compile 'com.flipboard:bottomsheet-core:1.5.0'
+    compile 'com.flipboard:bottomsheet-core:1.5.1'
 
     compile('pl.brightinventions:slf4android:0.1.2@aar') {
         transitive = true
@@ -209,8 +210,8 @@ dependencies {
     }
 
     apt 'org.immutables:value:2.1.19'
-    provided 'org.immutables:value:2.2'
-    provided 'org.immutables:gson:2.2'
+    provided 'org.immutables:value:2.2.1'
+    provided 'org.immutables:gson:2.2.1'
 
     compile 'com.google.dagger:dagger:2.4'
     apt 'com.google.dagger:dagger-compiler:2.4'
