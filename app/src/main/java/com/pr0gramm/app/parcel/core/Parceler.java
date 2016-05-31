@@ -7,6 +7,7 @@ import android.os.Parcelable;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.reflect.TypeToken;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.GsonModule;
 
 import org.slf4j.Logger;
@@ -48,7 +49,11 @@ public abstract class Parceler<T> implements Parcelable {
         try (ParcelReader reader = new ParcelReader(parcel)) {
             Stopwatch watch = Stopwatch.createStarted();
             value = GsonModule.INSTANCE.fromJson(reader, getType().getType());
-            logger.info("reading of {} took {}", getType(), watch);
+
+            if (BuildConfig.DEBUG) {
+                logger.info("reading of {} took {}", getType(), watch);
+            }
+
         } catch (IOException ioError) {
             throw new RuntimeException("Could not read gson as parce", ioError);
         }
@@ -65,7 +70,11 @@ public abstract class Parceler<T> implements Parcelable {
         try (ParcelWriter writer = new ParcelWriter(dest)) {
             Stopwatch watch = Stopwatch.createStarted();
             GsonModule.INSTANCE.toJson(value, getType().getType(), writer);
-            logger.info("writing of {} took {}", getType(), watch);
+
+            if (BuildConfig.DEBUG) {
+                logger.info("writing of {} took {}", getType(), watch);
+            }
+
         } catch (IOException ioError) {
             throw new RuntimeException("Could not adapt gson to parcel", ioError);
         }
