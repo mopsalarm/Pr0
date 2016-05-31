@@ -34,23 +34,8 @@
     @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
 }
 
-# keep native  methods/names
--keepclasseswithmembernames class * {
-    native <methods>;
-}
-
 # keeps views and other stuff. Support library fails without this.
--keepclasseswithmembers class * {
-    public <init>(android.content.Context);
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
+-keep class android.support.v7.widget.SearchView { *; }
 
 # for gifs
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}

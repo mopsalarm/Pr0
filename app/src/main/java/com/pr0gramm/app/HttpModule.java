@@ -3,7 +3,6 @@ package com.pr0gramm.app;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.common.base.Stopwatch;
 import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -37,7 +36,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.util.Noop.noop;
 
 /**
@@ -68,7 +66,7 @@ public class HttpModule {
                 .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
 
                 .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))
-                .addNetworkInterceptor(BuildConfig.DEBUG ? new StethoInterceptor() : noop)
+                .addNetworkInterceptor(BuildConfig.DEBUG ? StethoWrapper.networkInterceptor() : noop)
 
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();

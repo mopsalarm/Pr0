@@ -4,6 +4,7 @@
 -flattenpackagehierarchy
 -allowaccessmodification
 -repackageclasses
+-mergeinterfacesaggressively
 
 -dontpreverify
 
@@ -30,6 +31,7 @@
 -dontwarn retrofit2.Platform$Java8
 -dontwarn com.squareup.leakcanary.DisplayLeakService
 -dontwarn java.lang.ClassValue
+-dontwarn com.facebook.stetho.okhttp3.**
 
 -keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
 
@@ -41,23 +43,8 @@
     @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
 }
 
-# keep native  methods/names
--keepclasseswithmembernames class * {
-    native <methods>;
-}
-
 # keeps views and other stuff. Support library fails without this.
--keepclasseswithmembers class * {
-    public <init>(android.content.Context);
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
+-keep class android.support.v7.widget.SearchView { *; }
 
 # for gifs
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
@@ -67,23 +54,6 @@
 -dontwarn com.f2prateek.dart.internal.**
 -keep class **$$ExtraInjector { *; }
 
-# for dart 2.0 only
--keep class **Henson { *; }
--keep class **$$IntentBuilder { *; }
-
 # this is for butterknife
--dontwarn butterknife.internal.**
+-dontwarn butterknife.**
 -keep class **$$ViewBinder { *; }
-
-# keep enums!
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-    **[] $VALUES;
-    public *;
-}
-
-# keep LeakCanary.
--keep class org.eclipse.mat.** { *; }
--keep class com.squareup.leakcanary.** { *; }
-

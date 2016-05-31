@@ -7,7 +7,6 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
-import com.facebook.stetho.Stetho;
 import com.orm.SugarContext;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
@@ -92,8 +91,7 @@ public class ApplicationClass extends Application {
         Dagger.initEagerSingletons(this);
 
         if (BuildConfig.DEBUG) {
-            logger.info("Setup stetho");
-            Stetho.initializeWithDefaults(this);
+            StethoWrapper.init(this);
         }
 
         SingleShotService singleShotService = appComponent.get().singleShotService();
