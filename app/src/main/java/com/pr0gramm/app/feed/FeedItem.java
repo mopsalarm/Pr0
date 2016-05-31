@@ -172,4 +172,8 @@ public class FeedItem implements Parcelable, HasThumbnail {
             return new FeedItem[size];
         }
     };
+
+    public boolean isVideo() {
+        return image.endsWith(".webm") || image.endsWith(".mp4");
+    }
 }

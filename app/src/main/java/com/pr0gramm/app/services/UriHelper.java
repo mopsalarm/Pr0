@@ -109,13 +109,33 @@ public final class UriHelper {
         }
 
         private Uri media(FeedItem item, boolean highQuality) {
-            return highQuality
-                    ? start("full").path(item.fullsize()).build()
-                    : start("img").path(item.image()).build();
+            return highQuality && !item.isVideo()
+                    ? join(start("full"), item.fullsize())
+                    : join(start(item.isVideo() ? "vid" : "img"), item.image());
         }
 
         public Uri thumbnail(HasThumbnail item) {
-            return start("thumb").path(item.thumbnail()).build();
+            return join(start("thumb"), item.thumbnail());
         }
+    }
+
+    private Uri join(Uri uri, String path) {
+        return join(uri.buildUpon(), path);
+    }
+
+    private Uri join(Uri.Builder builder, String path) {
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return Uri.parse(path);
+        }
+
+        if (path.startsWith("//")) {
+            Uri.parse(scheme() + ":" + path);
+        }
+
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+
+        return builder.appendPath(path).build();
     }
 }
