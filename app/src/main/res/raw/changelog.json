@@ -1,5 +1,14 @@
 [
   {
+    "version": 100,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Noch mehr API Änderungen."
+      }
+    ]
+  },
+  {
     "version": 99,
     "changes": [
       {
