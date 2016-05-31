@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Liste der Tag-Vorschläge aktualisiert."
+      },
+      {
+        "type": "Fix",
         "change": "Noch mehr API Änderungen."
       }
     ]
