@@ -136,6 +136,6 @@ public final class UriHelper {
             path = "/" + path;
         }
 
-        return builder.appendPath(path).build();
+        return builder.path(path).build();
     }
 }
