@@ -36,6 +36,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.pr0gramm.app.util.Noop.noop;
 
 /**

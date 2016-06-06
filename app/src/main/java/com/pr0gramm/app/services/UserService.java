@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -395,6 +396,7 @@ public class UserService {
             return info != null;
         }
 
+        @Nullable
         public Api.Info getInfo() {
             return info;
         }

@@ -73,6 +73,9 @@ public class FavedCommentService {
         userHash = userService.loginState()
                 .observeOn(BackgroundScheduler.instance())
 
+                .distinctUntilChanged(state -> state.getInfo() == null
+                        ? null : state.getInfo().getUser().getId())
+
                 .switchMap(state -> state.isAuthorized()
                         ? userService.accountInfo().onErrorResumeNext(Observable.empty())
                         : Observable.just(null))
