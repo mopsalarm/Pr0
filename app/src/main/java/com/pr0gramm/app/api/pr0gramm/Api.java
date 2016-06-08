@@ -15,6 +15,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import okhttp3.RequestBody;
+import proguard.annotation.KeepPublicClassMemberNames;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -28,6 +29,7 @@ import rx.Observable;
 @Value.Enclosing
 @Gson.TypeAdapters
 @Value.Style(get = {"get*", "is*"})
+@KeepPublicClassMemberNames
 public interface Api {
     @GET("/api/items/get")
     Observable<Feed> itemsGet(

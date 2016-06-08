@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Stopwatch;
 import com.google.common.io.CharStreams;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -11,6 +12,7 @@ import com.google.gson.Gson;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -21,6 +23,7 @@ import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -78,6 +81,8 @@ public class ApiProvider implements Provider<Api> {
     private static Api newProxyWrapper(Api backend, LoginCookieHandler cookieHandler) {
         // proxy to add the nonce if not provided
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
+            Stopwatch watch = Stopwatch.createStarted();
+
             Class<?>[] params = method.getParameterTypes();
             if (params.length > 0 && params[0] == Api.Nonce.class) {
                 if (args.length > 0 && args[0] == null) {
@@ -101,18 +106,35 @@ public class ApiProvider implements Provider<Api> {
                 }
             }
 
+            Object[] finalArgs = args;
+            Callable invoke = () -> method.invoke(backend, finalArgs);
             if (method.getReturnType() == Observable.class) {
                 // only retry a get method, and only do it once.
                 int retryCount = 1;
                 if (method.getAnnotation(GET.class) != null) {
-                    return invokeWithRetry(backend, method, args,
-                            ApiProvider::isHttpError, retryCount);
+                    invoke = () -> invokeWithRetry(backend, method, finalArgs, ApiProvider::isHttpError, retryCount);
                 }
             }
 
+            String tag = "method:" + method.getName();
+
             try {
-                return method.invoke(backend, args);
+                Object result = invoke.call();
+                if (result instanceof Observable) {
+                    result = ((Observable) result)
+                            .doOnError(err -> Stats.get().increment("app.api.count", "result:error", tag))
+                            .doOnCompleted(() -> Stats.get().increment("app.api.count", "result:success", tag))
+                            .doAfterTerminate(() -> Stats.get().time("app.api.duration", watch.elapsed(TimeUnit.MILLISECONDS), tag));
+
+                } else {
+                    Stats.get().increment("app.api.count", "result:success", tag);
+                    Stats.get().time("app.api.duration", watch.elapsed(TimeUnit.MILLISECONDS), tag);
+                }
+
+                return result;
             } catch (InvocationTargetException targetError) {
+                Stats.get().increment("app.api.count", "result:error", tag);
+
                 throw targetError.getCause();
             }
         });
