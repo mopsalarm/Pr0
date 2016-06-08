@@ -26,7 +26,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 23
 
         versionCode appVersion
@@ -174,8 +174,10 @@ dependencies {
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
 
-    // finestwebview with a fix for older android versions
+
+    // forked dependencies.
     compile 'com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202'
+    compile 'com.github.mopsalarm:paper-onboarding-android:v1.0.2'
 
     debugCompile 'com.facebook.stetho:stetho:1.3.1'
     debugCompile 'com.facebook.stetho:stetho-okhttp3:1.3.1'

@@ -111,7 +111,8 @@
     <string name="pref_show_notifications_title">Notifications</string>
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
-    <string name="could_not_play_video">Could not play video. Try the compatibility settings and if  you still can\'t play any videos, please report feedback.</string>
+    <string name="could_not_play_video">Could not play video. If you can not play any videos, please report feedback.</string>
+    <string name="could_not_play_video_hardware">Could not play video without hardware acceleration. Looks like your system is too old.</string>
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
@@ -354,5 +355,11 @@
     <string name="error_rate_limited">Oops, this operation can not be executed. You are currently ratelimited. Maybe you are voting too much too fast?</string>
     <string name="error_json_mapping">The api response could not be parsed: %s</string>
     <string name="error_origin_timeout_ddos">Looks like pr0gramm is currently not available, maybe DDoS?</string>
+    <string name="onboarding_audio__sound">Sound!</string>
+    <string name="onboarding_audio__describe_sound">If you see the little volume icon you know that the video has sound. Click on it to enable it!</string>
+    <string name="onboarding_audio__mute">No, mute!</string>
+    <string name="onboarding_audio__describe_mute">Sound will be automatically disabled if you don\'t watch any video for 10 minutes.</string>
+    <string name="onboarding_audio__have_fun">Have fun!</string>
+    <string name="onboarding_audio__describe_have_fun">So please crank up the volume and enjoy pr0gramm like never before!</string>
 </resources>
 

@@ -5,11 +5,19 @@
   "items": [
     {
       "id": 791240,
+<<<<<<< HEAD
+=======
+      "audio": true,
+>>>>>>> audio
       "promoted": 95275,
       "up": 36,
       "down": 4,
       "created": 1431273183,
+<<<<<<< HEAD
       "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/2000px-Example.svg.png",
+=======
+      "image": "2015\/05\/10\/664fa56016d6fbcf.jpg",
+>>>>>>> audio
       "thumb": "2015\/05\/10\/664fa56016d6fbcf.jpg",
       "fullsize": "",
       "source": "",
@@ -19,6 +27,10 @@
     },
     {
       "id": 791266,
+<<<<<<< HEAD
+=======
+      "audio": true,
+>>>>>>> audio
       "promoted": 95274,
       "up": 35,
       "down": 3,
@@ -80,6 +92,10 @@
       "down": 4,
       "created": 1431272994,
       "image": "2015\/05\/10\/111d0361ca6b4c0a.webm",
+<<<<<<< HEAD
+=======
+      "audio": true,
+>>>>>>> audio
       "thumb": "2015\/05\/10\/111d0361ca6b4c0a.jpg",
       "fullsize": "",
       "source": "http:\/\/i.imgur.com\/CqmxxBz.webm",

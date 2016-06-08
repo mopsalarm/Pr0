@@ -346,7 +346,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         names.add("root");
         for (int idx = 0; idx < getSupportFragmentManager().getBackStackEntryCount(); idx++) {
             FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(idx);
-            names.add(entry.getName());
+            names.add(String.valueOf(entry.getName()));
         }
 
         logger.info("stack: {}", Joiner.on(" -> ").join(names));

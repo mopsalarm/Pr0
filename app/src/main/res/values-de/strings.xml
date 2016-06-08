@@ -105,7 +105,7 @@
     <string name="pref_show_notifications_title">Benachrichtigungen</string>
     <string name="pref_show_notifications_summary">Zeige Benachrichtigungen bei neuen Nachrichten und Kommentaren.</string>
     <string name="badge_op">OP</string>
-    <string name="could_not_play_video">Video kann nicht abgespielt werden. Probiere die Video-Kompatibilitätseinstellung oder, wenn du keine Videos sehen kannst, sende bitte Feedback.</string>
+    <string name="could_not_play_video">Video kann nicht abgespielt werden. Wenn du gar keine Videos sehen kannst, sende bitte Feedback.</string>
     <string name="could_not_play_video_io">Video konnte nicht abgespielt werden, da ein Netzwerkfehler aufgetreten ist.</string>
     <string name="pref_keep_screen_on">Bildschirm anlassen</string>
     <string name="pref_keep_screen_on_summary">Der Bildschirm geht nicht aus, während du dir einen Post anguckst.</string>
@@ -335,4 +335,11 @@
     <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
     <string name="error_json_mapping">Die Antwort der API konnte nicht verarbeitet werden: %s</string>
     <string name="error_origin_timeout_ddos">Sieht so aus, als wäre das pr0gramm gerade nicht erreichbar. Vielleicht wieder DDoS?</string>
+    <string name="onboarding_audio__sound">Video mit Ton!</string>
+    <string name="onboarding_audio__mute">Nö, Ruhe!</string>
+    <string name="onboarding_audio__have_fun">Viel Spaß!</string>
+    <string name="onboarding_audio__describe_sound">Wenn du den kleinen Lautsprecher unten rechts im Video siehst, dann hat dieses Video eine Tonspur! Klick drauf!</string>
+    <string name="onboarding_audio__describe_mute">Ton wird automatisch wieder deaktiviert, wenn du für 10 Minuten kein Video gesehen hast.</string>
+    <string name="onboarding_audio__describe_have_fun">Also, Lautstärke aufdrehen und endlich Ton auf pr0gramm erleben!</string>
+    <string name="could_not_play_video_hardware">Video kann ohne Hardwarebeschleunigung nicht wiedergegeben werden. Sieht so aus, als wäre dein System zu alt.</string>
 </resources>

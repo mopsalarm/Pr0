@@ -168,6 +168,10 @@ public final class Track {
         track(new CustomEvent("Collapse Comment").putCustomAttribute("action", action));
     }
 
+    public static void muted(boolean mute) {
+        track(new CustomEvent("Muted").putCustomAttribute("action", mute ? "MUTED" : "UNMUTED"));
+    }
+
     private static void track(CustomEvent customEvent) {
         track(answers -> answers.logCustom(customEvent));
     }
@@ -187,5 +191,4 @@ public final class Track {
             logger.warn("Tried to log without initializing crashlytics");
         }
     }
-
 }
