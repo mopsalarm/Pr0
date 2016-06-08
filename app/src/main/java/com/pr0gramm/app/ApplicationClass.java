@@ -12,6 +12,7 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.Lazy;
@@ -48,6 +49,7 @@ public class ApplicationClass extends Application {
     public void onCreate() {
         super.onCreate();
 
+        Stats.init(AndroidUtility.getPackageVersionCode(this));
         SugarContext.init(this);
         JodaTimeAndroid.init(this);
         Base.initialize(this);

@@ -19,21 +19,17 @@ public class Stats {
 
     @NonNull
     public static StatsDClient get() {
-        if (CLIENT == null) {
-            synchronized (Stats.class) {
-                if (CLIENT == null) {
-                    try {
-                        logger.info("Create a new statsd client");
-                        CLIENT = new NonBlockingStatsDClient("app", "pr0-metrics.wibbly-wobbly.de", 8125, 64);
-
-                    } catch (Exception err) {
-                        logger.warn("Could not create statsd client, falling back on noop", err);
-                        CLIENT = new NoOpStatsDClient();
-                    }
-                }
-            }
-        }
-
         return CLIENT;
+    }
+
+    public static void init(int version) {
+        try {
+            logger.info("Create a new statsd client");
+            CLIENT = new NonBlockingStatsDClient("app", "pr0-metrics.wibbly-wobbly.de", 8125, 64, "version:" + version);
+
+        } catch (Exception err) {
+            logger.warn("Could not create statsd client, falling back on noop", err);
+            CLIENT = new NoOpStatsDClient();
+        }
     }
 }
