@@ -122,22 +122,25 @@ public class ApiProvider implements Provider<Api> {
                 Object result = invoke.call();
                 if (result instanceof Observable) {
                     result = ((Observable) result)
-                            .doOnError(err -> Stats.get().increment("app.api.count", "result:error", tag))
-                            .doOnCompleted(() -> Stats.get().increment("app.api.count", "result:success", tag))
-                            .doAfterTerminate(() -> Stats.get().time("app.api.duration", watch.elapsed(TimeUnit.MILLISECONDS), tag));
+                            .doOnError(err -> measureApiCall(watch, method, false))
+                            .doOnCompleted(() -> measureApiCall(watch, method, true));
 
                 } else {
-                    Stats.get().increment("app.api.count", "result:success", tag);
-                    Stats.get().time("app.api.duration", watch.elapsed(TimeUnit.MILLISECONDS), tag);
+                    measureApiCall(watch, method, true);
                 }
 
                 return result;
             } catch (InvocationTargetException targetError) {
-                Stats.get().increment("app.api.count", "result:error", tag);
-
+                measureApiCall(watch, method, false);
                 throw targetError.getCause();
             }
         });
+    }
+
+    private static void measureApiCall(Stopwatch watch, Method method, boolean success) {
+        Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
+            "method:" + method.getName(),
+            "success:" + success);
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})
