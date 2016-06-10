@@ -114,14 +114,14 @@ public class VideoMediaView extends AbstractProgressMediaView {
                         getContext().getString(R.string.onboarding_audio__describe_sound),
                         ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()),
                         R.drawable.ic_onboarding_volume_up_white_48dp,
-                        R.drawable.ic_volume_on_white_18dp),
+                        R.drawable.ic_volume_up_white_24dp),
 
                 new PaperOnboardingPage(
                         getContext().getString(R.string.onboarding_audio__mute),
                         getContext().getString(R.string.onboarding_audio__describe_mute),
                         darken(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()), 0.1f),
                         R.drawable.ic_onboarding_volume_off_white_48dp,
-                        R.drawable.ic_volume_off_white_18dp),
+                        R.drawable.ic_volume_off_white_24dp),
 
                 new PaperOnboardingPage(
                         getContext().getString(R.string.onboarding_audio__have_fun),
@@ -183,12 +183,12 @@ public class VideoMediaView extends AbstractProgressMediaView {
         if (muted) {
             storeUnmuteTime(0);
 
-            icon = ContextCompat.getDrawable(getContext(), R.drawable.ic_volume_off_white_18dp);
+            icon = ContextCompat.getDrawable(getContext(), R.drawable.ic_volume_off_white_24dp);
         } else {
             storeUnmuteTime(System.currentTimeMillis());
 
             icon = AndroidUtility.getTintentDrawable(getContext(),
-                    R.drawable.ic_volume_on_white_18dp, ThemeHelper.primaryColor());
+                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.primaryColor());
         }
 
         muteButtonView.setImageDrawable(icon);

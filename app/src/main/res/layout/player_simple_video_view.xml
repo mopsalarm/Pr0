@@ -19,7 +19,7 @@
         android:background="?selectableItemBackground"
         android:padding="16dp"
         android:alpha="0.5"
-        android:src="@drawable/ic_volume_on_white_18dp"/>
+        android:src="@drawable/ic_volume_up_white_24dp"/>
 
     <include layout="@layout/player_progress"/>
     <include layout="@layout/player_video_progress"/>
