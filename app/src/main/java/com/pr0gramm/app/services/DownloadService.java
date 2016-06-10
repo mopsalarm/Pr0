@@ -82,7 +82,7 @@ public class DownloadService {
         }
 
         DateTimeFormatter format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss");
-        String fileType = feedItem.image().toLowerCase().replaceFirst("^.*\\.([a-z]+)$", "$1");
+        String fileType = feedItem.image().toLowerCase().replaceFirst("^.*\\.(\\w+)$", "$1");
         String prefix = Joiner.on("-").join(
                 feedItem.created().toString(format),
                 feedItem.user(),
