@@ -36,6 +36,7 @@ import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.pr0gramm.app.util.RxPicasso;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.RxLifecycle;
 
@@ -132,15 +133,20 @@ public abstract class MediaView extends FrameLayout {
                 onPause();
         });
 
-//        if (ThumbyService.isEligibleForPreview(mediaUri)) {
-//            RxView.attaches(this).limit(1).subscribe(event -> {
-//                // test if we need to load the thumby preview.
-//                if (hasPreviewView()) {
-//                    Uri uri = ThumbyService.thumbUri(mediaUri);
-//                    picasso.load(uri).noPlaceholder().into(previewTarget);
-//                }
-//            });
-//        }
+        if (ThumbyService.isEligibleForPreview(mediaUri)) {
+            RxView.attaches(this).limit(1).subscribe(event -> {
+                // test if we need to load the thumby preview.
+                if (hasPreviewView()) {
+                    Uri uri = ThumbyService.thumbUri(mediaUri);
+
+                    RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
+                            .onErrorResumeNext(Observable.empty())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .compose(RxLifecycle.bindView(this))
+                            .subscribe(previewTarget);
+                }
+            });
+        }
     }
 
     @SuppressLint("SetTextI18n")
