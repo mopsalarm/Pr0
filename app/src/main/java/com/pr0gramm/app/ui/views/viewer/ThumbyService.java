@@ -27,7 +27,8 @@ public class ThumbyService {
         // normalize url before fetching generated thumbnail
         String url = mediaUri.getBaseUri().toString()
                 .replace("https://", "http://")
-                .replace(".mpg", ".webm");
+                .replace(".mpg", ".mp4")
+                .replace(".webm", ".mp4");
 
         String encoded = BaseEncoding.base64Url().encode(url.getBytes(Charsets.UTF_8));
         return Uri.parse("https://pr0.wibbly-wobbly.de/api/thumby/v1/" + encoded + "/thumb.jpg");

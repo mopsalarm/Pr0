@@ -196,6 +196,8 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         url = url.toLowerCase();
         if (url.endsWith(".webm")) {
             return "video/webm";
+        } else if (url.endsWith(".mp4")) {
+            return "video/mp4";
         } else if (url.matches(".*\\.jpe?g")) {
             return "image/jpeg";
         } else if (url.endsWith(".png")) {

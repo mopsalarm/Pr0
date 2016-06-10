@@ -1,6 +1,6 @@
 [
   {
-    "version": 101,
+    "version": 102,
     "changes": [
       {
         "type": "Fix",
@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Vorschaubildchen sind wieder da."
+      },
+      {
+        "type": "Fix",
+        "change": "Probleme beim Abspielen vorgeladener Videos behoben."
       }
     ]
   },
