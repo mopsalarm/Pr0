@@ -157,10 +157,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_use_https", false);
     }
 
-    public boolean useSoftwareDecoder() {
-        return preferences.getBoolean("pref_use_software_decoder", false);
-    }
-
     public boolean showGoogleImageButton() {
         return preferences.getBoolean("pref_show_google_image_button", true);
     }

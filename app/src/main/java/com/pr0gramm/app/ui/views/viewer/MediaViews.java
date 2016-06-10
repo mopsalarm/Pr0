@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.app.Activity;
 
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.trello.rxlifecycle.FragmentEvent;
 
 import rx.Observable;
@@ -39,13 +38,7 @@ public class MediaViews {
 
         MediaView result;
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
-            if (shouldUseSoftwareDecoder(uri, settings)) {
-                result = new SoftwareVideoMediaView(activity,
-                        uri.withProxy(uri.hasProxyFlag()),
-                        onViewListener);
-            } else {
-                result = new VideoMediaView(activity, uri, onViewListener);
-            }
+            result = new VideoMediaView(activity, uri, onViewListener);
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
             if (shouldUseGifToWebm(uri, settings)) {
@@ -61,18 +54,9 @@ public class MediaViews {
         return result;
     }
 
-    private static boolean canUseWebmDecoder(MediaUri uri, Settings settings) {
-        return uri.getBaseUri().getPath().endsWith(".webm")
-                && WebmMediaPlayer.isAvailable();
-    }
 
     private static boolean shouldUseGifToWebm(MediaUri uri, Settings settings) {
         return !uri.isLocal() && settings.convertGifToWebm();
-    }
-
-    private static boolean shouldUseSoftwareDecoder(MediaUri uri, Settings settings) {
-        return settings.useSoftwareDecoder() && canUseWebmDecoder(uri, settings);
-
     }
 
     public static void adaptFragmentLifecycle(Observable<FragmentEvent> lifecycle, MediaView view) {

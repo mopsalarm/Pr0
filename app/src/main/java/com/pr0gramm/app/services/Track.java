@@ -99,15 +99,7 @@ public final class Track {
     }
 
     public static void statistics(Settings settings, boolean signedIn) {
-        String decoder;
-        if (settings.useSoftwareDecoder()) {
-            decoder = "webm";
-        } else {
-            decoder = "native";
-        }
-
         track(new CustomEvent("Settings")
-                .putCustomAttribute("decoder", decoder)
                 .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
                 .putCustomAttribute("signed in", String.valueOf(signedIn))
                 .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))

@@ -39,7 +39,6 @@
     <string name="please_wait">Bitte warten</string>
     <string name="points">%d Punkte</string>
     <string name="pr0gramm">pr0gramm</string>
-    <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_convert_gif_to_webm">Konvertiere gif zu webm</string>
     <string name="pref_crashlytics_enabled">Anonyme Bugreports</string>
     <string name="pref_crashlytics_enabled_off">Deaktivieren macht das Leben für die Entwickler schwerer</string>
@@ -118,7 +117,6 @@
     <string name="inbox_type_all">Inbox</string>
     <string name="inbox_type_private">Privat</string>
     <string name="inbox_type_unread">Ungelesen</string>
-    <string name="pref_compatibility_summary">Wenn etwas nicht funktioniert, probiere es hier.</string>
     <string name="prefcat_behaviour_summary">Verhaltenseinstellungen wie: Doppelt-Tab zum Voten und Benachrichtigungen.</string>
     <string name="prefcat_settings_title">Einstellungen</string>
     <string name="prefcat_visual_summary">Hier kannst du einstellen, wie die App aussehen soll.</string>
@@ -159,8 +157,6 @@
     <string name="upload_something_went_wrong">Irgendwas ist schief gelaufen.</string>
     <string name="pref_use_https_title">HTTPS</string>
     <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
-    <string name="pref_use_software_decoder_title">Softwaredekoder</string>
-    <string name="pref_use_software_decoder_summary">Verwende einen Softwaredekoder zur Videowiedergabe. ACHTUNG: Bitte nur aktivieren, wenn du sonst keine Videos sehen kannst, da mehr Leistung benötigt wird. Eventuell ist dein Telefon sogar zu langsam um Abspielen einiger Videos.</string>
     <string name="action_new_message">Neue Nachricht</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
@@ -194,8 +190,6 @@
     <string name="prefcat_visual__tags">Tags</string>
     <string name="pref_website_summary">Empfehle https://app.pr0gramm.com/ deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
-    <string name="pref_compatibility_active_title">Einstellungen aktivieren</string>
-    <string name="pref_compatibility_active_summary">Bitte lies die Beschreibungen zu den einzelnen Einstellungen genau, bevor du sie aktivierst! </string>
     <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren.</string>
     <string name="pref_pseudo_green_video_title">Grüne Linien in Videos</string>
     <string name="pref_feed_start_at_new_title">Starte mit Neu</string>
@@ -210,7 +204,6 @@
     <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden. Passiert das öfter, deaktiviere mal HTTPS.</string>
     <string name="pref_force_mpeg_decoder_title">Erzwinge Java-Decoder</string>
     <string name="pref_force_mpeg_decoder_summary">Erzwingt die Verwendung eines puren Java Dekoders. ACHTUNG: Reduziert die Qualität der abgespielten Videos. </string>
-    <string name="hint_check_compatibility_if_videos_dont_play">Wenn Videos in dieser Version nicht richtig abgespielt werden, prüfe bitte die Seite "Kompatibilität" in den Einstellungen.</string>
     <string name="share_using">Teilen mit</string>
     <string name="error_webm_native_exception">Es ist ein Fehler im webm-Dekoder aufgetreten, die App beendet sich evnt. gleich von alleine. Wenn dies öfters auftritt, deaktiviere den Softwaredekoder oder aktiviere den puren Java Dekoder.</string>
     <string name="kpi_desc_comments">KOMMENTARE</string>

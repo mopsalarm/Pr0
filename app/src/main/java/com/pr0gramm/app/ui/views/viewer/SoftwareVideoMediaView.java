@@ -15,7 +15,6 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.pr0gramm.app.vpx.WebmMediaPlayer;
 import com.squareup.picasso.Downloader;
 import com.trello.rxlifecycle.RxLifecycle;
 
@@ -139,10 +138,6 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
                 InputStream inputStream = openMediaInputStream();
 
                 String urlString = getMediaUri().toString();
-                if (urlString.endsWith(".webm")) {
-                    result.onNext(new WebmMediaPlayer(getContext(), inputStream));
-                    return;
-                }
 
                 result.onError(new RuntimeException("No software-decoder available for video format at " + urlString));
 

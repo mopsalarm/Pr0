@@ -15,7 +15,6 @@ import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.ui.PermissionHelper;
-import com.pr0gramm.app.vpx.WebmMediaPlayer;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -234,10 +233,6 @@ public class ErrorFormatting {
 
                     return context.getString(error_permission_not_granted, permissionName);
                 }));
-
-        // Oops, native error, this should not happen!?
-        formatters.add(new Formatter<>(WebmMediaPlayer.NativeException.class,
-                R.string.error_webm_native_exception));
 
         // add a default formatter for io exceptions, but do not log them
         formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());

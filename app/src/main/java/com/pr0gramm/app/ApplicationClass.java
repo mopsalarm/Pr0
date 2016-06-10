@@ -10,14 +10,11 @@ import com.f2prateek.dart.Dart;
 import com.orm.SugarContext;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.Lazy;
 import com.pr0gramm.app.util.LooperScheduler;
-import com.pr0gramm.app.vpx.VpxChecker;
 import com.thefinestartist.Base;
 
 import net.danlew.android.joda.JodaTimeAndroid;
@@ -93,8 +90,6 @@ public class ApplicationClass extends Application {
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);
-
-        checkVpx(settings, singleShotService);
     }
 
     @Override
@@ -103,27 +98,6 @@ public class ApplicationClass extends Application {
         SugarContext.terminate();
     }
 
-    private void checkVpx(Settings settings, SingleShotService singleShotService) {
-        // check if we can playback vpx
-        VpxChecker.vpxOkay(this).subscribeOn(BackgroundScheduler.instance()).subscribe(okay -> {
-            logger.info("Vpx decoder seems to work: {}", okay);
-            Track.vpxWouldWork(okay);
-
-            if (okay) {
-                if (singleShotService.isFirstTime("migrate.ActivateVpxDecoder-beta1")) {
-                    // activate software decoder by default for this user!
-                    settings.edit()
-                            .putBoolean("pref_use_software_decoder", true)
-                            .apply();
-                }
-            } else {
-                // better disable the decoder
-                settings.edit()
-                        .putBoolean("pref_use_software_decoder", false)
-                        .apply();
-            }
-        });
-    }
 
     public static ApplicationClass get(Context context) {
         return (ApplicationClass) context.getApplicationContext();

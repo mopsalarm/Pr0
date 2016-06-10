@@ -260,39 +260,6 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="prefcat_compatibility"
-            android:persistent="true"
-            android:summary="@string/pref_compatibility_summary"
-            android:title="@string/pref_compatibility">
-
-            <intent
-                android:action="preference://prefcat_compatibility"
-                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
-                android:targetPackage="@string/app_id"/>
-
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_compatibility_active"
-                android:summary="@string/pref_compatibility_active_summary"
-                android:title="@string/pref_compatibility_active_title"/>
-
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:dependency="pref_compatibility_active"
-                android:key="pref_use_software_decoder"
-                android:summary="@string/pref_use_software_decoder_summary"
-                android:title="@string/pref_use_software_decoder_title"/>
-
-            <Preference
-                android:defaultValue="false"
-                android:dependency="pref_compatibility_active"
-                android:key="pref_pseudo_green_video"
-                android:summary="@string/pref_pseudo_green_video_summary"
-                android:title="@string/pref_pseudo_green_video_title"/>
-
-        </PreferenceScreen>
-
-        <PreferenceScreen
             android:key="prefcat_update"
             android:persistent="false"
             android:summary="@string/prefcat_update_summary"
