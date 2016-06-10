@@ -116,8 +116,6 @@ public class ApiProvider implements Provider<Api> {
                 }
             }
 
-            String tag = "method:" + method.getName();
-
             try {
                 Object result = invoke.call();
                 if (result instanceof Observable) {
@@ -138,10 +136,9 @@ public class ApiProvider implements Provider<Api> {
     }
 
     private static void measureApiCall(Stopwatch watch, Method method, boolean success) {
-        logger.info("Api call {} took {}", method.getName(), watch);
         Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
-            "method:" + method.getName(),
-            "success:" + success);
+                "method:" + method.getName(),
+                "success:" + success);
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})
