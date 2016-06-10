@@ -91,7 +91,6 @@ public class ImageMediaView extends MediaView {
 
             @Override
             public void onReady() {
-                cacheMediaSize(imageView.getSWidth(), imageView.getSHeight());
                 applyScaling();
             }
         });
@@ -116,9 +115,6 @@ public class ImageMediaView extends MediaView {
     private void applyScaling() {
         float ratio = imageView.getSWidth() / (float) imageView.getSHeight();
         float ratioCapped = Math.max(ratio, CAP_IMAGE_RATIO);
-        if (ratio < CAP_IMAGE_RATIO) {
-            removeBlurredBackground();
-        }
 
         setViewAspect(ratioCapped);
 
@@ -146,9 +142,6 @@ public class ImageMediaView extends MediaView {
     @Override
     public void setViewAspect(float viewAspect) {
         if (!zoomView) {
-            if (viewAspect < CAP_IMAGE_RATIO)
-                removeBlurredBackground();
-
             super.setViewAspect(viewAspect);
         }
     }

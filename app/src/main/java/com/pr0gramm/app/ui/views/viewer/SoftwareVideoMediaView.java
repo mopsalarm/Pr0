@@ -180,7 +180,6 @@ public class SoftwareVideoMediaView extends AbstractProgressMediaView {
 
     private void onSizeChanged(SoftwareMediaPlayer.Size size) {
         setViewAspect(size.getAspectRatio());
-        cacheMediaSize(size.getWidth(), size.getHeight());
     }
 
     private void loadAndPlay() {

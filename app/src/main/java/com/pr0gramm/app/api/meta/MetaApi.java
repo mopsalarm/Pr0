@@ -19,7 +19,7 @@ import rx.Observable;
 @org.immutables.gson.Gson.TypeAdapters
 public interface MetaApi {
     @FormUrlEncoded
-    @POST("items?previews=true")
+    @POST("items")
     Observable<ItemsInfo> info(@Field("ids") String itemIds);
 
     @GET("user/{name}")
@@ -31,10 +31,6 @@ public interface MetaApi {
     @Value.Immutable
     interface ItemsInfo {
         List<Long> getReposts();
-
-        List<SizeInfo> getSizes();
-
-        List<PreviewInfo> getPreviews();
     }
 
     @Value.Immutable

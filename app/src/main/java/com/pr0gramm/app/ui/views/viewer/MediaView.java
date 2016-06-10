@@ -8,8 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.InsetDrawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
@@ -30,19 +28,15 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.meta.ImmutableSizeInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
-import com.pr0gramm.app.ui.BackgroundBitmapDrawable;
-import com.pr0gramm.app.ui.FancyThumbnailGenerator;
+import com.pr0gramm.app.ui.FancyExifThumbnailGenerator;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import org.slf4j.Logger;
@@ -75,9 +69,6 @@ public abstract class MediaView extends FrameLayout {
     private final GestureDetector gestureDetector;
     private final MediaUri mediaUri;
 
-    @Nullable
-    private BackgroundBitmapDrawable blurredBackground;
-
     private boolean mediaShown;
     private TapListener tapListener;
     private boolean resumed;
@@ -93,7 +84,6 @@ public abstract class MediaView extends FrameLayout {
 
     @Nullable
     private AspectImageView preview;
-    private Drawable previewDrawable;
 
     @Inject
     Picasso picasso;
@@ -105,7 +95,7 @@ public abstract class MediaView extends FrameLayout {
     ProxyService proxyService;
 
     @Inject
-    FancyThumbnailGenerator fancyThumbnailGenerator;
+    FancyExifThumbnailGenerator fancyThumbnailGenerator;
 
     private boolean hasAudio;
 
@@ -133,11 +123,8 @@ public abstract class MediaView extends FrameLayout {
         gestureDetector = new GestureDetector(activity, gestureListener);
 
         showPreloadedIndicator();
-        addBlurredBackground();
 
         RxView.detaches(this).subscribe(event -> {
-            picasso.cancelRequest(previewTarget);
-
             if (playing)
                 stopMedia();
 
@@ -145,26 +132,15 @@ public abstract class MediaView extends FrameLayout {
                 onPause();
         });
 
-        if (ThumbyService.isEligibleForPreview(mediaUri)) {
-            RxView.attaches(this).limit(1).subscribe(event -> {
-                // test if we need to load the thumby preview.
-                if (hasPreviewView()) {
-                    Uri uri = ThumbyService.thumbUri(mediaUri);
-                    picasso.load(uri).noPlaceholder().into(previewTarget);
-                }
-            });
-        }
-    }
-
-    private void addBlurredBackground() {
-        // try to get a preview
-        Bitmap bitmap = inMemoryCacheService.lowQualityPreview(mediaUri.getId());
-        if (bitmap != null) {
-            blurredBackground = new BackgroundBitmapDrawable(
-                    new BitmapDrawable(getResources(), bitmap));
-
-            applyBlurredBackground();
-        }
+//        if (ThumbyService.isEligibleForPreview(mediaUri)) {
+//            RxView.attaches(this).limit(1).subscribe(event -> {
+//                // test if we need to load the thumby preview.
+//                if (hasPreviewView()) {
+//                    Uri uri = ThumbyService.thumbUri(mediaUri);
+//                    picasso.load(uri).noPlaceholder().into(previewTarget);
+//                }
+//            });
+//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -175,22 +151,6 @@ public abstract class MediaView extends FrameLayout {
             preloadHint.setLayoutParams(DEFAULT_PARAMS);
             preloadHint.setTextColor(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()));
             addView(preloadHint);
-        }
-    }
-
-    @Override
-    public void setPadding(int left, int top, int right, int bottom) {
-        if (getPaddingLeft() != left || getPaddingTop() != top || getPaddingRight() != right || getPaddingBottom() != bottom) {
-            super.setPadding(left, top, right, bottom);
-            applyBlurredBackground();
-        }
-    }
-
-    private void applyBlurredBackground() {
-        if (hasPreviewView() && blurredBackground != null) {
-            // update the views background with the correct insets
-            AndroidUtility.setViewBackground(this, new InsetDrawable(blurredBackground,
-                    getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom()));
         }
     }
 
@@ -227,36 +187,27 @@ public abstract class MediaView extends FrameLayout {
             setViewAspect(aspect);
         }
 
+        boolean hasThumbnail = false;
         if (info.getPreview() != null) {
-            Drawable image = info.getPreview();
-            if (image instanceof BitmapDrawable && info.getHeight() > 0) {
-                float aspect = info.getWidth() / (float) info.getHeight();
-                Bitmap bitmap = ((BitmapDrawable) image).getBitmap();
-                bitmap = fancyThumbnailGenerator.fancyThumbnail(bitmap, aspect);
-                image = new BitmapDrawable(getResources(), bitmap);
-            }
+            setPreviewDrawable(info.getPreview());
+            hasThumbnail = true;
+        }
 
-            setPreviewDrawable(image);
+        if (info.getPreviewUri() != null) {
+            float aspect = info.getWidth() / (float) info.getHeight();
+            Observable.fromCallable(() -> fancyThumbnailGenerator.fancyThumbnail(info.getPreviewUri(), aspect))
+                    .doOnError(err -> logger.warn("Could not generate fancy thumbnail", err))
+                    .onErrorResumeNext(Observable.empty())
+                    .compose(backgroundBindView())
+                    .subscribe(previewTarget);
 
-        } else if (info.getPreviewUri() != null) {
-            if (mediaIsPreloaded()) {
-                picasso.load(info.getPreviewUri())
-                        .networkPolicy(NetworkPolicy.OFFLINE, NetworkPolicy.NO_STORE)
-                        .into(previewTarget);
+            hasThumbnail = true;
+        }
 
-            } else {
-                // quickly load the pixels into this view
-                picasso.load(info.getPreviewUri()).into(previewTarget);
-            }
-
-        } else {
+        if (!hasThumbnail) {
             // We have no preview image or this image, so we can remove the view entirely
             removePreviewImage();
         }
-    }
-
-    private boolean mediaIsPreloaded() {
-        return getMediaUri().isLocal();
     }
 
     private boolean hasPreviewView() {
@@ -299,24 +250,13 @@ public abstract class MediaView extends FrameLayout {
      * This will not remove the view until the transition ended.
      */
     public void removePreviewImage() {
-        picasso.cancelRequest(previewTarget);
         AndroidUtility.removeView(preview);
-        removeBlurredBackground();
         onPreviewRemoved();
     }
 
     protected void onPreviewRemoved() {
         // implement action that should be executed
         // the moment the preview is removed
-    }
-
-    protected void removeBlurredBackground() {
-        blurredBackground = null;
-        AndroidUtility.setViewBackground(this, null);
-    }
-
-    private boolean hasBlurredBackground() {
-        return blurredBackground != null;
     }
 
     @Override
@@ -537,21 +477,10 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    protected void cacheMediaSize(int width, int height) {
-        if (mediaUri.getId() > 0) {
-            inMemoryCacheService.cacheSizeInfo(ImmutableSizeInfo.builder()
-                    .id(mediaUri.getId())
-                    .width(width)
-                    .height(height)
-                    .build());
-        }
-    }
-
     @SuppressWarnings("ConstantConditions")
     public void setPreviewDrawable(Drawable previewDrawable) {
         if (hasPreviewView()) {
             this.preview.setImageDrawable(previewDrawable);
-            this.previewDrawable = previewDrawable;
         }
     }
 
@@ -569,11 +498,7 @@ public abstract class MediaView extends FrameLayout {
         boolean onDoubleTap();
     }
 
-    /**
-     * Puts the loaded image into the pixels container, if there
-     * still is a pixels container.
-     */
-    private static class PreviewTarget implements Target {
+    private static class PreviewTarget implements Action1<Bitmap> {
         private final WeakReference<MediaView> mediaView;
 
         public PreviewTarget(MediaView mediaView) {
@@ -581,37 +506,12 @@ public abstract class MediaView extends FrameLayout {
         }
 
         @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+        public void call(Bitmap bitmap) {
             MediaView mediaView = this.mediaView.get();
             if (mediaView != null && mediaView.preview != null) {
-
-                if (mediaView.previewDrawable != null) {
-                    Drawable newImage = new BitmapDrawable(mediaView.getResources(), bitmap);
-                    Drawable[] drawables = {new CenterDrawable(mediaView.previewDrawable), newImage};
-                    TransitionDrawable drawable = new TransitionDrawable(drawables);
-                    drawable.startTransition(ANIMATION_DURATION);
-
-                    mediaView.setPreviewDrawable(drawable);
-                } else {
-                    // we have no other preview, lets do fancy stuff.
-                    float aspect = mediaView.getViewAspect();
-                    if (aspect > 0) {
-                        bitmap = mediaView.fancyThumbnailGenerator.fancyThumbnail(bitmap, aspect);
-                    }
-
-                    Drawable preview = new BitmapDrawable(mediaView.getResources(), bitmap);
-                    mediaView.setPreviewDrawable(preview);
-                }
+                Drawable nextImage = new BitmapDrawable(mediaView.getResources(), bitmap);
+                mediaView.setPreviewDrawable(nextImage);
             }
-
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
         }
     }
 

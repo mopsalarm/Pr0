@@ -39,7 +39,6 @@ import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.meta.MetaApi;
 import com.pr0gramm.app.api.meta.MetaApi.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -954,7 +953,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             if (preview.isPresent()) {
                 // pass pixels info to target fragment.
                 Drawable image = preview.get().getDrawable();
-                fragment.setPreviewInfo(buildPreviewInfo(feed.at(idx), image));
+                FeedItem item = feed.at(idx);
+                fragment.setPreviewInfo(PreviewInfo.of(getContext(), item, image));
             }
 
             getActivity().getSupportFragmentManager().beginTransaction()
@@ -966,14 +966,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         } catch (Exception error) {
             logger.warn("Error while showing post", error);
         }
-    }
-
-    private PreviewInfo buildPreviewInfo(FeedItem item, Drawable image) {
-        Optional<MetaApi.SizeInfo> sizeInfo = inMemoryCacheService.getSizeInfo(item);
-        ;
-        int sizeWidth = sizeInfo.transform(MetaApi.SizeInfo::getWidth).or(-1);
-        int sizeHeight = sizeInfo.transform(MetaApi.SizeInfo::getHeight).or(-1);
-        return new PreviewInfo(item.id(), image, sizeWidth, sizeHeight);
     }
 
     /**
@@ -1047,7 +1039,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     private void openQuickPeek(FeedItem item) {
         this.quickPeekDialog = new WeakReference<>(
-                PopupPlayer.newInstance(getActivity(), inMemoryCacheService, item));
+                PopupPlayer.newInstance(getActivity(), item));
 
         swipeRefreshLayout.setEnabled(false);
         Track.quickPeek();

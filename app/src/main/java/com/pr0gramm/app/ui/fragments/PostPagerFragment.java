@@ -59,6 +59,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
 
     private PostFragment activePostFragment;
 
+    @Nullable
     private PreviewInfo previewInfo;
 
     @Override

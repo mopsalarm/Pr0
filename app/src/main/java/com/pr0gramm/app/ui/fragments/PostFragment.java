@@ -770,7 +770,8 @@ public class PostFragment extends BaseFragment implements
         registerTapListener(viewer);
 
         PreviewInfo previewInfo = this.previewInfo != null
-                ? this.previewInfo : inMemoryCacheService.getPreviewInfo(feedItem);
+                ? this.previewInfo
+                : PreviewInfo.of(getContext(), feedItem);
 
         if (previewInfo != null) {
             viewer.setPreviewInfo(previewInfo);

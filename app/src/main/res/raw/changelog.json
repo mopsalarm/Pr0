@@ -3,6 +3,19 @@
     "version": 101,
     "changes": [
       {
+        "type": "Fix",
+        "change": "Download von Videos ist wieder korrekt."
+      },
+      {
+        "type": "Fix",
+        "change": "Vorschaubildchen sind wieder da."
+      }
+    ]
+  },
+  {
+    "version": 101,
+    "changes": [
+      {
         "type": "Neu",
         "change": "Sound."
       }
