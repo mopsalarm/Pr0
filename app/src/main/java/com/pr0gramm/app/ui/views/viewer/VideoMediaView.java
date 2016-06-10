@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
@@ -234,6 +235,10 @@ public class VideoMediaView extends AbstractProgressMediaView {
             hideBusyIndicator();
         }
 
+        if (event == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+            Stats.get().increment("video.playback.succeeded");
+        }
+
         return false;
     }
 
@@ -292,6 +297,9 @@ public class VideoMediaView extends AbstractProgressMediaView {
                     .content(R.string.could_not_play_video)
                     .positive()
                     .show();
+
+            Stats.get().incrementCounter("video.playback.failed");
+
 
         } catch (Exception ignored) {
         }
