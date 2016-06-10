@@ -33,7 +33,6 @@ import com.pr0gramm.app.ui.views.viewer.Gif2VideoMediaView;
 import com.pr0gramm.app.ui.views.viewer.GifMediaView;
 import com.pr0gramm.app.ui.views.viewer.ImageMediaView;
 import com.pr0gramm.app.ui.views.viewer.ProxyMediaView;
-import com.pr0gramm.app.ui.views.viewer.SoftwareVideoMediaView;
 import com.pr0gramm.app.ui.views.viewer.VideoMediaView;
 
 import dagger.Subcomponent;
@@ -82,8 +81,6 @@ public interface ActivityComponent {
     void inject(GifMediaView gifMediaView);
 
     void inject(VideoMediaView videoMediaView);
-
-    void inject(SoftwareVideoMediaView softwareVideoMediaView);
 
     void inject(ProxyMediaView proxyMediaView);
 
