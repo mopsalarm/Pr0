@@ -30,6 +30,7 @@ import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -39,6 +40,7 @@ import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.api.meta.MetaApi.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -86,6 +88,7 @@ import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 
@@ -98,6 +101,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -1103,7 +1107,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 fragment.picasso.load(imageUri)
                         .config(Bitmap.Config.RGB_565)
                         .placeholder(new ColorDrawable(0xff333333))
-                        .into(holder.image);
+                        .into(holder.image, new MeasureCallback("thumb"));
 
                 holder.itemView.setTag(holder);
                 holder.index = position;
@@ -1335,4 +1339,25 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
     };
 
+
+    /**
+     * Callback to measure excution time
+     */
+    public static class MeasureCallback implements Callback {
+        private final Stopwatch watch = Stopwatch.createStarted();
+        private final String name;
+
+        public MeasureCallback(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void onSuccess() {
+            Stats.get().time(name, watch.elapsed(TimeUnit.MILLISECONDS));
+        }
+
+        @Override
+        public void onError() {
+        }
+    }
 }
