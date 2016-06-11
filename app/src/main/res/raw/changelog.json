@@ -12,6 +12,10 @@
       },
       {
         "type": "Fix",
+        "change": "Reposts werden im Feed wieder korrekt hervorgehoben."
+      },
+      {
+        "type": "Fix",
         "change": "Probleme beim Abspielen vorgeladener Videos behoben."
       },
       {
