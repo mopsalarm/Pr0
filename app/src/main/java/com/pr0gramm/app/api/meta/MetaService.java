@@ -2,27 +2,19 @@ package com.pr0gramm.app.api.meta;
 
 import android.support.annotation.NonNull;
 
-import com.google.common.base.Joiner;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.pr0gramm.app.services.Graph;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -67,14 +59,6 @@ public class MetaService {
                 .build(CacheLoader.from(this::internalSuggestUsers));
     }
 
-    public Observable<MetaApi.ItemsInfo> getItemsInfo(Collection<Long> items) {
-        if (items.isEmpty()) {
-            return Observable.just(EMPTY_INFO);
-        }
-
-        return api.info(Joiner.on(",").join(items));
-    }
-
     public Observable<MetaApi.UserInfo> getUserInfo(String username) {
         return api.user(username);
     }
@@ -116,16 +100,4 @@ public class MetaService {
             return emptyList();
         }
     }
-
-    public static class Base64Decoder implements JsonDeserializer<byte[]> {
-        @Override
-        public byte[] deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-            if (json.isJsonNull())
-                return null;
-
-            return BaseEncoding.base64().decode(json.getAsString());
-        }
-    }
-
-    private static final MetaApi.ItemsInfo EMPTY_INFO = ImmutableItemsInfo.builder().build();
 }

@@ -6,10 +6,7 @@ import org.immutables.value.Value;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.Path;
 import rx.Observable;
 
@@ -18,10 +15,6 @@ import rx.Observable;
  */
 @org.immutables.gson.Gson.TypeAdapters
 public interface MetaApi {
-    @FormUrlEncoded
-    @POST("items")
-    Observable<ItemsInfo> info(@Field("ids") String itemIds);
-
     @GET("user/{name}")
     Observable<UserInfo> user(@Path("name") String name);
 
@@ -29,23 +22,9 @@ public interface MetaApi {
     Call<Names> suggestUsers(@Path("prefix") String prefix);
 
     @Value.Immutable
-    interface ItemsInfo {
-        List<Long> getReposts();
-    }
-
-    @Value.Immutable
     @Gson.TypeAdapters
     interface Names {
         List<String> names();
-    }
-
-    @Value.Immutable
-    interface SizeInfo {
-        long getId();
-
-        int getWidth();
-
-        int getHeight();
     }
 
     @Value.Immutable
@@ -60,16 +39,5 @@ public interface MetaApi {
 
         @Value.Parameter(order = 1)
         int getBenis();
-    }
-
-    @Value.Immutable
-    interface PreviewInfo {
-        long id();
-
-        int width();
-
-        int height();
-
-        String pixels();
     }
 }

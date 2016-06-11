@@ -5,7 +5,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
-import com.pr0gramm.app.api.meta.MetaApi;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
@@ -20,8 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 
 /**
  * This service helps to locally cache deltas to the pr0gramm. Those
@@ -109,15 +106,5 @@ public class InMemoryCacheService {
     public Optional<EnhancedUserInfo> getUserInfo(Set<ContentType> contentTypes, String name) {
         String key = name.trim().toLowerCase() + ContentType.combine(contentTypes);
         return Optional.fromNullable(userInfoCache.getIfPresent(key));
-    }
-
-    /**
-     * Cache all the details from the given {@link com.pr0gramm.app.api.meta.MetaApi.ItemsInfo}
-     */
-    public void cache(MetaApi.ItemsInfo itemsInfo) {
-        checkNotMainThread();
-
-        // cache the items as reposts
-        cacheReposts(itemsInfo.getReposts());
     }
 }

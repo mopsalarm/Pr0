@@ -30,7 +30,7 @@ public class Stats {
             try {
                 logger.info("Create a new statsd client");
                 CLIENT.set(new NonBlockingStatsDClient("app", "pr0-metrics.wibbly-wobbly.de",
-                        8125, 64, "version:" + version, "host:app", "statsd_source_id:app"));
+                        8125, 64, "version:" + version, "host:app"));
 
             } catch (Exception err) {
                 logger.warn("Could not create statsd client, falling back on noop", err);

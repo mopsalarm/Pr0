@@ -29,19 +29,18 @@ import android.view.ViewParent;
 import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.Stats;
-import com.pr0gramm.app.api.meta.MetaApi.ItemsInfo;
 import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
@@ -51,6 +50,7 @@ import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
+import com.pr0gramm.app.feed.ImmutableFeedQuery;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
 import com.pr0gramm.app.services.FollowingService;
@@ -88,7 +88,6 @@ import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 
@@ -101,7 +100,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -110,7 +108,6 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
-import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
@@ -1008,14 +1005,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return feedAdapter.getFilter();
     }
 
-    private void onMetaServiceResponse(ItemsInfo itemsInfo) {
-        if (!itemsInfo.getReposts().isEmpty()) {
-            // we need to tell the recycler view to rebind the items, because
-            // some items might now be reposts.
-            feedAdapter.notifyDataSetChanged();
-        }
-    }
-
     private boolean isSeen(FeedItem item) {
         return seenService.isSeen(item);
     }
@@ -1107,7 +1096,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 fragment.picasso.load(imageUri)
                         .config(Bitmap.Config.RGB_565)
                         .placeholder(new ColorDrawable(0xff333333))
-                        .into(holder.image, new MeasureCallback("thumb"));
+                        .into(holder.image);
 
                 holder.itemView.setTag(holder);
                 holder.index = position;
@@ -1160,9 +1149,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
 
             // load meta data for the items.
-            List<Long> itemIds = Lists.transform(newItems, FeedItem::id);
             with(fragment -> {
-                fragment.loadMetaData(itemIds);
+                if (newItems.size() > 0) {
+                    FeedItem mostRecentItem = Ordering.natural()
+                            .onResultOf((Function<FeedItem, Long>) FeedItem::id)
+                            .min(newItems);
+
+                    fragment.refreshRepostInfos(mostRecentItem.id(), feed.getFeedFilter());
+                }
+
                 fragment.performAutoOpen();
             });
         }
@@ -1188,24 +1183,32 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
     }
 
-    private void loadMetaData(List<Long> items) {
-        WeakReference<FeedFragment> fragment = new WeakReference<>(this);
-        PublishSubject<ItemsInfo> finishSubject = PublishSubject.create();
-        finishSubject
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(info -> {
-                    FeedFragment thisRef = fragment.get();
-                    thisRef.onMetaServiceResponse(info);
-                });
+    private void refreshRepostInfos(long id, FeedFilter filter) {
+        FeedService.FeedQuery query = ImmutableFeedQuery.builder()
+                .contentTypes(getSelectedContentType())
+                .older(id)
+                .feedFilter(filter.withTags(filter.getTags().transform(tags -> tags + " repost").or("repost")))
+                .build();
 
-        // this is to clear any reference to the fragment in doOnNext
-        InMemoryCacheService inMemoryCacheService = this.inMemoryCacheService;
-        metaService.getItemsInfo(items)
-                .doOnNext(finishSubject::onNext)
-                .onErrorResumeNext(Observable.<ItemsInfo>empty())
+        InMemoryCacheService cacheService = this.inMemoryCacheService;
+        WeakReference<FeedFragment> fragment = new WeakReference<>(this);
+
+        feedService.getFeedItems(query)
                 .subscribeOn(BackgroundScheduler.instance())
-                .subscribe(inMemoryCacheService::cache, Actions.empty());
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(items -> {
+                    if (items.getItems().size() > 0) {
+                        List<Long> ids = Lists.transform(items.getItems(), Api.Feed.Item::getId);
+                        cacheService.cacheReposts(ids);
+
+                        // update feed adapter to show new 'repost' badges.
+                        FeedFragment frm = fragment.get();
+                        if (frm != null) {
+                            frm.feedAdapter.notifyDataSetChanged();
+                        }
+
+                    }
+                }, Actions.empty());
     }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -1338,26 +1341,4 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
         }
     };
-
-
-    /**
-     * Callback to measure excution time
-     */
-    public static class MeasureCallback implements Callback {
-        private final Stopwatch watch = Stopwatch.createStarted();
-        private final String name;
-
-        public MeasureCallback(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public void onSuccess() {
-            Stats.get().time(name, watch.elapsed(TimeUnit.MILLISECONDS));
-        }
-
-        @Override
-        public void onError() {
-        }
-    }
 }
