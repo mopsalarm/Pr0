@@ -343,12 +343,6 @@
     <string name="error_rate_limited">Oops, this operation can not be executed. You are currently ratelimited. Maybe you are voting too much too fast?</string>
     <string name="error_json_mapping">The api response could not be parsed: %s</string>
     <string name="error_origin_timeout_ddos">Looks like pr0gramm is currently not available, maybe DDoS?</string>
-    <string name="onboarding_audio__sound">Sound!</string>
-    <string name="onboarding_audio__describe_sound">If you see the little volume icon you know that the video has sound. Click on it to enable it!</string>
-    <string name="onboarding_audio__mute">No, mute!</string>
-    <string name="onboarding_audio__describe_mute">Sound will be automatically disabled if you don\'t watch any video for 10 minutes.</string>
-    <string name="onboarding_audio__have_fun">Have fun!</string>
-    <string name="onboarding_audio__describe_have_fun">So please crank up the volume and enjoy pr0gramm like never before!</string>
     <string name="media_error_io">Video playback failed: File or network related operation errors.</string>
     <string name="media_error_malformed">Video playback failed: Bitstream is not conforming to the related coding standard or file spec.</string>
     <string name="media_error_server_died">Video playback failed: Media server died.</string>

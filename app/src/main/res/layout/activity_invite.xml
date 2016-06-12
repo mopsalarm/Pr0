@@ -40,7 +40,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            tools:text="@string/invite_remaining_loading"/>
+            tools:text="Remaining invites: loading…"/>
 
         <EditText
             android:id="@+id/mail"

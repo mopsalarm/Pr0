@@ -215,9 +215,10 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(IllegalStateException.class,
                 err -> err.toString().contains("onSaveInstanceState")).doNotReport());
 
+        final int error_json_mapping = R.string.error_json_mapping;
         formatters.add(new Formatter<>(IllegalStateException.class,
                 err -> err.toString().contains(": Expected "),
-                (err, context) -> context.getString(R.string.error_json_mapping, err.getMessage())).doNotReport());
+                (err, context) -> context.getString(error_json_mapping, err.getMessage())).doNotReport());
 
         final int error_permission_not_granted = R.string.error_permission_not_granted;
         formatters.add(new Formatter<>(PermissionHelper.PermissionNotGranted.class,

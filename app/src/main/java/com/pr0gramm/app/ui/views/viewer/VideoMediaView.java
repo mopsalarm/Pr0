@@ -22,10 +22,8 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.fragments.OnboardingSupportFragment;
 import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.ramotion.paperonboarding.PaperOnboardingPage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +31,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 
 import butterknife.BindView;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.pr0gramm.app.util.AndroidUtility.darken;
 
 /**
  */
@@ -89,11 +84,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
             return;
         }
 
-        // This is not nice,but hey, it works...
-        if (hasAudio() && singleShotService.isFirstTime("onboarding-audio-2")) {
-            showAudioOnboardingFragment();
-        }
-
         if (!videoViewInitialized) {
             showBusyIndicator();
 
@@ -107,38 +97,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
         applyMuteState();
         videoView.start();
-    }
-
-    private void showAudioOnboardingFragment() {
-        OnboardingSupportFragment fragment = OnboardingSupportFragment.newInstance(newArrayList(
-                new PaperOnboardingPage(
-                        getContext().getString(R.string.onboarding_audio__sound),
-                        getContext().getString(R.string.onboarding_audio__describe_sound),
-                        ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()),
-                        R.drawable.ic_onboarding_volume_up_white_48dp,
-                        R.drawable.ic_volume_up_white_24dp),
-
-                new PaperOnboardingPage(
-                        getContext().getString(R.string.onboarding_audio__mute),
-                        getContext().getString(R.string.onboarding_audio__describe_mute),
-                        darken(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()), 0.1f),
-                        R.drawable.ic_onboarding_volume_off_white_48dp,
-                        R.drawable.ic_volume_off_white_24dp),
-
-                new PaperOnboardingPage(
-                        getContext().getString(R.string.onboarding_audio__have_fun),
-                        getContext().getString(R.string.onboarding_audio__describe_have_fun),
-                        darken(ContextCompat.getColor(getContext(), ThemeHelper.primaryColor()), 0.2f),
-                        R.drawable.ic_onboarding_music_note_white_48dp,
-                        R.drawable.ic_onboarding_music_note_white_18dp)));
-
-        AppCompatActivity activity = getParentActivity();
-        if (activity != null) {
-            activity.getSupportFragmentManager().beginTransaction()
-                    .add(R.id.drawer_layout, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        }
     }
 
     private AppCompatActivity getParentActivity() {

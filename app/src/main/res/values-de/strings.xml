@@ -325,12 +325,6 @@
     <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
     <string name="error_json_mapping">Die Antwort der API konnte nicht verarbeitet werden: %s</string>
     <string name="error_origin_timeout_ddos">Sieht so aus, als wäre das pr0gramm gerade nicht erreichbar. Vielleicht wieder DDoS?</string>
-    <string name="onboarding_audio__sound">Video mit Ton!</string>
-    <string name="onboarding_audio__mute">Nö, Ruhe!</string>
-    <string name="onboarding_audio__have_fun">Viel Spaß!</string>
-    <string name="onboarding_audio__describe_sound">Wenn du den kleinen Lautsprecher unten rechts im Video siehst, dann hat dieses Video eine Tonspur! Klick drauf!</string>
-    <string name="onboarding_audio__describe_mute">Ton wird automatisch wieder deaktiviert, wenn du für 10 Minuten kein Video gesehen hast.</string>
-    <string name="onboarding_audio__describe_have_fun">Also, Lautstärke aufdrehen und endlich Ton auf pr0gramm erleben!</string>
     <string name="could_not_play_video_hardware">Video kann ohne Hardwarebeschleunigung nicht wiedergegeben werden. Sieht so aus, als wäre dein System zu alt.</string>
     <string name="media_error_io">Abspielen fehlgeschlagen: Datei- oder Netzwerkprobleme.</string>
     <string name="media_error_malformed">Abspielen fehlgeschlagen: Der Videobitstream hält sich nicht an den Dateistandard.</string>
