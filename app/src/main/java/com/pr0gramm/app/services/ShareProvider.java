@@ -108,33 +108,33 @@ public class ShareProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return guessMimetype(decode(uri)).orNull();
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String[] getStreamTypes(Uri uri, String mimeTypeFilter) {
+    public String[] getStreamTypes(@NonNull Uri uri, @NonNull String mimeTypeFilter) {
         return new String[]{guessMimetype(decode(uri)).orNull()};
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
         String url = decode(uri).toString();
 
         return openPipeHelper(uri, null, null, null, (output, uri1, mimeType, opts, args) -> {
