@@ -114,10 +114,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_show_notifications", true);
     }
 
-    public boolean useProxy() {
-        return preferences.getBoolean("pref_use_proxy", true);
-    }
-
     public boolean keepScreenOn() {
         return preferences.getBoolean("pref_keep_screen_on", true);
     }

@@ -102,7 +102,7 @@ public class HttpModule {
                 proxy.start();
 
                 // return the proxy
-                return url -> settings.useProxy() ? proxy.proxy(url) : url;
+                return proxy::proxy;
 
             } catch (IOException ioError) {
                 logger.warn("Could not open proxy: {}", ioError.toString());

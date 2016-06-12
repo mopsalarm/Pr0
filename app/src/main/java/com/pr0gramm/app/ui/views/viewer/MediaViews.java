@@ -32,7 +32,7 @@ public class MediaViews {
             return new DelayedMediaView(activity, uri.withDelay(false), onViewListener);
         }
 
-        if (!uri.isLocal() && settings.useProxy()) {
+        if (!uri.isLocal()) {
             uri = uri.withProxy(true);
         }
 
