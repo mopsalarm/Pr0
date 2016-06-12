@@ -40,7 +40,6 @@ import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Feed;
@@ -53,7 +52,6 @@ import com.pr0gramm.app.feed.ImmutableFeedQuery;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
 import com.pr0gramm.app.services.FollowingService;
-import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.InboxService;
@@ -149,9 +147,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     @Inject
     UserService userService;
-
-    @Inject
-    MetaService metaService;
 
     @Inject
     SingleShotService singleShotService;
@@ -338,8 +333,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         }
 
         UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo());
-        if (info.getBenisGraph().isPresent())
-            view.setBenisGraph(info.getBenisGraph().get());
 
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
             @Override
@@ -457,18 +450,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                     .doOnNext(info -> followService.markAsFollowing(info.getUser().getName(), info.following()))
                     .onErrorResumeNext(Observable.empty());
 
-            Observable<Optional<Graph>> second = metaService
-                    .getBenisHistory(queryString)
-                    .firstOrDefault(null)
-                    .map(Optional::fromNullable)
-                    .onErrorResumeNext(Observable.just(Optional.absent()));
-
             Observable<List<Api.UserComments.UserComment>> third = inboxService
                     .getUserComments(queryString, contentTypes)
                     .map(Api.UserComments::getComments)
                     .onErrorResumeNext(Observable.just(emptyList()));
 
-            return Observable.zip(first, second, third, ImmutableEnhancedUserInfo::of)
+            return Observable.zip(first, third, ImmutableEnhancedUserInfo::of)
                     .ofType(EnhancedUserInfo.class)
                     .doOnNext(info -> inMemoryCacheService.cacheUserInfo(contentTypes, info));
 

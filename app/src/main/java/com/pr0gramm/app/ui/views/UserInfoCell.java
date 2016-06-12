@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
@@ -12,9 +11,6 @@ import android.widget.TextView;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api.Info;
-import com.pr0gramm.app.services.Graph;
-import com.pr0gramm.app.ui.GraphDrawable;
-import com.pr0gramm.app.util.AndroidUtility;
 
 import net.danlew.android.joda.DateUtils;
 
@@ -31,7 +27,6 @@ public class UserInfoCell extends FrameLayout {
     private final TextView benis, favorites, comments, tags, uploads;
     private final View messages;
     private final View showComments;
-    private final View container;
     private final TextView extraInfo;
     private UserActionListener userActionListener;
 
@@ -48,8 +43,6 @@ public class UserInfoCell extends FrameLayout {
         messages = findView(R.id.action_new_message);
         showComments = (View) findView(R.id.kpi_comments).getParent();
         extraInfo = findView(R.id.user_extra_info);
-
-        container = findView(R.id.user_cell_container);
 
         set(userInfo);
     }
@@ -114,17 +107,6 @@ public class UserInfoCell extends FrameLayout {
 
             extraInfo.setText(getContext().getString(R.string.user_registered, registered));
         }
-    }
-
-    public void setBenisGraph(Graph graph) {
-        int fillColor = ContextCompat.getColor(getContext(), R.color.public_benis_graph_background);
-        int lineColor = ContextCompat.getColor(getContext(), R.color.public_benis_graph_stroke);
-
-        GraphDrawable drawable = new GraphDrawable(graph);
-        drawable.setFillColor(fillColor);
-        drawable.setLineColor(lineColor);
-
-        AndroidUtility.setViewBackground(container, drawable);
     }
 
     public void setUserActionListener(UserActionListener userActionListener) {

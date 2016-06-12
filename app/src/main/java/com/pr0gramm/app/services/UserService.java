@@ -8,9 +8,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.feed.ContentType;
@@ -54,7 +52,6 @@ public class UserService {
     private final InboxService inboxService;
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
-    private final MetaService metaService;
 
     private final Gson gson;
     private final Settings settings;
@@ -68,7 +65,7 @@ public class UserService {
     public UserService(Api api,
                        VoteService voteService,
                        SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
-                       SharedPreferences preferences, MetaService metaService, Settings settings, Gson gson,
+                       SharedPreferences preferences, Settings settings, Gson gson,
                        SingleShotService sso) {
 
         this.api = api;
@@ -77,7 +74,6 @@ public class UserService {
         this.inboxService = inboxService;
         this.cookieHandler = cookieHandler;
         this.preferences = preferences;
-        this.metaService = metaService;
         this.settings = settings;
         this.gson = gson;
 
@@ -125,21 +121,15 @@ public class UserService {
 
     public Observable<LoginProgress> login(String username, String password) {
         return api.login(username, password).flatMap(login -> {
-            Observable<LoginProgress> syncState = Observable.empty();
             if (login.success()) {
                 // perform initial sync in background.
                 syncWithProgress()
                         .subscribeOn(BackgroundScheduler.instance())
                         .subscribe(Actions.empty(), err -> logger.error("Could not perform initial sync during login", err));
-
-                // but add benis graph to result.
-                syncState = syncState.mergeWith(info()
-                        .flatMap(this::initializeBenisGraphUsingMetaService)
-                        .ofType(LoginProgress.class));
             }
 
             // wait for sync to complete before emitting login result.
-            return syncState.concatWith(Observable.just(new LoginProgress(login)));
+            return Observable.just(new LoginProgress(login));
         });
     }
 
@@ -338,24 +328,6 @@ public class UserService {
 
         logger.info("Loading benis graph took " + watch);
         return new Graph(start.getMillis(), now.getMillis(), points);
-    }
-
-    private Observable<Void> initializeBenisGraphUsingMetaService(Api.Info userInfo) {
-        Api.Info.User user = userInfo.getUser();
-
-        return metaService.getBenisHistory(user.getName())
-                .doOnNext(graph -> {
-                    SugarTransactionHelper.doInTransaction(() -> {
-                        for (Graph.Point points : graph.points()) {
-                            Instant time = new Instant((long) (points.x * 1000L));
-                            int benisValue = (int) points.y;
-                            new BenisRecord(user.getId(), time, benisValue).save();
-                        }
-                    });
-
-                    loginStateObservable.onNext(createLoginState(userInfo));
-                })
-                .ofType(Void.class);
     }
 
     /**
