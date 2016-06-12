@@ -250,6 +250,7 @@
                 <data android:mimeType="image/jpeg"/>
                 <data android:mimeType="image/gif"/>
                 <data android:mimeType="video/webm"/>
+                <data android:mimeType="video/mp4"/>
             </intent-filter>
         </activity>
 

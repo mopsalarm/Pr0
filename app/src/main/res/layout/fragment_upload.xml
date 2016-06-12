@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -24,7 +25,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clickable="true"/>
+                android:clickable="true"
+                tools:ignore="UselessLeaf"/>
 
             <com.pr0gramm.app.ui.views.BusyIndicator
                 android:id="@+id/busy_indicator"

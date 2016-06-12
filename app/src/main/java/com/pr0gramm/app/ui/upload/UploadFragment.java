@@ -343,6 +343,7 @@ public class UploadFragment extends BaseFragment {
         fileMediaType = uri.getMediaType();
 
         MediaView viewer = MediaViews.newInstance(getActivity(), uri, Noop.noop);
+        viewer.setHasAudio(false);
         viewer.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
