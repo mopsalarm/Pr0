@@ -61,20 +61,13 @@ public class ApplicationClass extends Application {
             Dart.setDebug(true);
 
         } else {
-            if (settings.analyticsEnabled()) {
-                logger.info("Initialize Fabric");
-                Fabric.with(this, new Crashlytics());
-                Fabric.with(this, new Answers());
+            logger.info("Initialize Fabric");
+            Fabric.with(this, new Crashlytics());
+            Fabric.with(this, new Answers());
 
-                LoggerConfiguration.configuration()
-                        .removeRootLogcatHandler()
-                        .addHandlerToRootLogger(new CrashlyticsLogHandler());
-
-            } else {
-                // just disable logging
-                LoggerConfiguration.configuration()
-                        .removeRootLogcatHandler();
-            }
+            LoggerConfiguration.configuration()
+                    .removeRootLogcatHandler()
+                    .addHandlerToRootLogger(new CrashlyticsLogHandler());
         }
 
         // initialize this to show errors always in the context of the current activity.

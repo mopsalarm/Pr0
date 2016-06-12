@@ -337,12 +337,6 @@
             android:summary="@string/pref_use_https_summary"
             android:title="@string/pref_use_https_title"/>
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_crashlytics_enabled"
-            android:summaryOff="@string/pref_crashlytics_enabled_off"
-            android:summaryOn="@string/pref_crashlytics_enabled_on"
-            android:title="@string/pref_crashlytics_enabled"/>
     </PreferenceCategory>
 
 

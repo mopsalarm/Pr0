@@ -74,10 +74,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return result;
     }
 
-    public boolean analyticsEnabled() {
-        return preferences.getBoolean("pref_crashlytics_enabled", true);
-    }
-
     public boolean convertGifToWebm() {
         return preferences.getBoolean("pref_convert_gif_to_webm", false);
     }
