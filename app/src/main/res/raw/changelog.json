@@ -25,6 +25,10 @@
       {
         "type": "Fix",
         "change": "'Ton Aus'-Button vergrößert."
+      },
+      {
+        "type": "Fix",
+        "change": "Vorschläge beim Tippen von @username gehen wieder."
       }
     ]
   },
