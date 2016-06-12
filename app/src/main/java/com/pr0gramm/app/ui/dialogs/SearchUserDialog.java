@@ -8,9 +8,9 @@ import android.widget.AutoCompleteTextView;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
@@ -35,7 +35,7 @@ public class SearchUserDialog extends BaseDialogFragment {
     UserService userService;
 
     @Inject
-    MetaService metaService;
+    UserSuggestionService suggestionService;
 
     @NonNull
     @Override
@@ -50,7 +50,7 @@ public class SearchUserDialog extends BaseDialogFragment {
 
     @Override
     protected void onDialogViewCreated() {
-        inputView.setAdapter(new UsernameAutoCompleteAdapter(metaService, getThemedContext(),
+        inputView.setAdapter(new UsernameAutoCompleteAdapter(suggestionService, getThemedContext(),
                 "", android.R.layout.simple_dropdown_item_1line));
 
     }

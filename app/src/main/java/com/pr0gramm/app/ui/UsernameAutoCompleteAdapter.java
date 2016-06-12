@@ -5,30 +5,32 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
 import com.google.common.collect.FluentIterable;
-import com.pr0gramm.app.api.meta.MetaService;
+import com.pr0gramm.app.services.UserSuggestionService;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 
 /**
  */
 public class UsernameAutoCompleteAdapter extends ArrayAdapter<String> {
     private final Filter filter = new UsernameFilter();
     private final Pattern validConstraint;
-    private final MetaService metaService;
+    private final UserSuggestionService suggestionService;
     private final String prefix;
 
-    public UsernameAutoCompleteAdapter(MetaService metaService, Context context, int resource) {
-        this(metaService, context, "@", resource);
+    public UsernameAutoCompleteAdapter(UserSuggestionService suggestionService, Context context, int resource) {
+        this(suggestionService, context, "@", resource);
     }
 
-    public UsernameAutoCompleteAdapter(MetaService metaService, Context context, String prefix, int resource) {
+    public UsernameAutoCompleteAdapter(UserSuggestionService suggestionService, Context context, String prefix, int resource) {
         super(context, resource);
-        this.metaService = metaService;
+        this.suggestionService = suggestionService;
         this.prefix = prefix;
 
-        validConstraint = Pattern.compile(Pattern.quote(this.prefix) + "[a-zA-Z0-9]{3,}");
+        validConstraint = Pattern.compile(Pattern.quote(this.prefix) + "[a-zA-Z0-9]{2,}");
     }
 
     @Override
@@ -43,8 +45,10 @@ public class UsernameAutoCompleteAdapter extends ArrayAdapter<String> {
             if (constraint == null || !validConstraint.matcher(constraint).matches())
                 return filterResults(Collections.<String>emptyList());
 
+            checkNotMainThread();
+
             String term = constraint.toString().substring(prefix.length());
-            List<String> results = metaService.suggestUsers(term);
+            List<String> results = suggestionService.suggestUsers(term);
             return filterResults(FluentIterable
                     .from(results)
                     .transform(name -> prefix + name)

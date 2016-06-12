@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 
 import okhttp3.RequestBody;
 import proguard.annotation.KeepPublicClassMemberNames;
+import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -153,6 +154,9 @@ public interface Api {
     @POST("api/profile/unfollow")
     Observable<Nothing> profileUnfollow(@Field("_nonce") Nonce nonce, @Field("name") String username);
 
+    @GET("api/profile/suggest")
+    Call<Names> suggestUsers(@Query("prefix") String prefix);
+
     final class Nonce {
         public final String value;
 
@@ -166,6 +170,11 @@ public interface Api {
         }
     }
 
+
+    @Value.Immutable
+    interface Names {
+        List<String> users();
+    }
 
     @Value.Immutable
     interface AccountInfo {

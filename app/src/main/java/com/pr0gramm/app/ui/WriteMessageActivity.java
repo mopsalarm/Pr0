@@ -12,7 +12,6 @@ import android.widget.Button;
 
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.meta.MetaService;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.parcel.MessageParceler;
@@ -21,6 +20,7 @@ import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
@@ -54,7 +54,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     VoteService voteService;
 
     @Inject
-    MetaService metaService;
+    UserSuggestionService suggestionService;
 
     @BindView(R.id.message_view)
     MessageView messageView;
@@ -97,7 +97,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         });
 
         messageText.setTokenizer(new UsernameTokenizer());
-        messageText.setAdapter(new UsernameAutoCompleteAdapter(metaService, this,
+        messageText.setAdapter(new UsernameAutoCompleteAdapter(suggestionService, this,
                 android.R.layout.simple_dropdown_item_1line));
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor));

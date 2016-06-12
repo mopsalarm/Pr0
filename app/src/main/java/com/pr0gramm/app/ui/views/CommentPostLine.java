@@ -10,11 +10,13 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.api.meta.MetaService;
+import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView;
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter;
 import com.pr0gramm.app.ui.UsernameTokenizer;
 import com.pr0gramm.app.util.ViewUtility;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,6 +30,9 @@ public class CommentPostLine extends FrameLayout {
 
     @BindView(R.id.comment_post)
     View postButton;
+
+    @Inject
+    UserSuggestionService suggestionService;
 
     public CommentPostLine(Context context) {
         super(context);
@@ -45,11 +50,10 @@ public class CommentPostLine extends FrameLayout {
     }
 
     private void init() {
+        Dagger.appComponent(getContext()).inject(this);
+
         LayoutInflater.from(getContext()).inflate(R.layout.write_comment_layout, this);
         ButterKnife.bind(this);
-
-        // setup auto complete in the comment view.
-        MetaService metaService = Dagger.appComponent(getContext()).metaService();
 
         // change the anchorViews id so it is unique in the view hierarchy
         View anchorView = findViewById(R.id.auto_complete_popup_anchor);
@@ -57,7 +61,7 @@ public class CommentPostLine extends FrameLayout {
 
         commentTextView.setAnchorView(anchorView);
         commentTextView.setTokenizer(new UsernameTokenizer());
-        commentTextView.setAdapter(new UsernameAutoCompleteAdapter(metaService, getContext(),
+        commentTextView.setAdapter(new UsernameAutoCompleteAdapter(suggestionService, getContext(),
                 android.R.layout.simple_dropdown_item_1line));
 
         // The post button is only enabled if we have at least one letter.

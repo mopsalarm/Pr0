@@ -13,6 +13,7 @@ import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
@@ -61,4 +62,6 @@ public interface AppComponent {
     void inject(Dagger.EagerSingletons eagerSingletons);
 
     void inject(InboxNotificationCanceledReceiver receiver);
+
+    void inject(CommentPostLine commentPostLine);
 }
