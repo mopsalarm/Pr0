@@ -1184,6 +1184,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void refreshRepostInfos(long id, FeedFilter filter) {
+        if (filter.getFeedType() != FeedType.NEW && filter.getFeedType() != FeedType.PROMOTED)
+            return;
+
         FeedService.FeedQuery query = ImmutableFeedQuery.builder()
                 .contentTypes(getSelectedContentType())
                 .older(id)
