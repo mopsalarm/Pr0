@@ -12,9 +12,7 @@
     <string name="banned">Du bist bis %1$s gebannt. Grund: %2$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="download">Download</string>
-    <string name="dummy_points">4 Punkte</string>
     <string name="dummy_post_date">3 hours ago</string>
-    <string name="dummy_rating">952</string>
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>
@@ -187,8 +185,6 @@
     <string name="prefcat_visual__tags">Tags</string>
     <string name="pref_website_summary">Empfehle https://app.pr0gramm.com/ deinen Freunden</string>
     <string name="pref_website_title">Webseite</string>
-    <string name="pref_pseudo_green_video_summary">Wenn du grüne Linien und Farbfehler in Videos hast, ist das wahrscheinlich ein Systemproblem. Versuch das Video herunterzuladen und in dem VideoPlayer deines Systems abzuspielen, dort siehts auch so aus. Du kannst den Softwaredekoder aktivieren.</string>
-    <string name="pref_pseudo_green_video_title">Grüne Linien in Videos</string>
     <string name="pref_feed_start_at_new_title">Starte mit Neu</string>
     <string name="pref_feed_start_at_new_summary">Zeige \'neu\' statt \'top\' an, wenn die App startet.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>
@@ -199,10 +195,7 @@
     <string name="warn_show_post_anyways">Trotzdem zeigen</string>
     <string name="warn_post_can_not_be_viewed">Dieser Post ist aufgrund deiner  Filtereinstellungen nicht sichtbar.</string>
     <string name="error_ssl_error">SSL Handschlag konnte nicht durchgeführt werden. Passiert das öfter, deaktiviere mal HTTPS.</string>
-    <string name="pref_force_mpeg_decoder_title">Erzwinge Java-Decoder</string>
-    <string name="pref_force_mpeg_decoder_summary">Erzwingt die Verwendung eines puren Java Dekoders. ACHTUNG: Reduziert die Qualität der abgespielten Videos. </string>
     <string name="share_using">Teilen mit</string>
-    <string name="error_webm_native_exception">Es ist ein Fehler im webm-Dekoder aufgetreten, die App beendet sich evnt. gleich von alleine. Wenn dies öfters auftritt, deaktiviere den Softwaredekoder oder aktiviere den puren Java Dekoder.</string>
     <string name="kpi_desc_comments">KOMMENTARE</string>
     <string name="kpi_desc_favorites">FAVORITEN</string>
     <string name="kpi_desc_tags">TAGS</string>
@@ -243,9 +236,6 @@
     <string name="pref_bestof_threshold_summary">Stelle den minimalen Beniswert für die Best of-Kategorie ein, oder deaktiviere die Kategorie.</string>
     <string name="action_feed_type_bestof">BEST OF</string>
     <string name="error_permission_not_granted">Die Berechtigung \'%s\' fehlt, wird jedoch benötigt!</string>
-    <string name="pref_use_api_proxy_summary">Verwende einen externen Proxy für API-Anfragen. Dies kann helfen, wenn du ständig Verbindungsprobleme im WLAN hast und Posts nicht laden. ACHTUNG: Dies sendet private Daten über den externen Proxy-Server (aber NICHT dein Passwort).</string>
-    <string name="pref_use_api_proxy_title">Api Proxy</string>
-    <string name="warn_api_proxy">All deine privaten Daten außer deinem Passwort (Nachrichten und so) werden über einen externen Proxy übertragen. Bitte sei dir darüber im Klaren, wenn du diese Funktion verwendest.</string>
     <string name="open_website">Website öffnen</string>
     <string name="user_registered">Registriert am %s</string>
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
@@ -265,7 +255,6 @@
     <string name="pref_pseudo_clear_tag_suggestions_title">Tag-Vorschläge löschen</string>
     <string name="action_rules">REGELN</string>
     <string name="rules_title">Die Regeln</string>
-    <string name="error_fragment_depth">Entschuldige, aber Aufgrund einer Schwäche von Android kannst du das gerade nicht machen: %s</string>
     <string name="action_switch_to_new">In \'neu\' öffnen</string>
     <string name="action_switch_to_top">In \'top\' öffnen</string>
     <string name="action_delete_item">Löschen</string>
@@ -297,10 +286,7 @@
     <string name="hint_similar_image">Wir haben ein ähnliches Bild gefunden. Bitte überprüfe deinen Upload noch einmal um einen Repost zu verhindern.</string>
     <string name="hint_upload">Upload…</string>
     <string name="error_protocol_exception">Eine Netzwerkverbindung ist unerwartet abgebrochen. Das kann mal passieren.</string>
-    <string name="action_collapse">Einklappen</string>
-    <string name="action_expand">Ausklappen</string>
     <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
-    <string name="action_copy_link">Link kopieren</string>
     <string name="share_to_clipboard">Zwischenablage</string>
     <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
@@ -314,7 +300,6 @@
     <string name="invite_send">Invite verschicken</string>
     <string name="invites_title">Invites</string>
     <string name="invite_remaining">Invites vorhanden: %s</string>
-    <string name="invite_remaining_loading">Invites vorhanden: bitte warten…</string>
     <string name="invite_unredeemed">nicht eingelöst, %s</string>
     <string name="invites_sent">Versendete Invites</string>
     <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält nun einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden? Die Option findest du auch unter Einstellungen -> Verhalten .]]></string>

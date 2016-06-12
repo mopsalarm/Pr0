@@ -3,22 +3,18 @@ package com.pr0gramm.app.ui.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.view.ContextThemeWrapper;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
@@ -26,7 +22,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.joda.time.Hours;
@@ -52,17 +47,14 @@ import static org.joda.time.Instant.now;
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
     private final boolean admin;
     private final String selfName;
-    private ImmutableList<CommentEntry> allComments, comments;
+    private ImmutableList<CommentEntry> comments;
     private Optional<String> op;
     private CommentActionListener commentActionListener;
     private long selectedCommentId;
 
     private final Instant scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration());
     private TLongSet favedComments = new TLongHashSet();
-    private TLongSet collapsedComments = new TLongHashSet();
     private boolean showFavCommentButton;
-    private ImmutableMap<Long, Api.Comment> commentsById;
-    private ImmutableListMultimap<Long, Api.Comment> commentsByParent;
 
     public CommentsAdapter(boolean admin, String selfName) {
         this.admin = admin;
@@ -73,17 +65,14 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public void set(Collection<Api.Comment> comments, Map<Long, Vote> votes, String op) {
-        this.commentsById = Maps.uniqueIndex(comments, Api.Comment::getId);
-        this.commentsByParent = Multimaps.index(comments, Api.Comment::getParent);
+        Map<Long, Api.Comment> byId = Maps.uniqueIndex(comments, Api.Comment::getId);
 
         this.op = Optional.fromNullable(op);
-        this.allComments = FluentIterable.from(sort(comments, op)).transform(comment -> {
-            int depth = getCommentDepth(commentsById, comment);
+        this.comments = ImmutableList.copyOf(Lists.transform(sort(comments, op), comment -> {
+            int depth = getCommentDepth(byId, comment);
             Vote baseVote = firstNonNull(votes.get(comment.getId()), Vote.NEUTRAL);
             return new CommentEntry(comment, baseVote, depth);
-        }).toList();
-
-        internUpdateComments();
+        }));
     }
 
     public void setShowFavCommentButton(boolean showFavCommentButton) {
@@ -160,35 +149,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         view.reply.setOnClickListener(v -> doAnswer(comment));
 
-        if (collapsedComments.contains(comment.getId())) {
-            view.collapseBadge.setVisibility(View.VISIBLE);
-            view.collapseBadge.setText("+" + countChildren(comment));
-            view.collapseBadge.setOnClickListener(v -> {
-                collapsedComments.remove(comment.getId());
-                internUpdateComments();
-            });
-
-        } else {
-            view.collapseBadge.setVisibility(View.GONE);
-        }
-
-        view.actions.setOnClickListener(v -> {
-            ContextThemeWrapper context = new ContextThemeWrapper(
-                    v.getContext(), R.style.AppTheme_Popup_Orange);
-
-            PopupMenu menu = new PopupMenu(context, v);
-            menu.setOnMenuItemClickListener(item -> onActionMenuClicked(comment, item));
-            menu.inflate(R.menu.comment_actions);
-
-            if (countChildren(comment) > 0) {
-                if (collapsedComments.contains(comment.getId())) {
-                    menu.getMenu().findItem(R.id.action_expand).setVisible(true);
-                } else {
-                    menu.getMenu().findItem(R.id.action_collapse).setVisible(true);
-                }
+        view.copyCommentLink.setOnClickListener(v -> {
+            if (commentActionListener != null) {
+                commentActionListener.onCopyCommentLink(comment);
             }
-
-            menu.show();
         });
 
         Context context = view.itemView.getContext();
@@ -220,48 +184,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 view.kFav.setVisibility(View.GONE);
             }
         }
-    }
-
-    private boolean onActionMenuClicked(Api.Comment comment, MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_collapse:
-                collapsedComments.add(comment.getId());
-                Track.collapseComments("collapse");
-                internUpdateComments();
-                return true;
-
-            case R.id.action_expand:
-                collapsedComments.remove(comment.getId());
-                Track.collapseComments("expand");
-                internUpdateComments();
-                return true;
-
-            case R.id.action_copy_link:
-                if (commentActionListener != null) {
-                    commentActionListener.onCopyCommentLink(comment);
-                    return true;
-                }
-        }
-
-        return false;
-    }
-
-    private int countChildren(Api.Comment comment) {
-        ImmutableList<Api.Comment> children = commentsByParent.get(comment.getId());
-
-        int count = children.size();
-        for (Api.Comment child : children)
-            count += countChildren(child);
-
-        return count;
-    }
-
-    private void internUpdateComments() {
-        this.comments = FluentIterable.from(allComments)
-                .filter(CommentEntry::isVisible)
-                .toList();
-
-        notifyDataSetChanged();
     }
 
     private CommentScore getCommentScore(CommentEntry entry) {
@@ -310,9 +232,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final TextView comment;
         final VoteView vote;
         final SenderInfoView senderInfo;
-        final View actions;
         final ImageView kFav, reply;
-        final TextView collapseBadge;
+        final View copyCommentLink;
 
 
         public CommentView(View itemView) {
@@ -323,9 +244,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             vote = ButterKnife.findById(itemView, R.id.voting);
             senderInfo = ButterKnife.findById(itemView, R.id.sender_info);
             kFav = ButterKnife.findById(itemView, R.id.kfav);
-            collapseBadge = ButterKnife.findById(itemView, R.id.collapsed_badge);
             reply = ButterKnife.findById(itemView, R.id.reply);
-            actions = ButterKnife.findById(itemView, R.id.actions);
+            copyCommentLink = ButterKnife.findById(itemView, R.id.copy_comment_link);
         }
 
         public void setCommentDepth(int depth) {
@@ -403,19 +323,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             this.baseVote = baseVote;
             this.depth = depth;
             this.vote = baseVote;
-        }
-
-        boolean isVisible() {
-            Api.Comment comment = this.comment;
-            do {
-                if (collapsedComments.contains(comment.getParent())) {
-                    return false;
-                }
-
-                comment = commentsById.get(comment.getParent());
-            } while (comment != null);
-
-            return true;
         }
     }
 }

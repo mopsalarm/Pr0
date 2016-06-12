@@ -65,6 +65,4 @@
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>
 
-    <color name="public_benis_graph_background">@color/grey_800</color>
-    <color name="public_benis_graph_stroke">@color/grey_700</color>
 </resources>

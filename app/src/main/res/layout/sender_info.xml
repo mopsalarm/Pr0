@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:textSize="10sp"
-            tools:text="@string/dummy_points"/>
+            tools:text="15"/>
 
         <com.pr0gramm.app.ui.views.ScoreUnknownView
             android:id="@+id/points_unknown"

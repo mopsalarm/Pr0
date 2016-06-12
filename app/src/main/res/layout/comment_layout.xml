@@ -54,31 +54,19 @@
         android:layout_alignParentRight="true"
         android:orientation="horizontal">
 
-
-        <TextView
-            android:id="@+id/collapsed_badge"
-            style="@style/OpBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            tools:text="+4"/>
-
-        <!--
         <ImageButton
-            android:id="@+id/collapse"
+            android:id="@+id/copy_comment_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_expand_less"
+            android:src="@drawable/ic_link_white_24dp"
             android:tint="@color/grey_700"/>
-        -->
 
         <ImageButton
             android:id="@+id/kfav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
+            android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_favorite_border"
             android:tint="@color/grey_700"/>
@@ -87,19 +75,10 @@
             android:id="@+id/reply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
+            android:layout_marginLeft="6dp"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_reply"
             android:tint="?colorPrimary"/>
-
-        <ImageButton
-            android:id="@+id/actions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_more_vert"
-            android:tint="@color/grey_700"/>
 
     </LinearLayout>
 

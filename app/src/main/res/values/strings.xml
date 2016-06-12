@@ -13,9 +13,7 @@
     <string name="cancel">Cancel</string>
     <string name="download">Download</string>
     <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
-    <string name="dummy_points">4 points</string>
     <string name="dummy_post_date">3 hours ago</string>
-    <string name="dummy_rating">952</string>
     <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Could not connect to host: %s</string>
@@ -213,10 +211,7 @@
     <string name="warn_post_can_not_be_viewed">This post is not visible with your current filter settings.</string>
     <string name="warn_show_post_anyways">Show anyways</string>
     <string name="error_ssl_error">Could not perform ssl handshake, maybe you should deactivate https?</string>
-    <string name="pref_force_mpeg_decoder_title">Force java decoder</string>
-    <string name="pref_force_mpeg_decoder_summary">This forces the usage of a pure java mpeg decoder. The decoder is most compatible. CAUTION: Quality is lower and it might run too slow on old hardware.</string>
     <string name="share_using">Share using</string>
-    <string name="error_webm_native_exception">An error in the webm decoder occurred, the app might get unstable and just stop. If this happens often, you could try to activate the java only decoder.</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
     <string name="kpi_desc_favorites">FAVORITES</string>
     <string name="kpi_desc_comments">COMMENTS</string>
@@ -257,9 +252,6 @@
     <string name="pref_bestof_threshold_summary">Specify the minimum benis for items to show up in the \"Best of\" category, or deactivate that category completely.</string>
     <string name="pref_bestof_threshold_title">Category \'best of\'</string>
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
-    <string name="pref_use_api_proxy_summary">Uses an external proxy server for all api requests. This might help with connection problems on wifi. ATTENTION: This will naturally send all your private data over an external server (but NOT your password).</string>
-    <string name="pref_use_api_proxy_title">Api Proxy</string>
-    <string name="warn_api_proxy">All your private data except your password (messages and stuff) is transported over an external proxy. Please be aware of that, if you use this function!</string>
     <string name="open_website">Open website</string>
 
     <string name="user_banned">Banned for %s</string>
@@ -279,7 +271,6 @@
     <string name="pref_pseudo_clear_tag_suggestions_summary">Clear all tag suggestions.</string>
     <string name="action_rules">RULES</string>
     <string name="rules_title">The rules</string>
-    <string name="error_fragment_depth">Sorry, due to a limitation of the android framework you can not do this right now: %s</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
     <string name="hint_block_user_for">Block user for (days)</string>
@@ -311,9 +302,6 @@
     <string name="hint_similar_image">We\'ve found images with a similar fingerprint. Looks like you are trying to post a repost.</string>
     <string name="hint_upload">Upload…</string>
     <string name="error_protocol_exception">Looks like a network connection closed prematurely. This happens.</string>
-    <string name="action_copy_link">Copy link</string>
-    <string name="action_collapse">Collapse</string>
-    <string name="action_expand">Expand</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="share_to_clipboard">To clipboard</string>
     <string name="pref_feed_start_at_sfw_title">Default to \'sfw\'</string>
@@ -334,7 +322,6 @@
     <string name="invite_redeemed" translatable="false">%1$s, %2$s</string>
     <string name="invite_unredeemed">not redeemed, %s</string>
     <string name="invite_remaining">Remaining invites: %s</string>
-    <string name="invite_remaining_loading">Remaining invites: loading…</string>
     <string name="hint_use_incognito_browser"><![CDATA[The pr0gramm app now includes a simple incognito browser that can be used if you click on a link. Do you want to activate this browser now? You can change your decision anytime under settings -> behaviour.]]></string>
     <string name="action_follow">Follow</string>
     <string name="action_unfollow">Unfollow</string>
