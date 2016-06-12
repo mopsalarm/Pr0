@@ -61,7 +61,7 @@ public class HttpModule {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
-                .connectionPool(new ConnectionPool(4, 3, TimeUnit.SECONDS))
+                .connectionPool(new ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
 
                 .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
