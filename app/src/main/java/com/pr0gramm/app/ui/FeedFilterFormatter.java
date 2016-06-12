@@ -50,6 +50,10 @@ public class FeedFilterFormatter {
     }
 
     public static String feedTypeToString(Context context, FeedFilter filter) {
+        if (filter.getLikes().isPresent()) {
+            return context.getString(R.string.favorites_of, filter.getLikes().get());
+        }
+
         switch (filter.getFeedType()) {
             case PROMOTED:
                 return context.getString(R.string.filter_format_top);

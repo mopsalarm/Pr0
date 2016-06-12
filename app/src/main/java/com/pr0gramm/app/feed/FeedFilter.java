@@ -111,6 +111,12 @@ public final class FeedFilter implements Parcelable {
         return fix(copy);
     }
 
+    public FeedFilter withTagsNoReset(String tags) {
+        FeedFilter copy = withLikes(likes.or(""));
+        copy.tags = fromNullable(emptyToNull(tags.trim()));
+        return fix(copy);
+    }
+
     public Optional<String> getLikes() {
         return likes;
     }

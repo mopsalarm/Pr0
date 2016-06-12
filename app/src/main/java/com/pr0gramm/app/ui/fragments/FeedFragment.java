@@ -12,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -874,8 +873,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
 
         searchView.setOnSearchClickListener(v -> {
-            FeedFilter currentFilter = getCurrentFilter();
-            searchView.setQuery(currentFilter.getTags().or(""), false);
+            searchView.setQuery(getCurrentFilter().getTags().or(""), false);
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -920,16 +918,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         searchView.setSuggestionsAdapter(suggestAdapter);
 
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            String typeName = feedTypeToString(activity, getCurrentFilter().withTags("dummy"));
-            searchView.setQueryHint(getString(R.string.action_search, typeName));
-        }
+        String typeName = feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
+        searchView.setQueryHint(getString(R.string.action_search, typeName));
     }
 
     private void performSearch(String term) {
         FeedFilter current = getCurrentFilter();
-        FeedFilter filter = current.withTags(term);
+        FeedFilter filter = current.withTagsNoReset(term);
 
         // do nothing, if the filter did not change
         if (equal(current, filter))

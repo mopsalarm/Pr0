@@ -359,5 +359,6 @@
     <string name="media_error_unknown">Video playback failed: Unspecified media error.</string>
     <string name="media_error_unsupported">Video playback failed: Bitstream is conforming to the related coding standard or file spec, but the media framework does not support the feature.</string>
     <string name="media_error_not_valid_for_progressive_playback">Video playback failed: The video is streamed and its container is not valid for progressive playback i.e the video\'s index (e.g moov atom) is not at the start of the file.</string>
+    <string name="favorites_of">favorites of %s</string>
 </resources>
 

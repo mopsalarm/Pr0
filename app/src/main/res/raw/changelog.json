@@ -3,6 +3,10 @@
     "version": 102,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Favoriten können nun auch durchsucht werden."
+      },
+      {
         "type": "Fix",
         "change": "Download von Videos ist wieder korrekt."
       },
