@@ -335,4 +335,11 @@
     <string name="onboarding_audio__describe_mute">Ton wird automatisch wieder deaktiviert, wenn du für 10 Minuten kein Video gesehen hast.</string>
     <string name="onboarding_audio__describe_have_fun">Also, Lautstärke aufdrehen und endlich Ton auf pr0gramm erleben!</string>
     <string name="could_not_play_video_hardware">Video kann ohne Hardwarebeschleunigung nicht wiedergegeben werden. Sieht so aus, als wäre dein System zu alt.</string>
+    <string name="media_error_io">Abspielen fehlgeschlagen: Datei- oder Netzwerkprobleme.</string>
+    <string name="media_error_malformed">Abspielen fehlgeschlagen: Der Videobitstream hält sich nicht an den Dateistandard.</string>
+    <string name="media_error_not_valid_for_progressive_playback">Abspielen fehlgeschlagen: Das Video ist nicht für pr0gressives Streaming ausgelegt.</string>
+    <string name="media_error_server_died">Abspielen fehlgeschlagen: Der Androidmediaserver ist abgestürzt.</string>
+    <string name="media_error_timed_out">Abspielen fehlgeschlagen: Timeout, eine Operation hat zu lange gebraucht.</string>
+    <string name="media_error_unknown">Abspielen fehlgeschlagen: Unbekannter Fehler.</string>
+    <string name="media_error_unsupported">Abspielen fehlgeschlagen: Der Videobitstream hält sich zwar an den Standard, aber dein Android kann damit nicht umgehen.</string>
 </resources>

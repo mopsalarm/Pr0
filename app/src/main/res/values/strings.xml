@@ -352,5 +352,12 @@
     <string name="onboarding_audio__describe_mute">Sound will be automatically disabled if you don\'t watch any video for 10 minutes.</string>
     <string name="onboarding_audio__have_fun">Have fun!</string>
     <string name="onboarding_audio__describe_have_fun">So please crank up the volume and enjoy pr0gramm like never before!</string>
+    <string name="media_error_io">Video playback failed: File or network related operation errors.</string>
+    <string name="media_error_malformed">Video playback failed: Bitstream is not conforming to the related coding standard or file spec.</string>
+    <string name="media_error_server_died">Video playback failed: Media server died.</string>
+    <string name="media_error_timed_out">Video playback failed: Some operation takes too long to complete.</string>
+    <string name="media_error_unknown">Video playback failed: Unspecified media error.</string>
+    <string name="media_error_unsupported">Video playback failed: Bitstream is conforming to the related coding standard or file spec, but the media framework does not support the feature.</string>
+    <string name="media_error_not_valid_for_progressive_playback">Video playback failed: The video is streamed and its container is not valid for progressive playback i.e the video\'s index (e.g moov atom) is not at the start of the file.</string>
 </resources>
 

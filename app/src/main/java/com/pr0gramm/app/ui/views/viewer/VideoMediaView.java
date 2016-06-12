@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -283,6 +284,50 @@ public class VideoMediaView extends AbstractProgressMediaView {
         }
 
         try {
+            String errorKey;
+            @StringRes int errorMessage;
+            switch (what) {
+                case MediaPlayer.MEDIA_ERROR_IO:
+                    errorMessage = R.string.media_error_io;
+                    errorKey = "MEDIA_ERROR_IO";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                    errorMessage = R.string.media_error_malformed;
+                    errorKey = "MEDIA_ERROR_MALFORMED";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                    errorMessage = R.string.media_error_server_died;
+                    errorKey = "MEDIA_ERROR_SERVER_DIED";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                    errorMessage = R.string.media_error_timed_out;
+                    errorKey = "MEDIA_ERROR_TIMED_OUT";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                    errorMessage = R.string.media_error_unknown;
+                    errorKey = "MEDIA_ERROR_UNKNOWN";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                    errorMessage = R.string.media_error_unsupported;
+                    errorKey = "MEDIA_ERROR_UNSUPPORTED";
+                    break;
+
+                case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                    errorMessage = R.string.media_error_not_valid_for_progressive_playback;
+                    errorKey = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
+                    break;
+
+                default:
+                    errorMessage = R.string.could_not_play_video;
+                    errorKey = "UNKNOWN-" + what;
+                    break;
+            }
+
             if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
                 DialogBuilder.start(getContext())
                         .content(R.string.could_not_play_video_io)
@@ -294,11 +339,11 @@ public class VideoMediaView extends AbstractProgressMediaView {
             }
 
             DialogBuilder.start(getContext())
-                    .content(R.string.could_not_play_video)
+                    .content(errorMessage)
                     .positive()
                     .show();
 
-            Stats.get().incrementCounter("video.playback.failed");
+            Stats.get().incrementCounter("video.playback.failed", "reason:" + errorKey);
 
 
         } catch (Exception ignored) {
