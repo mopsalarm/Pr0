@@ -159,7 +159,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.3.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.16'
     compile 'com.github.satyan:sugar:1.5'
     compile 'com.github.tony19:named-regexp:0.2.3'
     compile 'com.pnikosis:materialish-progress:1.7'
@@ -214,9 +214,9 @@ dependencies {
         transitive = true;
     }
 
-    apt 'org.immutables:value:2.1.19'
-    provided 'org.immutables:value:2.2.1'
-    provided 'org.immutables:gson:2.2.1'
+    apt 'org.immutables:value:2.2.6'
+    provided 'org.immutables:value:2.2.6'
+    provided 'org.immutables:gson:2.2.6'
 
     compile 'com.google.dagger:dagger:2.4'
     apt 'com.google.dagger:dagger-compiler:2.4'
