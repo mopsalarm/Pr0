@@ -29,6 +29,10 @@
       {
         "type": "Fix",
         "change": "Vorschläge beim Tippen von @username gehen wieder."
+      },
+      {
+        "type": "Fix",
+        "change": "Kommentare unter langen Bildern werden wieder korrekt angezeigt."
       }
     ]
   },

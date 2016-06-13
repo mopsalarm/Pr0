@@ -65,14 +65,16 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public void set(Collection<Api.Comment> comments, Map<Long, Vote> votes, String op) {
-        Map<Long, Api.Comment> byId = Maps.uniqueIndex(comments, Api.Comment::getId);
-
         this.op = Optional.fromNullable(op);
+
+        Map<Long, Api.Comment> byId = Maps.uniqueIndex(comments, Api.Comment::getId);
         this.comments = ImmutableList.copyOf(Lists.transform(sort(comments, op), comment -> {
             int depth = getCommentDepth(byId, comment);
             Vote baseVote = firstNonNull(votes.get(comment.getId()), Vote.NEUTRAL);
             return new CommentEntry(comment, baseVote, depth);
         }));
+
+        notifyDataSetChanged();
     }
 
     public void setShowFavCommentButton(boolean showFavCommentButton) {
