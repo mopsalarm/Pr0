@@ -114,6 +114,7 @@ public class FeedItem implements Parcelable, HasThumbnail {
     public Set<ContentType> contentTypes() {
         return ContentType.decompose(flags);
     }
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *
