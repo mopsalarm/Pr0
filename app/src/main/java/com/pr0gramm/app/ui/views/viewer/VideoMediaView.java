@@ -56,6 +56,9 @@ public class VideoMediaView extends AbstractProgressMediaView {
     private int retryCount;
     private boolean videoViewInitialized;
 
+    // only show error once.
+    private boolean shouldShowIoError = true;
+
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context, R.layout.player_simple_video_view, mediaUri, onViewListener);
 
@@ -241,6 +244,20 @@ public class VideoMediaView extends AbstractProgressMediaView {
             }
         }
 
+        if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
+            if (shouldShowIoError) {
+                DialogBuilder.start(getContext())
+                        .content(R.string.could_not_play_video_io)
+                        .positive()
+                        .show();
+
+                shouldShowIoError = false;
+            }
+
+            hideBusyIndicator();
+            return true;
+        }
+
         try {
             String errorKey;
             @StringRes int errorMessage;
@@ -284,16 +301,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
                     errorMessage = R.string.could_not_play_video;
                     errorKey = "UNKNOWN-" + what;
                     break;
-            }
-
-            if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
-                DialogBuilder.start(getContext())
-                        .content(R.string.could_not_play_video_io)
-                        .positive()
-                        .show();
-
-                hideBusyIndicator();
-                return true;
             }
 
             DialogBuilder.start(getContext())
