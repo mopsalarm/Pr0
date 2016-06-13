@@ -11,7 +11,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +20,7 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.net.ConnectivityManagerCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -190,10 +190,7 @@ public class AndroidUtility {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return info != null
-                && info.getType() != ConnectivityManager.TYPE_WIFI
-                && info.getType() != ConnectivityManager.TYPE_ETHERNET;
+        return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
     }
 
     /**
