@@ -4,10 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.google.common.collect.Iterables;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.HasThumbnail;
 
 import org.joda.time.Instant;
+
+import java.util.Set;
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
@@ -104,10 +107,13 @@ public class FeedItem implements Parcelable, HasThumbnail {
         return audio;
     }
 
-    public ContentType contentTypes() {
-        return ContentType.valueOf(flags).get();
+    public ContentType contentType() {
+        return Iterables.get(ContentType.decompose(flags), 0);
     }
 
+    public Set<ContentType> contentTypes() {
+        return ContentType.decompose(flags);
+    }
     /**
      * Gets the id of this feed item depending on the type of the feed..
      *

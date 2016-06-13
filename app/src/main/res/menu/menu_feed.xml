@@ -30,6 +30,17 @@
                     android:id="@+id/action_content_type_nsfl"
                     android:title="@string/type_nsfl"/>
             </group>
+
+            <item
+                android:id="@+id/action_content_type_audio_sep"
+                android:enabled="false"
+                android:title=""/>
+
+            <group android:checkableBehavior="all">
+                <item
+                    android:id="@+id/action_content_type_audio"
+                    android:title="@string/type_audio"/>
+            </group>
         </menu>
     </item>
 

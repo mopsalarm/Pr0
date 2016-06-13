@@ -10,13 +10,14 @@ import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
  * Content type to load.
  */
 public enum ContentType implements Parcelable {
-    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl);
+    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl), AUDIO(8, R.string.type_audio);
 
     private final int flag;
     private final int title;
@@ -49,9 +50,13 @@ public enum ContentType implements Parcelable {
      * @param flags The encoded content types.
      */
     public static Set<ContentType> decompose(int flags) {
-        return FluentIterable.of(values())
-                .filter(ct -> (ct.flag & flags) != 0)
-                .toSet();
+        EnumSet<ContentType> enums = EnumSet.noneOf(ContentType.class);
+        for (ContentType type : VALUES) {
+            if ((type.flag & flags) != 0)
+                enums.add(type);
+        }
+
+        return enums;
     }
 
     /**
@@ -60,7 +65,19 @@ public enum ContentType implements Parcelable {
      * This returns an empty optional, if no content type could be found.
      */
     public static Optional<ContentType> valueOf(int flag) {
-        return FluentIterable.of(values()).firstMatch(ct -> ct.flag == flag);
+        return FluentIterable.of(VALUES).firstMatch(ct -> ct.flag == flag);
+    }
+
+    /**
+     * Removes the audio type from the set.
+     *
+     * @param types The content types to use as "input".
+     * @return A cleaned set of types.
+     */
+    public static EnumSet<ContentType> cleaned(Collection<ContentType> types) {
+        EnumSet<ContentType> copy = EnumSet.copyOf(types);
+        copy.remove(AUDIO);
+        return copy;
     }
 
     public static String toString(Context context, Collection<ContentType> types) {
@@ -90,4 +107,6 @@ public enum ContentType implements Parcelable {
             return new ContentType[size];
         }
     };
+
+    private static final ContentType[] VALUES = values();
 }

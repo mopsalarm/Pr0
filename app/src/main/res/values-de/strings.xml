@@ -302,7 +302,7 @@
     <string name="invite_remaining">Invites vorhanden: %s</string>
     <string name="invite_unredeemed">nicht eingelöst, %s</string>
     <string name="invites_sent">Versendete Invites</string>
-    <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält nun einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden? Die Option findest du auch unter Einstellungen -> Verhalten .]]></string>
+    <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden?]]></string>
     <string name="action_follow">Stelzen</string>
     <string name="action_unfollow">Unstelzen</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
@@ -319,4 +319,7 @@
     <string name="media_error_unknown">Abspielen fehlgeschlagen: Unbekannter Fehler.</string>
     <string name="media_error_unsupported">Abspielen fehlgeschlagen: Der Videobitstream hält sich zwar an den Standard, aber dein Android kann damit nicht umgehen.</string>
     <string name="favorites_of">Favoriten von %s</string>
+    <string name="audio_off">ruhig</string>
+    <string name="audio_on">ton </string>
+    <string name="type_audio">ton</string>
 </resources>

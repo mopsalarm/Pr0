@@ -88,6 +88,7 @@ import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.FragmentEvent;
 
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -635,12 +636,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;
             if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size()) {
                 for (FeedItem item : Lists.reverse(items.subList(0, idx))) {
-                    if (contentType.contains(item.contentTypes())) {
+                    if (contentType.containsAll(item.contentTypes())) {
                         return Optional.of(item);
                     }
                 }
             }
-
 
             return absent();
         }).get();
@@ -738,7 +738,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private void updateContentTypeItems(Menu menu) {
-        boolean single = settings.getContentType().size() == 1;
+        boolean single = ContentType.cleaned(settings.getContentType()).size() == 1;
 
         Map<Integer, Boolean> types = ImmutableMap.<Integer, Boolean>builder()
                 .put(R.id.action_content_type_sfw, settings.getContentTypeSfw())
@@ -753,6 +753,18 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 item.setEnabled(!single || !entry.getValue());
             }
         }
+
+        MenuItem audio = menu.findItem(R.id.action_content_type_audio);
+        MenuItem audioSep = menu.findItem(R.id.action_content_type_audio_sep);
+        if (isAudioAvailable()) {
+            audio.setChecked(settings.getContentTypeAudio());
+            audio.setVisible(true);
+
+            audioSep.setVisible(true);
+        } else {
+            audio.setVisible(false);
+            audioSep.setVisible(false);
+        }
     }
 
     @Override
@@ -761,12 +773,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 .put(R.id.action_content_type_sfw, "pref_feed_type_sfw")
                 .put(R.id.action_content_type_nsfw, "pref_feed_type_nsfw")
                 .put(R.id.action_content_type_nsfl, "pref_feed_type_nsfl")
+                .put(R.id.action_content_type_audio, "pref_feed_type_audio")
                 .build();
 
-        if (contentTypes.containsKey(item.getItemId())) {
+        String preferenceName = contentTypes.get(item.getItemId());
+        if (preferenceName != null) {
             boolean newState = !item.isChecked();
             settings.edit()
-                    .putBoolean(contentTypes.get(item.getItemId()), newState)
+                    .putBoolean(preferenceName, newState)
                     .apply();
 
             // this applies the new content types and refreshes the menu.
@@ -1326,4 +1340,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
             }
         }
     };
+
+    public static boolean isAudioAvailable() {
+        return new Instant(1465900718000L).isBeforeNow();
+    }
 }

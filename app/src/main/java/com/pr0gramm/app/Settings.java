@@ -55,11 +55,15 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_feed_type_nsfl", false);
     }
 
+    public boolean getContentTypeAudio() {
+        return preferences.getBoolean("pref_feed_type_audio", false);
+    }
+
     /**
-     * Gets a set of all selected content types.
+     * Gets a set of all selected content types. This always contains at least one content type.
      */
     public EnumSet<ContentType> getContentType() {
-        EnumSet<ContentType> result = EnumSet.allOf(ContentType.class);
+        EnumSet<ContentType> result = EnumSet.of(ContentType.SFW, ContentType.NSFW, ContentType.NSFL);
 
         if (!getContentTypeNsfl())
             result.remove(ContentType.NSFL);
@@ -70,6 +74,9 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         // leave at least sfw.
         if (result.size() > 1 && !getContentTypeSfw())
             result.remove(ContentType.SFW);
+
+        if (getContentTypeAudio())
+            result.add(ContentType.AUDIO);
 
         return result;
     }
@@ -235,6 +242,7 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
                 .putBoolean("pref_feed_type_sfw", true)
                 .putBoolean("pref_feed_type_nsfw", false)
                 .putBoolean("pref_feed_type_nsfl", false)
+                .putBoolean("pref_feed_type_audio", false)
                 .apply();
     }
 
