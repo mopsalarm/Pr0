@@ -2,8 +2,6 @@
 
 Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0gramm.com
 
-[![Join the chat at https://gitter.im/mopsalarm/Pr0](https://badges.gitter.im/mopsalarm/Pr0.svg)](https://gitter.im/mopsalarm/Pr0?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 ## Features
 * Anschauen des Feeds und einzelner Posts
 * Wechseln zwischen SFW/NSWF und NSWL
