@@ -35,4 +35,4 @@ Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0
 * Hilfe beim Testen, Bugs, etc
 * Tipps fürs Layout (auch für Tablet)
 
-Die alte Website findest du unter http://mopsalarm.github.io/
+Die alte Website findest du unter https://mopsalarm.github.io/
