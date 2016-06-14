@@ -16,10 +16,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.ContentType;
-import com.pr0gramm.app.ui.fragments.FeedFragment;
 
 import java.util.Collection;
-import java.util.EnumSet;
+
+import static java.util.Arrays.asList;
 
 /**
  */
@@ -30,28 +30,13 @@ public class ContentTypeDrawable extends Drawable {
     public ContentTypeDrawable(Context context, Collection<ContentType> types) {
         textSize = 16f;
 
-        EnumSet<ContentType> cleaned = ContentType.cleaned(types);
-        boolean abbreviate = cleaned.size() == 3;
-
-        String text;
-        if (abbreviate) {
+        if (types.containsAll(asList(ContentType.values()))) {
             text = context.getString(R.string.all);
         } else {
-            text = FluentIterable.from(cleaned)
+            text = FluentIterable.from(types)
                     .transform(type -> type.name().toLowerCase())
                     .join(Joiner.on("\n"));
         }
-
-        if (FeedFragment.isAudioAvailable()) {
-            // add "audio" or "quiet" flag
-            if (types.contains(ContentType.AUDIO)) {
-                text += "\n" + context.getString(R.string.audio_on);
-            } else {
-                text += "\n" + context.getString(R.string.audio_off);
-            }
-        }
-
-        this.text = text;
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
@@ -25,6 +26,8 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -92,6 +95,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
         RecentSearchesServices recentSearchesServices;
 
         private Subscription preloadItemsSubscription;
+        public static final List<String> CONTENT_TYPE_KEYS = ImmutableList.of(
+                "pref_feed_type_sfw", "pref_feed_type_nsfw", "pref_feed_type_nsfl");
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +118,9 @@ public class SettingsActivity extends BaseAppCompatActivity {
                     setPreferenceScreen((PreferenceScreen) root);
                 }
             }
+
+            // Load the preferences from an XML resource
+            updateContentTypeBoxes(getPreferenceManager().getSharedPreferences());
 
             if (!BuildConfig.DEBUG) {
                 hideDebugPreferences();
@@ -218,6 +226,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
             Activity activity = getActivity();
+            updateContentTypeBoxes(preferences);
 
             if ("pref_convert_gif_to_webm".equals(key)) {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
@@ -238,6 +247,27 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 TaskStackBuilder.create(getActivity())
                         .addNextIntentWithParentStack(intent)
                         .startActivities();
+            }
+        }
+
+        private void updateContentTypeBoxes(SharedPreferences sharedPreferences) {
+            Settings settings = Settings.of(sharedPreferences);
+            boolean enabled = settings.getContentType().size() > 1 && userService.isAuthorized();
+
+            for (String ctKey : CONTENT_TYPE_KEYS) {
+                Preference pref = findPreference(ctKey);
+                if (pref != null && sharedPreferences.getBoolean(ctKey, false))
+                    pref.setEnabled(enabled);
+            }
+
+            if (!userService.isAuthorized()) {
+                for (String name : new String[]{"pref_feed_type_nsfw", "pref_feed_type_nsfl"}) {
+                    Preference pref = findPreference(name);
+                    if (pref != null) {
+                        pref.setEnabled(false);
+                        pref.setSummary(R.string.pref_feed_type_login_required);
+                    }
+                }
             }
         }
     }

@@ -343,7 +343,7 @@ public class PostFragment extends BaseFragment implements
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
         // add a view over the main view, if the post is not visible now
-        if (!settings.getContentType().containsAll(feedItem.contentTypes())) {
+        if (!settings.getContentType().contains(feedItem.contentTypes())) {
             View overlay = inflater.inflate(R.layout.warn_post_can_not_be_viewed, view, false);
             view.addView(overlay);
 
