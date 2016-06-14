@@ -9,6 +9,7 @@ Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0
 * Mit eigenem Account anmelden + Favoriten anschauen
 * Posts voten
 * Suche nach Posts, auch in den Favoriten
+* Kommentare favorisieren
 * Neuladen des Feeds durch weiter herunterziehen
 * Tags anklicken können um mit diesen eine Suche zu starten
 * *gif*s auf einem Server in kleinere *webm*s umwandeln und diese in der App anzeigen
@@ -25,12 +26,10 @@ Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0
 * Eine Einstellung die Festlegt, dass *gif*s und *webm*s erst nach einem Knopfdruck geladen werden.
 * OP Anzeige in den Kommentaren
 * Hochladen neuer Bilder direkt vom Handy
-* neue und bessere Kategorien
+* Best of und Kontrovers-Kategorien
 * Vorladen von Bildern und Videos
+* Sound
 * mehr
-
-## Geplante Features zum Datensparen
-* Thumbnails auf einem Server in besserer Qualität neu komprimieren (http://bellard.org/bpg/ bietet sich da an)
 
 ## Benötigt
 * Hilfe beim Testen, Bugs, etc
