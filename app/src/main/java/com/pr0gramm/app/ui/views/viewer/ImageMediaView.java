@@ -32,8 +32,8 @@ import butterknife.BindView;
 public class ImageMediaView extends MediaView {
     private static final Logger logger = LoggerFactory.getLogger("ImageMediaView");
 
-    // we cap the image if it is more than 15 times as high as it is wide
-    private static final float CAP_IMAGE_RATIO = 1.f / 15.f;
+    // we cap the image if it is more than 30 times as high as it is wide
+    private static final float CAP_IMAGE_RATIO = 1.f / 30.f;
 
     private final String tag = "ImageMediaView" + System.identityHashCode(this);
     private final boolean zoomView;

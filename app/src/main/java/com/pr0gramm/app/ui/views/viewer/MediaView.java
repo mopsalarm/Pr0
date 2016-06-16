@@ -61,7 +61,7 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
 public abstract class MediaView extends FrameLayout {
     private static final Logger logger = LoggerFactory.getLogger("MediaView");
 
-    private static final float MIN_PREVIEW_ASPECT = 1 / 3.0f;
+    private static final float MIN_PREVIEW_ASPECT = 1 / 30.0f;
 
     protected static final int ANIMATION_DURATION = 500;
 
