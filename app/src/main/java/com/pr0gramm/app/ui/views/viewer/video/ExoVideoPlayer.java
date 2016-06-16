@@ -58,6 +58,8 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 64;
 
+    private boolean muted;
+
     private ExoPlayer exo;
     private MediaCodecVideoTrackRenderer exoVideoTrack;
     private MediaCodecAudioTrackRenderer exoAudioTrack;
@@ -122,6 +124,8 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
                 sampleSource, MediaCodecSelector.DEFAULT);
 
         exo.prepare(exoVideoTrack, exoAudioTrack);
+
+        setMuted(true);
     }
 
     @Override
@@ -155,12 +159,15 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public boolean isMuted() {
-        return false;
+        return muted;
     }
 
     @Override
     public void setMuted(boolean muted) {
+        float volume = muted ? 0.f : 1.f;
+        exo.sendMessage(exoAudioTrack, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, volume);
 
+        this.muted = muted;
     }
 
 
