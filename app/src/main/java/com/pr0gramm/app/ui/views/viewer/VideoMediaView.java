@@ -77,16 +77,6 @@ public class VideoMediaView extends AbstractProgressMediaView {
     public void playMedia() {
         super.playMedia();
 
-        if (!isHardwareAccelerated()) {
-            hideBusyIndicator();
-            DialogBuilder.start(getContext())
-                    .content(R.string.could_not_play_video_hardware)
-                    .positive()
-                    .show();
-
-            return;
-        }
-
         if (!videoViewInitialized) {
             showBusyIndicator();
 
