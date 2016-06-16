@@ -193,7 +193,8 @@ public class PostFragment extends BaseFragment implements
         setHasOptionsMenu(true);
 
         // get the item that is to be displayed.
-        feedItem = getArguments().getParcelable(ARG_FEED_ITEM);
+        feedItem = checkNotNull(getArguments().getParcelable(ARG_FEED_ITEM),
+                "No feed item given to post fragment");
 
         if (savedState != null) {
             tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
