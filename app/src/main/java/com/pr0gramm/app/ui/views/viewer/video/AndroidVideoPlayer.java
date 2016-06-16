@@ -144,7 +144,8 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         try {
             mMediaPlayer = new MediaPlayer();
 
-            mBackendView.setSurface(mMediaPlayer);
+            mMediaPlayer.setSurface(mBackendView.getCurrentSurface());
+
             mMediaPlayer.setVolume(mVolume, mVolume);
             mMediaPlayer.setOnPreparedListener(mPreparedListener);
             mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);

@@ -156,13 +156,13 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
         result.setGzipEncoding(false);
         result.setChunkedTransfer(false);
-        result.addHeader("Accept-Range", "bytes");
+        // result.addHeader("Accept-Range", "bytes");
         result.addHeader("Cache-Content", "no-cache");
 
         // forward content range header
-        String contentRange = response.header("Content-Range");
-        if (contentRange != null)
-            result.addHeader("Content-Range", contentRange);
+//        String contentRange = response.header("Content-Range");
+//        if (contentRange != null)
+//            result.addHeader("Content-Range", contentRange);
 
         if (length.isPresent()) {
             result.addHeader("Content-Length", String.valueOf(length.get()));
@@ -213,9 +213,9 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         Request.Builder req = new Request.Builder().url(url);
 
         // forward the range header
-        String range = session.getHeaders().get("range");
-        if (range != null)
-            req = req.addHeader("Range", range);
+        // String range = session.getHeaders().get("range");
+        // if (range != null)
+        //    req = req.addHeader("Range", range);
 
         return req.build();
     }

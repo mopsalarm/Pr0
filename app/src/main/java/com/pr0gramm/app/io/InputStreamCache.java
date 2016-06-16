@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by oliver on 20.03.16.
  */
 public interface InputStreamCache {
     InputStream get() throws IOException;

@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui.views.viewer.video;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.media.MediaPlayer;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -28,9 +27,8 @@ class TextureViewBackend implements ViewBackend, TextureView.SurfaceTextureListe
         // do nothing
     }
 
-    @Override
-    public void setSurface(MediaPlayer mp) {
-        mp.setSurface(surface);
+    public Surface getCurrentSurface() {
+        return surface;
     }
 
     @Override

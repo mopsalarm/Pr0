@@ -81,13 +81,6 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
             videoView.setVideoCallbacks(this);
             videoView.open(getEffectiveUri());
-
-
-//            videoView.setVideoURI(getEffectiveUri());
-//            videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
-//            videoView.setOnErrorListener(this::onMediaPlayerError);
-//            videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
-//            videoView.setOnInfoListener(this::onVideoInfoEvent);
         }
 
         applyMuteState();

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer.video;
 
 import android.media.MediaPlayer;
+import android.view.Surface;
 import android.view.View;
 
 /**
@@ -9,7 +10,7 @@ import android.view.View;
 interface ViewBackend {
     void setSize(int width, int height);
 
-    void setSurface(MediaPlayer mp);
+    Surface getCurrentSurface();
 
     View getView();
 

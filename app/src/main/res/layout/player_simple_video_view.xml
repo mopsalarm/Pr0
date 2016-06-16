@@ -4,7 +4,7 @@
 
     <include layout="@layout/player_preview_image"/>
 
-    <com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer
+    <com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
         android:id="@+id/video"
         app:aspect="3"
         android:layout_width="match_parent"
