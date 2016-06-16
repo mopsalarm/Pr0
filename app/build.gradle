@@ -173,7 +173,7 @@ dependencies {
     compile 'com.github.KeepSafe:ReLinker:1.2.1'
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
-
+    compile 'com.google.android.exoplayer:exoplayer:r1.5.9'
 
     // forked dependencies.
     compile 'com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202'

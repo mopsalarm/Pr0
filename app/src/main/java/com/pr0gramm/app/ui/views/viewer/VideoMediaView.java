@@ -6,8 +6,6 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
-import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -17,12 +15,11 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.views.viewer.video.CustomVideoView;
+import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
@@ -34,12 +31,12 @@ import butterknife.BindView;
 
 /**
  */
-public class VideoMediaView extends AbstractProgressMediaView {
+public class VideoMediaView extends AbstractProgressMediaView implements VideoPlayer.Callbacks {
     private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
     private static final String KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo";
 
     @BindView(R.id.video)
-    CustomVideoView videoView;
+    VideoPlayer videoView;
 
     @BindView(R.id.mute)
     ImageView muteButtonView;
@@ -53,11 +50,11 @@ public class VideoMediaView extends AbstractProgressMediaView {
     @Inject
     SharedPreferences preferences;
 
-    private int retryCount;
     private boolean videoViewInitialized;
 
     // only show error once.
     private boolean shouldShowIoError = true;
+    private int retryCount;
 
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context, R.layout.player_simple_video_view, mediaUri, onViewListener);
@@ -81,11 +78,16 @@ public class VideoMediaView extends AbstractProgressMediaView {
             showBusyIndicator();
 
             videoViewInitialized = true;
-            videoView.setVideoURI(getEffectiveUri());
-            videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
-            videoView.setOnErrorListener(this::onMediaPlayerError);
-            videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
-            videoView.setOnInfoListener(this::onVideoInfoEvent);
+
+            videoView.setVideoCallbacks(this);
+            videoView.open(getEffectiveUri());
+
+
+//            videoView.setVideoURI(getEffectiveUri());
+//            videoView.setOnPreparedListener(this::onMediaPlayerPrepared);
+//            videoView.setOnErrorListener(this::onMediaPlayerError);
+//            videoView.setOnVideoSizeChangedListener(this::onVideoSizeChanged);
+//            videoView.setOnInfoListener(this::onVideoInfoEvent);
         }
 
         applyMuteState();
@@ -167,34 +169,36 @@ public class VideoMediaView extends AbstractProgressMediaView {
     @Override
     protected Optional<Float> getVideoProgress() {
         if (videoView != null && videoViewInitialized && isPlaying()) {
-            int position = videoView.getCurrentPosition();
-            int duration = videoView.getDuration();
+            float progress = videoView.progress();
 
-            if (position >= 0 && duration > 0) {
-                return Optional.of(position / (float) duration);
+            if (progress >= 0 && progress <= 1) {
+                return Optional.of(progress);
             }
         }
 
         return Optional.absent();
     }
 
-    private boolean onVideoInfoEvent(MediaPlayer mediaPlayer, int event, int i) {
-        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-            showBusyIndicator();
-        }
-
-        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-            hideBusyIndicator();
-        }
-
-        if (event == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-            Stats.get().increment("video.playback.succeeded");
-        }
-
-        return false;
+    @Override
+    public void onVideoBufferingStarts() {
+        showBusyIndicator();
     }
 
-    private void onVideoSizeChanged(MediaPlayer mediaPlayer, int width, int height) {
+    @Override
+    public void onVideoBufferingEnds() {
+        hideBusyIndicator();
+    }
+
+    @Override
+    public void onVideoRenderingStarts() {
+        if (isPlaying()) {
+            // mark media as viewed
+            onMediaShown();
+        }
+    }
+
+    @Override
+    public void onVideoSizeChanged(int width, int height) {
         setViewAspect(width / (float) height);
     }
 
@@ -206,115 +210,15 @@ public class VideoMediaView extends AbstractProgressMediaView {
 
     @Override
     public void rewind() {
-        videoView.seekTo(0);
-    }
-
-    private boolean onMediaPlayerError(MediaPlayer mediaPlayer, int what, int extra) {
-        final int METHOD_CALLED_IN_INVALID_STATE = -38;
-
-        logger.error("media player error occurred: {} {}", what, extra);
-
-        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED
-                || what == METHOD_CALLED_IN_INVALID_STATE
-                || extra == METHOD_CALLED_IN_INVALID_STATE) {
-
-            if (retryCount < 3) {
-                retryCount++;
-
-                // try again in a moment
-                if (isPlaying()) {
-                    postDelayed(() -> {
-                        if (isPlaying()) {
-                            videoView.resume();
-                        }
-                    }, 500);
-                }
-
-                return true;
-            }
-        }
-
-        if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
-            if (shouldShowIoError) {
-                DialogBuilder.start(getContext())
-                        .content(R.string.could_not_play_video_io)
-                        .positive()
-                        .show();
-
-                shouldShowIoError = false;
-            }
-
-            hideBusyIndicator();
-            return true;
-        }
-
-        try {
-            String errorKey;
-            @StringRes int errorMessage;
-            switch (what) {
-                case MediaPlayer.MEDIA_ERROR_IO:
-                    errorMessage = R.string.media_error_io;
-                    errorKey = "MEDIA_ERROR_IO";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_MALFORMED:
-                    errorMessage = R.string.media_error_malformed;
-                    errorKey = "MEDIA_ERROR_MALFORMED";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                    errorMessage = R.string.media_error_server_died;
-                    errorKey = "MEDIA_ERROR_SERVER_DIED";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-                    errorMessage = R.string.media_error_timed_out;
-                    errorKey = "MEDIA_ERROR_TIMED_OUT";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                    errorMessage = R.string.media_error_unknown;
-                    errorKey = "MEDIA_ERROR_UNKNOWN";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
-                    errorMessage = R.string.media_error_unsupported;
-                    errorKey = "MEDIA_ERROR_UNSUPPORTED";
-                    break;
-
-                case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                    errorMessage = R.string.media_error_not_valid_for_progressive_playback;
-                    errorKey = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
-                    break;
-
-                default:
-                    errorMessage = R.string.could_not_play_video;
-                    errorKey = "UNKNOWN-" + what;
-                    break;
-            }
-
-            DialogBuilder.start(getContext())
-                    .content(errorMessage)
-                    .positive()
-                    .show();
-
-            Stats.get().incrementCounter("video.playback.failed", "reason:" + errorKey);
-
-
-        } catch (Exception ignored) {
-        }
-
-        return true;
+        videoView.rewind();
     }
 
 
-    private void onMediaPlayerPrepared(MediaPlayer player) {
-        player.setLooping(true);
-        hideBusyIndicator();
-
-        if (isPlaying()) {
-            // mark media as viewed
-            onMediaShown();
-        }
+    @Override
+    public void onVideoError(String message) {
+        DialogBuilder.start(getContext())
+                .content(message)
+                .positive()
+                .show();
     }
 }

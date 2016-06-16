@@ -19,13 +19,13 @@ package com.pr0gramm.app.ui.views.viewer.video;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
+import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.pr0gramm.app.R;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.ui.views.AspectLayout;
 
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ import java.io.IOException;
 /**
  * Stripped down version of {@link android.widget.VideoView}.
  */
-public class CustomVideoView extends AspectLayout {
+public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
     private static final Logger logger = LoggerFactory.getLogger("CustomVideoView");
 
     // settable by the client
@@ -64,26 +64,26 @@ public class CustomVideoView extends AspectLayout {
     private int mVideoHeight;
     private int mSurfaceWidth;
     private int mSurfaceHeight;
-    private OnCompletionListener mOnCompletionListener;
-    private OnErrorListener mOnErrorListener;
-    private OnInfoListener mOnInfoListener;
-    private MediaPlayer.OnPreparedListener mOnPreparedListener;
-    private MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener;
-    private int mSeekWhenPrepared;  // recording the seek position while preparing
+    private int mSeekWhenPrepared;
     private int mVolume;
 
     // the backend view.
     private ViewBackend mBackendView;
 
-    public CustomVideoView(Context context) {
+    int retryCount;
+    private boolean shouldShowIoError = true;
+
+    private Callbacks videoCallbacks = new NoopVideoCallbacks();
+
+    public AndroidVideoPlayer(Context context) {
         this(context, null);
     }
 
-    public CustomVideoView(Context context, AttributeSet attrs) {
+    public AndroidVideoPlayer(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CustomVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AndroidVideoPlayer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initVideoView();
     }
@@ -190,9 +190,7 @@ public class CustomVideoView extends AspectLayout {
                         setAspect((float) mVideoWidth / mVideoHeight);
                     }
 
-                    if (mOnVideoSizeChangedListener != null) {
-                        mOnVideoSizeChangedListener.onVideoSizeChanged(mp, width, height);
-                    }
+                    videoCallbacks.onVideoSizeChanged(width, height);
                 }
             };
 
@@ -200,9 +198,7 @@ public class CustomVideoView extends AspectLayout {
         public void onPrepared(MediaPlayer mp) {
             mCurrentState = STATE_PREPARED;
 
-            if (mOnPreparedListener != null) {
-                mOnPreparedListener.onPrepared(mMediaPlayer);
-            }
+            mp.setLooping(true);
 
             mVideoWidth = mp.getVideoWidth();
             mVideoHeight = mp.getVideoHeight();
@@ -247,88 +243,103 @@ public class CustomVideoView extends AspectLayout {
 
                     mCurrentState = STATE_PLAYBACK_COMPLETED;
                     mTargetState = STATE_PLAYBACK_COMPLETED;
-
-                    if (mOnCompletionListener != null) {
-                        mOnCompletionListener.onCompletion(mMediaPlayer);
-                    }
                 }
             };
 
-    private final MediaPlayer.OnInfoListener mInfoListener =
-            new MediaPlayer.OnInfoListener() {
-                public boolean onInfo(MediaPlayer mp, int arg1, int arg2) {
-                    if (mOnInfoListener != null) {
-                        mOnInfoListener.onInfo(mp, arg1, arg2);
-                    }
-                    return true;
-                }
-            };
+    private final MediaPlayer.OnInfoListener mInfoListener = (mp, event, extra) -> {
+        logger.info("Info event: {}", event);
 
-    private final MediaPlayer.OnErrorListener mErrorListener =
-            new MediaPlayer.OnErrorListener() {
-                public boolean onError(MediaPlayer mp, int framework_err, int impl_err) {
-                    logger.error("Error: " + framework_err + "," + impl_err);
-                    mCurrentState = STATE_ERROR;
-                    mTargetState = STATE_ERROR;
+        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+            videoCallbacks.onVideoBufferingStarts();
+        }
 
-                    /* If an error handler has been supplied, use it and finish. */
-                    if (mOnErrorListener != null) {
-                        mOnErrorListener.onError(mMediaPlayer, framework_err, impl_err);
-                    }
+        if (event == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+            videoCallbacks.onVideoBufferingEnds();
+        }
 
-                    return true;
-                }
-            };
+        if (event == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+            videoCallbacks.onVideoBufferingEnds();
+            videoCallbacks.onVideoRenderingStarts();
+            // Stats.get().increment("video.playback.succeeded");
+        }
 
-    /**
-     * Register a callback to be invoked when the media file
-     * is loaded and ready to go.
-     *
-     * @param l The callback that will be run
-     */
-    public void setOnPreparedListener(MediaPlayer.OnPreparedListener l) {
-        mOnPreparedListener = l;
-    }
+        return true;
+    };
 
-    /**
-     * Register a callback to be invoked when the end of a media file
-     * has been reached during playback.
-     *
-     * @param l The callback that will be run
-     */
-    public void setOnCompletionListener(OnCompletionListener l) {
-        mOnCompletionListener = l;
-    }
+    private final MediaPlayer.OnErrorListener mErrorListener = (mp, frameworkErrorCode, implErrorCode) -> {
+        logger.error("Error: " + frameworkErrorCode + "," + implErrorCode);
+        mCurrentState = STATE_ERROR;
+        mTargetState = STATE_ERROR;
 
-    /**
-     * Register a callback to be invoked when an error occurs
-     * during playback or setup.  If no listener is specified,
-     * or if the listener returned false, VideoView will inform
-     * the user of any errors.
-     *
-     * @param l The callback that will be run
-     */
-    public void setOnErrorListener(OnErrorListener l) {
-        mOnErrorListener = l;
-    }
+        try {
+            handleError(frameworkErrorCode, implErrorCode);
+        } catch (Exception ignored) {
+        }
 
-    /**
-     * This listener will be called whenever the size of the video changes.
-     *
-     * @param listener The listener to be called.
-     */
-    public void setOnVideoSizeChangedListener(MediaPlayer.OnVideoSizeChangedListener listener) {
-        this.mOnVideoSizeChangedListener = listener;
-    }
+        return true;
+    };
 
-    /**
-     * Register a callback to be invoked when an informational event
-     * occurs during playback or setup.
-     *
-     * @param l The callback that will be run
-     */
-    public void setOnInfoListener(OnInfoListener l) {
-        mOnInfoListener = l;
+    private void handleError(int what, int extra) {
+        logger.error("media player error occurred: {} {}", what, extra);
+
+        if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
+            if (shouldShowIoError) {
+                videoCallbacks.onVideoError(getContext().getString(R.string.could_not_play_video_io));
+                shouldShowIoError = false;
+            }
+
+            videoCallbacks.onVideoBufferingEnds();
+            return;
+        }
+
+        String errorKey;
+        @StringRes int errorMessage;
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_IO:
+                errorMessage = R.string.media_error_io;
+                errorKey = "MEDIA_ERROR_IO";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                errorMessage = R.string.media_error_malformed;
+                errorKey = "MEDIA_ERROR_MALFORMED";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                errorMessage = R.string.media_error_server_died;
+                errorKey = "MEDIA_ERROR_SERVER_DIED";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                errorMessage = R.string.media_error_timed_out;
+                errorKey = "MEDIA_ERROR_TIMED_OUT";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                errorMessage = R.string.media_error_unknown;
+                errorKey = "MEDIA_ERROR_UNKNOWN";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                errorMessage = R.string.media_error_unsupported;
+                errorKey = "MEDIA_ERROR_UNSUPPORTED";
+                break;
+
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                errorMessage = R.string.media_error_not_valid_for_progressive_playback;
+                errorKey = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
+                break;
+
+            default:
+                errorMessage = R.string.could_not_play_video;
+                errorKey = "UNKNOWN-" + what;
+                break;
+        }
+
+        // show this error.
+        videoCallbacks.onVideoError(getContext().getString(errorMessage));
+
+        Stats.get().incrementCounter("video.playback.failed", "reason:" + errorKey);
     }
 
     final private ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
@@ -342,7 +353,7 @@ public class CustomVideoView extends AspectLayout {
             mSurfaceWidth = width;
             mSurfaceHeight = height;
             boolean isValidState = (mTargetState == STATE_PLAYING);
-            // boolean hasValidSize = (mVideoWidth == width && mVideoHeight == height);
+
             boolean hasValidSize = (width > 0 && height > 0);
             if (mMediaPlayer != null && isValidState && hasValidSize) {
                 if (mSeekWhenPrepared != 0) {
@@ -372,6 +383,16 @@ public class CustomVideoView extends AspectLayout {
         }
     }
 
+    @Override
+    public void setVideoCallbacks(Callbacks callbacks) {
+        this.videoCallbacks = callbacks != null ? callbacks : new NoopVideoCallbacks();
+    }
+
+    @Override
+    public void open(Uri uri) {
+        setVideoURI(uri);
+    }
+
     public void start() {
         if (isInPlaybackState()) {
             mBackendView.getView().setAlpha(1f);
@@ -380,6 +401,12 @@ public class CustomVideoView extends AspectLayout {
             mCurrentState = STATE_PLAYING;
         }
         mTargetState = STATE_PLAYING;
+    }
+
+    @Override
+    public float progress() {
+        float duration = getDuration();
+        return duration > 0 ? getCurrentPosition() / duration : -1;
     }
 
     public void pause() {
@@ -392,12 +419,9 @@ public class CustomVideoView extends AspectLayout {
         mTargetState = STATE_PAUSED;
     }
 
-    public void suspend() {
-        release();
-    }
-
-    public void resume() {
-        openVideo();
+    @Override
+    public void rewind() {
+        seekTo(0);
     }
 
     public int getDuration() {
