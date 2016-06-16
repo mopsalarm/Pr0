@@ -70,7 +70,6 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
     // the backend view.
     private ViewBackend mBackendView;
 
-    int retryCount;
     private boolean shouldShowIoError = true;
 
     private Callbacks videoCallbacks = new NoopVideoCallbacks();
@@ -448,18 +447,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         }
     }
 
-    public boolean isPlaying() {
-        return isInPlaybackState() && mMediaPlayer.isPlaying();
-    }
-
     private boolean isInPlaybackState() {
         return (mMediaPlayer != null &&
                 mCurrentState != STATE_ERROR &&
                 mCurrentState != STATE_IDLE &&
                 mCurrentState != STATE_PREPARING);
-    }
-
-    public boolean isTransformable() {
-        return true;
     }
 }
