@@ -22,6 +22,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 /**
  */
 public class InputStreamCacheDataSource implements DataSource {
@@ -40,6 +42,13 @@ public class InputStreamCacheDataSource implements DataSource {
 
             @Override
             public void onResponse(Call call, Response resp) throws IOException {
+                if (!resp.isSuccessful()) {
+                    // forward errors to the failure handler.
+                    String msg = firstNonNull(resp.message(), "Server responded with " + resp.code());
+                    onFailure(call, new IOException(msg));
+                    return;
+                }
+
                 response.set(new HttpResult(null, resp, new GreedyInputStreamCache(context,
                         new AutoCloseInputStream(resp.body().byteStream()))));
             }
