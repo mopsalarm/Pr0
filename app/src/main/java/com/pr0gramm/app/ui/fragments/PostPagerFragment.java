@@ -175,7 +175,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
                 activePostFragment.autoScrollToComment(startCommentId);
             }
 
-            if (previewInfo != null) {
+            if (previewInfo != null && activePostFragment.getFeedItem() != null) {
                 if (activePostFragment.getFeedItem().id() == getArgumentStartItem(null).id()) {
                     activePostFragment.setPreviewInfo(previewInfo);
                     previewInfo = null;

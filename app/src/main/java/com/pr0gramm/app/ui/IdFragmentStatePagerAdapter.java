@@ -1,8 +1,6 @@
 package com.pr0gramm.app.ui;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -13,13 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static com.google.common.collect.Iterators.limit;
@@ -55,6 +51,10 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
 
     @Override
     public void startUpdate(ViewGroup container) {
+        if (container.getId() == View.NO_ID) {
+            throw new IllegalStateException("ViewPager with adapter " + this
+                    + " requires a view id");
+        }
     }
 
     /**
@@ -158,9 +158,8 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
     public void finishUpdate(ViewGroup container) {
         try {
             if (mCurTransaction != null) {
-                mCurTransaction.commitAllowingStateLoss();
+                mCurTransaction.commitNowAllowingStateLoss();
                 mCurTransaction = null;
-                mFragmentManager.executePendingTransactions();
             }
         } catch (IllegalStateException ignored) {
             // Sometimes we get a "activity has been destroyed." exception.
@@ -171,68 +170,68 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
     public boolean isViewFromObject(View view, Object object) {
         return ((Fragment) object).getView() == view;
     }
-
-    @Override
-    public Parcelable saveState() {
-        Bundle state = null;
-        if (mSavedState.size() > 0) {
-            state = new Bundle();
-
-            long[] ids = new long[mSavedState.size()];
-            Parcelable[] states = new Parcelable[mSavedState.size()];
-
-            ImmutableList<Map.Entry<Long, Fragment.SavedState>> entries = ImmutableList.copyOf(mSavedState.entrySet());
-            for (int idx = 0; idx < entries.size(); idx++) {
-                ids[idx] = entries.get(idx).getKey();
-                states[idx] = entries.get(idx).getValue();
-            }
-            state.putLongArray("ids", ids);
-            state.putParcelableArray("states", states);
-        }
-
-        for (int idx = 0; idx < mFragments.size(); idx++) {
-            Fragment f = mFragments.valueAt(idx);
-            if (f != null) {
-                if (state == null) {
-                    state = new Bundle();
-                }
-                String key = "f" + mFragments.keyAt(idx);
-                mFragmentManager.putFragment(state, key, f);
-            }
-        }
-        return state;
-    }
-
-    @Override
-    public void restoreState(Parcelable state, ClassLoader loader) {
-        if (state != null) {
-            Bundle bundle = (Bundle) state;
-            bundle.setClassLoader(loader);
-
-            long[] ids = bundle.getLongArray("ids");
-            Parcelable[] fss = bundle.getParcelableArray("states");
-
-            mSavedState.clear();
-            mFragments.clear();
-            if (fss != null) {
-                for (int i = 0; i < fss.length; i++) {
-                    mSavedState.put(ids[i], (Fragment.SavedState) fss[i]);
-                }
-            }
-
-            Iterable<String> keys = bundle.keySet();
-            for (String key : keys) {
-                if (key.startsWith("f")) {
-                    long id = Long.parseLong(key.substring(1));
-                    Fragment f = mFragmentManager.getFragment(bundle, key);
-                    if (f != null) {
-                        f.setMenuVisibility(false);
-                        mFragments.put(id, f);
-                    } else {
-                        logger.warn("Bad fragment at key " + key);
-                    }
-                }
-            }
-        }
-    }
+//
+//    @Override
+//    public Parcelable saveState() {
+//        Bundle state = null;
+//        if (mSavedState.size() > 0) {
+//            state = new Bundle();
+//
+//            long[] ids = new long[mSavedState.size()];
+//            Parcelable[] states = new Parcelable[mSavedState.size()];
+//
+//            ImmutableList<Map.Entry<Long, Fragment.SavedState>> entries = ImmutableList.copyOf(mSavedState.entrySet());
+//            for (int idx = 0; idx < entries.size(); idx++) {
+//                ids[idx] = entries.get(idx).getKey();
+//                states[idx] = entries.get(idx).getValue();
+//            }
+//            state.putLongArray("ids", ids);
+//            state.putParcelableArray("states", states);
+//        }
+//
+//        for (int idx = 0; idx < mFragments.size(); idx++) {
+//            Fragment f = mFragments.valueAt(idx);
+//            if (f != null) {
+//                if (state == null) {
+//                    state = new Bundle();
+//                }
+//                String key = "f" + mFragments.keyAt(idx);
+//                mFragmentManager.putFragment(state, key, f);
+//            }
+//        }
+//        return state;
+//    }
+//
+//    @Override
+//    public void restoreState(Parcelable state, ClassLoader loader) {
+//        if (state != null) {
+//            Bundle bundle = (Bundle) state;
+//            bundle.setClassLoader(loader);
+//
+//            long[] ids = bundle.getLongArray("ids");
+//            Parcelable[] fss = bundle.getParcelableArray("states");
+//
+//            mSavedState.clear();
+//            mFragments.clear();
+//            if (fss != null) {
+//                for (int i = 0; i < fss.length; i++) {
+//                    mSavedState.put(ids[i], (Fragment.SavedState) fss[i]);
+//                }
+//            }
+//
+//            Iterable<String> keys = bundle.keySet();
+//            for (String key : keys) {
+//                if (key.startsWith("f")) {
+//                    long id = Long.parseLong(key.substring(1));
+//                    Fragment f = mFragmentManager.getFragment(bundle, key);
+//                    if (f != null) {
+//                        f.setMenuVisibility(false);
+//                        mFragments.put(id, f);
+//                    } else {
+//                        logger.warn("Bad fragment at key " + key);
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
