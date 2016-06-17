@@ -1,4 +1,19 @@
 [
+
+
+  {
+    "version": 103,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Zeige den Fortschritt beim Buffern eines Videos."
+      },
+      {
+        "type": "Fix",
+        "change": "Videowiedergabe verbessert und stabilisiert."
+      }
+    ]
+  },
   {
     "version": 102,
     "changes": [
