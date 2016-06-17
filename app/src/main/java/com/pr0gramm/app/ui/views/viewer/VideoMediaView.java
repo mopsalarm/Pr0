@@ -1,17 +1,15 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
 import com.google.common.base.Optional;
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -22,9 +20,6 @@ import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer;
 import com.pr0gramm.app.util.AndroidUtility;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -32,11 +27,10 @@ import butterknife.BindView;
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView implements VideoPlayer.Callbacks {
-    private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
     private static final String KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo";
 
     @BindView(R.id.video)
-    VideoPlayer videoView;
+    VideoPlayer videoPlayer;
 
     @BindView(R.id.mute)
     ImageView muteButtonView;
@@ -52,17 +46,15 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     private boolean videoViewInitialized;
 
-    // only show error once.
-    private boolean shouldShowIoError = true;
-    private int retryCount;
-
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context, R.layout.player_simple_video_view, mediaUri, onViewListener);
 
         muteButtonView.setOnClickListener(v -> {
-            setMuted(!videoView.isMuted());
-            Track.muted(!videoView.isMuted());
+            setMuted(!videoPlayer.isMuted());
+            Track.muted(!videoPlayer.isMuted());
         });
+
+        RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
     }
 
     @Override
@@ -79,23 +71,12 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
             videoViewInitialized = true;
 
-            videoView.setVideoCallbacks(this);
-            videoView.open(getEffectiveUri());
+            videoPlayer.setVideoCallbacks(this);
+            videoPlayer.open(getEffectiveUri());
         }
 
         applyMuteState();
-        videoView.start();
-    }
-
-    private AppCompatActivity getParentActivity() {
-        Context context = getContext();
-        while (context instanceof ContextWrapper) {
-            if (context instanceof AppCompatActivity) {
-                return (AppCompatActivity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-        return null;
+        videoPlayer.start();
     }
 
     @Override
@@ -114,7 +95,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             long diff = (now - lastUnmutedVideo) / 1000;
             setMuted(diff > 10 * 60);
         } else {
-            videoView.setMuted(true);
+            videoPlayer.setMuted(true);
         }
     }
 
@@ -127,7 +108,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     private void setMuted(boolean muted) {
         Drawable icon;
 
-        videoView.setMuted(muted);
+        videoPlayer.setMuted(muted);
         if (muted) {
             storeUnmuteTime(0);
 
@@ -161,8 +142,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     protected Optional<Float> getVideoProgress() {
-        if (videoView != null && videoViewInitialized && isPlaying()) {
-            float progress = videoView.progress();
+        if (videoPlayer != null && videoViewInitialized && isPlaying()) {
+            float progress = videoPlayer.progress();
 
             if (progress >= 0 && progress <= 1) {
                 return Optional.of(progress);
@@ -198,12 +179,12 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     @Override
     public void stopMedia() {
         super.stopMedia();
-        videoView.pause();
+        videoPlayer.pause();
     }
 
     @Override
     public void rewind() {
-        videoView.rewind();
+        videoPlayer.rewind();
     }
 
 

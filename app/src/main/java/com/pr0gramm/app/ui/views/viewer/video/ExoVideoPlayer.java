@@ -26,7 +26,6 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Surface;
-import android.view.View;
 
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -64,8 +63,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private MediaCodecVideoTrackRenderer exoVideoTrack;
     private MediaCodecAudioTrackRenderer exoAudioTrack;
 
-    private Callbacks videoCallbacks;
-    private ViewBackend backendView;
+    private Callbacks videoCallbacks = new NoopVideoCallbacks();
 
     public ExoVideoPlayer(Context context) {
         super(context);
@@ -83,12 +81,8 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     }
 
     private void init() {
-        // always use a texture view.
-        backendView = new TextureViewBackend(getContext(), backendViewCallbacks);
-
-        View view = backendView.getView();
-        // view.setAlpha(0.01f);
-        addView(view);
+        // Use a texture view to display the video.
+        addView(new TextureViewBackend(getContext(), backendViewCallbacks).getView());
 
         logger.info("Create ExoPlayer instance");
         exo = ExoPlayer.Factory.newInstance(2);
@@ -119,7 +113,6 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
                 MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
                 5000, new Handler(Looper.getMainLooper()), this, 50);
 
-
         exoAudioTrack = new MediaCodecAudioTrackRenderer(
                 sampleSource, MediaCodecSelector.DEFAULT);
 
@@ -130,7 +123,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public void setVideoCallbacks(@Nullable Callbacks callbacks) {
-        this.videoCallbacks = callbacks;
+        this.videoCallbacks = callbacks != null ? callbacks : new NoopVideoCallbacks();
     }
 
     @Override
