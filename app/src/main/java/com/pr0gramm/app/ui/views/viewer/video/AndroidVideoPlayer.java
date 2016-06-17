@@ -73,6 +73,7 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
     private boolean shouldShowIoError = true;
 
     private Callbacks videoCallbacks = new EmptyVideoCallbacks();
+    private float buffered;
 
     public AndroidVideoPlayer(Context context) {
         this(context, null);
@@ -154,6 +155,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
             mMediaPlayer.setOnInfoListener(mInfoListener);
             mMediaPlayer.setDataSource(getContext(), mUri);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.setOnBufferingUpdateListener((mediaPlayer, percent) -> {
+                this.buffered = 0.01f * percent;
+            });
+            
             mMediaPlayer.prepareAsync();
 
             // we don't set the target state here either, but preserve the
@@ -407,6 +412,11 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
     public float progress() {
         float duration = getDuration();
         return duration > 0 ? getCurrentPosition() / duration : -1;
+    }
+
+    @Override
+    public float buffered() {
+        return buffered;
     }
 
     public void pause() {

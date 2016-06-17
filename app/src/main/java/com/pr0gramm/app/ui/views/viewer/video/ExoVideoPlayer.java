@@ -36,7 +36,6 @@ import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
@@ -64,6 +63,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private MediaCodecAudioTrackRenderer exoAudioTrack;
 
     private Callbacks videoCallbacks = new EmptyVideoCallbacks();
+    private InputStreamCacheDataSource dataSource;
 
     public ExoVideoPlayer(Context context) {
         super(context);
@@ -100,7 +100,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
         OkHttpClient httpClient = Dagger.appComponent(getContext()).okHttpClient();
 
-        DataSource dataSource = new InputStreamCacheDataSource(getContext(), httpClient, uri);
+        dataSource = new InputStreamCacheDataSource(getContext(), httpClient, uri);
 
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 uri, dataSource,
@@ -136,6 +136,11 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     public float progress() {
         float duration = exo.getDuration();
         return duration > 0 ? exo.getCurrentPosition() / duration : -1;
+    }
+
+    @Override
+    public float buffered() {
+        return dataSource.buffered();
     }
 
     @Override

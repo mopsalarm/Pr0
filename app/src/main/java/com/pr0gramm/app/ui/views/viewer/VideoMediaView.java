@@ -141,13 +141,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
 
     @Override
-    protected Optional<Float> getVideoProgress() {
+    protected Optional<ProgressInfo> getVideoProgress() {
         if (videoPlayer != null && videoViewInitialized && isPlaying()) {
-            float progress = videoPlayer.progress();
-
-            if (progress >= 0 && progress <= 1) {
-                return Optional.of(progress);
-            }
+            return Optional.of(new ProgressInfo(videoPlayer.progress(), videoPlayer.buffered()));
         }
 
         return Optional.absent();

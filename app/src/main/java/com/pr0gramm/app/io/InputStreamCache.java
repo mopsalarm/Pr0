@@ -12,4 +12,9 @@ public interface InputStreamCache {
      * Closes and invalidates the cache.
      */
     void close() throws IOException;
+
+    /**
+     * Returns the number of bytes that are already buffered.
+     */
+    int cacheSize();
 }

@@ -46,11 +46,12 @@ public abstract class AbstractProgressMediaView extends MediaView {
         if (!isPlaying())
             return;
 
-        Optional<Float> progress = getVideoProgress();
-        if (shouldShowView(progress)) {
+        Optional<ProgressInfo> info = getVideoProgress();
+        if (shouldShowView(info)) {
             videoProgressView.setVisibility(VISIBLE);
-            videoProgressView.setProgress((int) (1000 * progress.get()));
             videoProgressView.setMax(1000);
+            videoProgressView.setProgress((int) (1000 * info.get().progress));
+            videoProgressView.setSecondaryProgress((int) (1000 * info.get().buffered));
         } else {
             videoProgressView.setVisibility(GONE);
         }
@@ -61,13 +62,23 @@ public abstract class AbstractProgressMediaView extends MediaView {
         }
     }
 
-    private boolean shouldShowView(Optional<Float> progress) {
-        return progressEnabled && progress.isPresent() && progress.get() >= 0 && progress.get() <= 1;
+    private boolean shouldShowView(Optional<ProgressInfo> info) {
+        return progressEnabled && info.isPresent() && info.get().progress >= 0 && info.get().progress <= 1;
     }
 
-    protected abstract Optional<Float> getVideoProgress();
+    protected abstract Optional<ProgressInfo> getVideoProgress();
 
     public void setProgressEnabled(boolean visible) {
         progressEnabled = visible;
+    }
+
+    protected static class ProgressInfo {
+        public final float progress;
+        public final float buffered;
+
+        public ProgressInfo(float progress, float buffered) {
+            this.buffered = buffered;
+            this.progress = progress;
+        }
     }
 }

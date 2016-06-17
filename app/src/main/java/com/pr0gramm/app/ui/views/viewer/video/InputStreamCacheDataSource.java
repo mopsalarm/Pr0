@@ -12,7 +12,6 @@ import com.pr0gramm.app.io.GreedyInputStreamCache;
 import com.pr0gramm.app.io.InputStreamCache;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
-import org.apache.commons.io.input.ClosedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +27,7 @@ import okhttp3.Response;
 public class InputStreamCacheDataSource implements DataSource {
     private final SettableFuture<HttpResult> response = SettableFuture.create();
 
+    private long totalSize = -1;
     private InputStream inputStream;
 
     public InputStreamCacheDataSource(Context context, OkHttpClient okHttpClient, Uri uri) {
@@ -57,7 +57,8 @@ public class InputStreamCacheDataSource implements DataSource {
         // seeks/skips to the correct positions
         ByteStreams.skipFully(inputStream, dataSpec.position);
 
-        return result.response.body().contentLength();
+        totalSize = result.response.body().contentLength();
+        return totalSize;
     }
 
     @Override
@@ -71,6 +72,15 @@ public class InputStreamCacheDataSource implements DataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         return ByteStreams.read(inputStream, buffer, offset, readLength);
+    }
+
+    /**
+     * Returns the percentage that is buffered, or -1, if unknown
+     */
+    public float buffered() {
+        return totalSize > 0
+                ? Futures.getUnchecked(response).cache.cacheSize() / (float) totalSize
+                : -1;
     }
 
     private static class HttpResult {

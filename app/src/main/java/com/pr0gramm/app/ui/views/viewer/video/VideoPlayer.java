@@ -14,6 +14,8 @@ public interface VideoPlayer {
 
     float progress();
 
+    float buffered();
+
     void pause();
 
     void rewind();

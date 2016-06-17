@@ -123,6 +123,11 @@ public class GreedyInputStreamCache implements InputStreamCache {
         Uninterruptibles.joinUninterruptibly(thread);
     }
 
+    @Override
+    public int cacheSize() {
+        return totalCount;
+    }
+
     private void refCountClose() {
         if (openCount.decrementAndGet() == 0) {
             try {

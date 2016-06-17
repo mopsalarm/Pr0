@@ -111,13 +111,13 @@ public class GifMediaView extends AbstractProgressMediaView {
     }
 
     @Override
-    protected Optional<Float> getVideoProgress() {
+    protected Optional<ProgressInfo> getVideoProgress() {
         if (gif != null && isPlaying()) {
             int position = gif.getCurrentFrameIndex();
             int duration = gif.getNumberOfFrames();
 
             if (position >= 0 && duration > 0) {
-                return Optional.of(position / (float) duration);
+                return Optional.of(new ProgressInfo(position / (float) duration, 1));
             }
         }
 
