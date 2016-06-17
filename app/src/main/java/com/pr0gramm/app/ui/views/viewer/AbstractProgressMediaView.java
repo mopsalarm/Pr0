@@ -63,7 +63,13 @@ public abstract class AbstractProgressMediaView extends MediaView {
     }
 
     private boolean shouldShowView(Optional<ProgressInfo> info) {
-        return progressEnabled && info.isPresent() && info.get().progress >= 0 && info.get().progress <= 1;
+        if (progressEnabled && info.isPresent()) {
+            ProgressInfo theInfo = info.get();
+            return (theInfo.progress >= 0 && theInfo.progress <= 1
+                    || theInfo.buffered >= 0 && theInfo.buffered <= 1);
+        } else {
+            return false;
+        }
     }
 
     protected abstract Optional<ProgressInfo> getVideoProgress();
