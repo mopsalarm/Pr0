@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
@@ -47,7 +48,11 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     private boolean videoViewInitialized;
 
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
-        super(context, R.layout.player_simple_video_view, mediaUri, onViewListener);
+        super(context,
+                Sdk.isAtLeastJellyBean()
+                        ? R.layout.player_kind_video_exo
+                        : R.layout.player_kind_video_android,
+                mediaUri, onViewListener);
 
         muteButtonView.setOnClickListener(v -> {
             setMuted(!videoPlayer.isMuted());

@@ -57,7 +57,7 @@ public class ImageMediaView extends MediaView {
     SingleShotService singleShotService;
 
     public ImageMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_image, url.withProxy(false), onViewListener);
+        super(context, R.layout.player_kind_image, url.withProxy(false), onViewListener);
 
         zoomView = findViewById(R.id.tabletlayout) != null;
 
