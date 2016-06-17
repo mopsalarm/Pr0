@@ -200,6 +200,9 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
             case ExoPlayer.STATE_READY:
                 videoCallbacks.onVideoBufferingEnds();
 
+                // better re-apply mute state
+                setMuted(muted);
+
                 if (playWhenReady) {
                     videoCallbacks.onVideoRenderingStarts();
                 }
