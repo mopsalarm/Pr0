@@ -187,7 +187,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
         public void onDestroy(ViewBackend backend) {
             exo.blockingSendMessage(exoVideoTrack,
                     MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
-                    backend.getCurrentSurface());
+                    null);
         }
     };
 
