@@ -72,7 +72,7 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
 
     private boolean shouldShowIoError = true;
 
-    private Callbacks videoCallbacks = new NoopVideoCallbacks();
+    private Callbacks videoCallbacks = new EmptyVideoCallbacks();
 
     public AndroidVideoPlayer(Context context) {
         this(context, null);
@@ -385,7 +385,7 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
 
     @Override
     public void setVideoCallbacks(Callbacks callbacks) {
-        this.videoCallbacks = callbacks != null ? callbacks : new NoopVideoCallbacks();
+        this.videoCallbacks = callbacks != null ? callbacks : new EmptyVideoCallbacks();
     }
 
     @Override

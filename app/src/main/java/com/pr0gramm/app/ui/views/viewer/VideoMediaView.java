@@ -190,6 +190,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     public void onVideoError(String message) {
+        // we might be finished here :/
+        hideBusyIndicator();
+
         DialogBuilder.start(getContext())
                 .content(message)
                 .positive()

@@ -63,7 +63,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private MediaCodecVideoTrackRenderer exoVideoTrack;
     private MediaCodecAudioTrackRenderer exoAudioTrack;
 
-    private Callbacks videoCallbacks = new NoopVideoCallbacks();
+    private Callbacks videoCallbacks = new EmptyVideoCallbacks();
 
     public ExoVideoPlayer(Context context) {
         super(context);
@@ -123,7 +123,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public void setVideoCallbacks(@Nullable Callbacks callbacks) {
-        this.videoCallbacks = callbacks != null ? callbacks : new NoopVideoCallbacks();
+        this.videoCallbacks = callbacks != null ? callbacks : new EmptyVideoCallbacks();
     }
 
     @Override

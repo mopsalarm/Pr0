@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.views.viewer.video;
 /**
  * Empty implementation of {@link VideoPlayer.Callbacks}
  */
-public final class NoopVideoCallbacks implements VideoPlayer.Callbacks {
+public final class EmptyVideoCallbacks implements VideoPlayer.Callbacks {
     @Override
     public void onVideoBufferingStarts() {
 
