@@ -71,22 +71,7 @@ public class GreedyInputStreamCache implements InputStreamCache {
             @Override
             public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
                 synchronized (lock) {
-                    while (position + byteCount > totalCount) {
-                        if (endOfStream) {
-                            if (position == totalCount && ioError != null) {
-                                throw new IOException("Error in caching thread", ioError);
-                            }
-
-                            byteCount = Math.max(0, totalCount - position);
-                            break;
-                        }
-
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException ierr) {
-                            throw new IOException("Got interrupted while waiting for data", ierr);
-                        }
-                    }
+                    byteCount = waitAndClamp(byteCount);
 
                     if (byteCount == 0)
                         return -1;
@@ -102,6 +87,35 @@ public class GreedyInputStreamCache implements InputStreamCache {
 
                     return byteCount;
                 }
+            }
+
+            @Override
+            public long skip(long n) throws IOException {
+                synchronized (lock) {
+                    int byteCount = waitAndClamp((int) n);
+                    position += byteCount;
+                    return byteCount;
+                }
+            }
+
+            private int waitAndClamp(int byteCount) throws IOException {
+                while (position + byteCount > totalCount) {
+                    if (endOfStream) {
+                        if (position == totalCount && ioError != null) {
+                            throw new IOException("Error in caching thread", ioError);
+                        }
+
+                        byteCount = Math.max(0, totalCount - position);
+                        break;
+                    }
+
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException ierr) {
+                        throw new IOException("Got interrupted while waiting for data", ierr);
+                    }
+                }
+                return byteCount;
             }
 
             @Override

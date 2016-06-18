@@ -13,6 +13,9 @@ import com.pr0gramm.app.R;
  * from the width.
  */
 public class AspectLayout extends FrameLayout {
+    @SuppressWarnings("FieldCanBeLocal")
+    private static float MAX_ASPECT_RATIO_DEFORMATION_FRACTION = 0.01f;
+
     private float aspect;
 
     public AspectLayout(Context context) {
@@ -37,7 +40,7 @@ public class AspectLayout extends FrameLayout {
     }
 
     /**
-     * Sets the aspect of this image. This will not trigger a relayout.
+     * Sets the aspect of this image. This might trigger a relayout.
      *
      * @param aspect Sets the aspect of the image.
      */
@@ -51,8 +54,28 @@ public class AspectLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (aspect < 0) {
+            // Aspect ratio not set.
+            return;
+        }
 
         int width = getMeasuredWidth();
-        setMeasuredDimension(width, (int) (width / aspect));
+        int height = getMeasuredHeight();
+        float viewAspectRatio = (float) width / height;
+        float aspectDeformation = aspect / viewAspectRatio - 1;
+        if (Math.abs(aspectDeformation) <= MAX_ASPECT_RATIO_DEFORMATION_FRACTION) {
+            // We're within the allowed tolerance.
+            return;
+        }
+
+        if (aspectDeformation > 0) {
+            height = (int) (width / aspect);
+        } else {
+            width = (int) (height * aspect);
+        }
+
+        super.onMeasure(
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
     }
 }

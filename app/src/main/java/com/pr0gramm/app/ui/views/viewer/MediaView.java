@@ -313,6 +313,14 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
+    protected void showBusyIndicator(boolean show) {
+        if (show) {
+            showBusyIndicator();
+        } else {
+            hideBusyIndicator();
+        }
+    }
+
     /**
      * Hides the busy indicator that was shown in {@link #showBusyIndicator()}.
      */

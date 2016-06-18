@@ -52,7 +52,6 @@ public class ApplicationClass extends Application {
         Base.initialize(this);
 
         Settings.initialize(this);
-        Settings settings = Settings.of(this);
 
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.");

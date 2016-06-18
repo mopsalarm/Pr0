@@ -18,20 +18,36 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.ui.DialogBuilder;
+import com.pr0gramm.app.ui.views.AspectLayout;
+import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer;
+import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer;
+import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer;
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.trello.rxlifecycle.RxLifecycle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView implements VideoPlayer.Callbacks {
+    private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
+
     private static final String KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo";
 
-    @BindView(R.id.video)
-    VideoPlayer videoPlayer;
+    // the video player that does all the magic
+    private final RxVideoPlayer videoPlayer;
+
+    @BindView(R.id.video_container)
+    AspectLayout videoPlayerParent;
 
     @BindView(R.id.mute)
     ImageView muteButtonView;
@@ -49,10 +65,16 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context,
-                Sdk.isAtLeastJellyBean()
-                        ? R.layout.player_kind_video_exo
-                        : R.layout.player_kind_video_android,
+                R.layout.player_kind_video,
                 mediaUri, onViewListener);
+
+        if (Sdk.isAtLeastJellyBean()) {
+            logger.info("Using exo player to play videos.");
+            videoPlayer = new ExoVideoPlayer(context, videoPlayerParent);
+        } else {
+            logger.info("Falling back on simple android video player.");
+            videoPlayer = new AndroidVideoPlayer(context, videoPlayerParent);
+        }
 
         muteButtonView.setOnClickListener(v -> {
             setMuted(!videoPlayer.isMuted());
@@ -60,6 +82,12 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         });
 
         RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
+
+        videoPlayer.buffering()
+                .sample(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bindView(this))
+                .subscribe(this::showBusyIndicator);
     }
 
     @Override
@@ -156,12 +184,10 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     public void onVideoBufferingStarts() {
-        showBusyIndicator();
     }
 
     @Override
     public void onVideoBufferingEnds() {
-        hideBusyIndicator();
     }
 
     @Override

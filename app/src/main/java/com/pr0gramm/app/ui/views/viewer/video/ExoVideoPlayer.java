@@ -23,9 +23,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.view.Surface;
+import android.view.View;
 
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -51,45 +50,40 @@ import okhttp3.OkHttpClient;
  * Stripped down version of {@link android.widget.VideoView}.
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlayer.Listener, MediaCodecVideoTrackRenderer.EventListener {
+public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPlayer.Listener, MediaCodecVideoTrackRenderer.EventListener {
     private static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
 
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 64;
+    private final Context context;
+    private final AspectLayout parentView;
 
     private boolean muted;
 
     private ExoPlayer exo;
     private MediaCodecVideoTrackRenderer exoVideoTrack;
     private MediaCodecAudioTrackRenderer exoAudioTrack;
+    private boolean initialized;
 
-    private Callbacks videoCallbacks = new EmptyVideoCallbacks();
     private BufferedDataSource dataSource;
+    private ViewBackend surfaceProvider;
 
-    public ExoVideoPlayer(Context context) {
-        super(context);
-        init();
-    }
+    private Uri uri;
 
-    public ExoVideoPlayer(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
+    public ExoVideoPlayer(Context context, AspectLayout aspectLayout) {
+        this.context = context;
+        this.parentView = aspectLayout;
 
-    public ExoVideoPlayer(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
         // Use a texture view to display the video.
-        addView(new TextureViewBackend(getContext(), backendViewCallbacks).getView());
+        surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
+        View videoView = surfaceProvider.getView();
+        parentView.addView(videoView);
 
         logger.info("Create ExoPlayer instance");
         exo = ExoPlayer.Factory.newInstance(2);
         exo.addListener(this);
 
-        RxView.detaches(this).subscribe(event -> {
+        RxView.detaches(videoView).subscribe(event -> {
             logger.info("Detaching view, releasing exo player now.");
             exo.release();
         });
@@ -104,9 +98,19 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
             dataSource = new ForwardingDataSource(new FileDataSource());
         } else {
             logger.info("Got a remote file, using caching source.");
-            OkHttpClient httpClient = Dagger.appComponent(getContext()).okHttpClient();
-            dataSource = new InputStreamCacheDataSource(getContext(), httpClient, uri);
+            OkHttpClient httpClient = Dagger.appComponent(context).okHttpClient();
+            dataSource = new InputStreamCacheDataSource(context, httpClient, uri);
         }
+
+        this.uri = uri;
+    }
+
+    @Override
+    public void start() {
+        if (initialized)
+            return;
+
+        logger.info("Preparing exo player now'");
 
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 uri, dataSource,
@@ -115,7 +119,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
                 new Mp4Extractor(), new WebmExtractor());
 
         exoVideoTrack = new MediaCodecVideoTrackRenderer(
-                getContext(), sampleSource, MediaCodecSelector.DEFAULT,
+                context, sampleSource, MediaCodecSelector.DEFAULT,
                 MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
                 5000, new Handler(Looper.getMainLooper()), this, 50);
 
@@ -123,19 +127,18 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
                 sampleSource, MediaCodecSelector.DEFAULT);
 
         exo.prepare(exoVideoTrack, exoAudioTrack);
-
-        setMuted(true);
-    }
-
-    @Override
-    public void setVideoCallbacks(@Nullable Callbacks callbacks) {
-        this.videoCallbacks = callbacks != null ? callbacks : new EmptyVideoCallbacks();
-    }
-
-    @Override
-    public void start() {
-        logger.info("Set playback to 'play'");
         exo.setPlayWhenReady(true);
+
+        // initialize the renderer with a surface, if we already have one.
+        // this might be the case, if we are restarting the video after
+        // a call to pause.
+        if (surfaceProvider.hasSurface()) {
+            exo.sendMessage(exoVideoTrack,
+                    MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                    surfaceProvider.getCurrentSurface());
+        }
+
+        initialized = true;
     }
 
     @Override
@@ -151,13 +154,26 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public void pause() {
-        logger.info("Set playback to 'pause'");
-        exo.setPlayWhenReady(false);
+        if (!initialized)
+            return;
+
+        logger.info("Stopping exo player now");
+        exo.blockingSendMessage(exoVideoTrack,
+                MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                null);
+
+        // we dont need those anymore.
+        exoAudioTrack = null;
+        exoVideoTrack = null;
+
+        exo.stop();
+
+        initialized = false;
     }
 
     @Override
     public void rewind() {
-        logger.info("Rewinding playback");
+        logger.info("Rewinding playback to the start.");
         exo.seekTo(0);
     }
 
@@ -168,8 +184,10 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public void setMuted(boolean muted) {
-        float volume = muted ? 0.f : 1.f;
-        exo.sendMessage(exoAudioTrack, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, volume);
+        if (exoAudioTrack != null) {
+            float volume = muted ? 0.f : 1.f;
+            exo.sendMessage(exoAudioTrack, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, volume);
+        }
 
         this.muted = muted;
     }
@@ -178,9 +196,11 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
         @Override
         public void onAvailable(ViewBackend backend) {
-            exo.sendMessage(exoVideoTrack,
-                    MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
-                    backend.getCurrentSurface());
+            if (exoVideoTrack != null) {
+                exo.sendMessage(exoVideoTrack,
+                        MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                        backend.getCurrentSurface());
+            }
         }
 
         @Override
@@ -189,9 +209,11 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
         @Override
         public void onDestroy(ViewBackend backend) {
-            exo.blockingSendMessage(exoVideoTrack,
-                    MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
-                    null);
+            if (exoVideoTrack != null) {
+                exo.blockingSendMessage(exoVideoTrack,
+                        MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
+                        null);
+            }
         }
     };
 
@@ -200,17 +222,17 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
         switch (playbackState) {
             case ExoPlayer.STATE_BUFFERING:
             case ExoPlayer.STATE_PREPARING:
-                videoCallbacks.onVideoBufferingStarts();
+                callbacks.onVideoBufferingStarts();
                 break;
 
             case ExoPlayer.STATE_READY:
-                videoCallbacks.onVideoBufferingEnds();
-
                 // better re-apply mute state
                 setMuted(muted);
 
                 if (playWhenReady) {
-                    videoCallbacks.onVideoRenderingStarts();
+                    callbacks.onVideoRenderingStarts();
+                } else {
+                    callbacks.onVideoBufferingEnds();
                 }
 
                 break;
@@ -228,7 +250,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-        videoCallbacks.onVideoError(error.getLocalizedMessage());
+        callbacks.onVideoError(error.getLocalizedMessage());
         if (exo.getPlaybackState() != ExoPlayer.STATE_IDLE)
             exo.release();
     }
@@ -243,24 +265,24 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
         if (width > 0 && height > 0) {
             int scaledWidth = (int) ((width * pixelWidthHeightRatio) + 0.5f);
 
-            setAspect((float) scaledWidth / height);
-            videoCallbacks.onVideoSizeChanged(scaledWidth, height);
+            parentView.setAspect((float) scaledWidth / height);
+            callbacks.onVideoSizeChanged(scaledWidth, height);
         }
     }
 
     @Override
     public void onDrawnToSurface(Surface surface) {
-        videoCallbacks.onVideoRenderingStarts();
+        callbacks.onVideoRenderingStarts();
     }
 
     @Override
     public void onDecoderInitializationError(MediaCodecTrackRenderer.DecoderInitializationException e) {
-        videoCallbacks.onVideoError(e.getMessage());
+        callbacks.onVideoError(e.getMessage());
     }
 
     @Override
     public void onCryptoError(MediaCodec.CryptoException e) {
-        videoCallbacks.onVideoError(e.getMessage());
+        callbacks.onVideoError(e.getMessage());
     }
 
     @Override

@@ -21,7 +21,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.StringRes;
-import android.util.AttributeSet;
 import android.view.View;
 
 import com.pr0gramm.app.R;
@@ -36,8 +35,10 @@ import java.io.IOException;
 /**
  * Stripped down version of {@link android.widget.VideoView}.
  */
-public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
+public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
     private static final Logger logger = LoggerFactory.getLogger("CustomVideoView");
+    private final Context context;
+    private final AspectLayout parentView;
 
     // settable by the client
     private Uri mUri;
@@ -72,65 +73,18 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
 
     private boolean shouldShowIoError = true;
 
-    private Callbacks videoCallbacks = new EmptyVideoCallbacks();
     private float buffered;
 
-    public AndroidVideoPlayer(Context context) {
-        this(context, null);
-    }
-
-    public AndroidVideoPlayer(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public AndroidVideoPlayer(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initVideoView();
-    }
-
-    private void initVideoView() {
-        mVideoWidth = 0;
-        mVideoHeight = 0;
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        requestFocus();
-        mCurrentState = STATE_IDLE;
-        mTargetState = STATE_IDLE;
+    public AndroidVideoPlayer(Context context, AspectLayout aspectLayout) {
+        this.context = context;
+        this.parentView = aspectLayout;
 
         // always use surface view.
-        mBackendView = new TextureViewBackend(getContext(), backendViewCallbacks);
+        mBackendView = new TextureViewBackend(context, backendViewCallbacks);
 
         View view = mBackendView.getView();
         view.setAlpha(0.01f);
-        addView(view);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        mBackendView.getView().layout(0, 0, right - left, bottom - top);
-    }
-
-    /**
-     * Sets video URI.
-     *
-     * @param uri the URI of the video.
-     */
-    public void setVideoURI(Uri uri) {
-        mUri = uri;
-        mSeekWhenPrepared = 0;
-        openVideo();
-        requestLayout();
-        invalidate();
-    }
-
-    public void stopPlayback() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-            mMediaPlayer.release();
-            mMediaPlayer = null;
-            mCurrentState = STATE_IDLE;
-            mTargetState = STATE_IDLE;
-        }
+        parentView.addView(view);
     }
 
     private void openVideo() {
@@ -142,6 +96,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         // we shouldn't clear the target state, because somebody might have
         // called start() previously
         release();
+
+        // lets simulate buffering while preparing...
+        callbacks.onVideoBufferingStarts();
+
         try {
             mMediaPlayer = new MediaPlayer();
 
@@ -153,12 +111,12 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
             mMediaPlayer.setOnCompletionListener(mCompletionListener);
             mMediaPlayer.setOnErrorListener(mErrorListener);
             mMediaPlayer.setOnInfoListener(mInfoListener);
-            mMediaPlayer.setDataSource(getContext(), mUri);
+            mMediaPlayer.setDataSource(context, mUri);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnBufferingUpdateListener((mediaPlayer, percent) -> {
                 this.buffered = 0.01f * percent;
             });
-            
+
             mMediaPlayer.prepareAsync();
 
             // we don't set the target state here either, but preserve the
@@ -192,10 +150,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
                         mBackendView.setSize(mVideoWidth, mVideoHeight);
 
                         logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
-                        setAspect((float) mVideoWidth / mVideoHeight);
+                        parentView.setAspect((float) mVideoWidth / mVideoHeight);
                     }
 
-                    videoCallbacks.onVideoSizeChanged(width, height);
+                    callbacks.onVideoSizeChanged(width, height);
                 }
             };
 
@@ -215,7 +173,7 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
             if (mVideoWidth != 0 && mVideoHeight != 0) {
                 logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight);
                 mBackendView.setSize(mVideoWidth, mVideoHeight);
-                setAspect((float) mVideoWidth / mVideoHeight);
+                parentView.setAspect((float) mVideoWidth / mVideoHeight);
 
                 if (mSurfaceWidth != 0 && mSurfaceHeight != 0) {
                     // We didn't actually change the size (it was already at the size
@@ -235,37 +193,32 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         }
     };
 
-    private final MediaPlayer.OnCompletionListener mCompletionListener =
-            new MediaPlayer.OnCompletionListener() {
-                public void onCompletion(MediaPlayer mp) {
-                    // Workaround for samsung devices to enable looping.
-                    if (mp.isLooping()) {
-                        mp.pause();
-                        mp.seekTo(0);
-                        mp.start();
-                        return;
-                    }
+    private final MediaPlayer.OnCompletionListener mCompletionListener = mp -> {
+        // Workaround for samsung devices to enable looping.
+        if (mp.isLooping()) {
+            mp.pause();
+            mp.seekTo(0);
+            mp.start();
+            return;
+        }
 
-                    mCurrentState = STATE_PLAYBACK_COMPLETED;
-                    mTargetState = STATE_PLAYBACK_COMPLETED;
-                }
-            };
+        mCurrentState = STATE_PLAYBACK_COMPLETED;
+        mTargetState = STATE_PLAYBACK_COMPLETED;
+    };
 
     private final MediaPlayer.OnInfoListener mInfoListener = (mp, event, extra) -> {
         logger.info("Info event: {}", event);
 
         if (event == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-            videoCallbacks.onVideoBufferingStarts();
+            callbacks.onVideoBufferingStarts();
         }
 
         if (event == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-            videoCallbacks.onVideoBufferingEnds();
+            callbacks.onVideoBufferingEnds();
         }
 
         if (event == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-            videoCallbacks.onVideoBufferingEnds();
-            videoCallbacks.onVideoRenderingStarts();
-            // Stats.get().increment("video.playback.succeeded");
+            callbacks.onVideoRenderingStarts();
         }
 
         return true;
@@ -289,11 +242,11 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
 
         if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
             if (shouldShowIoError) {
-                videoCallbacks.onVideoError(getContext().getString(R.string.could_not_play_video_io));
+                callbacks.onVideoError(context.getString(R.string.could_not_play_video_io));
                 shouldShowIoError = false;
             }
 
-            videoCallbacks.onVideoBufferingEnds();
+            callbacks.onVideoBufferingEnds();
             return;
         }
 
@@ -342,7 +295,7 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         }
 
         // show this error.
-        videoCallbacks.onVideoError(getContext().getString(errorMessage));
+        callbacks.onVideoError(context.getString(errorMessage));
 
         Stats.get().incrementCounter("video.playback.failed", "reason:" + errorKey);
     }
@@ -389,13 +342,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
     }
 
     @Override
-    public void setVideoCallbacks(Callbacks callbacks) {
-        this.videoCallbacks = callbacks != null ? callbacks : new EmptyVideoCallbacks();
-    }
-
-    @Override
     public void open(Uri uri) {
-        setVideoURI(uri);
+        mUri = uri;
+        mSeekWhenPrepared = 0;
+        openVideo();
     }
 
     public void start() {
@@ -404,7 +354,15 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
 
             mMediaPlayer.start();
             mCurrentState = STATE_PLAYING;
+
+            callbacks.onVideoBufferingEnds();
+
+        } else {
+            if (mCurrentState != STATE_PREPARING) {
+                openVideo();
+            }
         }
+
         mTargetState = STATE_PLAYING;
     }
 
@@ -419,14 +377,10 @@ public class AndroidVideoPlayer extends AspectLayout implements VideoPlayer {
         return buffered;
     }
 
+    @Override
     public void pause() {
-        if (isInPlaybackState()) {
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.pause();
-                mCurrentState = STATE_PAUSED;
-            }
-        }
-        mTargetState = STATE_PAUSED;
+        release();
+        mTargetState = STATE_IDLE;
     }
 
     @Override
