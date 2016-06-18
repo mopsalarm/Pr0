@@ -24,7 +24,6 @@ import android.support.annotation.StringRes;
 import android.view.View;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.ui.views.AspectLayout;
 
 import org.slf4j.Logger;
@@ -255,51 +254,42 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_IO:
                 errorMessage = R.string.media_error_io;
-                errorKey = "MEDIA_ERROR_IO";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_MALFORMED:
                 errorMessage = R.string.media_error_malformed;
-                errorKey = "MEDIA_ERROR_MALFORMED";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 errorMessage = R.string.media_error_server_died;
-                errorKey = "MEDIA_ERROR_SERVER_DIED";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
                 errorMessage = R.string.media_error_timed_out;
-                errorKey = "MEDIA_ERROR_TIMED_OUT";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
                 errorMessage = R.string.media_error_unknown;
-                errorKey = "MEDIA_ERROR_UNKNOWN";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
                 errorMessage = R.string.media_error_unsupported;
-                errorKey = "MEDIA_ERROR_UNSUPPORTED";
                 break;
 
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
                 errorMessage = R.string.media_error_not_valid_for_progressive_playback;
-                errorKey = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
                 break;
 
             default:
                 errorMessage = R.string.could_not_play_video;
-                errorKey = "UNKNOWN-" + what;
                 break;
         }
 
         // show this error.
         callbacks.onVideoError(context.getString(errorMessage));
-
-        Stats.get().incrementCounter("video.playback.failed", "reason:" + errorKey);
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     final private ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
         @Override
         public void onAvailable(ViewBackend backend) {

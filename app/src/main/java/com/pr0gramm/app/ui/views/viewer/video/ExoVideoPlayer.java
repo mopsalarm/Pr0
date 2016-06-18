@@ -37,14 +37,19 @@ import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.FileDataSource;
+import com.google.common.base.Throwables;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.views.AspectLayout;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import okhttp3.OkHttpClient;
+
+import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
 
 /**
  * Stripped down version of {@link android.widget.VideoView}.
@@ -168,13 +173,13 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
                 null);
 
-        // we dont need those anymore.
-        exoAudioTrack = null;
-        exoVideoTrack = null;
-
         exo.stop();
 
         initialized = false;
+
+        // we dont need those anymore.
+        exoAudioTrack = null;
+        exoVideoTrack = null;
     }
 
     @Override
@@ -257,14 +262,26 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-        callbacks.onVideoError(error.getLocalizedMessage());
-        if (exo.getPlaybackState() != ExoPlayer.STATE_IDLE)
-            exo.release();
+        Throwable rootCause = Throwables.getRootCause(error);
+
+        String messageChain = getMessageWithCauses(error);
+        if (messageChain.contains("::pr0:: network error")) {
+            callbacks.onVideoError(context.getString(R.string.media_exo_error_io, rootCause.getMessage()));
+            return;
+
+        } else {
+            callbacks.onVideoError(messageChain);
+
+            AndroidUtility.logToCrashlytics(rootCause);
+        }
+
+        // try to reset the player
+        pause();
     }
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-
+        logger.warn("Dropped {} frames", count);
     }
 
     @Override
@@ -285,12 +302,14 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onDecoderInitializationError(MediaCodecTrackRenderer.DecoderInitializationException e) {
-        callbacks.onVideoError(e.getMessage());
+        callbacks.onVideoError(getMessageWithCauses(e));
+        AndroidUtility.logToCrashlytics(e);
     }
 
     @Override
     public void onCryptoError(MediaCodec.CryptoException e) {
-        callbacks.onVideoError(e.getMessage());
+        callbacks.onVideoError(getMessageWithCauses(e));
+        AndroidUtility.logToCrashlytics(e);
     }
 
     @Override

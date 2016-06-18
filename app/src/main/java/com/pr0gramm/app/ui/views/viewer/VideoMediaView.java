@@ -14,6 +14,7 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
@@ -62,6 +63,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     SharedPreferences preferences;
 
     private boolean videoViewInitialized;
+
+    private boolean errorShown;
+    private boolean statsSent;
 
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context,
@@ -196,6 +200,11 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             // mark media as viewed
             onMediaShown();
         }
+
+        if (!statsSent) {
+            Stats.get().incrementCounter("video.playback.succeeded");
+            statsSent = true;
+        }
     }
 
     @Override
@@ -220,9 +229,18 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         // we might be finished here :/
         hideBusyIndicator();
 
-        DialogBuilder.start(getContext())
-                .content(message)
-                .positive()
-                .show();
+        if (!errorShown) {
+            DialogBuilder.start(getContext())
+                    .content(R.string.media_exo_error, message)
+                    .positive()
+                    .show();
+
+            errorShown = true;
+        }
+
+        if (!statsSent) {
+            Stats.get().incrementCounter("video.playback.succeeded");
+            statsSent = true;
+        }
     }
 }

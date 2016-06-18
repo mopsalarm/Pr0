@@ -427,4 +427,15 @@ public class AndroidUtility {
         hsv[2] *= (1.f - amount);
         return Color.HSVToColor(hsv);
     }
+
+    public static String getMessageWithCauses(Throwable error) {
+        StringBuilder message = new StringBuilder(error.toString());
+
+        Throwable cause = error.getCause();
+        if (error != cause && cause != null) {
+            message.append(" (caused by ").append(getMessageWithCauses(cause)).append(")");
+        }
+
+        return message.toString();
+    }
 }

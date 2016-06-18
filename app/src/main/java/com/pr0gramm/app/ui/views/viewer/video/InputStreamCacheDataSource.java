@@ -21,8 +21,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 /**
  */
 public class InputStreamCacheDataSource implements BufferedDataSource {
@@ -43,7 +41,7 @@ public class InputStreamCacheDataSource implements BufferedDataSource {
             public void onResponse(Call call, Response resp) throws IOException {
                 if (!resp.isSuccessful()) {
                     // forward errors to the failure handler.
-                    String msg = firstNonNull(resp.message(), "Server responded with " + resp.code());
+                    String msg = String.format("Server responded with %d '%s'", resp.code(), resp.message());
                     onFailure(call, new IOException(msg));
                     return;
                 }
@@ -58,7 +56,7 @@ public class InputStreamCacheDataSource implements BufferedDataSource {
     public long open(DataSpec dataSpec) throws IOException {
         HttpResult result = Futures.getUnchecked(response);
         if (result.error != null)
-            throw new IOException("Could not open video stream", result.error);
+            throw new IOException("::pr0:: network error", result.error);
 
         inputStream = result.cache.get();
 
