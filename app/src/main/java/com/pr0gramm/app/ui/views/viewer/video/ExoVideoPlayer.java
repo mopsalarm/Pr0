@@ -95,7 +95,13 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         if ("file".equals(uri.getScheme())) {
             logger.info("Got a local file, reading directly from that file.");
-            dataSource = new ForwardingDataSource(new FileDataSource());
+            dataSource = new ForwardingDataSource(new FileDataSource()) {
+                @Override
+                public float buffered() {
+                    // always fully buffered.
+                    return 1;
+                }
+            };
         } else {
             logger.info("Got a remote file, using caching source.");
             OkHttpClient httpClient = Dagger.appComponent(context).okHttpClient();
@@ -193,7 +199,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     }
 
 
-    private ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final ViewBackend.Callbacks backendViewCallbacks = new ViewBackend.Callbacks() {
         @Override
         public void onAvailable(ViewBackend backend) {
             if (exoVideoTrack != null) {
@@ -265,6 +272,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         if (width > 0 && height > 0) {
             int scaledWidth = (int) ((width * pixelWidthHeightRatio) + 0.5f);
 
+            logger.info("Got video track with size {}x{}", scaledWidth, height);
             parentView.setAspect((float) scaledWidth / height);
             callbacks.onVideoSizeChanged(scaledWidth, height);
         }

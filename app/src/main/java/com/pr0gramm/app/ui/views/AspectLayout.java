@@ -68,11 +68,8 @@ public class AspectLayout extends FrameLayout {
             return;
         }
 
-        if (aspectDeformation > 0) {
-            height = (int) (width / aspect);
-        } else {
-            width = (int) (height * aspect);
-        }
+        // always "fix" height, never change width.
+        height = (int) (width / aspect);
 
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),

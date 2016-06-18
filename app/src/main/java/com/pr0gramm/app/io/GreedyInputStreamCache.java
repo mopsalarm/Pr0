@@ -122,7 +122,7 @@ public class GreedyInputStreamCache implements InputStreamCache {
             public void close() throws IOException {
                 refCountClose();
             }
-        }, 1024 * 32);
+        }, 1024 * 64);
     }
 
     @Override

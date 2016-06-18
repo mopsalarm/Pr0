@@ -50,7 +50,6 @@ import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.ErrorFormatting;
 import com.pr0gramm.app.util.Noop;
 import com.trello.rxlifecycle.FragmentEvent;
-import com.trello.rxlifecycle.RxLifecycle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -348,9 +347,7 @@ public class UploadFragment extends BaseFragment {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        RxView.attaches(viewer)
-                .compose(RxLifecycle.bindView(viewer))
-                .subscribe(event -> viewer.playMedia());
+        RxView.attaches(viewer).subscribe(event -> viewer.playMedia());
 
         preview.removeAllViews();
         preview.addView(viewer);
