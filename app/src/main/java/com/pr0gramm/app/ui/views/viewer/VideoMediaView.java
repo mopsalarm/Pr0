@@ -239,7 +239,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
 
         if (!statsSent) {
-            Stats.get().incrementCounter("video.playback.succeeded");
+            Stats.get().incrementCounter("video.playback.failed");
             statsSent = true;
         }
     }
