@@ -6,7 +6,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Zeige den Fortschritt beim Buffern eines Videos."
+        "change": "Zeige den Fortschritt beim Buffern eines Videos im Fortschrittsbalken."
       },
       {
         "type": "Fix",
