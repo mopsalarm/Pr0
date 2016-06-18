@@ -37,6 +37,7 @@ import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
+import com.google.android.exoplayer.upstream.FileDataSource;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.ui.views.AspectLayout;
@@ -63,7 +64,7 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     private MediaCodecAudioTrackRenderer exoAudioTrack;
 
     private Callbacks videoCallbacks = new EmptyVideoCallbacks();
-    private InputStreamCacheDataSource dataSource;
+    private BufferedDataSource dataSource;
 
     public ExoVideoPlayer(Context context) {
         super(context);
@@ -98,9 +99,14 @@ public class ExoVideoPlayer extends AspectLayout implements VideoPlayer, ExoPlay
     public void open(Uri uri) {
         logger.info("Opening exo player for uri {}", uri);
 
-        OkHttpClient httpClient = Dagger.appComponent(getContext()).okHttpClient();
-
-        dataSource = new InputStreamCacheDataSource(getContext(), httpClient, uri);
+        if ("file".equals(uri.getScheme())) {
+            logger.info("Got a local file, reading directly from that file.");
+            dataSource = new ForwardingDataSource(new FileDataSource());
+        } else {
+            logger.info("Got a remote file, using caching source.");
+            OkHttpClient httpClient = Dagger.appComponent(getContext()).okHttpClient();
+            dataSource = new InputStreamCacheDataSource(getContext(), httpClient, uri);
+        }
 
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 uri, dataSource,

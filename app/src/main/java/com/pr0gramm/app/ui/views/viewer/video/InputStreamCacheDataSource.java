@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views.viewer.video;
 import android.content.Context;
 import android.net.Uri;
 
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.Futures;
@@ -26,7 +25,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  */
-public class InputStreamCacheDataSource implements DataSource {
+public class InputStreamCacheDataSource implements BufferedDataSource {
     private final SettableFuture<HttpResult> response = SettableFuture.create();
 
     private long totalSize = -1;
