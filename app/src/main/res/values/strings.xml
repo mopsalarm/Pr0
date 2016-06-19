@@ -343,7 +343,7 @@
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_compatibility_summary">If video playback does not work, try to tweak these settings</string>
     <string name="pref_use_google_decoder_title">Software decoder</string>
-    <string name="pref_use_google_decoder_summary">Enabling this setting will let the app prefer the software decoder, which might be more stable and compatible with more devices. Disabling this might improve video performance.</string>
+    <string name="pref_use_google_decoder_summary">Enabling this setting will let the app prefer the software decoder, which might be more stable and compatible with more devices. Disabling this might improve video performance (jellybean an up only).</string>
     <string name="report_video_summary">Size: %1$sx%2$s, format %3$s, duration: %4$s</string>
     <string name="report_video_stream">Stream, typ: %1$s, codec: %2$s</string>
     <string name="media_exo_error_topbit">This video has an invalid format and can not be played by your device.</string>
