@@ -8,4 +8,4 @@
     android:layout_gravity="bottom"
     android:max="100"
     android:progress="40"
-    android:progressDrawable="@drawable/video_progress"/>
+    android:progressDrawable="?videoProgressDrawable"/>

@@ -5,6 +5,7 @@
         <attr name="roundedCornerBackground" format="reference"/>
         <attr name="drawerTheme" format="reference"/>
         <attr name="appIcon" format="reference"/>
+        <attr name="videoProgressDrawable" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="VoteView">
