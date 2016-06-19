@@ -256,6 +256,25 @@
                     android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
 
             </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="prefcat_compatibility"
+            android:persistent="true"
+            android:summary="@string/pref_compatibility_summary"
+            android:title="@string/pref_compatibility">
+
+            <intent
+                android:action="preference://prefcat_compatibility"
+                android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
+                android:targetPackage="@string/app_id"/>
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="pref_compatibility_active"
+                android:key="pref_use_google_decoder"
+                android:summary="@string/pref_use_google_decoder_summary"
+                android:title="@string/pref_use_google_decoder_title"/>
 
         </PreferenceScreen>
 

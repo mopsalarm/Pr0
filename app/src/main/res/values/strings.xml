@@ -340,5 +340,9 @@
     <string name="favorites_of">favorites of %s</string>
     <string name="media_exo_error">Could not play video: %s</string>
     <string name="media_exo_error_io">A network failure occurred (%s).</string>
+    <string name="pref_compatibility">Compatibility</string>
+    <string name="pref_compatibility_summary">If video playback does not work, try to tweak these settings</string>
+    <string name="pref_use_google_decoder_title">Software decoder</string>
+    <string name="pref_use_google_decoder_summary">Enabling this setting will let the app prefer the software decoder, which might be more stable and compatible with more devices. Disabling this might improve video performance.</string>
 </resources>
 

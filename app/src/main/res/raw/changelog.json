@@ -10,7 +10,11 @@
       },
       {
         "type": "Fix",
-        "change": "Videowiedergabe verbessert und stabilisiert."
+        "change": "Videowiedergabe verbessert, sollte nun auf allen Geräten (ab Jellybean) stabiler laufen"
+      },
+      {
+        "type": "Fix",
+        "change": "Kompatibilitätseinstellungen für Videocodec Auswahl wieder da."
       }
     ]
   },

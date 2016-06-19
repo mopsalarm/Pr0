@@ -241,7 +241,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
 
         if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO) {
             if (shouldShowIoError) {
-                callbacks.onVideoError(context.getString(R.string.could_not_play_video_io));
+                callbacks.onVideoError(context.getString(R.string.could_not_play_video_io), ErrorKind.NETWORK);
                 shouldShowIoError = false;
             }
 
@@ -249,11 +249,12 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
             return;
         }
 
-        String errorKey;
+        ErrorKind kind = ErrorKind.UNKNOWN;
         @StringRes int errorMessage;
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_IO:
                 errorMessage = R.string.media_error_io;
+                kind = ErrorKind.NETWORK;
                 break;
 
             case MediaPlayer.MEDIA_ERROR_MALFORMED:
@@ -286,7 +287,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         }
 
         // show this error.
-        callbacks.onVideoError(context.getString(errorMessage));
+        callbacks.onVideoError(context.getString(errorMessage), kind);
     }
 
     @SuppressWarnings("FieldCanBeLocal")

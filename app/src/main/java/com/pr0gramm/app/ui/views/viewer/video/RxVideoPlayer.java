@@ -47,8 +47,8 @@ public abstract class RxVideoPlayer implements VideoPlayer {
         }
 
         @Override
-        public void onVideoError(String message) {
-            clientCallbacks.onVideoError(message);
+        public void onVideoError(String message, ErrorKind kind) {
+            clientCallbacks.onVideoError(message, kind);
         }
     };
 }

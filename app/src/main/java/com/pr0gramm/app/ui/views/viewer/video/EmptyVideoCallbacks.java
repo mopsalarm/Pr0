@@ -25,7 +25,7 @@ public final class EmptyVideoCallbacks implements VideoPlayer.Callbacks {
     }
 
     @Override
-    public void onVideoError(String message) {
+    public void onVideoError(String message, VideoPlayer.ErrorKind kind) {
 
     }
 }

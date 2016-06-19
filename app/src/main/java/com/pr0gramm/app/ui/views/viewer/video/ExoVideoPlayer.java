@@ -26,26 +26,34 @@ import android.os.Looper;
 import android.view.Surface;
 import android.view.View;
 
+import com.google.android.exoplayer.DecoderInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
+import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.FileDataSource;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.AspectLayout;
 import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 
@@ -62,22 +70,23 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     private static final int BUFFER_SEGMENT_COUNT = 64;
     private final Context context;
     private final AspectLayout parentView;
+    private final Settings settings;
 
     private boolean muted;
 
     private ExoPlayer exo;
     private MediaCodecVideoTrackRenderer exoVideoTrack;
     private MediaCodecAudioTrackRenderer exoAudioTrack;
+    private BufferedDataSource dataSource;
     private boolean initialized;
 
-    private BufferedDataSource dataSource;
-    private ViewBackend surfaceProvider;
-
     private Uri uri;
+    private ViewBackend surfaceProvider;
 
     public ExoVideoPlayer(Context context, AspectLayout aspectLayout) {
         this.context = context;
         this.parentView = aspectLayout;
+        this.settings = Settings.of(context);
 
         // Use a texture view to display the video.
         surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
@@ -130,12 +139,11 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 new Mp4Extractor(), new WebmExtractor());
 
         exoVideoTrack = new MediaCodecVideoTrackRenderer(
-                context, sampleSource, MediaCodecSelector.DEFAULT,
+                context, sampleSource, mediaCodecSelector,
                 MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
                 5000, new Handler(Looper.getMainLooper()), this, 50);
 
-        exoAudioTrack = new MediaCodecAudioTrackRenderer(
-                sampleSource, MediaCodecSelector.DEFAULT);
+        exoAudioTrack = new MediaCodecAudioTrackRenderer(sampleSource, mediaCodecSelector);
 
         exo.prepare(exoVideoTrack, exoAudioTrack);
         exo.setPlayWhenReady(true);
@@ -266,11 +274,12 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         String messageChain = getMessageWithCauses(error);
         if (messageChain.contains("::pr0:: network error")) {
-            callbacks.onVideoError(context.getString(R.string.media_exo_error_io, rootCause.getMessage()));
+            String message = context.getString(R.string.media_exo_error_io, rootCause.getMessage());
+            callbacks.onVideoError(message, ErrorKind.NETWORK);
             return;
 
         } else {
-            callbacks.onVideoError(messageChain);
+            callbacks.onVideoError(messageChain, ErrorKind.UNKNOWN);
 
             AndroidUtility.logToCrashlytics(rootCause);
         }
@@ -302,13 +311,13 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onDecoderInitializationError(MediaCodecTrackRenderer.DecoderInitializationException e) {
-        callbacks.onVideoError(getMessageWithCauses(e));
+        callbacks.onVideoError(getMessageWithCauses(e), ErrorKind.UNKNOWN);
         AndroidUtility.logToCrashlytics(e);
     }
 
     @Override
     public void onCryptoError(MediaCodec.CryptoException e) {
-        callbacks.onVideoError(getMessageWithCauses(e));
+        callbacks.onVideoError(getMessageWithCauses(e), ErrorKind.UNKNOWN);
         AndroidUtility.logToCrashlytics(e);
     }
 
@@ -316,4 +325,30 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs, long initializationDurationMs) {
         logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs);
     }
+
+    private final MediaCodecSelector mediaCodecSelector = new MediaCodecSelector() {
+        @Override
+        public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
+            List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
+            logger.info("Available codecs for {}: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
+
+            // default is the first one.
+            DecoderInfo systemDefaultDecoder = codecs.size() > 0 ? codecs.get(0) : null;
+
+            if (settings.useSoftwareDecoder()) {
+                // try the google codec first, fall back on the "default" if no google codec found.
+                return FluentIterable.from(codecs)
+                        .firstMatch(codec -> codec.name.startsWith("OMX.google."))
+                        .or(Optional.fromNullable(systemDefaultDecoder))
+                        .orNull();
+            } else {
+                return systemDefaultDecoder;
+            }
+        }
+
+        @Override
+        public DecoderInfo getPassthroughDecoderInfo() throws MediaCodecUtil.DecoderQueryException {
+            return MediaCodecSelector.DEFAULT.getPassthroughDecoderInfo();
+        }
+    };
 }

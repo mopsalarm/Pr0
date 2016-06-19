@@ -33,6 +33,11 @@ public interface VideoPlayer {
 
         void onVideoSizeChanged(int width, int height);
 
-        void onVideoError(String message);
+        void onVideoError(String message, ErrorKind kind);
+    }
+
+    enum ErrorKind {
+        UNKNOWN,
+        NETWORK
     }
 }

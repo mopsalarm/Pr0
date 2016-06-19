@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
+import com.google.android.exoplayer.DecoderInfo;
+import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Ordering;
 import com.google.common.io.CharStreams;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,6 +75,9 @@ public class FeedbackService {
             appendMemoryInfo(result);
             result.append("\n\n");
 
+            appendCodecInfo(result);
+            result.append("\n\n");
+
             appendPreferences(result);
             result.append("\n\n");
 
@@ -82,6 +88,18 @@ public class FeedbackService {
 
         } catch (Exception err) {
             return "Could not generate logcat: " + err;
+        }
+    }
+
+    private void appendCodecInfo(StringBuilder result) {
+        try {
+            List<DecoderInfo> decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false);
+            for (DecoderInfo info : decoderInfos) {
+                result.append("codec: ").append(info.name).append("\n");
+            }
+
+        } catch (MediaCodecUtil.DecoderQueryException ignored) {
+            result.append("codec: could not query codecs.\n");
         }
     }
 

@@ -8,7 +8,6 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
 import com.orm.SugarContext;
-import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -77,8 +76,6 @@ public class ApplicationClass extends Application {
         if (BuildConfig.DEBUG) {
             StethoWrapper.init(this);
         }
-
-        SingleShotService singleShotService = appComponent.get().singleShotService();
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);

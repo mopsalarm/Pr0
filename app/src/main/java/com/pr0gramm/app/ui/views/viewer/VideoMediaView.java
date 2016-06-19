@@ -225,7 +225,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
 
     @Override
-    public void onVideoError(String message) {
+    public void onVideoError(String message, VideoPlayer.ErrorKind kind) {
         // we might be finished here :/
         hideBusyIndicator();
 
@@ -238,7 +238,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             errorShown = true;
         }
 
-        if (!statsSent) {
+        if (!statsSent && kind != VideoPlayer.ErrorKind.NETWORK) {
             Stats.get().incrementCounter("video.playback.failed");
             statsSent = true;
         }
