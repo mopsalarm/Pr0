@@ -21,11 +21,9 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.style.BulletSpan;
+import android.text.style.LeadingMarginSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
@@ -47,6 +45,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.PrivateBrowserSpan;
+import com.pr0gramm.app.ui.Truss;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,18 +214,19 @@ public class AndroidUtility {
      * @param lines         An array of CharSequences. Each CharSequences will be a separate line/bullet-point.
      */
     public static CharSequence makeBulletList(int leadingMargin, List<? extends CharSequence> lines) {
-        SpannableStringBuilder sb = new SpannableStringBuilder();
+        Truss sb = new Truss();
         for (int idx = 0; idx < lines.size(); idx++) {
             boolean last = idx == lines.size() - 1;
             CharSequence line = lines.get(idx);
 
-            Spannable spannable = new SpannableString(line + (last ? "" : "\n"));
-            spannable.setSpan(new BulletSpan(leadingMargin), 0, spannable.length(),
-                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            sb.append(line,
+                    new BulletSpan(leadingMargin / 3),
+                    new LeadingMarginSpan.Standard(leadingMargin));
 
-            sb.append(spannable);
+            sb.append(last ? "" : "\n");
         }
-        return sb;
+
+        return sb.build();
     }
 
     /**
