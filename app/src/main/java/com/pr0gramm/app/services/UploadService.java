@@ -2,12 +2,12 @@ package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.util.BackgroundScheduler;
@@ -146,7 +146,7 @@ public class UploadService {
                         sent += len;
 
                         long now = System.currentTimeMillis();
-                        if (now - lastTime >= 50) {
+                        if (now - lastTime >= 100) {
                             lastTime = now;
 
                             // send progress now.
@@ -206,7 +206,7 @@ public class UploadService {
                 return Observable.just(new UploadInfo(status.key, response.getSimilar()));
 
             } else if (response.getError() != null) {
-                return Observable.error(new UploadFailedException(response.getError()));
+                return Observable.error(new UploadFailedException(response.getError(), response.getReport()));
 
             } else {
                 return Observable.just(new UploadInfo(response.getItemId()));
@@ -280,30 +280,17 @@ public class UploadService {
         }
     }
 
-    @SuppressLint("NewApi")
-    private static boolean isPngImage(File file) {
-        try {
-            try (InputStream input = new FileInputStream(file)) {
-                // read the first four bytes to check file type
-                byte[] buffer = new byte[4];
-                ByteStreams.readFully(input, buffer);
-
-                // and compare to well known values
-                return buffer[0] == (byte) 0x89
-                        && buffer[1] == 'P' && buffer[2] == 'N' && buffer[3] == 'G';
-            }
-        } catch (Exception error) {
-            error.printStackTrace();
-            return false;
-        }
-    }
-
     private static final ImmutableSet<Object> INVALID_TAGS = ImmutableSet.of(
-            "sfw", "nsfw", "nsfl", "gif", "webm");
+            "sfw", "nsfw", "nsfl", "gif", "webm", "sound");
 
     public static final class UploadFailedException extends Exception {
-        public UploadFailedException(String message) {
+        @Nullable
+        public final Api.Posted.VideoReport report;
+
+        public UploadFailedException(String message, @Nullable Api.Posted.VideoReport report) {
             super(message);
+
+            this.report = report;
         }
 
         public String getErrorCode() {

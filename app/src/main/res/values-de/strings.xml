@@ -146,7 +146,7 @@
     <string name="upload_error_download_failed">Download über die URL ist fehlgeschlagen.</string>
     <string name="upload_error_exists">Dieser Upload existiert bereits und einen Repost möchtest du doch nicht machen, oder? </string>
     <string name="upload_error_internal">Interner Server Fehler - sollte bald wieder funktionieren.</string>
-    <string name="upload_error_invalid">Das Bild ist ungültig. Vielleicht ist es zu groß?</string>
+    <string name="upload_error_invalid">Das Bild oder Video ist ungültig. Vielleicht ist es zu groß oder hat das falsche Format?</string>
     <string name="upload_error_unknown">Ein mir unbekannter Fehler ist beim Upload aufgetreten.</string>
     <string name="upload_just_try_again">Am besten probierst du es jetzt einfach nochmal.</string>
     <string name="upload_something_went_wrong">Irgendwas ist schief gelaufen.</string>
@@ -325,4 +325,14 @@
     <string name="pref_use_google_decoder_title">Softwaredekoder</string>
     <string name="pref_compatibility_summary">Hilft eventuell bei Problemen mit der Video Wiedergabe</string>
     <string name="pref_use_google_decoder_summary">Präferiert den Softwaredekoder. Kann bei Problemen mit Videos helfen. Deaktivieren dieser Option kann zu besserer Performance bei der Videowiedergabe führen.</string>
+    <string name="report_video_stream">Stream, Typ: %1$s, Codec: %2$s</string>
+    <string name="report_video_summary">Größe: %1$sx%2$s, Format %3$s, Länge: %4$s</string>
+    <string name="upload_error_video">Grund:</string>
+    <string name="media_exo_error_topbit">Dieses Video hat ein ungültiges Format und kann nicht abgespielt werden.</string>
+    <string name="upload_error_video_too_small">Die Auflösung ist zu klein – Mindestens 0,09 Megapixel (z.B. 300×300).</string>
+    <string name="upload_error_video_too_large">Die Auflösung ist zu hoch – Maximal 16,7 Megapixel (z.B. 4096×4096).</string>
+    <string name="upload_error_video_too_long">Das Video ist zu lang – Maximal 120 Sekunden.</string>
+    <string name="upload_error_video_codec">Ungültiger Codec gefunden – Nur VP8 oder H264 für Video und AAC, Vorbis oder Opus für Audio erlaubt.</string>
+    <string name="upload_error_video_container">Ungültige Container/Codec-Konstellation. (z.B. VP8 in einem MP4 Container).</string>
+    <string name="upload_error_video_streams">Ungültige Stream-Konstellation (z.B zwei Audio Streams).</string>
 </resources>

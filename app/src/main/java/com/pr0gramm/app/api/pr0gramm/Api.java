@@ -471,6 +471,8 @@ public interface Api {
 
         public abstract List<SimilarItem> getSimilar();
 
+        public abstract VideoReport getReport();
+
         @Value.Immutable
         public interface PostedItem {
             long getId();
@@ -482,6 +484,28 @@ public interface Api {
 
             @Gson.Named("thumb")
             String thumbnail();
+        }
+
+        @Value.Immutable
+        public interface VideoReport {
+            float duration();
+
+            int height();
+
+            int width();
+
+            String format();
+
+            String error();
+
+            List<MediaStream> streams();
+        }
+
+        @Value.Immutable
+        public interface MediaStream {
+            String codec();
+
+            String type();
         }
     }
 
@@ -539,11 +563,6 @@ public interface Api {
 
         @Value.Auxiliary
         String getTag();
-    }
-
-    @Value.Immutable
-    interface ThemeInfo {
-        String theme();
     }
 
     /**

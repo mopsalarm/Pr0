@@ -276,11 +276,15 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         if (messageChain.contains("::pr0:: network error")) {
             String message = context.getString(R.string.media_exo_error_io, rootCause.getMessage());
             callbacks.onVideoError(message, ErrorKind.NETWORK);
-            return;
+
+        } else if (messageChain.contains("Top bit not zero:")) {
+            String message = context.getString(R.string.media_exo_error_topbit);
+            callbacks.onVideoError(message, ErrorKind.NETWORK);
 
         } else {
             callbacks.onVideoError(messageChain, ErrorKind.UNKNOWN);
 
+            // send to crashlytics, i want to have a look.
             AndroidUtility.logToCrashlytics(rootCause);
         }
 

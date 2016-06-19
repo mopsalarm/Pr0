@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.text.style.BulletSpan;
+import android.text.style.LeadingMarginSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
+import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.HasThumbnail;
@@ -40,6 +43,7 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.TagInputView;
+import com.pr0gramm.app.ui.Truss;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
@@ -315,8 +319,7 @@ public class UploadFragment extends BaseFragment {
         busyIndicator.setVisibility(View.GONE);
 
         if (throwable instanceof UploadService.UploadFailedException) {
-            String cause = ((UploadService.UploadFailedException) throwable).getErrorCode();
-            String causeText = getUploadFailureText(getActivity(), cause);
+            CharSequence causeText = getUploadFailureText(getActivity(), (UploadService.UploadFailedException) throwable);
             DialogBuilder.start(getActivity())
                     .content(causeText)
                     .positive()
@@ -460,7 +463,8 @@ public class UploadFragment extends BaseFragment {
         return Optional.fromNullable(arguments.getParcelable(EXTRA_LOCAL_URI));
     }
 
-    private static String getUploadFailureText(Context context, String reason) {
+    private static CharSequence getUploadFailureText(Context context, UploadService.UploadFailedException exception) {
+        String reason = exception.getErrorCode();
         Integer textId = ImmutableMap.<String, Integer>builder()
                 .put("blacklisted", R.string.upload_error_blacklisted)
                 .put("internal", R.string.upload_error_internal)
@@ -470,7 +474,42 @@ public class UploadFragment extends BaseFragment {
                 .build()
                 .get(reason);
 
-        return context.getString(firstNonNull(textId, R.string.upload_error_unknown));
+        Truss text = new Truss().append(context.getString(firstNonNull(textId, R.string.upload_error_unknown)));
+
+        Api.Posted.VideoReport report = exception.report;
+        if (report != null) {
+            Integer videoErrorId = ImmutableMap.<String, Integer>builder()
+                    .put("dimensionsTooSmall", R.string.upload_error_video_too_small)
+                    .put("dimensionsTooLarge", R.string.upload_error_video_too_large)
+                    .put("durationTooLong", R.string.upload_error_video_too_long)
+                    .put("invalidCodec", R.string.upload_error_video_codec)
+                    .put("invalidStreams", R.string.upload_error_video_streams)
+                    .put("invalidContainer", R.string.upload_error_video_container)
+                    .build()
+                    .get(report.error());
+
+            if (videoErrorId != null) {
+                text.append("\n\n")
+                        .append(context.getString(R.string.upload_error_video), Truss.bold())
+                        .append(" ")
+                        .append(context.getString(videoErrorId));
+            }
+
+            text.append("\n\n")
+                    .append("Info:\n", Truss.bold())
+                    .append(context.getString(R.string.report_video_summary, report.width(), report.height(), report.format(), report.duration()))
+                    .append("\n");
+
+            int offset = context.getResources().getDimensionPixelSize(R.dimen.bullet_list_leading_margin);
+            for (Api.Posted.MediaStream stream : report.streams()) {
+                String streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec());
+                text.append(streamInfo,
+                        new BulletSpan(offset / 3),
+                        new LeadingMarginSpan.Standard(offset)).append("\n");
+            }
+        }
+
+        return text.build();
     }
 
     private static class MediaNotSupported extends RuntimeException {

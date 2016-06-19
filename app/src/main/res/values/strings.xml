@@ -158,7 +158,7 @@
     <string name="dialog_action_add">Add</string>
     <string name="upload_error_blacklisted">This image is blacklisted from pr0gramm.</string>
     <string name="upload_error_internal">Internal server error. This will probably resolve itself within hours.</string>
-    <string name="upload_error_invalid">The image is invalid. Maybe too large?</string>
+    <string name="upload_error_invalid">The image or video is invalid. Maybe too large or invalid format?</string>
     <string name="upload_error_download_failed">Download of your image url failed.</string>
     <string name="upload_error_exists">This upload already exists. I have just saved you from a repost. Say thanks.</string>
     <string name="upload_error_unknown">An unknown error occurred during upload.</string>
@@ -344,5 +344,15 @@
     <string name="pref_compatibility_summary">If video playback does not work, try to tweak these settings</string>
     <string name="pref_use_google_decoder_title">Software decoder</string>
     <string name="pref_use_google_decoder_summary">Enabling this setting will let the app prefer the software decoder, which might be more stable and compatible with more devices. Disabling this might improve video performance.</string>
+    <string name="report_video_summary">Size: %1$sx%2$s, format %3$s, duration: %4$s</string>
+    <string name="report_video_stream">Stream, typ: %1$s, codec: %2$s</string>
+    <string name="media_exo_error_topbit">This video has an invalid format and can not be played by your device.</string>
+    <string name="upload_error_video_too_small">Video resolution too small (must be at least 0.09 megapixel).</string>
+    <string name="upload_error_video_too_large">Video resolution too large (must not be more than 16.7 megapixel)-</string>
+    <string name="upload_error_video_too_long">Video duration is too long, must be at most 120sec.</string>
+    <string name="upload_error_video_codec">Invalid codec - vp8 or h264 for video and aac, vorbis or opus for audio allowed.</string>
+    <string name="upload_error_video_streams">Invalid streams - must contain exactly one video stream and at most one audio stream.</string>
+    <string name="upload_error_video_container">Invalid container/codec combination, like vp8 in an mp4 codec.</string>
+    <string name="upload_error_video">Reason:</string>
 </resources>
 
