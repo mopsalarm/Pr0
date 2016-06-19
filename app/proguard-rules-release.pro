@@ -35,6 +35,9 @@
 
 -keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
 
+# keep exception names
+-keepnames class * extends java.lang.Throwable
+
 # keep database model
 -keep class * extends com.orm.SugarRecord { *; }
 
@@ -57,3 +60,4 @@
 # this is for butterknife
 -dontwarn butterknife.**
 -keep class **$$ViewBinder { *; }
+
