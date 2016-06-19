@@ -15,13 +15,13 @@ import okhttp3.HttpUrl;
  */
 public class AmazonAffiliate {
     private static final String AFFILIATE_TAG = "lebeinhamb-21";
-    private static final Pattern RE_AMAZON_LINK = Pattern.compile("https?://[^/]+amazon.(de|com)/[^ !.]+");
+    private static final Pattern RE_AMAZON_LINK = Pattern.compile("https?://[^/]+(amazon|amzn)\\.(de|com)/[^ !.]+");
 
     /**
      * Adds affiliate links to the given text.
      */
     public String affiliateLinks(@NonNull String text) {
-        if (!text.contains("amazon."))
+        if (!text.contains("amazon.") && !text.contains("amzn."))
             return text;
 
         StringBuffer result = new StringBuffer();
@@ -42,7 +42,7 @@ public class AmazonAffiliate {
     }
 
     private String modifyAmazonUrl(String url) {
-        return HttpUrl.parse(url.replaceAll("ref=[a-z0-9_-]+", "")).newBuilder()
+        return HttpUrl.parse(url.replaceAll("tag=[a-z0-9_-]+", "")).newBuilder()
                 .setQueryParameter("tag", AFFILIATE_TAG)
                 .build()
                 .toString();

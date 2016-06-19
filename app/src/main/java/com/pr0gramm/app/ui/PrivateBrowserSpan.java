@@ -27,7 +27,7 @@ public class PrivateBrowserSpan extends URLSpan {
         // check if youtube-links should be opened in normal app
         if (useIncognitoBrowser && settings.overrideYouTubeLinks()) {
             String host = Uri.parse(url).getHost();
-            if (host != null && YOUTUBE_HOSTS.contains(host.toLowerCase()))
+            if (host != null && BLACKLIST.contains(host.toLowerCase()))
                 useIncognitoBrowser = false;
         }
 
@@ -48,7 +48,8 @@ public class PrivateBrowserSpan extends URLSpan {
         }
     }
 
-    private static final ImmutableList<String> YOUTUBE_HOSTS = ImmutableList.of(
+    private static final ImmutableList<String> BLACKLIST = ImmutableList.of(
             "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
+            "amazon.com", "amazon.de", "amzn.com", "amzn.de",
             "vimeo.com");
 }
