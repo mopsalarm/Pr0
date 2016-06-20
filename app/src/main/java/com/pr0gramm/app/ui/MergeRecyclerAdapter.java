@@ -25,7 +25,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
     /**
      */
-    public class LocalAdapter {
+    private class LocalAdapter {
         public final TIntIntMap viewTypeMap = new TIntIntHashMap();
         public final RecyclerView.Adapter adapter;
         public final RecyclerView.AdapterDataObserver observer;

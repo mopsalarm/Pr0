@@ -354,5 +354,8 @@
     <string name="upload_error_video_streams">Invalid streams - must contain exactly one video stream and at most one audio stream.</string>
     <string name="upload_error_video_container">Invalid container/codec combination, like vp8 in an mp4 codec.</string>
     <string name="upload_error_video">Reason:</string>
+    <string name="pref_video_codec_title">Video codec</string>
+    <string name="pref_video_codec_summary">If you got problems playing video, try to manually select a codec here.</string>
+    <string name="media_dropped_frames_hint">Your phone just dropped a lot of frames. If you can not watch videos correctly, or if they are really slow, try the compatibility settings.</string>
 </resources>
 

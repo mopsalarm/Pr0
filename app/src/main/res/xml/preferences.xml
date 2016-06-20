@@ -269,11 +269,11 @@
                 android:targetClass="com.pr0gramm.app.ui.SettingsActivity"
                 android:targetPackage="@string/app_id"/>
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_use_google_decoder"
-                android:summary="@string/pref_use_google_decoder_summary"
-                android:title="@string/pref_use_google_decoder_title"/>
+            <ListPreference
+                android:defaultValue="software"
+                android:key="pref_video_codec"
+                android:summary="@string/pref_video_codec_summary"
+                android:title="@string/pref_video_codec_title"/>
 
         </PreferenceScreen>
 

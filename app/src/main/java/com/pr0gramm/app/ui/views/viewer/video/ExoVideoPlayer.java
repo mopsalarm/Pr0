@@ -41,8 +41,6 @@ import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.FileDataSource;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
@@ -57,6 +55,7 @@ import java.util.List;
 
 import okhttp3.OkHttpClient;
 
+import static com.google.common.collect.FluentIterable.from;
 import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
 
 /**
@@ -141,7 +140,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         exoVideoTrack = new MediaCodecVideoTrackRenderer(
                 context, sampleSource, mediaCodecSelector,
                 MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-                5000, new Handler(Looper.getMainLooper()), this, 50);
+                5000, new Handler(Looper.getMainLooper()), this, 75);
 
         exoAudioTrack = new MediaCodecAudioTrackRenderer(sampleSource, mediaCodecSelector);
 
@@ -294,7 +293,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-        logger.warn("Dropped {} frames", count);
+        callbacks.onDroppedFrames(count);
     }
 
     @Override
@@ -334,20 +333,11 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         @Override
         public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
             List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
-            logger.info("Available codecs for {}: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 
-            // default is the first one.
-            DecoderInfo systemDefaultDecoder = codecs.size() > 0 ? codecs.get(0) : null;
-
-            if (settings.useSoftwareDecoder()) {
-                // try the google codec first, fall back on the "default" if no google codec found.
-                return FluentIterable.from(codecs)
-                        .firstMatch(codec -> codec.name.startsWith("OMX.google."))
-                        .or(Optional.fromNullable(systemDefaultDecoder))
-                        .orNull();
-            } else {
-                return systemDefaultDecoder;
-            }
+            // look fo the best matching codec to return to the user.
+            return bestMatchingCodec(codecs, settings.videoCodec())
+                    .or(Optional.fromNullable(codecs.size() > 0 ? codecs.get(0) : null))
+                    .orNull();
         }
 
         @Override
@@ -355,4 +345,26 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
             return MediaCodecSelector.DEFAULT.getPassthroughDecoderInfo();
         }
     };
+
+    private static Optional<DecoderInfo> bestMatchingCodec(List<DecoderInfo> codecs, String videoCodecName) {
+        if ("software".equals(videoCodecName)) {
+            return from(codecs).firstMatch(ExoVideoPlayer::isSoftwareDecoder);
+
+        } else if ("hardware".equals(videoCodecName)) {
+            return from(codecs).firstMatch(ExoVideoPlayer::isHardwareDecoder);
+
+        } else {
+            return from(codecs).firstMatch(codec -> codec.name.equalsIgnoreCase(videoCodecName));
+        }
+    }
+
+    private static boolean isSoftwareDecoder(DecoderInfo codec) {
+        return codec.name.startsWith("OMX.google.")
+                || codec.name.startsWith("OMX.ffmpeg.")
+                || codec.name.contains(".sw.");
+    }
+
+    private static boolean isHardwareDecoder(DecoderInfo codec) {
+        return !isSoftwareDecoder(codec);
+    }
 }

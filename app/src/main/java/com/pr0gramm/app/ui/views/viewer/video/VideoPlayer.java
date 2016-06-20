@@ -34,6 +34,8 @@ public interface VideoPlayer {
         void onVideoSizeChanged(int width, int height);
 
         void onVideoError(String message, ErrorKind kind);
+
+        void onDroppedFrames(int count);
     }
 
     enum ErrorKind {

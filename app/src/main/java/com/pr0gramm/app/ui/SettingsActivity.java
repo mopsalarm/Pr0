@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
@@ -12,6 +13,8 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import com.google.android.exoplayer.DecoderInfo;
+import com.google.android.exoplayer.MediaCodecUtil;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
@@ -25,6 +28,9 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -105,6 +111,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             addPreferencesFromResource(R.xml.preferences);
 
+            updateVideoCodecs();
+
             String category = getArguments().getString("category");
             if (category != null) {
                 Preference root = getPreferenceManager().findPreference(category);
@@ -116,6 +124,33 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if (!BuildConfig.DEBUG) {
                 hideDebugPreferences();
+            }
+        }
+
+        private void updateVideoCodecs() {
+            List<CharSequence> entries = new ArrayList<>();
+            List<CharSequence> entryValues = new ArrayList<>();
+
+            entries.add("Software");
+            entryValues.add("software");
+
+            entries.add("Hardware");
+            entryValues.add("hardware");
+
+            try {
+                List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos("video/avc", false);
+                for (DecoderInfo codec : codecs) {
+                    entries.add(codec.name.toLowerCase());
+                    entryValues.add(codec.name);
+                }
+            } catch (MediaCodecUtil.DecoderQueryException ignored) {
+            }
+
+            ListPreference pref = (ListPreference) findPreference("pref_video_codec");
+            if (pref != null) {
+                pref.setDefaultValue("software");
+                pref.setEntries(entries.toArray(new CharSequence[0]));
+                pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
             }
         }
 

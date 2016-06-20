@@ -28,4 +28,9 @@ public final class EmptyVideoCallbacks implements VideoPlayer.Callbacks {
     public void onVideoError(String message, VideoPlayer.ErrorKind kind) {
 
     }
+
+    @Override
+    public void onDroppedFrames(int count) {
+
+    }
 }

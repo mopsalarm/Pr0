@@ -50,5 +50,10 @@ public abstract class RxVideoPlayer implements VideoPlayer {
         public void onVideoError(String message, ErrorKind kind) {
             clientCallbacks.onVideoError(message, kind);
         }
+
+        @Override
+        public void onDroppedFrames(int count) {
+            clientCallbacks.onDroppedFrames(count);
+        }
     };
 }

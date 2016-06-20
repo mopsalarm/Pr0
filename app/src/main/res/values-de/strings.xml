@@ -335,4 +335,7 @@
     <string name="upload_error_video_codec">Ungültiger Codec gefunden – Nur VP8 oder H264 für Video und AAC, Vorbis oder Opus für Audio erlaubt.</string>
     <string name="upload_error_video_container">Ungültige Container/Codec-Konstellation. (z.B. VP8 in einem MP4 Container).</string>
     <string name="upload_error_video_streams">Ungültige Stream-Konstellation (z.B zwei Audio Streams).</string>
+    <string name="pref_video_codec_title">Video Codec </string>
+    <string name="pref_video_codec_summary">Probiere einen anderen Video Codec, wenn du Probleme bei der Wiedergabe hast.</string>
+    <string name="media_dropped_frames_hint">Dein Gerät kommt mit dem dekodieren des Videos nicht hinterher. Falls das öfter passiert, schaue mal in die Kompatibilitätseinstellungen.</string>
 </resources>

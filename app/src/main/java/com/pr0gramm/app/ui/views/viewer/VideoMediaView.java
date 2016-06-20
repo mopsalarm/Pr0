@@ -243,4 +243,11 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             statsSent = true;
         }
     }
+
+    @Override
+    public void onDroppedFrames(int count) {
+        onVideoError(
+                getContext().getString(R.string.media_dropped_frames_hint),
+                VideoPlayer.ErrorKind.UNKNOWN);
+    }
 }

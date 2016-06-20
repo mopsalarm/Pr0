@@ -206,8 +206,8 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_enable_quick_peek", true);
     }
 
-    public boolean useSoftwareDecoder() {
-        return preferences.getBoolean("pref_use_google_decoder", true);
+    public String videoCodec() {
+        return preferences.getString("pref_video_codec", "software");
     }
 
     public VolumeNavigationType volumeNavigation() {
