@@ -115,10 +115,31 @@ public class PostFragment extends BaseFragment implements
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
     private static final String ARG_COMMENT_DRAFT = "PostFragment.comment-draft";
+    private static final String ARG_AUTOSCROLL_COMMENT_ID = "PostFragment.first-comment";
 
     private FeedItem feedItem;
     private MediaView viewer;
 
+    private final MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
+
+    private InfoLineView infoLineView;
+
+    // start with an empty adapter here
+    private CommentsAdapter commentsAdapter;
+
+    private RecyclerView.OnScrollListener scrollHandler;
+
+    @Nullable
+    private PreviewInfo previewInfo;
+
+    private List<Api.Tag> tags;
+    private List<Api.Comment> comments;
+    private boolean rewindOnLoad;
+    private boolean tabletLayout;
+
+    private boolean adminMode;
 
     @Inject
     FeedService feedService;
@@ -165,27 +186,10 @@ public class PostFragment extends BaseFragment implements
     @BindView(R.id.repost_hint)
     View repostHint;
 
-    private InfoLineView infoLineView;
 
-    // start with an empty adapter here
-    private MergeRecyclerAdapter adapter;
-    private CommentsAdapter commentsAdapter;
-
-    private Optional<Long> autoScrollTo;
-    private RecyclerView.OnScrollListener scrollHandler;
-
-    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
-
-    @Nullable
-    private PreviewInfo previewInfo;
-
-    private List<Api.Tag> tags;
-    private List<Api.Comment> comments;
-    private boolean rewindOnLoad;
-    private boolean tabletLayout;
-
-    private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
-    private boolean adminMode;
+    public PostFragment() {
+        setArguments(new Bundle());
+    }
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -200,8 +204,6 @@ public class PostFragment extends BaseFragment implements
             tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
             comments = Parceler.get(CommentListParceler.class, savedState, "PostFragment.comments");
         }
-
-        autoScrollTo = Optional.absent();
 
         activeState().compose(bindToLifecycle()).subscribe(active -> {
             if (viewer != null) {
@@ -291,7 +293,6 @@ public class PostFragment extends BaseFragment implements
 
         swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
 
-        adapter = new MergeRecyclerAdapter();
         content.setItemAnimator(null);
         content.setLayoutManager(new LinearLayoutManager(getActivity()));
         content.setAdapter(adapter);
@@ -300,9 +301,7 @@ public class PostFragment extends BaseFragment implements
         initializeInfoLine();
         initializeCommentPostLine();
 
-        commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or("")
-        );
-
+        commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or(""));
         commentsAdapter.setCommentActionListener(this);
         commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
         adapter.addAdapter(commentsAdapter);
@@ -330,7 +329,7 @@ public class PostFragment extends BaseFragment implements
         // restore orientation if the user closes this view
         Screen.unlockOrientation(getActivity());
 
-        adapter = null;
+        adapter.clear();
 
         super.onDestroyView();
     }
@@ -417,14 +416,6 @@ public class PostFragment extends BaseFragment implements
         }
 
         commentsAdapter.setSelectedCommentId(commentId);
-    }
-
-    public void autoScrollToComment(long commentId) {
-        if (commentId > 0) {
-            autoScrollTo = Optional.of(commentId);
-        } else {
-            autoScrollTo = Optional.absent();
-        }
     }
 
     @Override
@@ -770,13 +761,9 @@ public class PostFragment extends BaseFragment implements
 
         registerTapListener(viewer);
 
-        PreviewInfo previewInfo = this.previewInfo != null
+        viewer.setPreviewInfo(this.previewInfo != null
                 ? this.previewInfo
-                : PreviewInfo.of(getContext(), feedItem);
-
-        if (previewInfo != null) {
-            viewer.setPreviewInfo(previewInfo);
-        }
+                : PreviewInfo.of(getContext(), feedItem));
 
         // add views in the correct order
         int idx = playerContainer.indexOfChild(voteAnimationIndicator);
@@ -922,9 +909,9 @@ public class PostFragment extends BaseFragment implements
         // show now
         commentsAdapter.set(comments, emptyMap(), feedItem.user());
 
-        if (autoScrollTo.isPresent()) {
-            scrollToComment(autoScrollTo.get());
-            autoScrollTo = Optional.absent();
+        long commentId = getArguments().getLong(ARG_AUTOSCROLL_COMMENT_ID, 0);
+        if (commentId > 0) {
+            scrollToComment(commentId);
         }
 
         // load the votes for the comments and update, when we found any
@@ -1060,6 +1047,11 @@ public class PostFragment extends BaseFragment implements
         displayComments(response.getComments());
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show();
+    }
+
+    public void autoScrollToComment(long commentId) {
+        getArguments().putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId);
+        scrollToComment(commentId);
     }
 
     public void mediaHorizontalOffset(int offset) {

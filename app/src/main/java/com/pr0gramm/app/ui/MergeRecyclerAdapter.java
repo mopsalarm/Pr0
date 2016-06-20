@@ -9,10 +9,10 @@ import com.google.common.collect.ImmutableList;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import rx.functions.Action1;
 
 /**
@@ -26,25 +26,28 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     /**
      */
     public class LocalAdapter {
-        public final Map<Integer, Integer> mViewTypesMap = new HashMap<>();
-        public final RecyclerView.Adapter mAdapter;
+        public final TIntIntMap viewTypeMap = new TIntIntHashMap();
+        public final RecyclerView.Adapter adapter;
+        public final RecyclerView.AdapterDataObserver observer;
+
         public int mLocalPosition = 0;
         public int mAdapterIndex = 0;
 
         public LocalAdapter(RecyclerView.Adapter adapter) {
-            mAdapter = adapter;
+            this.adapter = adapter;
+            observer = new ForwardingDataSetObserver(MergeRecyclerAdapter.this, adapter);
         }
 
         @Override
         public int hashCode() {
-            return mAdapter.hashCode();
+            return adapter.hashCode();
         }
 
         @Override
         public boolean equals(Object o) {
             return o instanceof MergeRecyclerAdapter.LocalAdapter
-                    ? mAdapter.equals(((MergeRecyclerAdapter.LocalAdapter) o).mAdapter)
-                    : mAdapter.equals(o);
+                    ? adapter.equals(((MergeRecyclerAdapter.LocalAdapter) o).adapter)
+                    : adapter.equals(o);
         }
     }
 
@@ -63,14 +66,16 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
      * Add the given adapter to the list of merged adapters at the given index.
      */
     public void addAdapter(int index, RecyclerView.Adapter adapter) {
-        adapters.add(index, new LocalAdapter(adapter));
-        adapter.registerAdapterDataObserver(new ForwardingDataSetObserver(this, adapter));
+        LocalAdapter localAdapter = new LocalAdapter(adapter);
+        adapters.add(index, localAdapter);
+
+        adapter.registerAdapterDataObserver(localAdapter.observer);
         notifyDataSetChanged();
     }
 
     public ImmutableList<? extends RecyclerView.Adapter<?>> getAdapters() {
         return FluentIterable.from(adapters)
-                .transform(a -> (RecyclerView.Adapter<?>) a.mAdapter)
+                .transform(a -> (RecyclerView.Adapter<?>) a.adapter)
                 .toList();
     }
 
@@ -78,7 +83,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         int count = 0;
         for (LocalAdapter adapter : adapters)
-            count += adapter.mAdapter.getItemCount();
+            count += adapter.adapter.getItemCount();
 
         return count;
     }
@@ -97,7 +102,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
         while (i < adapterCount) {
             LocalAdapter a = adapters.get(i);
-            int newCount = count + a.mAdapter.getItemCount();
+            int newCount = count + a.adapter.getItemCount();
             if (position < newCount) {
                 a.mLocalPosition = position - count;
                 a.mAdapterIndex = i;
@@ -114,22 +119,25 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         LocalAdapter adapter = getAdapterOffsetForItem(position);
 
         long uniq = (long) adapter.mAdapterIndex << 60;
-        return uniq | (0x0fffffffffffffffL & adapter.mAdapter.getItemId(adapter.mLocalPosition));
+        return uniq | (0x0fffffffffffffffL & adapter.adapter.getItemId(adapter.mLocalPosition));
     }
 
     @Override
     public int getItemViewType(int position) {
         LocalAdapter result = getAdapterOffsetForItem(position);
-        int localViewType = result.mAdapter.getItemViewType(result.mLocalPosition);
-        if (result.mViewTypesMap.containsValue(localViewType)) {
-            for (Map.Entry<Integer, Integer> entry : result.mViewTypesMap.entrySet()) {
-                if (entry.getValue() == localViewType) {
-                    return entry.getKey();
+        int localViewType = result.adapter.getItemViewType(result.mLocalPosition);
+        if (result.viewTypeMap.containsValue(localViewType)) {
+            int[] keys = result.viewTypeMap.keys();
+            int[] values = result.viewTypeMap.values();
+
+            for (int idx = 0; idx < keys.length; idx++) {
+                if (values[idx] == localViewType) {
+                    return keys[idx];
                 }
             }
         }
         mViewTypeIndex += 1;
-        result.mViewTypesMap.put(mViewTypeIndex, localViewType);
+        result.viewTypeMap.put(mViewTypeIndex, localViewType);
         return mViewTypeIndex;
     }
 
@@ -137,8 +145,8 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         for (LocalAdapter adapter : adapters) {
-            if (adapter.mViewTypesMap.containsKey(viewType))
-                return adapter.mAdapter.onCreateViewHolder(viewGroup, adapter.mViewTypesMap.get(viewType));
+            if (adapter.viewTypeMap.containsKey(viewType))
+                return adapter.adapter.onCreateViewHolder(viewGroup, adapter.viewTypeMap.get(viewType));
         }
         return null;
     }
@@ -147,7 +155,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         LocalAdapter result = getAdapterOffsetForItem(position);
-        result.mAdapter.onBindViewHolder(viewHolder, result.mLocalPosition);
+        result.adapter.onBindViewHolder(viewHolder, result.mLocalPosition);
     }
 
     /**
@@ -158,7 +166,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     public Optional<Integer> getOffset(RecyclerView.Adapter<?> query) {
         int offset = 0;
         for (int idx = 0; idx < adapters.size(); idx++) {
-            RecyclerView.Adapter adapter = adapters.get(idx).mAdapter;
+            RecyclerView.Adapter adapter = adapters.get(idx).adapter;
             if (adapter == query)
                 return Optional.of(offset);
 
@@ -166,6 +174,17 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
         }
 
         return Optional.absent();
+    }
+
+    public void clear() {
+        for (LocalAdapter adapter : this.adapters) {
+            adapter.adapter.unregisterAdapterDataObserver(adapter.observer);
+        }
+
+        this.adapters.clear();
+        this.mViewTypeIndex = 0;
+
+        notifyDataSetChanged();
     }
 
     private static class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {
@@ -208,7 +227,7 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
                     break;
                 }
 
-                result += adapter.mAdapter.getItemCount();
+                result += adapter.adapter.getItemCount();
             }
             return result;
         }
