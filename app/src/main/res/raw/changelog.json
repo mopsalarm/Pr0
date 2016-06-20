@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Kompatibilitätseinstellungen für Videocodec Auswahl wieder da."
+      },
+      {
+        "type": "Fix",
+        "change": "Ton wird automatisch auf leise gestellt, sobald ein Anruf eingeht."
       }
     ]
   },

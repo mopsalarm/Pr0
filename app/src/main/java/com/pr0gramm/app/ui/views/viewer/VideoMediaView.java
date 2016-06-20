@@ -1,9 +1,11 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -47,6 +49,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     // the video player that does all the magic
     private final RxVideoPlayer videoPlayer;
 
+    private final AudioManager audioManager;
+
     @BindView(R.id.video_container)
     AspectLayout videoPlayerParent;
 
@@ -71,6 +75,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         super(context,
                 R.layout.player_kind_video,
                 mediaUri, onViewListener);
+
+        audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
         if (Sdk.isAtLeastJellyBean()) {
             logger.info("Using exo player to play videos.");
@@ -113,6 +119,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
 
         applyMuteState();
+
         videoPlayer.start();
     }
 
@@ -143,9 +150,19 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     }
 
     private void setMuted(boolean muted) {
-        Drawable icon;
+        if (!muted) {
+            int result = audioManager.requestAudioFocus(afChangeListener,
+                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+            if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                logger.info("Did not get audio focus, muting now!");
+                muted = true;
+            }
+        }
 
         videoPlayer.setMuted(muted);
+
+        Drawable icon;
         if (muted) {
             storeUnmuteTime(0);
 
@@ -216,6 +233,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     public void stopMedia() {
         super.stopMedia();
         videoPlayer.pause();
+
+        audioManager.abandonAudioFocus(afChangeListener);
     }
 
     @Override
@@ -252,4 +271,17 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
                     VideoPlayer.ErrorKind.UNKNOWN);
         }
     }
+
+    private final AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        public void onAudioFocusChange(int focusChange) {
+            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                    || focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+
+                audioManager.abandonAudioFocus(afChangeListener);
+
+                logger.info("Lost audio focus, muting now.");
+                setMuted(true);
+            }
+        }
+    };
 }
