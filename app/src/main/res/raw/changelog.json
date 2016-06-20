@@ -1,9 +1,11 @@
 [
-
-
   {
     "version": 103,
     "changes": [
+      {
+        "type": "INFO - BITTE LESEN",
+        "change": "Diese Version hat einen neuen Video Player. Wenn du Probleme bei der Videowiedergabe hast, probiere bitte die Kompatibilitätseinstellungen."
+      },
       {
         "type": "Neu",
         "change": "Zeige den Fortschritt beim Buffern eines Videos im Fortschrittsbalken."
