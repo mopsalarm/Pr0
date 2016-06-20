@@ -471,7 +471,7 @@ public interface Api {
 
         public abstract List<SimilarItem> getSimilar();
 
-        public abstract VideoReport getReport();
+        public abstract Optional<VideoReport> getReport();
 
         @Value.Immutable
         public interface PostedItem {

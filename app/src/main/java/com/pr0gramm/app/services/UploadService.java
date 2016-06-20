@@ -2,9 +2,10 @@ package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -284,10 +285,10 @@ public class UploadService {
             "sfw", "nsfw", "nsfl", "gif", "webm", "sound");
 
     public static final class UploadFailedException extends Exception {
-        @Nullable
-        public final Api.Posted.VideoReport report;
+        @NonNull
+        public final Optional<Api.Posted.VideoReport> report;
 
-        public UploadFailedException(String message, @Nullable Api.Posted.VideoReport report) {
+        public UploadFailedException(String message, @NonNull Optional<Api.Posted.VideoReport> report) {
             super(message);
 
             this.report = report;

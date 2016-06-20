@@ -476,8 +476,8 @@ public class UploadFragment extends BaseFragment {
 
         Truss text = new Truss().append(context.getString(firstNonNull(textId, R.string.upload_error_unknown)));
 
-        Api.Posted.VideoReport report = exception.report;
-        if (report != null) {
+        Optional<Api.Posted.VideoReport> report = exception.report;
+        if (report.isPresent()) {
             Integer videoErrorId = ImmutableMap.<String, Integer>builder()
                     .put("dimensionsTooSmall", R.string.upload_error_video_too_small)
                     .put("dimensionsTooLarge", R.string.upload_error_video_too_large)
@@ -486,7 +486,7 @@ public class UploadFragment extends BaseFragment {
                     .put("invalidStreams", R.string.upload_error_video_streams)
                     .put("invalidContainer", R.string.upload_error_video_container)
                     .build()
-                    .get(report.error());
+                    .get(report.get().error());
 
             if (videoErrorId != null) {
                 text.append("\n\n")
@@ -497,11 +497,13 @@ public class UploadFragment extends BaseFragment {
 
             text.append("\n\n")
                     .append("Info:\n", Truss.bold())
-                    .append(context.getString(R.string.report_video_summary, report.width(), report.height(), report.format(), report.duration()))
+                    .append(context.getString(R.string.report_video_summary,
+                            report.get().width(), report.get().height(),
+                            report.get().format(), report.get().duration()))
                     .append("\n");
 
             int offset = context.getResources().getDimensionPixelSize(R.dimen.bullet_list_leading_margin);
-            for (Api.Posted.MediaStream stream : report.streams()) {
+            for (Api.Posted.MediaStream stream : report.get().streams()) {
                 String streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec());
                 text.append(streamInfo,
                         new BulletSpan(offset / 3),
