@@ -108,7 +108,6 @@ public class NavigationProvider {
         return extraCategoryApi.get().ping().map(r -> true)
                 .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
                 .onErrorResumeNext(just(false))
-                .startWith(true)
                 .distinctUntilChanged()
                 .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))
                 .onErrorResumeNext(just(false))
@@ -250,7 +249,7 @@ public class NavigationProvider {
     private Observable<List<NavigationItem>> categoryNavigationItems() {
         return combineLatest(
                 userService.loginState().map(UserService::getUser),
-                extraCategoryApiAvailable,
+                extraCategoryApiAvailable.startWith(true),
                 this::categoryNavigationItems);
     }
 

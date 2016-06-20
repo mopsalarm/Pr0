@@ -275,6 +275,12 @@
                 android:summary="@string/pref_video_codec_summary"
                 android:title="@string/pref_video_codec_title"/>
 
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_dropped_frames_hint"
+                android:summary="@string/pref_show_dropped_frames_hint_summary"
+                android:title="@string/pref_show_dropped_frames_hint__title"/>
+
         </PreferenceScreen>
 
         <PreferenceScreen

@@ -246,8 +246,10 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     public void onDroppedFrames(int count) {
-        onVideoError(
-                getContext().getString(R.string.media_dropped_frames_hint),
-                VideoPlayer.ErrorKind.UNKNOWN);
+        if (settings.showDroppedFramesHint()) {
+            onVideoError(
+                    getContext().getString(R.string.media_dropped_frames_hint),
+                    VideoPlayer.ErrorKind.UNKNOWN);
+        }
     }
 }

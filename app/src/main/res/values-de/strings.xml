@@ -338,4 +338,6 @@
     <string name="pref_video_codec_title">Video Codec </string>
     <string name="pref_video_codec_summary">Probiere einen anderen Video Codec, wenn du Probleme bei der Wiedergabe hast.</string>
     <string name="media_dropped_frames_hint">Dein Gerät kommt mit dem dekodieren des Videos nicht hinterher. Falls das öfter passiert, schaue mal in die Kompatibilitätseinstellungen.</string>
+    <string name="pref_show_dropped_frames_hint__title">Ausgelassene Frames</string>
+    <string name="pref_show_dropped_frames_hint_summary">Deaktiviere diese Einstellungen um nicht darüber informiert zu werden, wenn der Videoplayer Frames auslassen musste, weil er mit seiner Arbeit nicht hinterhergekommen ist.</string>
 </resources>
