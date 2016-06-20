@@ -204,6 +204,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     public void setMuted(boolean muted) {
         if (exoAudioTrack != null) {
             float volume = muted ? 0.f : 1.f;
+            exo.setSelectedTrack(1, muted ? -1 : 0);
             exo.sendMessage(exoAudioTrack, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, volume);
         }
 
