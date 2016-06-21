@@ -29,6 +29,7 @@ import com.akodiakson.sdk.simple.Sdk;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
@@ -478,7 +479,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         String text = message.message();
-        if (text != null) {
+        if (!Strings.isNullOrEmpty(text)) {
             DialogBuilder.start(this)
                     .contentWithLinks(text)
                     .positive()
