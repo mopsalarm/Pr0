@@ -2,7 +2,6 @@ package com.pr0gramm.app.services;
 
 import android.support.annotation.Nullable;
 
-import com.google.common.base.Strings;
 import com.google.gson.GsonBuilder;
 
 import org.immutables.gson.Gson;
@@ -44,22 +43,25 @@ public class InfoMessageService {
     }
 
     /**
-     * Returns an observable that might produce a mesage, if one is available.
+     * Returns an observable that might produce a message, if one is available.
      */
-    public Observable<String> infoMessage() {
-        return api.get()
-                .map(Response::message)
-                .filter(message -> !Strings.isNullOrEmpty(message));
+    public Observable<Message> fetch() {
+        return api.get();
     }
 
     private interface Api {
         @GET("info-message.json")
-        Observable<Response> get();
+        Observable<Message> get();
     }
 
     @Value.Immutable
-    interface Response {
+    public static abstract class Message {
         @Nullable
-        String message();
+        public abstract String message();
+
+        @Value.Default
+        public int endOfLife() {
+            return 0;
+        }
     }
 }

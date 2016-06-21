@@ -49,6 +49,7 @@ import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
 import com.pr0gramm.app.ui.upload.UploadActivity;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.RxLifecycle;
 
 import java.util.ArrayList;
@@ -239,7 +240,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void checkForInfoMessage() {
-        infoMessageService.infoMessage()
+        infoMessageService.fetch()
                 .onErrorResumeNext(Observable.empty())
                 .compose(bindToLifecycleAsync())
                 .subscribe(this::showInfoMessage);
@@ -463,11 +464,26 @@ public class MainActivity extends BaseAppCompatActivity implements
         return defaultFeedFilter().equals(filter);
     }
 
-    private void showInfoMessage(String message) {
-        DialogBuilder.start(this)
-                .contentWithLinks(message)
-                .positive()
-                .show();
+    private void showInfoMessage(InfoMessageService.Message message) {
+        if (message.endOfLife() >= AndroidUtility.getPackageVersionCode(this)) {
+            DialogBuilder.start(this)
+                    .contentWithLinks("Support für deine Version ist eingestellt. Um die pr0gramm-App weiter benutzen zu können, lade eine aktuelle Version von http://app.pr0gramm.com herunter.")
+                    .positive(R.string.okay, () -> {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://app.pr0gramm.com")));
+                        finish();
+                    })
+                    .show();
+
+            return;
+        }
+
+        String text = message.message();
+        if (text != null) {
+            DialogBuilder.start(this)
+                    .contentWithLinks(text)
+                    .positive()
+                    .show();
+        }
     }
 
     @Override
