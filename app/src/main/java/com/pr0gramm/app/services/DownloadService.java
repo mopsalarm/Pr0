@@ -12,6 +12,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
+import com.google.common.io.PatternFilenameFilter;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
@@ -19,6 +20,8 @@ import com.pr0gramm.app.services.proxy.ProxyService;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,12 +37,12 @@ import okhttp3.Response;
 import rx.Observable;
 import rx.subscriptions.Subscriptions;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 /**
  */
 @Singleton
 public class DownloadService {
+    private static final Logger logger = LoggerFactory.getLogger("DownloadService");
+
     private final Context context;
     private final Settings settings;
     private final ProxyService proxyService;
@@ -109,9 +112,23 @@ public class DownloadService {
     public Observable<Status> downloadToFile(String uri) {
         return Observable.create(subscriber -> {
             try {
+                File directory = new File(context.getCacheDir(), "updates");
+                if (!directory.exists() && !directory.mkdirs()) {
+                    logger.warn("Could not create apk directory: {}", directory);
+                }
+
+                // clear all previous files
+                File[] files = directory.listFiles(new PatternFilenameFilter("pr0gramm-update.*apk"));
+                for (File file : files) {
+                    if (!file.delete()) {
+                        logger.warn("Could not delete file {}", file);
+                    }
+                }
+
+                // and download the new file.
                 File tempFile = File.createTempFile(
                         "pr0gramm-update", ".apk",
-                        firstNonNull(context.getExternalCacheDir(), context.getCacheDir()));
+                        directory);
 
                 try (OutputStream output = new FileOutputStream(tempFile)) {
                     // now do the request

@@ -1,11 +1,15 @@
 package com.pr0gramm.app.services;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.FileProvider;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.AppComponent;
 import com.pr0gramm.app.BuildConfig;
@@ -19,6 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +37,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Actions;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -36,8 +46,6 @@ import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
  * Class to perform an update check.
  */
 public class UpdateChecker {
-    public static final String KEY_DOWNLOAD_ID = "UpdateChecker.downloadId";
-
     private static final Logger logger = LoggerFactory.getLogger("UpdateChecker");
 
     private final int currentVersion;
@@ -132,7 +140,16 @@ public class UpdateChecker {
         // install on finish
         Context appContext = activity.getApplicationContext();
         progress.filter(DownloadService.Status::finished)
-                .subscribe(status -> install(appContext, status.file), defaultOnError());
+                .flatMap(status -> {
+                    try {
+                        install(appContext, status.file);
+                        return Observable.empty();
+
+                    } catch (IOException error) {
+                        return Observable.error(error);
+                    }
+                })
+                .subscribe(Actions.empty(), defaultOnError());
 
         // show a progress dialog
         DownloadUpdateDialog dialog = new DownloadUpdateDialog(progress);
@@ -142,10 +159,33 @@ public class UpdateChecker {
         appComponent.notificationService().cancelForUpdate();
     }
 
-    private static void install(Context context, File apk) {
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private static void install(Context context, File apk) throws IOException {
+        Uri uri;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            String provider = context.getPackageName() + ".FileProvider";
+            uri = FileProvider.getUriForFile(context, provider, apk);
+        } else {
+            File file = new File(context.getExternalCacheDir(), "update.apk");
+
+            logger.info("Copy apk to public space.");
+            try (InputStream input = new FileInputStream(apk)) {
+                try (OutputStream output = new FileOutputStream(file)) {
+                    ByteStreams.copy(input, output);
+                }
+            }
+
+            // make file readable
+            if (!file.setReadable(true))
+                logger.info("Could not make file readable");
+
+            uri = Uri.fromFile(file);
+        }
+
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(intent);
     }
 }

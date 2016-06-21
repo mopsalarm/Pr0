@@ -73,6 +73,17 @@
             android:grantUriPermissions="true"
             tools:ignore="ExportedContentProvider"/>
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/fileprovider"/>
+        </provider>
+
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
@@ -225,8 +236,8 @@
             android:name=".ui.InviteActivity"
             android:label="@string/invites_title"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Green"
             android:windowSoftInputMode="stateHidden">
 
             <meta-data

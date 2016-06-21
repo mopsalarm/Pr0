@@ -21,6 +21,10 @@
       {
         "type": "Fix",
         "change": "Ton wird automatisch auf leise gestellt, sobald ein Anruf eingeht."
+      },
+      {
+        "type": "Fix",
+        "change": "Update auf Android N gefixt."
       }
     ]
   },
