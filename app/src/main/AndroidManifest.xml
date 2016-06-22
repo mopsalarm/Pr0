@@ -88,7 +88,7 @@
             android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.Green.NoActionBar.TranslucentStatus"
+            android:theme="@style/AppTheme.Orange.NoActionBar.TranslucentStatus"
             android:windowSoftInputMode="adjustPan|stateHidden">
 
             <intent-filter>
@@ -151,7 +151,7 @@
             android:name=".ui.InboxActivity"
             android:label="@string/inbox_activity_title"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green.NoActionBar">
+            android:theme="@style/AppTheme.Orange.NoActionBar">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -162,7 +162,7 @@
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green">
+            android:theme="@style/AppTheme.Orange">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -173,7 +173,7 @@
             android:name=".ui.UpdateActivity"
             android:label="@string/update"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green">
+            android:theme="@style/AppTheme.Orange">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -183,7 +183,7 @@
         <activity
             android:name=".ui.dialogs.LoginActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green.NoActionBar.WhiteAccent"
+            android:theme="@style/AppTheme.Orange.NoActionBar.WhiteAccent"
             android:windowSoftInputMode="adjustResize|stateHidden">
 
             <meta-data
@@ -194,7 +194,7 @@
         <activity
             android:name=".ui.ZoomViewActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green.NoActionBar.Fullscreen">
+            android:theme="@style/AppTheme.Orange.NoActionBar.Fullscreen">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -205,7 +205,7 @@
             android:name=".ui.FeedbackActivity"
             android:label="@string/feedback_title"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green"
+            android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="adjustResize|stateHidden">
 
             <meta-data
@@ -217,14 +217,14 @@
         <activity
             android:name=".ui.WriteMessageActivity"
             android:label="@string/action_new_message"
-            android:theme="@style/AppTheme.Green"
+            android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
 
         <activity
             android:name=".ui.RulesActivity"
             android:label="@string/rules_title"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Green"
+            android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="stateHidden">
 
             <meta-data
@@ -237,7 +237,7 @@
             android:label="@string/invites_title"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Green"
+            android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="stateHidden">
 
             <meta-data
@@ -250,7 +250,7 @@
             android:label="@string/upload_title"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Green">
+            android:theme="@style/AppTheme.Orange">
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
