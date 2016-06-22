@@ -215,9 +215,9 @@ dependencies {
         transitive = true;
     }
 
-    apt 'org.immutables:value:2.2.7'
-    provided 'org.immutables:value:2.2.7'
-    provided 'org.immutables:gson:2.2.7'
+    apt 'org.immutables:value:2.2.8'
+    provided 'org.immutables:value:2.2.8'
+    provided 'org.immutables:gson:2.2.8'
 
     compile 'com.google.dagger:dagger:2.5'
     apt 'com.google.dagger:dagger-compiler:2.5'
