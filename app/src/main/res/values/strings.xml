@@ -200,7 +200,7 @@
     <string name="prefcat_behaviour__datausage_title">Data usage</string>
     <string name="prefcat_behaviour__notificatons_title">Notifications</string>
     <string name="pref_website_title">Website</string>
-    <string name="pref_website_summary">Recommend https://mopsalarm.github.io to your friends</string>
+    <string name="pref_website_summary">Recommend https://app.pr0gramm.com to your friends</string>
     <string name="pref_feed_start_at_new_title">Default to new</string>
     <string name="pref_feed_start_at_new_summary">Default to showing the \'new\' feed instead of \'top\' on starting the app.</string>
     <string name="prefcat_behaviour__feed_title">Feed</string>

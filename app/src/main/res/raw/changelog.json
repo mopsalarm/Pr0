@@ -1,5 +1,14 @@
 [
   {
+    "version": 104,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Sorry, wichtige Bugfixes, für mehr Info, siehe das vorige Release."
+      }
+    ]
+  },
+  {
     "version": 103,
     "changes": [
       {
