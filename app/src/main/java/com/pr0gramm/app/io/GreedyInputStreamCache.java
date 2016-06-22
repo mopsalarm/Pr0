@@ -37,6 +37,7 @@ public class GreedyInputStreamCache implements InputStreamCache {
 
     // This will be set if the code set an error.
     private volatile IOException ioError;
+    private volatile RuntimeException runtimeError;
 
     public GreedyInputStreamCache(Context context, InputStream inputStream) throws IOException {
         this.inputStream = inputStream;
@@ -101,8 +102,14 @@ public class GreedyInputStreamCache implements InputStreamCache {
             private int waitAndClamp(int byteCount) throws IOException {
                 while (position + byteCount > totalCount) {
                     if (endOfStream) {
-                        if (position == totalCount && ioError != null) {
-                            throw new IOException("Error in caching thread", ioError);
+                        if (position == totalCount) {
+                            if (ioError != null) {
+                                throw new IOException("Error in caching thread", ioError);
+                            }
+
+                            if (runtimeError != null) {
+                                throw runtimeError;
+                            }
                         }
 
                         byteCount = Math.max(0, totalCount - position);
@@ -163,13 +170,16 @@ public class GreedyInputStreamCache implements InputStreamCache {
             logger.info("Caching thread started");
             downloadTask();
 
+        } catch (InterruptedException ierr) {
+            logger.info("Caching thread got interrupted");
+
         } catch (IOException error) {
             // we dont really care about io errors here.
             logger.info("Error during caching: " + error);
             this.ioError = error;
 
-        } catch (InterruptedException ierr) {
-            logger.info("Caching thread got interrupted");
+        } catch (RuntimeException error) {
+            this.runtimeError = error;
 
         } finally {
             logger.info("Cleaning up in caching thread.");

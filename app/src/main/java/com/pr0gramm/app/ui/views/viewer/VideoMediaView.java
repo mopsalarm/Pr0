@@ -79,7 +79,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
-        if (Sdk.isAtLeastJellyBean()) {
+        if (Sdk.isAtLeastJellyBean() && settings.useExoPlayer()) {
             logger.info("Using exo player to play videos.");
             videoPlayer = new ExoVideoPlayer(context, videoPlayerParent);
         } else {

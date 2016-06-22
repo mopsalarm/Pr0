@@ -13,6 +13,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import com.akodiakson.sdk.simple.Sdk;
 import com.google.android.exoplayer.DecoderInfo;
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.pr0gramm.app.ActivityComponent;
@@ -131,26 +132,31 @@ public class SettingsActivity extends BaseAppCompatActivity {
             List<CharSequence> entries = new ArrayList<>();
             List<CharSequence> entryValues = new ArrayList<>();
 
-            entries.add("Software");
-            entryValues.add("software");
-
-            entries.add("Hardware");
-            entryValues.add("hardware");
-
-            try {
-                List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos("video/avc", false);
-                for (DecoderInfo codec : codecs) {
-                    entries.add(codec.name.toLowerCase());
-                    entryValues.add(codec.name);
-                }
-            } catch (MediaCodecUtil.DecoderQueryException ignored) {
-            }
-
             ListPreference pref = (ListPreference) findPreference("pref_video_codec");
-            if (pref != null) {
-                pref.setDefaultValue("software");
-                pref.setEntries(entries.toArray(new CharSequence[0]));
-                pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
+
+            if (Sdk.isAtLeastJellyBean()) {
+                entries.add("Software");
+                entryValues.add("software");
+
+                entries.add("Hardware");
+                entryValues.add("hardware");
+
+                try {
+                    List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos("video/avc", false);
+                    for (DecoderInfo codec : codecs) {
+                        entries.add(codec.name.toLowerCase());
+                        entryValues.add(codec.name);
+                    }
+                } catch (MediaCodecUtil.DecoderQueryException ignored) {
+                }
+                if (pref != null) {
+                    pref.setDefaultValue("software");
+                    pref.setEntries(entries.toArray(new CharSequence[0]));
+                    pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
+                }
+
+            } else if (pref != null) {
+                pref.setEnabled(false);
             }
         }
 

@@ -360,5 +360,7 @@
     <string name="pref_show_dropped_frames_hint__title">Dropped frames</string>
     <string name="pref_show_dropped_frames_hint_summary">Select this to warn if the video decoder needed to drop frames.</string>
     <string name="dialog_dont_show_again">Don\'t show again</string>
+    <string name="pref_use_exo_player__title">Use new player</string>
+    <string name="pref_use_exo_player__summary">Uses the new and recommended video player. You might need to tune the codec selection below if you encounter problems.</string>
 </resources>
 

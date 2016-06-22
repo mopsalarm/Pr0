@@ -165,7 +165,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
                 mCurTransaction.commitNowAllowingStateLoss();
                 mCurTransaction = null;
             }
-        } catch (IllegalStateException ignored) {
+        } catch (RuntimeException ignored) {
             // Sometimes we get a "activity has been destroyed." exception.
         }
     }

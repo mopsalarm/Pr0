@@ -341,4 +341,6 @@
     <string name="pref_show_dropped_frames_hint__title">Ausgelassene Frames</string>
     <string name="pref_show_dropped_frames_hint_summary">Deaktiviere diese Einstellungen um nicht darüber informiert zu werden, wenn der Videoplayer Frames auslassen musste, weil er mit seiner Arbeit nicht hinterhergekommen ist.</string>
     <string name="dialog_dont_show_again">Nicht wieder anzeigen</string>
+    <string name="pref_use_exo_player__title">Neuen Videoplayer</string>
+    <string name="pref_use_exo_player__summary">Verwende den neuen und empohlenen Videoplayer. Eventuell musst du unten an den Codecs drehen, wenn Probleme bei der Wiedergabe auftreten.</string>
 </resources>
