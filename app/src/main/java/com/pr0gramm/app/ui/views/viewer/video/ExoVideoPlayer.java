@@ -65,6 +65,8 @@ import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
 public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPlayer.Listener, MediaCodecVideoTrackRenderer.EventListener {
     private static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
 
+    private static final int MAX_DROPPED_FRAMES = 75;
+
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 64;
     private final Context context;
@@ -140,7 +142,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         exoVideoTrack = new MediaCodecVideoTrackRenderer(
                 context, sampleSource, mediaCodecSelector,
                 MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-                5000, new Handler(Looper.getMainLooper()), this, 75);
+                5000, new Handler(Looper.getMainLooper()), this,
+                MAX_DROPPED_FRAMES);
 
         exoAudioTrack = new MediaCodecAudioTrackRenderer(sampleSource, mediaCodecSelector);
 
@@ -294,7 +297,9 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-        callbacks.onDroppedFrames(count);
+        if (count >= MAX_DROPPED_FRAMES) {
+            callbacks.onDroppedFrames(count);
+        }
     }
 
     @Override
