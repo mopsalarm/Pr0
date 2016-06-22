@@ -70,6 +70,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     private boolean errorShown;
     private boolean statsSent;
+    private boolean droppedFramesShown;
 
     protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
         super(context,
@@ -265,10 +266,14 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     public void onDroppedFrames(int count) {
-        if (settings.showDroppedFramesHint()) {
-            onVideoError(
-                    getContext().getString(R.string.media_dropped_frames_hint),
-                    VideoPlayer.ErrorKind.UNKNOWN);
+        if (!droppedFramesShown) {
+            DialogBuilder.start(getContext())
+                    .dontShowAgainKey("VideoMediaView.dropped-frames")
+                    .content(R.string.media_dropped_frames_hint)
+                    .positive()
+                    .show();
+
+            droppedFramesShown = true;
         }
     }
 

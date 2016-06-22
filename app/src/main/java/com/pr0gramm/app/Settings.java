@@ -210,10 +210,6 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getString("pref_video_codec", "software");
     }
 
-    public boolean showDroppedFramesHint() {
-        return preferences.getBoolean("pref_show_dropped_frames_hint", true);
-    }
-
     public VolumeNavigationType volumeNavigation() {
         String pref = preferences.getString("pref_volume_navigation", "disabled");
         return Enums
