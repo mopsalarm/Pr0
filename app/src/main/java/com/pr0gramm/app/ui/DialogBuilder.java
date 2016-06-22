@@ -3,19 +3,32 @@ package com.pr0gramm.app.ui;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.SpannableString;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.util.NonCrashingLinkMovementMethod;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -28,6 +41,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 public class DialogBuilder {
     private final Context context;
     private final AlertDialog.Builder builder;
+    private final SharedPreferences preferences;
 
     private boolean autoDismiss = true;
     private OnClickListener positiveOnClick = DO_NOTHING;
@@ -37,10 +51,16 @@ public class DialogBuilder {
     private DialogInterface.OnCancelListener onCancelListener;
     private MovementMethod movementMethod;
 
+    @Nullable
+    private String dontShowAgainKey;
+
     private DialogBuilder(Context context) {
         // this.theme = ThemeHelper.theme().popup;
         this.context = context;
         this.builder = new AlertDialog.Builder(context);
+
+        this.preferences = context.getSharedPreferences(
+                "dialog-builder", Context.MODE_PRIVATE);
 
         // default
         builder.setCancelable(false);
@@ -75,6 +95,11 @@ public class DialogBuilder {
 
     public DialogBuilder noAutoDismiss() {
         autoDismiss = false;
+        return this;
+    }
+
+    public DialogBuilder dontShowAgainKey(@NonNull String key) {
+        dontShowAgainKey = key;
         return this;
     }
 
@@ -162,26 +187,43 @@ public class DialogBuilder {
 
     public Dialog show() {
         Dialog dialog = build();
-        dialog.show();
+
+        if (shouldNotShowDialog()) {
+            dialog.show();
+        }
 
         return dialog;
     }
 
+    private static final Logger logger = LoggerFactory.getLogger("DialogBuilder");
+
     public Dialog build() {
+        if (shouldNotShowDialog()) {
+            logger.info("Dont show dialog '{}'.", dontShowAgainKey);
+
+            // return a dialog that closes itself whens shown.
+            Dialog dialog = new Dialog(context);
+            dialog.setOnShowListener(DialogInterface::dismiss);
+            return dialog;
+        }
+
         AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(di -> {
+            View messageView = dialog.findViewById(android.R.id.message);
+
+            AtomicBoolean dontShowAgainClicked = setupDontShowAgainView(messageView);
+
             for (int button : BUTTONS) {
                 Button btn = dialog.getButton(button);
                 if (btn != null) {
-                    btn.setOnClickListener(v -> onButtonClicked(button, dialog));
+                    btn.setOnClickListener(v -> onButtonClicked(button, dialog, dontShowAgainClicked.get()));
                 }
             }
 
             if (movementMethod != null) {
-                View view = dialog.findViewById(android.R.id.message);
-                if (view instanceof TextView) {
-                    ((TextView) view).setMovementMethod(movementMethod);
+                if (messageView instanceof TextView) {
+                    ((TextView) messageView).setMovementMethod(movementMethod);
                 }
             }
 
@@ -195,7 +237,38 @@ public class DialogBuilder {
         return dialog;
     }
 
-    private void onButtonClicked(int button, AlertDialog dialog) {
+    private AtomicBoolean setupDontShowAgainView(@Nullable View messageView) {
+        AtomicBoolean dontShowAgainClicked = new AtomicBoolean();
+        if (messageView != null) {
+            ViewParent parent = messageView.getParent();
+            if (parent instanceof LinearLayout) {
+                CheckBox checkbox = new AppCompatCheckBox(messageView.getContext());
+                checkbox.setText(R.string.dialog_dont_show_again);
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                params.leftMargin = messageView.getPaddingLeft();
+                params.rightMargin = messageView.getPaddingRight();
+                params.topMargin = params.leftMargin / 2;
+                checkbox.setLayoutParams(params);
+
+                // remember changes here.
+                checkbox.setOnCheckedChangeListener((v, checked) -> dontShowAgainClicked.set(checked));
+
+                LinearLayout linearLayout = (LinearLayout) parent;
+                linearLayout.addView(checkbox);
+            }
+        }
+        return dontShowAgainClicked;
+    }
+
+    private boolean shouldNotShowDialog() {
+        return dontShowAgainKey != null && this.preferences.getBoolean(dontShowAgainKey, false);
+    }
+
+    private void onButtonClicked(int button, AlertDialog dialog, boolean dontShowAgain) {
         if (button == Dialog.BUTTON_POSITIVE)
             positiveOnClick.onClick(dialog);
 
@@ -207,6 +280,13 @@ public class DialogBuilder {
 
         if (autoDismiss)
             dialog.dismiss();
+
+        if (dontShowAgainKey != null && dontShowAgain) {
+            logger.info("Never show dialog '{}' again", dontShowAgainKey);
+            preferences.edit()
+                    .putBoolean(dontShowAgainKey, true)
+                    .apply();
+        }
     }
 
     @MainThread

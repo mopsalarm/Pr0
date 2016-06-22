@@ -359,5 +359,6 @@
     <string name="media_dropped_frames_hint">Your phone just dropped a lot of frames. If you can not watch videos correctly, or if they are really slow, try the compatibility settings.</string>
     <string name="pref_show_dropped_frames_hint__title">Dropped frames</string>
     <string name="pref_show_dropped_frames_hint_summary">Select this to warn if the video decoder needed to drop frames.</string>
+    <string name="dialog_dont_show_again">Don\'t show again</string>
 </resources>
 
