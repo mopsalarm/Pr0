@@ -56,7 +56,6 @@ public class DialogBuilder {
     private String dontShowAgainKey;
 
     private DialogBuilder(Context context) {
-        // this.theme = ThemeHelper.theme().popup;
         this.context = context;
         this.builder = new AlertDialog.Builder(context);
 
@@ -241,7 +240,8 @@ public class DialogBuilder {
 
     private AtomicBoolean setupDontShowAgainView(@Nullable View messageView) {
         AtomicBoolean dontShowAgainClicked = new AtomicBoolean();
-        if (messageView != null) {
+
+        if (messageView != null && dontShowAgainKey != null) {
             ViewParent parent = messageView.getParent();
             if (parent instanceof LinearLayout) {
                 CheckBox checkbox = new AppCompatCheckBox(messageView.getContext());
@@ -263,6 +263,7 @@ public class DialogBuilder {
                 linearLayout.addView(checkbox);
             }
         }
+
         return dontShowAgainClicked;
     }
 
