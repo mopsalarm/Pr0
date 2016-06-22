@@ -466,7 +466,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void showInfoMessage(InfoMessageService.Message message) {
-        if (message.endOfLife() >= AndroidUtility.getPackageVersionCode(this)) {
+        if (message.endOfLife() >= AndroidUtility.buildVersionCode()) {
             DialogBuilder.start(this)
                     .contentWithLinks("Support für deine Version ist eingestellt. Um die pr0gramm-App weiter benutzen zu können, lade eine aktuelle Version von http://app.pr0gramm.com herunter.")
                     .positive(R.string.okay, () -> {

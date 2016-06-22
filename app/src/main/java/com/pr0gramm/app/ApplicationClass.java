@@ -10,7 +10,6 @@ import com.f2prateek.dart.Dart;
 import com.orm.SugarContext;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
-import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.Lazy;
 import com.pr0gramm.app.util.LooperScheduler;
@@ -29,6 +28,7 @@ import rx.android.plugins.RxAndroidPlugins;
 import rx.android.plugins.RxAndroidSchedulersHook;
 
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.setGlobalErrorDialogHandler;
+import static com.pr0gramm.app.util.AndroidUtility.buildVersionCode;
 
 /**
  * Global application class for pr0gramm app.
@@ -45,7 +45,7 @@ public class ApplicationClass extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Stats.init(AndroidUtility.getPackageVersionCode(this));
+        Stats.init(buildVersionCode());
         SugarContext.init(this);
         JodaTimeAndroid.init(this);
         Base.initialize(this);

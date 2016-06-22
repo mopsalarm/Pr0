@@ -58,7 +58,7 @@ public class FeedbackService {
     }
 
     public Observable<Nothing> post(String name, String feedback) {
-        String version = String.valueOf(AndroidUtility.getPackageVersionCode(context));
+        String version = String.valueOf(AndroidUtility.buildVersionCode());
 
         return Observable.fromCallable(this::payload)
                 .flatMap(logcat -> api.post(name, feedback, version, logcat))

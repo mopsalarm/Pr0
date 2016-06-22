@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
@@ -27,16 +26,14 @@ public class SingleShotService {
 
     private final Gson gson = new Gson();
     private final SharedPreferences preferences;
-    private final Context context;
 
     private Map<String, String> timeStringMap;
 
     private final Object lock = new Object();
 
     @Inject
-    public SingleShotService(SharedPreferences preferences, Context context) {
+    public SingleShotService(SharedPreferences preferences) {
         this.preferences = preferences;
-        this.context = context;
     }
 
     public synchronized boolean isFirstTime(String action) {
@@ -55,7 +52,7 @@ public class SingleShotService {
     }
 
     public boolean firstTimeInVersion(String action) {
-        int version = AndroidUtility.getPackageVersionCode(context);
+        int version = AndroidUtility.buildVersionCode();
         return isFirstTime(action + "--" + version);
     }
 
@@ -89,7 +86,7 @@ public class SingleShotService {
         }
 
         public boolean firstTimeInVersion(String action) {
-            int version = AndroidUtility.getPackageVersionCode(context);
+            int version = AndroidUtility.buildVersionCode();
             return isFirstTime(action + "--" + version);
         }
 

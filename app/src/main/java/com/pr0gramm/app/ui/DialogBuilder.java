@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.NonCrashingLinkMovementMethod;
 
 import org.slf4j.Logger;
@@ -60,7 +61,8 @@ public class DialogBuilder {
         this.builder = new AlertDialog.Builder(context);
 
         this.preferences = context.getSharedPreferences(
-                "dialog-builder", Context.MODE_PRIVATE);
+                "dialog-builder-v" + AndroidUtility.buildVersionCode(),
+                Context.MODE_PRIVATE);
 
         // default
         builder.setCancelable(false);

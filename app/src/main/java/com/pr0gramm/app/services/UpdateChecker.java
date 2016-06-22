@@ -52,7 +52,7 @@ public class UpdateChecker {
     private final ImmutableList<String> endpoints;
 
     public UpdateChecker(Context context) {
-        currentVersion = AndroidUtility.getPackageVersionCode(context);
+        currentVersion = AndroidUtility.buildVersionCode();
 
         boolean betaChannel = Settings.of(context).useBetaChannel();
         endpoints = updateUrls(betaChannel);
@@ -163,7 +163,7 @@ public class UpdateChecker {
     private static void install(Context context, File apk) throws IOException {
         Uri uri;
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            String provider = context.getPackageName() + ".FileProvider";
+            String provider = BuildConfig.APPLICATION_ID + ".FileProvider";
             uri = FileProvider.getUriForFile(context, provider, apk);
         } else {
             File file = new File(context.getExternalCacheDir(), "update.apk");

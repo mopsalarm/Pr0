@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -367,25 +365,11 @@ public class AndroidUtility {
         return checkNotNull(ButterKnife.findById(view, id));
     }
 
-    public static PackageInfo getPackageInfo(Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        try {
-            return packageManager.getPackageInfo(context.getPackageName(), 0);
-
-        } catch (PackageManager.NameNotFoundException err) {
-            throw Throwables.propagate(err);
-        }
-    }
-
-    public static int getPackageVersionCode(Context context) {
-        try {
-            if (BuildConfig.DEBUG) {
-                return 100;
-            } else {
-                return getPackageInfo(context).versionCode;
-            }
-        } catch (Exception error) {
-            return -1;
+    public static int buildVersionCode() {
+        if (BuildConfig.DEBUG) {
+            return 100;
+        } else {
+            return BuildConfig.VERSION_CODE;
         }
     }
 

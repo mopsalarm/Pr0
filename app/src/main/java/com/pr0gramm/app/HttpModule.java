@@ -47,12 +47,12 @@ public class HttpModule {
 
     @Provides
     @Singleton
-    public OkHttpClient okHttpClient(Context context, Settings settings, LoginCookieHandler cookieHandler) {
+    public OkHttpClient okHttpClient(Context context, LoginCookieHandler cookieHandler) {
         final Logger okLogger = LoggerFactory.getLogger("OkHttpClient");
 
         File cacheDir = new File(context.getCacheDir(), "imgCache");
 
-        int version = AndroidUtility.getPackageVersionCode(context);
+        int version = AndroidUtility.buildVersionCode();
         return new OkHttpClient.Builder()
                 .cache(new Cache(cacheDir, 256 * 1024 * 1024))
                 .socketFactory(new SmallBufferSocketFactory())
