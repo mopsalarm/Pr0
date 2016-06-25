@@ -188,7 +188,7 @@ public class DialogBuilder {
     public Dialog show() {
         Dialog dialog = build();
 
-        if (shouldNotShowDialog()) {
+        if (!shouldNotShowDialog()) {
             dialog.show();
         }
 
