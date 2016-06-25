@@ -111,6 +111,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     public void playMedia() {
         super.playMedia();
 
+        // apply state before starting playback.
+        applyMuteState();
+
         if (!videoViewInitialized) {
             showBusyIndicator();
 
@@ -119,8 +122,6 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             videoPlayer.setVideoCallbacks(this);
             videoPlayer.open(getEffectiveUri());
         }
-
-        applyMuteState();
 
         videoPlayer.start();
     }
@@ -162,6 +163,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             }
         }
 
+        logger.info("Setting mute state on video player: {}", muted);
         videoPlayer.setMuted(muted);
 
         Drawable icon;

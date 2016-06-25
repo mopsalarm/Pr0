@@ -21,15 +21,20 @@ public class PopupPlayer {
         MediaUri uri = MediaUri.of(activity, item);
         MediaView mediaView = MediaViews.newInstance(activity, uri, Runnables.doNothing());
 
+        mediaView.setHasAudio(item.audio());
+
         PreviewInfo previewInfo = PreviewInfo.of(activity, item);
         mediaView.setPreviewInfo(previewInfo);
-
-        mediaView.onResume();
-        mediaView.playMedia();
 
         Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(mediaView);
+
+        dialog.setOnShowListener(di -> {
+            mediaView.onResume();
+            mediaView.playMedia();
+        });
+
         dialog.setOnDismissListener(di -> {
             mediaView.stopMedia();
             mediaView.onPause();

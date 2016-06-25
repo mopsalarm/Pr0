@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Fix Sound/kein Sound in im Quickpreview."
+      },
+      {
+        "type": "Fix",
         "change": "Fehler und Info-Dialoge wurden teilweise nicht korrekt angezeigt."
       },
       {

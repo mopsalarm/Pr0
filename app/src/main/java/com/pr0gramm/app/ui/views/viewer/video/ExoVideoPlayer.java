@@ -150,8 +150,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         exo.prepare(exoVideoTrack, exoAudioTrack);
         exo.setPlayWhenReady(true);
 
-        // mute before even trying to play
-        setMuted(true);
+        applyVolumeState();
 
         // initialize the renderer with a surface, if we already have one.
         // this might be the case, if we are restarting the video after
@@ -208,13 +207,18 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void setMuted(boolean muted) {
+        this.muted = muted;
+        applyVolumeState();
+    }
+
+    private void applyVolumeState() {
         if (exoAudioTrack != null) {
             float volume = muted ? 0.f : 1.f;
+            logger.info("Setting volume on exo player to {}", volume);
+
             exo.setSelectedTrack(1, muted ? -1 : 0);
             exo.sendMessage(exoAudioTrack, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, volume);
         }
-
-        this.muted = muted;
     }
 
 
@@ -252,8 +256,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 break;
 
             case ExoPlayer.STATE_READY:
-                // better re-apply mute state
-                setMuted(muted);
+                // better re-apply volume state
+                applyVolumeState();
 
                 if (playWhenReady) {
                     callbacks.onVideoRenderingStarts();
