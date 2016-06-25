@@ -276,7 +276,7 @@
                 android:title="@string/pref_use_exo_player__title"/>
 
             <ListPreference
-                android:defaultValue="software"
+                android:defaultValue="hardware"
                 android:dependency="pref_use_exo_player"
                 android:key="pref_video_codec"
                 android:summary="@string/pref_video_codec_summary"
