@@ -1,5 +1,22 @@
 [
   {
+    "version": 105,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Beim Abspielen von Videos mit Sound gab es manchmal ein kurzes Geräusch, obwohl diese auf Stumm geschaltet waren."
+      },
+      {
+        "type": "Fix",
+        "change": "Fehler und Info-Dialoge wurden teilweise nicht korrekt angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "Der 'warten'-Dialog beim Absenden von Feedback wird wieder korrekt geschlossen."
+      }
+    ]
+  },
+  {
     "version": 104,
     "changes": [
       {
