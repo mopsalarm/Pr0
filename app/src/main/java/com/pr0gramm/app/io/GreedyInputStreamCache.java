@@ -104,7 +104,7 @@ public class GreedyInputStreamCache implements InputStreamCache {
                     if (endOfStream) {
                         if (position == totalCount) {
                             if (ioError != null) {
-                                throw new IOException("Error in caching thread", ioError);
+                                throw ioError;
                             }
 
                             if (runtimeError != null) {

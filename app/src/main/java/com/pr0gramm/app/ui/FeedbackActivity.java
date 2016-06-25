@@ -86,9 +86,6 @@ public class FeedbackActivity extends BaseAppCompatActivity {
         feedbackService.post(name, feedback)
                 .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
-                .doOnEach(not -> {
-                    logger.info("notification: {}", not);
-                })
                 .subscribe(Actions.empty(), defaultOnError(), this::onSubmitSuccess);
     }
 

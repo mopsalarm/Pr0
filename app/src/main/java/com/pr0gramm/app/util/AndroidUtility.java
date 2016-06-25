@@ -46,6 +46,7 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.PrivateBrowserSpan;
 import com.pr0gramm.app.ui.Truss;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -414,24 +415,25 @@ public class AndroidUtility {
     }
 
     public static String getMessageWithCauses(Throwable error) {
-        String type = error.getClass().getSimpleName();
+        String type = ClassUtils.getShortClassName(error.getClass());
         Throwable cause = error.getCause();
 
         boolean hasCause = cause != null && error != cause;
-        boolean hasMessage = Strings.isNullOrEmpty(error.getMessage());
+        boolean hasMessage = !Strings.isNullOrEmpty(error.getMessage()) &&
+                (!hasCause || !error.getMessage().contains(cause.getClass().getSimpleName()));
 
         if (hasMessage) {
             if (hasCause) {
-                return String.format("%s (%s, caused by %s)",
-                        error.getMessage(), type, getMessageWithCauses(cause));
+                return String.format("%s(%s), caused by %s",
+                        type, error.getMessage(), getMessageWithCauses(cause));
             } else {
-                return String.format("%s (%s)", error.getMessage(), type);
+                return String.format("%s(%s)", type, error.getMessage());
             }
         } else {
             if (hasCause) {
-                return String.format("%s (caused by %s)", error, getMessageWithCauses(cause));
+                return String.format("%s, caused by %s", type, getMessageWithCauses(cause));
             } else {
-                return error.toString();
+                return type;
             }
         }
     }
