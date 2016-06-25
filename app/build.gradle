@@ -39,6 +39,8 @@ android {
         ndk {
             abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"
         }
+
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
     aaptOptions {
@@ -71,6 +73,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             versionNameSuffix ".dev"
         }
 
@@ -98,6 +101,10 @@ android {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+        exclude 'META-INF/maven/com.google.dagger/dagger/pom.xml'
+        exclude 'META-INF/maven/com.google.dagger/dagger/pom.properties'
     }
 }
 
@@ -224,4 +231,9 @@ dependencies {
 
     // use a newer version of retrolambda
     retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
+
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
+    androidTestCompile 'com.android.support:support-annotations:24.0.0'
 }
