@@ -84,10 +84,12 @@ public class FeedbackActivity extends BaseAppCompatActivity {
         String feedback = vText.getText().toString().trim();
 
         feedbackService.post(name, feedback)
-                .lift(busyDialog(this))
                 .compose(bindToLifecycleAsync())
-                .doOnCompleted(this::onSubmitSuccess)
-                .subscribe(Actions.empty(), defaultOnError());
+                .lift(busyDialog(this))
+                .doOnEach(not -> {
+                    logger.info("notification: {}", not);
+                })
+                .subscribe(Actions.empty(), defaultOnError(), this::onSubmitSuccess);
     }
 
     private void onSubmitSuccess() {

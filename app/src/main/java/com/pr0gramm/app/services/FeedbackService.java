@@ -1,8 +1,10 @@
 package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.util.Base64;
 
 import com.google.android.exoplayer.DecoderInfo;
 import com.google.android.exoplayer.MediaCodecUtil;
@@ -13,15 +15,21 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.pr0gramm.app.util.BackgroundScheduler;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.DeflaterOutputStream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,6 +50,8 @@ import static java.util.Arrays.asList;
  */
 @Singleton
 public class FeedbackService {
+    private static final Logger logger = LoggerFactory.getLogger("FeedbackService");
+
     private final Api api;
     private final Context context;
 
@@ -57,12 +67,26 @@ public class FeedbackService {
 
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public Observable<Nothing> post(String name, String feedback) {
         String version = String.valueOf(AndroidUtility.buildVersionCode());
 
         return Observable.fromCallable(this::payload)
-                .flatMap(logcat -> api.post(name, feedback, version, logcat))
-                .subscribeOn(BackgroundScheduler.instance());
+                .flatMap(logcat -> {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    try (OutputStream gzipStream = new DeflaterOutputStream(outputStream)) {
+                        try (Writer writer = new OutputStreamWriter(gzipStream, Charsets.UTF_8)) {
+                            writer.write(logcat);
+                        }
+                    } catch (IOException ignored) {
+                    }
+
+                    // rewrite the logcat.
+                    logcat = Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
+
+                    logger.info("Sending feedback with {}bytes of logcat", logcat.length());
+                    return api.post(name, feedback, version, logcat);
+                });
     }
 
     private String payload() {
@@ -167,6 +191,6 @@ public class FeedbackService {
         Observable<Nothing> post(@Field("name") String name,
                                  @Field("feedback") String feedback,
                                  @Field("version") String version,
-                                 @Field("logcat") String logcat);
+                                 @Field("logcat64") String logcat);
     }
 }

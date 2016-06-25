@@ -59,7 +59,7 @@ public class UpdateDialogFragment extends BaseDialogFragment {
         return DialogBuilder.start(getActivity())
                 .content(R.string.no_new_update)
                 .positive()
-                .show();
+                .build();
     }
 
     public static UpdateDialogFragment newInstance(Update update) {
