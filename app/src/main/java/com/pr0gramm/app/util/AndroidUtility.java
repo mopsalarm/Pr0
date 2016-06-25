@@ -34,6 +34,7 @@ import com.akodiakson.sdk.simple.Sdk;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
@@ -413,13 +414,25 @@ public class AndroidUtility {
     }
 
     public static String getMessageWithCauses(Throwable error) {
-        StringBuilder message = new StringBuilder(error.toString());
-
+        String type = error.getClass().getSimpleName();
         Throwable cause = error.getCause();
-        if (error != cause && cause != null) {
-            message.append(" (caused by ").append(getMessageWithCauses(cause)).append(")");
-        }
 
-        return message.toString();
+        boolean hasCause = cause != null && error != cause;
+        boolean hasMessage = Strings.isNullOrEmpty(error.getMessage());
+
+        if (hasMessage) {
+            if (hasCause) {
+                return String.format("%s (%s, caused by %s)",
+                        error.getMessage(), type, getMessageWithCauses(cause));
+            } else {
+                return String.format("%s (%s)", error.getMessage(), type);
+            }
+        } else {
+            if (hasCause) {
+                return String.format("%s (caused by %s)", error, getMessageWithCauses(cause));
+            } else {
+                return error.toString();
+            }
+        }
     }
 }

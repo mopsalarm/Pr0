@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
+import com.google.common.hash.Hashing;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -251,6 +252,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         if (!errorShown) {
             DialogBuilder.start(getContext())
+                    .dontShowAgainKey("video." + Hashing.md5().hashUnencodedChars(message).toString())
                     .content(R.string.media_exo_error, message)
                     .positive()
                     .show();

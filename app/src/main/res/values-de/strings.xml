@@ -319,7 +319,7 @@
     <string name="media_error_unknown">Abspielen fehlgeschlagen: Unbekannter Fehler.</string>
     <string name="media_error_unsupported">Abspielen fehlgeschlagen: Der Videobitstream hält sich zwar an den Standard, aber dein Android kann damit nicht umgehen.</string>
     <string name="favorites_of">Favoriten von %s</string>
-    <string name="media_exo_error">Video konnte nicht abgespielt werden: %s</string>
+    <string name="media_exo_error">Video konnte nicht abgespielt werden. Wenn das öfter passiert, prüfe die Kompatibilitätseinstellungen. Fehler war: %s</string>
     <string name="media_exo_error_io">Ein Netzwerkfehler ist aufgetreten (%s).</string>
     <string name="pref_compatibility">Kompatibilität</string>
     <string name="pref_use_google_decoder_title">Softwaredekoder</string>
