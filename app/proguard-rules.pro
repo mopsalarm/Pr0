@@ -3,6 +3,7 @@
 -dontobfuscate
 -dontwarn **
 -ignorewarnings
+-dontoptimize
 
 -keepattributes *
 
