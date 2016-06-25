@@ -150,6 +150,9 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         exo.prepare(exoVideoTrack, exoAudioTrack);
         exo.setPlayWhenReady(true);
 
+        // mute before even trying to play
+        setMuted(true);
+
         // initialize the renderer with a surface, if we already have one.
         // this might be the case, if we are restarting the video after
         // a call to pause.
