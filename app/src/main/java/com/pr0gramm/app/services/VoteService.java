@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +29,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.TCollections;
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import rx.Observable;
 import rx.util.async.Async;
 
@@ -44,6 +45,8 @@ import static com.pr0gramm.app.orm.CachedVote.find;
  */
 @Singleton
 public class VoteService {
+    public static final TLongObjectMap<Vote> NO_VOTES = TCollections.unmodifiableMap(new TLongObjectHashMap<>());
+
     private static final Logger logger = LoggerFactory.getLogger("VoteService");
 
     private final Api api;
@@ -125,7 +128,7 @@ public class VoteService {
      *
      * @param actions The actions from the log to apply.
      */
-    public void applyVoteActions(String actions, Function<Float, Boolean> progressListener) {
+    void applyVoteActions(String actions, Function<Float, Boolean> progressListener) {
         if (actions.isEmpty())
             return;
 
@@ -220,25 +223,25 @@ public class VoteService {
      * @param comments A list of comments to get the votes for.
      * @return A map containing the vote from commentId to vote
      */
-    public Observable<Map<Long, Vote>> getCommentVotes(List<Api.Comment> comments) {
+    public Observable<TLongObjectMap<Vote>> getCommentVotes(List<Api.Comment> comments) {
         List<Long> ids = transform(comments, Api.Comment::getId);
         return findCachedVotes(CachedVote.Type.COMMENT, ids);
     }
 
-    public Observable<Map<Long, Vote>> getTagVotes(List<Api.Tag> tags) {
+    public Observable<TLongObjectMap<Vote>> getTagVotes(List<Api.Tag> tags) {
         List<Long> ids = transform(tags, Api.Tag::getId);
         return findCachedVotes(CachedVote.Type.TAG, ids);
     }
 
-    private Observable<Map<Long, Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
+    private Observable<TLongObjectMap<Vote>> findCachedVotes(CachedVote.Type type, List<Long> ids) {
         if (ids.isEmpty())
-            return Observable.just(Collections.<Long, Vote>emptyMap());
+            return Observable.just(NO_VOTES);
 
         return Async.start(() -> {
             Stopwatch watch = createStarted();
             List<CachedVote> cachedVotes = find(type, ids);
 
-            Map<Long, Vote> result = new HashMap<>();
+            TLongObjectHashMap<Vote> result = new TLongObjectHashMap<>();
             for (CachedVote cachedVote : cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote);
 

@@ -81,7 +81,6 @@ import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -104,9 +103,9 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerView
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
-import static java.util.Collections.emptyMap;
 import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
+import static rx.Observable.just;
 
 /**
  * This fragment shows the content of one post.
@@ -877,7 +876,7 @@ public class PostFragment extends BaseFragment implements
         // and update tags with votes later.
         voteService.getTagVotes(tags)
                 .filter(votes -> !votes.isEmpty())
-                .onErrorResumeNext(Observable.<Map<Long, Vote>>empty())
+                .onErrorResumeNext(just(VoteService.NO_VOTES))
                 .compose(bindToLifecycleAsync())
                 .subscribe(votes -> infoLineView.setTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
@@ -908,7 +907,7 @@ public class PostFragment extends BaseFragment implements
         this.comments = ImmutableList.copyOf(comments);
 
         // show now
-        commentsAdapter.set(comments, emptyMap(), feedItem.user());
+        commentsAdapter.set(comments, VoteService.NO_VOTES, feedItem.user());
 
         long commentId = getArguments().getLong(ARG_AUTOSCROLL_COMMENT_ID, 0);
         if (commentId > 0) {

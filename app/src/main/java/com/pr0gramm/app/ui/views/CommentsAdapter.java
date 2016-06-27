@@ -33,18 +33,22 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
+import gnu.trove.TCollections;
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
 import static com.google.common.base.Ascii.equalsIgnoreCase;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static org.joda.time.Instant.now;
 
 /**
  */
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentView> {
+    private static final TLongObjectMap<Vote> NO_VOTES = TCollections.unmodifiableMap(new TLongObjectHashMap<>());
+
     private final boolean admin;
     private final String selfName;
     private ImmutableList<CommentEntry> comments;
@@ -61,10 +65,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         this.selfName = selfName;
 
         setHasStableIds(true);
-        set(emptyList(), emptyMap(), null);
+        set(emptyList(), NO_VOTES, null);
     }
 
-    public void set(Collection<Api.Comment> comments, Map<Long, Vote> votes, String op) {
+    public void set(Collection<Api.Comment> comments, TLongObjectMap<Vote> votes, String op) {
         this.op = Optional.fromNullable(op);
 
         Map<Long, Api.Comment> byId = Maps.uniqueIndex(comments, Api.Comment::getId);
@@ -238,7 +242,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         final View copyCommentLink;
 
 
-        public CommentView(View itemView) {
+        CommentView(View itemView) {
             super(itemView);
 
             // get the subviews
@@ -250,7 +254,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             copyCommentLink = ButterKnife.findById(itemView, R.id.copy_comment_link);
         }
 
-        public void setCommentDepth(int depth) {
+        void setCommentDepth(int depth) {
             ((CommentSpacerView) itemView).setDepth(depth);
         }
     }
