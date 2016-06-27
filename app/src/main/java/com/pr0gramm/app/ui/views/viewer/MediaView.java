@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
+import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
@@ -40,6 +41,7 @@ import com.pr0gramm.app.util.RxPicasso;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.RxLifecycle;
 
+import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,13 +64,14 @@ public abstract class MediaView extends FrameLayout {
     private static final Logger logger = LoggerFactory.getLogger("MediaView");
 
     private static final float MIN_PREVIEW_ASPECT = 1 / 30.0f;
-
-    protected static final int ANIMATION_DURATION = 500;
+    static final int ANIMATION_DURATION = 500;
 
     private final PreviewTarget previewTarget = new PreviewTarget(this);
     private final BehaviorSubject<Void> onViewListener = BehaviorSubject.create();
     private final GestureDetector gestureDetector;
     private final MediaUri mediaUri;
+
+    protected final Config config;
 
     private boolean mediaShown;
     private TapListener tapListener;
@@ -98,22 +101,19 @@ public abstract class MediaView extends FrameLayout {
     @Inject
     FancyExifThumbnailGenerator fancyThumbnailGenerator;
 
-    private boolean hasAudio;
+    MediaView(Config config, @LayoutRes Integer layoutId) {
+        super(config.activity());
 
-    protected MediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri,
-                        Runnable onViewListener) {
-
-        super(activity);
+        this.config = config;
 
         // inject all the stuff!
-        injectComponent(Dagger.activityComponent(activity));
+        injectComponent(Dagger.activityComponent(config.activity()));
 
-        this.mediaUri = mediaUri;
-        this.onViewListener.subscribe(event -> onViewListener.run());
+        this.mediaUri = config.mediaUri();
 
         setLayoutParams(DEFAULT_PARAMS);
         if (layoutId != null) {
-            LayoutInflater.from(activity).inflate(layoutId, this);
+            LayoutInflater.from(config.activity()).inflate(layoutId, this);
             ButterKnife.bind(this);
 
             preview = ButterKnife.findById(this, R.id.preview);
@@ -121,7 +121,7 @@ public abstract class MediaView extends FrameLayout {
         }
 
         // register the detector to handle double taps
-        gestureDetector = new GestureDetector(activity, gestureListener);
+        gestureDetector = new GestureDetector(config.activity(), gestureListener);
 
         showPreloadedIndicator();
 
@@ -147,6 +147,18 @@ public abstract class MediaView extends FrameLayout {
                 }
             });
         }
+
+        // set preview info
+        PreviewInfo previewInfo = config.previewInfo().orNull();
+        if (previewInfo != null)
+            updatePreview(previewInfo);
+    }
+
+    /**
+     * An observable that produces a value on the main thread if the video was seen.
+     */
+    public Observable<Void> viewed() {
+        return onViewListener;
     }
 
     @SuppressLint("SetTextI18n")
@@ -183,7 +195,7 @@ public abstract class MediaView extends FrameLayout {
      * Sets the pixels image for this media view. You need to provide a width and height.
      * Those values will be used to place the pixels image correctly.
      */
-    public void setPreviewInfo(PreviewInfo info) {
+    private void updatePreview(PreviewInfo info) {
         if (!hasPreviewView())
             return;
 
@@ -498,12 +510,8 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    public void setHasAudio(boolean hasAudio) {
-        this.hasAudio = hasAudio;
-    }
-
     protected boolean hasAudio() {
-        return hasAudio;
+        return config.audio();
     }
 
     public interface TapListener {
@@ -515,7 +523,7 @@ public abstract class MediaView extends FrameLayout {
     private static class PreviewTarget implements Action1<Bitmap> {
         private final WeakReference<MediaView> mediaView;
 
-        public PreviewTarget(MediaView mediaView) {
+        PreviewTarget(MediaView mediaView) {
             this.mediaView = new WeakReference<>(mediaView);
         }
 
@@ -533,4 +541,20 @@ public abstract class MediaView extends FrameLayout {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             Gravity.CENTER_HORIZONTAL);
+
+    @Value.Immutable
+    public static abstract class Config {
+        @Value.Parameter
+        public abstract Activity activity();
+
+        @Value.Parameter(order = 1)
+        public abstract MediaUri mediaUri();
+
+        public abstract Optional<PreviewInfo> previewInfo();
+
+        @Value.Default
+        public boolean audio() {
+            return false;
+        }
+    }
 }

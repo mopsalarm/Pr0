@@ -1,7 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.app.Activity;
-
 import com.pr0gramm.app.Settings;
 import com.trello.rxlifecycle.FragmentEvent;
 
@@ -18,40 +16,38 @@ public class MediaViews {
     }
 
     /**
-     * Instantiates one of the viewer fragments subclasses depending
-     * on the provided url.
+     * Instantiates one of the viewer subclasses depending on the provided configuration.
      *
-     * @param uri The url that should be displayed.
      * @return A new {@link MediaView} instance.
      */
-    public static MediaView newInstance(Activity activity, MediaUri uri, Runnable onViewListener) {
-        Settings settings = Settings.of(activity);
+    public static MediaView newInstance(MediaView.Config config_) {
+        ImmutableConfig config = ImmutableConfig.copyOf(config_);
+
+        Settings settings = Settings.of(config.activity());
 
         // handle delay urls first.
-        if (uri.hasDelayFlag()) {
-            return new DelayedMediaView(activity, uri.withDelay(false), onViewListener);
+        if (config.mediaUri().hasDelayFlag()) {
+            return new DelayedMediaView(config.withMediaUri(config.mediaUri().withDelay(false)));
         }
 
-        if (!uri.isLocal()) {
-            uri = uri.withProxy(true);
+        if (!config.mediaUri().isLocal()) {
+            config = config.withMediaUri(config.mediaUri().withProxy(true));
         }
 
-        MediaView result;
+        final MediaUri uri = config.mediaUri();
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {
-            result = new VideoMediaView(activity, uri, onViewListener);
+            return new VideoMediaView(config);
 
         } else if (uri.getMediaType() == MediaUri.MediaType.GIF) {
             if (shouldUseGifToWebm(uri, settings)) {
-                result = new Gif2VideoMediaView(activity, uri, onViewListener);
+                return new Gif2VideoMediaView(config);
             } else {
-                result = new GifMediaView(activity, uri, onViewListener);
+                return new GifMediaView(config);
             }
 
         } else {
-            result = new ImageMediaView(activity, uri, onViewListener);
+            return new ImageMediaView(config);
         }
-
-        return result;
     }
 
 

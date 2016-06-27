@@ -47,6 +47,7 @@ import com.pr0gramm.app.ui.Truss;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
+import com.pr0gramm.app.ui.views.viewer.ImmutableConfig;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
@@ -344,8 +345,7 @@ public class UploadFragment extends BaseFragment {
 
         fileMediaType = uri.getMediaType();
 
-        MediaView viewer = MediaViews.newInstance(getActivity(), uri, Noop.noop);
-        viewer.setHasAudio(false);
+        MediaView viewer = MediaViews.newInstance(ImmutableConfig.of(getActivity(), uri));
         viewer.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));

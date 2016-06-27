@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.net.Uri;
 
 import com.pr0gramm.app.ActivityComponent;
@@ -29,8 +28,8 @@ public class Gif2VideoMediaView extends ProxyMediaView {
     @Inject
     ProxyService proxyService;
 
-    public Gif2VideoMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, url, onViewListener);
+    Gif2VideoMediaView(Config config) {
+        super(config);
         startWebmConversion();
     }
 
@@ -58,11 +57,11 @@ public class Gif2VideoMediaView extends ProxyMediaView {
             logger.info("Converted successfully, replace with video player");
             Uri videoUri = Uri.parse(result.getVideoUrl().get());
             MediaUri webm = getMediaUri().withUri(videoUri, MediaUri.MediaType.VIDEO);
-            mediaView = MediaViews.newInstance((Activity) getContext(), webm, this::onMediaShown);
+            mediaView = MediaViews.newInstance(ImmutableConfig.copyOf(config).withMediaUri(webm));
 
         } else {
             logger.info("Conversion did not work, showing gif");
-            mediaView = new GifMediaView((Activity) getContext(), getMediaUri(), this::onMediaShown);
+            mediaView = new GifMediaView(config);
         }
 
         mediaView.removePreviewImage();

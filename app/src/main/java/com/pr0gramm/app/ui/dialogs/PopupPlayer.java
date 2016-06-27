@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.view.Window;
 
-import com.google.common.util.concurrent.Runnables;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.ui.PreviewInfo;
+import com.pr0gramm.app.ui.views.viewer.ImmutableConfig;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
@@ -19,12 +19,9 @@ public class PopupPlayer {
 
     public static Dialog newInstance(Activity activity, FeedItem item) {
         MediaUri uri = MediaUri.of(activity, item);
-        MediaView mediaView = MediaViews.newInstance(activity, uri, Runnables.doNothing());
-
-        mediaView.setHasAudio(item.audio());
-
-        PreviewInfo previewInfo = PreviewInfo.of(activity, item);
-        mediaView.setPreviewInfo(previewInfo);
+        MediaView mediaView = MediaViews.newInstance(ImmutableConfig.of(activity, uri)
+                .withAudio(item.audio())
+                .withPreviewInfo(PreviewInfo.of(activity, item)));
 
         Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);

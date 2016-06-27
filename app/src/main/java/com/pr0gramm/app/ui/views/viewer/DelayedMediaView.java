@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,11 +26,11 @@ public class DelayedMediaView extends ProxyMediaView {
     @Inject
     Picasso picasso;
 
-    public DelayedMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, url, onViewListener);
+    DelayedMediaView(Config config) {
+        super(config);
         hideBusyIndicator();
 
-        overlay = LayoutInflater.from(context).inflate(R.layout.player_delayed_overlay, this, false);
+        overlay = LayoutInflater.from(getContext()).inflate(R.layout.player_delayed_overlay, this, false);
 
         // Display the overlay in a smooth animation
         overlay.setAlpha(0);
@@ -56,8 +55,7 @@ public class DelayedMediaView extends ProxyMediaView {
             return false;
 
         // create the real view as a child.
-        MediaView mediaView = MediaViews.newInstance((Activity) getContext(),
-                getMediaUri().withDelay(false), this::onMediaShown);
+        MediaView mediaView = MediaViews.newInstance(ImmutableConfig.copyOf(config));
 
         mediaView.removePreviewImage();
         setChild(mediaView);

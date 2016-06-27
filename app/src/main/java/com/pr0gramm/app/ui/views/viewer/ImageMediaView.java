@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.widget.TextView;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -56,8 +55,9 @@ public class ImageMediaView extends MediaView {
     @Inject
     SingleShotService singleShotService;
 
-    public ImageMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_kind_image, url.withProxy(false), onViewListener);
+    ImageMediaView(Config config) {
+        super(ImmutableConfig.copyOf(config).withMediaUri(config.mediaUri().withProxy(false)),
+                R.layout.player_kind_image);
 
         zoomView = findViewById(R.id.tabletlayout) != null;
 

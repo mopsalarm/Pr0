@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
@@ -73,20 +72,20 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     private boolean statsSent;
     private boolean droppedFramesShown;
 
-    protected VideoMediaView(Activity context, MediaUri mediaUri, Runnable onViewListener) {
-        super(context,
-                R.layout.player_kind_video,
-                mediaUri, onViewListener);
+    VideoMediaView(Config config) {
+        super(config, R.layout.player_kind_video);
 
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
         if (Sdk.isAtLeastJellyBean() && settings.useExoPlayer()) {
             logger.info("Using exo player to play videos.");
-            videoPlayer = new ExoVideoPlayer(context, videoPlayerParent);
+            videoPlayer = new ExoVideoPlayer(getContext(), videoPlayerParent);
         } else {
             logger.info("Falling back on simple android video player.");
-            videoPlayer = new AndroidVideoPlayer(context, videoPlayerParent);
+            videoPlayer = new AndroidVideoPlayer(getContext(), videoPlayerParent);
         }
+
+        muteButtonView.setVisibility(hasAudio() ? VISIBLE : GONE);
 
         muteButtonView.setOnClickListener(v -> {
             setMuted(!videoPlayer.isMuted());
@@ -124,12 +123,6 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
 
         videoPlayer.start();
-    }
-
-    @Override
-    public void setHasAudio(boolean hasAudio) {
-        super.setHasAudio(hasAudio);
-        muteButtonView.setVisibility(hasAudio ? VISIBLE : GONE);
     }
 
     /**

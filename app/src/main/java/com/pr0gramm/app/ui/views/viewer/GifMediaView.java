@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -38,8 +37,10 @@ public class GifMediaView extends AbstractProgressMediaView {
     // the gif that is shown
     private GifDrawable gif;
 
-    public GifMediaView(Activity context, MediaUri url, Runnable onViewListener) {
-        super(context, R.layout.player_gif, url.withProxy(true), onViewListener);
+    GifMediaView(Config config) {
+        super(ImmutableConfig.copyOf(config).withMediaUri(config.mediaUri().withProxy(true)),
+                R.layout.player_gif);
+
         imageView.setAlpha(0.f);
         loadGif();
 

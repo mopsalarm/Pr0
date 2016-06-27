@@ -1,25 +1,28 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.pr0gramm.app.R;
 
+import rx.subscriptions.CompositeSubscription;
+
 /**
  */
 @SuppressLint("ViewConstructor")
 public abstract class ProxyMediaView extends MediaView {
+    private final CompositeSubscription subscription = new CompositeSubscription();
+
     private MediaView child;
 
-    public ProxyMediaView(Activity context, MediaUri uri, Runnable onViewListener) {
-        super(context, R.layout.player_proxy, uri, onViewListener);
+    ProxyMediaView(Config config) {
+        super(config, R.layout.player_proxy);
         showBusyIndicator();
     }
 
-    public void setChild(MediaView child) {
+    void setChild(MediaView child) {
         removeChildView();
         hideBusyIndicator();
 
@@ -29,6 +32,7 @@ public abstract class ProxyMediaView extends MediaView {
 
         // forward double clicks
         child.setTapListener(new ForwardingTapListener());
+        subscription.add(child.viewed().subscribe(event -> this.onMediaShown()));
     }
 
     /**
@@ -44,7 +48,6 @@ public abstract class ProxyMediaView extends MediaView {
         // transfer the layout parameters
         mediaView.setLayoutParams(getLayoutParams());
         mediaView.setViewAspect(getViewAspect());
-        mediaView.setHasAudio(hasAudio());
         addView(mediaView, idx);
 
         child = mediaView;
@@ -53,6 +56,8 @@ public abstract class ProxyMediaView extends MediaView {
     private void removeChildView() {
         if (child == null)
             return;
+
+        subscription.clear();
 
         teardownChild();
         removeView(child);
@@ -124,13 +129,6 @@ public abstract class ProxyMediaView extends MediaView {
         super.onPause();
         if (child != null)
             child.onPause();
-    }
-
-    @Override
-    public void setHasAudio(boolean hasAudio) {
-        super.setHasAudio(hasAudio);
-        if (child != null)
-            child.setHasAudio(hasAudio);
     }
 
     @Override

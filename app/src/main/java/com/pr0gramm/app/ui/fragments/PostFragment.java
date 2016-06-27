@@ -72,6 +72,7 @@ import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.Pr0grammIconView;
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView;
+import com.pr0gramm.app.ui.views.viewer.ImmutableConfig;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
@@ -749,21 +750,20 @@ public class PostFragment extends BaseFragment implements
             }
         }
 
-        viewer = MediaViews.newInstance(getActivity(), uri, () -> {
+        viewer = MediaViews.newInstance(ImmutableConfig.of(getActivity(), uri)
+                .withAudio(feedItem.audio())
+                .withPreviewInfo(this.previewInfo != null
+                        ? this.previewInfo : PreviewInfo.of(getContext(), feedItem)));
+
+        viewer.viewed().subscribe(event -> {
             //  mark this item seen. We do that in a background thread
             seenService.markAsSeen(feedItem);
         });
-
-        viewer.setHasAudio(feedItem.audio());
 
         // inform viewer over fragment lifecycle events!
         MediaViews.adaptFragmentLifecycle(lifecycle(), viewer);
 
         registerTapListener(viewer);
-
-        viewer.setPreviewInfo(this.previewInfo != null
-                ? this.previewInfo
-                : PreviewInfo.of(getContext(), feedItem));
 
         // add views in the correct order
         int idx = playerContainer.indexOfChild(voteAnimationIndicator);

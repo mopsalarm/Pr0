@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.app.Activity;
 import android.support.annotation.LayoutRes;
 import android.widget.ProgressBar;
 
@@ -23,8 +22,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
 
     private boolean progressEnabled = true;
 
-    public AbstractProgressMediaView(Activity activity, @LayoutRes Integer layoutId, MediaUri mediaUri, Runnable onViewListener) {
-        super(activity, layoutId, mediaUri, onViewListener);
+    AbstractProgressMediaView(Config config, @LayoutRes Integer layoutId) {
+        super(config, layoutId);
 
         videoProgressView.setVisibility(GONE);
         updateTimeline();
