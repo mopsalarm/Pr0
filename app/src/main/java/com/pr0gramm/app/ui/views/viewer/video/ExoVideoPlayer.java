@@ -358,12 +358,13 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void onAudioTrackInitializationError(AudioTrack.InitializationException err) {
-        logger.info("Error during audio track initialization", err);
+        callbacks.onVideoError(getMessageWithCauses(err), ErrorKind.UNKNOWN);
+        AndroidUtility.logToCrashlytics(err);
     }
 
     @Override
-    public void onAudioTrackWriteError(AudioTrack.WriteException e) {
-        logger.info("Could not write to audiotrack");
+    public void onAudioTrackWriteError(AudioTrack.WriteException err) {
+        callbacks.onVideoError(getMessageWithCauses(err), ErrorKind.UNKNOWN);
     }
 
     @Override
