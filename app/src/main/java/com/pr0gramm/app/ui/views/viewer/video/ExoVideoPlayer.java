@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.View;
 
@@ -34,6 +35,7 @@ import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
+import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
@@ -62,7 +64,9 @@ import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
  * Stripped down version of {@link android.widget.VideoView}.
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPlayer.Listener, MediaCodecVideoTrackRenderer.EventListener {
+public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPlayer.Listener,
+        MediaCodecVideoTrackRenderer.EventListener,
+        MediaCodecAudioTrackRenderer.EventListener {
     private static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
 
     private static final int MAX_DROPPED_FRAMES = 75;
@@ -70,22 +74,27 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 64;
     private final Context context;
+    private final boolean hasAudio;
     private final AspectLayout parentView;
     private final Settings settings;
 
     private boolean muted;
 
     private ExoPlayer exo;
-    private MediaCodecVideoTrackRenderer exoVideoTrack;
-    private MediaCodecAudioTrackRenderer exoAudioTrack;
     private BufferedDataSource dataSource;
-    private boolean initialized;
+
+    @Nullable
+    private MediaCodecVideoTrackRenderer exoVideoTrack;
+
+    @Nullable
+    private MediaCodecAudioTrackRenderer exoAudioTrack;
 
     private Uri uri;
     private ViewBackend surfaceProvider;
 
-    public ExoVideoPlayer(Context context, AspectLayout aspectLayout) {
+    public ExoVideoPlayer(Context context, boolean hasAudio, AspectLayout aspectLayout) {
         this.context = context;
+        this.hasAudio = hasAudio;
         this.parentView = aspectLayout;
         this.settings = Settings.of(context);
 
@@ -95,7 +104,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         parentView.addView(videoView);
 
         logger.info("Create ExoPlayer instance");
-        exo = ExoPlayer.Factory.newInstance(2);
+        exo = ExoPlayer.Factory.newInstance(hasAudio ? 2 : 1);
         exo.addListener(this);
 
         RxView.detaches(videoView).subscribe(event -> {
@@ -128,7 +137,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void start() {
-        if (initialized)
+        if (initialized())
             return;
 
         logger.info("Preparing exo player now'");
@@ -145,9 +154,14 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 5000, new Handler(Looper.getMainLooper()), this,
                 MAX_DROPPED_FRAMES);
 
-        exoAudioTrack = new MediaCodecAudioTrackRenderer(sampleSource, mediaCodecSelector);
+        if (hasAudio) {
+            exoAudioTrack = new MediaCodecAudioTrackRenderer(sampleSource, mediaCodecSelector);
+            exo.prepare(exoVideoTrack, exoAudioTrack);
 
-        exo.prepare(exoVideoTrack, exoAudioTrack);
+        } else {
+            exo.prepare(exoVideoTrack);
+        }
+
         exo.setPlayWhenReady(true);
 
         applyVolumeState();
@@ -160,8 +174,6 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                     MediaCodecVideoTrackRenderer.MSG_SET_SURFACE,
                     surfaceProvider.getCurrentSurface());
         }
-
-        initialized = true;
     }
 
     @Override
@@ -177,7 +189,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void pause() {
-        if (!initialized)
+        if (!initialized())
             return;
 
         logger.info("Stopping exo player now");
@@ -187,11 +199,13 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         exo.stop();
 
-        initialized = false;
-
         // we dont need those anymore.
         exoAudioTrack = null;
         exoVideoTrack = null;
+    }
+
+    private boolean initialized() {
+        return this.exoVideoTrack != null;
     }
 
     @Override
@@ -342,13 +356,30 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs);
     }
 
+    @Override
+    public void onAudioTrackInitializationError(AudioTrack.InitializationException err) {
+        logger.info("Error during audio track initialization", err);
+    }
+
+    @Override
+    public void onAudioTrackWriteError(AudioTrack.WriteException e) {
+        logger.info("Could not write to audiotrack");
+    }
+
+    @Override
+    public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+        logger.info("Audio track underrun :/");
+    }
+
     private final MediaCodecSelector mediaCodecSelector = new MediaCodecSelector() {
         @Override
         public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
             List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
+            // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 
             // look fo the best matching codec to return to the user.
-            return bestMatchingCodec(codecs, settings.videoCodec())
+            String preference = mimeType.startsWith("video/") ? settings.videoCodec() : settings.audioCodec();
+            return bestMatchingCodec(codecs, preference)
                     .or(Optional.fromNullable(codecs.size() > 0 ? codecs.get(0) : null))
                     .orNull();
         }
@@ -372,9 +403,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     }
 
     private static boolean isSoftwareDecoder(DecoderInfo codec) {
-        return codec.name.startsWith("OMX.google.")
-                || codec.name.startsWith("OMX.ffmpeg.")
-                || codec.name.contains(".sw.");
+        String name = codec.name.toLowerCase();
+        return name.startsWith("omx.google.") || name.startsWith("omx.ffmpeg.") || name.contains(".sw.");
     }
 
     private static boolean isHardwareDecoder(DecoderInfo codec) {

@@ -112,7 +112,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             addPreferencesFromResource(R.xml.preferences);
 
-            updateVideoCodecs();
+            updateCodecsPreference("pref_video_codec", "video/avc");
+            updateCodecsPreference("pref_audio_codec", "audio/mp4a-latm");
 
             String category = getArguments().getString("category");
             if (category != null) {
@@ -128,11 +129,13 @@ public class SettingsActivity extends BaseAppCompatActivity {
             }
         }
 
-        private void updateVideoCodecs() {
+        private void updateCodecsPreference(String prefName, String mimeType) {
             List<CharSequence> entries = new ArrayList<>();
             List<CharSequence> entryValues = new ArrayList<>();
 
-            ListPreference pref = (ListPreference) findPreference("pref_video_codec");
+            ListPreference pref = (ListPreference) findPreference(prefName);
+            if (pref == null)
+                return;
 
             if (Sdk.isAtLeastJellyBean()) {
                 entries.add("Software");
@@ -142,20 +145,20 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 entryValues.add("hardware");
 
                 try {
-                    List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos("video/avc", false);
+                    List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, false);
                     for (DecoderInfo codec : codecs) {
                         entries.add(codec.name.toLowerCase());
                         entryValues.add(codec.name);
                     }
                 } catch (MediaCodecUtil.DecoderQueryException ignored) {
                 }
-                if (pref != null) {
-                    pref.setDefaultValue("software");
-                    pref.setEntries(entries.toArray(new CharSequence[0]));
-                    pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
-                }
+            }
 
-            } else if (pref != null) {
+            if (entries.size() > 3) {
+                pref.setDefaultValue("hardware");
+                pref.setEntries(entries.toArray(new CharSequence[0]));
+                pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
+            } else {
                 pref.setEnabled(false);
             }
         }

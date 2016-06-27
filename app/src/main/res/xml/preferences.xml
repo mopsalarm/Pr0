@@ -275,12 +275,25 @@
                 android:summary="@string/pref_use_exo_player__summary"
                 android:title="@string/pref_use_exo_player__title"/>
 
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_disable_audio"
+                android:summary="@string/pref_disable_audio__summary"
+                android:title="@string/pref_disable_audio__title"/>
+
             <ListPreference
                 android:defaultValue="hardware"
                 android:dependency="pref_use_exo_player"
                 android:key="pref_video_codec"
                 android:summary="@string/pref_video_codec_summary"
                 android:title="@string/pref_video_codec_title"/>
+
+            <ListPreference
+                android:defaultValue="hardware"
+                android:dependency="pref_use_exo_player"
+                android:key="pref_audio_codec"
+                android:summary="@string/pref_audio_codec_summary"
+                android:title="@string/pref_audio_codec_title"/>
 
         </PreferenceScreen>
 

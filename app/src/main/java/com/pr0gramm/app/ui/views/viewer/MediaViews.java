@@ -25,6 +25,9 @@ public class MediaViews {
 
         Settings settings = Settings.of(config.activity());
 
+        if (config.audio() && settings.disableAudio())
+            config = config.withAudio(false);
+
         // handle delay urls first.
         if (config.mediaUri().hasDelayFlag()) {
             return new DelayedMediaView(config.withMediaUri(config.mediaUri().withDelay(false)));

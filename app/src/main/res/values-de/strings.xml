@@ -337,10 +337,14 @@
     <string name="upload_error_video_streams">Ungültige Stream-Konstellation (z.B zwei Audio Streams).</string>
     <string name="pref_video_codec_title">Video Codec </string>
     <string name="pref_video_codec_summary">Probiere einen anderen Video Codec, wenn du Probleme bei der Wiedergabe hast.</string>
+    <string name="pref_audio_codec_title">Audio Codec </string>
+    <string name="pref_audio_codec_summary">Probiere einen anderen Audio Codec, wenn du Probleme bei der Wiedergabe hast.</string>
     <string name="media_dropped_frames_hint">Dein Gerät kommt mit dem Dekodieren des Videos nicht hinterher. Falls das öfter passiert, probiere einen anderen Codec in die Kompatibilitätseinstellungen.</string>
     <string name="pref_show_dropped_frames_hint__title">Ausgelassene Frames</string>
     <string name="pref_show_dropped_frames_hint_summary">Deaktiviere diese Einstellungen um nicht darüber informiert zu werden, wenn der Videoplayer Frames auslassen musste, weil er mit seiner Arbeit nicht hinterhergekommen ist.</string>
     <string name="dialog_dont_show_again">Nicht wieder anzeigen</string>
     <string name="pref_use_exo_player__title">Neuen Videoplayer</string>
     <string name="pref_use_exo_player__summary">Verwende den neuen und empohlenen Videoplayer. Eventuell musst du unten an den Codecs drehen, wenn Probleme bei der Wiedergabe auftreten.</string>
+    <string name="pref_disable_audio__title">Sound deaktivieren</string>
+    <string name="pref_disable_audio__summary">Sound komplett abzuschalten kann helfen, wenn Videos nicht abgespielt werden können - falls kein Sound für Dich okay ist.</string>
 </resources>

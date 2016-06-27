@@ -211,7 +211,15 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
     }
 
     public String videoCodec() {
-        return preferences.getString("pref_video_codec", "software");
+        return preferences.getString("pref_video_codec", "hardware");
+    }
+
+    public String audioCodec() {
+        return preferences.getString("pref_audio_codec", "hardware");
+    }
+
+    public boolean disableAudio() {
+        return preferences.getBoolean("pref_disable_audio", false);
     }
 
     public VolumeNavigationType volumeNavigation() {

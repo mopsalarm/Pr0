@@ -3,6 +3,10 @@
     "version": 105,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Kompatibilitätseinstellungen erweitert - bei Video- und Audioproblemen dort schauen!"
+      },
+      {
         "type": "Fix",
         "change": "Beim Abspielen von Videos mit Sound gab es manchmal ein kurzes Geräusch, obwohl diese auf Stumm geschaltet waren."
       },

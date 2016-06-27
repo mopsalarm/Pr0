@@ -79,7 +79,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         if (Sdk.isAtLeastJellyBean() && settings.useExoPlayer()) {
             logger.info("Using exo player to play videos.");
-            videoPlayer = new ExoVideoPlayer(getContext(), videoPlayerParent);
+            videoPlayer = new ExoVideoPlayer(getContext(), config.audio(), videoPlayerParent);
         } else {
             logger.info("Falling back on simple android video player.");
             videoPlayer = new AndroidVideoPlayer(getContext(), videoPlayerParent);
