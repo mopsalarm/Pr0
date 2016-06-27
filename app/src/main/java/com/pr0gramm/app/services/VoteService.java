@@ -47,10 +47,12 @@ public class VoteService {
     private static final Logger logger = LoggerFactory.getLogger("VoteService");
 
     private final Api api;
+    private final SeenService seenService;
 
     @Inject
-    public VoteService(Api api) {
+    public VoteService(Api api, SeenService seenService) {
         this.api = api;
+        this.seenService = seenService;
     }
 
     /**
@@ -147,6 +149,10 @@ public class VoteService {
                         continue;
 
                     storeVoteValue(action.type, id, action.vote);
+                    if (action.type == ITEM) {
+                        seenService.markAsSeen((int) id);
+                    }
+
                     if (Boolean.FALSE.equals(progressListener.apply(idx / (float) actionCount)))
                         return;
                 }

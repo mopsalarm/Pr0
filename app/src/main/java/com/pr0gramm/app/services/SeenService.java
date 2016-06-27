@@ -82,10 +82,14 @@ public class SeenService {
     }
 
     public void markAsSeen(FeedItem item) {
+        markAsSeen((int) item.id());
+    }
+
+    public void markAsSeen(int id) {
         if (!this.buffer.isDone())
             return;
 
-        int idx = (int) item.id() / 8;
+        int idx = id / 8;
 
         ByteBuffer buffer = Futures.getUnchecked(this.buffer);
         if (idx < 0 || idx >= buffer.limit()) {
@@ -96,7 +100,7 @@ public class SeenService {
         // only one thread can write the buffer at a time.
         synchronized (lock) {
             byte value = buffer.get(idx);
-            value |= 1 << (7 - item.id() % 8);
+            value |= 1 << (7 - id % 8);
             buffer.put(idx, value);
         }
     }

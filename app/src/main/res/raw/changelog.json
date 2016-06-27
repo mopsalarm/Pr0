@@ -21,6 +21,10 @@
       {
         "type": "Fix",
         "change": "Der 'warten'-Dialog beim Absenden von Feedback wird wieder korrekt geschlossen."
+      },
+      {
+        "type": "Fix",
+        "change": "Am PC gevotete Posts werden nun automatisch in der App als gesehen markiert."
       }
     ]
   },

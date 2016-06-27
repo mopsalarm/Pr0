@@ -77,6 +77,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.FragmentEvent;
 
 import java.util.List;
@@ -755,7 +756,7 @@ public class PostFragment extends BaseFragment implements
                 .withPreviewInfo(this.previewInfo != null
                         ? this.previewInfo : PreviewInfo.of(getContext(), feedItem)));
 
-        viewer.viewed().subscribe(event -> {
+        viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
             //  mark this item seen. We do that in a background thread
             seenService.markAsSeen(feedItem);
         });
