@@ -4,7 +4,7 @@ Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0
 
 ## Features
 * Anschauen des Feeds und einzelner Posts
-* Wechseln zwischen SFW/NSWF und NSWL
+* Wechseln zwischen SFW/NSFW und NSFL
 * Tags und Kommentare angucken
 * Mit eigenem Account anmelden + Favoriten anschauen
 * Posts voten
