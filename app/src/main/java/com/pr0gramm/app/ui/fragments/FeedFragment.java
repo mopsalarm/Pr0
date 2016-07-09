@@ -424,18 +424,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private Observable<EnhancedUserInfo> queryUserInfo() {
-        String queryString = null;
-
         FeedFilter filter = getFilterArgument();
-        if (filter.getUsername().isPresent()) {
-            queryString = filter.getUsername().get();
 
-        } else if (filter.getTags().isPresent()) {
-            queryString = filter.getTags().get();
-
-        } else if (filter.getLikes().isPresent()) {
-            queryString = filter.getLikes().get();
-        }
+        String queryString = filter.getUsername().or(filter.getTags()).or(filter.getLikes()).orNull();
 
         if (queryString != null) {
             EnumSet<ContentType> contentTypes = getSelectedContentType();
@@ -559,7 +550,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         // start loading now
         loader.restart(around);
 
-        return new FeedAdapter(this, feed);
+        boolean usersFavorites = feed.getFeedFilter().getLikes()
+                .transform(name -> name.equalsIgnoreCase(userService.getName().orNull()))
+                .or(false);
+
+        return new FeedAdapter(this, feed, usersFavorites);
     }
 
     private FeedFilter getFilterArgument() {
@@ -1035,10 +1030,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
     }
 
     private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
+        private final boolean usersFavorites;
         private final WeakReference<FeedFragment> parent;
         private final Feed feed;
 
-        public FeedAdapter(FeedFragment fragment, Feed feed) {
+        public FeedAdapter(FeedFragment fragment, Feed feed, boolean usersFavorites) {
+            this.usersFavorites = usersFavorites;
             this.parent = new WeakReference<>(fragment);
             this.feed = feed;
             this.feed.setFeedListener(this);
@@ -1091,7 +1088,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 if (fragment.inMemoryCacheService.isRepost(item.id())) {
                     holder.setIsRepost();
 
-                } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON && fragment.isSeen(item)) {
+                } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON
+                        && !usersFavorites && fragment.isSeen(item)) {
+
                     holder.setIsSeen();
 
                 } else {
