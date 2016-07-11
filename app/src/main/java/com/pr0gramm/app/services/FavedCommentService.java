@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services;
 
+import android.util.Pair;
+
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import com.google.gson.GsonBuilder;
@@ -32,6 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -56,7 +59,7 @@ public class FavedCommentService {
     private final PublishSubject<String> forceUpdateUserHash = PublishSubject.create();
 
     @Inject
-    public FavedCommentService(UserService userService, OkHttpClient okHttpClient) {
+    public FavedCommentService(UserService userService, OkHttpClient okHttpClient, SingleShotService singleShotService) {
         this.api = new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl("https://pr0.wibbly-wobbly.de/api/comments/v1/")
@@ -70,28 +73,13 @@ public class FavedCommentService {
                 .create(HttpInterface.class);
 
         // subscribe to the login state.
-        userHash = userService.loginState()
-                .observeOn(BackgroundScheduler.instance())
-
-                .distinctUntilChanged(state -> state.getInfo() == null
-                        ? null : state.getInfo().getUser().getId())
-
-                .switchMap(state -> state.isAuthorized()
-                        ? userService.accountInfo().onErrorResumeNext(Observable.empty())
-                        : Observable.just(null))
-
-                .map(accountInfo -> accountInfo == null ? null : Hashing.md5()
-                        .hashString(accountInfo.account().email(), Charsets.UTF_8)
-                        .toString())
-
+        userHash = userService.userToken()
                 .distinctUntilChanged()
-
                 .replay(1)
                 .autoConnect();
 
         // update comments when the login state changes
-        userHash
-                .mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
+        userHash.mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
                 .switchMap(userHash -> userHash == null
                         ? Observable.just(Collections.<FavedComment>emptyList())
                         : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))).onErrorResumeNext(Observable.empty()))
@@ -100,6 +88,25 @@ public class FavedCommentService {
                 .subscribe(comments -> {
                     updateCommentIds(new TLongHashSet(transform(comments, FavedComment::id)));
                 });
+
+        // migrate if not yet done
+        userHash.filter(FavedCommentService::isUserHashAvailable)
+                .filter(hash -> singleShotService.firstTimeToday("kfav.migrate2-" + hash))
+                .zipWith(userService.accountInfo().retry(2), Pair::create)
+                .flatMap(values -> {
+                    String userHash = values.first;
+                    Api.AccountInfo accountInfo = values.second;
+
+                    String emailHash = Hashing.md5()
+                            .hashString(accountInfo.account().email(), Charsets.UTF_8)
+                            .toString();
+
+                    logger.info("migrating from {} to {} now", emailHash, userHash);
+                    return api.migrate(emailHash, userHash).retry(2);
+                })
+                .doOnError(error -> logger.warn("Could not do the migration."))
+                .onErrorResumeNext(Observable.empty())
+                .subscribe(Actions.empty());
     }
 
     private void updateCommentIds(TLongHashSet commentIds) {
@@ -190,8 +197,15 @@ public class FavedCommentService {
         @GET("{userHash}")
         Observable<List<FavedComment>> list(@Path("userHash") String userHash,
                                             @Query("flags") int flags);
+
+        /**
+         * Migrate from the given user id to the new one.
+         */
+        @POST("migrate")
+        Observable<Void> migrate(@Query("from") String from, @Query("to") String to);
     }
 
+    @SuppressWarnings("WeakerAccess")
     @Value.Immutable
     public interface FavedComment {
         long id();

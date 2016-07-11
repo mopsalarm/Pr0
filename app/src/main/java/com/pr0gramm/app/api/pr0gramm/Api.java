@@ -93,6 +93,9 @@ public interface Api {
     @GET("/api/profile/info")
     Observable<Info> info(@Query("name") String name, @Query("flags") Integer flags);
 
+    @GET("/api/user/score")
+    Observable<UserScore> score();
+
     @GET("/api/inbox/all")
     Observable<MessageFeed> inboxAll();
 
@@ -156,6 +159,9 @@ public interface Api {
 
     @GET("api/profile/suggest")
     Call<Names> suggestUsers(@Query("prefix") String prefix);
+
+    @GET("api/user/identifier")
+    Observable<UserIdentifier> identifier();
 
     final class Nonce {
         public final String value;
@@ -326,9 +332,10 @@ public interface Api {
     interface Login {
         boolean success();
 
+        Optional<String> identifier();
+
         @SerializedName("ban")
-        @android.support.annotation.Nullable
-        BanInfo banInfo();
+        Optional<BanInfo> banInfo();
 
         @Value.Immutable
         interface BanInfo {
@@ -549,6 +556,8 @@ public interface Api {
 
         String log();
 
+        int score();
+
         int inboxCount();
     }
 
@@ -606,5 +615,15 @@ public interface Api {
 
             String getName();
         }
+    }
+
+    @Value.Immutable
+    interface UserIdentifier {
+        String identifier();
+    }
+
+    @Value.Immutable
+    interface UserScore {
+        int score();
     }
 }

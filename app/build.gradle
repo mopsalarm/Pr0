@@ -210,8 +210,8 @@ dependencies {
     // bottomsheets
     compile 'com.flipboard:bottomsheet-core:1.5.1'
 
-    compile 'pl.brightinventions:slf4android:0.1.2@aar'
-    compile 'com.crashlytics.sdk.android:crashlytics:2.6.0@aar'
+    compile 'pl.brightinventions:slf4android:0.1.2'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.6.0'
 
     apt 'org.immutables:value:2.2.10'
     provided 'org.immutables:value:2.2.10'

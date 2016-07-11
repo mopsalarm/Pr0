@@ -62,7 +62,7 @@ public class UploadService {
     private Observable<Long> maxSize() {
         return userService.loginState()
                 .take(1)
-                .map(state -> state.userIsPremium() ? MAX_UPLOAD_SIZE_PAID : MAX_UPLOAD_SIZE);
+                .map(state -> state.premium() ? MAX_UPLOAD_SIZE_PAID : MAX_UPLOAD_SIZE);
     }
 
     public Observable<Boolean> sizeOkay(File file) {

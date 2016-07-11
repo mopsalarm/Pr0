@@ -2,7 +2,6 @@ package com.pr0gramm.app.services;
 
 import android.os.AsyncTask;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
@@ -128,7 +127,7 @@ public class VoteService {
      *
      * @param actions The actions from the log to apply.
      */
-    void applyVoteActions(String actions, Function<Float, Boolean> progressListener) {
+    void applyVoteActions(String actions) {
         if (actions.isEmpty())
             return;
 
@@ -155,9 +154,6 @@ public class VoteService {
                     if (action.type == ITEM) {
                         seenService.markAsSeen((int) id);
                     }
-
-                    if (Boolean.FALSE.equals(progressListener.apply(idx / (float) actionCount)))
-                        return;
                 }
             } catch (Exception error) {
                 // doInTransaction consumes exceptions -.-

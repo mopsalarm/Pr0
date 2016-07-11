@@ -3,6 +3,7 @@ package com.pr0gramm.app.services;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
@@ -11,7 +12,6 @@ import com.pr0gramm.app.ContextSingleton;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
-import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
@@ -142,7 +142,7 @@ public class NavigationProvider {
      * Adds the default "fixed" items to the menu
      */
     public List<NavigationItem> categoryNavigationItems(
-            Optional<Api.Info.User> userInfo, boolean extraCategory) {
+            @Nullable String username, boolean extraCategory) {
 
         List<NavigationItem> items = new ArrayList<>();
 
@@ -201,11 +201,10 @@ public class NavigationProvider {
             }
         }
 
-        if (userInfo.isPresent()) {
-            String name = userInfo.get().getName();
+        if (username != null) {
             items.add(ImmutableNavigationItem.builder()
                     .action(ActionType.FAVORITES)
-                    .filter(new FeedFilter().withFeedType(FeedType.NEW).withLikes(name))
+                    .filter(new FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
                     .title(getString(R.string.action_favorites))
                     .icon(iconFavorites)
                     .build());
@@ -248,7 +247,7 @@ public class NavigationProvider {
 
     private Observable<List<NavigationItem>> categoryNavigationItems() {
         return combineLatest(
-                userService.loginState().map(UserService::getUser),
+                userService.loginState().map(UserService.LoginState::name),
                 extraCategoryApiAvailable.startWith(true),
                 this::categoryNavigationItems);
     }

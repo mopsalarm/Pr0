@@ -222,7 +222,7 @@ public class PostFragment extends BaseFragment implements
 
         // check if we are admin or not
         userService.loginState()
-                .filter(UserService.LoginState::userIsAdmin)
+                .filter(UserService.LoginState::admin)
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(event -> adminMode = true);

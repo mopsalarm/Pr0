@@ -15,36 +15,48 @@ import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
+import org.immutables.value.Value;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Completable;
 import rx.Observable;
-import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.Settings.resetContentTypeSettings;
 import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
+import static rx.functions.Actions.empty;
 
 /**
  */
 @Singleton
+@org.immutables.gson.Gson.TypeAdapters
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger("UserService");
 
     private static final String KEY_LAST_LOF_OFFSET = "UserService.lastLogLength";
     private static final String KEY_LAST_USER_INFO = "UserService.lastUserInfo";
+    private static final String KEY_LAST_LOGIN_STATE = "UserService.lastLoginState";
+
+    private static final LoginState NOT_AUTHORIZED = ImmutableLoginState.builder()
+            .id(-1).score(0).mark(0)
+            .admin(false).premium(false)
+            .authorized(false)
+            .build();
 
     private final Api api;
     private final VoteService voteService;
@@ -59,7 +71,7 @@ public class UserService {
     private final AtomicBoolean fullSyncInProgress = new AtomicBoolean();
 
     private final BehaviorSubject<LoginState> loginStateObservable =
-            BehaviorSubject.create(LoginState.NOT_AUTHORIZED);
+            BehaviorSubject.create(NOT_AUTHORIZED);
 
     @Inject
     public UserService(Api api,
@@ -77,59 +89,90 @@ public class UserService {
         this.settings = settings;
         this.gson = gson;
 
-        this.restoreLatestUserInfo();
+        // only restore user data if authorized.
+        if (cookieHandler.hasCookie()) {
+            restoreLatestUserInfo();
+        }
+
         this.cookieHandler.setOnCookieChangedListener(this::onCookieChanged);
 
-        // reset the votes once.
-        if (sso.isFirstTime("repair-ResetVotes-6")) {
-            Async.start(() -> {
-                logger.info("Resetting votes to fix table");
+        loginStateObservable.subscribe(this::persistLatestLoginState);
 
-                voteService.clear();
+        // this is not nice, and will get removed in one or two versions!
+        // TODO REMOVE THIS ASAP.
+        loginStateObservable
+                .filter(state -> state.authorized() && state.uniqueToken() == null)
+                .switchMap(state -> api.identifier().subscribeOn(BackgroundScheduler.instance()))
+                .map(Api.UserIdentifier::identifier)
+                .onErrorResumeNext(Observable.empty())
+                .subscribe(this::updateUniqueToken);
+    }
 
-                preferences.edit()
-                        .putLong(KEY_LAST_LOF_OFFSET, 0)
-                        .apply();
+    private void updateUniqueToken(@Nullable String uniqueToken) {
+        if (uniqueToken == null)
+            return;
 
-                return sync().subscribe(Actions.empty(), err -> {
-                    logger.warn("Could not do full sync after cleaning vote table");
+        loginStateObservable
+                .take(1)
+                .filter(LoginState::authorized)
+                .subscribe(state -> {
+                    loginStateObservable.onNext(ImmutableLoginState
+                            .copyOf(state)
+                            .withUniqueToken(uniqueToken));
                 });
-            });
-        }
     }
 
     /**
      * Restore the latest user info from the shared preferences
      */
     private void restoreLatestUserInfo() {
-        Observable.just(preferences.getString(KEY_LAST_USER_INFO, null))
-                .filter(value -> value != null)
-                .map(encoded -> createLoginState(gson.fromJson(encoded, Api.Info.class)))
-                .subscribeOn(BackgroundScheduler.instance())
-                .doOnNext(info -> logger.info("Restoring user info: {}", info))
-                .filter(info -> isAuthorized())
-                .subscribe(
-                        loginStateObservable::onNext,
-                        error -> logger.warn("Could not restore user info: " + error));
+        String lastLoginState = preferences.getString(KEY_LAST_LOGIN_STATE, null);
+        String lastUserInfo = preferences.getString(KEY_LAST_USER_INFO, null);
+
+        if (lastLoginState != null) {
+            Async.start(() -> gson.fromJson(lastLoginState, LoginState.class), BackgroundScheduler.instance())
+                    .onErrorResumeNext(Observable.empty())
+                    .doOnNext(info -> logger.info("Restoring login state: {}", info))
+                    .map(state -> ImmutableLoginState.copyOf(state).withBenisHistory(loadBenisHistory(state.id())))
+                    .subscribe(
+                            loginStateObservable::onNext,
+                            error -> logger.warn("Could not restore login state: " + error));
+
+        } else if (lastUserInfo != null) {
+            Async.start(() -> createLoginState(gson.fromJson(lastUserInfo, Api.Info.class)), BackgroundScheduler.instance())
+                    .doOnNext(info -> logger.info("Restoring user info: {}", info))
+                    .filter(info -> isAuthorized())
+                    .subscribe(
+                            loginStateObservable::onNext,
+                            error -> logger.warn("Could not restore user info: " + error));
+        }
     }
 
     private void onCookieChanged() {
         Optional<String> cookie = cookieHandler.getLoginCookie();
-        if (!cookie.isPresent())
+        if (!cookie.isPresent()) {
             logout();
+        }
     }
 
     public Observable<LoginProgress> login(String username, String password) {
         return api.login(username, password).flatMap(login -> {
+            List<Observable<?>> observables = new ArrayList<>();
+
             if (login.success()) {
+                observables.add(updateCachedUserInfo()
+                        .doOnTerminate(() -> updateUniqueToken(login.identifier().orNull()))
+                        .toObservable());
+
                 // perform initial sync in background.
-                syncWithProgress()
-                        .subscribeOn(BackgroundScheduler.instance())
-                        .subscribe(Actions.empty(), err -> logger.error("Could not perform initial sync during login", err));
+                sync().subscribeOn(BackgroundScheduler.instance()).subscribe(
+                        empty(),
+                        err -> logger.error("Could not perform initial sync during login", err));
             }
 
             // wait for sync to complete before emitting login result.
-            return Observable.just(new LoginProgress(login));
+            observables.add(Observable.just(new LoginProgress(login)));
+            return Observable.concatDelayError(observables).ofType(LoginProgress.class);
         });
     }
 
@@ -152,7 +195,7 @@ public class UserService {
      */
     public Observable<Void> logout() {
         return Async.<Void>start(() -> {
-            loginStateObservable.onNext(LoginState.NOT_AUTHORIZED);
+            loginStateObservable.onNext(NOT_AUTHORIZED);
 
             // removing cookie from requests
             cookieHandler.clearLoginCookie(false);
@@ -161,6 +204,7 @@ public class UserService {
             preferences.edit()
                     .remove(KEY_LAST_LOF_OFFSET)
                     .remove(KEY_LAST_USER_INFO)
+                    .remove(KEY_LAST_LOGIN_STATE)
                     .apply();
 
             // clear all the vote cache
@@ -190,15 +234,6 @@ public class UserService {
      * where performed since the last call to sync.
      */
     public Observable<Api.Sync> sync() {
-        return syncWithProgress().filter(val -> val instanceof Api.Sync).cast(Api.Sync.class);
-    }
-
-    /**
-     * Performs a sync. If values need to be stored in the database, a sequence
-     * of float values between 0 and 1 will be emitted. At the end, the sync
-     * object is appended to the stream of values.
-     */
-    public Observable<Object> syncWithProgress() {
         if (!isAuthorized())
             return Observable.empty();
 
@@ -211,36 +246,35 @@ public class UserService {
             return Observable.empty();
         }
 
-
         return api.sync(lastLogOffset).doAfterTerminate(() -> fullSyncInProgress.set(false)).flatMap(response -> {
-            Observable<Object> applyVotesObservable = Observable.create(subscriber -> {
-                try {
-                    voteService.applyVoteActions(response.log(), p -> {
-                        subscriber.onNext(p);
-                        return !subscriber.isUnsubscribed();
-                    });
-
-                    if (subscriber.isUnsubscribed())
-                        return;
-
-                    // store syncId for next time.
-                    if (response.logLength() > lastLogOffset) {
-                        preferences.edit()
-                                .putLong(KEY_LAST_LOF_OFFSET, response.logLength())
-                                .apply();
-                    }
-
-                    subscriber.onCompleted();
-                } catch (Throwable error) {
-                    subscriber.onError(error);
-                }
-            });
-
             inboxService.publishUnreadMessagesCount(response.inboxCount());
 
-            return applyVotesObservable
-                    .throttleLast(50, TimeUnit.MILLISECONDS, BackgroundScheduler.instance())
-                    .concatWith(Observable.just(response));
+            // update state observable if possible.
+            loginStateObservable.take(1)
+                    .filter(LoginState::authorized)
+                    .subscribe(state -> {
+                        // store the users benis
+                        new BenisRecord(state.id(), Instant.now(), response.score()).save();
+
+                        loginStateObservable.onNext(ImmutableLoginState.copyOf(state)
+                                .withScore(response.score())
+                                .withBenisHistory(loadBenisHistory(state.id())));
+                    });
+
+            try {
+                voteService.applyVoteActions(response.log());
+
+                // store syncId for next time.
+                if (response.logLength() > lastLogOffset) {
+                    preferences.edit()
+                            .putLong(KEY_LAST_LOF_OFFSET, response.logLength())
+                            .apply();
+                }
+            } catch (Throwable error) {
+                return Observable.error(error);
+            }
+
+            return Observable.just(response);
         });
     }
 
@@ -260,34 +294,49 @@ public class UserService {
 
     /**
      * Returns information for the current user, if a user is signed in.
-     * As a side-effect, this will store the current benis of the user in the database.
      *
      * @return The info, if the user is currently signed in.
      */
     public Observable<Api.Info> info() {
-        return Observable.from(getName().asSet()).flatMap(this::info).map(info -> {
-            Api.Info.User user = info.getUser();
-
-            // stores the current benis value
-            BenisRecord record = new BenisRecord(user.getId(), Instant.now(), user.getScore());
-            record.save();
-
-            // updates the login state and ui
-            loginStateObservable.onNext(createLoginState(info));
-
-            // and store the login state for later
-            persistLatestUserInfo(info);
-
-            return info;
-        });
+        return Observable.from(getName().asSet()).flatMap(this::info);
     }
 
-    private void persistLatestUserInfo(Api.Info info) {
+    /**
+     * Update the cached user info in the background.
+     */
+    public Completable updateCachedUserInfo() {
+        PublishSubject publishSubject = PublishSubject.create();
+
+        info().retry(3)
+                .subscribeOn(BackgroundScheduler.instance())
+                .map(info -> {
+                    // updates the login state and ui
+                    loginStateObservable.onNext(createLoginState(info));
+                    return info;
+                })
+                .doOnTerminate(publishSubject::onCompleted)
+                .subscribe(empty(), error -> logger.warn("Could not update user info.", error));
+
+        return publishSubject.toCompletable();
+    }
+
+    /**
+     * Persists the given login state to a preference storage.
+     */
+    private void persistLatestLoginState(LoginState state) {
         try {
-            String encoded = gson.toJson(info);
-            preferences.edit()
-                    .putString(KEY_LAST_USER_INFO, encoded)
-                    .apply();
+            if (state.authorized()) {
+                logger.info("persisting logins state now.");
+
+                String encoded = gson.toJson(state);
+                preferences.edit()
+                        .putString(KEY_LAST_LOGIN_STATE, encoded)
+                        .apply();
+            } else {
+                preferences.edit()
+                        .remove(KEY_LAST_LOGIN_STATE)
+                        .apply();
+            }
 
         } catch (RuntimeException error) {
             logger.warn("Could not persist latest user info", error);
@@ -297,9 +346,18 @@ public class UserService {
     private LoginState createLoginState(Api.Info info) {
         checkNotMainThread();
 
-        int userId = info.getUser().getId();
-        Graph benisHistory = loadBenisHistory(userId);
-        return new LoginState(info, benisHistory, userIsAdmin(), isPremiumUser());
+        Api.Info.User user = info.getUser();
+
+        return ImmutableLoginState.builder()
+                .authorized(true)
+                .id(user.getId())
+                .name(user.getName())
+                .mark(user.getMark())
+                .score(user.getScore())
+                .premium(isPremiumUser())
+                .admin(userIsAdmin())
+                .benisHistory(loadBenisHistory(user.getId()))
+                .build();
     }
 
     public boolean userIsAdmin() {
@@ -340,66 +398,65 @@ public class UserService {
         return cookieHandler.getCookie().transform(cookie -> cookie.n);
     }
 
-    public static Optional<Api.Info.User> getUser(LoginState loginState) {
-        if (loginState.getInfo() == null)
-            return Optional.absent();
 
-        return Optional.fromNullable(loginState.getInfo().getUser());
+    /**
+     * Returns an observable that produces the unique user token, if a hash is currently
+     * available. This produces "null", if the user is currently not signed in.
+     */
+    public Observable<String> userToken() {
+        return loginStateObservable.take(1).flatMap(value -> {
+            if (value.authorized()) {
+                return Observable.just(value.uniqueToken());
+            } else {
+                return Observable.just(null);
+            }
+        });
     }
 
     public Observable<Api.AccountInfo> accountInfo() {
         return api.accountInfo();
     }
 
-    public static final class LoginState {
-        private final Api.Info info;
-        private final Graph benisHistory;
-        private final boolean userIsAdmin;
-        private final boolean userIsPremium;
-
-        private LoginState(Api.Info info, Graph benisHistory, boolean userIsAdmin, boolean userIsPremium) {
-            this.info = info;
-            this.benisHistory = benisHistory;
-            this.userIsAdmin = userIsAdmin;
-            this.userIsPremium = userIsPremium;
-        }
-
-        public boolean isAuthorized() {
-            return info != null;
-        }
+    @Value.Immutable
+    public interface LoginState {
+        @Nullable
+        @org.immutables.gson.Gson.Ignore
+        Graph benisHistory();
 
         @Nullable
-        public Api.Info getInfo() {
-            return info;
-        }
+        String uniqueToken();
 
-        public Graph getBenisHistory() {
-            return benisHistory;
-        }
+        @Nullable
+        String name();
 
-        public boolean userIsAdmin() {
-            return isAuthorized() && userIsAdmin;
-        }
+        int id();
 
-        public boolean userIsPremium() {
-            return isAuthorized() && userIsPremium;
-        }
+        int score();
 
-        public static final LoginState NOT_AUTHORIZED = new LoginState(null, null, false, false);
+        int mark();
+
+        boolean admin();
+
+        boolean premium();
+
+        boolean authorized();
     }
 
     public static final class LoginProgress {
-        private final Optional<Api.Login> login;
+        @Nullable
+        private final Api.Login login;
+
         private final float progress;
 
-        public LoginProgress(float progress) {
+
+        LoginProgress(float progress) {
             this.progress = progress;
-            this.login = Optional.absent();
+            this.login = null;
         }
 
-        public LoginProgress(Api.Login login) {
+        LoginProgress(@Nullable Api.Login login) {
             this.progress = 1.f;
-            this.login = Optional.of(login);
+            this.login = login;
         }
 
         public float getProgress() {
@@ -407,7 +464,7 @@ public class UserService {
         }
 
         public Optional<Api.Login> getLogin() {
-            return login;
+            return Optional.fromNullable(login);
         }
     }
 }

@@ -206,7 +206,7 @@ public class LoginActivity extends BaseAppCompatActivity {
             Track.loginSuccessful();
 
         } else {
-            Api.Login.BanInfo ban = response.banInfo();
+            Api.Login.BanInfo ban = response.banInfo().orNull();
             if (ban != null && ban.banned()) {
                 CharSequence date = DateUtils.getRelativeDateTimeString(this,
                         ban.till().toDateTime(DateTimeZone.getDefault()),

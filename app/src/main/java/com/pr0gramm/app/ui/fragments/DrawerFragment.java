@@ -24,7 +24,6 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
-import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
@@ -159,8 +158,7 @@ public class DrawerFragment extends BaseFragment {
         navItemsRecyclerView.setNestedScrollingEnabled(false);
 
         // add the static items to the navigation
-        navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(
-                Optional.<Api.Info.User>absent(), false));
+        navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(null, false));
 
         settingsView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
@@ -220,6 +218,7 @@ public class DrawerFragment extends BaseFragment {
 
         navigationProvider.navigationItems()
                 .compose(bindToLifecycleAsync())
+                .distinctUntilChanged()
                 .subscribe(
                         navigationAdapter::setNavigationItems,
                         ErrorDialogFragment.defaultOnError());
@@ -245,27 +244,27 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void onLoginStateChanged(UserService.LoginState state) {
-        if (state.isAuthorized()) {
-            Api.Info.User user = state.getInfo().getUser();
+        if (state.authorized()) {
             View.OnClickListener onUsernameClicked = v -> getCallback().onUsernameClicked();
 
-            usernameView.setText(user.getName());
+            usernameView.setText(state.name());
             usernameView.setOnClickListener(onUsernameClicked);
 
             userTypeView.setVisibility(View.VISIBLE);
             userTypeView.setTextColor(ContextCompat.getColor(getContext(),
-                    UserClasses.MarkColors.get(user.getMark())));
+                    UserClasses.MarkColors.get(state.mark())));
 
-            userTypeView.setText(getString(UserClasses.MarkStrings.get(user.getMark())).toUpperCase());
+            userTypeView.setText(getString(UserClasses.MarkStrings.get(state.mark())).toUpperCase());
             userTypeView.setOnClickListener(onUsernameClicked);
 
-            Graph benis = state.getBenisHistory();
 
-            benisView.setText(String.valueOf(user.getScore()));
-            benisGraph.setImageDrawable(new GraphDrawable(benis));
-            benisContainer.setVisibility(View.VISIBLE);
+            benisView.setText(String.valueOf(state.score()));
 
-            if (benis.points().size() > 2) {
+            Graph benis = state.benisHistory();
+            if (benis != null && benis.points().size() > 2) {
+                benisGraph.setImageDrawable(new GraphDrawable(benis));
+                benisContainer.setVisibility(View.VISIBLE);
+
                 updateBenisDeltaForGraph(benis);
             } else {
                 updateBenisDelta(0);

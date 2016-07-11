@@ -79,8 +79,10 @@ public class SyncIntentService extends IntentService {
             logger.info("performing sync");
             Optional<Api.Sync> sync = toOptional(userService.sync());
 
-            logger.info("updating info");
-            toOptional(userService.info());
+            if (singleShotService.firstTimeToday("update-userInfo")) {
+                logger.info("update current user info");
+                userService.updateCachedUserInfo();
+            }
 
             // print info!
             logger.info("finished without error after " + watch);

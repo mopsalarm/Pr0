@@ -1034,7 +1034,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         private final WeakReference<FeedFragment> parent;
         private final Feed feed;
 
-        public FeedAdapter(FeedFragment fragment, Feed feed, boolean usersFavorites) {
+        FeedAdapter(FeedFragment fragment, Feed feed, boolean usersFavorites) {
             this.usersFavorites = usersFavorites;
             this.parent = new WeakReference<>(fragment);
             this.feed = feed;

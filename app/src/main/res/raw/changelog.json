@@ -3,6 +3,15 @@
     "version": 105,
     "changes": [
       {
+        "type": "Fix",
+        "change": "Die eigenen Favoriten werden nicht als 'gesehen' markiert."
+      }
+    ]
+  },
+  {
+    "version": 105,
+    "changes": [
+      {
         "type": "Neu",
         "change": "Kompatibilitätseinstellungen erweitert - bei Video- und Audioproblemen dort schauen!"
       },
