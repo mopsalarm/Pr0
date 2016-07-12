@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Die eigenen Favoriten werden nicht als 'gesehen' markiert."
+      },
+      {
+        "type": "Intern",
+        "change": "Ein paar interne Änderung in Bezug auf Login und favorisierte Kommentare."
       }
     ]
   },
