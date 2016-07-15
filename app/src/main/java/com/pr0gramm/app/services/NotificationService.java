@@ -61,9 +61,12 @@ public class NotificationService {
     private final Picasso picasso;
     private final UriHelper uriHelper;
     private final UserService userService;
+    private final BadgeService badgeService;
 
     @Inject
-    public NotificationService(Application context, InboxService inboxService, Picasso picasso, UserService userService) {
+    public NotificationService(Application context, InboxService inboxService, Picasso picasso,
+                               UserService userService, BadgeService badgeService) {
+
         this.context = context;
         this.inboxService = inboxService;
         this.picasso = picasso;
@@ -71,6 +74,7 @@ public class NotificationService {
         this.uriHelper = UriHelper.of(context);
         this.settings = Settings.of(context);
         this.nm = NotificationManagerCompat.from(context);
+        this.badgeService = badgeService;
     }
 
     public void showUpdateNotification(Update update) {
@@ -90,6 +94,9 @@ public class NotificationService {
     public void showForInbox(Api.Sync sync) {
         if (!settings.showNotifications())
             return;
+
+        // update the icon to show the current inbox count.
+        badgeService.update(context, sync.inboxCount());
 
         // try to get the new messages, ignore all errors.
         inboxService.getInbox()
