@@ -15,6 +15,10 @@
         "change": "Die eigenen Favoriten werden nicht als 'gesehen' markiert."
       },
       {
+        "type": "Fix",
+        "change": "Fehlerhafte 'repost' Anzeige im Feed behoben."
+      },
+      {
         "type": "Intern",
         "change": "Ein paar interne Änderung in Bezug auf Login und favorisierte Kommentare."
       }

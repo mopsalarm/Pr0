@@ -1168,6 +1168,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         if (filter.getFeedType() != FeedType.NEW && filter.getFeedType() != FeedType.PROMOTED)
             return;
 
+        // check if it is possible to get repost info.
+        boolean queryTooLong = filter.getTags().or("").split("\\s+").length >= 5;
+        if (queryTooLong)
+            return;
+
         FeedService.FeedQuery query = ImmutableFeedQuery.builder()
                 .contentTypes(getSelectedContentType())
                 .older(id)
