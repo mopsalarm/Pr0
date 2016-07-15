@@ -57,6 +57,9 @@ public class FeedFilterWithStart {
             if ("top".equals(groups.get("type")))
                 filter = filter.withFeedType(FeedType.PROMOTED);
 
+            if ("stalk".equals(groups.get("type")))
+                filter = filter.withFeedType(FeedType.PREMIUM);
+
             // filter by user
             String user = groups.get("user");
             if (!Strings.isNullOrEmpty(user)) {
@@ -89,8 +92,8 @@ public class FeedFilterWithStart {
         return matcher.find() ? Longs.tryParse(matcher.group(1)) : null;
     }
 
-    private static final Pattern pFeed = Pattern.compile("^/(?<type>new|top)$");
-    private static final Pattern pFeedId = Pattern.compile("^/(?<type>new|top)/(?<id>[0-9]+)$");
+    private static final Pattern pFeed = Pattern.compile("^/(?<type>new|top|stalk$");
+    private static final Pattern pFeedId = Pattern.compile("^/(?<type>new|top|stalk)/(?<id>[0-9]+)$");
     private static final Pattern pUser = Pattern.compile("^/user/(?<user>[^/]+)/?$");
     private static final Pattern pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/?$");
     private static final Pattern pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<id>[0-9]+)$");
