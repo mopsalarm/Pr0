@@ -3,6 +3,14 @@
     "version": 106,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Anzahl der ungelesenen Nachrichten wird in Launchern am Icon angezeigt, die es unterstützen."
+      },
+      {
+        "type": "Fix",
+        "change": "/stelz/ Links werden jetzt korrekt in der App geöffnet."
+      },
+      {
         "type": "Fix",
         "change": "Die eigenen Favoriten werden nicht als 'gesehen' markiert."
       },
