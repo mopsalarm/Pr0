@@ -188,6 +188,15 @@ public class NavigationProvider {
                         .icon(iconFeedTypeBestOf)
                         .build());
             }
+
+            if (settings.showCategoryBestOf()) {
+                items.add(ImmutableNavigationItem.builder()
+                        .action(ActionType.FILTER)
+                        .filter(new FeedFilter().withFeedType(FeedType.TEXT))
+                        .title(getString(R.string.action_feed_type_text))
+                        .icon(iconFeedTypeBestOf)
+                        .build());
+            }
         }
 
         if (settings.showCategoryPremium()) {

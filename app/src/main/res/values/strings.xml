@@ -366,5 +366,7 @@
     <string name="pref_use_exo_player__summary">Uses the new and recommended video player. You might need to tune the codec selection below if you encounter problems.</string>
     <string name="pref_disable_audio__summary">Disable sound completely might help with playing videos - if you dont care about it anyways.</string>
     <string name="pref_disable_audio__title">Disable sound</string>
+    <string name="action_feed_type_text">TEXT</string>
+    <string name="filter_format_text">Text</string>
 </resources>
 

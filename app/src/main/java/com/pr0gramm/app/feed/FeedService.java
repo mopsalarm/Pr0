@@ -64,6 +64,9 @@ public class FeedService {
             case CONTROVERSIAL:
                 return categoryApi.controversial(flags, query.older().orNull());
 
+            case TEXT:
+                return categoryApi.text(flags, query.older().orNull());
+
             default:
                 return mainApi.itemsGet(promoted, following,
                         query.older().orNull(), query.newer().orNull(), query.around().orNull(),

@@ -103,6 +103,22 @@ public enum FeedType {
         public boolean sortable() {
             return true;
         }
+    },
+
+    TEXT {
+        @Override
+        public boolean searchable() {
+            return false;
+        }
+
+        @Override
+        public boolean preloadable() {
+            return true;
+        }
+
+        public boolean sortable() {
+            return true;
+        }
     };
 
     public abstract boolean searchable();
