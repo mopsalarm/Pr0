@@ -180,7 +180,7 @@ public final class Track {
                 logger.info("Would track an event now");
             }
         } catch (IllegalStateException error) {
-            logger.warn("Tried to log without initializing crashlytics");
+            logger.warn("Tried to track without initializing crashlytics");
         }
     }
 }

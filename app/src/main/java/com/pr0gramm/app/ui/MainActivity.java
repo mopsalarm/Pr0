@@ -510,6 +510,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         final int logout_successful_hint = R.string.logout_successful_hint;
         userService.logout()
+                .toObservable()
                 .compose(bindToLifecycleAsync())
                 .lift(busyDialog(this))
                 .doOnCompleted(() -> {

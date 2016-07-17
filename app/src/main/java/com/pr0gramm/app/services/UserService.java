@@ -31,6 +31,7 @@ import javax.inject.Singleton;
 
 import rx.Completable;
 import rx.Observable;
+import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.util.async.Async;
@@ -58,6 +59,8 @@ public class UserService {
             .authorized(false)
             .build();
 
+    private final Object lock = new Object();
+
     private final Api api;
     private final VoteService voteService;
     private final SeenService seenService;
@@ -70,8 +73,9 @@ public class UserService {
 
     private final AtomicBoolean fullSyncInProgress = new AtomicBoolean();
 
-    private final BehaviorSubject<LoginState> loginStateObservable =
-            BehaviorSubject.create(NOT_AUTHORIZED);
+    // login state and observable for that.
+    private LoginState loginState = NOT_AUTHORIZED;
+    private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(loginState);
 
     @Inject
     public UserService(Api api,
@@ -108,18 +112,35 @@ public class UserService {
                 .subscribe(this::updateUniqueToken);
     }
 
+    private LoginState updateLoginState(Func1<ImmutableLoginState, LoginState> transformer) {
+        synchronized (lock) {
+            LoginState newLoginState = transformer.call(ImmutableLoginState.copyOf(this.loginState));
+
+            // persist and publish
+            if (newLoginState != loginState) {
+                this.loginState = newLoginState;
+                this.loginStateObservable.onNext(newLoginState);
+            }
+
+            return newLoginState;
+        }
+    }
+
+    private LoginState updateLoginStateIfAuthorized(Func1<ImmutableLoginState, LoginState> transformer) {
+        return updateLoginState(loginState -> {
+            if (loginState.authorized()) {
+                return transformer.call(loginState);
+            } else {
+                return loginState;
+            }
+        });
+    }
+
     private void updateUniqueToken(@Nullable String uniqueToken) {
         if (uniqueToken == null)
             return;
 
-        loginStateObservable
-                .take(1)
-                .filter(LoginState::authorized)
-                .subscribe(state -> {
-                    loginStateObservable.onNext(ImmutableLoginState
-                            .copyOf(state)
-                            .withUniqueToken(uniqueToken));
-                });
+        updateLoginStateIfAuthorized(loginState -> loginState.withUniqueToken(uniqueToken));
     }
 
     /**
@@ -135,15 +156,17 @@ public class UserService {
                     .doOnNext(info -> logger.info("Restoring login state: {}", info))
                     .map(state -> ImmutableLoginState.copyOf(state).withBenisHistory(loadBenisHistory(state.id())))
                     .subscribe(
-                            loginStateObservable::onNext,
+                            loginState -> updateLoginState(ignored -> loginState),
                             error -> logger.warn("Could not restore login state: " + error));
 
         } else if (lastUserInfo != null) {
+            // TODO will be removed soon
+
             Async.start(() -> createLoginState(gson.fromJson(lastUserInfo, Api.Info.class)), BackgroundScheduler.instance())
-                    .doOnNext(info -> logger.info("Restoring user info: {}", info))
+                    .doOnNext(info -> logger.info("Restoring api user info: {}", info))
                     .filter(info -> isAuthorized())
                     .subscribe(
-                            loginStateObservable::onNext,
+                            loginState -> updateLoginState(ignored -> loginState),
                             error -> logger.warn("Could not restore user info: " + error));
         }
     }
@@ -193,9 +216,9 @@ public class UserService {
     /**
      * Performs a logout of the user.
      */
-    public Observable<Void> logout() {
+    public Completable logout() {
         return Async.<Void>start(() -> {
-            loginStateObservable.onNext(NOT_AUTHORIZED);
+            updateLoginState(oldState -> NOT_AUTHORIZED);
 
             // removing cookie from requests
             cookieHandler.clearLoginCookie(false);
@@ -222,7 +245,7 @@ public class UserService {
             resetContentTypeSettings(settings);
 
             return null;
-        }, BackgroundScheduler.instance()).ignoreElements();
+        }, BackgroundScheduler.instance()).toCompletable();
     }
 
     public Observable<LoginState> loginState() {
@@ -249,17 +272,18 @@ public class UserService {
         return api.sync(lastLogOffset).doAfterTerminate(() -> fullSyncInProgress.set(false)).flatMap(response -> {
             inboxService.publishUnreadMessagesCount(response.inboxCount());
 
-            // update state observable if possible.
-            loginStateObservable.take(1)
-                    .filter(LoginState::authorized)
-                    .subscribe(state -> {
-                        // store the users benis
-                        new BenisRecord(state.id(), Instant.now(), response.score()).save();
+            int userId = loginState.id();
+            if (userId > 0) {
+                // save the current benis value
+                new BenisRecord(userId, Instant.now(), response.score()).save();
 
-                        loginStateObservable.onNext(ImmutableLoginState.copyOf(state)
-                                .withScore(response.score())
-                                .withBenisHistory(loadBenisHistory(state.id())));
-                    });
+                // and load the current benis history
+                Graph scoreGraph = loadBenisHistory(userId);
+
+                updateLoginStateIfAuthorized(loginState -> loginState
+                        .withScore(response.score())
+                        .withBenisHistory(scoreGraph));
+            }
 
             try {
                 voteService.applyVoteActions(response.log());
@@ -309,10 +333,9 @@ public class UserService {
 
         info().retry(3)
                 .subscribeOn(BackgroundScheduler.instance())
-                .map(info -> {
-                    // updates the login state and ui
-                    loginStateObservable.onNext(createLoginState(info));
-                    return info;
+                .doOnNext(info -> {
+                    LoginState loginState = createLoginState(info);
+                    updateLoginState(old -> loginState);
                 })
                 .doOnTerminate(publishSubject::onCompleted)
                 .subscribe(empty(), error -> logger.warn("Could not update user info.", error));
