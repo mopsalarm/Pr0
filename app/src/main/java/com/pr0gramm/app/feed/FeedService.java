@@ -3,6 +3,7 @@ package com.pr0gramm.app.feed;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -53,7 +54,12 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        switch (query.feedFilter().getFeedType()) {
+        FeedType feedType = query.feedFilter().getFeedType();
+
+        // statistics
+        Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name().toLowerCase());
+
+        switch (feedType) {
             case RANDOM:
                 return categoryApi.random(tags, flags);
 
