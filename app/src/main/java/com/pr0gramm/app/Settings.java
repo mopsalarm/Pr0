@@ -229,6 +229,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
                 .or(VolumeNavigationType.DISABLED);
     }
 
+    public boolean showCategoryText() {
+        return preferences.getBoolean("pref_show_category_text", true);
+    }
+
     public SharedPreferences raw() {
         return preferences;
     }

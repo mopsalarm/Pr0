@@ -74,6 +74,9 @@ public class NavigationProvider {
     @BindDrawable(R.drawable.ic_drawer_bestof)
     Drawable iconFeedTypeBestOf;
 
+    @BindDrawable(R.drawable.ic_drawer_text_24)
+    Drawable iconFeedTypeText;
+
     @BindDrawable(R.drawable.ic_black_action_upload)
     Drawable iconUpload;
 
@@ -189,12 +192,12 @@ public class NavigationProvider {
                         .build());
             }
 
-            if (settings.showCategoryBestOf()) {
+            if ("Mopsalarm".equalsIgnoreCase(username) && settings.showCategoryText()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.TEXT))
                         .title(getString(R.string.action_feed_type_text))
-                        .icon(iconFeedTypeBestOf)
+                        .icon(iconFeedTypeText)
                         .build());
             }
         }
