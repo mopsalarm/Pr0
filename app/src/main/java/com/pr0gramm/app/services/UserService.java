@@ -164,7 +164,7 @@ public class UserService {
 
             Async.start(() -> createLoginState(gson.fromJson(lastUserInfo, Api.Info.class)), BackgroundScheduler.instance())
                     .doOnNext(info -> logger.info("Restoring api user info: {}", info))
-                    .filter(info -> isAuthorized())
+                    .filter(info -> cookieHandler.hasCookie())
                     .subscribe(
                             loginState -> updateLoginState(ignored -> loginState),
                             error -> logger.warn("Could not restore user info: " + error));
@@ -203,7 +203,7 @@ public class UserService {
      * Check if we can do authorized requests.
      */
     public boolean isAuthorized() {
-        return cookieHandler.hasCookie();
+        return cookieHandler.hasCookie() && loginState.authorized();
     }
 
     /**
@@ -257,7 +257,7 @@ public class UserService {
      * where performed since the last call to sync.
      */
     public Observable<Api.Sync> sync() {
-        if (!isAuthorized())
+        if (!cookieHandler.hasCookie())
             return Observable.empty();
 
         // tell the sync request where to start

@@ -304,8 +304,15 @@ public class PostFragment extends BaseFragment implements
 
         commentsAdapter = new CommentsAdapter(adminMode, userService.getName().or(""));
         commentsAdapter.setCommentActionListener(this);
-        commentsAdapter.setShowFavCommentButton(userService.isAuthorized());
         adapter.addAdapter(commentsAdapter);
+
+        // apply login state.
+        userService.loginState()
+                .map(UserService.LoginState::authorized)
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycle())
+                .subscribe(commentsAdapter::setShowFavCommentButton);
+
 
         // restore the postInfo, if possible.
         if (tags != null && comments != null) {
