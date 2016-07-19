@@ -368,5 +368,6 @@
     <string name="pref_disable_audio__title">Disable sound</string>
     <string name="action_feed_type_text">TEXT</string>
     <string name="filter_format_text">Text</string>
+    <string name="login_register">New account</string>
 </resources>
 

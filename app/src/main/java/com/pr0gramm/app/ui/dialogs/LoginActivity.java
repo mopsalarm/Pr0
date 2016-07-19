@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -26,11 +27,13 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.thefinestartist.finestwebview.FinestWebView;
 import com.trello.rxlifecycle.ActivityEvent;
 
 import net.danlew.android.joda.DateUtils;
@@ -41,6 +44,7 @@ import org.joda.time.Weeks;
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
@@ -224,6 +228,20 @@ public class LoginActivity extends BaseAppCompatActivity {
                 Track.loginFailed();
             }
         }
+    }
+
+    @OnClick(R.id.register)
+    public void onRegisterClicked() {
+        new FinestWebView.Builder(this)
+                .theme(ThemeHelper.theme().noActionBar)
+                .iconDefaultColor(Color.WHITE)
+                .toolbarColorRes(ThemeHelper.theme().primaryColor)
+                .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
+                .webViewSupportZoom(true)
+                .webViewBuiltInZoomControls(true)
+                .webViewDisplayZoomControls(false)
+                .injectJavaScript("javascript:document.querySelector(\"#head-content\").style.display=\"none\";void(0);")
+                .show("https://pr0gramm.com/pr0mium");
     }
 
     public static abstract class DoIfAuthorizedHelper {

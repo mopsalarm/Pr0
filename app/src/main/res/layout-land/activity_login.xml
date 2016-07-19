@@ -5,7 +5,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="48dp"
+                android:padding="16dp"
                 tools:context=".ui.dialogs.LoginActivity">
 
     <ImageView
@@ -41,10 +41,21 @@
         android:id="@+id/login"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/register"
         android:layout_alignParentRight="true"
         android:layout_gravity="right"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="?colorPrimary"
         android:text="@string/login"/>
+
+    <Button
+        android:id="@+id/register"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/login_register"/>
+
 </RelativeLayout>
