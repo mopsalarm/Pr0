@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
@@ -33,7 +33,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.thefinestartist.finestwebview.FinestWebView;
+import com.pr0gramm.app.util.CustomTabsHelper;
 import com.trello.rxlifecycle.ActivityEvent;
 
 import net.danlew.android.joda.DateUtils;
@@ -232,16 +232,10 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @OnClick(R.id.register)
     public void onRegisterClicked() {
-        new FinestWebView.Builder(this)
-                .theme(ThemeHelper.theme().noActionBar)
-                .iconDefaultColor(Color.WHITE)
-                .toolbarColorRes(ThemeHelper.theme().primaryColor)
-                .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
-                .webViewSupportZoom(true)
-                .webViewBuiltInZoomControls(true)
-                .webViewDisplayZoomControls(false)
-                .injectJavaScript("javascript:document.querySelector(\"#head-content\").style.display=\"none\";void(0);")
-                .show("https://pr0gramm.com/pr0mium");
+        int primaryColor = ContextCompat.getColor(this, ThemeHelper.primaryColor());
+
+        Uri uri = Uri.parse("https://pr0gramm.com/pr0mium/iap");
+        new CustomTabsHelper(this).openCustomTab(uri);
     }
 
     public static abstract class DoIfAuthorizedHelper {

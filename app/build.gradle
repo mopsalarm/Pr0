@@ -157,6 +157,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:customtabs:24.1.1'
     compile 'com.google.guava:guava:19.0'
 
     compile 'net.danlew:android.joda:2.9.4.1'
