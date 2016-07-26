@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
@@ -14,6 +15,7 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.orm.BenisRecord;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.pr0gramm.app.util.Holder;
 
 import org.immutables.value.Value;
 import org.joda.time.Duration;
@@ -37,7 +39,6 @@ import rx.subjects.PublishSubject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.Settings.resetContentTypeSettings;
-import static com.pr0gramm.app.orm.BenisRecord.getBenisValuesAfter;
 import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 import static org.joda.time.Duration.standardDays;
 import static rx.functions.Actions.empty;
@@ -67,6 +68,7 @@ public class UserService {
     private final InboxService inboxService;
     private final LoginCookieHandler cookieHandler;
     private final SharedPreferences preferences;
+    private final Holder<SQLiteDatabase> database;
 
     private final Gson gson;
     private final Settings settings;
@@ -82,7 +84,7 @@ public class UserService {
                        VoteService voteService,
                        SeenService seenService, InboxService inboxService, LoginCookieHandler cookieHandler,
                        SharedPreferences preferences, Settings settings, Gson gson,
-                       SingleShotService sso) {
+                       SingleShotService sso, Holder<SQLiteDatabase> database) {
 
         this.api = api;
         this.seenService = seenService;
@@ -92,6 +94,7 @@ public class UserService {
         this.preferences = preferences;
         this.settings = settings;
         this.gson = gson;
+        this.database = database;
 
         // only restore user data if authorized.
         if (cookieHandler.hasCookie()) {
@@ -275,7 +278,7 @@ public class UserService {
             int userId = loginState.id();
             if (userId > 0) {
                 // save the current benis value
-                new BenisRecord(userId, Instant.now(), response.score()).save();
+                BenisRecord.storeValue(database.value(), userId, response.score());
 
                 // and load the current benis history
                 Graph scoreGraph = loadBenisHistory(userId);
@@ -401,10 +404,10 @@ public class UserService {
 
         // get the values and transform them
         ImmutableList<Graph.Point> points = FluentIterable
-                .from(getBenisValuesAfter(userId, start))
+                .from(BenisRecord.findValuesLaterThan(database.value(), userId, start))
                 .transform(record -> {
-                    double x = record.getTimeMillis();
-                    return new Graph.Point(x, record.getBenis());
+                    double x = record.time;
+                    return new Graph.Point(x, record.benis);
                 }).toList();
 
         logger.info("Loading benis graph took " + watch);
@@ -470,7 +473,6 @@ public class UserService {
         private final Api.Login login;
 
         private final float progress;
-
 
         LoginProgress(float progress) {
             this.progress = progress;

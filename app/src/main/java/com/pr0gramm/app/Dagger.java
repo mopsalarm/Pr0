@@ -5,6 +5,8 @@ import android.app.Application;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -58,5 +60,11 @@ public class Dagger {
 
         @Inject
         DatabasePreloadManager databasePreloadManager;
+
+        @Inject
+        VoteService voteService;
+
+        @Inject
+        UserService userService;
     }
 }

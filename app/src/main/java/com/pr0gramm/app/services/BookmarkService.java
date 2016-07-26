@@ -2,19 +2,23 @@ package com.pr0gramm.app.services;
 
 import android.app.Application;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.pr0gramm.app.util.Holder;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Completable;
 import rx.Observable;
+import rx.Single;
 import rx.subjects.BehaviorSubject;
 import rx.util.async.Async;
 
@@ -28,23 +32,27 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
 public class BookmarkService {
     private final BehaviorSubject<Void> onChange = BehaviorSubject.create((Void) null);
     private final Context context;
+    private final Holder<SQLiteDatabase> database;
 
     @Inject
-    public BookmarkService(Application context) {
+    public BookmarkService(Application context, Holder<SQLiteDatabase> database) {
         this.context = context;
+        this.database = database;
     }
 
     public Observable<Bookmark> create(FeedFilter filter, String title) {
         return Async.start(() -> {
             // check if here is an existing item
-            Optional<Bookmark> existing = byFilter(filter);
+            Optional<Bookmark> existing = byFilter(database.value(), filter);
             if (existing.isPresent())
                 return existing.get();
 
             // create new entry
             Bookmark entry = of(filter, title);
-            entry.save();
+            Bookmark.save(database.value(), entry);
+
             triggerChange();
+
             return entry;
         }, BackgroundScheduler.instance());
     }
@@ -55,15 +63,15 @@ public class BookmarkService {
      *
      * @param filter The filter that the user wants to bookmark.
      */
-    public Observable<Boolean> isBookmarkable(FeedFilter filter) {
+    public Single<Boolean> isBookmarkable(FeedFilter filter) {
         if (filter.isBasic())
-            return Observable.just(false);
+            return Single.just(false);
 
         if (filter.getLikes().isPresent())
-            return Observable.just(false);
+            return Single.just(false);
 
         // check if already in database
-        return Observable.fromCallable(() -> !Bookmark.byFilter(filter).isPresent());
+        return database.asSingle().map(db -> !Bookmark.byFilter(db, filter).isPresent());
     }
 
     private void triggerChange() {
@@ -81,7 +89,7 @@ public class BookmarkService {
      */
     private List<Bookmark> list() {
         checkNotMainThread();
-        return Bookmark.find(Bookmark.class, null, null, null, "title ASC", null);
+        return Bookmark.all(database.value());
     }
 
     /**
@@ -89,12 +97,12 @@ public class BookmarkService {
      *
      * @param bookmark The bookmark that is to be deleted.
      */
-    public Observable<Void> delete(Bookmark bookmark) {
+    public Completable delete(Bookmark bookmark) {
         return Async.<Void>start(() -> {
-            bookmark.delete();
+            Bookmark.delete(database.value(), bookmark);
             triggerChange();
             return null;
-        }, BackgroundScheduler.instance()).ignoreElements();
+        }, BackgroundScheduler.instance()).toCompletable();
     }
 
     /**

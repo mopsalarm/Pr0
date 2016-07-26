@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
 import com.google.common.base.Joiner;
@@ -8,14 +9,13 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.LittleEndianDataInputStream;
-import com.orm.SugarRecord;
-import com.orm.SugarTransactionHelper;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.orm.CachedVote;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.pr0gramm.app.util.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Stopwatch.createStarted;
 import static com.google.common.collect.Lists.transform;
 import static com.pr0gramm.app.orm.CachedVote.Type.ITEM;
-import static com.pr0gramm.app.orm.CachedVote.find;
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
+import static com.pr0gramm.app.util.Databases.withTransaction;
 
 /**
  */
@@ -51,10 +52,13 @@ public class VoteService {
     private final Api api;
     private final SeenService seenService;
 
+    private final Holder<SQLiteDatabase> database;
+
     @Inject
-    public VoteService(Api api, SeenService seenService) {
+    public VoteService(Api api, SeenService seenService, Holder<SQLiteDatabase> database) {
         this.api = api;
         this.seenService = seenService;
+        this.database = database;
     }
 
     /**
@@ -94,7 +98,10 @@ public class VoteService {
      * @param item The item to get the vote for.
      */
     public Observable<Vote> getVote(FeedItem item) {
-        return Async.fromCallable(() -> find(ITEM, item.id()), BackgroundScheduler.instance())
+        return Async
+                .fromCallable(
+                        () -> CachedVote.find(database.value(), ITEM, item.id()),
+                        BackgroundScheduler.instance())
                 .map(vote -> vote.transform(v -> v.vote).or(Vote.NEUTRAL));
     }
 
@@ -106,7 +113,8 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     private void storeVoteValueInTx(CachedVote.Type type, long itemId, Vote vote) {
-        SugarTransactionHelper.doInTransaction(() -> storeVoteValue(type, itemId, vote));
+        checkNotMainThread();
+        withTransaction(database.value(), () -> storeVoteValue(type, itemId, vote));
     }
 
     /**
@@ -119,7 +127,8 @@ public class VoteService {
      * @param vote   The vote to store for that item
      */
     private void storeVoteValue(CachedVote.Type type, long itemId, Vote vote) {
-        CachedVote.quickSave(type, itemId, vote);
+        checkNotMainThread();
+        CachedVote.quickSave(database.value(), type, itemId, vote);
     }
 
     /**
@@ -141,7 +150,7 @@ public class VoteService {
         AtomicReference<Exception> errorRef = new AtomicReference<>();
 
         Stopwatch watch = Stopwatch.createStarted();
-        SugarTransactionHelper.doInTransaction(() -> {
+        withTransaction(database.value(), () -> {
             logger.info("Applying {} vote actions", actionCount);
             try {
                 for (int idx = 0; idx < actionCount; idx++) {
@@ -178,7 +187,7 @@ public class VoteService {
     public Observable<List<Api.Tag>> tag(FeedItem feedItem, List<String> tags) {
         String tagString = Joiner.on(",").join(transform(tags, tag -> tag.replace(',', ' ')));
         return api.addTags(null, feedItem.id(), tagString).map(response -> {
-            SugarTransactionHelper.doInTransaction(() -> {
+            withTransaction(database.value(), () -> {
                 // auto-apply up-vote to newly created tags
                 for (long tagId : response.getTagIds())
                     storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP);
@@ -210,7 +219,7 @@ public class VoteService {
      */
     public void clear() {
         logger.info("Removing all items from vote cache");
-        SugarRecord.deleteAll(CachedVote.class);
+        CachedVote.clear(database.value());
     }
 
     /**
@@ -235,7 +244,7 @@ public class VoteService {
 
         return Async.start(() -> {
             Stopwatch watch = createStarted();
-            List<CachedVote> cachedVotes = find(type, ids);
+            List<CachedVote> cachedVotes = CachedVote.find(database.value(), type, ids);
 
             TLongObjectHashMap<Vote> result = new TLongObjectHashMap<>();
             for (CachedVote cachedVote : cachedVotes)

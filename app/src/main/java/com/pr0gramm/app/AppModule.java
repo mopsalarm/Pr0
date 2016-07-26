@@ -9,16 +9,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.PowerManager;
 
-import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
 import com.pr0gramm.app.util.BackgroundScheduler;
+import com.pr0gramm.app.util.Databases;
+import com.pr0gramm.app.util.Holder;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 import rx.Observable;
+import rx.Single;
 
 /**
  */
@@ -39,10 +44,22 @@ public class AppModule {
     @Provides
     @Singleton
     public Observable<BriteDatabase> sqlBrite(Application application) {
+        Logger logger = LoggerFactory.getLogger("SqlBrite");
+
         return Observable.fromCallable(() -> {
-            SQLiteOpenHelper openHelper = new OpenHelper(application);
-            return SqlBrite.create().wrapDatabaseHelper(openHelper, BackgroundScheduler.instance());
+            SQLiteOpenHelper openHelper = new Databases.SqlBriteOpenHelper(application);
+            return SqlBrite
+                    .create(logger::info)
+                    .wrapDatabaseHelper(openHelper, BackgroundScheduler.instance());
         }).cache();
+    }
+
+    @Provides
+    @Singleton
+    public Holder<SQLiteDatabase> sqLiteDatabase(Application application) {
+        return Holder.ofSingle(Single
+                .fromCallable(() -> new Databases.PlainOpenHelper(application).getWritableDatabase())
+                .subscribeOn(BackgroundScheduler.instance()));
     }
 
     @Provides
@@ -73,21 +90,5 @@ public class AppModule {
     @Singleton
     public PowerManager powerManager() {
         return (PowerManager) application.getSystemService(Context.POWER_SERVICE);
-    }
-
-    private static class OpenHelper extends SQLiteOpenHelper {
-        public OpenHelper(Context context) {
-            super(context, "pr0-sqlbrite", null, 4);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            DatabasePreloadManager.onCreate(db);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onCreate(db);
-        }
     }
 }

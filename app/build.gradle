@@ -167,7 +167,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.16'
-    compile 'com.github.satyan:sugar:1.5'
     compile 'com.github.tony19:named-regexp:0.2.4'
     compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'

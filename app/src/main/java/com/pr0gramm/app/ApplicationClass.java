@@ -7,7 +7,6 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
-import com.orm.SugarContext;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
@@ -46,7 +45,6 @@ public class ApplicationClass extends Application {
         super.onCreate();
 
         Stats.init(buildVersionCode());
-        SugarContext.init(this);
         JodaTimeAndroid.init(this);
         Base.initialize(this);
 
@@ -80,13 +78,6 @@ public class ApplicationClass extends Application {
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);
     }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        SugarContext.terminate();
-    }
-
 
     public static ApplicationClass get(Context context) {
         return (ApplicationClass) context.getApplicationContext();

@@ -575,6 +575,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
             bookmarkService.isBookmarkable(getCurrentFilter())
+                    .toObservable()
                     .compose(bindToLifecycleAsync())
                     .subscribe(this::onBookmarkableStateChanged, Actions.empty());
         }
