@@ -27,7 +27,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
-import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
@@ -232,8 +231,6 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @OnClick(R.id.register)
     public void onRegisterClicked() {
-        int primaryColor = ContextCompat.getColor(this, ThemeHelper.primaryColor());
-
         Uri uri = Uri.parse("https://pr0gramm.com/pr0mium/iap");
         new CustomTabsHelper(this).openCustomTab(uri);
     }
