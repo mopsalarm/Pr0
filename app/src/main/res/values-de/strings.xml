@@ -326,7 +326,7 @@
     <string name="pref_compatibility_summary">Hilft eventuell bei Problemen mit der Video Wiedergabe</string>
     <string name="pref_use_google_decoder_summary">Präferiert den Softwaredekoder. Kann bei Problemen mit Videos helfen. Deaktivieren dieser Option kann zu besserer Performance bei der Videowiedergabe führen. (Jellybean und neuer)</string>
     <string name="report_video_stream">Stream, Typ: %1$s, Codec: %2$s</string>
-    <string name="report_video_summary">Größe: %1$sx%2$s, Format %3$s, Länge: %4$s</string>
+    <string name="report_video_summary">Größe: %1$dx%2$d, Format %3$s, Länge: %4$f</string>
     <string name="upload_error_video">Grund:</string>
     <string name="media_exo_error_topbit">Dieses Video hat ein ungültiges Format und kann nicht abgespielt werden.</string>
     <string name="upload_error_video_too_small">Die Auflösung ist zu klein – Mindestens 0,09 Megapixel (z.B. 300×300).</string>

@@ -108,7 +108,7 @@ public interface Api {
     @GET("/api/profile/comments")
     Observable<UserComments> userComments(@Query("name") String user,
                                           @Query("before")
-                                          long before, @Query("flags") Integer flags);
+                                                  long before, @Query("flags") Integer flags);
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
@@ -494,18 +494,26 @@ public interface Api {
         }
 
         @Value.Immutable
-        public interface VideoReport {
-            float duration();
+        public static abstract class VideoReport {
+            public float duration() {
+                return 0;
+            }
 
-            int height();
+            public int height() {
+                return 0;
+            }
 
-            int width();
+            public int width() {
+                return 0;
+            }
 
-            String format();
+            @Nullable
+            public abstract String format();
 
-            String error();
+            @android.support.annotation.Nullable
+            public abstract String error();
 
-            List<MediaStream> streams();
+            public abstract List<MediaStream> streams();
         }
 
         @Value.Immutable
