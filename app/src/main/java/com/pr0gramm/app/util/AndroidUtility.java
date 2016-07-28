@@ -315,9 +315,6 @@ public class AndroidUtility {
     public static void linkify(TextView view, String content) {
         content = MALICIOUS_COMMENT_CHARS.matcher(content).replaceAll("$1");
 
-        // fix amazon links
-        content = new AmazonAffiliate().affiliateLinks(content);
-
         Uri base = UriHelper.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
