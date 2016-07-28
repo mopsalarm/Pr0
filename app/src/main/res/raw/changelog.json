@@ -1,5 +1,26 @@
 [
   {
+    "version": 107,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Im Login Bildschim gibts nun einen Button zum Registrieren."
+      },
+      {
+        "type": "Neu",
+        "change": "Testweise 'Text' Kategorie - ich verspreche nichts, ist vielleicht morgen wieder raus."
+      },
+      {
+        "type": "Fix",
+        "change": "Beim Start der App wird wieder der richtige Content/Filter angezeigt."
+      },
+      {
+        "type": "Intern",
+        "change": "Interne Umbauten!"
+      }
+    ]
+  },
+  {
     "version": 106,
     "changes": [
       {
