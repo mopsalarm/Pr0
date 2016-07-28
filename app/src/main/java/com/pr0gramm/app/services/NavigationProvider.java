@@ -192,7 +192,7 @@ public class NavigationProvider {
                         .build());
             }
 
-            if ("Mopsalarm".equalsIgnoreCase(username) && settings.showCategoryText()) {
+            if (settings.showCategoryText()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.TEXT))

@@ -347,4 +347,9 @@
     <string name="pref_use_exo_player__summary">Verwende den neuen und empohlenen Videoplayer. Eventuell musst du unten an den Codecs drehen, wenn Probleme bei der Wiedergabe auftreten.</string>
     <string name="pref_disable_audio__title">Sound deaktivieren</string>
     <string name="pref_disable_audio__summary">Sound komplett abzuschalten kann helfen, wenn Videos nicht abgespielt werden können - falls kein Sound für Dich okay ist.</string>
+    <string name="action_feed_type_text">TEXT</string>
+    <string name="login_register">Neuer Account</string>
+    <string name="filter_format_text">Text</string>
+    <string name="pref_show_category_text_title">\'Text\' Kategorie</string>
+    <string name="pref_show_category_text_summary">Diese Kategorie zeigt nur Bilder in denen Text erkannt wurde.</string>
 </resources>

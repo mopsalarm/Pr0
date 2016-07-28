@@ -369,5 +369,7 @@
     <string name="action_feed_type_text">TEXT</string>
     <string name="filter_format_text">Text</string>
     <string name="login_register">New account</string>
+    <string name="pref_show_category_text_title">Category \'text\'</string>
+    <string name="pref_show_category_text_summary">This category shows only posts that were detected as \'having text on them\'</string>
 </resources>
 
