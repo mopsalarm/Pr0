@@ -231,6 +231,8 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @OnClick(R.id.register)
     public void onRegisterClicked() {
+        Track.registerLinkClicked();
+
         Uri uri = Uri.parse("https://pr0gramm.com/pr0mium/iap");
         new CustomTabsHelper(this).openCustomTab(uri);
     }

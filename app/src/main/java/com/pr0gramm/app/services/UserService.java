@@ -113,6 +113,10 @@ public class UserService {
                 .map(Api.UserIdentifier::identifier)
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(this::updateUniqueToken);
+
+        loginStateObservable.subscribe(state -> {
+            Track.updateAuthorizedState(state.authorized());
+        });
     }
 
     private LoginState updateLoginState(Func1<ImmutableLoginState, LoginState> transformer) {

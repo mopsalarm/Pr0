@@ -158,7 +158,25 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
         int index = viewPager.getCurrentItem();
         if (index >= 0 && index < tabsAdapter.getCount()) {
             setTitle(tabsAdapter.getPageTitle(index));
+            trackScreen(index);
         }
+    }
+
+    /**
+     * Might not be the most beautiful code, but works for now.
+     */
+    private void trackScreen(int index) {
+        if (index == 0)
+            Track.screen("InboxUnread");
+
+        if (index == 1)
+            Track.screen("InboxOverview");
+
+        if (index == 2)
+            Track.screen("InboxPrivate");
+
+        if (index == 3)
+            Track.screen("InboxComments");
     }
 
     @Override

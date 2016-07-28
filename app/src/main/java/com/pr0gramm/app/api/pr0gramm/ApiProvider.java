@@ -13,6 +13,7 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Stats;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -139,6 +140,8 @@ public class ApiProvider implements Provider<Api> {
         Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
                 "method:" + method.getName(),
                 "success:" + success);
+
+        Track.trackApiCallSpeed(watch, method.getName(), success);
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})

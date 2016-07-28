@@ -7,6 +7,7 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
+import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
@@ -40,6 +41,8 @@ public class ApplicationClass extends Application {
             .httpModule(new HttpModule())
             .build());
 
+    private static Tracker GOOGLE_ANALYTICS_TRACKER;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -69,6 +72,9 @@ public class ApplicationClass extends Application {
         // initialize this to show errors always in the context of the current activity.
         setGlobalErrorDialogHandler(new ActivityErrorHandler(this));
 
+        // set as global constant that we can access from everywhere
+        GOOGLE_ANALYTICS_TRACKER = Dagger.appComponent(this).googleAnalytics();
+
         Dagger.initEagerSingletons(this);
 
         if (BuildConfig.DEBUG) {
@@ -81,6 +87,10 @@ public class ApplicationClass extends Application {
 
     public static ApplicationClass get(Context context) {
         return (ApplicationClass) context.getApplicationContext();
+    }
+
+    public static Tracker googleAnalyticsTracker() {
+        return GOOGLE_ANALYTICS_TRACKER;
     }
 
     static {

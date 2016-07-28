@@ -2,11 +2,13 @@ package com.pr0gramm.app;
 
 import android.content.SharedPreferences;
 
+import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.TrackingModule;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
@@ -25,6 +27,7 @@ import okhttp3.OkHttpClient;
 @Singleton
 @Component(modules = {
         AppModule.class,
+        TrackingModule.class,
         HttpModule.class,
         ServicesModule.class,
         GsonModule.class,
@@ -47,6 +50,8 @@ public interface AppComponent {
     OkHttpClient okHttpClient();
 
     DownloadService downloadService();
+
+    Tracker googleAnalytics();
 
     void inject(SyncIntentService service);
 
