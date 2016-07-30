@@ -205,7 +205,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.8'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
-    compile 'com.artemzin.rxjava:proguard-rules:1.1.7.0'
+    compile 'com.artemzin.rxjava:proguard-rules:1.1.8.0'
     compile 'com.trello:rxlifecycle:0.6.1'
     compile 'com.trello:rxlifecycle-components:0.6.1'
 
@@ -219,8 +219,8 @@ dependencies {
     provided 'org.immutables:value:2.2.10'
     provided 'org.immutables:gson:2.2.10'
 
-    compile 'com.google.dagger:dagger:2.5'
-    apt 'com.google.dagger:dagger-compiler:2.5'
+    compile 'com.google.dagger:dagger:2.6'
+    apt 'com.google.dagger:dagger-compiler:2.6'
 
     // use a newer version of retrolambda
     retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
