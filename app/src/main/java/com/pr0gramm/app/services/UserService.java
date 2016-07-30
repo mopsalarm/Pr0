@@ -158,10 +158,15 @@ public class UserService {
         String lastUserInfo = preferences.getString(KEY_LAST_USER_INFO, null);
 
         if (lastLoginState != null) {
-            Async.start(() -> gson.fromJson(lastLoginState, LoginState.class), BackgroundScheduler.instance())
+            Observable.fromCallable(() -> gson.fromJson(lastLoginState, LoginState.class))
                     .onErrorResumeNext(Observable.empty())
                     .doOnNext(info -> logger.info("Restoring login state: {}", info))
-                    .map(state -> ImmutableLoginState.copyOf(state).withBenisHistory(loadBenisHistory(state.id())))
+
+                    // update once now, and one with recent benis history later.
+                    .flatMap(state -> Observable.just(state).concatWith(
+                            Async.start(() -> ImmutableLoginState.copyOf(state).withBenisHistory(loadBenisHistory(state.id())),
+                                    BackgroundScheduler.instance())))
+
                     .subscribe(
                             loginState -> updateLoginState(ignored -> loginState),
                             error -> logger.warn("Could not restore login state: " + error));
