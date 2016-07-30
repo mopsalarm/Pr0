@@ -20,6 +20,7 @@ import rx.Completable;
 import rx.Observable;
 import rx.Single;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.Subject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.orm.Bookmark.byFilter;
@@ -30,7 +31,7 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
  */
 @Singleton
 public class BookmarkService {
-    private final BehaviorSubject<Void> onChange = BehaviorSubject.create((Void) null);
+    private final Subject<Void, Void> onChange = BehaviorSubject.create((Void) null).toSerialized();
     private final Context context;
     private final Holder<SQLiteDatabase> database;
 

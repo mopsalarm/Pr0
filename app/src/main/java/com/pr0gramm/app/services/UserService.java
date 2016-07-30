@@ -36,6 +36,7 @@ import rx.Observable;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 import rx.util.async.Async;
 
 import static com.pr0gramm.app.Settings.resetContentTypeSettings;
@@ -77,7 +78,7 @@ public class UserService {
 
     // login state and observable for that.
     private LoginState loginState = NOT_AUTHORIZED;
-    private final BehaviorSubject<LoginState> loginStateObservable = BehaviorSubject.create(loginState);
+    private final Subject<LoginState, LoginState> loginStateObservable = BehaviorSubject.create(loginState).toSerialized();
 
     @Inject
     public UserService(Api api,

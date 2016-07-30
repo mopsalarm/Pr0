@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.Subject;
 
 /**
  * Service for receiving and sending private messages
@@ -33,7 +34,7 @@ public class InboxService {
     private final Api api;
     private final SharedPreferences preferences;
 
-    private final BehaviorSubject<Integer> unreadMessagesCount = BehaviorSubject.create(0);
+    private final Subject<Integer, Integer> unreadMessagesCount = BehaviorSubject.create(0).toSerialized();
 
     @Inject
     public InboxService(Api api, SharedPreferences preferences) {

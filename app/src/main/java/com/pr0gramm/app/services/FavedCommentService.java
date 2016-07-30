@@ -42,6 +42,7 @@ import rx.Observable;
 import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import static com.google.common.collect.Lists.transform;
 
@@ -55,8 +56,10 @@ public class FavedCommentService {
     private final HttpInterface api;
     private final Observable<String> userHash;
     private final TLongSet favCommentIds = new TLongHashSet();
-    private final BehaviorSubject<TLongSet> favCommentIdsObservable = BehaviorSubject.create(new TLongHashSet());
-    private final PublishSubject<String> forceUpdateUserHash = PublishSubject.create();
+    private final Subject<TLongSet, TLongSet> favCommentIdsObservable = BehaviorSubject
+            .<TLongSet>create(new TLongHashSet()).toSerialized();
+
+    private final Subject<String, String> forceUpdateUserHash = PublishSubject.<String>create().toSerialized();
 
     @Inject
     public FavedCommentService(UserService userService, OkHttpClient okHttpClient, SingleShotService singleShotService) {

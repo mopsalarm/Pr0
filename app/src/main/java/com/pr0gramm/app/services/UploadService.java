@@ -38,6 +38,7 @@ import okio.BufferedSink;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.Subject;
 
 /**
  */
@@ -112,7 +113,7 @@ public class UploadService {
         if (!file.exists() || !file.isFile() || !file.canRead())
             return Observable.error(new FileNotFoundException("Can not read file to upload"));
 
-        BehaviorSubject<UploadInfo> result = BehaviorSubject.create(new UploadInfo(0.f));
+        Subject<UploadInfo, UploadInfo> result = BehaviorSubject.create(new UploadInfo(0.f)).toSerialized();
 
         RequestBody output = new RequestBody() {
             @Override
