@@ -163,6 +163,13 @@ public interface Api {
     @GET("api/user/identifier")
     Observable<UserIdentifier> identifier();
 
+    @FormUrlEncoded
+    @POST("api/contact/send")
+    Observable<Nothing> contactSend(
+            @Field("subject") String subject,
+            @Field("email") String email,
+            @Field("message") String message);
+
     final class Nonce {
         public final String value;
 

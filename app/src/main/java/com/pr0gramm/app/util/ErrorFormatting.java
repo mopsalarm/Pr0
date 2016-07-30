@@ -29,6 +29,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLException;
 
+import okhttp3.ResponseBody;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.functions.Func2;
 
@@ -140,6 +141,10 @@ public class ErrorFormatting {
         };
 
         formatters.add(new RetrofitStatusFormatter(
+                err -> err.code() == 403 && toString(err.response().errorBody()).contains("cloudflare"),
+                R.string.error_cloudflare).doNotReport());
+
+        formatters.add(new RetrofitStatusFormatter(
                 err -> asList(401, 403).contains(err.code()),
                 R.string.error_not_authorized).doNotReport());
 
@@ -150,6 +155,10 @@ public class ErrorFormatting {
         formatters.add(new RetrofitStatusFormatter(
                 err -> err.code() == 404,
                 R.string.error_not_found).doNotReport());
+
+        formatters.add(new RetrofitStatusFormatter(
+                err -> err.code() == 504,
+                R.string.error_proxy_timeout).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
                 err -> err.code() == 522,
@@ -248,6 +257,14 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(Throwable.class, guessMessage::call));
 
         return formatters;
+    }
+
+    private static String toString(ResponseBody body) {
+        try {
+            return body.string();
+        } catch (IOException err) {
+            return "";
+        }
     }
 
     public static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());

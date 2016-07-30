@@ -10,49 +10,80 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
+        <RadioGroup
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/feedback_name"
-                android:layout_width="match_parent"
+            <RadioButton
+                android:id="@+id/action_feedback_app"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/input_background"
-                android:hint="@string/feedback_name"
-                android:inputType="textPersonName"
-                android:padding="8sp"/>
-        </android.support.design.widget.TextInputLayout>
+                android:checked="true"
+                android:text="@string/feedback_appfeedback"/>
 
-        <TextView
+            <RadioButton
+                android:id="@+id/action_feedback_general"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/feedback_general"/>
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/feedback_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/hint_feedback_not_support"
-            />
+            android:layout_marginTop="8dp"
+            android:background="@color/input_background"
+            android:hint="@string/feedback_name"
+            android:inputType="textPersonName"
+            android:padding="8sp"/>
 
-        <android.support.design.widget.TextInputLayout
+        <EditText
+            android:id="@+id/feedback_subject"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/input_background"
+            android:hint="@string/feedback_subject"
+            android:inputType="textEmailSubject"
+            android:padding="8sp"/>
 
-            <EditText
-                android:id="@+id/feedback_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/input_background"
-                android:gravity="start|top"
-                android:hint="@string/feedback_feedback"
-                android:inputType="textMultiLine|textCapSentences"
-                android:minLines="5"
-                android:padding="8sp">
+        <EditText
+            android:id="@+id/feedback_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/input_background"
+            android:hint="@string/feedback_email"
+            android:inputType="textEmailAddress"
+            android:padding="8sp"/>
 
-                <requestFocus/>
-            </EditText>
-        </android.support.design.widget.TextInputLayout>
+        <EditText
+            android:id="@+id/feedback_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:background="@color/input_background"
+            android:gravity="start|top"
+            android:hint="@string/feedback_feedback"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="5"
+            android:padding="8sp">
+
+            <requestFocus/>
+        </EditText>
+
+        <TextView
+            android:id="@+id/feedback_deletion_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/feedback_delete_post_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
         <Button
             android:id="@+id/submit"

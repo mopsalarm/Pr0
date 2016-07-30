@@ -129,7 +129,6 @@
     <string name="pref_hide_tag_vote_buttons_title">Tag Vote-Buttons verstecken</string>
     <string name="pref_hide_tag_vote_buttons_summary">Versteckt die kleinen Vote-Buttons bei den Tags. Tag lang gedrückt halten zum Anzeigen.</string>
     <string name="feedback_feedback">Dein Feedback</string>
-    <string name="feedback_name">Dein Name (optional)</string>
     <string name="feedback_sent">Danke für dein Feedback!</string>
     <string name="feedback_submit">Absenden</string>
     <string name="share">Teilen</string>
