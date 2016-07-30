@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
 import com.f2prateek.dart.Dart;
 import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.services.ThemeHelper;
@@ -60,9 +59,8 @@ public class ApplicationClass extends Application {
             Dart.setDebug(true);
 
         } else {
-            logger.info("Initialize Fabric");
+            logger.info("Initialize fabric");
             Fabric.with(this, new Crashlytics());
-            Fabric.with(this, new Answers());
 
             LoggerConfiguration.configuration()
                     .removeRootLogcatHandler()

@@ -2,12 +2,6 @@ package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.LoginEvent;
-import com.crashlytics.android.answers.RatingEvent;
-import com.crashlytics.android.answers.SearchEvent;
-import com.crashlytics.android.answers.ShareEvent;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
@@ -16,29 +10,18 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
-import org.joda.time.DateTimeZone;
-import org.joda.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.TimeUnit;
 
-import rx.functions.Action1;
-
 /**
- * Tracking using crashlytics answers. Obviously this is anonymous and you can
- * opt-out in the applications settings.
+ * Tracking using google analytics. Obviously this is anonymous.
  */
 public final class Track {
-    private static final Logger logger = LoggerFactory.getLogger("Track");
     private static final String GA_CUSTOM_AUTHORIZED = "&cm1";
 
     private Track() {
     }
 
     public static void loginSuccessful() {
-        track(answers -> answers.logLogin(new LoginEvent().putSuccess(true)));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("User")
                 .setAction("Login")
@@ -47,8 +30,6 @@ public final class Track {
     }
 
     public static void loginFailed() {
-        track(answers -> answers.logLogin(new LoginEvent().putSuccess(false)));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("User")
                 .setAction("Login")
@@ -57,8 +38,6 @@ public final class Track {
     }
 
     public static void logout() {
-        track(new CustomEvent("Logout"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("User")
                 .setAction("Logout")
@@ -66,8 +45,6 @@ public final class Track {
     }
 
     public static void search(String query) {
-        track(answers -> answers.logSearch(new SearchEvent().putQuery(query)));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Feed")
                 .setAction("Search")
@@ -76,8 +53,6 @@ public final class Track {
     }
 
     public static void writeComment() {
-        track(new CustomEvent("WriteComment"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("WriteComment")
@@ -85,8 +60,6 @@ public final class Track {
     }
 
     public static void writeMessage() {
-        track(new CustomEvent("WriteMessage"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("WriteMessage")
@@ -94,8 +67,6 @@ public final class Track {
     }
 
     public static void searchImage() {
-        track(new CustomEvent("SearchImage"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("SearchImage")
@@ -103,8 +74,6 @@ public final class Track {
     }
 
     public static void share(String type) {
-        track(answers -> answers.logShare(new ShareEvent().putMethod(type)));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("Share")
@@ -113,10 +82,6 @@ public final class Track {
     }
 
     public static void votePost(Vote vote) {
-        track(answers -> answers.logRating(new RatingEvent()
-                .putContentType("post")
-                .putRating(vote.getVoteValue())));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("Vote" + vote.name())
@@ -125,10 +90,6 @@ public final class Track {
     }
 
     public static void voteTag(Vote vote) {
-        track(answers -> answers.logRating(new RatingEvent()
-                .putContentType("tag")
-                .putRating(vote.getVoteValue())));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("Vote" + vote.name())
@@ -137,10 +98,6 @@ public final class Track {
     }
 
     public static void voteComment(Vote vote) {
-        track(answers -> answers.logRating(new RatingEvent()
-                .putContentType("comment")
-                .putRating(vote.getVoteValue())));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("Vote" + vote.name())
@@ -153,8 +110,6 @@ public final class Track {
 
         @SuppressLint("DefaultLocale")
         String sizeCategory = String.format("%d-%d kb", categoryStart, categoryStart + 512);
-        track(answers -> answers.logCustom(new CustomEvent("Upload")
-                .putCustomAttribute("size", sizeCategory)));
 
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
@@ -164,8 +119,6 @@ public final class Track {
     }
 
     public static void download() {
-        track(new CustomEvent("Download"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("Download")
@@ -173,29 +126,22 @@ public final class Track {
     }
 
     public static void statistics(Settings settings, boolean signedIn) {
-        track(new CustomEvent("Settings")
-                .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
-                .putCustomAttribute("signed in", String.valueOf(signedIn))
-                .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))
-                .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
-                .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
-                .putCustomAttribute("https", String.valueOf(settings.useHttps()))
-                .putCustomAttribute("theme", settings.themeName().toLowerCase())
-                .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
-                .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
-                .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
-                .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
-                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser())));
-    }
-
-    public static void bookmarks(int size) {
-        track(new CustomEvent("Bookmarks loaded")
-                .putCustomAttribute("bookmarks", String.valueOf(size)));
+//        track(new CustomEvent("Settings")
+//                .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
+//                .putCustomAttribute("signed in", String.valueOf(signedIn))
+//                .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))
+//                .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
+//                .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
+//                .putCustomAttribute("https", String.valueOf(settings.useHttps()))
+//                .putCustomAttribute("theme", settings.themeName().toLowerCase())
+//                .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
+//                .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
+//                .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
+//                .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
+//                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser())));
     }
 
     public static void notificationShown() {
-        track(new CustomEvent("Notification shown"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Notification")
                 .setAction("Shown")
@@ -203,8 +149,6 @@ public final class Track {
     }
 
     public static void notificationClosed(String method) {
-        track(new CustomEvent("Notification closed").putCustomAttribute("method", method));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Notification")
                 .setAction("Closed")
@@ -213,9 +157,6 @@ public final class Track {
     }
 
     public static void requestFeed(FeedType feedType) {
-        track(new CustomEvent("Load feed")
-                .putCustomAttribute("feed type", feedType.name()));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Feed")
                 .setAction("Load")
@@ -224,12 +165,6 @@ public final class Track {
     }
 
     public static void preloadCurrentFeed(int size) {
-        int hour = Instant.now().toDateTime(DateTimeZone.UTC).getHourOfDay();
-
-        track(new CustomEvent("Preload current feed")
-                .putCustomAttribute("hour", String.valueOf(hour))
-                .putCustomAttribute("itemCount", size));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Feed")
                 .setAction("Preload")
@@ -238,8 +173,6 @@ public final class Track {
     }
 
     public static void inviteSent() {
-        track(new CustomEvent("Invite sent"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("User")
                 .setAction("Invited")
@@ -247,8 +180,6 @@ public final class Track {
     }
 
     public static void commentFaved() {
-        track(new CustomEvent("Comment faved"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("KFavCreated")
@@ -256,8 +187,6 @@ public final class Track {
     }
 
     public static void listFavedComments() {
-        track(new CustomEvent("Faved comments listed"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction("KFavViewed")
@@ -265,8 +194,6 @@ public final class Track {
     }
 
     public static void quickPeek() {
-        track(new CustomEvent("Quick peek used"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Feed")
                 .setAction("QuickPeek")
@@ -274,8 +201,6 @@ public final class Track {
     }
 
     public static void muted(boolean mute) {
-        track(new CustomEvent("Muted").putCustomAttribute("action", mute ? "MUTED" : "UNMUTED"));
-
         ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
                 .setCategory("Content")
                 .setAction(mute ? "Muted" : "Unmuted")
@@ -293,26 +218,6 @@ public final class Track {
         Tracker tr = ApplicationClass.googleAnalyticsTracker();
         tr.setScreenName(name);
         tr.send(new HitBuilders.ScreenViewBuilder().build());
-    }
-
-    private static void track(CustomEvent customEvent) {
-        track(answers -> answers.logCustom(customEvent));
-    }
-
-    /**
-     * Only do the tracking if 'answers' is active.
-     */
-    private static void track(Action1<Answers> action) {
-        try {
-            Answers instance = Answers.getInstance();
-            if (instance != null) {
-                action.call(instance);
-            } else {
-                logger.info("Would track an event now");
-            }
-        } catch (IllegalStateException error) {
-            logger.warn("Tried to track without initializing crashlytics");
-        }
     }
 
     public static void updateAuthorizedState(boolean authorized) {

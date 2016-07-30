@@ -239,9 +239,6 @@ public class NavigationProvider {
     }
 
     private List<NavigationItem> bookmarksToNavItem(List<Bookmark> entries) {
-        if (singleShotService.firstTimeToday("bookmarksLoaded"))
-            Track.bookmarks(entries.size());
-
         boolean premium = userService.isPremiumUser();
         return FluentIterable.from(entries)
                 .filter(entry -> premium || entry.asFeedFilter().getFeedType() != FeedType.PREMIUM)

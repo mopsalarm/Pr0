@@ -24,6 +24,7 @@ public class TrackingModule {
         Tracker tracker = analytics.newTracker(PROPERTY_ID);
         tracker.enableAdvertisingIdCollection(true);
         tracker.enableAutoActivityTracking(true);
+        tracker.enableExceptionReporting(true);
         tracker.setAppVersion(BuildConfig.VERSION_NAME);
 
         return tracker;
