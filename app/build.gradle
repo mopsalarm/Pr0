@@ -30,7 +30,7 @@ android {
         targetSdkVersion 24
 
         versionCode appVersion
-        versionName "1.${(int) (appVersion / 10)}"
+        versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
 
         resConfigs "en", "de"
 

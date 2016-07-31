@@ -25,7 +25,7 @@ public class TrackingModule {
         tracker.enableAdvertisingIdCollection(true);
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
-        tracker.setAppVersion(BuildConfig.VERSION_NAME);
+        tracker.setAppVersion(String.valueOf(BuildConfig.VERSION_NAME));
 
         return tracker;
     }
