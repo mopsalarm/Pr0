@@ -11,6 +11,10 @@
         "change": "Testweise 'Text' Kategorie - ich verspreche nichts, ist vielleicht morgen wieder raus."
       },
       {
+        "type": "Neu",
+        "change": "Kontaktformular erweitert."
+      },
+      {
         "type": "Fix",
         "change": "Beim Start der App wird wieder der richtige Content/Filter angezeigt."
       },
