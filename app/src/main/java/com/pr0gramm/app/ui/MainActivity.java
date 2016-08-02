@@ -316,7 +316,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (fragment instanceof PostPagerNavigation && navigationType != Settings.VolumeNavigationType.DISABLED) {
             PostPagerNavigation pager = (PostPagerNavigation) fragment;
 
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 if (navigationType == Settings.VolumeNavigationType.UP) {
                     pager.moveToNext();
                 } else {
@@ -326,7 +326,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                 return true;
             }
 
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                 if (navigationType == Settings.VolumeNavigationType.UP) {
                     pager.moveToPrev();
                 } else {
