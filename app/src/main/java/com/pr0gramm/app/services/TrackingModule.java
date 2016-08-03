@@ -27,6 +27,8 @@ public class TrackingModule {
         tracker.enableExceptionReporting(true);
         tracker.setAppVersion(String.valueOf(BuildConfig.VERSION_NAME));
 
+        tracker.setSampleRate(0.01);
+
         return tracker;
     }
 }

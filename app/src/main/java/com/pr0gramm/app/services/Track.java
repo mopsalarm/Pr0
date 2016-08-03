@@ -10,6 +10,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -126,6 +127,17 @@ public final class Track {
     }
 
     public static void statistics(Settings settings, boolean signedIn) {
+        for (Map.Entry<String, ?> entry : settings.raw().getAll().entrySet()) {
+            String key = entry.getKey();
+            String value = String.valueOf(entry.getValue());
+
+            ApplicationClass.googleAnalyticsTracker().send(new HitBuilders.EventBuilder()
+                    .setCategory("Settings")
+                    .setAction(key)
+                    .setLabel(value)
+                    .build());
+        }
+
 //        track(new CustomEvent("Settings")
 //                .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
 //                .putCustomAttribute("signed in", String.valueOf(signedIn))
