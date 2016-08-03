@@ -32,8 +32,8 @@ import com.pr0gramm.app.services.NavigationProvider;
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.ui.ContactActivity;
 import com.pr0gramm.app.ui.DialogBuilder;
-import com.pr0gramm.app.ui.FeedbackActivity;
 import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
@@ -102,7 +102,7 @@ public class DrawerFragment extends BaseFragment {
     @BindView(R.id.action_logout)
     View logoutView;
 
-    @BindView(R.id.action_feedback)
+    @BindView(R.id.action_contact)
     TextView feedbackView;
 
     @BindView(R.id.action_settings)
@@ -190,7 +190,7 @@ public class DrawerFragment extends BaseFragment {
         changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
 
         feedbackView.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), FeedbackActivity.class);
+            Intent intent = new Intent(getActivity(), ContactActivity.class);
             startActivity(intent);
         });
     }

@@ -190,7 +190,7 @@
     <string name="share_direct">As file</string>
     <string name="dummy_benis_delta" translatable="false">↑100</string>
     <string name="prefcat_misc">Miscellaneous</string>
-    <string name="action_feedback">FEEDBACK</string>
+    <string name="action_contact">CONTACT</string>
     <string name="action_search_image">Search on Google</string>
     <string name="pref_show_google_image_button_title">Show search on google</string>
     <string name="pref_show_google_image_button_summary">Show the \"search on google\" button for image posts</string>

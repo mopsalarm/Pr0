@@ -231,7 +231,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             }
 
             if ("pref_pseudo_feedback".equals(preferenceKey)) {
-                startActivity(new Intent(getActivity(), FeedbackActivity.class));
+                startActivity(new Intent(getActivity(), ContactActivity.class));
                 return true;
             }
 

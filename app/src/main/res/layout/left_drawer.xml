@@ -129,10 +129,10 @@
             android:text="@string/action_settings"/>
 
         <TextView
-            android:id="@+id/action_feedback"
+            android:id="@+id/action_contact"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_grey_action_feedback"
-            android:text="@string/action_feedback"/>
+            android:text="@string/action_contact"/>
 
         <TextView
             android:id="@+id/action_invite"

@@ -175,7 +175,7 @@
     <string name="share_post">Link zum Post</string>
     <string name="prefcat_misc">Verschiedenes</string>
     <string name="action_search_image">Bild googeln</string>
-    <string name="action_feedback">FEEDBACK</string>
+    <string name="action_contact">KONTAKT</string>
     <string name="pref_show_google_image_button_summary">Zeigt den Bild googeln Button im Post-Menü</string>
     <string name="pref_show_google_image_button_title">Zeige Bild googeln</string>
     <string name="prefcat_behaviour__datausage_title">Datenverbrauch</string>

@@ -212,7 +212,7 @@
         </activity>
 
         <activity
-            android:name=".ui.FeedbackActivity"
+            android:name=".ui.ContactActivity"
             android:label="@string/feedback_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange"

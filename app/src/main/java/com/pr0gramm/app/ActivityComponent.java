@@ -1,7 +1,7 @@
 package com.pr0gramm.app;
 
 import com.pr0gramm.app.ui.ChangeLogDialog;
-import com.pr0gramm.app.ui.FeedbackActivity;
+import com.pr0gramm.app.ui.ContactActivity;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InviteActivity;
 import com.pr0gramm.app.ui.MainActivity;
@@ -40,7 +40,7 @@ import dagger.Subcomponent;
 @ContextSingleton
 @Subcomponent(modules = {ActivityModule.class})
 public interface ActivityComponent {
-    void inject(FeedbackActivity feedbackActivity);
+    void inject(ContactActivity contactActivity);
 
     void inject(InboxActivity inboxActivity);
 

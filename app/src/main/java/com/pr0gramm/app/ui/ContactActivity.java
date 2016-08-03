@@ -41,7 +41,7 @@ import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
 /**
  */
-public class FeedbackActivity extends BaseAppCompatActivity {
+public class ContactActivity extends BaseAppCompatActivity {
     @Inject
     FeedbackService feedbackService;
 
