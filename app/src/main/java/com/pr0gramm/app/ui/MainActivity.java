@@ -313,27 +313,45 @@ public class MainActivity extends BaseAppCompatActivity implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Settings.VolumeNavigationType navigationType = settings.volumeNavigation();
         Fragment fragment = getCurrentFragment();
-        if (fragment instanceof PostPagerNavigation && navigationType != Settings.VolumeNavigationType.DISABLED) {
+        if (fragment instanceof PostPagerNavigation) {
             PostPagerNavigation pager = (PostPagerNavigation) fragment;
 
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                if (navigationType == Settings.VolumeNavigationType.UP) {
-                    pager.moveToNext();
-                } else {
-                    pager.moveToPrev();
+            // volume keys navigation (only if enabled)
+            if (navigationType != Settings.VolumeNavigationType.DISABLED) {
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                    if (navigationType == Settings.VolumeNavigationType.UP) {
+                        pager.moveToNext();
+                    } else {
+                        pager.moveToPrev();
+                    }
+
+                    return true;
                 }
 
-                return true;
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                    if (navigationType == Settings.VolumeNavigationType.UP) {
+                        pager.moveToPrev();
+                    } else {
+                        pager.moveToNext();
+                    }
+
+                    return true;
+                }
             }
 
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                if (navigationType == Settings.VolumeNavigationType.UP) {
-                    pager.moveToPrev();
-                } else {
+            // keyboard or d-pad navigation (always possible)
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
                     pager.moveToNext();
-                }
-
-                return true;
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    pager.moveToPrev();
+                    break;
+                default:
+                    // no-op
+                    break;
             }
         }
 
