@@ -160,7 +160,12 @@ public class ChangeLogDialog extends BaseDialogFragment {
 
             builder.setSpan(bold, 0, type.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
 
-            this.text.setText(builder);
+            if (text.contains("://")) {
+                // might contains links that we want to display?
+                AndroidUtility.linkify(this.text, builder);
+            } else {
+                this.text.setText(builder);
+            }
         }
 
         public void setVersion(String version) {

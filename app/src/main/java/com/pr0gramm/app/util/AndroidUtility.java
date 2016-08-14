@@ -314,12 +314,16 @@ public class AndroidUtility {
 
     public static void linkify(TextView view, String content) {
         content = MALICIOUS_COMMENT_CHARS.matcher(content).replaceAll("$1");
+        SpannableStringBuilder text = SpannableStringBuilder.valueOf(
+                RE_GENERIC_LINK.matcher(content).replaceAll("$1"));
 
+        linkify(view, text);
+    }
+
+    public static void linkify(TextView view, SpannableStringBuilder text) {
         Uri base = UriHelper.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
-        SpannableStringBuilder text = SpannableStringBuilder.valueOf(
-                RE_GENERIC_LINK.matcher(content).replaceAll("$1"));
 
         Linkify.addLinks(text, Linkify.WEB_URLS);
 
