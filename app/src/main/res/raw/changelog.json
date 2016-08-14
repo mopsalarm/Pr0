@@ -1,5 +1,14 @@
 [
   {
+    "version": 108,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Es können nun alle Kategorien durchsucht werden. Suche in den Extra-Kategorien (nicht top/new) ist nun mächtiger. Unterstützt werden nun logische Ausdrücke wie 'webm -sound', 'porn -süßvieh -0815' oder 'erdogan | trump'. Wer mutig ist, kann new/top durchsuchen, indem er ein Fragezeichen an den Anfrang der Suche stellt: '? gif|webm-sound'"
+      }
+    ]
+  },
+  {
     "version": 107,
     "changes": [
       {
