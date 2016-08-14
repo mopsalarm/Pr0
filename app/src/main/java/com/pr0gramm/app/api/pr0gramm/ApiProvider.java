@@ -141,7 +141,11 @@ public class ApiProvider implements Provider<Api> {
                 "method:" + method.getName(),
                 "success:" + success);
 
-        Track.trackApiCallSpeed(watch, method.getName(), success);
+
+        if ("sync".equalsIgnoreCase(method.getName())) {
+            // track only sync calls.
+            Track.trackApiCallSpeed(watch, method.getName(), success);
+        }
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})

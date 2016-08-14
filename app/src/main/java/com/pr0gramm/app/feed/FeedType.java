@@ -58,7 +58,7 @@ public enum FeedType {
     CONTROVERSIAL {
         @Override
         public boolean searchable() {
-            return false;
+            return true;
         }
 
         @Override
@@ -97,7 +97,7 @@ public enum FeedType {
 
         @Override
         public boolean preloadable() {
-            return false;
+            return true;
         }
 
         public boolean sortable() {
@@ -108,7 +108,7 @@ public enum FeedType {
     TEXT {
         @Override
         public boolean searchable() {
-            return false;
+            return true;
         }
 
         @Override

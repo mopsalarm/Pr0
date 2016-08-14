@@ -15,6 +15,7 @@ import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
+import com.pr0gramm.app.services.config.ConfigService;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ public class NavigationProvider {
     private final Settings settings;
     private final BookmarkService bookmarkService;
     private final SingleShotService singleShotService;
+    private final ConfigService configService;
 
     @BindDrawable(R.drawable.ic_black_action_favorite)
     Drawable iconFavorites;
@@ -89,7 +91,8 @@ public class NavigationProvider {
     public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,
                               Settings settings, BookmarkService bookmarkService,
                               SingleShotService singleShotService,
-                              ExtraCategoryApiProvider extraCategoryApi) {
+                              ExtraCategoryApiProvider extraCategoryApi,
+                              ConfigService configService) {
 
         // we dont want to hold a reference to the activity
         this.context = activity.getApplicationContext();
@@ -99,6 +102,7 @@ public class NavigationProvider {
         this.settings = settings;
         this.bookmarkService = bookmarkService;
         this.singleShotService = singleShotService;
+        this.configService = configService;
 
         // inject the images
         ButterKnife.bind(this, activity);
@@ -108,13 +112,21 @@ public class NavigationProvider {
     }
 
     private Observable<Boolean> checkExtraCategoryApi(ExtraCategoryApiProvider extraCategoryApi) {
-        return extraCategoryApi.get().ping().map(r -> true)
-                .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
-                .onErrorResumeNext(just(false))
-                .distinctUntilChanged()
-                .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed))
-                .onErrorResumeNext(just(false))
-                .replay(1).autoConnect().share();
+        Observable<Boolean> activeByConfig = configService.observeConfig()
+                .map(config -> config.extraCategories());
+
+        return activeByConfig
+                .switchMap(active -> {
+                    if (!active) {
+                        return just(false);
+                    }
+
+                    return extraCategoryApi.get().ping().map(r -> true)
+                            .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
+                            .onErrorResumeNext(just(false))
+                            .distinctUntilChanged()
+                            .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed));
+                });
     }
 
     public Observable<List<NavigationItem>> navigationItems() {
