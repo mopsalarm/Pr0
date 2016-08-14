@@ -68,15 +68,27 @@ public class FeedService {
                 return categoryApi.bestof(tags, user, flags, query.older().orNull(), benisScore);
 
             case CONTROVERSIAL:
-                return categoryApi.controversial(flags, query.older().orNull());
+                return categoryApi.controversial(tags, flags, query.older().orNull());
 
             case TEXT:
-                return categoryApi.text(flags, query.older().orNull());
+                return categoryApi.text(tags, flags, query.older().orNull());
 
             default:
-                return mainApi.itemsGet(promoted, following,
+                // prepare the call to the official api. The call is only made on subscription.
+                Observable<Api.Feed> officialCall = mainApi.itemsGet(promoted, following,
                         query.older().orNull(), query.newer().orNull(), query.around().orNull(),
                         flags, tags, likes, self, user);
+
+                if (!query.around().isPresent() && !query.newer().isPresent()) {
+                    if (tags != null && tags.startsWith("?")) {
+                        logger.info("Using general search api, but falling back on old one in case of an error.");
+                        return categoryApi
+                                .general(tags.substring(1), user, flags, query.older().orNull())
+                                .onErrorResumeNext(officialCall);
+                    }
+                }
+
+                return officialCall;
         }
     }
 

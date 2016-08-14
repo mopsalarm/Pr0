@@ -15,11 +15,13 @@ public interface ExtraCategoryApi {
                                 @Query("flags") int flags);
 
     @GET("controversial")
-    Observable<Api.Feed> controversial(@Query("flags") int flags,
+    Observable<Api.Feed> controversial(@Query("tags") String tags,
+                                       @Query("flags") int flags,
                                        @Query("older") Long older);
 
     @GET("text")
-    Observable<Api.Feed> text(@Query("flags") int flags,
+    Observable<Api.Feed> text(@Query("tags") String tags,
+                              @Query("flags") int flags,
                               @Query("older") Long older);
 
     @GET("bestof")
@@ -28,6 +30,12 @@ public interface ExtraCategoryApi {
                                 @Query("flags") int flags,
                                 @Query("older") Long older,
                                 @Query("score") int benisScore);
+
+    @GET("general")
+    Observable<Api.Feed> general(@Query("tags") String tags,
+                                 @Query("user") String user,
+                                 @Query("flags") int flags,
+                                 @Query("older") Long older);
 
     @HEAD("ping")
     Observable<Void> ping();
