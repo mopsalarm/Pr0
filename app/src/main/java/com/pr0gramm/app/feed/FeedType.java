@@ -75,7 +75,7 @@ public enum FeedType {
     RANDOM {
         @Override
         public boolean searchable() {
-            return false;
+            return true;
         }
 
         @Override
