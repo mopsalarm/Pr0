@@ -28,7 +28,7 @@ public class TrackingModule {
         tracker.enableExceptionReporting(true);
         tracker.setAppVersion(String.valueOf(BuildConfig.VERSION_NAME));
 
-        tracker.setSampleRate(0.5);
+        tracker.setSampleRate(25);
 
         configService.observeConfig().subscribe(config -> {
             tracker.setSampleRate(config.googleAnalyticsSampleRate());

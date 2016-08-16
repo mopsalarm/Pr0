@@ -359,4 +359,8 @@
     <string name="feedback_general">Normaler pr0gramm Support</string>
     <string name="feedback_name">Name</string>
     <string name="feedback_subject">Betreff</string>
+    <string name="action_search_ex">Erweiterte Suche</string>
+    <string name="help">Hilfe</string>
+    <string name="search_query_invalid">Ungültige Suche, bitte fülle die Felder korrekt aus</string>
+    <string name="search_query_query">Suche:</string>
 </resources>
