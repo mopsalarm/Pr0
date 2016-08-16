@@ -10,6 +10,7 @@ import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.TrackingModule;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
@@ -52,6 +53,8 @@ public interface AppComponent {
     DownloadService downloadService();
 
     Tracker googleAnalytics();
+
+    UserSuggestionService suggestionService();
 
     void inject(SyncIntentService service);
 

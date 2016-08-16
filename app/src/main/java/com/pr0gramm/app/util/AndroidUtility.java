@@ -324,7 +324,6 @@ public class AndroidUtility {
         Uri base = UriHelper.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
-
         Linkify.addLinks(text, Linkify.WEB_URLS);
 
         Linkify.addLinks(text, RE_USERNAME, scheme, null, (match, url) -> {

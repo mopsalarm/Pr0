@@ -79,6 +79,8 @@ import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.PopupPlayer;
+import com.pr0gramm.app.ui.search.SearchConfigDialog;
+import com.pr0gramm.app.ui.search.SearchListener;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.UserInfoCell;
@@ -123,7 +125,7 @@ import static java.util.Collections.emptyList;
 
 /**
  */
-public class FeedFragment extends BaseFragment implements FilterFragment {
+public class FeedFragment extends BaseFragment implements FilterFragment, SearchListener {
     private static final Logger logger = LoggerFactory.getLogger("FeedFragment");
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
@@ -639,7 +641,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
                 }
             }
 
-
             return absent();
         }).get();
     }
@@ -775,6 +776,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
     }
 
+    @OnOptionsItemSelected(R.id.action_search_ex)
+    public void onSearchClicked() {
+        SearchConfigDialog dialog = new SearchConfigDialog();
+        dialog.show(getChildFragmentManager(), "search_config");
+    }
+
     @OnOptionsItemSelected(R.id.action_feedtype)
     public void switchFeedType() {
         FeedFilter filter = getCurrentFilter();
@@ -907,7 +914,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         searchView.setQueryHint(getString(R.string.action_search, typeName));
     }
 
-    private void performSearch(String term) {
+    @Override
+    public void performSearch(String term) {
         FeedFilter current = getCurrentFilter();
         FeedFilter filter = current.withTagsNoReset(term);
 

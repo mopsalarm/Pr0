@@ -378,5 +378,9 @@
     <string name="error_cloudflare">Looks like cloudflare is blocking your ip address.</string>
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
     <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Als Uploader des Bildes musst du keine Beweise vorlegen.</string>
+    <string name="action_search_ex">Advanced search</string>
+    <string name="search_query_invalid">Invalid search query, please build a valid query below.</string>
+    <string name="search_query_query">Query:</string>
+    <string name="help">Help</string>
 </resources>
 
