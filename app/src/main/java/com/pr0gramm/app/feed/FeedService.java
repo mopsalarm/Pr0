@@ -81,6 +81,9 @@ public class FeedService {
 
                 if (!query.around().isPresent() && !query.newer().isPresent()) {
                     if (tags != null && tags.startsWith("?")) {
+                        // track the advanced search
+                        Track.advancedSearch(tags.substring(1));
+
                         logger.info("Using general search api, but falling back on old one in case of an error.");
                         return categoryApi
                                 .general(tags.substring(1), user, flags, query.older().orNull())

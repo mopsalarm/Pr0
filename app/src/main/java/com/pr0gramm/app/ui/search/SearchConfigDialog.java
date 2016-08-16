@@ -58,7 +58,7 @@ public class SearchConfigDialog extends BaseDialogFragment {
                 ((SearchListener) parentFragment).performSearch("? " + currentQuery);
             }
 
-            Track.advancedSearch(currentQuery);
+            Track.advancedSearchWithDialog(currentQuery);
         }
     }
 

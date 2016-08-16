@@ -234,6 +234,13 @@ public final class Track {
                 .build());
     }
 
+    public static void advancedSearchWithDialog(String query) {
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Feed")
+                .setAction("AdvancedSearchDialog")
+                .build());
+    }
+
     public static void screen(String name) {
         Tracker tr = ga();
         tr.setScreenName(name);
@@ -259,4 +266,5 @@ public final class Track {
     private static Tracker ga() {
         return ApplicationClass.googleAnalyticsTracker();
     }
+
 }

@@ -72,14 +72,15 @@ class SearchViews {
 
             @Override
             public Observable<Boolean> valid() {
-                return queryString().map(text -> text.length() > 0);
+                return queryString().map(text -> text.length() > 2);
             }
 
             @Override
             public Observable<String> queryString() {
                 return RxTextView
                         .textChanges(textView)
-                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-z: ]", ""));
+                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-z: ]", ""))
+                        .map(text -> "u:" + text);
             }
 
             @Override

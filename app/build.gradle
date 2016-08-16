@@ -158,7 +158,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
     compile 'com.android.support:customtabs:24.1.1'
-    compile 'com.google.android.gms:play-services-analytics:9.2.1'
+    compile 'com.google.android.gms:play-services-analytics:9.4.0'
     compile 'com.google.guava:guava:19.0'
 
     compile 'net.danlew:android.joda:2.9.4.1'
@@ -205,7 +205,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.9'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
-    compile 'com.artemzin.rxjava:proguard-rules:1.1.8.0'
+    compile 'com.artemzin.rxjava:proguard-rules:1.1.9.0'
     compile 'com.trello:rxlifecycle:0.6.1'
     compile 'com.trello:rxlifecycle-components:0.6.1'
 
@@ -215,9 +215,9 @@ dependencies {
     compile 'pl.brightinventions:slf4android:0.1.2'
     compile 'com.crashlytics.sdk.android:crashlytics:2.6.2'
 
-    apt 'org.immutables:value:2.2.10'
-    provided 'org.immutables:value:2.2.10'
-    provided 'org.immutables:gson:2.2.10'
+    apt 'org.immutables:value:2.2.11'
+    provided 'org.immutables:value:2.2.11'
+    provided 'org.immutables:gson:2.2.11'
 
     compile 'com.google.dagger:dagger:2.6'
     apt 'com.google.dagger:dagger-compiler:2.6'
