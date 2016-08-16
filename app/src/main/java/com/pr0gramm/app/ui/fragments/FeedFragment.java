@@ -779,7 +779,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     @OnOptionsItemSelected(R.id.action_search_ex)
     public void onSearchClicked() {
         SearchConfigDialog dialog = new SearchConfigDialog();
-        dialog.show(getChildFragmentManager(), "search_config");
+        dialog.show(getChildFragmentManager(), null);
     }
 
     @OnOptionsItemSelected(R.id.action_feedtype)

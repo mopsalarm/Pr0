@@ -55,6 +55,10 @@ public class SearchConfigDialog extends BaseDialogFragment {
         if (currentQuery != null) {
             Fragment parentFragment = getParentFragment();
             if (parentFragment instanceof SearchListener) {
+                // dismiss the dialog and commit the transaction,
+                // so that it really is closed
+                dismissNow();
+
                 ((SearchListener) parentFragment).performSearch("? " + currentQuery);
             }
 

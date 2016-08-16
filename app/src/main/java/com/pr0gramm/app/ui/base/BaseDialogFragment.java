@@ -99,4 +99,13 @@ public abstract class BaseDialogFragment extends RxAppCompatDialogFragment {
             // i never want that!
         }
     }
+
+    public void dismissNow() {
+        try {
+            dismiss();
+            getFragmentManager().executePendingTransactions();
+        } catch (Exception err) {
+            // woot!?
+        }
+    }
 }
