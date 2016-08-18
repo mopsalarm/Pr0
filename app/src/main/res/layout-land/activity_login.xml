@@ -12,50 +12,61 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/password"
+        android:layout_toLeftOf="@+id/form_container"
         android:src="@drawable/ic_arrow"
         tools:ignore="ContentDescription"/>
 
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/password"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:hint="@string/hint_username"/>
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/login"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:hint="@string/hint_password"
-        android:inputType="textPassword"/>
-
-    <Button
-        android:id="@+id/login"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/register"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="right"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="?colorPrimary"
-        android:text="@string/login"/>
-
-    <Button
-        android:id="@+id/register"
-        style="@style/Widget.AppCompat.Button"
+    <LinearLayout
+        android:id="@id/form_container"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="@string/login_register"/>
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical">
 
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:hint="@string/hint_username"/>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/login"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="?colorPrimary"
+            android:text="@string/login"/>
+
+        <Button
+            android:id="@+id/register"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:text="@string/login_register"/>
+
+        <Button
+            android:id="@+id/password_recovery"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:text="@string/login_password_recovery"/>
+    </LinearLayout>
 </RelativeLayout>

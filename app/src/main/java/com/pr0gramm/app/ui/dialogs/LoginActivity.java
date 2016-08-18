@@ -237,6 +237,12 @@ public class LoginActivity extends BaseAppCompatActivity {
         new CustomTabsHelper(this).openCustomTab(uri);
     }
 
+    @OnClick(R.id.password_recovery)
+    public void onPasswordRecoveryClicked() {
+        Uri uri = Uri.parse("https://pr0gramm.com/resetpassword");
+        new CustomTabsHelper(this).openCustomTab(uri);
+    }
+
     public static abstract class DoIfAuthorizedHelper {
         @Nullable
         private Runnable retry;
