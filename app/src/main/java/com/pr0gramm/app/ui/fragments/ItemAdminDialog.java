@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.f2prateek.dart.InjectExtra;
-import com.google.common.primitives.Ints;
+import com.google.common.primitives.Floats;
 import com.jakewharton.rxbinding.widget.RxAdapterView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
@@ -96,7 +96,7 @@ public class ItemAdminDialog extends BaseDialogFragment {
 
     private Observable<Void> deleteItem(String reason, boolean notifyUser, boolean ban) {
         if (ban) {
-            int banUserDays = firstNonNull(Ints.tryParse(blockUserForDays.getText().toString()), 1);
+            float banUserDays = firstNonNull(Floats.tryParse(blockUserForDays.getText().toString()), 1.f);
             return adminService.deleteItem(item, reason, notifyUser, banUserDays);
         } else {
             return adminService.deleteItem(item, reason, notifyUser);

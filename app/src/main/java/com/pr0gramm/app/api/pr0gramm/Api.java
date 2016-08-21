@@ -147,7 +147,7 @@ public interface Api {
             @Field("customReason") String customReason,
             @Field("notifyUser") String notifyUser,
             @Field("banUser") String banUser,
-            @Field("days") Integer days);
+            @Field("days") Float days);
 
     @FormUrlEncoded
     @POST("api/profile/follow")

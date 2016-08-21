@@ -27,7 +27,7 @@ public class AdminService {
         return deleteItem(item, reason, notifyUser, null);
     }
 
-    public Observable<Void> deleteItem(FeedItem item, String reason, boolean notifyUser, Integer blockDays) {
+    public Observable<Void> deleteItem(FeedItem item, String reason, boolean notifyUser, Float blockDays) {
         String pNotifyUser = notifyUser ? "on" : null;
         String blockUser = blockDays != null && blockDays >= 0 ? "on" : null;
         return api
@@ -47,5 +47,8 @@ public class AdminService {
             "Regel #6 - Infos zu Privatpersonen",
             "Regel #7 - Bildqualität",
             "Regel #8 - Ähnliche Bilder in Reihe",
-            "Regel #12 - Warez/Logins zu Pay Sites");
+            "Regel #12 - Warez/Logins zu Pay Sites",
+            "Regel #14 - Screamer/Sound-getrolle",
+            "Regel #15 - reiner Musikupload",
+            "Trollscheiße.");
 }
