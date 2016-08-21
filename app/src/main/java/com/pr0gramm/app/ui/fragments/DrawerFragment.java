@@ -38,12 +38,12 @@ import com.pr0gramm.app.ui.GraphDrawable;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.InviteActivity;
+import com.pr0gramm.app.ui.LoginActivity;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 
 import java.util.ArrayList;

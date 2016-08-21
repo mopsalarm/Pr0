@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="com.pr0gramm.app"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    >
+<manifest package="com.pr0gramm.app"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
         tools:node="remove"/>
@@ -20,9 +17,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_app_orange"
         android:label="@string/app_name"
-        android:largeHeap="true"
-        >
-
+        android:largeHeap="true">
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="3b0e9b35b11bde7bb671229dba63447351751401"/>
@@ -45,6 +40,7 @@
         <uses-library
             android:name="com.sec.android.app.multiwindow"
             android:required="false"/>
+
         <meta-data
             android:name="com.sec.android.support.multiwindow"
             android:value="true"/>
@@ -54,14 +50,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name=".services.InboxNotificationCanceledReceiver"/>
 
         <service
             android:name=".sync.SyncIntentService"
             android:exported="false"/>
-
-
         <service
             android:name=".services.preloading.PreloadService"
             android:exported="false"/>
@@ -72,13 +65,11 @@
             android:exported="true"
             android:grantUriPermissions="true"
             tools:ignore="ExportedContentProvider"/>
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider"/>
@@ -90,14 +81,12 @@
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Orange.NoActionBar.TranslucentStatus"
             android:windowSoftInputMode="adjustPan|stateHidden">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"/>
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 
@@ -108,140 +97,113 @@
                     android:host="pr0gramm.com"
                     android:path="/"
                     android:scheme="http"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:path="/"
                     android:scheme="https"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/new"
                     android:scheme="http"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/new"
                     android:scheme="https"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/top"
                     android:scheme="http"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/top"
                     android:scheme="https"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/stalk"
                     android:scheme="http"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/stalk"
                     android:scheme="https"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/user"
                     android:scheme="http"/>
-
                 <data
                     android:host="pr0gramm.com"
                     android:pathPrefix="/user"
                     android:scheme="https"/>
-
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.InboxActivity"
             android:label="@string/inbox_activity_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange.NoActionBar">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.UpdateActivity"
             android:label="@string/update"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
-            android:name=".ui.dialogs.LoginActivity"
+            android:name=".ui.LoginActivity"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange.NoActionBar.WhiteAccent"
             android:windowSoftInputMode="adjustResize|stateHidden">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.ZoomViewActivity"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange.NoActionBar.Fullscreen">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.ContactActivity"
             android:label="@string/feedback_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="adjustResize|stateHidden">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
-
         <activity
             android:name=".ui.WriteMessageActivity"
             android:label="@string/action_new_message"
             android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
-
         <activity
             android:name=".ui.RulesActivity"
             android:label="@string/rules_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="stateHidden">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.InviteActivity"
             android:label="@string/invites_title"
@@ -249,12 +211,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Orange"
             android:windowSoftInputMode="stateHidden">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-
         <activity
             android:name=".ui.upload.UploadActivity"
             android:label="@string/upload_title"
@@ -274,7 +234,44 @@
                 <data android:mimeType="video/mp4"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.RequestPasswordRecoveryActivity"
+            android:label="@string/request_password_recovery_title"
+            android:parentActivityName=".ui.LoginActivity"
+            android:theme="@style/AppTheme.Orange">
 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.LoginActivity"/>
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPattern="/user/*/resetpass/*"
+                    android:scheme="http"/>
+                <data
+                    android:host="pr0gramm.com"
+                    android:pathPattern="/user/*/resetpass/*"
+                    android:scheme="https"/>
+            </intent-filter>
+            -->
+        </activity>
+        <activity
+            android:name=".ui.PasswordRecoveryActivity"
+            android:label="@string/request_password_recovery_title"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme.Orange">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity"/>
+        </activity>
         <activity
             android:name="com.thefinestartist.finestwebview.FinestWebViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

@@ -170,6 +170,17 @@ public interface Api {
             @Field("email") String email,
             @Field("message") String message);
 
+    @FormUrlEncoded
+    @POST("api/user/sendpasswordresetmail")
+    Observable<Nothing> requestPasswordRecovery(@Field("email") String email);
+
+    @FormUrlEncoded
+    @POST("api/user/resetpassword")
+    Observable<ResetPasswordResponse> resetPassword(
+            @Field("name") String name,
+            @Field("token") String token,
+            @Field("password") String password);
+
     final class Nonce {
         public final String value;
 
@@ -640,5 +651,11 @@ public interface Api {
     @Value.Immutable
     interface UserScore {
         int score();
+    }
+
+    @Value.Immutable
+    interface ResetPasswordResponse {
+        @Nullable
+        String error();
     }
 }

@@ -241,6 +241,13 @@ public final class Track {
                 .build());
     }
 
+    public static void passwordChanged() {
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("PasswordChanged")
+                .build());
+    }
+
     public static void screen(String name) {
         Tracker tr = ga();
         tr.setScreenName(name);
@@ -266,5 +273,4 @@ public final class Track {
     private static Tracker ga() {
         return ApplicationClass.googleAnalyticsTracker();
     }
-
 }

@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.dialogs;
+package com.pr0gramm.app.ui;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;

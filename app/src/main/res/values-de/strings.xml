@@ -363,4 +363,12 @@
     <string name="help">Hilfe</string>
     <string name="search_query_invalid">Ungültige Suche, bitte fülle die Felder korrekt aus</string>
     <string name="search_query_query">Suche:</string>
+    <string name="action_change">Ändern</string>
+    <string name="hint_email">E-Mail Adresse</string>
+    <string name="login_password_recovery">Passwort vergessen</string>
+    <string name="password_recovery_error">Passwort konnte nicht geändert werden. Link ungültig?</string>
+    <string name="password_recovery_success">Passwort wurde erfolgreich geändert. Versuche dich jetzt anzumelden.</string>
+    <string name="request_password_recovery_popup_hint">Eine E-Mail mit einem Link zum Ändern des Passwortes wurde an die angegebene Adresse gesendet.</string>
+    <string name="request_password_recovery_title">Passwortwiederherstellung</string>
+    <string name="submit">Absenden</string>
 </resources>

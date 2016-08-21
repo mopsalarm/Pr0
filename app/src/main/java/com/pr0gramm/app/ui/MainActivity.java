@@ -653,6 +653,13 @@ public class MainActivity extends BaseAppCompatActivity implements
      * @param uri The uri to handle
      */
     private void handleUri(Uri uri) {
+        if (uri.toString().matches(".*/user/[^/]+/resetpass/[^/]+")) {
+            Intent intent = new Intent(this, PasswordRecoveryActivity.class);
+            intent.putExtra("url", uri.toString());
+            startActivity(intent);
+            return;
+        }
+
         Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
         if (result.isPresent()) {
             FeedFilter filter = result.get().getFilter();

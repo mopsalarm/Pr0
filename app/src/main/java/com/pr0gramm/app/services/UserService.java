@@ -33,6 +33,7 @@ import javax.inject.Singleton;
 
 import rx.Completable;
 import rx.Observable;
+import rx.Single;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -451,6 +452,17 @@ public class UserService {
 
     public Observable<Api.AccountInfo> accountInfo() {
         return api.accountInfo();
+    }
+
+    public Completable requestPasswordRecovery(String email) {
+        return api.requestPasswordRecovery(email).toCompletable();
+    }
+
+    public Single<Boolean> resetPassword(String name, String token, String password) {
+        return api.resetPassword(name, token, password)
+                .doOnNext(val -> logger.info("Response is {}", val))
+                .map(response -> response.error() == null)
+                .toSingle();
     }
 
     @Value.Immutable

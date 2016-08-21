@@ -1,4 +1,4 @@
-package com.pr0gramm.app.ui.dialogs;
+package com.pr0gramm.app.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -239,8 +239,8 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @OnClick(R.id.password_recovery)
     public void onPasswordRecoveryClicked() {
-        Uri uri = Uri.parse("https://pr0gramm.com/resetpassword");
-        new CustomTabsHelper(this).openCustomTab(uri);
+        Intent intent = new Intent(this, RequestPasswordRecoveryActivity.class);
+        startActivity(intent);
     }
 
     public static abstract class DoIfAuthorizedHelper {

@@ -383,5 +383,12 @@
     <string name="search_query_query">Query:</string>
     <string name="help">Help</string>
     <string name="login_password_recovery">Forgot password</string>
+    <string name="hint_email">Email address</string>
+    <string name="submit">Submit</string>
+    <string name="request_password_recovery_title">Password recovery</string>
+    <string name="request_password_recovery_popup_hint">A mail containing a link to change recover the password was sent to the provided address.</string>
+    <string name="action_change">Change</string>
+    <string name="password_recovery_success">Password was changed successfully. You can now try to log in using the new password.</string>
+    <string name="password_recovery_error">Failed to change password.</string>
 </resources>
 

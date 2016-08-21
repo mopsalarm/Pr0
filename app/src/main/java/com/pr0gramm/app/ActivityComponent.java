@@ -4,12 +4,14 @@ import com.pr0gramm.app.ui.ChangeLogDialog;
 import com.pr0gramm.app.ui.ContactActivity;
 import com.pr0gramm.app.ui.InboxActivity;
 import com.pr0gramm.app.ui.InviteActivity;
+import com.pr0gramm.app.ui.LoginActivity;
 import com.pr0gramm.app.ui.MainActivity;
+import com.pr0gramm.app.ui.PasswordRecoveryActivity;
+import com.pr0gramm.app.ui.RequestPasswordRecoveryActivity;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
-import com.pr0gramm.app.ui.dialogs.LoginActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.dialogs.PopupPlayer;
@@ -107,4 +109,8 @@ public interface ActivityComponent {
     void inject(DownloadUpdateDialog dialog);
 
     void inject(InviteActivity inviteActivity);
+
+    void inject(RequestPasswordRecoveryActivity requestPasswordRecoveryActivity);
+
+    void inject(PasswordRecoveryActivity passwordRecoveryActivity);
 }
