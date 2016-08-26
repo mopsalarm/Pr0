@@ -27,4 +27,9 @@ public abstract class Config {
     public long maxUploadSizePremium() {
         return 8 * 1024 * 1024;
     }
+
+    @Value.Default
+    public boolean searchUsingTagService() {
+        return false;
+    }
 }

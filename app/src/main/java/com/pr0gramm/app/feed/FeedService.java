@@ -8,6 +8,7 @@ import com.pr0gramm.app.api.categories.ExtraCategoryApi;
 import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.services.config.ConfigService;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -30,12 +31,16 @@ public class FeedService {
     private final Api mainApi;
     private final ExtraCategoryApi categoryApi;
     private final Settings settings;
+    private final ConfigService configService;
 
     @Inject
-    public FeedService(Api mainApi, ExtraCategoryApiProvider categoryApi, Settings settings) {
+    public FeedService(Api mainApi, ExtraCategoryApiProvider categoryApi, Settings settings,
+                       ConfigService configService) {
+
         this.mainApi = mainApi;
         this.categoryApi = categoryApi.get();
         this.settings = settings;
+        this.configService = configService;
     }
 
     public Observable<Api.Feed> getFeedItems(FeedQuery query) {
@@ -79,14 +84,19 @@ public class FeedService {
                         query.older().orNull(), query.newer().orNull(), query.around().orNull(),
                         flags, tags, likes, self, user);
 
-                if (!query.around().isPresent() && !query.newer().isPresent()) {
+                if (likes == null && configService.config().searchUsingTagService()) {
+                    return categoryApi
+                            .general(tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                            .onErrorResumeNext(officialCall);
+
+                } else if (!query.around().isPresent() && !query.newer().isPresent()) {
                     if (tags != null && tags.startsWith("?")) {
                         // track the advanced search
                         Track.advancedSearch(tags.substring(1));
 
                         logger.info("Using general search api, but falling back on old one in case of an error.");
                         return categoryApi
-                                .general(tags.substring(1), user, flags, query.older().orNull())
+                                .general(tags.substring(1), user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
                                 .onErrorResumeNext(officialCall);
                     }
                 }

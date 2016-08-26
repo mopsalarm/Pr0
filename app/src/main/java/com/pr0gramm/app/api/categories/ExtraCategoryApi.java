@@ -35,7 +35,9 @@ public interface ExtraCategoryApi {
     Observable<Api.Feed> general(@Query("tags") String tags,
                                  @Query("user") String user,
                                  @Query("flags") int flags,
-                                 @Query("older") Long older);
+                                 @Query("older") Long older,
+                                 @Query("newer") Long newer,
+                                 @Query("around") Long around);
 
     @HEAD("ping")
     Observable<Void> ping();
