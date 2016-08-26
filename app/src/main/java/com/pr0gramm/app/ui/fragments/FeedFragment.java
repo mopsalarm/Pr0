@@ -864,6 +864,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
 
         searchView.setOnSearchClickListener(v -> {
             searchView.setQuery(getCurrentFilter().getTags().or(""), false);
+
+            if (singleShotService.isFirstTime("extended_search_dialog_hint")) {
+                DialogBuilder.start(getActivity())
+                        .content("Probiere doch auch mal die neue Suchfunktion aus. Schaue dafür rechts ins Menü.")
+                        .negative(R.string.common_no_thanks)
+                        .positive(R.string.try_now, this::onSearchClicked)
+                        .show();
+            }
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

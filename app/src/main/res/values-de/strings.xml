@@ -371,4 +371,6 @@
     <string name="request_password_recovery_popup_hint">Eine E-Mail mit einem Link zum Ändern des Passwortes wurde an die angegebene Adresse gesendet.</string>
     <string name="request_password_recovery_title">Passwortwiederherstellung</string>
     <string name="submit">Absenden</string>
+    <string name="common_no_thanks">Nein, danke</string>
+    <string name="try_now">Ausprobieren</string>
 </resources>
