@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Picasso;
 
@@ -44,26 +45,27 @@ import rx.subjects.Subject;
  */
 @Singleton
 public class UploadService {
-    public static final long MAX_UPLOAD_SIZE = 4 * 1024 * 1024;
-    public static final long MAX_UPLOAD_SIZE_PAID = 8 * 1024 * 1024;
-
     private static final Logger logger = LoggerFactory.getLogger("UploadService");
 
     private final Api api;
     private final UserService userService;
     private final Picasso picasso;
+    private final ConfigService configService;
 
     @Inject
-    public UploadService(Api api, UserService userService, Picasso picasso) {
+    public UploadService(Api api, UserService userService, Picasso picasso, ConfigService configService) {
         this.api = api;
         this.userService = userService;
         this.picasso = picasso;
+        this.configService = configService;
     }
 
     private Observable<Long> maxSize() {
         return userService.loginState()
                 .take(1)
-                .map(state -> state.premium() ? MAX_UPLOAD_SIZE_PAID : MAX_UPLOAD_SIZE);
+                .map(state -> state.premium()
+                        ? configService.config().maxUploadSizePremium()
+                        : configService.config().maxUploadSizeNormal());
     }
 
     public Observable<Boolean> sizeOkay(File file) {
