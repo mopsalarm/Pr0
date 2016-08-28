@@ -26,7 +26,7 @@ import butterknife.OnClick;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
-import static com.trello.rxlifecycle.RxLifecycle.bindView;
+import static com.trello.rxlifecycle.android.RxLifecycleAndroid.bindView;
 
 /**
  */

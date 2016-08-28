@@ -11,7 +11,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
-import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.android.FragmentEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

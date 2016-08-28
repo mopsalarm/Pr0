@@ -51,7 +51,7 @@ import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -212,7 +212,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         if (updateCheck) {
             Observable.just(null)
                     .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-                    .compose(RxLifecycle.bindActivity(lifecycle()))
+                    .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
 
@@ -517,7 +517,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         // schedule a sync operation every minute
         Observable.interval(0, 1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.bindActivity(lifecycle()))
+                .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                 .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
     }
 

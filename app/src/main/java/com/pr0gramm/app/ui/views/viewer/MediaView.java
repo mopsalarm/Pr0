@@ -39,7 +39,7 @@ import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.pr0gramm.app.util.RxPicasso;
 import com.squareup.picasso.Picasso;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -142,7 +142,7 @@ public abstract class MediaView extends FrameLayout {
                     RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
                             .onErrorResumeNext(Observable.empty())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .compose(RxLifecycle.bindView(this))
+                            .compose(RxLifecycleAndroid.bindView(this))
                             .subscribe(previewTarget);
                 }
             });
@@ -177,13 +177,13 @@ public abstract class MediaView extends FrameLayout {
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindView(this));
+                .compose(RxLifecycleAndroid.<T>bindView(this));
     }
 
     protected <T> Observable.Transformer<T, T> simpleBindView() {
         return observable -> observable
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.<T>bindView(this));
+                .compose(RxLifecycleAndroid.<T>bindView(this));
     }
 
     /**

@@ -88,7 +88,7 @@ import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.squareup.picasso.Picasso;
-import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.android.FragmentEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

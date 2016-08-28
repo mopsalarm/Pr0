@@ -54,7 +54,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.ErrorFormatting;
 import com.pr0gramm.app.util.Noop;
-import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.android.FragmentEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,11 +1,11 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import com.pr0gramm.app.Settings;
-import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.android.FragmentEvent;
 
 import rx.Observable;
 
-import static com.trello.rxlifecycle.RxLifecycle.bindView;
+import static com.trello.rxlifecycle.android.RxLifecycleAndroid.bindView;
 
 /**
  * This class provides static methods to create a new

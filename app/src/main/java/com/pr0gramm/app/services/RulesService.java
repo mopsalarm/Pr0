@@ -7,7 +7,7 @@ import com.google.common.base.Strings;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class RulesService {
         this.rules
                 .subscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.bindView(targetView))
+                .compose(RxLifecycleAndroid.bindView(targetView))
 
                 /* display the result */
                 .subscribe(text -> displayInto(targetView, text));

@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui.views.viewer.video;
 
-import android.media.MediaPlayer;
 import android.view.Surface;
 import android.view.View;
 

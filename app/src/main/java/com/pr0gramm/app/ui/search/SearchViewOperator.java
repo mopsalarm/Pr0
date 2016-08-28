@@ -28,7 +28,7 @@ import rx.subjects.BehaviorSubject;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.pr0gramm.app.util.AndroidUtility.dp;
-import static com.trello.rxlifecycle.RxLifecycle.bindView;
+import static com.trello.rxlifecycle.android.RxLifecycleAndroid.bindView;
 import static java.util.Arrays.asList;
 
 /**

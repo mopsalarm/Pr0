@@ -27,7 +27,7 @@ import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer;
 import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer;
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         videoPlayer.buffering()
                 .sample(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycle.bindView(this))
+                .compose(RxLifecycleAndroid.bindView(this))
                 .subscribe(this::showBusyIndicator);
     }
 

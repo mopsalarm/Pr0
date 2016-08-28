@@ -29,7 +29,7 @@ import com.pr0gramm.app.util.PicassoDecoder;
 import com.pr0gramm.app.util.decoders.Decoders;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import javax.inject.Inject;
 
@@ -82,7 +82,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
 
         rxImageLoaded(imageView)
-                .compose(RxLifecycle.bindActivity(lifecycle()))
+                .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                 .subscribe(event -> {
                     hideBusyIndicator();
 

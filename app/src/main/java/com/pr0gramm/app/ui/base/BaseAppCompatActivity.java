@@ -5,8 +5,8 @@ import android.os.Bundle;
 import com.f2prateek.dart.Dart;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.Dagger;
-import com.trello.rxlifecycle.ActivityEvent;
 import com.trello.rxlifecycle.LifecycleTransformer;
+import com.trello.rxlifecycle.android.ActivityEvent;
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import org.slf4j.Logger;

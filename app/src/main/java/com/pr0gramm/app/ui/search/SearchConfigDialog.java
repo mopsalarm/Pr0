@@ -18,7 +18,7 @@ import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.Truss;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.util.CustomTabsHelper;
-import com.trello.rxlifecycle.FragmentEvent;
+import com.trello.rxlifecycle.android.FragmentEvent;
 
 import butterknife.BindView;
 import rx.Observable;

@@ -15,7 +15,7 @@ import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.base.BaseDialogFragment;
-import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.android.ActivityEvent;
 
 import org.joda.time.Instant;
 

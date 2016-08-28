@@ -33,7 +33,7 @@ import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.CustomTabsHelper;
-import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.android.ActivityEvent;
 
 import net.danlew.android.joda.DateUtils;
 

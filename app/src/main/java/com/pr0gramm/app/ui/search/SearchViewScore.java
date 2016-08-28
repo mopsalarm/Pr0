@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding.widget.RxSeekBar;
 import com.pr0gramm.app.R;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +40,7 @@ public class SearchViewScore extends LinearLayout implements SearchView {
                 .map(value -> String.valueOf((1 + Math.round(value / 500.f)) * 500))
                 .share();
 
-        values.compose(RxLifecycle.bindView(scoreSlider))
+        values.compose(RxLifecycleAndroid.bindView(scoreSlider))
                 .subscribe(scoreText::setText);
 
         scoreSlider.setMax(9000);
