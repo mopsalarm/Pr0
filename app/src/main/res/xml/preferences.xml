@@ -287,6 +287,13 @@
                 android:summary="@string/pref_disable_audio__summary"
                 android:title="@string/pref_disable_audio__title"/>
 
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="pref_use_exo_player"
+                android:key="pref_use_surface_view"
+                android:summary="@string/pref_use_surface_view_summary"
+                android:title="@string/pref_use_surface_view_title"/>
+
             <ListPreference
                 android:defaultValue="hardware"
                 android:dependency="pref_use_exo_player"

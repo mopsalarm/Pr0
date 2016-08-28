@@ -222,6 +222,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_disable_audio", false);
     }
 
+    public boolean useTextureView() {
+        return preferences.getBoolean("pref_use_surface_view", true);
+    }
+
     public VolumeNavigationType volumeNavigation() {
         String pref = preferences.getString("pref_volume_navigation", "disabled");
         return Enums

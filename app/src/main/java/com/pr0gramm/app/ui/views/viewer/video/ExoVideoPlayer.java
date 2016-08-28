@@ -99,7 +99,12 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         this.settings = Settings.of(context);
 
         // Use a texture view to display the video.
-        surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
+        if(settings.useTextureView()) {
+            surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
+        } else {
+            surfaceProvider = new SurfaceViewBackend(context, backendViewCallbacks);
+        }
+
         View videoView = surfaceProvider.getView();
         parentView.addView(videoView);
 
