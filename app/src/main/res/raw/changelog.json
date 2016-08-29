@@ -17,6 +17,14 @@
       {
         "type": "Neu",
         "change": "Erlaube die neuen Uploadgrößen"
+      },
+      {
+        "type": "Neu",
+        "change": "Kompatibilitätseinstellung um die Videodarstellung eine SurfaceView zu verwenden"
+      },
+      {
+        "type": "Fix",
+        "change": "Rechtschreibfehler"
       }
     ]
   },

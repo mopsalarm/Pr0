@@ -393,6 +393,6 @@
     <string name="common_no_thanks">No, thank</string>
     <string name="try_now">Try now</string>
     <string name="pref_use_surface_view_title">Use TextureView</string>
-    <string name="pref_use_surface_view_summary">TexrureView is more awesome and nicer. Disable this to use SurfaceView to display videos.</string>
+    <string name="pref_use_surface_view_summary">TextureView is more awesome and nicer. Disabling this will use SurfaceView to display videos.</string>
 </resources>
 
