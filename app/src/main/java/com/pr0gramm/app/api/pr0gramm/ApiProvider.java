@@ -13,6 +13,7 @@ import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Debug;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Stats;
+import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -47,9 +48,13 @@ public class ApiProvider implements Provider<Api> {
     private static final Logger logger = LoggerFactory.getLogger("ApiProvider");
 
     private final Api apiInstance;
+    private final SingleShotService singleShotService;
 
     @Inject
-    public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler, Gson gson) {
+    public ApiProvider(Context context, OkHttpClient client, LoginCookieHandler cookieHandler,
+                       Gson gson, SingleShotService singleShotService) {
+
+        this.singleShotService = singleShotService;
         this.apiInstance = newProxyWrapper(newRestAdapter(context, client, gson), cookieHandler);
     }
 
@@ -79,7 +84,7 @@ public class ApiProvider implements Provider<Api> {
                 .create(Api.class);
     }
 
-    private static Api newProxyWrapper(Api backend, LoginCookieHandler cookieHandler) {
+    private Api newProxyWrapper(Api backend, LoginCookieHandler cookieHandler) {
         // proxy to add the nonce if not provided
         return Reflection.newProxy(Api.class, (proxy, method, args) -> {
             Stopwatch watch = Stopwatch.createStarted();
@@ -136,13 +141,13 @@ public class ApiProvider implements Provider<Api> {
         });
     }
 
-    private static void measureApiCall(Stopwatch watch, Method method, boolean success) {
+    private void measureApiCall(Stopwatch watch, Method method, boolean success) {
         Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
                 "method:" + method.getName(),
                 "success:" + success);
 
 
-        if ("sync".equalsIgnoreCase(method.getName())) {
+        if ("sync".equalsIgnoreCase(method.getName()) && singleShotService.firstTimeInHour("track-time:sync")) {
             // track only sync calls.
             Track.trackApiCallSpeed(watch, method.getName(), success);
         }

@@ -137,20 +137,6 @@ public final class Track {
                     .setLabel(value)
                     .build());
         }
-
-//        track(new CustomEvent("Settings")
-//                .putCustomAttribute("beta", String.valueOf(settings.useBetaChannel()))
-//                .putCustomAttribute("signed in", String.valueOf(signedIn))
-//                .putCustomAttribute("gif2webm", String.valueOf(settings.convertGifToWebm()))
-//                .putCustomAttribute("notifications", String.valueOf(settings.showNotifications()))
-//                .putCustomAttribute("mark images", settings.seenIndicatorStyle().name())
-//                .putCustomAttribute("https", String.valueOf(settings.useHttps()))
-//                .putCustomAttribute("theme", settings.themeName().toLowerCase())
-//                .putCustomAttribute("bestof threshold", String.valueOf(settings.bestOfBenisThreshold()))
-//                .putCustomAttribute("quick preview", String.valueOf(settings.enableQuickPeek()))
-//                .putCustomAttribute("volume navigation", String.valueOf(settings.volumeNavigation()))
-//                .putCustomAttribute("hide tag vote buttons", String.valueOf(settings.hideTagVoteButtons()))
-//                .putCustomAttribute("incognito browser", String.valueOf(settings.useIncognitoBrowser())));
     }
 
     public static void notificationShown() {
@@ -234,7 +220,7 @@ public final class Track {
                 .build());
     }
 
-    public static void advancedSearchWithDialog(String query) {
+    public static void advancedSearchWithDialog() {
         ga().send(new HitBuilders.EventBuilder()
                 .setCategory("Feed")
                 .setAction("AdvancedSearchDialog")
@@ -254,7 +240,7 @@ public final class Track {
         tr.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
-    public static void updateAuthorizedState(boolean authorized) {
+    static void updateAuthorizedState(boolean authorized) {
         ga().set(
                 GA_CUSTOM_AUTHORIZED,
                 String.valueOf(authorized ? 1 : 0));
