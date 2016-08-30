@@ -373,6 +373,6 @@
     <string name="submit">Absenden</string>
     <string name="common_no_thanks">Nein, danke</string>
     <string name="try_now">Ausprobieren</string>
-    <string name="pref_use_surface_view_title">TextureView</string>
-    <string name="pref_use_surface_view_summary">TextureView sollte besser sein um Videos anzuzeigen. Deaktiviere diese Einstellung um Videos auf einem SurfaceView anzuzeigen.</string>
+    <string name="pref_use_texture_view_title">TextureView</string>
+    <string name="pref_use_texture_view_summary">TextureView sollte besser sein um Videos anzuzeigen. Deaktiviere diese Einstellung um Videos auf einem SurfaceView anzuzeigen, was jedoch zu Anzeigeproblemen führen kann.</string>
 </resources>

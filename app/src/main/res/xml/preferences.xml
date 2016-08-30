@@ -290,9 +290,9 @@
             <CheckBoxPreference
                 android:defaultValue="true"
                 android:dependency="pref_use_exo_player"
-                android:key="pref_use_surface_view"
-                android:summary="@string/pref_use_surface_view_summary"
-                android:title="@string/pref_use_surface_view_title"/>
+                android:key="pref_use_texture_view_new"
+                android:summary="@string/pref_use_texture_view_summary"
+                android:title="@string/pref_use_texture_view_title"/>
 
             <ListPreference
                 android:defaultValue="hardware"

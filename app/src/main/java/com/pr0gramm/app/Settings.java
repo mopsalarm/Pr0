@@ -223,7 +223,7 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
     }
 
     public boolean useTextureView() {
-        return preferences.getBoolean("pref_use_surface_view", true);
+        return preferences.getBoolean("pref_use_texture_view_new", true);
     }
 
     public VolumeNavigationType volumeNavigation() {
