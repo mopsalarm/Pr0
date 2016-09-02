@@ -45,7 +45,6 @@ public class FeedService {
 
     public Observable<Api.Feed> getFeedItems(FeedQuery query) {
         FeedFilter feedFilter = query.feedFilter();
-        Track.requestFeed(feedFilter.getFeedType());
 
         // filter by feed-type
         Integer promoted = (feedFilter.getFeedType() == FeedType.PROMOTED) ? 1 : null;

@@ -6,7 +6,6 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
-import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
 import java.util.concurrent.TimeUnit;
@@ -141,14 +140,6 @@ public final class Track {
                 .setCategory("Notification")
                 .setAction("Closed")
                 .setLabel(method)
-                .build());
-    }
-
-    public static void requestFeed(FeedType feedType) {
-        ga().send(new HitBuilders.EventBuilder()
-                .setCategory("Feed")
-                .setAction("Load")
-                .setLabel(feedType.name())
                 .build());
     }
 
