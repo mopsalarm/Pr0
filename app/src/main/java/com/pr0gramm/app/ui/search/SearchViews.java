@@ -45,7 +45,7 @@ class SearchViews {
             public Observable<String> queryString() {
                 return RxTextView
                         .textChanges(textView)
-                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-z: ]", ""));
+                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-zäöüß: ]", ""));
             }
 
             @Override
@@ -124,5 +124,5 @@ class SearchViews {
 
     private static final List<String> SUGGESTIONS = ImmutableList.of(
             "kadse", "kefer", "porn", "0815", "nixname", "sound", "webm", "gif",
-            "süßvieh", "pr0gramm", "cha0s", "gamb");
+            "süßvieh", "pr0gramm", "cha0s", "gamb", "titten", "stefipant");
 }
