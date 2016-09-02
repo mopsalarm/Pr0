@@ -58,7 +58,7 @@ public class FeedService {
         String likes = feedFilter.getLikes().orNull();
         Boolean self = Strings.isNullOrEmpty(likes) ? null : true;
 
-        FeedType feedType = query.feedFilter().getFeedType();
+        FeedType feedType = feedFilter.getFeedType();
 
         // statistics
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name().toLowerCase());
