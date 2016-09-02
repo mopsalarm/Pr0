@@ -1,5 +1,14 @@
 [
   {
+    "version": 109,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Erlaube nun auch Umlaute in dem erweiterten Suchdialog"
+      }
+    ]
+  },
+  {
     "version": 108,
     "changes": [
       {
