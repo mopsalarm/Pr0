@@ -55,8 +55,8 @@ public class SyncIntentService extends IntentService {
         Dagger.appComponent(this).inject(this);
 
         logger.info("Doing some statistics related trackings");
-        if (singleShotService.firstTimeToday("track-settings"))
-            statistics(settings, userService.isAuthorized());
+        if (singleShotService.firstTimeToday("track-settings:5"))
+            statistics();
 
         if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
             Optional<Update> update = toOptional(new UpdateChecker(this).check());

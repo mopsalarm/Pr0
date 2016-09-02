@@ -182,7 +182,6 @@ dependencies {
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.5.0'
     compile 'org.nanohttpd:nanohttpd:2.3.1'
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
-    compile 'com.github.KeepSafe:ReLinker:1.2.1'
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
     compile 'me.leolin:ShortcutBadger:1.1.6@aar'

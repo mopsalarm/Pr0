@@ -6,16 +6,15 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.Vote;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
  */
+@SuppressWarnings("WeakerAccess")
 public final class Track {
     private static final String GA_CUSTOM_AUTHORIZED = "&cm1";
 
@@ -126,17 +125,8 @@ public final class Track {
                 .build());
     }
 
-    public static void statistics(Settings settings, boolean signedIn) {
-        for (Map.Entry<String, ?> entry : settings.raw().getAll().entrySet()) {
-            String key = entry.getKey();
-            String value = String.valueOf(entry.getValue());
-
-            ga().send(new HitBuilders.EventBuilder()
-                    .setCategory("Settings")
-                    .setAction(key)
-                    .setLabel(value)
-                    .build());
-        }
+    public static void statistics() {
+        ApplicationClass.appComponent().settingsTracker().track();
     }
 
     public static void notificationShown() {
@@ -257,6 +247,6 @@ public final class Track {
     }
 
     private static Tracker ga() {
-        return ApplicationClass.googleAnalyticsTracker();
+        return ApplicationClass.appComponent().googleAnalyticsTracker();
     }
 }

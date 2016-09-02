@@ -6,6 +6,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.NotificationService;
+import com.pr0gramm.app.services.SettingsTrackerService;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.TrackingModule;
@@ -56,6 +57,8 @@ public interface AppComponent {
 
     UserSuggestionService suggestionService();
 
+    Tracker googleAnalyticsTracker();
+
     void inject(SyncIntentService service);
 
     void inject(SettingsActivity.SettingsFragment fragment);
@@ -69,4 +72,6 @@ public interface AppComponent {
     void inject(InboxNotificationCanceledReceiver receiver);
 
     void inject(CommentPostLine commentPostLine);
+
+    SettingsTrackerService settingsTracker();
 }

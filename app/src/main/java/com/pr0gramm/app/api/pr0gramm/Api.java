@@ -107,8 +107,7 @@ public interface Api {
 
     @GET("/api/profile/comments")
     Observable<UserComments> userComments(@Query("name") String user,
-                                          @Query("before")
-                                                  long before, @Query("flags") Integer flags);
+                                          @Query("before") long before, @Query("flags") Integer flags);
 
     @FormUrlEncoded
     @POST("/api/inbox/post")
