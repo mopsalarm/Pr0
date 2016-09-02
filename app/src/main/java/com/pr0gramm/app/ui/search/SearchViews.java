@@ -28,7 +28,7 @@ class SearchViews {
         View view = View.inflate(context, R.layout.search_view_edit_text, null);
 
         TextView textView = ButterKnife.findById(view, R.id.search_text);
-        textView.setHint(randomTagSuggestion());
+        textView.setText(randomTagSuggestion());
 
         return new SearchView() {
             @Override
@@ -79,7 +79,7 @@ class SearchViews {
             public Observable<String> queryString() {
                 return RxTextView
                         .textChanges(textView)
-                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-z: ]", ""))
+                        .map(text -> text.toString().trim().toLowerCase().replaceAll("[^0-9a-z]", ""))
                         .map(text -> "u:" + text);
             }
 

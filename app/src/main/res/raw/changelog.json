@@ -4,7 +4,11 @@
     "changes": [
       {
         "type": "Fix",
-        "change": "Erlaube nun auch Umlaute in dem erweiterten Suchdialog"
+        "change": "Erlaube nun auch Umlaute in dem 'Erweiterte Suche'-Dialog"
+      },
+      {
+        "type": "Fix",
+        "change": "'Erweiterte Suche'-Dialog verbessert"
       }
     ]
   },
