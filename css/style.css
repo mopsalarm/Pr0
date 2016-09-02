@@ -19,12 +19,10 @@ html, body, td, input {
   padding: 20px;
   height: 80px;
   position: fixed;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: row;
-      -ms-flex-direction: row;
-          flex-direction: row;
+  -ms-flex-direction: row;
+      flex-direction: row;
   top: 0;
   width: 100%;
   transition: background 300ms linear;
@@ -32,17 +30,14 @@ html, body, td, input {
   .header.fixed {
     background-color: rgba(22, 22, 24, 0.8); }
     .header.fixed .download-buttons {
-      display: -webkit-flex;
       display: -ms-flexbox;
       display: flex; }
   .header .logo {
     height: 40px;
-    -webkit-flex-grow: 0;
-        -ms-flex-positive: 0;
-            flex-grow: 0;
-    -webkit-flex-shrink: 0;
-        -ms-flex-negative: 0;
-            flex-shrink: 0; }
+    -ms-flex-positive: 0;
+        flex-grow: 0;
+    -ms-flex-negative: 0;
+        flex-shrink: 0; }
   .header .title {
     font-size: 20px;
     margin-left: 20px; }
@@ -51,9 +46,8 @@ html, body, td, input {
     display: none; }
 
 .main {
-  -webkit-flex-shrink: 0;
-      -ms-flex-negative: 0;
-          flex-shrink: 0;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   min-height: 100%; }
   .main .section {
     background-color: #202023;
@@ -70,12 +64,10 @@ html, body, td, input {
   .main .top {
     background: url("../img/feed.jpg");
     padding-top: 120px;
-    display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
-    -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-            flex-direction: column; }
+    -ms-flex-direction: column;
+        flex-direction: column; }
   .main .top-continue {
     font-size: 20px;
     text-align: center;
@@ -129,23 +121,19 @@ html, body, td, input {
       color: #ff0082; }
 
 .vcenter-content {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center; }
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-pack: center;
+      justify-content: center; }
 
 .hcenter-content {
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-align-content: center;
-      -ms-flex-line-pack: center;
-          align-content: center;
+  -ms-flex-align: center;
+      -ms-grid-row-align: center;
+      align-items: center;
+  -ms-flex-line-pack: center;
+      align-content: center;
   text-align: center; }
 
 .anker {
@@ -157,12 +145,10 @@ html, body, td, input {
 
 @media (min-width: 768px) {
   .main .top {
-    -webkit-flex-direction: row;
-        -ms-flex-direction: row;
-            flex-direction: row;
-    -webkit-justify-content: space-around;
-        -ms-flex-pack: distribute;
-            justify-content: space-around; }
+    -ms-flex-direction: row;
+        flex-direction: row;
+    -ms-flex-pack: distribute;
+        justify-content: space-around; }
   .header {
     height: 120px; }
     .header .logo {
