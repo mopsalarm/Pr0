@@ -128,7 +128,6 @@ android.applicationVariants.all { variant ->
     // delete .so-files we dont want in the finished build
     tasks."merge${variant.name.capitalize()}JniLibFolders".doLast {
         def filesToDelete = fileTree("build/") {
-            include "**/libpl_droidsonroids_gif_surface.so"
             include "**/armeabi/libpl_droidsonroids_gif.so"
             include "**/mips*/*.so"
         }
