@@ -19,5 +19,5 @@
         android:id="@+id/search_nsfl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/type_nsfw"/>
+        android:text="@string/type_nsfl"/>
 </merge>
