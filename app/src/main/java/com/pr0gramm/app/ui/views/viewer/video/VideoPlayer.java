@@ -24,6 +24,10 @@ public interface VideoPlayer {
 
     void setMuted(boolean muted);
 
+    void seekTo(int position);
+
+    int currentPosition();
+
     interface Callbacks {
         void onVideoBufferingStarts();
 

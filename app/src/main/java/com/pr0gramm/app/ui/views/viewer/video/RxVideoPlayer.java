@@ -17,7 +17,6 @@ public abstract class RxVideoPlayer implements VideoPlayer {
         this.clientCallbacks = callbacks != null ? callbacks : new EmptyVideoCallbacks();
     }
 
-
     public Observable<Boolean> buffering() {
         return buffering;
     }

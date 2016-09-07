@@ -11,6 +11,8 @@ import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.hash.Hashing;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
@@ -92,13 +94,22 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             Track.muted(!videoPlayer.isMuted());
         });
 
-        RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
+        RxView.detaches(this).subscribe(event -> {
+            seekToCache.put(config.mediaUri().getId(), videoPlayer.currentPosition());
+            videoPlayer.setVideoCallbacks(null);
+        });
 
         videoPlayer.buffering()
                 .sample(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycleAndroid.bindView(this))
                 .subscribe(this::showBusyIndicator);
+
+        // restore seek position if known
+        Integer seekTo = seekToCache.getIfPresent(config.mediaUri().getId());
+        if (seekTo != null) {
+            videoPlayer.seekTo(seekTo);
+        }
     }
 
     @Override
@@ -286,4 +297,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             }
         }
     };
+
+    private static Cache<Long, Integer> seekToCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .build();
 }

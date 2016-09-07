@@ -394,6 +394,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         return 0;
     }
 
+    @Override
     public void seekTo(int msec) {
         if (isInPlaybackState()) {
             mMediaPlayer.seekTo(msec);
@@ -401,6 +402,11 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         } else {
             mSeekWhenPrepared = msec;
         }
+    }
+
+    @Override
+    public int currentPosition() {
+        return getCurrentPosition();
     }
 
     private boolean isInPlaybackState() {

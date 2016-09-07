@@ -99,7 +99,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         this.settings = Settings.of(context);
 
         // Use a texture view to display the video.
-        if(settings.useTextureView()) {
+        if (settings.useTextureView()) {
             surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
         } else {
             surfaceProvider = new SurfaceViewBackend(context, backendViewCallbacks);
@@ -228,6 +228,16 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     public void setMuted(boolean muted) {
         this.muted = muted;
         applyVolumeState();
+    }
+
+    @Override
+    public void seekTo(int position) {
+        exo.seekTo(position);
+    }
+
+    @Override
+    public int currentPosition() {
+        return (int) exo.getCurrentPosition();
     }
 
     private void applyVolumeState() {
