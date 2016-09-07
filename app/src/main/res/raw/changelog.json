@@ -3,6 +3,10 @@
     "version": 109,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Video beginnt beim Drehen des Geräts nicht wieder von vorne"
+      },
+      {
         "type": "Fix",
         "change": "Erlaube nun auch Umlaute in dem 'Erweiterte Suche'-Dialog"
       },
