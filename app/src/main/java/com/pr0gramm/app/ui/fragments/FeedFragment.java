@@ -268,8 +268,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-            int offset = Sdk.isAtLeastKitKat() ?
-                    getStatusBarHeight(getActivity()) : 0;
+            int offset = Sdk.isAtLeastKitKat() ? getStatusBarHeight(getActivity()) : 0;
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
 

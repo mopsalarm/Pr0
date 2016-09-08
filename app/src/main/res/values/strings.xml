@@ -390,7 +390,7 @@
     <string name="action_change">Change</string>
     <string name="password_recovery_success">Password was changed successfully. You can now try to log in using the new password.</string>
     <string name="password_recovery_error">Failed to change password.</string>
-    <string name="common_no_thanks">No, thank</string>
+    <string name="common_no_thanks">No, thanks</string>
     <string name="try_now">Try now</string>
     <string name="pref_use_texture_view_title">Use TextureView</string>
     <string name="pref_use_texture_view_summary">TextureView is more awesome and nicer. Disabling this will use SurfaceView to display videos which might cause errors.</string>
