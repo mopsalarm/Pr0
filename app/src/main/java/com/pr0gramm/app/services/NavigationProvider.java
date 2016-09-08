@@ -177,6 +177,15 @@ public class NavigationProvider {
 
 
         if (extraCategory) {
+            if (settings.showCategoryBestOf()) {
+                items.add(ImmutableNavigationItem.builder()
+                        .action(ActionType.FILTER)
+                        .filter(new FeedFilter().withFeedType(FeedType.BESTOF))
+                        .title(getString(R.string.action_feed_type_bestof))
+                        .icon(iconFeedTypeBestOf)
+                        .build());
+            }
+
             if (settings.showCategoryControversial()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
@@ -192,15 +201,6 @@ public class NavigationProvider {
                         .filter(new FeedFilter().withFeedType(FeedType.RANDOM))
                         .title(getString(R.string.action_feed_type_random))
                         .icon(iconFeedTypeRandom)
-                        .build());
-            }
-
-            if (settings.showCategoryBestOf()) {
-                items.add(ImmutableNavigationItem.builder()
-                        .action(ActionType.FILTER)
-                        .filter(new FeedFilter().withFeedType(FeedType.BESTOF))
-                        .title(getString(R.string.action_feed_type_bestof))
-                        .icon(iconFeedTypeBestOf)
                         .build());
             }
 

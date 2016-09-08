@@ -123,6 +123,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Inject
     InfoMessageService infoMessageService;
 
+    @Inject
+    BookmarkConfigHelper bookmarkConfigHelper;
+
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
     private boolean startedWithIntent;
@@ -196,6 +199,9 @@ public class MainActivity extends BaseAppCompatActivity implements
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
 
+        } else if (shouldShowBookmarkConfigDialog()) {
+            showNewBookmarksDialog();
+
         } else if (shouldShowIncognitoBrowserReminder()) {
             updateCheck = false;
             showHintIncognitoBrowser();
@@ -215,8 +221,14 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
+    }
 
-        addOriginalContentBookmarkOnce();
+    public boolean shouldShowBookmarkConfigDialog() {
+        return singleShotService.isFirstTime("bookmark-config:1");
+    }
+
+    public void showNewBookmarksDialog() {
+        bookmarkConfigHelper.show(this);
     }
 
     @Override
@@ -710,4 +722,5 @@ public class MainActivity extends BaseAppCompatActivity implements
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
     }
+
 }

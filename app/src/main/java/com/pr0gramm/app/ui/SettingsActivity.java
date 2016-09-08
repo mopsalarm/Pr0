@@ -98,6 +98,9 @@ public class SettingsActivity extends BaseAppCompatActivity {
         @Inject
         RecentSearchesServices recentSearchesServices;
 
+        @Inject
+        BookmarkConfigHelper bookmarkConfigHelper;
+
         private Subscription preloadItemsSubscription;
 
         @Override
@@ -254,6 +257,10 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if ("pref_pseudo_clear_tag_suggestions".equals(preferenceKey)) {
                 recentSearchesServices.clearHistory();
+            }
+
+            if ("pref_pseudo_bookmark_config".equals(preferenceKey)) {
+                bookmarkConfigHelper.show(getActivity());
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

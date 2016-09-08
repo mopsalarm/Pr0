@@ -395,5 +395,7 @@
     <string name="pref_use_texture_view_title">Use TextureView</string>
     <string name="pref_use_texture_view_summary">TextureView is more awesome and nicer. Disabling this will use SurfaceView to display videos which might cause errors.</string>
     <string name="invites_no_invites_sent">No invites sent</string>
+    <string name="pref_pseudo_bookmark_config_title">Bookmark selection</string>
+    <string name="pref_pseudo_bookmark_config_summary">Click to select between a few default bookmarks.</string>
 </resources>
 

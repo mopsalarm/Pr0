@@ -201,6 +201,11 @@
                 android:key="prefcat_visual__menu_items"
                 android:title="@string/prefcat_visual__menu_items_title">
 
+                <Preference
+                    android:key="pref_pseudo_bookmark_config"
+                    android:summary="@string/pref_pseudo_bookmark_config_summary"
+                    android:title="@string/pref_pseudo_bookmark_config_title"/>
+
                 <CheckBoxPreference
                     android:defaultValue="true"
                     android:key="pref_fullscreen_zoom_view"
