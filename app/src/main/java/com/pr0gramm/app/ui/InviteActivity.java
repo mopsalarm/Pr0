@@ -47,6 +47,9 @@ public class InviteActivity extends BaseAppCompatActivity {
     @BindView(R.id.remaining)
     TextView remainingInvites;
 
+    @BindView(R.id.invites_empty)
+    View invitesEmptyHint;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(theme().basic);
@@ -93,6 +96,7 @@ public class InviteActivity extends BaseAppCompatActivity {
 
     private void handleInvites(InviteService.Invites invites) {
         this.invites.setAdapter(new InviteAdapter(invites.invited()));
+        this.invitesEmptyHint.setVisibility(invites.invited().size() > 0 ? View.GONE : View.VISIBLE);
 
         String text = getString(R.string.invite_remaining, invites.inviteCount());
         remainingInvites.setText(text);

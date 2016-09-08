@@ -394,5 +394,6 @@
     <string name="try_now">Try now</string>
     <string name="pref_use_texture_view_title">Use TextureView</string>
     <string name="pref_use_texture_view_summary">TextureView is more awesome and nicer. Disabling this will use SurfaceView to display videos which might cause errors.</string>
+    <string name="invites_no_invites_sent">No invites sent</string>
 </resources>
 
