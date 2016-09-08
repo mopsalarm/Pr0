@@ -113,6 +113,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         exo.addListener(this);
 
         RxView.detaches(videoView).subscribe(event -> {
+            detaches.onNext(null);
+
             logger.info("Detaching view, releasing exo player now.");
             exo.release();
         });

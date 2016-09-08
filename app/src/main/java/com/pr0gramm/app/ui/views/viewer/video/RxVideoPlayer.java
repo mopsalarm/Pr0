@@ -4,11 +4,13 @@ import android.support.annotation.Nullable;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 /**
  * This is a base for {@link VideoPlayer}s with some rx features.
  */
 public abstract class RxVideoPlayer implements VideoPlayer {
+    protected final PublishSubject<Void> detaches = PublishSubject.create();
     private final BehaviorSubject<Boolean> buffering = BehaviorSubject.create(false);
     private Callbacks clientCallbacks = new EmptyVideoCallbacks();
 
@@ -19,6 +21,10 @@ public abstract class RxVideoPlayer implements VideoPlayer {
 
     public Observable<Boolean> buffering() {
         return buffering;
+    }
+
+    public Observable<Void> detaches() {
+        return detaches;
     }
 
     protected final Callbacks callbacks = new Callbacks() {

@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.support.annotation.StringRes;
 import android.view.View;
 
+import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.ui.views.AspectLayout;
 
@@ -73,6 +74,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
     private boolean shouldShowIoError = true;
 
     private float buffered;
+    private int mLastPosition;
 
     public AndroidVideoPlayer(Context context, AspectLayout aspectLayout) {
         this.context = context;
@@ -84,6 +86,9 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         View view = mBackendView.getView();
         view.setAlpha(0.01f);
         parentView.addView(view);
+
+        // forward events
+        RxView.detaches(view).subscribe(detaches);
     }
 
     private void openVideo() {
@@ -325,6 +330,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         mBackendView.getView().setAlpha(0.01f);
 
         if (mMediaPlayer != null) {
+            mLastPosition = getCurrentPosition();
+
             mMediaPlayer.reset();
             mMediaPlayer.release();
             mMediaPlayer = null;
@@ -334,8 +341,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
 
     @Override
     public void open(Uri uri) {
+        mLastPosition = mSeekWhenPrepared;
         mUri = uri;
-        mSeekWhenPrepared = 0;
         openVideo();
     }
 
@@ -391,7 +398,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         if (isInPlaybackState()) {
             return mMediaPlayer.getCurrentPosition();
         }
-        return 0;
+
+        return mLastPosition;
     }
 
     @Override

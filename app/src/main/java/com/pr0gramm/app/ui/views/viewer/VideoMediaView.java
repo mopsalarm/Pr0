@@ -94,16 +94,20 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             Track.muted(!videoPlayer.isMuted());
         });
 
-        RxView.detaches(this).subscribe(event -> {
-            seekToCache.put(config.mediaUri().getId(), videoPlayer.currentPosition());
-            videoPlayer.setVideoCallbacks(null);
-        });
+        RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
 
         videoPlayer.buffering()
                 .sample(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(RxLifecycleAndroid.bindView(this))
                 .subscribe(this::showBusyIndicator);
+
+
+        long seekCacheKey = config.mediaUri().getId();
+
+        videoPlayer.detaches().subscribe(event -> {
+            seekToCache.put(seekCacheKey, videoPlayer.currentPosition());
+        });
 
         // restore seek position if known
         Integer seekTo = seekToCache.getIfPresent(config.mediaUri().getId());
@@ -240,8 +244,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     @Override
     public void stopMedia() {
         super.stopMedia();
-        videoPlayer.pause();
 
+        videoPlayer.pause();
         audioManager.abandonAudioFocus(afChangeListener);
     }
 
