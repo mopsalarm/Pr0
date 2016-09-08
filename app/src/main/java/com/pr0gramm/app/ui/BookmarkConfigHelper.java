@@ -85,7 +85,7 @@ public class BookmarkConfigHelper {
             selection.set(idx, preSelected[idx]);
 
         new AlertDialog.Builder(context)
-                .setTitle("Neue Lesezeichen?")
+                .setTitle(R.string.bookmark_config_title)
                 .setMultiChoiceItems(titles, preSelected, (dialog, which, isChecked) -> selection.set(which, isChecked))
                 .setPositiveButton(R.string.okay, (dialog, w) -> {
                     for (int idx = 0; idx < titles.length; idx++) {

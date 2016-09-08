@@ -7,6 +7,10 @@
         "change": "Video beginnt beim Drehen des Geräts nicht wieder von vorne"
       },
       {
+        "type": "Neu",
+        "change": "Ermögliche eine Standardauswahl von Lesezeichen und Menueinträgen. Auch unter Einstellungen zu finden."
+      },
+      {
         "type": "Fix",
         "change": "Erlaube nun auch Umlaute in dem 'Erweiterte Suche'-Dialog"
       },
