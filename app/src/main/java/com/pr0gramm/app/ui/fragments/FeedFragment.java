@@ -429,7 +429,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
 
         String queryString = filter.getUsername().or(filter.getTags()).or(filter.getLikes()).orNull();
 
-        if (queryString != null) {
+        if (queryString != null && queryString.matches("[A-Za-z0-9]+")) {
             EnumSet<ContentType> contentTypes = getSelectedContentType();
             Optional<EnhancedUserInfo> cached = inMemoryCacheService.getUserInfo(contentTypes, queryString);
 
