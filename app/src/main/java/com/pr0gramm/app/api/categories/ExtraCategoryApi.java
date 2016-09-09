@@ -7,6 +7,8 @@ import retrofit2.http.HEAD;
 import retrofit2.http.Query;
 import rx.Observable;
 
+import static com.pr0gramm.app.R.id.tags;
+
 /**
  */
 public interface ExtraCategoryApi {
@@ -32,7 +34,8 @@ public interface ExtraCategoryApi {
                                 @Query("score") int benisScore);
 
     @GET("general")
-    Observable<Api.Feed> general(@Query("tags") String tags,
+    Observable<Api.Feed> general(@Query("promoted") Integer promoted,
+                                 @Query("tags") String tags,
                                  @Query("user") String user,
                                  @Query("flags") int flags,
                                  @Query("older") Long older,

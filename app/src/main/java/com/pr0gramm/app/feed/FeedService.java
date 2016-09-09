@@ -85,7 +85,7 @@ public class FeedService {
 
                 if (likes == null && configService.config().searchUsingTagService()) {
                     return categoryApi
-                            .general(tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                            .general(promoted, tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
                             .onErrorResumeNext(officialCall);
 
                 } else if (!query.around().isPresent() && !query.newer().isPresent()) {
@@ -95,7 +95,7 @@ public class FeedService {
 
                         logger.info("Using general search api, but falling back on old one in case of an error.");
                         return categoryApi
-                                .general(tags.substring(1), user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                                .general(promoted, tags.substring(1), user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
                                 .onErrorResumeNext(officialCall);
                     }
                 }
