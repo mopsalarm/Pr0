@@ -9,7 +9,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
@@ -280,13 +279,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             if ("pref_theme".equals(key)) {
                 // get the correct theme for the app!
                 ThemeHelper.updateTheme(getActivity());
-
-                final Intent intent = getActivity().getIntent();
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                TaskStackBuilder.create(getActivity())
-                        .addNextIntentWithParentStack(intent)
-                        .startActivities();
+                AndroidUtility.recreateActivity(getActivity());
             }
         }
     }

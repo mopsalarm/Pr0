@@ -3,7 +3,9 @@ package com.pr0gramm.app.util;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -16,6 +18,7 @@ import android.os.Looper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.net.ConnectivityManagerCompat;
@@ -436,5 +439,13 @@ public class AndroidUtility {
                 return type;
             }
         }
+    }
+
+    public static void recreateActivity(Activity activity) {
+        final Intent intent = activity.getIntent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        TaskStackBuilder.create(activity)
+                .addNextIntentWithParentStack(intent)
+                .startActivities();
     }
 }

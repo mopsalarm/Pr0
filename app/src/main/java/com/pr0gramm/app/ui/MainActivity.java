@@ -33,6 +33,7 @@ import com.google.common.base.Strings;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.RequestCodes;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
@@ -192,7 +193,8 @@ public class MainActivity extends BaseAppCompatActivity implements
         boolean updateCheckDelay = false;
 
         if (shouldShowOnboardingActivity()) {
-            startActivity(new Intent(this, IntroActivity.class));
+            startActivityForResult(new Intent(this, IntroActivity.class), RequestCodes.INTRO_ACTIVITY);
+            return;
         }
 
         if (singleShotService.firstTimeInVersion("changelog")) {
@@ -266,6 +268,15 @@ public class MainActivity extends BaseAppCompatActivity implements
             return;
 
         handleUri(intent.getData());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RequestCodes.INTRO_ACTIVITY) {
+            AndroidUtility.recreateActivity(this);
+        }
     }
 
     @Override
