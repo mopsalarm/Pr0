@@ -48,11 +48,11 @@ public class BookmarksActionItemsSlide extends ActionItemsSlide {
         FeedFilter f = new FeedFilter().withFeedType(FeedType.PROMOTED);
 
         return ImmutableList.of(
-                new BookmarkActionItem(bookmarkService, "Kein Ton", f.withTags("? -sound")),
+                new BookmarkActionItem(bookmarkService, "Kein Ton", f.withTags("? -f:sound")),
                 new BookmarkActionItem(bookmarkService, "Nur Bilder", f.withTags("? -webm -gif")),
                 new BookmarkActionItem(bookmarkService, "Original Content", f.withTags("original content")),
                 new BookmarkActionItem(bookmarkService, "0815 & Süßvieh", f.withTags("? 0815|süßvieh|(ficken halt)|(aber schicks keinem)")),
-                new BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("? (-sound | (untertitel & -404))")),
+                new BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("? (-f:sound | (untertitel & -404))")),
                 new BookmarkActionItem(bookmarkService, "Keine Videos", f.withTags("? -webm")),
                 new BookmarkActionItem(bookmarkService, "Reposts in Top", f.withTags("? repost & f:top")));
     }
