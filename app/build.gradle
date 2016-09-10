@@ -184,6 +184,7 @@ dependencies {
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
     compile 'me.leolin:ShortcutBadger:1.1.6@aar'
+    compile 'com.github.paolorotolo:appintro:4.0.0'
 
     compile 'com.google.android.exoplayer:exoplayer:r1.5.10'
     compile 'commons-io:commons-io:2.5'

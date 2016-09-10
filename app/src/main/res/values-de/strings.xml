@@ -377,6 +377,7 @@
     <string name="pref_use_texture_view_summary">TextureView sollte besser sein um Videos anzuzeigen. Deaktiviere diese Einstellung um Videos auf einem SurfaceView anzuzeigen, was jedoch zu Anzeigeproblemen führen kann.</string>
     <string name="bookmark_config_title">Lesezeichen</string>
     <string name="invites_no_invites_sent">Keine Invites versendet</string>
-    <string name="pref_pseudo_bookmark_config_summary">Hier klicken um zwischen einigen vordefinierten Lesezeichen auszuwählen</string>
-    <string name="pref_pseudo_bookmark_config_title">Lesezeichenwahl</string>
+    <string name="pref_pseudo_onboarding_summary">Zeigt den Willkommensbildschirm noch mal</string>
+    <string name="pref_pseudo_onboarding_title">Willkommensbildschirm</string>
+    <string name="action_done">FERTIG</string>
 </resources>

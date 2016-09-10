@@ -27,6 +27,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
+import com.pr0gramm.app.ui.intro.IntroActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 
@@ -97,9 +98,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
         @Inject
         RecentSearchesServices recentSearchesServices;
-
-        @Inject
-        BookmarkConfigHelper bookmarkConfigHelper;
 
         private Subscription preloadItemsSubscription;
 
@@ -259,8 +257,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 recentSearchesServices.clearHistory();
             }
 
-            if ("pref_pseudo_bookmark_config".equals(preferenceKey)) {
-                bookmarkConfigHelper.show(getActivity());
+            if ("pref_pseudo_onboarding".equals(preferenceKey)) {
+                startActivity(new Intent(getActivity(), IntroActivity.class));
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);

@@ -28,6 +28,7 @@ import com.pr0gramm.app.ui.fragments.PostFragment;
 import com.pr0gramm.app.ui.fragments.PostPagerFragment;
 import com.pr0gramm.app.ui.fragments.PrivateMessageInboxFragment;
 import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
+import com.pr0gramm.app.ui.intro.slides.BookmarksActionItemsSlide;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.ui.upload.UploadFragment;
 import com.pr0gramm.app.ui.views.viewer.DelayedMediaView;
@@ -113,4 +114,6 @@ public interface ActivityComponent {
     void inject(RequestPasswordRecoveryActivity requestPasswordRecoveryActivity);
 
     void inject(PasswordRecoveryActivity passwordRecoveryActivity);
+
+    void inject(BookmarksActionItemsSlide bookmarksActionItemsSlide);
 }

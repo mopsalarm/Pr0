@@ -221,7 +221,6 @@
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Orange">
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
 
@@ -239,7 +238,6 @@
             android:label="@string/request_password_recovery_title"
             android:parentActivityName=".ui.LoginActivity"
             android:theme="@style/AppTheme.Orange">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.LoginActivity"/>
@@ -267,7 +265,6 @@
             android:label="@string/request_password_recovery_title"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.Orange">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
@@ -276,6 +273,11 @@
             android:name="com.thefinestartist.finestwebview.FinestWebViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme"/>
+
+        <activity
+            android:name=".ui.intro.IntroActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Intro.TranslucentStatus"/>
 
     </application>
 

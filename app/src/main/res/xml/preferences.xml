@@ -165,7 +165,7 @@
                     android:title="@string/pref_use_incognito_browser_title"/>
 
                 <CheckBoxPreference
-                    android:defaultValue="false"
+                    android:defaultValue="true"
                     android:dependency="pref_use_incognito_browser"
                     android:key="pref_override_youtube_links"
                     android:summary="@string/pref_override_youtube_links_summary"
@@ -200,11 +200,6 @@
             <PreferenceCategory
                 android:key="prefcat_visual__menu_items"
                 android:title="@string/prefcat_visual__menu_items_title">
-
-                <Preference
-                    android:key="pref_pseudo_bookmark_config"
-                    android:summary="@string/pref_pseudo_bookmark_config_summary"
-                    android:title="@string/pref_pseudo_bookmark_config_title"/>
 
                 <CheckBoxPreference
                     android:defaultValue="true"
@@ -380,6 +375,13 @@
             android:persistent="false"
             android:summary="@string/pseudo_clean_preloaded_summary"
             android:title="@string/pref_pseudo_clean_preloaded_title"/>
+
+
+        <Preference
+            android:key="pref_pseudo_onboarding"
+            android:summary="@string/pref_pseudo_onboarding_summary"
+            android:title="@string/pref_pseudo_onboarding_title"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

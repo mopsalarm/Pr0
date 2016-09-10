@@ -227,6 +227,21 @@
         <item name="colorAccent">@color/white</item>
     </style>
 
+
+    <!-- For the intro activity -->
+    <style name="AppTheme.Intro">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="AppTheme.Intro.TranslucentStatus"/>
+
     <style name="DrawerItem" parent="Base.TextAppearance.AppCompat.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

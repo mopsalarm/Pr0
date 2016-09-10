@@ -49,6 +49,7 @@ import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
 import com.pr0gramm.app.ui.fragments.ItemWithComment;
 import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
+import com.pr0gramm.app.ui.intro.IntroActivity;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
@@ -123,9 +124,6 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Inject
     InfoMessageService infoMessageService;
 
-    @Inject
-    BookmarkConfigHelper bookmarkConfigHelper;
-
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
     private boolean startedWithIntent;
@@ -193,18 +191,15 @@ public class MainActivity extends BaseAppCompatActivity implements
         boolean updateCheck = true;
         boolean updateCheckDelay = false;
 
+        if (shouldShowOnboardingActivity()) {
+            startActivity(new Intent(this, IntroActivity.class));
+        }
+
         if (singleShotService.firstTimeInVersion("changelog")) {
             updateCheck = false;
 
             ChangeLogDialog dialog = new ChangeLogDialog();
             dialog.show(getSupportFragmentManager(), null);
-
-        } else if (shouldShowBookmarkConfigDialog()) {
-            showNewBookmarksDialog();
-
-        } else if (shouldShowIncognitoBrowserReminder()) {
-            updateCheck = false;
-            showHintIncognitoBrowser();
 
         } else if (shouldShowFeedbackReminder()) {
             //noinspection ResourceType
@@ -223,33 +218,13 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
     }
 
-    public boolean shouldShowBookmarkConfigDialog() {
-        return singleShotService.isFirstTime("bookmark-config:1");
-    }
-
-    public void showNewBookmarksDialog() {
-        bookmarkConfigHelper.show(this);
+    private boolean shouldShowOnboardingActivity() {
+        return singleShotService.isFirstTime("onboarding-activity:1");
     }
 
     @Override
     protected void injectComponent(ActivityComponent appComponent) {
         appComponent.inject(this);
-    }
-
-    private boolean shouldShowIncognitoBrowserReminder() {
-        return singleShotService.isFirstTime("hint_use_incognito_browser") && !settings.useIncognitoBrowser();
-    }
-
-    private void showHintIncognitoBrowser() {
-        DialogBuilder.start(this)
-                .content(R.string.hint_use_incognito_browser)
-                .negative(android.R.string.no)
-                .positive(android.R.string.yes, () -> {
-                    settings.edit()
-                            .putBoolean("pref_use_incognito_browser", true)
-                            .apply();
-                })
-                .show();
     }
 
     private void checkForInfoMessage() {
