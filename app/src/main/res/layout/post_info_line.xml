@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
-            tools:text="@string/dummy_rating"/>
+            tools:text="-315"/>
 
         <com.pr0gramm.app.ui.views.ScoreUnknownView
             android:id="@+id/rating_hidden"

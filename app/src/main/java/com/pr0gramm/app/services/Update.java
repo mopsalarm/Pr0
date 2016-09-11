@@ -18,6 +18,10 @@ public abstract class Update implements Parcelable {
 
     public abstract String changelog();
 
+    public String versionStr() {
+        return String.format("1.%d.%d", version() / 10, version() % 10);
+    }
+
 
     @Override
     public int describeContents() {

@@ -376,7 +376,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void initializeCommentPostLine() {
-        ViewGroup.MarginLayoutParams layoutParams = new ViewGroup.MarginLayoutParams(
+        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 

@@ -1,5 +1,8 @@
 package com.pr0gramm.app.parcel.core;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -228,6 +231,7 @@ class BinaryReader extends JsonReader {
     /**
      * Uncompresses gzip compresse data.
      */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private static byte[] inflate(byte[] input, int start) {
         try {
             try (InputStream inputStream = new ByteArrayInputStream(input, start, input.length - start)) {

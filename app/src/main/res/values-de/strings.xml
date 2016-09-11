@@ -240,7 +240,7 @@
     <string name="user_banned_forever">Dauerhaft gesperrt</string>
     <string name="user_banned">Gebannt für %s</string>
     <string name="notification_update_available">Update verfügbar</string>
-    <string name="notification_update_available_text">Ein neues Update für die pr0gramm App auf Version 1.%s ist verfügbar.</string>
+    <string name="notification_update_available_text">Ein neues Update für die pr0gramm App auf Version %s ist verfügbar.</string>
     <string name="update">Update</string>
     <string name="hint_kfav_userscript">Du hast gerade einen Kommentar als Favoriten markiert. Die Liste aller markierten Favoriten findest du aktuell unter \"Favoriten → k-fav\".\nWenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
     <string name="info_kfav_userscript">Wenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
@@ -298,7 +298,7 @@
     <string name="invite_no_more_invites">Du hast für diesen Monat keine Invites mehr.</string>
     <string name="invite_send">Invite verschicken</string>
     <string name="invites_title">Invites</string>
-    <string name="invite_remaining">Invites vorhanden: %s</string>
+    <string name="invite_remaining">Invites vorhanden: %d</string>
     <string name="invite_unredeemed">nicht eingelöst, %s</string>
     <string name="invites_sent">Versendete Invites</string>
     <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält nun einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden? Die Option findest du auch unter Einstellungen -> Verhalten .]]></string>

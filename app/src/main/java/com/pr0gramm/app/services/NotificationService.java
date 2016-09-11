@@ -85,7 +85,7 @@ public class NotificationService {
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentIntent(updateActivityIntent(update))
                 .setContentTitle(context.getString(R.string.notification_update_available))
-                .setContentText(context.getString(R.string.notification_update_available_text, update.version() % 100))
+                .setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
                 .setSmallIcon(R.drawable.ic_notify_new_message)
                 .addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
                 .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
