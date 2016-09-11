@@ -18,7 +18,7 @@ import gnu.trove.map.hash.TObjectByteHashMap;
 
 /**
  */
-public class BinaryWriter extends JsonWriter {
+class BinaryWriter extends JsonWriter {
     private final ByteArrayDataOutput output = ByteStreams.newDataOutput();
     private final TObjectByteHashMap<String> nameCache = new TObjectByteHashMap<>(10, 0, (byte) -1);
 

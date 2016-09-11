@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonToken;
 
 /**
  */
-public enum ProtocolToken {
+enum ProtocolToken {
     NULL(JsonToken.NULL),
     STRING(JsonToken.STRING),
 
