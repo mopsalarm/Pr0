@@ -45,17 +45,19 @@ public abstract class Parceler<T> implements Parcelable {
 
     @SuppressLint("NewApi")
     protected Parceler(Parcel parcel) {
+        Stopwatch watch = Stopwatch.createStarted();
 
-        try (ParcelReader reader = new ParcelReader(parcel)) {
-            Stopwatch watch = Stopwatch.createStarted();
+        // read binary data from the parcel
+        byte[] input = parcel.createByteArray();
+        try (BinaryReader reader = BinaryReader.from(input)) {
             value = GsonModule.INSTANCE.fromJson(reader, getType().getType());
 
             if (BuildConfig.DEBUG) {
-                logger.info("reading of {} took {}", getType(), watch);
+                logger.info("reading of {} took {} ({} bytes)", getType(), watch, input.length);
             }
 
         } catch (IOException ioError) {
-            throw new RuntimeException("Could not read gson as parce", ioError);
+            throw new RuntimeException("Could not read gson as parcel", ioError);
         }
     }
 
@@ -67,16 +69,18 @@ public abstract class Parceler<T> implements Parcelable {
     @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        try (ParcelWriter writer = new ParcelWriter(dest)) {
-            Stopwatch watch = Stopwatch.createStarted();
-            GsonModule.INSTANCE.toJson(value, getType().getType(), writer);
+        Stopwatch watch = Stopwatch.createStarted();
 
-            if (BuildConfig.DEBUG) {
-                logger.info("writing of {} took {}", getType(), watch);
-            }
+        BinaryWriter writer = new BinaryWriter();
+        GsonModule.INSTANCE.toJson(value, getType().getType(), writer);
+        writer.close();
 
-        } catch (IOException ioError) {
-            throw new RuntimeException("Could not adapt gson to parcel", ioError);
+        // now write serialized data to the parcel
+        byte[] output = writer.toByteArray();
+        dest.writeByteArray(output);
+
+        if (BuildConfig.DEBUG) {
+            logger.info("writing of {} took {} ({} bytes)", getType(), watch, output.length);
         }
     }
 }

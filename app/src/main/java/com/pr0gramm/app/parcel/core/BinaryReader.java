@@ -1,38 +1,53 @@
 package com.pr0gramm.app.parcel.core;
 
-import android.os.Parcel;
-
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Throwables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.InflaterInputStream;
 
 /**
  */
-class ParcelReader extends JsonReader {
-    private final Parcel parcel;
-    private JsonToken next;
+class BinaryReader extends JsonReader {
+    private final static ProtocolToken[] TOKENS = ProtocolToken.values();
 
     private final List<String> nameCache = new ArrayList<>();
+    private final ByteArrayDataInput input;
+    private ProtocolToken next;
 
     /**
      * Creates a new instance that reads a JSON-encoded stream from {@code in}.
      */
-    public ParcelReader(Parcel in) {
+    private BinaryReader(ByteArrayDataInput input) {
         super(new StringReader(""));
-        this.parcel = in;
+        this.input = input;
     }
 
-    private void consume(JsonToken token) throws IOException {
+    private ProtocolToken consume(JsonToken token) throws IOException {
         if (peek() != token) {
             throw new IOException("Expected " + token + " but got " + next);
         }
 
+        ProtocolToken current = this.next;
         next = null;
+        return current;
+    }
+
+    @Override
+    public JsonToken peek() throws IOException {
+        if (next == null) {
+            next = TOKENS[input.readByte()];
+        }
+
+        return next.token;
     }
 
     @Override
@@ -63,25 +78,17 @@ class ParcelReader extends JsonReader {
                 && next != JsonToken.END_DOCUMENT;
     }
 
-    @Override
-    public JsonToken peek() throws IOException {
-        if (next == null)
-            next = TOKENS.get(parcel.readByte());
-
-        return next;
-    }
 
     @Override
     public String nextName() throws IOException {
-        consume(JsonToken.NAME);
-        switch (parcel.readByte()) {
-            case ParcelConstants.NAME_FOLLOWING:
-                String name = parcel.readString();
+        switch (consume(JsonToken.NAME)) {
+            case NAME:
+                String name = input.readUTF();
                 nameCache.add(name);
                 return name;
 
-            case ParcelConstants.NAME_REFERENCE:
-                return nameCache.get(parcel.readByte() & 0xff);
+            case NAME_REF:
+                return nameCache.get(input.readByte() & 0xff);
 
             default:
                 throw new IOException("Invalid name command");
@@ -91,13 +98,12 @@ class ParcelReader extends JsonReader {
     @Override
     public String nextString() throws IOException {
         consume(JsonToken.STRING);
-        return parcel.readString();
+        return input.readUTF();
     }
 
     @Override
     public boolean nextBoolean() throws IOException {
-        consume(JsonToken.BOOLEAN);
-        return parcel.readByte() != 0;
+        return consume(JsonToken.BOOLEAN) == ProtocolToken.BOOLEAN_TRUE;
     }
 
     @Override
@@ -106,22 +112,21 @@ class ParcelReader extends JsonReader {
     }
 
     private Number readNumber() throws IOException {
-        consume(JsonToken.NUMBER);
-        switch (parcel.readByte()) {
-            case ParcelConstants.NUMBER_LONG:
-                return parcel.readLong();
+        switch (consume(JsonToken.NUMBER)) {
+            case LONG:
+                return input.readLong();
 
-            case ParcelConstants.NUMBER_INTEGER:
-                return parcel.readInt();
+            case INTEGER:
+                return input.readInt();
 
-            case ParcelConstants.NUMBER_BYTE:
-                return parcel.readByte();
+            case BYTE:
+                return input.readByte();
 
-            case ParcelConstants.NUMBER_DOUBLE:
-                return parcel.readDouble();
+            case DOUBLE:
+                return input.readDouble();
 
-            case ParcelConstants.NUMBER_FLOAT:
-                return parcel.readFloat();
+            case FLOAT:
+                return input.readFloat();
 
             default:
                 throw new IOException("Invalid number type");
@@ -145,8 +150,9 @@ class ParcelReader extends JsonReader {
 
     @Override
     public void close() throws IOException {
-        consume(JsonToken.END_DOCUMENT);
         super.close();
+        if (peek() != JsonToken.END_DOCUMENT)
+            throw new IOException("Expected DocumentEnd, got " + next);
     }
 
     @Override
@@ -202,8 +208,34 @@ class ParcelReader extends JsonReader {
 
     @Override
     public String getPath() {
-        return "no path available at " + parcel.dataPosition();
+        return "no path available for binary reader";
     }
 
-    private final static ImmutableList<JsonToken> TOKENS = ImmutableList.copyOf(JsonToken.values());
+    public static BinaryReader from(byte[] input) {
+        switch (input[0]) {
+            case ContainerFormat.RAW:
+                return new BinaryReader(ByteStreams.newDataInput(input, 1));
+
+            case ContainerFormat.DEFLATE:
+                byte[] uncompressed = inflate(input, 1);
+                return new BinaryReader(ByteStreams.newDataInput(uncompressed));
+
+            default:
+                throw new IllegalArgumentException("Invalid container format for binary json");
+        }
+    }
+
+    /**
+     * Uncompresses gzip compresse data.
+     */
+    private static byte[] inflate(byte[] input, int start) {
+        try {
+            try (InputStream inputStream = new ByteArrayInputStream(input, start, input.length - start)) {
+                return ByteStreams.toByteArray(new InflaterInputStream(inputStream));
+            }
+
+        } catch (IOException err) {
+            throw Throwables.propagate(err);
+        }
+    }
 }
