@@ -37,7 +37,7 @@ public class IntroActivity extends AppIntro {
 
         addSlide(GenericAppIntroFragment.newInstance(
                 "Danke",
-                "Schön, dass du dich für die App entschieden hast. Probiere unbedingt auch die neuen Feature wie das Favorisieren von Kommentaren und die erweiterte Suche aus! Wenn irgendetwas schief läuft, sende bitte Feedback",
+                "Schön, dass du dich für die App entschieden hast. Probiere unbedingt auch die neuen Features, wie das Favorisieren von Kommentaren und die erweiterte Suche aus! Wenn irgendetwas schief läuft, sende bitte Feedback",
                 R.drawable.ic_favorite_white_48dp,
                 ContextCompat.getColor(this, R.color.olive_primary)));
 
