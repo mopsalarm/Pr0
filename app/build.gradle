@@ -194,8 +194,8 @@ dependencies {
 
     debugCompile 'com.facebook.stetho:stetho:1.4.1'
     debugCompile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
-    releaseProvided 'com.facebook.stetho:stetho:1.4.1'
-    releaseProvided 'com.facebook.stetho:stetho-okhttp3:1.4.1'
+    apt 'com.facebook.stetho:stetho:1.4.1'
+    apt 'com.facebook.stetho:stetho-okhttp3:1.4.1'
 
     compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.jakewharton:butterknife-annotations:8.4.0'
