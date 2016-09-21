@@ -1,5 +1,14 @@
 [
   {
+    "version": 110,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Bugfixes"
+      }
+    ]
+  },
+  {
     "version": 109,
     "changes": [
       {

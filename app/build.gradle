@@ -153,7 +153,7 @@ dependencies {
 
     compile 'javax.annotation:jsr250-api:1.0'
     compile 'com.google.code.findbugs:jsr305:3.0.1'
-    compile('com.android.support:appcompat-v7:24.2.0') {
+    compile('com.android.support:appcompat-v7:24.2.1') {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
     }
