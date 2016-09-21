@@ -21,13 +21,13 @@ class AsyncLifecycleTransformer<T> implements LifecycleTransformer<T> {
 
     @NonNull
     @Override
-    public Single.Transformer<T, T> forSingle() {
-        return single -> single.toObservable().compose(this).toSingle();
+    public <U> Single.Transformer<U, U> forSingle() {
+        return single -> single.toObservable().compose((Observable.Transformer) this).toSingle();
     }
 
     @NonNull
     @Override
-    public Completable.CompletableTransformer forCompletable() {
+    public Completable.Transformer forCompletable() {
         return completable -> completable.<T>toObservable().compose(this).toCompletable();
     }
 

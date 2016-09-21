@@ -16,7 +16,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
         classpath 'io.fabric.tools:gradle:1.21.7'
-        classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+        classpath 'me.tatarka:gradle-retrolambda:3.3.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -158,9 +158,9 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    compile 'com.android.support:recyclerview-v7:24.2.0'
-    compile 'com.android.support:design:24.2.0'
-    compile 'com.android.support:customtabs:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:customtabs:24.2.1'
     compile 'com.google.android.gms:play-services-analytics:9.4.0'
     compile 'com.google.guava:guava:19.0'
 
@@ -205,13 +205,13 @@ dependencies {
     apt 'com.f2prateek.dart:dart-processor:2.0.1'
 
     // rx java
-    compile 'io.reactivex:rxjava:1.1.10'
+    compile 'io.reactivex:rxjava:1.2.0'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
-    compile 'com.artemzin.rxjava:proguard-rules:1.1.10.0'
-    compile 'com.trello:rxlifecycle:0.7.0'
-    compile 'com.trello:rxlifecycle-android:0.7.0'
-    compile 'com.trello:rxlifecycle-components:0.7.0'
+    compile 'com.artemzin.rxjava:proguard-rules:1.2.0.0'
+    compile 'com.trello:rxlifecycle:0.8.0'
+    compile 'com.trello:rxlifecycle-android:0.8.0'
+    compile 'com.trello:rxlifecycle-components:0.8.0'
 
     compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
     compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.4.0'
@@ -223,7 +223,7 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.2'
 
     compile 'pl.brightinventions:slf4android:0.1.2'
-    compile 'com.crashlytics.sdk.android:crashlytics:2.6.2'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.6.3'
 
     apt 'org.immutables:value:2.3.1'
     provided 'org.immutables:value:2.3.1'
@@ -238,5 +238,5 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
-    androidTestCompile 'com.android.support:support-annotations:24.2.0'
+    androidTestCompile 'com.android.support:support-annotations:24.2.1'
 }
