@@ -3,6 +3,14 @@
     "version": 110,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Suche nach Qualität (q:hd), Datum (d:2015) und repost (f:repost), siehe auch: https://github.com/mopsalarm/pr0gramm-tags/blob/master/README.md"
+      },
+      {
+        "type": "Fix",
+        "change": "Bessere Meldungen im Falle einiger Fehler"
+      },
+      {
         "type": "Fix",
         "change": "Bugfixes"
       }

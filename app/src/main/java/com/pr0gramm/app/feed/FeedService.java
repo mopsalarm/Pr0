@@ -99,11 +99,11 @@ public class FeedService {
                 } else if (!query.around().isPresent() && !query.newer().isPresent()) {
                     if (q.advanced) {
                         // track the advanced search
-                        Track.advancedSearch(tags);
+                        Track.advancedSearch(q.tags);
 
                         logger.info("Using general search api, but falling back on old one in case of an error.");
                         return categoryApi
-                                .general(promoted, tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                                .general(promoted, q.tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
                                 .onErrorResumeNext(officialCall);
                     }
                 }

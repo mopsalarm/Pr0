@@ -175,7 +175,9 @@ public class SearchConfigView extends FrameLayout implements SearchView {
             new SearchType("text", "Enhält Text", newFixViewFactory("Enthält Text", "f:text")),
             new SearchType("top?", "Ist in top", newFixViewFactory("Ist in top", "f:top")),
             new SearchType("ton", "Hat Ton", newFixViewFactory("Hat ton", "f:sound")),
+            new SearchType("re", "Ist rep0st", newFixViewFactory("Ist rep0st", "f:repost")),
             new SearchType("sfw?", "Filter", SearchViewContentType::new),
+            new SearchType("4k", "Qualität", SearchViewQuality::new),
             new SearchType("ben\nis", "Bewertung", SearchViewScore::new)
     );
 }
