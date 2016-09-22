@@ -380,4 +380,5 @@
     <string name="pref_pseudo_onboarding_summary">Zeigt den Willkommensbildschirm noch mal</string>
     <string name="pref_pseudo_onboarding_title">Willkommensbildschirm</string>
     <string name="action_done">FERTIG</string>
+    <string name="error_blocked">Dein Internetanbieter blockt das pr0gramm. Benutzt du gerade ein freies WLAN?</string>
 </resources>

@@ -5,7 +5,6 @@ import android.content.Context;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
-import com.google.common.io.CharStreams;
 import com.google.common.reflect.Reflection;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.gson.Gson;
@@ -21,7 +20,6 @@ import com.pr0gramm.app.util.AndroidUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -125,7 +123,8 @@ public class ApiProvider implements Provider<Api> {
             try {
                 Object result = invoke.call();
                 if (result instanceof Observable) {
-                    result = ((Observable) result)
+                    result = ((Observable<?>) result)
+                            .onErrorResumeNext(err -> Observable.error(processError(err)))
                             .doOnError(err -> measureApiCall(watch, method, false))
                             .doOnCompleted(() -> measureApiCall(watch, method, true));
 
@@ -139,6 +138,21 @@ public class ApiProvider implements Provider<Api> {
                 throw targetError.getCause();
             }
         });
+    }
+
+    static Throwable processError(Throwable err) {
+        if (err instanceof HttpException) {
+            HttpException httpErr = (HttpException) err;
+            if (!httpErr.response().isSuccessful()) {
+                try {
+                    String body = httpErr.response().errorBody().string();
+                    return new HttpErrorException(httpErr, body);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        return err;
     }
 
     private void measureApiCall(Stopwatch watch, Method method, boolean success) {
@@ -164,6 +178,8 @@ public class ApiProvider implements Provider<Api> {
         for (int i = 0; i < retryCount; i++) {
             result = result.onErrorResumeNext(err -> {
                 try {
+                    err = processError(err);
+
                     if (shouldRetryTest.apply(err)) {
                         try {
                             // give the server a small grace period before trying again.
@@ -191,24 +207,14 @@ public class ApiProvider implements Provider<Api> {
 
     @SuppressLint("NewApi")
     private static boolean isHttpError(Throwable error) {
-        if (error instanceof HttpException) {
-            HttpException httpError = (HttpException) error;
-            String errorBody = "";
-            try {
-                try (Reader stream = httpError.response().errorBody().charStream()) {
-                    errorBody = CharStreams.toString(stream);
-                }
+        if (error instanceof HttpErrorException) {
+            HttpErrorException httpError = (HttpErrorException) error;
+            String errorBody = httpError.getErrorBody();
 
-                // now shorten
-                errorBody = errorBody.substring(0, Math.min(512, errorBody.length()));
+            logger.warn("Got http error {} {}, with body: {}", httpError.getCause().code(),
+                    httpError.getCause().message(), errorBody);
 
-            } catch (Exception ignored) {
-            }
-
-            logger.warn("Got http error {} {}, with body: {}", httpError.code(),
-                    httpError.message(), errorBody);
-
-            return httpError.code() / 100 == 5;
+            return httpError.getCause().code() / 100 == 5;
         } else {
             return false;
         }

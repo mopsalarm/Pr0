@@ -1220,24 +1220,21 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     private void onFeedError(Throwable error) {
         logger.error("Error loading the feed", error);
 
-        if (feedAdapter.getFeed().size() == 0) {
-            if (autoOpenOnLoad != null) {
-                ErrorDialogFragment.showErrorString(getFragmentManager(),
-                        getString(R.string.could_not_load_feed_nsfw));
+        if (autoOpenOnLoad != null) {
+            ErrorDialogFragment.showErrorString(getFragmentManager(),
+                    getString(R.string.could_not_load_feed_nsfw));
 
-            } else if (error instanceof JsonSyntaxException) {
-                // show a special error
-                ErrorDialogFragment.showErrorString(getFragmentManager(),
-                        getString(R.string.could_not_load_feed_json));
+        } else if (error instanceof JsonSyntaxException) {
+            // show a special error
+            ErrorDialogFragment.showErrorString(getFragmentManager(),
+                    getString(R.string.could_not_load_feed_json));
 
-            } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.useHttps()) {
-                ErrorDialogFragment.showErrorString(getFragmentManager(),
-                        getString(R.string.could_not_load_feed_https));
+        } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.useHttps()) {
+            ErrorDialogFragment.showErrorString(getFragmentManager(),
+                    getString(R.string.could_not_load_feed_https));
 
-            } else {
-                ErrorDialogFragment.showErrorString(getFragmentManager(),
-                        getString(R.string.could_not_load_feed));
-            }
+        } else {
+            ErrorDialogFragment.defaultOnError().call(error);
         }
     }
 

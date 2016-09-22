@@ -10,9 +10,11 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.CharStreams;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.api.pr0gramm.HttpErrorException;
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.ui.PermissionHelper;
 
@@ -111,9 +113,18 @@ public class ErrorFormatting {
         }
     }
 
-    private static class RetrofitStatusFormatter extends Formatter<HttpException> {
-        public RetrofitStatusFormatter(Predicate<HttpException> check, @StringRes int message) {
-            super(HttpException.class, check::apply, message);
+    private static class RetrofitStatusFormatter extends Formatter<Exception> {
+        @SuppressWarnings("SimplifiableIfStatement")
+        public RetrofitStatusFormatter(Predicate<HttpErrorException> check, @StringRes int message) {
+            super(Exception.class, err -> {
+                if (err instanceof HttpException)
+                    return check.apply(HttpErrorException.from((HttpException) err));
+
+                if (err instanceof HttpErrorException)
+                    return check.apply((HttpErrorException) err);
+
+                return false;
+            }, message);
         }
     }
 
@@ -141,8 +152,12 @@ public class ErrorFormatting {
         };
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 403 && toString(err.response().errorBody()).contains("cloudflare"),
+                err -> err.code() == 403 && err.getErrorBody().contains("cloudflare"),
                 R.string.error_cloudflare).doNotReport());
+
+        formatters.add(new RetrofitStatusFormatter(
+                err -> err.code() == 403 && err.getErrorBody().contains("<html>"),
+                R.string.error_blocked).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
                 err -> asList(401, 403).contains(err.code()),
@@ -261,7 +276,7 @@ public class ErrorFormatting {
 
     private static String toString(ResponseBody body) {
         try {
-            return body.string();
+            return CharStreams.toString(body.charStream());
         } catch (IOException err) {
             return "";
         }

@@ -376,6 +376,7 @@
     <string name="feedback_subject">Subject</string>
     <string name="feedback_name">Name</string>
     <string name="error_cloudflare">Looks like cloudflare is blocking your ip address.</string>
+    <string name="error_blocked">Looks like your provider is blocking pr0gramm. Are you using some kind of free wifi?</string>
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
     <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Als Uploader des Bildes musst du keine Beweise vorlegen.</string>
     <string name="action_search_ex">Advanced search</string>
