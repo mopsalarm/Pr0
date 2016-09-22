@@ -1,5 +1,7 @@
 package com.pr0gramm.app.feed;
 
+import android.support.annotation.Nullable;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.pr0gramm.app.Settings;
@@ -63,39 +65,45 @@ public class FeedService {
         // statistics
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name().toLowerCase());
 
+        // get extended tag query
+        SearchQuery q = new SearchQuery(tags);
+
         switch (feedType) {
             case RANDOM:
-                return categoryApi.random(tags, flags);
+                return categoryApi.random(q.tags, flags);
 
             case BESTOF:
                 int benisScore = settings.bestOfBenisThreshold();
-                return categoryApi.bestof(tags, user, flags, query.older().orNull(), benisScore);
+                return categoryApi.bestof(q.tags, user, flags, query.older().orNull(), benisScore);
 
             case CONTROVERSIAL:
-                return categoryApi.controversial(tags, flags, query.older().orNull());
+                return categoryApi.controversial(q.tags, flags, query.older().orNull());
 
             case TEXT:
-                return categoryApi.text(tags, flags, query.older().orNull());
+                return categoryApi.text(q.tags, flags, query.older().orNull());
 
             default:
                 // prepare the call to the official api. The call is only made on subscription.
                 Observable<Api.Feed> officialCall = mainApi.itemsGet(promoted, following,
                         query.older().orNull(), query.newer().orNull(), query.around().orNull(),
-                        flags, tags, likes, self, user);
+                        flags, q.tags, likes, self, user);
 
                 if (likes == null && configService.config().searchUsingTagService()) {
                     return categoryApi
-                            .general(promoted, tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                            .general(promoted, q.tags, user, flags,
+                                    query.older().orNull(), query.newer().orNull(),
+                                    query.around().orNull())
+
                             .onErrorResumeNext(officialCall);
 
                 } else if (!query.around().isPresent() && !query.newer().isPresent()) {
-                    if (tags != null && tags.startsWith("?")) {
+                    if (q.advanced) {
                         // track the advanced search
-                        Track.advancedSearch(tags.substring(1));
+                        Track.advancedSearch(tags);
 
                         logger.info("Using general search api, but falling back on old one in case of an error.");
                         return categoryApi
-                                .general(promoted, tags.substring(1), user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
+                                .general(promoted, tags, user, flags, query.older().orNull(), query.newer().orNull(), query.around().orNull())
                                 .onErrorResumeNext(officialCall);
                     }
                 }
@@ -119,5 +127,22 @@ public class FeedService {
         Optional<Long> older();
 
         Optional<Long> around();
+    }
+
+    private static class SearchQuery {
+        final boolean advanced;
+
+        @Nullable
+        final String tags;
+
+        SearchQuery(@Nullable String tags) {
+            if (tags == null || !tags.trim().startsWith("?")) {
+                this.advanced = false;
+                this.tags = tags;
+            } else {
+                this.advanced = true;
+                this.tags = tags.replaceFirst("\\s*\\?\\s*", "");
+            }
+        }
     }
 }
