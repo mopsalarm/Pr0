@@ -165,7 +165,7 @@ public class DownloadService {
         private final long interval;
         private long last = System.currentTimeMillis();
 
-        private Interval(long interval) {
+        Interval(long interval) {
             this.interval = interval;
         }
 

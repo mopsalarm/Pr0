@@ -17,9 +17,9 @@ import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
  */
 public class UsernameAutoCompleteAdapter extends ArrayAdapter<String> {
     private final Filter filter = new UsernameFilter();
-    private final Pattern validConstraint;
-    private final UserSuggestionService suggestionService;
-    private final String prefix;
+    final Pattern validConstraint;
+    final UserSuggestionService suggestionService;
+    final String prefix;
 
     public UsernameAutoCompleteAdapter(UserSuggestionService suggestionService, Context context, int resource) {
         this(suggestionService, context, "@", resource);
@@ -39,6 +39,9 @@ public class UsernameAutoCompleteAdapter extends ArrayAdapter<String> {
     }
 
     private class UsernameFilter extends Filter {
+
+        UsernameFilter() {
+        }
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {

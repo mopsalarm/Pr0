@@ -141,12 +141,12 @@ public class GifDrawableLoader {
         public final GifDrawable drawable;
         public final float progress;
 
-        private DownloadStatus(float progress) {
+        DownloadStatus(float progress) {
             this.drawable = null;
             this.progress = progress;
         }
 
-        private DownloadStatus(GifDrawable drawable) {
+        DownloadStatus(GifDrawable drawable) {
             this.drawable = drawable;
             this.progress = 1.f;
         }

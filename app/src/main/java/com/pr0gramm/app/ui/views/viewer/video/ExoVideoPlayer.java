@@ -76,15 +76,15 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     private final Context context;
     private final boolean hasAudio;
     private final AspectLayout parentView;
-    private final Settings settings;
+    final Settings settings;
 
     private boolean muted;
 
-    private ExoPlayer exo;
+    ExoPlayer exo;
     private BufferedDataSource dataSource;
 
     @Nullable
-    private MediaCodecVideoTrackRenderer exoVideoTrack;
+    MediaCodecVideoTrackRenderer exoVideoTrack;
 
     @Nullable
     private MediaCodecAudioTrackRenderer exoAudioTrack;
@@ -408,7 +408,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         }
     };
 
-    private static Optional<DecoderInfo> bestMatchingCodec(List<DecoderInfo> codecs, String videoCodecName) {
+    static Optional<DecoderInfo> bestMatchingCodec(List<DecoderInfo> codecs, String videoCodecName) {
         if ("software".equals(videoCodecName)) {
             return from(codecs).firstMatch(ExoVideoPlayer::isSoftwareDecoder);
 

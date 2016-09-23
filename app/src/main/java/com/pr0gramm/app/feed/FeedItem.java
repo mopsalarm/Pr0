@@ -143,7 +143,7 @@ public class FeedItem implements Parcelable, HasThumbnail {
         dest.writeByte(audio ? (byte) 1 : 0);
     }
 
-    private FeedItem(Parcel in) {
+    FeedItem(Parcel in) {
         this.id = in.readInt();
         this.promotedId = in.readInt();
         this.thumb = in.readString();

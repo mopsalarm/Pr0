@@ -24,7 +24,7 @@ import okhttp3.Response;
 /**
  */
 public class InputStreamCacheDataSource implements BufferedDataSource {
-    private final SettableFuture<HttpResult> response = SettableFuture.create();
+    final SettableFuture<HttpResult> response = SettableFuture.create();
 
     private long totalSize = -1;
     private InputStream inputStream;
@@ -94,7 +94,7 @@ public class InputStreamCacheDataSource implements BufferedDataSource {
         final Response response;
         final InputStreamCache cache;
 
-        private HttpResult(IOException error, Response response, InputStreamCache cache) {
+        HttpResult(IOException error, Response response, InputStreamCache cache) {
             this.error = error;
             this.response = response;
             this.cache = cache;

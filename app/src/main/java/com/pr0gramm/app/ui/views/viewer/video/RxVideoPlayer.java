@@ -11,8 +11,8 @@ import rx.subjects.PublishSubject;
  */
 public abstract class RxVideoPlayer implements VideoPlayer {
     protected final PublishSubject<Void> detaches = PublishSubject.create();
-    private final BehaviorSubject<Boolean> buffering = BehaviorSubject.create(false);
-    private Callbacks clientCallbacks = new EmptyVideoCallbacks();
+    final BehaviorSubject<Boolean> buffering = BehaviorSubject.create(false);
+    Callbacks clientCallbacks = new EmptyVideoCallbacks();
 
     @Override
     public void setVideoCallbacks(@Nullable Callbacks callbacks) {

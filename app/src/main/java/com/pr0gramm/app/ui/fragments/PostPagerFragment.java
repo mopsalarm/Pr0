@@ -42,7 +42,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 /**
  */
 public class PostPagerFragment extends BaseFragment implements FilterFragment, PostPagerNavigation {
-    private static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
+    static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
     private static final String ARG_START_ITEM = "PostPagerFragment.startItem";
@@ -55,9 +55,9 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
     ViewPager viewPager;
 
     private Feed feed;
-    private PostAdapter adapter;
+    PostAdapter adapter;
 
-    private PostFragment activePostFragment;
+    PostFragment activePostFragment;
 
     @Nullable
     private PreviewInfo previewInfo;
@@ -152,7 +152,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         viewPager.setCurrentItem(index, false);
     }
 
-    private void updateActiveItem(PostFragment newActiveFragment) {
+    void updateActiveItem(PostFragment newActiveFragment) {
         int position = adapter.getItemPosition(newActiveFragment);
         if (activePostFragment == newActiveFragment)
             return;
@@ -249,7 +249,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
     }
 
-    private void saveStateToBundle(Bundle outState) {
+    void saveStateToBundle(Bundle outState) {
         if (viewPager != null && feed != null) {
             int position = viewPager.getCurrentItem();
             FeedItem item = feed.at(position);

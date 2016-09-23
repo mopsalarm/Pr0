@@ -37,7 +37,7 @@ import static java.lang.System.currentTimeMillis;
  */
 @Singleton
 public class HttpProxyService extends NanoHTTPD implements ProxyService {
-    private static final Logger logger = LoggerFactory.getLogger("HttpProxyService");
+    static final Logger logger = LoggerFactory.getLogger("HttpProxyService");
 
     private static final Response ERROR_RESPONSE = newFixedLengthResponse(
             Response.Status.INTERNAL_ERROR, "text/plain", null);

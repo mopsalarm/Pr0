@@ -45,7 +45,7 @@ import java.util.ArrayList;
 @SuppressLint("ViewConstructor")
 public class MenuSheetView extends FrameLayout {
     @ColorInt
-    private final int defaultColor = ColorStateList.valueOf(Color.BLACK)
+    final int defaultColor = ColorStateList.valueOf(Color.BLACK)
             .withAlpha(127)
             .getDefaultColor();
 
@@ -57,7 +57,7 @@ public class MenuSheetView extends FrameLayout {
     }
 
     private Menu menu;
-    private ArrayList<SheetMenuItem> items = new ArrayList<>();
+    ArrayList<SheetMenuItem> items = new ArrayList<>();
     private Adapter adapter;
     private AbsListView absListView;
     private final TextView titleView;
@@ -358,7 +358,7 @@ public class MenuSheetView extends FrameLayout {
 
     private static class SheetMenuItem {
 
-        private static final SheetMenuItem SEPARATOR = new SheetMenuItem(null);
+        static final SheetMenuItem SEPARATOR = new SheetMenuItem(null);
 
         private final MenuItem menuItem;
 

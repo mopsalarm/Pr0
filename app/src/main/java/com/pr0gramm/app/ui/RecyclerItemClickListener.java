@@ -12,16 +12,16 @@ import rx.subjects.PublishSubject;
 
 public class RecyclerItemClickListener {
     private final RecyclerView recyclerView;
-    private final GestureDetector mGestureDetector;
-    private boolean longPressTriggered;
+    final GestureDetector mGestureDetector;
+    boolean longPressTriggered;
 
-    private final Listener touchListener = new Listener();
+    final Listener touchListener = new Listener();
     private final ScrollListener scrollListener = new ScrollListener();
 
-    private final PublishSubject<View> itemClicked = PublishSubject.create();
-    private final PublishSubject<View> itemLongClicked = PublishSubject.create();
-    private final PublishSubject<Void> itemLongClickedEnded = PublishSubject.create();
-    private boolean longClickEnabled;
+    final PublishSubject<View> itemClicked = PublishSubject.create();
+    final PublishSubject<View> itemLongClicked = PublishSubject.create();
+    final PublishSubject<Void> itemLongClickedEnded = PublishSubject.create();
+    boolean longClickEnabled;
 
     public RecyclerItemClickListener(Context context, RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
@@ -71,6 +71,9 @@ public class RecyclerItemClickListener {
     }
 
     private class Listener extends RecyclerView.SimpleOnItemTouchListener {
+        Listener() {
+        }
+
         @Override
         public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
             View childView = view.findChildViewUnder(e.getX(), e.getY());
@@ -110,6 +113,9 @@ public class RecyclerItemClickListener {
     }
 
     private class ScrollListener extends RecyclerView.OnScrollListener {
+        ScrollListener() {
+        }
+
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             switch (newState) {

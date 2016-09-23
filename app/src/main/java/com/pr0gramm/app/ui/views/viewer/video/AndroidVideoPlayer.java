@@ -36,9 +36,9 @@ import java.io.IOException;
  * Stripped down version of {@link android.widget.VideoView}.
  */
 public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
-    private static final Logger logger = LoggerFactory.getLogger("CustomVideoView");
+    static final Logger logger = LoggerFactory.getLogger("CustomVideoView");
     private final Context context;
-    private final AspectLayout parentView;
+    final AspectLayout parentView;
 
     // settable by the client
     private Uri mUri;
@@ -57,19 +57,19 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
     // For instance, regardless the VideoView object's current state,
     // calling pause() intends to bring the object to a target state
     // of STATE_PAUSED.
-    private int mCurrentState = STATE_IDLE;
-    private int mTargetState = STATE_IDLE;
+    int mCurrentState = STATE_IDLE;
+    int mTargetState = STATE_IDLE;
 
-    private MediaPlayer mMediaPlayer = null;
-    private int mVideoWidth;
-    private int mVideoHeight;
-    private int mSurfaceWidth;
-    private int mSurfaceHeight;
-    private int mSeekWhenPrepared;
+    MediaPlayer mMediaPlayer = null;
+    int mVideoWidth;
+    int mVideoHeight;
+    int mSurfaceWidth;
+    int mSurfaceHeight;
+    int mSeekWhenPrepared;
     private int mVolume;
 
     // the backend view.
-    private ViewBackend mBackendView;
+    ViewBackend mBackendView;
 
     private boolean shouldShowIoError = true;
 
@@ -91,7 +91,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         RxView.detaches(view).subscribe(detaches);
     }
 
-    private void openVideo() {
+    void openVideo() {
         if (mUri == null || !mBackendView.hasSurface()) {
             // not ready for playback just yet, will try again later
             return;
@@ -326,7 +326,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
     /*
      * release the media player in any state
      */
-    private void release() {
+    void release() {
         mBackendView.getView().setAlpha(0.01f);
 
         if (mMediaPlayer != null) {

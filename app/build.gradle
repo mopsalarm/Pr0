@@ -223,7 +223,7 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.2'
 
     compile 'pl.brightinventions:slf4android:0.1.2'
-    compile 'com.crashlytics.sdk.android:crashlytics:2.6.3'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.6.4'
 
     apt 'org.immutables:value:2.3.1'
     provided 'org.immutables:value:2.3.1'

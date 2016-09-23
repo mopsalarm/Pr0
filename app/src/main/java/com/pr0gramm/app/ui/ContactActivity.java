@@ -132,7 +132,7 @@ public class ContactActivity extends BaseAppCompatActivity {
         updateSubmitButtonActivation();
     }
 
-    private void updateSubmitButtonActivation() {
+    void updateSubmitButtonActivation() {
         boolean enabled = true;
         for (TextView view : groupAllTextViews) {
             if (view.getVisibility() == View.VISIBLE) {

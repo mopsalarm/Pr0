@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class LineMultiAutoCompleteTextView extends AppCompatMultiAutoCompleteTextView {
     private static final Logger logger = LoggerFactory.getLogger("LineMultiAutoCompleteTextView");
-    private View anchorView;
+    View anchorView;
 
     public LineMultiAutoCompleteTextView(Context context) {
         super(context);

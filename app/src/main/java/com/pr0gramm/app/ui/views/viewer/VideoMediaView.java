@@ -44,14 +44,14 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  */
 public class VideoMediaView extends AbstractProgressMediaView implements VideoPlayer.Callbacks {
-    private static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
+    static final Logger logger = LoggerFactory.getLogger("VideoMediaView");
 
     private static final String KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo";
 
     // the video player that does all the magic
     private final RxVideoPlayer videoPlayer;
 
-    private final AudioManager audioManager;
+    final AudioManager audioManager;
 
     @BindView(R.id.video_container)
     AspectLayout videoPlayerParent;
@@ -160,7 +160,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
                 .apply();
     }
 
-    private void setMuted(boolean muted) {
+    void setMuted(boolean muted) {
         if (!muted) {
             int result = audioManager.requestAudioFocus(afChangeListener,
                     AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -289,7 +289,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
     }
 
-    private final AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+    final AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
         public void onAudioFocusChange(int focusChange) {
             if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
                     || focusChange == AudioManager.AUDIOFOCUS_LOSS) {

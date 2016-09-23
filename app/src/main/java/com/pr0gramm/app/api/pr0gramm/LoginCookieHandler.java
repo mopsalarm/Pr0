@@ -230,7 +230,7 @@ public class LoginCookieHandler implements CookieJar {
     /**
      */
     public static class LoginRequiredException extends IllegalStateException {
-        private LoginRequiredException() {
+        LoginRequiredException() {
         }
     }
 }

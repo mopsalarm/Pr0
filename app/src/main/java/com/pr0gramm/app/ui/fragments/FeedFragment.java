@@ -126,7 +126,7 @@ import static java.util.Collections.emptyList;
 /**
  */
 public class FeedFragment extends BaseFragment implements FilterFragment, SearchListener {
-    private static final Logger logger = LoggerFactory.getLogger("FeedFragment");
+    static final Logger logger = LoggerFactory.getLogger("FeedFragment");
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
@@ -180,15 +180,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     @BindView(R.id.empty)
     View noResultsView;
 
-    private boolean userInfoCommentsOpen;
+    boolean userInfoCommentsOpen;
     private boolean bookmarkable;
-    private IndicatorStyle seenIndicatorStyle;
+    IndicatorStyle seenIndicatorStyle;
     private Long autoScrollOnLoad = null;
     private ItemWithComment autoOpenOnLoad = null;
 
-    private FeedAdapter feedAdapter;
-    private FeedLoader loader;
-    private boolean scrollToolbar;
+    FeedAdapter feedAdapter;
+    FeedLoader loader;
+    boolean scrollToolbar;
 
     private WeakReference<Dialog> quickPeekDialog = new WeakReference<>(null);
     private String activeUsername;
@@ -456,7 +456,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         }
     }
 
-    private void updateSpanSizeLookup() {
+    void updateSpanSizeLookup() {
         MergeRecyclerAdapter mainAdapter = getMainAdapter().orNull();
         GridLayoutManager layoutManager = getRecyclerViewLayoutManager().orNull();
         if (mainAdapter != null && layoutManager != null) {
@@ -998,7 +998,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         return feedAdapter.getFilter();
     }
 
-    private boolean isSeen(FeedItem item) {
+    boolean isSeen(FeedItem item) {
         return seenService.isSeen(item);
     }
 
@@ -1170,7 +1170,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         }
     }
 
-    private void showWrongContentTypeInfo() {
+    void showWrongContentTypeInfo() {
         Context context = getActivity();
         if (context != null) {
             DialogBuilder.start(context)
@@ -1180,7 +1180,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         }
     }
 
-    private void refreshRepostInfos(long id, FeedFilter filter) {
+    void refreshRepostInfos(long id, FeedFilter filter) {
         if (filter.getFeedType() != FeedType.NEW && filter.getFeedType() != FeedType.PROMOTED)
             return;
 
@@ -1217,7 +1217,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    private void onFeedError(Throwable error) {
+    void onFeedError(Throwable error) {
         logger.error("Error loading the feed", error);
 
         if (autoOpenOnLoad != null) {
@@ -1241,7 +1241,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     /**
      * Called when loading of feed data finished.
      */
-    private void onFeedLoadFinished() {
+    void onFeedLoadFinished() {
         removeBusyIndicator();
         swipeRefreshLayout.setRefreshing(false);
         updateNoResultsTextView();
@@ -1253,7 +1253,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     @SuppressWarnings("CodeBlock2Expr")
-    private void performAutoOpen() {
+    void performAutoOpen() {
         Feed feed = feedAdapter.getFeed();
 
         if (autoScrollOnLoad != null) {
@@ -1287,7 +1287,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
                 .transform(idx -> idx + offset);
     }
 
-    private Optional<GridLayoutManager> getRecyclerViewLayoutManager() {
+    Optional<GridLayoutManager> getRecyclerViewLayoutManager() {
         if (recyclerView == null)
             return absent();
 

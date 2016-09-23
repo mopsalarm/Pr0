@@ -120,8 +120,8 @@ public class DrawerFragment extends BaseFragment {
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private static final int ICON_ALPHA = 127;
-    private final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
-    private ColorStateList markedColor;
+    final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
+    ColorStateList markedColor;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
@@ -231,7 +231,7 @@ public class DrawerFragment extends BaseFragment {
      * @param view  The view to "tint"
      * @param color The color with which the drawables are to be tinted.
      */
-    private static void changeCompoundDrawableColor(TextView view, ColorStateList color) {
+    static void changeCompoundDrawableColor(TextView view, ColorStateList color) {
         int defaultColor = color.getDefaultColor();
         Drawable[] drawables = view.getCompoundDrawables();
         for (Drawable drawable : drawables) {
@@ -344,6 +344,9 @@ public class DrawerFragment extends BaseFragment {
         private Optional<NavigationItem> selected = Optional.absent();
         private FeedFilter currentFilter;
 
+        NavigationAdapter() {
+        }
+
         @Override
         public NavigationItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Context context = parent.getContext();
@@ -417,7 +420,7 @@ public class DrawerFragment extends BaseFragment {
         }
     }
 
-    private void dispatchItemClick(NavigationItem item) {
+    void dispatchItemClick(NavigationItem item) {
         switch (item.action()) {
             case FILTER:
             case BOOKMARK:
@@ -459,7 +462,7 @@ public class DrawerFragment extends BaseFragment {
         doIfAuthorizedHelper.run(run, run);
     }
 
-    private void showDialogToRemoveBookmark(Bookmark bookmark) {
+    void showDialogToRemoveBookmark(Bookmark bookmark) {
         DialogBuilder.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
                 .cancelable()

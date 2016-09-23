@@ -152,7 +152,7 @@ public final class FeedFilter implements Parcelable {
     }
 
     @SuppressWarnings("unchecked")
-    private FeedFilter(Parcel in) {
+    FeedFilter(Parcel in) {
         int tmpFeedType = in.readInt();
         this.feedType = tmpFeedType == -1 ? null : FeedType.values()[tmpFeedType];
         this.tags = fromNullable(in.readString());

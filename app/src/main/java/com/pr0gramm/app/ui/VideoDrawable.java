@@ -150,6 +150,9 @@ public class VideoDrawable extends Drawable {
         private int position = 0;
         private long previousTimestamp;
 
+        FrameCounter() {
+        }
+
         public void update() {
             long now = SystemClock.elapsedRealtime();
             durations[position++ % durations.length] = now - previousTimestamp;

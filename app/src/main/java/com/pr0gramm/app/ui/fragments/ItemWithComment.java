@@ -40,7 +40,7 @@ public class ItemWithComment implements Parcelable {
         dest.writeValue(this.commentId);
     }
 
-    private ItemWithComment(Parcel in) {
+    ItemWithComment(Parcel in) {
         this.itemId = in.readLong();
         this.commentId = (Long) in.readValue(Long.class.getClassLoader());
     }

@@ -112,7 +112,7 @@ public class ImageMediaView extends MediaView {
         showBusyIndicator();
     }
 
-    private void applyScaling() {
+    void applyScaling() {
         float ratio = imageView.getSWidth() / (float) imageView.getSHeight();
         float ratioCapped = Math.max(ratio, CAP_IMAGE_RATIO);
 
@@ -162,7 +162,7 @@ public class ImageMediaView extends MediaView {
     }
 
     @SuppressLint("SetTextI18n")
-    private void showErrorIndicator(Exception error) {
+    void showErrorIndicator(Exception error) {
         errorIndicator.setVisibility(VISIBLE);
         errorIndicator.setAlpha(0);
         errorIndicator.animate().alpha(1).start();

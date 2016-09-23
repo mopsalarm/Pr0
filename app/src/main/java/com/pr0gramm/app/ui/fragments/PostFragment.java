@@ -118,14 +118,14 @@ public class PostFragment extends BaseFragment implements
     private static final String ARG_COMMENT_DRAFT = "PostFragment.comment-draft";
     private static final String ARG_AUTOSCROLL_COMMENT_ID = "PostFragment.first-comment";
 
-    private FeedItem feedItem;
-    private MediaView viewer;
+    FeedItem feedItem;
+    MediaView viewer;
 
     private final MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
     private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
 
-    private InfoLineView infoLineView;
+    InfoLineView infoLineView;
 
     // start with an empty adapter here
     private CommentsAdapter commentsAdapter;
@@ -564,7 +564,7 @@ public class PostFragment extends BaseFragment implements
         Screen.unlockOrientation(activity);
     }
 
-    private boolean isVideoFullScreen() {
+    boolean isVideoFullScreen() {
         return swipeRefreshLayout != null && swipeRefreshLayout.getVisibility() != View.VISIBLE;
     }
 
@@ -1151,7 +1151,7 @@ public class PostFragment extends BaseFragment implements
     /**
      * Positions the media view using the given offset (on the y axis)
      */
-    private void offsetMediaView(boolean viewerVisible, float offset) {
+    void offsetMediaView(boolean viewerVisible, float offset) {
         if (viewerVisible) {
             // finally position the viewer
             viewer.setTranslationY(-offset);
@@ -1167,9 +1167,9 @@ public class PostFragment extends BaseFragment implements
     }
 
     private class FullscreenParams {
-        private final float scale;
-        private final float trY;
-        private final float rotation;
+        final float scale;
+        final float trY;
+        final float rotation;
 
         FullscreenParams() {
             int windowWidth = swipeRefreshLayout.getWidth();
@@ -1216,7 +1216,7 @@ public class PostFragment extends BaseFragment implements
      *
      * @param image The url of the image to check
      */
-    private static boolean isStaticImage(FeedItem image) {
+    static boolean isStaticImage(FeedItem image) {
         return image.image().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 }

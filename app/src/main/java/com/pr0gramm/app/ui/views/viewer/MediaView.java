@@ -87,7 +87,7 @@ public abstract class MediaView extends FrameLayout {
     private View busyIndicator;
 
     @Nullable
-    private AspectImageView preview;
+    AspectImageView preview;
 
     @Inject
     Picasso picasso;

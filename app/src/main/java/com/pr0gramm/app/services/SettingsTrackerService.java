@@ -25,7 +25,7 @@ import retrofit2.http.POST;
 
 @Singleton
 public class SettingsTrackerService {
-    private static final Logger logger = LoggerFactory.getLogger("SettingsTrackerService");
+    static final Logger logger = LoggerFactory.getLogger("SettingsTrackerService");
 
     private final Settings settings;
     private final HttpInterface httpInterface;

@@ -145,6 +145,9 @@ public abstract class ProxyMediaView extends MediaView {
     }
 
     private class ForwardingTapListener implements TapListener {
+        ForwardingTapListener() {
+        }
+
         @Override
         public boolean onSingleTap(MotionEvent event) {
             return getTapListener() != null && getTapListener().onSingleTap(event);

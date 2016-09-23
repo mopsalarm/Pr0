@@ -20,7 +20,7 @@ import rx.functions.Action1;
  */
 public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
-    private final List<LocalAdapter> adapters = new ArrayList<>();
+    final List<LocalAdapter> adapters = new ArrayList<>();
     private int mViewTypeIndex = 0;
 
     /**

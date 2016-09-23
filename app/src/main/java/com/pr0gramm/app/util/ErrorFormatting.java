@@ -56,23 +56,23 @@ public class ErrorFormatting {
         private final Func2<T, Context, String> message;
         private boolean report = true;
 
-        private Formatter(Class<T> errorType, Func2<T, Context, String> message) {
+        Formatter(Class<T> errorType, Func2<T, Context, String> message) {
             this(errorType, Predicates.alwaysTrue(), message);
         }
 
-        private Formatter(Class<T> errorType, @StringRes int message) {
+        Formatter(Class<T> errorType, @StringRes int message) {
             this(errorType, Predicates.alwaysTrue(), (err, ctx) -> ctx.getString(message));
         }
 
-        private Formatter(Class<T> errorType, Predicate<T> check) {
+        Formatter(Class<T> errorType, Predicate<T> check) {
             this(errorType, check, (err, ctx) -> null);
         }
 
-        private Formatter(Class<T> errorType, Predicate<T> check, @StringRes int message) {
+        Formatter(Class<T> errorType, Predicate<T> check, @StringRes int message) {
             this(errorType, check, (err, ctx) -> ctx.getString(message));
         }
 
-        private Formatter(Class<T> errorType, Predicate<T> check, Func2<T, Context, String> message) {
+        Formatter(Class<T> errorType, Predicate<T> check, Func2<T, Context, String> message) {
             this.errorType = errorType;
             this.check = check;
             this.message = message;
@@ -115,7 +115,7 @@ public class ErrorFormatting {
 
     private static class RetrofitStatusFormatter extends Formatter<Exception> {
         @SuppressWarnings("SimplifiableIfStatement")
-        public RetrofitStatusFormatter(Predicate<HttpErrorException> check, @StringRes int message) {
+        RetrofitStatusFormatter(Predicate<HttpErrorException> check, @StringRes int message) {
             super(Exception.class, err -> {
                 if (err instanceof HttpException)
                     return check.apply(HttpErrorException.from((HttpException) err));
@@ -282,5 +282,5 @@ public class ErrorFormatting {
         }
     }
 
-    public static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());
+    private static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());
 }

@@ -21,17 +21,17 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class SingleShotService {
-    private static final int TIME_OFFSET_IN_MILLIS = (int) (Math.random() * 3600 * 1000);
+    static final int TIME_OFFSET_IN_MILLIS = (int) (Math.random() * 3600 * 1000);
 
     private static final String KEY_ACTIONS = "SingleShotService.actions";
     private static final String KEY_MAP_ACTIONS = "SingleShotService.mapActions";
 
     private final Gson gson = new Gson();
-    private final SharedPreferences preferences;
+    final SharedPreferences preferences;
 
-    private Map<String, String> timeStringMap;
+    Map<String, String> timeStringMap;
 
-    private final Object lock = new Object();
+    final Object lock = new Object();
 
 
     @Inject
@@ -80,7 +80,7 @@ public class SingleShotService {
     }
 
     public class TestOnlySingleShotService {
-        private TestOnlySingleShotService() {
+        TestOnlySingleShotService() {
         }
 
         public boolean isFirstTime(String action) {

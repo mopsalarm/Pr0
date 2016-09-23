@@ -21,23 +21,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  */
 public class GreedyInputStreamCache implements InputStreamCache {
-    private static final Logger logger = LoggerFactory.getLogger("GreedyInputStreamCache");
+    static final Logger logger = LoggerFactory.getLogger("GreedyInputStreamCache");
 
-    private final Object lock = new Object();
+    final Object lock = new Object();
     private final AtomicBoolean threadStarted = new AtomicBoolean();
     private final Thread thread = new Thread(this::downloadTaskWrapper);
     private final InputStream inputStream;
 
-    private final RandomAccessFile raf;
+    final RandomAccessFile raf;
 
     private final AtomicInteger openCount = new AtomicInteger();
-    private volatile int totalCount = 0;
+    volatile int totalCount = 0;
     private volatile boolean closed = false;
-    private volatile boolean endOfStream = false;
+    volatile boolean endOfStream = false;
 
     // This will be set if the code set an error.
-    private volatile IOException ioError;
-    private volatile RuntimeException runtimeError;
+    volatile IOException ioError;
+    volatile RuntimeException runtimeError;
 
     public GreedyInputStreamCache(Context context, InputStream inputStream) throws IOException {
         this.inputStream = inputStream;
@@ -149,7 +149,7 @@ public class GreedyInputStreamCache implements InputStreamCache {
         return totalCount;
     }
 
-    private void refCountClose() {
+    void refCountClose() {
         if (openCount.decrementAndGet() == 0) {
             try {
                 logger.info("Closing backing file");

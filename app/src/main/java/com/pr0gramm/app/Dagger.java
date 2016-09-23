@@ -52,7 +52,7 @@ public class Dagger {
 
     @KeepClassMembers
     static class EagerSingletons {
-        private EagerSingletons() {
+        EagerSingletons() {
         }
 
         @Inject

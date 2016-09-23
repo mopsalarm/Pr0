@@ -163,6 +163,9 @@ public class LoginActivity extends BaseAppCompatActivity {
     }
 
     private static class LoginErrorInterceptor implements Observable.Operator<Api.Login, Api.Login> {
+        LoginErrorInterceptor() {
+        }
+
         @Override
         public Subscriber<? super Api.Login> call(Subscriber<? super Api.Login> subscriber) {
             return new Subscriber<Api.Login>() {
@@ -247,7 +250,7 @@ public class LoginActivity extends BaseAppCompatActivity {
         @Nullable
         private Runnable retry;
 
-        private DoIfAuthorizedHelper() {
+        DoIfAuthorizedHelper() {
         }
 
         public void onActivityResult(int requestCode, int resultCode) {

@@ -60,16 +60,16 @@ public class BusyDialogFragment extends BaseDialogFragment {
         return getString(R.string.please_wait);
     }
 
-    private void updateProgressValue(float progress) {
+    void updateProgressValue(float progress) {
         if (this.progress != null) {
             this.progress.setProgress(progress);
         }
     }
 
     private static class BusyDialogOperator<T> implements Observable.Operator<T, T> {
-        private final String tag = "BusyDialog-" + System.identityHashCode(this);
-        private final FragmentManager fragmentManager;
-        private final Func1<T, Float> progressMapper;
+        final String tag = "BusyDialog-" + System.identityHashCode(this);
+        final FragmentManager fragmentManager;
+        final Func1<T, Float> progressMapper;
 
         public BusyDialogOperator(FragmentManager fragmentManager, String text,
                                   Func1<T, Float> progressMapper) {
@@ -90,7 +90,7 @@ public class BusyDialogFragment extends BaseDialogFragment {
             }
         }
 
-        private void dismiss() {
+        void dismiss() {
             checkMainThread();
 
             try {

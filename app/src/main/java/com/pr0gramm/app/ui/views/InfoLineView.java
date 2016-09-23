@@ -52,15 +52,15 @@ public class InfoLineView extends LinearLayout {
     private final Pr0grammIconView voteFavoriteView;
 
     @Nullable
-    private final Settings settings;
+    final Settings settings;
 
     private final View ratingUnknownView;
     private final boolean admin;
-    private OnDetailClickedListener onDetailClickedListener;
+    OnDetailClickedListener onDetailClickedListener;
     private VoteView.OnVoteListener onVoteListener;
 
     private FeedItem feedItem;
-    private TagVoteListener tagVoteListener;
+    TagVoteListener tagVoteListener;
     private boolean isSelfPost;
     private Runnable onAddTagClickedListener;
     private TagsAdapter tagsAdapter;
@@ -254,7 +254,7 @@ public class InfoLineView extends LinearLayout {
         private final boolean alwaysVoteViews;
         private int selected = -1;
 
-        private TagsAdapter(List<Api.Tag> tags, Map<Api.Tag, Vote> votes) {
+        TagsAdapter(List<Api.Tag> tags, Map<Api.Tag, Vote> votes) {
             setHasStableIds(true);
             this.tags = ImmutableList.copyOf(tags);
             this.votes = new HashMap<>(votes);

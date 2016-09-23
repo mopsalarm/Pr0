@@ -242,21 +242,21 @@ public class UploadService {
         private final long id;
         private final float progress;
 
-        private UploadInfo(long id) {
+        UploadInfo(long id) {
             this.id = id;
             this.key = null;
             this.progress = -1;
             this.similar = Collections.emptyList();
         }
 
-        private UploadInfo(String key, List<? extends HasThumbnail> similar) {
+        UploadInfo(String key, List<? extends HasThumbnail> similar) {
             this.id = 0;
             this.key = key;
             this.progress = -1;
             this.similar = ImmutableList.copyOf(similar);
         }
 
-        private UploadInfo(float progress) {
+        UploadInfo(float progress) {
             this.id = 0;
             this.key = null;
             this.progress = progress;

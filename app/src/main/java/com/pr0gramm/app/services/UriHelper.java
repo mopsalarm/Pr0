@@ -37,7 +37,7 @@ public final class UriHelper {
         return settings.useHttps() ? "https" : "http";
     }
 
-    private Uri.Builder start(String subdomain) {
+    Uri.Builder start(String subdomain) {
         return new Uri.Builder()
                 .scheme(scheme())
                 .authority(subdomain + ".pr0gramm.com");
@@ -101,14 +101,14 @@ public final class UriHelper {
             .build();
 
     public class NoPreload {
-        private NoPreload() {
+        NoPreload() {
         }
 
         public Uri media(FeedItem item) {
             return media(item, false);
         }
 
-        private Uri media(FeedItem item, boolean highQuality) {
+        Uri media(FeedItem item, boolean highQuality) {
             return highQuality && !item.isVideo()
                     ? join(start("full"), item.fullsize())
                     : join(start(item.isVideo() ? "vid" : "img"), item.image());
@@ -123,7 +123,7 @@ public final class UriHelper {
         return join(uri.buildUpon(), path);
     }
 
-    private Uri join(Uri.Builder builder, String path) {
+    Uri join(Uri.Builder builder, String path) {
         if (path.startsWith("http://") || path.startsWith("https://")) {
             return Uri.parse(path);
         }
