@@ -6,8 +6,8 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Base64;
 
-import com.google.android.exoplayer.DecoderInfo;
-import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Ordering;
 import com.google.common.io.CharStreams;
@@ -117,8 +117,8 @@ public class FeedbackService {
 
     private void appendCodecInfo(StringBuilder result) {
         try {
-            List<DecoderInfo> decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false);
-            for (DecoderInfo info : decoderInfos) {
+            List<MediaCodecInfo> decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false);
+            for (MediaCodecInfo info : decoderInfos) {
                 result.append("codec: ").append(info.name).append("\n");
             }
 

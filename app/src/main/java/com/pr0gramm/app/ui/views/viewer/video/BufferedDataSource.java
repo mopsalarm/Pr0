@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer.video;
 
-import com.google.android.exoplayer.upstream.DataSource;
+
+import com.google.android.exoplayer2.upstream.DataSource;
 
 /**
  * A datasource that forwards all requests to another one.

@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.views.viewer.video;
 import android.content.Context;
 import android.net.Uri;
 
-import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
@@ -25,11 +25,14 @@ import okhttp3.Response;
  */
 public class InputStreamCacheDataSource implements BufferedDataSource {
     final SettableFuture<HttpResult> response = SettableFuture.create();
+    private final Uri uri;
 
     private long totalSize = -1;
     private InputStream inputStream;
 
     public InputStreamCacheDataSource(Context context, OkHttpClient okHttpClient, Uri uri) {
+        this.uri = uri;
+
         Request request = new Request.Builder().url(uri.toString()).build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -78,6 +81,11 @@ public class InputStreamCacheDataSource implements BufferedDataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         return ByteStreams.read(inputStream, buffer, offset, readLength);
+    }
+
+    @Override
+    public Uri getUri() {
+        return uri;
     }
 
     /**

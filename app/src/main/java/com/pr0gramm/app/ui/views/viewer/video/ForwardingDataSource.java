@@ -1,7 +1,10 @@
 package com.pr0gramm.app.ui.views.viewer.video;
 
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSpec;
+
+import android.net.Uri;
+
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 
 import java.io.IOException;
 
@@ -32,5 +35,10 @@ public class ForwardingDataSource implements BufferedDataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         return dataSource.read(buffer, offset, readLength);
+    }
+
+    @Override
+    public Uri getUri() {
+        return dataSource.getUri();
     }
 }

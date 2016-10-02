@@ -13,8 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.akodiakson.sdk.simple.Sdk;
-import com.google.android.exoplayer.DecoderInfo;
-import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
@@ -145,8 +145,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 entryValues.add("hardware");
 
                 try {
-                    List<DecoderInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, false);
-                    for (DecoderInfo codec : codecs) {
+                    List<MediaCodecInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, false);
+                    for (MediaCodecInfo codec : codecs) {
                         entries.add(codec.name.toLowerCase());
                         entryValues.add(codec.name);
                     }
