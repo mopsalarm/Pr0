@@ -77,7 +77,8 @@ import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
 @SuppressWarnings("WeakerAccess")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
-        ExtractorMediaSource.EventListener, VideoRendererEventListener,
+        ExtractorMediaSource.EventListener,
+        VideoRendererEventListener,
         ExoPlayer.EventListener {
 
     private static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
@@ -181,16 +182,12 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
         MediaSource mediaSource = new LoopingMediaSource(new ExtractorMediaSource(uri,
                 this::dataSourceFactory, extractorsFactory, 2, handler, this));
 
+        // apply volume before starting the player
+        applyVolumeState();
+
         logger.info("Preparing exo player now'");
+
         exo.prepare(mediaSource, false);
-
-//        if (hasAudio) {
-//            exo.prepare(exoVideoTrack, exoAudioTrack);
-//
-//        } else {
-//            exo.prepare(exoVideoTrack);
-//        }
-
         exo.setPlayWhenReady(true);
 
         applyVolumeState();
@@ -350,12 +347,10 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
 
     @Override
     public void onPositionDiscontinuity() {
-
     }
 
     @Override
     public void onVideoEnabled(DecoderCounters counters) {
-
     }
 
     @Override
@@ -393,48 +388,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
-
     }
-//
-//
-//
-//    @Override
-//    public void onDrawnToSurface(Surface surface) {
-//        callbacks.onVideoRenderingStarts();
-//    }
-//
-//    @Override
-//    public void onDecoderInitializationError(MediaCodecTrackRenderer.DecoderInitializationException e) {
-//        callbacks.onVideoError(getMessageWithCauses(e), ErrorKind.UNKNOWN);
-//        AndroidUtility.logToCrashlytics(e);
-//    }
-//
-//    @Override
-//    public void onCryptoError(MediaCodec.CryptoException e) {
-//        callbacks.onVideoError(getMessageWithCauses(e), ErrorKind.UNKNOWN);
-//        AndroidUtility.logToCrashlytics(e);
-//    }
-//
-//    @Override
-//    public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs, long initializationDurationMs) {
-//        logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs);
-//    }
-//
-//    @Override
-//    public void onAudioTrackInitializationError(AudioTrack.InitializationException err) {
-//        callbacks.onVideoError(getMessageWithCauses(err), ErrorKind.UNKNOWN);
-//        AndroidUtility.logToCrashlytics(err);
-//    }
-//
-//    @Override
-//    public void onAudioTrackWriteError(AudioTrack.WriteException err) {
-//        callbacks.onVideoError(getMessageWithCauses(err), ErrorKind.UNKNOWN);
-//    }
-//
-//    @Override
-//    public void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-//        logger.info("Audio track underrun :/");
-//    }
 
     private final MediaCodecSelector mediaCodecSelector = new MediaCodecSelector() {
         @Override
