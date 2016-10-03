@@ -142,6 +142,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
             detaches.onNext(null);
 
             logger.info("Detaching view, releasing exo player now.");
+            exo.stop();
             exo.release();
         });
     }

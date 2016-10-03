@@ -161,7 +161,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:customtabs:24.2.1'
-    compile 'com.google.android.gms:play-services-analytics:9.4.0'
+    compile 'com.google.android.gms:play-services-analytics:9.6.1'
     compile 'com.google.guava:guava:19.0'
 
     compile 'net.danlew:android.joda:2.9.4.2'
@@ -183,7 +183,7 @@ dependencies {
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
-    compile 'me.leolin:ShortcutBadger:1.1.8@aar'
+    compile 'me.leolin:ShortcutBadger:1.1.9@aar'
     compile 'com.github.paolorotolo:appintro:4.0.0'
 
     compile 'com.google.android.exoplayer:exoplayer:r2.0.1'
