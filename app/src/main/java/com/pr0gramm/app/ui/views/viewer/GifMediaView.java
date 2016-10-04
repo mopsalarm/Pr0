@@ -39,7 +39,8 @@ public class GifMediaView extends AbstractProgressMediaView {
 
     GifMediaView(Config config) {
         super(ImmutableConfig.copyOf(config).withMediaUri(config.mediaUri().withProxy(true)),
-                R.layout.player_gif);
+                R.layout.player_gif,
+                R.layout.player_video_progress);
 
         imageView.setAlpha(0.f);
         loadGif();

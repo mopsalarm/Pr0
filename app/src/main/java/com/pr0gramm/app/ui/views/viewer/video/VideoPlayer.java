@@ -26,6 +26,8 @@ public interface VideoPlayer {
 
     void seekTo(int position);
 
+    int duration();
+
     int currentPosition();
 
     interface Callbacks {

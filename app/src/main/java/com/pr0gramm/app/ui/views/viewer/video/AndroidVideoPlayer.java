@@ -330,7 +330,7 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         mBackendView.getView().setAlpha(0.01f);
 
         if (mMediaPlayer != null) {
-            mLastPosition = getCurrentPosition();
+            mLastPosition = currentPosition();
 
             mMediaPlayer.reset();
             mMediaPlayer.release();
@@ -366,8 +366,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
 
     @Override
     public float progress() {
-        float duration = getDuration();
-        return duration > 0 ? getCurrentPosition() / duration : -1;
+        float duration = duration();
+        return duration > 0 ? currentPosition() / duration : -1;
     }
 
     @Override
@@ -386,7 +386,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         seekTo(0);
     }
 
-    public int getDuration() {
+    @Override
+    public int duration() {
         if (isInPlaybackState()) {
             return mMediaPlayer.getDuration();
         }
@@ -394,7 +395,8 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         return -1;
     }
 
-    public int getCurrentPosition() {
+    @Override
+    public int currentPosition() {
         if (isInPlaybackState()) {
             return mMediaPlayer.getCurrentPosition();
         }
@@ -410,11 +412,6 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         } else {
             mSeekWhenPrepared = msec;
         }
-    }
-
-    @Override
-    public int currentPosition() {
-        return getCurrentPosition();
     }
 
     private boolean isInPlaybackState() {

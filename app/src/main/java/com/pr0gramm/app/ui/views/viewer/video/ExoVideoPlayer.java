@@ -263,6 +263,11 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
         return (int) exo.getCurrentPosition();
     }
 
+    @Override
+    public int duration() {
+        return (int) exo.getDuration();
+    }
+
     private void applyVolumeState() {
         if (exoAudioRenderer != null) {
             float volume = muted ? 0.f : 1.f;

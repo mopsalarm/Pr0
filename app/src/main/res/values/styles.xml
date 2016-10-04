@@ -16,7 +16,6 @@
         <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Orange</item>
         <item name="appIcon">@drawable/ic_app_orange</item>
-        <item name="videoProgressDrawable">@drawable/video_progress_orange</item>
     </style>
 
     <style name="AppTheme.Green">
@@ -29,7 +28,6 @@
         <item name="popupTheme">@style/AppTheme.Popup.Green</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Green</item>
         <item name="appIcon">@drawable/ic_app_green</item>
-        <item name="videoProgressDrawable">@drawable/video_progress_green</item>
     </style>
 
     <style name="AppTheme.Olive">
@@ -42,7 +40,6 @@
         <item name="popupTheme">@style/AppTheme.Popup.Olive</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Olive</item>
         <item name="appIcon">@drawable/ic_app_olive</item>
-        <item name="videoProgressDrawable">@drawable/video_progress_olive</item>
     </style>
 
     <style name="AppTheme.Pink">
@@ -55,7 +52,6 @@
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Pink</item>
         <item name="appIcon">@drawable/ic_app_pink</item>
-        <item name="videoProgressDrawable">@drawable/video_progress_pink</item>
     </style>
 
     <style name="AppTheme.Blue">
@@ -68,7 +64,6 @@
         <item name="popupTheme">@style/AppTheme.Popup.Blue</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Blue</item>
         <item name="appIcon">@drawable/ic_app_blue</item>
-        <item name="videoProgressDrawable">@drawable/video_progress_blue</item>
     </style>
 
     <!-- Now do the same for popup menus -->

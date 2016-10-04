@@ -1,5 +1,14 @@
 [
   {
+    "version": 111,
+    "changes": [
+      {
+        "type": "Neu/Endlich",
+        "change": "In Videos vor und zurück spulen."
+      }
+    ]
+  },
+  {
     "version": 110,
     "changes": [
       {

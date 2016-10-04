@@ -77,7 +77,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     private boolean droppedFramesShown;
 
     VideoMediaView(Config config) {
-        super(config, R.layout.player_kind_video);
+        super(config, R.layout.player_kind_video, R.layout.player_video_seekbar);
 
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -293,6 +293,11 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
             droppedFramesShown = true;
         }
+    }
+
+    @Override
+    protected void userSeekTo(float fraction) {
+        videoPlayer.seekTo((int) (fraction * videoPlayer.duration()));
     }
 
     final AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
