@@ -11,6 +11,4 @@
         android:scaleType="fitCenter"/>
 
     <include layout="@layout/player_progress"/>
-
-    <include layout="@layout/player_video_progress"/>
 </merge>

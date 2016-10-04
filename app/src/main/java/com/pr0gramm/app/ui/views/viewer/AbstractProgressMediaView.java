@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.support.annotation.LayoutRes;
+import android.view.LayoutInflater;
 import android.widget.ProgressBar;
 
 import com.google.common.base.Optional;
@@ -9,12 +10,9 @@ import com.pr0gramm.app.Settings;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-
 /**
  */
 public abstract class AbstractProgressMediaView extends MediaView {
-    @BindView(R.id.video_progress)
     ProgressBar videoProgressView;
 
     @Inject
@@ -25,7 +23,15 @@ public abstract class AbstractProgressMediaView extends MediaView {
     AbstractProgressMediaView(Config config, @LayoutRes Integer layoutId) {
         super(config, layoutId);
 
+
+        videoProgressView = (ProgressBar) LayoutInflater
+                .from(getContext())
+                .inflate(R.layout.player_video_progress, this, false);
+
         videoProgressView.setVisibility(GONE);
+
+        publishControllerView(videoProgressView);
+
         updateTimeline();
     }
 

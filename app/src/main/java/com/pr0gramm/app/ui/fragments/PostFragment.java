@@ -80,6 +80,9 @@ import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.BackgroundScheduler;
 import com.trello.rxlifecycle.android.FragmentEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -113,6 +116,8 @@ import static rx.Observable.just;
 public class PostFragment extends BaseFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
+
+    private static final Logger logger = LoggerFactory.getLogger("PostFragment");
 
     private static final String ARG_FEED_ITEM = "PostFragment.post";
     private static final String ARG_COMMENT_DRAFT = "PostFragment.comment-draft";
@@ -813,6 +818,12 @@ public class PostFragment extends BaseFragment implements
                 // reflect changes to the viewers clipping.
                 simulateScroll();
             });
+
+            // add the controls as child of the placeholder.
+            viewer.controllerView()
+                    .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                    .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
+                    .subscribe(placeholder::addView);
         }
     }
 
@@ -1065,7 +1076,7 @@ public class PostFragment extends BaseFragment implements
         viewer.setTranslationX(offset);
     }
 
-    private class PlaceholderView extends View {
+    private class PlaceholderView extends FrameLayout {
         int fixedHeight = AndroidUtility.dp(getActivity(), 150);
 
         public PlaceholderView() {
@@ -1076,6 +1087,10 @@ public class PostFragment extends BaseFragment implements
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
             setMeasuredDimension(width, fixedHeight);
+
+            measureChildren(
+                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(fixedHeight, MeasureSpec.EXACTLY));
         }
 
         @Override

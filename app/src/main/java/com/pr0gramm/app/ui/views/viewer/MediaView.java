@@ -55,6 +55,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.ReplaySubject;
 
 import static android.view.GestureDetector.SimpleOnGestureListener;
 
@@ -79,6 +80,8 @@ public abstract class MediaView extends FrameLayout {
     private boolean playing;
 
     private float viewAspect = -1;
+
+    private final ReplaySubject<View> controllerView = ReplaySubject.create();
 
     @Nullable
     private Rect clipBounds;
@@ -131,6 +134,9 @@ public abstract class MediaView extends FrameLayout {
 
             if (resumed)
                 onPause();
+
+            // no more views will come now.
+            controllerView.onCompleted();
         });
 
         if (ThumbyService.isEligibleForPreview(mediaUri)) {
@@ -512,6 +518,14 @@ public abstract class MediaView extends FrameLayout {
 
     protected boolean hasAudio() {
         return config.audio();
+    }
+
+    protected void publishControllerView(View view) {
+        controllerView.onNext(view);
+    }
+
+    public Observable<View> controllerView() {
+        return controllerView;
     }
 
     public interface TapListener {

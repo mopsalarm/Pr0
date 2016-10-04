@@ -2,11 +2,14 @@ package com.pr0gramm.app.ui.views.viewer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.support.v4.content.ContextCompat;
-import android.view.MotionEvent;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -50,14 +53,13 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     // the video player that does all the magic
     private final RxVideoPlayer videoPlayer;
+    private final ImageView muteButtonView;
 
     final AudioManager audioManager;
 
     @BindView(R.id.video_container)
     AspectLayout videoPlayerParent;
 
-    @BindView(R.id.mute)
-    ImageView muteButtonView;
 
     @Inject
     SingleShotService singleShotService;
@@ -87,6 +89,10 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             videoPlayer = new AndroidVideoPlayer(getContext(), videoPlayerParent);
         }
 
+        muteButtonView = (ImageView) LayoutInflater
+                .from(getContext())
+                .inflate(R.layout.player_mute_view, this, false);
+
         muteButtonView.setVisibility(hasAudio() ? VISIBLE : GONE);
 
         muteButtonView.setOnClickListener(v -> {
@@ -114,6 +120,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         if (seekTo != null) {
             videoPlayer.seekTo(seekTo);
         }
+
+        publishControllerView(muteButtonView);
     }
 
     @Override
@@ -138,6 +146,21 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
 
         videoPlayer.start();
+    }
+
+    /**
+     * Create the controller view.
+     */
+    private View createScrollView() {
+        LayoutParams lp = new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM);
+
+        Button button = new Button(getContext());
+        button.setText("this is a test");
+        button.setLayoutParams(lp);
+        return button;
     }
 
     /**
@@ -188,23 +211,6 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         muteButtonView.setImageDrawable(icon);
     }
-
-    @Override
-    protected boolean onSingleTap(MotionEvent event) {
-        if (hasAudio()) {
-            Rect rect = new Rect();
-            muteButtonView.getHitRect(rect);
-
-            boolean contained = rect.contains((int) event.getX(), (int) event.getY());
-            if (contained) {
-                muteButtonView.performClick();
-                return true;
-            }
-        }
-
-        return super.onSingleTap(event);
-    }
-
 
     @Override
     protected Optional<ProgressInfo> getVideoProgress() {

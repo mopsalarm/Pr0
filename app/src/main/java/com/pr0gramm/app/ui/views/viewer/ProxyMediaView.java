@@ -33,6 +33,9 @@ public abstract class ProxyMediaView extends MediaView {
         // forward double clicks
         child.setTapListener(new ForwardingTapListener());
         subscription.add(child.viewed().subscribe(event -> this.onMediaShown()));
+
+        // forward controller view
+        subscription.add(child.controllerView().subscribe(this::publishControllerView));
     }
 
     /**
