@@ -1,14 +1,9 @@
 package com.pr0gramm.app.ui.views.viewer;
 
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.util.Property;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
@@ -67,9 +62,10 @@ public abstract class AbstractProgressMediaView extends MediaView {
         if (!currentlyVisible() && shouldAnimateSeekbar()) {
             lastUserInteraction = System.currentTimeMillis();
             animateToSize(AndroidUtility.dp(getContext(), 18));
+            return true;
         }
 
-        return true;
+        return super.onSingleTap(event);
     }
 
     private boolean currentlyVisible() {
@@ -81,29 +77,31 @@ public abstract class AbstractProgressMediaView extends MediaView {
     }
 
     private void animateToSize(int targetValue) {
-        int startValue = videoProgressView.getPaddingLeft();
-        int minHeight = AndroidUtility.dp(getContext(), 2);
-
-        Property<View, Integer> property = new Property<View, Integer>(Integer.class, "height") {
-            @Override
-            public Integer get(View object) {
-                return object.getLayoutParams().height;
-            }
-
-            @Override
-            public void set(View object, Integer value) {
-                object.getLayoutParams().height = Math.max(minHeight, value);
-                object.setPadding(value, getPaddingTop(), value, getPaddingBottom());
-                object.requestLayout();
-            }
-        };
-
-        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(videoProgressView,
-                PropertyValuesHolder.ofInt(property, startValue, targetValue));
-
-        animator.setInterpolator(new AccelerateInterpolator());
-        animator.setDuration(300);
-        animator.start();
+//        int startValue = videoProgressView.getPaddingLeft();
+//        int minHeight = AndroidUtility.dp(getContext(), 2);
+//
+//        Property<View, Integer> property = new Property<View, Integer>(Integer.class, "height") {
+//            @Override
+//            public Integer get(View object) {
+//                return object.getLayoutParams().height;
+//            }
+//
+//            @Override
+//            public void set(View object, Integer value) {
+//                object.setPadding(value, getPaddingTop(), value, getPaddingBottom());
+//                object.requestLayout();
+//
+//                //object.getLayoutParams().height = Math.max(minHeight, value);
+//                // object.requestLayout();
+//            }
+//        };
+//
+//        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(videoProgressView,
+//                PropertyValuesHolder.ofInt(property, startValue, targetValue));
+//
+//        animator.setInterpolator(new AccelerateInterpolator());
+//        animator.setDuration(300);
+//        animator.start();
     }
 
     private void updateTimeline() {
