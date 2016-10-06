@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
@@ -1202,9 +1203,7 @@ public class PostFragment extends BaseFragment implements
         final float rotation;
 
         FullscreenParams() {
-            Point screenSize = new Point();
-            Display display = getActivity().getWindowManager().getDefaultDisplay();
-            display.getRealSize(screenSize);
+            Point screenSize = screenSize();
 
             int windowWidth = screenSize.x;
             float windowHeight = screenSize.y;
@@ -1233,6 +1232,20 @@ public class PostFragment extends BaseFragment implements
                 rotation = 0.f;
                 scale = scaleNoRot;
             }
+        }
+
+        @SuppressLint("NewApi")
+        private Point screenSize() {
+            Point screenSize = new Point();
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+
+            if (Sdk.isAtLeastJellyBeanMR1()) {
+                display.getRealSize(screenSize);
+            } else {
+                display.getSize(screenSize);
+            }
+
+            return screenSize;
         }
     }
 
