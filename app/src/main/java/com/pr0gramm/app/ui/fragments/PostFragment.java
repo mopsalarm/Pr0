@@ -198,6 +198,12 @@ public class PostFragment extends BaseFragment implements
     @BindView(R.id.repost_hint)
     View repostHint;
 
+    @Nullable
+    private ViewGroup mediaControlsContainer;
+
+    @Nullable
+    private FrameLayout playerPlaceholder;
+
     public PostFragment() {
         setArguments(new Bundle());
     }
@@ -509,6 +515,11 @@ public class PostFragment extends BaseFragment implements
 
             // move to fullscreen!?
             AndroidUtility.applyWindowFullscreen(getActivity(), true);
+
+            if (mediaControlsContainer != null) {
+                AndroidUtility.removeView(mediaControlsContainer);
+                viewer.addView(mediaControlsContainer);
+            }
         }
     }
 
@@ -583,6 +594,15 @@ public class PostFragment extends BaseFragment implements
         }
 
         Screen.unlockOrientation(activity);
+
+        // move back views
+        if (mediaControlsContainer != null) {
+            AndroidUtility.removeView(mediaControlsContainer);
+
+            if (playerPlaceholder != null) {
+                playerPlaceholder.addView(mediaControlsContainer);
+            }
+        }
     }
 
     boolean isVideoFullScreen() {
@@ -835,11 +855,23 @@ public class PostFragment extends BaseFragment implements
                 simulateScroll();
             });
 
-            // add the controls as child of the placeholder.
+
+            playerPlaceholder = placeholder;
+
+            // Add a contrainer for the children
+            mediaControlsContainer = new FrameLayout(getContext());
+            mediaControlsContainer.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM));
+
+            placeholder.addView(mediaControlsContainer);
+
+            // add the controls as child of the controls-container.
             viewer.controllerView()
                     .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                     .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
-                    .subscribe(placeholder::addView);
+                    .subscribe(mediaControlsContainer::addView);
         }
     }
 
