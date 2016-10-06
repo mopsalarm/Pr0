@@ -1,0 +1,101 @@
+
+repositories {
+    maven { url "https://jitpack.io" }
+    maven { url "https://maven.fabric.io/public" }
+    maven { url "http://bright.github.io/maven-repo/" }
+    maven { url 'http://dl.bintray.com/amulyakhare/maven' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile 'javax.annotation:jsr250-api:1.0'
+    compile 'com.google.code.findbugs:jsr305:3.0.1'
+    compile('com.android.support:appcompat-v7:24.2.1') {
+        exclude(module: "support-media-compat")
+        exclude(module: "support-core-utils")
+    }
+
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:customtabs:24.2.1'
+    compile 'com.google.android.gms:play-services-analytics:9.6.1'
+    compile 'com.google.guava:guava:19.0'
+
+    compile 'net.danlew:android.joda:2.9.4.2'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.2'
+    compile 'com.github.tony19:named-regexp:0.2.4'
+    compile 'com.pnikosis:materialish-progress:1.7'
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
+    compile "com.infstory:proguard-annotations:1.0.2"
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.5.0'
+    compile 'org.nanohttpd:nanohttpd:2.3.1'
+    compile 'com.github.akodiakson:sdkcheck:0.2.4'
+    compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
+    compile 'com.indeed:java-dogstatsd-client:2.0.16'
+    compile 'me.leolin:ShortcutBadger:1.1.9@aar'
+    compile 'com.github.paolorotolo:appintro:4.0.0'
+
+    compile 'com.google.android.exoplayer:exoplayer:r2.0.2'
+    compile 'commons-io:commons-io:2.5'
+
+    // forked dependencies.
+    compile 'com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202'
+
+    debugCompile 'com.facebook.stetho:stetho:1.4.1'
+    debugCompile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
+    apt 'com.facebook.stetho:stetho:1.4.1'
+    apt 'com.facebook.stetho:stetho-okhttp3:1.4.1'
+
+    compile 'com.jakewharton:butterknife:8.4.0'
+    compile 'com.jakewharton:butterknife-annotations:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+
+    compile "com.f2prateek.dart:dart:2.0.1"
+    apt 'com.f2prateek.dart:dart-processor:2.0.1'
+
+    // rx java
+    compile 'io.reactivex:rxjava:1.2.1'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava-async-util:0.21.0'
+    compile 'com.artemzin.rxjava:proguard-rules:1.2.1.0'
+    compile 'com.trello:rxlifecycle:0.8.0'
+    compile 'com.trello:rxlifecycle-android:0.8.0'
+    compile 'com.trello:rxlifecycle-components:0.8.0'
+
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-design:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.4.0'
+
+    // bottomsheets
+    compile 'com.flipboard:bottomsheet-core:1.5.2'
+
+    compile 'pl.brightinventions:slf4android:0.1.2'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.6.5'
+
+    apt 'org.immutables:value:2.3.3'
+    provided 'org.immutables:value:2.3.3'
+    provided 'org.immutables:gson:2.3.3'
+
+    compile 'com.google.dagger:dagger:2.7'
+    apt 'com.google.dagger:dagger-compiler:2.7'
+
+    // use a newer version of retrolambda
+    retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
+
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
+    androidTestCompile 'com.android.support:support-annotations:24.2.1'
+}
