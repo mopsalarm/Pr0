@@ -130,6 +130,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
                 if (firstTimeProgressValue) {
                     firstTimeProgressValue = false;
                     progressView.setVisibility(VISIBLE);
+                    progressView.setAlpha(1);
+                    progressView.setTranslationY(0);
                 }
 
                 for (ProgressBar view : new ProgressBar[]{progressView, seekBarView}) {
@@ -144,6 +146,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
                     showSeekbar(false);
                 }
             } else {
+                lastUserInteraction = -1;
+                firstTimeProgressValue = true;
                 seekBarView.setVisibility(GONE);
                 progressView.setVisibility(GONE);
             }
@@ -179,6 +183,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
         progressEnabled = visible;
 
         if (!visible) {
+            lastUserInteraction = -1;
+            firstTimeProgressValue = true;
             seekBarView.setVisibility(GONE);
             progressView.setVisibility(GONE);
         }
