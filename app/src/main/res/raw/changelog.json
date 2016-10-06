@@ -5,6 +5,14 @@
       {
         "type": "Neu/Endlich",
         "change": "In Videos vor und zurück spulen."
+      },
+      {
+        "type": "Fix",
+        "change": "Vollbild für Videos ist nun echtes Vollbild."
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfix beim Wechsel in den Vollbild."
       }
     ]
   },
