@@ -19,6 +19,16 @@ public class ScrollHideToolbarListener {
 
     public ScrollHideToolbarListener(View toolbar) {
         this.toolbar = toolbar;
+
+        toolbar.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            int newHeight = bottom - top;
+            int oldHeight = oldBottom - oldTop;
+
+            if (oldHeight > 0 && newHeight != oldHeight && toolbarMarginOffset == oldHeight) {
+                toolbarMarginOffset = newHeight;
+                applyToolbarPosition(false);
+            }
+        });
     }
 
     private void applyToolbarPosition(boolean animated) {
@@ -28,7 +38,7 @@ public class ScrollHideToolbarListener {
             animation = null;
         }
 
-        boolean targetVisible = toolbar.getHeight() != toolbarMarginOffset;
+        boolean targetVisible = toolbar.getHeight() > toolbarMarginOffset;
         int y = -toolbarMarginOffset;
         if (animated) {
             if (targetVisible) {
