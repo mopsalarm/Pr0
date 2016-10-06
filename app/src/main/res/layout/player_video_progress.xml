@@ -7,5 +7,7 @@
     android:layout_height="1dp"
     android:layout_gravity="bottom"
     android:max="100"
+    android:visibility="gone"
     tools:progress="40"
-    tools:secondaryProgress="70"/>
+    tools:secondaryProgress="70"
+    tools:visibility="visible"/>

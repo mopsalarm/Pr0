@@ -77,7 +77,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     private boolean droppedFramesShown;
 
     VideoMediaView(Config config) {
-        super(config, R.layout.player_kind_video, R.layout.player_video_seekbar);
+        super(config, R.layout.player_kind_video);
 
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -122,6 +122,11 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         }
 
         publishControllerView(muteButtonView);
+    }
+
+    @Override
+    protected boolean userSeekable() {
+        return true;
     }
 
     @Override

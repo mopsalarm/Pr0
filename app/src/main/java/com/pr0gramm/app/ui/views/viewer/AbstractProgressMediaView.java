@@ -4,45 +4,57 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
 import com.google.common.base.Optional;
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.util.AndroidUtility;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
+
+import static com.pr0gramm.app.util.AndroidUtility.endAction;
 
 /**
  */
 public abstract class AbstractProgressMediaView extends MediaView {
+    private static final Logger logger = LoggerFactory.getLogger("AbstractProgressMediaView");
+
     @Inject
     Settings settings;
 
     boolean progressTouched = false;
-    long lastUserInteraction = System.currentTimeMillis();
+    long lastUserInteraction = -1;
 
     private boolean progressEnabled = true;
+    private boolean firstTimeProgressValue = true;
 
-    private final ProgressBar videoProgressView;
+    private final SeekBar seekBarView;
+    private final ProgressBar progressView;
 
-    AbstractProgressMediaView(Config config, @LayoutRes Integer layoutId, @LayoutRes int progressLayoutRes) {
+    AbstractProgressMediaView(Config config, @LayoutRes Integer layoutId) {
         super(config, layoutId);
 
-        videoProgressView = (ProgressBar) LayoutInflater
+        progressView = (ProgressBar) LayoutInflater
                 .from(getContext())
-                .inflate(progressLayoutRes, this, false);
+                .inflate(R.layout.player_video_progress, this, false);
 
-        videoProgressView.setVisibility(GONE);
+        seekBarView = (SeekBar) LayoutInflater
+                .from(getContext())
+                .inflate(R.layout.player_video_seekbar, this, false);
 
-        if (videoProgressView instanceof SeekBar) {
-            // let the user change the video position
-            ((SeekBar) videoProgressView).setOnSeekBarChangeListener(seekbarChangeListener);
-        }
-
-        publishControllerView(videoProgressView);
-
+        publishControllerView(progressView);
+        publishControllerView(seekBarView);
         updateTimeline();
+
+        seekBarView.setOnSeekBarChangeListener(seekbarChangeListener);
     }
 
     @Override
@@ -59,49 +71,53 @@ public abstract class AbstractProgressMediaView extends MediaView {
 
     @Override
     protected boolean onSingleTap(MotionEvent event) {
-        if (!currentlyVisible() && shouldAnimateSeekbar()) {
+        if (userSeekable() && !seekCurrentlyVisible()) {
+            logger.info("Show seekbar after tap.");
+
             lastUserInteraction = System.currentTimeMillis();
-            animateToSize(AndroidUtility.dp(getContext(), 18));
+            showSeekbar(true);
             return true;
         }
 
         return super.onSingleTap(event);
     }
 
-    private boolean currentlyVisible() {
-        return videoProgressView.getPaddingLeft() > 0;
+    protected boolean userSeekable() {
+        return false;
     }
 
-    private boolean shouldAnimateSeekbar() {
-        return videoProgressView instanceof SeekBar;
+    private boolean seekCurrentlyVisible() {
+        return seekBarView.getVisibility() == VISIBLE;
     }
 
-    private void animateToSize(int targetValue) {
-//        int startValue = videoProgressView.getPaddingLeft();
-//        int minHeight = AndroidUtility.dp(getContext(), 2);
-//
-//        Property<View, Integer> property = new Property<View, Integer>(Integer.class, "height") {
-//            @Override
-//            public Integer get(View object) {
-//                return object.getLayoutParams().height;
-//            }
-//
-//            @Override
-//            public void set(View object, Integer value) {
-//                object.setPadding(value, getPaddingTop(), value, getPaddingBottom());
-//                object.requestLayout();
-//
-//                //object.getLayoutParams().height = Math.max(minHeight, value);
-//                // object.requestLayout();
-//            }
-//        };
-//
-//        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(videoProgressView,
-//                PropertyValuesHolder.ofInt(property, startValue, targetValue));
-//
-//        animator.setInterpolator(new AccelerateInterpolator());
-//        animator.setDuration(300);
-//        animator.start();
+    private void showSeekbar(boolean show) {
+        int deltaY = AndroidUtility.dp(getContext(), 12);
+
+        View viewToShow = show ? seekBarView : progressView;
+        View viewToHide = show ? progressView : seekBarView;
+
+        if (viewToHide.getVisibility() == VISIBLE) {
+            viewToHide.setTranslationY(0);
+            viewToHide.animate()
+                    .alpha(0)
+                    .translationY(deltaY)
+                    .setListener(endAction(() -> viewToHide.setVisibility(GONE)))
+                    .setInterpolator(new AccelerateInterpolator())
+                    .start();
+        }
+
+
+        if (viewToShow.getVisibility() != VISIBLE) {
+            viewToShow.setAlpha(0);
+            viewToShow.setTranslationY(deltaY);
+            viewToShow.setVisibility(VISIBLE);
+            viewToShow.animate()
+                    .alpha(1)
+                    .translationY(0)
+                    .setListener(null)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     private void updateTimeline() {
@@ -111,20 +127,25 @@ public abstract class AbstractProgressMediaView extends MediaView {
         if (!progressTouched) {
             ProgressInfo info = getVideoProgress().orNull();
             if (info != null && shouldShowView(info)) {
-                videoProgressView.setVisibility(VISIBLE);
-                videoProgressView.setMax(1000);
-                videoProgressView.setProgress((int) (1000 * info.progress));
-                videoProgressView.setSecondaryProgress((int) (1000 * info.buffered));
+                if (firstTimeProgressValue) {
+                    firstTimeProgressValue = false;
+                    progressView.setVisibility(VISIBLE);
+                }
+
+                for (ProgressBar view : new ProgressBar[]{progressView, seekBarView}) {
+                    view.setMax(1000);
+                    view.setProgress((int) (1000 * info.progress));
+                    view.setSecondaryProgress((int) (1000 * info.buffered));
+                }
+
+                if (userSeekable() && seekHideTimeoutReached()) {
+                    logger.info("Hiding seekbar after idle timeout");
+                    lastUserInteraction = -1;
+                    showSeekbar(false);
+                }
             } else {
-                videoProgressView.setVisibility(GONE);
-            }
-
-            if (shouldAnimateSeekbar() && currentlyVisible()
-                    && lastUserInteraction > 0
-                    && System.currentTimeMillis() - lastUserInteraction > 3000) {
-
-                animateToSize(0);
-                lastUserInteraction = -1;
+                seekBarView.setVisibility(GONE);
+                progressView.setVisibility(GONE);
             }
         }
 
@@ -132,6 +153,12 @@ public abstract class AbstractProgressMediaView extends MediaView {
             removeCallbacks(this::updateTimeline);
             postDelayed(this::updateTimeline, 200);
         }
+    }
+
+    private boolean seekHideTimeoutReached() {
+        return seekCurrentlyVisible()
+                && lastUserInteraction > 0
+                && System.currentTimeMillis() - lastUserInteraction > 3000;
     }
 
     private boolean shouldShowView(@NonNull ProgressInfo info) {
@@ -150,6 +177,11 @@ public abstract class AbstractProgressMediaView extends MediaView {
 
     public void setProgressEnabled(boolean visible) {
         progressEnabled = visible;
+
+        if (!visible) {
+            seekBarView.setVisibility(GONE);
+            progressView.setVisibility(GONE);
+        }
     }
 
     protected static class ProgressInfo {
