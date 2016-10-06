@@ -140,12 +140,15 @@ public class PostFragment extends BaseFragment implements
     @Nullable
     private PreviewInfo previewInfo;
 
+    @Nullable
+    private ObjectAnimator fullscreenAnimator;
+
     private List<Api.Tag> tags;
     private List<Api.Comment> comments;
     private boolean rewindOnLoad;
     private boolean tabletLayout;
-
     private boolean adminMode;
+
 
     @Inject
     FeedService feedService;
@@ -191,7 +194,6 @@ public class PostFragment extends BaseFragment implements
 
     @BindView(R.id.repost_hint)
     View repostHint;
-
 
     public PostFragment() {
         setArguments(new Bundle());
@@ -473,11 +475,13 @@ public class PostFragment extends BaseFragment implements
         } else {
             FullscreenParams params = new FullscreenParams();
 
-            ObjectAnimator.ofPropertyValuesHolder(viewer,
+            fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, params.rotation),
                     ofFloat(View.TRANSLATION_Y, params.trY),
                     ofFloat(View.SCALE_X, params.scale),
-                    ofFloat(View.SCALE_Y, params.scale))
+                    ofFloat(View.SCALE_Y, params.scale));
+
+            fullscreenAnimator
                     .setDuration(500)
                     .start();
 
@@ -546,6 +550,10 @@ public class PostFragment extends BaseFragment implements
         if (!isVideoFullScreen())
             return;
 
+        //noinspection ConstantConditions
+        fullscreenAnimator.cancel();
+        fullscreenAnimator = null;
+
         swipeRefreshLayout.setVisibility(View.VISIBLE);
 
         // reset the values correctly
@@ -570,7 +578,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     boolean isVideoFullScreen() {
-        return swipeRefreshLayout != null && swipeRefreshLayout.getVisibility() != View.VISIBLE;
+        return fullscreenAnimator != null;
     }
 
     @OnOptionsItemSelected(MainActivity.ID_FAKE_HOME)
