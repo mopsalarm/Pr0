@@ -448,4 +448,25 @@ public class AndroidUtility {
                 .addNextIntentWithParentStack(intent)
                 .startActivities();
     }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static void applyWindowFullscreen(Activity activity, boolean fullscreen) {
+        int flags = 0;
+        if (fullscreen) {
+            flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+
+            if (Sdk.isAtLeastJellyBean()) {
+                flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            }
+
+            if (Sdk.isAtLeastKitKat())
+                flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        View decorView = activity.getWindow().getDecorView();
+        decorView.setSystemUiVisibility(flags);
+    }
 }

@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -503,6 +505,9 @@ public class PostFragment extends BaseFragment implements
 
             // forbid orientation changes while in fullscreen
             Screen.lockOrientation(activity);
+
+            // move to fullscreen!?
+            AndroidUtility.applyWindowFullscreen(getActivity(), true);
         }
     }
 
@@ -549,6 +554,8 @@ public class PostFragment extends BaseFragment implements
     public void exitFullscreen() {
         if (!isVideoFullScreen())
             return;
+
+        AndroidUtility.applyWindowFullscreen(getActivity(), false);
 
         //noinspection ConstantConditions
         fullscreenAnimator.cancel();
@@ -1195,8 +1202,12 @@ public class PostFragment extends BaseFragment implements
         final float rotation;
 
         FullscreenParams() {
-            int windowWidth = swipeRefreshLayout.getWidth();
-            float windowHeight = swipeRefreshLayout.getHeight();
+            Point screenSize = new Point();
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            display.getRealSize(screenSize);
+
+            int windowWidth = screenSize.x;
+            float windowHeight = screenSize.y;
 
             //noinspection UnnecessaryLocalVariable
             int viewerWidth = windowWidth;
