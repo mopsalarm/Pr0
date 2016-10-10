@@ -29,7 +29,7 @@ dependencies {
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.2'
     compile 'com.github.tony19:named-regexp:0.2.4'
     compile 'com.pnikosis:materialish-progress:1.7'
