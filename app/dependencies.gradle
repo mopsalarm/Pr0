@@ -45,7 +45,9 @@ dependencies {
     compile 'me.leolin:ShortcutBadger:1.1.9@aar'
     compile 'com.github.paolorotolo:appintro:4.0.0'
 
-    compile 'com.google.android.exoplayer:exoplayer:r2.0.2'
+    // compile 'com.google.android.exoplayer:exoplayer:r2.0.2'
+    compile 'com.github.mopsalarm.ExoPlayer:exoplayer:r2.0.2-1'
+
     compile 'commons-io:commons-io:2.5'
 
     // forked dependencies.
