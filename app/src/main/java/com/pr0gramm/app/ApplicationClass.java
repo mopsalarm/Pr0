@@ -18,6 +18,10 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 import pl.brightinventions.slf4android.LoggerConfiguration;
@@ -84,6 +88,14 @@ public class ApplicationClass extends Application {
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme(this);
+
+        // disable verbose logging
+        java.util.logging.Logger log = LogManager.getLogManager().getLogger("");
+        if (log != null) {
+            for (Handler h : log.getHandlers()) {
+                h.setLevel(Level.INFO);
+            }
+        }
     }
 
     public static ApplicationClass get(Context context) {
