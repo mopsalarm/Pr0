@@ -23,14 +23,14 @@ import okhttp3.Response;
 
 /**
  */
-public class InputStreamCacheDataSource implements BufferedDataSource {
+class InputStreamCacheDataSource implements BufferedDataSource {
     final SettableFuture<HttpResult> response = SettableFuture.create();
     private final Uri uri;
 
     private long totalSize = -1;
     private InputStream inputStream;
 
-    public InputStreamCacheDataSource(Context context, OkHttpClient okHttpClient, Uri uri) {
+    InputStreamCacheDataSource(Context context, OkHttpClient okHttpClient, Uri uri) {
         this.uri = uri;
 
         Request request = new Request.Builder().url(uri.toString()).build();
@@ -111,8 +111,12 @@ public class InputStreamCacheDataSource implements BufferedDataSource {
         @Override
         protected void finalize() throws Throwable {
             super.finalize();
-            if (this.response != null)
-                response.close();
+
+            try {
+                if (this.response != null)
+                    response.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 }

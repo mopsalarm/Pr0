@@ -64,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -76,17 +77,15 @@ import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
  */
 @SuppressWarnings("WeakerAccess")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
-        ExtractorMediaSource.EventListener,
-        VideoRendererEventListener,
-        ExoPlayer.EventListener {
+public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPlayer.EventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
+    static final Logger logger = LoggerFactory.getLogger("ExoVideoPlayer");
 
     private static final int MAX_DROPPED_FRAMES = 75;
 
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 64;
+
     private final Context context;
     private final AspectLayout parentView;
     private final Handler handler;
@@ -105,26 +104,27 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
     private boolean initialized;
 
     public ExoVideoPlayer(Context context, boolean hasAudio, AspectLayout aspectLayout) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.parentView = aspectLayout;
         this.settings = Settings.of(context);
 
         this.handler = new Handler(Looper.getMainLooper());
 
         // Use a texture view to display the video.
-        if (settings.useTextureView()) {
-            surfaceProvider = new TextureViewBackend(context, backendViewCallbacks);
-        } else {
-            surfaceProvider = new SurfaceViewBackend(context, backendViewCallbacks);
-        }
+        surfaceProvider = settings.useTextureView()
+                ? new TextureViewBackend(context, backendViewCallbacks)
+                : new SurfaceViewBackend(context, backendViewCallbacks);
 
         View videoView = surfaceProvider.getView();
         parentView.addView(videoView);
 
         logger.info("Create ExoPlayer instance");
 
+        VideoListener videoListener = new VideoListener(callbacks, parentView);
+
+        MediaCodecSelector mediaCodecSelector = new MediaCodecSelectorImpl(settings);
         exoVideoRenderer = new MediaCodecVideoRenderer(context, mediaCodecSelector,
-                MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, handler, this,
+                MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, handler, videoListener,
                 MAX_DROPPED_FRAMES);
 
         Renderer[] renderers;
@@ -141,8 +141,10 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
         RxView.detaches(videoView).subscribe(event -> {
             detaches.onNext(null);
 
+            pause();
+
             logger.info("Detaching view, releasing exo player now.");
-            exo.stop();
+            exo.removeListener(this);
             exo.release();
         });
     }
@@ -151,23 +153,6 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
     public void open(Uri uri) {
         logger.info("Opening exo player for uri {}", uri);
         this.uri = uri;
-    }
-
-    private DataSource dataSourceFactory() {
-        if ("file".equals(uri.getScheme())) {
-            logger.info("Got a local file, reading directly from that file.");
-            return new ForwardingDataSource(new FileDataSource()) {
-                @Override
-                public float buffered() {
-                    // always fully buffered.
-                    return 1;
-                }
-            };
-        } else {
-            logger.info("Got a remote file, using caching source.");
-            OkHttpClient httpClient = Dagger.appComponent(context).okHttpClient();
-            return new InputStreamCacheDataSource(context, httpClient, uri);
-        }
     }
 
     @Override
@@ -181,7 +166,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
                 new FragmentedMp4Extractor(), new Mp4Extractor()};
 
         MediaSource mediaSource = new LoopingMediaSource(new ExtractorMediaSource(uri,
-                this::dataSourceFactory, extractorsFactory, 2, handler, this));
+                new DataSourceFactory(context, uri), extractorsFactory, 2, handler,
+                new MediaSourceListener(callbacks)));
 
         // apply volume before starting the player
         applyVolumeState();
@@ -355,48 +341,95 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
     public void onPositionDiscontinuity() {
     }
 
-    @Override
-    public void onVideoEnabled(DecoderCounters counters) {
-    }
+    private static class VideoListener implements VideoRendererEventListener {
+        private final WeakReference<VideoPlayer.Callbacks> callbacks;
+        private final WeakReference<AspectLayout> parentView;
 
-    @Override
-    public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-        logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs);
-    }
+        VideoListener(Callbacks callbacks, AspectLayout parentView) {
+            this.callbacks = new WeakReference<>(callbacks);
+            this.parentView = new WeakReference<>(parentView);
+        }
 
-    @Override
-    public void onVideoInputFormatChanged(Format format) {
-        logger.info("Video format is now {}", format);
-    }
+        @Override
+        public void onVideoEnabled(DecoderCounters counters) {
+        }
 
-    @Override
-    public void onDroppedFrames(int count, long elapsed) {
-        if (count >= MAX_DROPPED_FRAMES) {
-            callbacks.onDroppedFrames(count);
+        @Override
+        public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs, long initializationDurationMs) {
+            logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs);
+        }
+
+        @Override
+        public void onVideoInputFormatChanged(Format format) {
+            logger.info("Video format is now {}", format);
+        }
+
+        @Override
+        public void onDroppedFrames(int count, long elapsed) {
+            if (count >= MAX_DROPPED_FRAMES) {
+                Callbacks callbacks = this.callbacks.get();
+                if (callbacks != null) {
+                    callbacks.onDroppedFrames(count);
+                }
+            }
+        }
+
+        @Override
+        public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+            if (width > 0 && height > 0) {
+                int scaledWidth = (int) ((width * pixelWidthHeightRatio) + 0.5f);
+
+                logger.info("Got video track with size {}x{}", scaledWidth, height);
+
+                AspectLayout parentView = this.parentView.get();
+                if (parentView != null) {
+                    parentView.setAspect((float) scaledWidth / height);
+                }
+
+                Callbacks callbacks = this.callbacks.get();
+                if (callbacks != null) {
+                    callbacks.onVideoSizeChanged(scaledWidth, height);
+                }
+            }
+        }
+
+        @Override
+        public void onRenderedFirstFrame(Surface surface) {
+            Callbacks callbacks = this.callbacks.get();
+            if (callbacks != null) {
+                callbacks.onVideoRenderingStarts();
+            }
+        }
+
+        @Override
+        public void onVideoDisabled(DecoderCounters counters) {
         }
     }
 
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-        if (width > 0 && height > 0) {
-            int scaledWidth = (int) ((width * pixelWidthHeightRatio) + 0.5f);
+    private static class MediaSourceListener implements ExtractorMediaSource.EventListener {
+        private WeakReference<Callbacks> callbacks;
 
-            logger.info("Got video track with size {}x{}", scaledWidth, height);
-            parentView.setAspect((float) scaledWidth / height);
-            callbacks.onVideoSizeChanged(scaledWidth, height);
+        MediaSourceListener(Callbacks callbacks) {
+            this.callbacks = new WeakReference<>(callbacks);
+        }
+
+        @Override
+        public void onLoadError(IOException error) {
+            Callbacks callbacks = this.callbacks.get();
+            if (callbacks != null) {
+                callbacks.onVideoError(error.toString(), ErrorKind.NETWORK);
+            }
         }
     }
 
-    @Override
-    public void onRenderedFirstFrame(Surface surface) {
-        callbacks.onVideoRenderingStarts();
-    }
+    private static class MediaCodecSelectorImpl implements MediaCodecSelector {
+        private final Settings settings;
 
-    @Override
-    public void onVideoDisabled(DecoderCounters counters) {
-    }
+        MediaCodecSelectorImpl(Settings settings) {
+            this.settings = settings;
+        }
 
-    private final MediaCodecSelector mediaCodecSelector = new MediaCodecSelector() {
+
         @Override
         public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
             List<MediaCodecInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
@@ -413,7 +446,9 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
         public MediaCodecInfo getPassthroughDecoderInfo() throws MediaCodecUtil.DecoderQueryException {
             return MediaCodecSelector.DEFAULT.getPassthroughDecoderInfo();
         }
-    };
+    }
+
+    ;
 
     static Optional<MediaCodecInfo> bestMatchingCodec(List<MediaCodecInfo> codecs, String videoCodecName) {
         if ("software".equals(videoCodecName)) {
@@ -436,8 +471,31 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer,
         return !isSoftwareDecoder(codec);
     }
 
-    @Override
-    public void onLoadError(IOException error) {
-        callbacks.onVideoError(error.toString(), ErrorKind.NETWORK);
+    private static class DataSourceFactory implements DataSource.Factory {
+        private final Context context;
+        private final Uri uri;
+
+        public DataSourceFactory(Context context, Uri uri) {
+            this.context = context;
+            this.uri = uri;
+        }
+
+        @Override
+        public DataSource createDataSource() {
+            if ("file".equals(uri.getScheme())) {
+                logger.info("Got a local file, reading directly from that file.");
+                return new ForwardingDataSource(new FileDataSource()) {
+                    @Override
+                    public float buffered() {
+                        // always fully buffered.
+                        return 1;
+                    }
+                };
+            } else {
+                logger.info("Got a remote file, using caching source.");
+                OkHttpClient httpClient = Dagger.appComponent(context).okHttpClient();
+                return new InputStreamCacheDataSource(context, httpClient, uri);
+            }
+        }
     }
 }
