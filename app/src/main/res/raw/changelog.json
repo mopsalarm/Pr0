@@ -1,5 +1,14 @@
 [
   {
+    "version": 112,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Tablet Support verbessert."
+      }
+    ]
+  },
+  {
     "version": 111,
     "changes": [
       {
