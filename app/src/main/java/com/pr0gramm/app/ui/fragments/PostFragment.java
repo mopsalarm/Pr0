@@ -424,13 +424,12 @@ public class PostFragment extends BaseFragment implements
      */
     private void scrollToComment(long commentId) {
         Optional<Integer> offset = adapter.getOffset(commentsAdapter);
-        if (!offset.isPresent())
-            return;
-
-        for (int idx = 0; idx < commentsAdapter.getItemCount(); idx++) {
-            if (commentsAdapter.getItemId(idx) == commentId) {
-                content.scrollToPosition(offset.get() + idx);
-                break;
+        if (offset.isPresent()) {
+            for (int idx = 0; idx < commentsAdapter.getItemCount(); idx++) {
+                if (commentsAdapter.getItemId(idx) == commentId) {
+                    content.scrollToPosition(offset.get() + idx);
+                    break;
+                }
             }
         }
 
