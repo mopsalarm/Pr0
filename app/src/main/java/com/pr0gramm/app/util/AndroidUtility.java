@@ -2,6 +2,7 @@ package com.pr0gramm.app.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -27,6 +29,7 @@ import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -468,5 +471,24 @@ public class AndroidUtility {
 
         View decorView = activity.getWindow().getDecorView();
         decorView.setSystemUiVisibility(flags);
+    }
+
+    @SuppressLint("NewApi")
+    public static Point screenSize(Activity activity) {
+        Point screenSize = new Point();
+        Display display = activity.getWindowManager().getDefaultDisplay();
+
+        if (Sdk.isAtLeastJellyBeanMR1()) {
+            display.getRealSize(screenSize);
+        } else {
+            display.getSize(screenSize);
+        }
+
+        return screenSize;
+    }
+
+    public static boolean screenIsLandscape(Activity activity) {
+        Point size = screenSize(activity);
+        return size.x > size.y;
     }
 }

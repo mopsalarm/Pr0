@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/refresh"
+        android:layout_alignWithParentIfMissing="true"
         android:orientation="vertical">
 
         <FrameLayout
@@ -24,7 +25,7 @@
                 android:id="@+id/vote_indicator"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="center"
                 android:layout_marginTop="-80dp"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -48,8 +49,10 @@
                 android:textStyle="bold"
                 android:transformPivotX="100dp"
                 android:transformPivotY="-32sp"
-                android:translationX="-100dp"
-                android:visibility="gone"/>
+                android:translationX="-90dp"
+                android:translationY="30dp"
+                android:visibility="gone"
+                tools:visibility="visible"/>
         </FrameLayout>
 
         <com.pr0gramm.app.ui.views.InfoLineView

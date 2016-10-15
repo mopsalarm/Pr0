@@ -1,11 +1,9 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,7 +14,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -24,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -103,12 +99,14 @@ import static android.animation.PropertyValuesHolder.ofFloat;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
+import static com.pr0gramm.app.R.id.player_container;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
+import static com.pr0gramm.app.util.AndroidUtility.screenIsLandscape;
 import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
 import static rx.Observable.just;
@@ -149,7 +147,6 @@ public class PostFragment extends BaseFragment implements
     private List<Api.Tag> tags;
     private List<Api.Comment> comments;
     private boolean rewindOnLoad;
-    private boolean tabletLayout;
     private boolean adminMode;
 
 
@@ -186,7 +183,7 @@ public class PostFragment extends BaseFragment implements
     @BindView(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.player_container)
+    @BindView(player_container)
     ViewGroup playerContainer;
 
     @BindView(R.id.post_content)
@@ -197,6 +194,10 @@ public class PostFragment extends BaseFragment implements
 
     @BindView(R.id.repost_hint)
     View repostHint;
+
+    @BindView(R.id.tabletlayout)
+    @Nullable
+    View tabletLayoutView;
 
     @Nullable
     private ViewGroup mediaControlsContainer;
@@ -273,7 +274,6 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.tabletLayout = view.findViewById(R.id.infoview) != null;
 
         if (!(getActivity() instanceof ToolbarActivity)) {
             throw new IllegalStateException("Fragment must be child of a ToolbarActivity.");
@@ -283,13 +283,8 @@ public class PostFragment extends BaseFragment implements
         activity.getScrollHideToolbarListener().reset();
 
         int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-        if (tabletLayout) {
-            View tabletLayout = ButterKnife.findById(view, R.id.tabletlayout);
-            tabletLayout.setPadding(0, abHeight, 0, 0);
-
-            ((FrameLayout.LayoutParams) voteAnimationIndicator.getLayoutParams()).gravity
-                    = Gravity.CENTER;
-
+        if (tabletLayoutView != null) {
+            tabletLayoutView.setPadding(0, abHeight, 0, 0);
             scrollHandler = new NoopOnScrollListener();
         } else {
             // use height of the toolbar to configure swipe refresh layout.
@@ -451,14 +446,14 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         boolean isImage = isStaticImage(feedItem);
-        boolean isRotated = getActivity().getWindowManager().getDefaultDisplay().getRotation() != Surface.ROTATION_0;
+        boolean isLandscape = screenIsLandscape(getActivity());
 
         MenuItem item;
         if ((item = menu.findItem(R.id.action_refresh)) != null)
             item.setVisible(settings.showRefreshButton() && !isVideoFullScreen());
 
         if ((item = menu.findItem(R.id.action_zoom)) != null)
-            item.setVisible(!isVideoFullScreen() && (isImage || !isRotated));
+            item.setVisible(!isVideoFullScreen() && (isImage || !isLandscape));
 
         if ((item = menu.findItem(R.id.action_share_image)) != null)
             item.setVisible(ShareProvider.canShare(getActivity(), feedItem));
@@ -482,7 +477,7 @@ public class PostFragment extends BaseFragment implements
             startActivity(intent);
 
         } else {
-            FullscreenParams params = new FullscreenParams();
+            ViewerFullscreenParameters params = ViewerFullscreenParameters.forViewer(getActivity(), viewer);
 
             fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, params.rotation),
@@ -524,8 +519,7 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void realignFullScreen() {
-        FullscreenParams params = new FullscreenParams();
-
+        ViewerFullscreenParameters params = ViewerFullscreenParameters.forViewer(getActivity(), viewer);
         viewer.setTranslationY(params.trY);
         viewer.setScaleX(params.scale);
         viewer.setScaleY(params.scale);
@@ -573,6 +567,7 @@ public class PostFragment extends BaseFragment implements
         fullscreenAnimator.cancel();
         fullscreenAnimator = null;
 
+        infoLineView.setVisibility(View.VISIBLE);
         swipeRefreshLayout.setVisibility(View.VISIBLE);
 
         // reset the values correctly
@@ -595,12 +590,13 @@ public class PostFragment extends BaseFragment implements
 
         Screen.unlockOrientation(activity);
 
-        // move back views
+        // move views back
         if (mediaControlsContainer != null) {
             AndroidUtility.removeView(mediaControlsContainer);
 
-            if (playerPlaceholder != null) {
-                playerPlaceholder.addView(mediaControlsContainer);
+            ViewGroup targetView = (tabletLayoutView != null) ? playerContainer : playerPlaceholder;
+            if (targetView != null) {
+                targetView.addView(mediaControlsContainer);
             }
         }
     }
@@ -817,11 +813,21 @@ public class PostFragment extends BaseFragment implements
         int idx = playerContainer.indexOfChild(voteAnimationIndicator);
         playerContainer.addView(viewer, idx);
 
-        if (tabletLayout) {
+        // Add a contrainer for the children
+        mediaControlsContainer = new FrameLayout(getContext());
+        mediaControlsContainer.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM));
+
+
+        if (tabletLayoutView != null) {
             viewer.setLayoutParams(new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER));
+
+            playerContainer.addView(mediaControlsContainer);
         } else {
             viewer.setPadding(0, padding, 0, 0);
 
@@ -857,22 +863,14 @@ public class PostFragment extends BaseFragment implements
 
 
             playerPlaceholder = placeholder;
-
-            // Add a contrainer for the children
-            mediaControlsContainer = new FrameLayout(getContext());
-            mediaControlsContainer.setLayoutParams(new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM));
-
-            placeholder.addView(mediaControlsContainer);
-
-            // add the controls as child of the controls-container.
-            viewer.controllerView()
-                    .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                    .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
-                    .subscribe(mediaControlsContainer::addView);
+            playerPlaceholder.addView(mediaControlsContainer);
         }
+
+        // add the controls as child of the controls-container.
+        viewer.controllerView()
+                .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
+                .subscribe(mediaControlsContainer::addView);
     }
 
     private void simulateScroll() {
@@ -1226,58 +1224,6 @@ public class PostFragment extends BaseFragment implements
             }
         } else {
             viewer.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private class FullscreenParams {
-        final float scale;
-        final float trY;
-        final float rotation;
-
-        FullscreenParams() {
-            Point screenSize = screenSize();
-
-            int windowWidth = screenSize.x;
-            float windowHeight = screenSize.y;
-
-            //noinspection UnnecessaryLocalVariable
-            int viewerWidth = windowWidth;
-            int viewerHeight = viewer.getHeight() - viewer.getPaddingTop();
-
-            viewer.setPivotY(viewer.getHeight() - 0.5f * viewerHeight);
-            viewer.setPivotX(viewerWidth / 2.f);
-            trY = (windowHeight / 2.f - viewer.getPivotY());
-
-            float scaleRot = Math.min(
-                    windowHeight / (float) viewerWidth,
-                    windowWidth / (float) viewerHeight);
-
-            float scaleNoRot = Math.min(
-                    windowHeight / (float) viewerHeight,
-                    windowWidth / (float) viewerWidth);
-
-            // check if rotation is necessary
-            if (scaleRot > scaleNoRot) {
-                rotation = 90.f;
-                scale = scaleRot;
-            } else {
-                rotation = 0.f;
-                scale = scaleNoRot;
-            }
-        }
-
-        @SuppressLint("NewApi")
-        private Point screenSize() {
-            Point screenSize = new Point();
-            Display display = getActivity().getWindowManager().getDefaultDisplay();
-
-            if (Sdk.isAtLeastJellyBeanMR1()) {
-                display.getRealSize(screenSize);
-            } else {
-                display.getSize(screenSize);
-            }
-
-            return screenSize;
         }
     }
 
