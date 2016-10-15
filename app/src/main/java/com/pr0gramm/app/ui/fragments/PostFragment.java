@@ -1147,7 +1147,7 @@ public class PostFragment extends BaseFragment implements
     private class ScrollHandler extends RecyclerView.OnScrollListener {
         private final ToolbarActivity activity;
 
-        public ScrollHandler(ToolbarActivity activity) {
+        ScrollHandler(ToolbarActivity activity) {
             this.activity = activity;
         }
 
