@@ -69,6 +69,7 @@ public abstract class MediaView extends FrameLayout {
 
     private final PreviewTarget previewTarget = new PreviewTarget(this);
     private final BehaviorSubject<Void> onViewListener = BehaviorSubject.create();
+    private final BehaviorSubject<Bitmap> thumbnail = BehaviorSubject.create();
     private final GestureDetector gestureDetector;
     private final MediaUri mediaUri;
 
@@ -137,6 +138,8 @@ public abstract class MediaView extends FrameLayout {
 
             // no more views will come now.
             controllerView.onCompleted();
+            onViewListener.onCompleted();
+            thumbnail.onCompleted();
         });
 
         if (ThumbyService.isEligibleForPreview(mediaUri)) {
@@ -186,12 +189,6 @@ public abstract class MediaView extends FrameLayout {
                 .compose(RxLifecycleAndroid.<T>bindView(this));
     }
 
-    protected <T> Observable.Transformer<T, T> simpleBindView() {
-        return observable -> observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(RxLifecycleAndroid.<T>bindView(this));
-    }
-
     /**
      * Implement to do dependency injection.
      */
@@ -212,9 +209,16 @@ public abstract class MediaView extends FrameLayout {
         }
 
         boolean hasThumbnail = false;
-        if (info.getPreview() != null) {
-            setPreviewDrawable(info.getPreview());
+
+        Drawable preview = info.getPreview();
+        if (preview != null) {
+            setPreviewDrawable(preview);
             hasThumbnail = true;
+
+            if (preview instanceof BitmapDrawable) {
+                Bitmap bitmap = ((BitmapDrawable) preview).getBitmap();
+                thumbnail.onNext(bitmap);
+            }
         }
 
         if (info.getPreviewUri() != null) {
@@ -528,6 +532,10 @@ public abstract class MediaView extends FrameLayout {
         return controllerView;
     }
 
+    public Observable<Bitmap> thumbnail() {
+        return thumbnail;
+    }
+
     public interface TapListener {
         boolean onSingleTap(MotionEvent event);
 
@@ -548,6 +556,8 @@ public abstract class MediaView extends FrameLayout {
                 Drawable nextImage = new BitmapDrawable(mediaView.getResources(), bitmap);
                 mediaView.setPreviewDrawable(nextImage);
             }
+
+            mediaView.thumbnail.onNext(bitmap);
         }
     }
 

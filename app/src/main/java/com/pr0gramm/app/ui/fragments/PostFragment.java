@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -97,6 +100,7 @@ import rx.subjects.BehaviorSubject;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.animation.PropertyValuesHolder.ofFloat;
+import static android.support.v7.graphics.Target.DARK_MUTED;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
@@ -825,6 +829,15 @@ public class PostFragment extends BaseFragment implements
                     Gravity.CENTER));
 
             playerContainer.addView(mediaControlsContainer);
+
+            if (isStaticImage(feedItem)) {
+                viewer.thumbnail()
+                        .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                        .subscribe(this::updatePlayerContainerBackground);
+            } else {
+                playerContainer.setBackgroundColor(Color.BLACK);
+            }
+
         } else {
             viewer.setPadding(0, padding, 0, 0);
 
@@ -868,6 +881,18 @@ public class PostFragment extends BaseFragment implements
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
                 .subscribe(mediaControlsContainer::addView);
+    }
+
+    private void updatePlayerContainerBackground(Bitmap thumbnail) {
+        new Palette.Builder(thumbnail)
+                .clearTargets()
+                .addTarget(DARK_MUTED)
+                .generate(palette -> {
+                    if (playerContainer != null) {
+                        int color = palette.getDarkMutedColor(0);
+                        playerContainer.setBackgroundColor(AndroidUtility.darken(color, 0.5f));
+                    }
+                });
     }
 
     @NonNull

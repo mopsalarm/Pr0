@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.widget.TextView;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
@@ -107,7 +108,7 @@ public class ImageMediaView extends MediaView {
         });
 
         // start loading
-        // imageView.setImage(ImageSource.uri(getEffectiveUri()));
+        imageView.setImage(ImageSource.uri(getEffectiveUri()));
         showBusyIndicator();
     }
 
