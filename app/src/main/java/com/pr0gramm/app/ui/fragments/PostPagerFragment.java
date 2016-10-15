@@ -41,7 +41,7 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 
 /**
  */
-public class PostPagerFragment extends BaseFragment implements FilterFragment, PostPagerNavigation {
+public class PostPagerFragment extends BaseFragment implements FilterFragment, PostPagerNavigation, PreviewInfoSource {
     static final Logger logger = LoggerFactory.getLogger("PostPagerFragment");
 
     private static final String ARG_FEED_PROXY = "PostPagerFragment.feedProxy";
@@ -174,14 +174,15 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             if (startCommentId > 0) {
                 activePostFragment.autoScrollToComment(startCommentId);
             }
-
-            if (previewInfo != null && activePostFragment.getFeedItem() != null) {
-                if (activePostFragment.getFeedItem().id() == getArgumentStartItem(null).id()) {
-                    activePostFragment.setPreviewInfo(previewInfo);
-                    previewInfo = null;
-                }
-            }
         }
+    }
+
+    @Nullable
+    @Override
+    public PreviewInfo previewInfo(FeedItem item) {
+        return previewInfo != null && item.id() == previewInfo.getItemId()
+                ? previewInfo
+                : null;
     }
 
     /**

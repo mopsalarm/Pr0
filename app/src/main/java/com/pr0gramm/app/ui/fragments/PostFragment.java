@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -137,9 +138,6 @@ public class PostFragment extends BaseFragment implements
     private CommentsAdapter commentsAdapter;
 
     private RecyclerView.OnScrollListener scrollHandler;
-
-    @Nullable
-    private PreviewInfo previewInfo;
 
     @Nullable
     private ObjectAnimator fullscreenAnimator;
@@ -382,10 +380,6 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    public void setPreviewInfo(@Nullable PreviewInfo previewInfo) {
-        this.previewInfo = previewInfo;
-    }
-
     private void initializeCommentPostLine() {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -423,6 +417,11 @@ public class PostFragment extends BaseFragment implements
      * @param commentId The comment id to scroll to
      */
     private void scrollToComment(long commentId) {
+        if (commentsAdapter == null) {
+            logger.warn("Could not scroll to comment, as commentsAdapter is null.");
+            return;
+        }
+
         Optional<Integer> offset = adapter.getOffset(commentsAdapter);
         if (offset.isPresent()) {
             for (int idx = 0; idx < commentsAdapter.getItemCount(); idx++) {
@@ -795,8 +794,7 @@ public class PostFragment extends BaseFragment implements
 
         viewer = MediaViews.newInstance(ImmutableConfig.of(getActivity(), uri)
                 .withAudio(feedItem.audio())
-                .withPreviewInfo(this.previewInfo != null
-                        ? this.previewInfo : PreviewInfo.of(getContext(), feedItem)));
+                .withPreviewInfo(previewInfo()));
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
             //  mark this item seen. We do that in a background thread
@@ -870,6 +868,21 @@ public class PostFragment extends BaseFragment implements
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
                 .subscribe(mediaControlsContainer::addView);
+    }
+
+    @NonNull
+    private PreviewInfo previewInfo() {
+        PreviewInfo result = null;
+        Fragment parent = getParentFragment();
+        if (parent instanceof PreviewInfoSource) {
+            result = ((PreviewInfoSource) parent).previewInfo(feedItem);
+        }
+
+        if (result == null) {
+            result = PreviewInfo.of(getContext(), feedItem);
+        }
+
+        return result;
     }
 
     private void simulateScroll() {
