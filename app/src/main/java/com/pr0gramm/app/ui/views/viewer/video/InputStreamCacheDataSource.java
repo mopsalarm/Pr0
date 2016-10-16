@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 import com.pr0gramm.app.io.GreedyInputStreamCache;
 import com.pr0gramm.app.io.InputStreamCache;
+import com.pr0gramm.app.util.BackgroundScheduler;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
 
@@ -20,6 +21,9 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rx.Observable;
+import rx.functions.Func0;
+import rx.util.async.Async;
 
 /**
  */
@@ -112,11 +116,26 @@ class InputStreamCacheDataSource implements BufferedDataSource {
         protected void finalize() throws Throwable {
             super.finalize();
 
-            try {
-                if (this.response != null)
-                    response.close();
-            } catch (Exception ignored) {
-            }
+            // close the response in a background thread.
+            Async.start(new Closer(this.response), BackgroundScheduler.instance())
+                    .onErrorResumeNext(Observable.empty())
+                    .subscribe();
+        }
+    }
+
+    private static class Closer implements Func0<Void> {
+        private final Response response;
+
+        Closer(Response response) {
+            this.response = response;
+        }
+
+        @Override
+        public Void call() {
+            if (this.response != null)
+                response.close();
+
+            return null;
         }
     }
 }
