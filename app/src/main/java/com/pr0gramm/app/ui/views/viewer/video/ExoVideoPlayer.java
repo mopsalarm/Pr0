@@ -174,7 +174,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         logger.info("Preparing exo player now'");
 
-        exo.prepare(mediaSource, false);
+        exo.prepare(mediaSource, false, false);
         exo.setPlayWhenReady(true);
 
         applyVolumeState();
