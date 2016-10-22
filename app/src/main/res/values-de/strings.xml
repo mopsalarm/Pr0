@@ -330,7 +330,7 @@
     <string name="media_exo_error_topbit">Dieses Video hat ein ungültiges Format und kann nicht abgespielt werden.</string>
     <string name="upload_error_video_too_small">Die Auflösung ist zu klein – Mindestens 0,09 Megapixel (z.B. 300×300).</string>
     <string name="upload_error_video_too_large">Die Auflösung ist zu hoch – Maximal 16,7 Megapixel (z.B. 4096×4096).</string>
-    <string name="upload_error_video_too_long">Das Video ist zu lang – Maximal 120 Sekunden.</string>
+    <string name="upload_error_video_too_long">Das Video ist zu lang – Maximal 180 Sekunden.</string>
     <string name="upload_error_video_codec">Ungültiger Codec gefunden – Nur VP8 oder H264 für Video und AAC, Vorbis oder Opus für Audio erlaubt.</string>
     <string name="upload_error_video_container">Ungültige Container/Codec-Konstellation. (z.B. VP8 in einem MP4 Container).</string>
     <string name="upload_error_video_streams">Ungültige Stream-Konstellation (z.B zwei Audio Streams).</string>

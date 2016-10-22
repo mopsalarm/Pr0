@@ -348,7 +348,7 @@
     <string name="media_exo_error_topbit">This video has an invalid format and can not be played by your device.</string>
     <string name="upload_error_video_too_small">Video resolution too small (must be at least 0.09 megapixel).</string>
     <string name="upload_error_video_too_large">Video resolution too large (must not be more than 16.7 megapixel)-</string>
-    <string name="upload_error_video_too_long">Video duration is too long, must be at most 120sec.</string>
+    <string name="upload_error_video_too_long">Video duration is too long, must be at most 180sec.</string>
     <string name="upload_error_video_codec">Invalid codec - vp8 or h264 for video and aac, vorbis or opus for audio allowed.</string>
     <string name="upload_error_video_streams">Invalid streams - must contain exactly one video stream and at most one audio stream.</string>
     <string name="upload_error_video_container">Invalid container/codec combination, like vp8 in an mp4 codec.</string>
