@@ -46,7 +46,7 @@ dependencies {
     compile 'me.leolin:ShortcutBadger:1.1.9@aar'
     compile 'com.github.paolorotolo:appintro:4.0.0'
 
-    compile 'com.google.android.exoplayer:exoplayer:r2.0.3'
+    compile 'com.google.android.exoplayer:exoplayer:r2.0.4'
 
     compile 'commons-io:commons-io:2.5'
 
@@ -86,9 +86,9 @@ dependencies {
     compile 'pl.brightinventions:slf4android:0.1.2'
     compile 'com.crashlytics.sdk.android:crashlytics:2.6.5'
 
-    apt 'org.immutables:value:2.3.5'
-    provided 'org.immutables:value:2.3.5'
-    provided 'org.immutables:gson:2.3.5'
+    apt 'org.immutables:value:2.3.7'
+    provided 'org.immutables:value:2.3.7'
+    provided 'org.immutables:gson:2.3.7'
 
     compile 'com.google.dagger:dagger:2.7'
     apt 'com.google.dagger:dagger-compiler:2.7'
