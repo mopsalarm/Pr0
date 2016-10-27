@@ -17,14 +17,14 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:customtabs:24.2.1'
-    compile 'com.android.support:palette-v7:24.2.1'
-    compile 'com.google.android.gms:play-services-analytics:9.6.1'
+    compile 'com.android.support:recyclerview-v7:25.0.0'
+    compile 'com.android.support:design:25.0.0'
+    compile 'com.android.support:customtabs:25.0.0'
+    compile 'com.android.support:palette-v7:25.0.0'
+    compile 'com.google.android.gms:play-services-analytics:9.8.0'
     compile 'com.google.guava:guava:19.0'
 
-    compile 'net.danlew:android.joda:2.9.4.2'
+    compile 'net.danlew:android.joda:2.9.4.3'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
@@ -35,7 +35,7 @@ dependencies {
     compile 'com.github.tony19:named-regexp:0.2.4'
     compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.8.0'
     compile "com.infstory:proguard-annotations:1.0.2"
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.5.0'
@@ -86,9 +86,9 @@ dependencies {
     compile 'pl.brightinventions:slf4android:0.1.2'
     compile 'com.crashlytics.sdk.android:crashlytics:2.6.5'
 
-    apt 'org.immutables:value:2.3.7'
-    provided 'org.immutables:value:2.3.7'
-    provided 'org.immutables:gson:2.3.7'
+    apt 'org.immutables:value:2.3.8'
+    provided 'org.immutables:value:2.3.8'
+    provided 'org.immutables:gson:2.3.8'
 
     compile 'com.google.dagger:dagger:2.7'
     apt 'com.google.dagger:dagger-compiler:2.7'
@@ -99,5 +99,5 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
-    androidTestCompile 'com.android.support:support-annotations:24.2.1'
+    androidTestCompile 'com.android.support:support-annotations:25.0.0'
 }
