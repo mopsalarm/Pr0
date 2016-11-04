@@ -1,5 +1,14 @@
 [
   {
+    "version": 113,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Manchmal hing sich die App bei schlechtem Netzwerk auf und verbrauchte sehr viel Akku."
+      }
+    ]
+  },
+  {
     "version": 112,
     "changes": [
       {
