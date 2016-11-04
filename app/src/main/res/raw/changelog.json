@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Manchmal hing sich die App bei schlechtem Netzwerk auf und verbrauchte sehr viel Akku."
+      },
+      {
+        "type": "Fix",
+        "change": "Seltenen Absturz im Zusammenhang mit der Quick-Preview funktion behoben."
       }
     ]
   },
