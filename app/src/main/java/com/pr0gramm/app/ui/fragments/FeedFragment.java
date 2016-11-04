@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -1024,11 +1025,16 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     private void openQuickPeek(FeedItem item) {
-        this.quickPeekDialog = new WeakReference<>(
-                PopupPlayer.newInstance(getActivity(), item));
+        // check that the activity is not zero. Might happen, as this method might
+        // get called shortly after detaching the activity - which sucks. thanks android.
+        Activity activity = getActivity();
+        if (activity != null) {
+            this.quickPeekDialog = new WeakReference<>(
+                    PopupPlayer.newInstance(activity, item));
 
-        swipeRefreshLayout.setEnabled(false);
-        Track.quickPeek();
+            swipeRefreshLayout.setEnabled(false);
+            Track.quickPeek();
+        }
     }
 
     @Nullable
