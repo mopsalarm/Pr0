@@ -1,5 +1,22 @@
 [
   {
+    "version": 114,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Support für NSFP."
+      },
+      {
+        "type": "Fix",
+        "change": "Tags werden nach dem Upload sofort angezeigt, nicht erst verspätet."
+      },
+      {
+        "type": "Fix",
+        "change": "Mehrere kleine Bugfixes und Verbesserungen"
+      }
+    ]
+  },
+  {
     "version": 113,
     "changes": [
       {
