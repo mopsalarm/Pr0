@@ -114,12 +114,12 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 ViewPager pager = PostPagerFragment.this.viewPager;
                 if (pager != null && position >= 0 && position + 1 < adapter.getCount()) {
-                    Optional<Fragment> prev = adapter.getFragment(position);
-                    Optional<Fragment> next = adapter.getFragment(position + 1);
-                    if (prev.isPresent() && next.isPresent()) {
-                        ((PostFragment) prev.get()).mediaHorizontalOffset(positionOffsetPixels / 2);
-                        ((PostFragment) next.get()).mediaHorizontalOffset(
-                                -pager.getWidth() / 2 + positionOffsetPixels / 2);
+                    Fragment prev = adapter.getFragment(position).orNull();
+                    Fragment next = adapter.getFragment(position + 1).orNull();
+                    if (prev instanceof PostFragment && next instanceof PostFragment) {
+                        int offset = positionOffsetPixels / 2;
+                        ((PostFragment) prev).mediaHorizontalOffset(offset);
+                        ((PostFragment) next).mediaHorizontalOffset(offset - pager.getWidth() / 2);
                     }
                 }
             }

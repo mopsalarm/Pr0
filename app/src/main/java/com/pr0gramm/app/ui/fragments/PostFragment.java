@@ -1156,7 +1156,9 @@ public class PostFragment extends BaseFragment implements
     }
 
     public void mediaHorizontalOffset(int offset) {
-        viewer.setTranslationX(offset);
+        if (viewer != null) {
+            viewer.setTranslationX(offset);
+        }
     }
 
     private class PlaceholderView extends FrameLayout {
