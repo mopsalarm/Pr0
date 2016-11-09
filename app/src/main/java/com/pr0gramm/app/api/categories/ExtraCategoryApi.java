@@ -7,8 +7,6 @@ import retrofit2.http.HEAD;
 import retrofit2.http.Query;
 import rx.Observable;
 
-import static com.pr0gramm.app.R.id.tags;
-
 /**
  */
 public interface ExtraCategoryApi {
