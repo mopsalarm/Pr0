@@ -24,7 +24,6 @@ import java.util.logging.LogManager;
 
 import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
-import okhttp3.internal.framed.FrameLoggerAccess;
 import pl.brightinventions.slf4android.LogLevel;
 import pl.brightinventions.slf4android.LoggerConfiguration;
 import rx.Scheduler;
@@ -73,7 +72,7 @@ public class ApplicationClass extends Application {
 
             LoggerConfiguration.configuration()
                     .removeRootLogcatHandler()
-                    .setLogLevel(FrameLoggerAccess.CLASSNAME, LogLevel.INFO)
+                    .setRootLogLevel(LogLevel.INFO)
                     .addHandlerToRootLogger(new CrashlyticsLogHandler());
         }
 
