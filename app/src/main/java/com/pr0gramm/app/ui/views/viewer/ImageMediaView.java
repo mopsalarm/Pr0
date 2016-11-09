@@ -70,6 +70,9 @@ public class ImageMediaView extends MediaView {
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setZoomEnabled(zoomView);
 
+        // try not to use too much memory, even on big devices
+        imageView.setMaxTileSize(4096);
+
         imageView.setBitmapDecoderFactory(() -> new PicassoDecoder(tag, picasso));
         imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
         imageView.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {

@@ -77,6 +77,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         // normal content view
         setContentView(R.layout.activity_zoom_view);
 
+        imageView.setMaxTileSize(4096);
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setBitmapDecoderFactory(() -> new PicassoDecoder(tag, picasso));
         imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
