@@ -69,7 +69,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.2.2'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava-async-util:0.21.0'
-    compile 'com.artemzin.rxjava:proguard-rules:1.2.1.0'
+    compile 'com.artemzin.rxjava:proguard-rules:1.2.2.0'
     compile 'com.trello:rxlifecycle:1.0'
     compile 'com.trello:rxlifecycle-android:1.0'
     compile 'com.trello:rxlifecycle-components:1.0'
