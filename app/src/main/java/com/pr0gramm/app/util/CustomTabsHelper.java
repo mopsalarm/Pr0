@@ -20,7 +20,6 @@ import java.util.List;
  */
 
 public class CustomTabsHelper {
-    private static final String TAG = "CustomTabLauncher";
     private static final String STABLE_PACKAGE = "com.android.chrome";
     private static final String BETA_PACKAGE = "com.chrome.beta";
     private static final String DEV_PACKAGE = "com.chrome.dev";

@@ -401,9 +401,10 @@
     <string name="pref_pseudo_onboarding_summary">Shows the welcome message and settings wizard again.</string>
     <string name="bookmark_config_title">Bookmark config</string>
     <string name="action_done">DONE</string>
-    <string name="quality_sd">SD</string>
-    <string name="quality_hd">HD</string>
-    <string name="quality_4k">4k</string>
-    <string name="quality_potato">Kartoffel</string>
+    <string name="quality_sd" translatable="false">SD</string>
+    <string name="quality_hd" translatable="false">HD</string>
+    <string name="quality_4k" translatable="false">4k</string>
+    <string name="quality_potato" translatable="false">Kartoffel</string>
+    <string name="action_secret_santa">WICHTELN</string>
 </resources>
 

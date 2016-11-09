@@ -47,7 +47,6 @@ public class NavigationProvider {
     private final InboxService inboxService;
     private final Settings settings;
     private final BookmarkService bookmarkService;
-    private final SingleShotService singleShotService;
     private final ConfigService configService;
 
     @BindDrawable(R.drawable.ic_black_action_favorite)
@@ -55,6 +54,9 @@ public class NavigationProvider {
 
     @BindDrawable(R.drawable.ic_black_action_home)
     Drawable iconFeedTypePromoted;
+
+    @BindDrawable(R.drawable.ic_action_wichteln)
+    Drawable iconSecretSanta;
 
     @BindDrawable(R.drawable.ic_black_action_stelz)
     Drawable iconFeedTypePremium;
@@ -91,7 +93,6 @@ public class NavigationProvider {
     @Inject
     public NavigationProvider(Activity activity, UserService userService, InboxService inboxService,
                               Settings settings, BookmarkService bookmarkService,
-                              SingleShotService singleShotService,
                               ExtraCategoryApiProvider extraCategoryApi,
                               ConfigService configService) {
 
@@ -102,7 +103,6 @@ public class NavigationProvider {
         this.inboxService = inboxService;
         this.settings = settings;
         this.bookmarkService = bookmarkService;
-        this.singleShotService = singleShotService;
         this.configService = configService;
 
         // inject the images
@@ -225,6 +225,14 @@ public class NavigationProvider {
             }
         }
 
+        if (configService.config().secretSanta()) {
+            items.add(ImmutableNavigationItem.builder()
+                    .action(ActionType.SECRETSANTA)
+                    .title(getString(R.string.action_secret_santa))
+                    .icon(iconSecretSanta)
+                    .build());
+        }
+
         if (username != null) {
             items.add(ImmutableNavigationItem.builder()
                     .action(ActionType.FAVORITES)
@@ -342,6 +350,6 @@ public class NavigationProvider {
     }
 
     public enum ActionType {
-        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES
+        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, SECRETSANTA
     }
 }

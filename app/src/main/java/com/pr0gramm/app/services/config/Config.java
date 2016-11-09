@@ -37,4 +37,9 @@ public abstract class Config {
     public boolean enableNotSafeForPublic() {
         return true;
     }
+
+    @Value.Default
+    public boolean secretSanta() {
+        return false;
+    }
 }

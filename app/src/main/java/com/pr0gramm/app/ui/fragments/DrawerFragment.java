@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -45,6 +46,7 @@ import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
+import com.pr0gramm.app.util.CustomTabsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -439,6 +441,11 @@ public class DrawerFragment extends BaseFragment {
 
             case FAVORITES:
                 getCallback().onNavigateToFavorites(item.filter().get().getLikes().get());
+                break;
+
+            case SECRETSANTA:
+                Uri uri = Uri.parse("https://pr0gramm.com/secret-santa/iap");
+                new CustomTabsHelper(getActivity()).openCustomTab(uri);
                 break;
         }
     }
