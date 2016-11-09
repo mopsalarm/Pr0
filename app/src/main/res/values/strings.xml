@@ -43,6 +43,7 @@
     <string name="pref_privacy">Privacy</string>
     <string name="settings">Settings</string>
     <string name="type_nsfl">nsfl</string>
+    <string name="type_nsfp">nsfp</string>
     <string name="type_nsfw">nsfw</string>
     <string name="type_sfw">sfw</string>
     <string name="prefcat_behaviour">Behaviour</string>

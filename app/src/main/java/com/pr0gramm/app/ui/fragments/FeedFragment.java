@@ -113,6 +113,7 @@ import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.pr0gramm.app.R.id.empty;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -178,7 +179,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     @BindView(R.id.refresh)
     CustomSwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.empty)
+    @BindView(empty)
     View noResultsView;
 
     boolean userInfoCommentsOpen;
@@ -633,14 +634,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
             int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;
             if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size()) {
                 for (FeedItem item : Lists.reverse(items.subList(0, idx))) {
-                    if (contentType.contains(item.contentTypes())) {
+                    if (contentType.contains(item.contentType())) {
                         return Optional.of(item);
                     }
                 }
             }
 
             return absent();
-        }).get();
+        }).or(Optional::absent);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.views.viewer;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.services.gif.GifToVideoService;
 import com.pr0gramm.app.services.proxy.ProxyService;
@@ -53,9 +54,10 @@ public class Gif2VideoMediaView extends ProxyMediaView {
 
         // create the correct child-viewer
         MediaView mediaView;
-        if (result.getVideoUrl().isPresent()) {
+        Optional<String> oVideoUrl = result.getVideoUrl();
+        if (oVideoUrl.isPresent()) {
             logger.info("Converted successfully, replace with video player");
-            Uri videoUri = Uri.parse(result.getVideoUrl().get());
+            Uri videoUri = Uri.parse(oVideoUrl.get());
             MediaUri webm = getMediaUri().withUri(videoUri, MediaUri.MediaType.VIDEO);
             mediaView = MediaViews.newInstance(ImmutableConfig.copyOf(config).withMediaUri(webm));
 

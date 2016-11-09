@@ -104,8 +104,12 @@ public class FeedItem implements Parcelable, HasThumbnail {
         return audio;
     }
 
-    public ContentType contentTypes() {
-        return ContentType.valueOf(flags).get();
+    /**
+     * Returns the content type of this Item, or {@link ContentType#SFW},
+     * if no type is available.
+     */
+    public ContentType contentType() {
+        return ContentType.valueOf(flags).or(ContentType.SFW);
     }
 
     /**

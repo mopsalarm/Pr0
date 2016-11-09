@@ -181,13 +181,15 @@ public class LoginCookieHandler implements CookieJar {
      */
     public Api.Nonce getNonce() throws LoginRequiredException {
         Optional<Cookie> cookie = getCookie();
-        if (!cookie.transform(c -> c.id != null).or(false)) {
+
+        if (cookie.transform(c -> c.id == null).or(true)) {
             if (cookie.isPresent())
                 clearLoginCookie(true);
 
             throw new LoginRequiredException();
         }
 
+        //noinspection OptionalGetWithoutIsPresent
         return cookie.transform(c -> new Api.Nonce(c.id)).get();
     }
 

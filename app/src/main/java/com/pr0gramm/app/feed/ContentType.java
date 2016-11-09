@@ -16,7 +16,7 @@ import java.util.Set;
  * Content type to load.
  */
 public enum ContentType implements Parcelable {
-    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl);
+    SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl), NSFP(8, R.string.type_nsfp);
 
     private final int flag;
     private final int title;
@@ -49,7 +49,7 @@ public enum ContentType implements Parcelable {
      * @param flags The encoded content types.
      */
     public static Set<ContentType> decompose(int flags) {
-        return FluentIterable.of(values())
+        return FluentIterable.from(values())
                 .filter(ct -> (ct.flag & flags) != 0)
                 .toSet();
     }
@@ -60,7 +60,7 @@ public enum ContentType implements Parcelable {
      * This returns an empty optional, if no content type could be found.
      */
     public static Optional<ContentType> valueOf(int flag) {
-        return FluentIterable.of(values()).firstMatch(ct -> ct.flag == flag);
+        return FluentIterable.from(values()).firstMatch(ct -> ct.flag == flag);
     }
 
     public static String toString(Context context, Collection<ContentType> types) {

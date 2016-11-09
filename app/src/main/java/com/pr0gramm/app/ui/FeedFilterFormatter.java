@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 
+import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.FeedFilter;
 
@@ -24,23 +25,26 @@ public class FeedFilterFormatter {
             return new FeedTitle("", "", "");
 
         if (!filter.isBasic()) {
-            if (filter.getTags().isPresent()) {
+            Optional<String> tags = filter.getTags();
+            if (tags.isPresent()) {
                 return new FeedTitle(
-                        filter.getTags().get(),
+                        tags.get(),
                         " in ",
                         feedTypeToString(context, filter));
             }
 
-            if (filter.getUsername().isPresent()) {
+            Optional<String> username = filter.getUsername();
+            if (username.isPresent()) {
                 return new FeedTitle(
-                        context.getString(R.string.filter_format_tag_by) + " " + filter.getUsername().get(),
+                        context.getString(R.string.filter_format_tag_by) + " " + username.get(),
                         " in ",
                         feedTypeToString(context, filter));
             }
 
-            if (filter.getLikes().isPresent()) {
+            Optional<String> likes = filter.getLikes();
+            if (likes.isPresent()) {
                 return new FeedTitle(
-                        context.getString(R.string.filter_format_fav_of) + " " + filter.getLikes().get(),
+                        context.getString(R.string.filter_format_fav_of) + " " + likes.get(),
                         " in ",
                         feedTypeToString(context, filter));
             }
@@ -50,8 +54,9 @@ public class FeedFilterFormatter {
     }
 
     public static String feedTypeToString(Context context, FeedFilter filter) {
-        if (filter.getLikes().isPresent()) {
-            return context.getString(R.string.favorites_of, filter.getLikes().get());
+        Optional<String> likes = filter.getLikes();
+        if (likes.isPresent()) {
+            return context.getString(R.string.favorites_of, likes.get());
         }
 
         switch (filter.getFeedType()) {

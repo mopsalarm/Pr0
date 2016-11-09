@@ -412,7 +412,7 @@ public class DrawerFragment extends BaseFragment {
             if (!selected.isPresent() && currentFilter != null) {
                 selected = FluentIterable.from(allItems)
                         .filter(NavigationItem::hasFilter)
-                        .filter(nav -> nav.filter().get().getFeedType() == currentFilter.getFeedType())
+                        .filter(nav -> nav.filter().transform(FeedFilter::getFeedType).orNull() == currentFilter.getFeedType())
                         .first();
             }
 

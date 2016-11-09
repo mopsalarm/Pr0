@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -63,8 +64,9 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteView
             Context context = itemView.getContext();
 
             CharSequence date = getRelativeTimeSpanString(context, invite.created());
-            if (invite.name().isPresent()) {
-                String name = invite.name().get();
+            Optional<String> oName = invite.name();
+            if (oName.isPresent()) {
+                String name = oName.get();
 
                 email.setVisibility(View.GONE);
                 username.setVisibility(View.VISIBLE);

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -22,10 +23,11 @@ public class WrittenCommentFragment extends MessageInboxFragment {
     @Override
     protected LoaderHelper<List<Api.Message>> newLoaderHelper() {
         return LoaderHelper.of(() -> {
-            if (!userService.getName().isPresent())
+            Optional<String> oName = userService.getName();
+            if (!oName.isPresent())
                 return Observable.empty();
 
-            String name = userService.getName().get();
+            String name = oName.get();
             return getInboxService()
                     .getUserComments(name, EnumSet.allOf(ContentType.class))
                     .map(userComments -> {
