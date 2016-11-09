@@ -32,7 +32,7 @@ import rx.Observable;
 @Value.Style(get = {"get*", "is*"})
 @KeepPublicClassMemberNames
 public interface Api {
-    @GET("/api/items/get?__statusCode=403")
+    @GET("/api/items/get")
     Observable<Feed> itemsGet(
             @Query("promoted") Integer promoted,
             @Query("following") Integer following,
@@ -590,12 +590,12 @@ public interface Api {
      */
     @Value.Immutable
     interface Tag {
+        @Value.Auxiliary
         long getId();
 
         @Value.Auxiliary
         float getConfidence();
 
-        @Value.Auxiliary
         String getTag();
     }
 

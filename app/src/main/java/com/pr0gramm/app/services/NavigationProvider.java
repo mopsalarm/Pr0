@@ -15,6 +15,7 @@ import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.orm.Bookmark;
+import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.services.config.ConfigService;
 
 import org.immutables.value.Value;
@@ -112,8 +113,7 @@ public class NavigationProvider {
     }
 
     private Observable<Boolean> checkExtraCategoryApi(ExtraCategoryApiProvider extraCategoryApi) {
-        Observable<Boolean> activeByConfig = configService.observeConfig()
-                .map(config -> config.extraCategories());
+        Observable<Boolean> activeByConfig = configService.observeConfig().map(Config::extraCategories);
 
         return activeByConfig
                 .switchMap(active -> {

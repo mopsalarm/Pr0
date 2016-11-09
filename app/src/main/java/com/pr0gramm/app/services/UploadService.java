@@ -51,13 +51,17 @@ public class UploadService {
     private final UserService userService;
     private final Picasso picasso;
     private final ConfigService configService;
+    private final InMemoryCacheService cacheService;
 
     @Inject
-    public UploadService(Api api, UserService userService, Picasso picasso, ConfigService configService) {
+    public UploadService(Api api, UserService userService, Picasso picasso,
+                         ConfigService configService, InMemoryCacheService cacheService) {
+
         this.api = api;
         this.userService = userService;
         this.picasso = picasso;
         this.configService = configService;
+        this.cacheService = cacheService;
     }
 
     private Observable<Long> maxSize() {
@@ -182,16 +186,25 @@ public class UploadService {
         return result.ignoreElements().mergeWith(result);
     }
 
-    private Observable<Api.Posted> post(String key, ContentType contentType, Set<String> tags, boolean checkSimilar) {
-        String sfwType = contentType.name().toLowerCase();
-        String tagStr = FluentIterable.from(tags)
-                .filter(tag -> !INVALID_TAGS.contains(tag.toLowerCase()))
-                .append(sfwType)
-                .transform(String::trim)
-                .filter(tag -> !"sfw".equals(tag.toLowerCase()))
-                .join(Joiner.on(","));
+    private Observable<Api.Posted> post(String key, ContentType contentType, Set<String> tags_, boolean checkSimilar) {
+        String contentTypeTag = contentType.name().toLowerCase();
 
-        return api.post(null, sfwType, tagStr, checkSimilar ? 1 : 0, key);
+        ImmutableList<String> tags = FluentIterable.from(tags_)
+                .transform(String::trim)
+                .filter(UploadService::isValidTag)
+                .append(contentTypeTag)
+                .toList();
+
+        String tagStr = Joiner.on(",").join(tags);
+
+        return api
+                .post(null, contentTypeTag, tagStr, checkSimilar ? 1 : 0, key)
+                .doOnNext(posted -> {
+                    // cache tags so that they appear immediately
+                    if (posted.getItemId() > 0) {
+                        cacheService.cacheTags(posted.getItemId(), tags);
+                    }
+                });
     }
 
     public Observable<UploadInfo> upload(File file, ContentType sfw, Set<String> tags) {
@@ -204,8 +217,8 @@ public class UploadService {
         });
     }
 
-    public Observable<UploadInfo> post(UploadInfo status, ContentType sfw, Set<String> tags, boolean checkSimilar) {
-        return post(status.key, sfw, tags, checkSimilar).flatMap(response -> {
+    public Observable<UploadInfo> post(UploadInfo status, ContentType contentType, Set<String> tags, boolean checkSimilar) {
+        return post(status.key, contentType, tags, checkSimilar).flatMap(response -> {
             if (response.getSimilar().size() > 0) {
                 return Observable.just(new UploadInfo(status.key, response.getSimilar()));
 
@@ -284,14 +297,27 @@ public class UploadService {
         }
     }
 
-    private static final ImmutableSet<Object> INVALID_TAGS = ImmutableSet.of(
-            "sfw", "nsfw", "nsfl", "gif", "webm", "sound");
+    @SuppressWarnings("RedundantIfStatement")
+    private static boolean isValidTag(String tag) {
+        if (INVALID_TAGS.contains(tag))
+            return false;
 
+        if (tag.length() < 2 || tag.length() > 32)
+            return false;
+
+        return true;
+    }
+
+
+    private static final ImmutableSet<Object> INVALID_TAGS = ImmutableSet.of(
+            "sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound");
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static final class UploadFailedException extends Exception {
         @NonNull
         public final Optional<Api.Posted.VideoReport> report;
 
-        public UploadFailedException(String message, @NonNull Optional<Api.Posted.VideoReport> report) {
+        UploadFailedException(String message, @NonNull Optional<Api.Posted.VideoReport> report) {
             super(message);
 
             this.report = report;

@@ -105,7 +105,7 @@ public class FeedItem implements Parcelable, HasThumbnail {
     }
 
     /**
-     * Returns the content type of this Item, or {@link ContentType#SFW},
+     * Returns the content type of this Item, falling back to {@link ContentType#SFW}
      * if no type is available.
      */
     public ContentType contentType() {
@@ -167,6 +167,10 @@ public class FeedItem implements Parcelable, HasThumbnail {
         this.down = (short) (rating & 0xffff);
     }
 
+    public boolean isVideo() {
+        return image.endsWith(".webm") || image.endsWith(".mp4");
+    }
+
     public static final Parcelable.Creator<FeedItem> CREATOR = new Parcelable.Creator<FeedItem>() {
         public FeedItem createFromParcel(Parcel source) {
             return new FeedItem(source);
@@ -176,8 +180,4 @@ public class FeedItem implements Parcelable, HasThumbnail {
             return new FeedItem[size];
         }
     };
-
-    public boolean isVideo() {
-        return image.endsWith(".webm") || image.endsWith(".mp4");
-    }
 }

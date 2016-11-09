@@ -56,10 +56,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
     }
 
     /**
-     * Gets a set of all selected content types.
+     * Gets a set of all selected content types. This gets called only for logged in users.
      */
     public EnumSet<ContentType> getContentType() {
-        EnumSet<ContentType> result = EnumSet.allOf(ContentType.class);
+        EnumSet<ContentType> result = EnumSet.of(ContentType.SFW, ContentType.NSFW, ContentType.NSFL);
 
         if (!getContentTypeNsfl())
             result.remove(ContentType.NSFL);
@@ -70,6 +70,9 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         // leave at least sfw.
         if (result.size() > 1 && !getContentTypeSfw())
             result.remove(ContentType.SFW);
+
+        // add nsfp for all (logged in) users.
+        result.add(ContentType.NSFP);
 
         return result;
     }

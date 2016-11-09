@@ -8,6 +8,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -34,6 +35,7 @@ public class ContentTypeDrawable extends Drawable {
             text = context.getString(R.string.all);
         } else {
             text = FluentIterable.from(types)
+                    .filter(type -> type != ContentType.NSFP)
                     .transform(type -> type.name().toLowerCase())
                     .join(Joiner.on("\n"));
         }
@@ -58,7 +60,7 @@ public class ContentTypeDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         Rect rect = getBounds();
 
         TextPaint tp = new TextPaint();

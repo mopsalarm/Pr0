@@ -114,6 +114,7 @@ import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
+import static com.pr0gramm.app.feed.ContentType.SFW;
 import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
 import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
@@ -566,7 +567,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
 
     private EnumSet<ContentType> getSelectedContentType() {
         if (!userService.isAuthorized())
-            return EnumSet.of(ContentType.SFW);
+            return EnumSet.of(SFW);
 
         return settings.getContentType();
     }
@@ -736,7 +737,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     private void updateContentTypeItems(Menu menu) {
-        boolean single = settings.getContentType().size() == 1;
+        // sfw + nsfp.
+        boolean single = settings.getContentType().size() == 2;
 
         Map<Integer, Boolean> types = ImmutableMap.<Integer, Boolean>builder()
                 .put(R.id.action_content_type_sfw, settings.getContentTypeSfw())

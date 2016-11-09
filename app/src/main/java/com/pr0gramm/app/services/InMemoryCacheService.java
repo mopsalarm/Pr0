@@ -4,8 +4,10 @@ import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.FeedItem;
 
@@ -46,7 +48,7 @@ public class InMemoryCacheService {
      * @param tags_ The list with the tags you know about
      * @return A list containing all previously seen tags for this item.
      */
-    public ImmutableList<Api.Tag> enhanceTags(Long itemId, Iterable<Api.Tag> tags_) {
+    public ImmutableList<Api.Tag> enhanceTags(long itemId, Iterable<Api.Tag> tags_) {
         ImmutableList<Api.Tag> tags = ImmutableList.copyOf(tags_);
 
         ImmutableList<Api.Tag> result = tagsCache.getIfPresent(itemId);
@@ -106,5 +108,13 @@ public class InMemoryCacheService {
     public Optional<EnhancedUserInfo> getUserInfo(Set<ContentType> contentTypes, String name) {
         String key = name.trim().toLowerCase() + ContentType.combine(contentTypes);
         return Optional.fromNullable(userInfoCache.getIfPresent(key));
+    }
+
+    /**
+     * Caches the given tags. They will be added with an id of 0 and a confidence value of 0.5f.
+     */
+    public void cacheTags(long itemId, List<String> tags) {
+        enhanceTags(itemId, Lists.transform(tags,
+                tag -> ImmutableApi.Tag.builder().tag(tag).id(0).confidence(0.5f).build()));
     }
 }

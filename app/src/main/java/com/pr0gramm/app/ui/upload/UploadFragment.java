@@ -40,6 +40,7 @@ import com.pr0gramm.app.services.MimeTypeHelper;
 import com.pr0gramm.app.services.RulesService;
 import com.pr0gramm.app.services.UploadService;
 import com.pr0gramm.app.services.UriHelper;
+import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.MainActivity;
 import com.pr0gramm.app.ui.TagInputView;
@@ -93,6 +94,9 @@ public class UploadFragment extends BaseFragment {
     @Inject
     RulesService rulesService;
 
+    @Inject
+    ConfigService configService;
+
     @BindView(R.id.preview)
     FrameLayout preview;
 
@@ -132,6 +136,13 @@ public class UploadFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // show nsfp conditionally.
+        View nsfpView = ButterKnife.findById(view, R.id.upload_type_nsfp);
+        if (nsfpView != null) {
+            boolean visible = configService.config().enableNotSafeForPublic();
+            nsfpView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
 
         Optional<Uri> uri = getUrlArgument();
         if (uri.isPresent()) {
@@ -441,6 +452,7 @@ public class UploadFragment extends BaseFragment {
                 .put(R.id.upload_type_sfw, ContentType.SFW)
                 .put(R.id.upload_type_nsfw, ContentType.NSFW)
                 .put(R.id.upload_type_nsfl, ContentType.NSFL)
+                .put(R.id.upload_type_nsfp, ContentType.NSFP)
                 .build();
 
         View view = getView();

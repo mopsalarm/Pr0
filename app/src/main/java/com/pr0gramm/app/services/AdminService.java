@@ -40,6 +40,7 @@ public class AdminService {
             "Repost",
             "Auf Anfrage",
             "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+            "Regel #1 - Falsche/Sinnlose Nutzung des NSFP Filters",
             "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
             "Regel #3 - Tierporn",
             "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",

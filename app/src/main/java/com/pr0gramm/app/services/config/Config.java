@@ -32,4 +32,9 @@ public abstract class Config {
     public boolean searchUsingTagService() {
         return false;
     }
+
+    @Value.Default
+    public boolean enableNotSafeForPublic() {
+        return true;
+    }
 }
