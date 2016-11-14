@@ -43,7 +43,7 @@ dependencies {
     compile 'com.github.akodiakson:sdkcheck:0.2.4'
     compile 'it.sephiroth.android.exif:android-exif-extended:1.0.6'
     compile 'com.indeed:java-dogstatsd-client:2.0.16'
-    compile 'me.leolin:ShortcutBadger:1.1.9@aar'
+    compile 'me.leolin:ShortcutBadger:1.1.11@aar'
     compile 'com.github.paolorotolo:appintro:4.0.0'
 
     compile 'com.google.android.exoplayer:exoplayer:r2.0.4'
@@ -86,9 +86,9 @@ dependencies {
     compile 'pl.brightinventions:slf4android:0.1.2'
     compile 'com.crashlytics.sdk.android:crashlytics:2.6.5'
 
-    apt 'org.immutables:value:2.3.8'
-    provided 'org.immutables:value:2.3.8'
-    provided 'org.immutables:gson:2.3.8'
+    apt 'org.immutables:value:2.3.9'
+    provided 'org.immutables:value:2.3.9'
+    provided 'org.immutables:gson:2.3.9'
 
     compile 'com.google.dagger:dagger:2.7'
     apt 'com.google.dagger:dagger-compiler:2.7'
