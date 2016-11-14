@@ -1,5 +1,14 @@
 [
   {
+    "version": 115,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Zeige NSFP Content nur, wenn auch SFW ausgewählt ist."
+      }
+    ]
+  },
+  {
     "version": 114,
     "changes": [
       {
