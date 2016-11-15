@@ -54,6 +54,7 @@ public class BookmarksActionItemsSlide extends ActionItemsSlide {
                 new BookmarkActionItem(bookmarkService, "0815 & Süßvieh", f.withTags("? 0815|süßvieh|(ficken halt)|(aber schicks keinem)")),
                 new BookmarkActionItem(bookmarkService, "Ton nur mit Untertitel", f.withTags("? (-f:sound | (untertitel & -404))")),
                 new BookmarkActionItem(bookmarkService, "Keine Videos", f.withTags("? -webm")),
-                new BookmarkActionItem(bookmarkService, "Reposts in Top", f.withTags("? repost & f:top")));
+                new BookmarkActionItem(bookmarkService, "Reposts in Top", f.withTags("? repost & f:top")),
+                new BookmarkActionItem(bookmarkService, "Nur Schrott", f.withFeedType(FeedType.NEW).withTags("? s:shit")));
     }
 }
