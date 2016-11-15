@@ -5,11 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -43,6 +41,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.android.schedulers.AndroidSchedulers;
+
+import static com.pr0gramm.app.util.AndroidUtility.endAction;
 
 /**
  */
@@ -153,19 +153,27 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         videoPlayer.start();
     }
 
-    /**
-     * Create the controller view.
-     */
-    private View createScrollView() {
-        LayoutParams lp = new LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM);
+    @Override
+    protected void onSeekbarVisibilityChanged(boolean show) {
+        muteButtonView.animate().cancel();
 
-        Button button = new Button(getContext());
-        button.setText("this is a test");
-        button.setLayoutParams(lp);
-        return button;
+        if (show) {
+            muteButtonView.animate()
+                    .alpha(0)
+                    .translationY(muteButtonView.getHeight())
+                    .setListener(endAction(() -> muteButtonView.setVisibility(GONE)))
+                    .setInterpolator(new AccelerateInterpolator())
+                    .start();
+        } else {
+            muteButtonView.setAlpha(0f);
+            muteButtonView.setVisibility(VISIBLE);
+            muteButtonView.animate()
+                    .alpha(1f)
+                    .translationY(0)
+                    .setListener(null)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     /**

@@ -104,8 +104,8 @@ public abstract class AbstractProgressMediaView extends MediaView {
                     .setListener(endAction(() -> viewToHide.setVisibility(GONE)))
                     .setInterpolator(new AccelerateInterpolator())
                     .start();
-        }
 
+        }
 
         if (viewToShow.getVisibility() != VISIBLE) {
             viewToShow.setAlpha(0);
@@ -117,7 +117,13 @@ public abstract class AbstractProgressMediaView extends MediaView {
                     .setListener(null)
                     .setInterpolator(new DecelerateInterpolator())
                     .start();
+
+            onSeekbarVisibilityChanged(show);
         }
+    }
+
+    protected void onSeekbarVisibilityChanged(boolean show) {
+        // can be implemented in a subclass.
     }
 
     private void updateTimeline() {
