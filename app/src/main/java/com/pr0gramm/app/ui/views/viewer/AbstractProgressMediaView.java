@@ -71,11 +71,19 @@ public abstract class AbstractProgressMediaView extends MediaView {
 
     @Override
     protected boolean onSingleTap(MotionEvent event) {
-        if (userSeekable() && !seekCurrentlyVisible()) {
-            logger.info("Show seekbar after tap.");
+        if (userSeekable()) {
+            if (seekCurrentlyVisible()) {
+                logger.info("Hide seekbar after tap.");
 
-            lastUserInteraction = System.currentTimeMillis();
-            showSeekbar(true);
+                lastUserInteraction = -1;
+                showSeekbar(false);
+            } else {
+                logger.info("Show seekbar after tap.");
+
+                lastUserInteraction = System.currentTimeMillis();
+                showSeekbar(true);
+            }
+
             return true;
         }
 
