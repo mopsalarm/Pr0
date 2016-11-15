@@ -737,8 +737,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     private void updateContentTypeItems(Menu menu) {
-        // sfw + nsfp.
-        boolean single = settings.getContentType().size() == 2;
+        // only one content type selected?
+        boolean single = ContentType.withoutImplicit(settings.getContentType()).size() == 1;
 
         Map<Integer, Boolean> types = ImmutableMap.<Integer, Boolean>builder()
                 .put(R.id.action_content_type_sfw, settings.getContentTypeSfw())

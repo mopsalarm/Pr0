@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -61,6 +62,15 @@ public enum ContentType implements Parcelable {
      */
     public static Optional<ContentType> valueOf(int flag) {
         return FluentIterable.from(values()).firstMatch(ct -> ct.flag == flag);
+    }
+
+    /**
+     * Removes implicitly added content types like {@link #NSFP}
+     */
+    public static Set<ContentType> withoutImplicit(Set<ContentType> contentTypes) {
+        EnumSet<ContentType> types = EnumSet.copyOf(contentTypes);
+        types.remove(NSFP);
+        return types;
     }
 
     public static String toString(Context context, Collection<ContentType> types) {
