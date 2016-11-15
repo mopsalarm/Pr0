@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Zeige NSFP Content nur, wenn auch SFW ausgewählt ist."
+      },
+      {
+        "type": "Fix",
+        "change": "Der Ton an/aus Button wird nun ausgeblendet, wenn die Leiste zum Spulen angezeigt wird."
       }
     ]
   },
