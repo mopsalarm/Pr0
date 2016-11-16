@@ -3,6 +3,10 @@
     "version": 115,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Wichtelsupport"
+      },
+      {
         "type": "Fix",
         "change": "Zeige NSFP Content nur, wenn auch SFW ausgewählt ist."
       },

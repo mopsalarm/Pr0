@@ -455,14 +455,12 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void openSecretSanta() {
-        String encoded = cookieHandler.getLoginCookie().orNull();
-
-        String url = "https://pr0gramm.com/secret-santa/iap";
+        String cookieValue = cookieHandler.getLoginCookie().orNull();
 
         // check if the cookie is set. If not, set it.
         String javaScript = Joiner.on("").join(ImmutableList.of(
                 "if (!/pr0app=UNIQUE/.test(document.cookie)) {",
-                "  document.cookie = 'me=" + encoded + "';",
+                "  document.cookie = 'me=" + cookieValue + "';",
                 "  document.cookie = 'pr0app=UNIQUE';",
                 "  location.reload();",
                 "} else {",
@@ -470,8 +468,10 @@ public class DrawerFragment extends BaseFragment {
                 "  setInterval(function() {$('.pane.secret-santa').css('padding-bottom', '96px')}, 1000);",
                 "}"));
 
-        javaScript = javaScript.replaceAll("UNIQUE", String.valueOf(System.currentTimeMillis()));
+        // use a unique cookie value each time. not sure if this is needed.
+        javaScript = javaScript.replace("UNIQUE", String.valueOf(System.currentTimeMillis()));
 
+        String url = "https://pr0gramm.com/secret-santa/iap";
         new FinestWebView.Builder(getActivity().getApplicationContext())
                 .theme(ThemeHelper.theme().noActionBar)
                 .iconDefaultColor(Color.WHITE)

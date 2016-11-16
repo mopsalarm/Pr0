@@ -226,7 +226,7 @@ public class NavigationProvider {
         }
 
         if (username != null) {
-            if (true || configService.config().secretSanta()) {
+            if (configService.config().secretSanta()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.SECRETSANTA)
                         .title(getString(R.string.action_secret_santa))
