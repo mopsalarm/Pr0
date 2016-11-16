@@ -215,6 +215,13 @@ public final class Track {
                 .build());
     }
 
+    public static void secretSantaClicked() {
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("SecretSanta")
+                .setAction("Clicked")
+                .build());
+    }
+
     public static void screen(String name) {
         Tracker tr = ga();
         tr.setScreenName(name);

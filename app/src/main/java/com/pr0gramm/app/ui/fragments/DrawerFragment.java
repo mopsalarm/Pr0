@@ -34,6 +34,7 @@ import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.NavigationProvider;
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem;
 import com.pr0gramm.app.services.ThemeHelper;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.ContactActivity;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -482,6 +483,8 @@ public class DrawerFragment extends BaseFragment {
                 .webViewDisplayZoomControls(false)
                 .injectJavaScript("javascript:" + javaScript)
                 .show(url);
+
+        Track.secretSantaClicked();
     }
 
     private void showInboxActivity(int unreadCount) {
