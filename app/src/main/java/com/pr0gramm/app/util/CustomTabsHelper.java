@@ -76,7 +76,7 @@ public class CustomTabsHelper {
 
         String packageName = getPackageName();
         if (packageName == null) {
-            new FinestWebView.Builder(activity)
+            new FinestWebView.Builder(activity.getApplicationContext())
                     .theme(ThemeHelper.theme().noActionBar)
                     .iconDefaultColor(Color.WHITE)
                     .toolbarColorRes(ThemeHelper.theme().primaryColor)

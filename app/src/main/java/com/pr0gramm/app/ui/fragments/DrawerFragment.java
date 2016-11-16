@@ -6,7 +6,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -19,12 +18,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.UserClasses;
+import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.services.BookmarkService;
@@ -46,7 +48,7 @@ import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
-import com.pr0gramm.app.util.CustomTabsHelper;
+import com.thefinestartist.finestwebview.FinestWebView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,9 @@ import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 public class DrawerFragment extends BaseFragment {
     @Inject
     UserService userService;
+
+    @Inject
+    LoginCookieHandler cookieHandler;
 
     @Inject
     Settings settings;
@@ -444,10 +449,39 @@ public class DrawerFragment extends BaseFragment {
                 break;
 
             case SECRETSANTA:
-                Uri uri = Uri.parse("https://pr0gramm.com/secret-santa/iap");
-                new CustomTabsHelper(getActivity()).openCustomTab(uri);
+                openSecretSanta();
                 break;
         }
+    }
+
+    private void openSecretSanta() {
+        String encoded = cookieHandler.getLoginCookie().orNull();
+
+        String url = "https://pr0gramm.com/secret-santa/iap";
+
+        // check if the cookie is set. If not, set it.
+        String javaScript = Joiner.on("").join(ImmutableList.of(
+                "if (!/pr0app=UNIQUE/.test(document.cookie)) {",
+                "  document.cookie = 'me=" + encoded + "';",
+                "  document.cookie = 'pr0app=UNIQUE';",
+                "  location.reload();",
+                "} else {",
+                "  setInterval(function() {$('.snowflake').remove();}, 250);",
+                "  setInterval(function() {$('.pane.secret-santa').css('padding-bottom', '96px')}, 1000);",
+                "}"));
+
+        javaScript = javaScript.replaceAll("UNIQUE", String.valueOf(System.currentTimeMillis()));
+
+        new FinestWebView.Builder(getActivity().getApplicationContext())
+                .theme(ThemeHelper.theme().noActionBar)
+                .iconDefaultColor(Color.WHITE)
+                .toolbarColorRes(ThemeHelper.theme().primaryColor)
+                .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
+                .webViewSupportZoom(true)
+                .webViewBuiltInZoomControls(true)
+                .webViewDisplayZoomControls(false)
+                .injectJavaScript("javascript:" + javaScript)
+                .show(url);
     }
 
     private void showInboxActivity(int unreadCount) {

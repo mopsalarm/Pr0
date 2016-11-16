@@ -32,7 +32,7 @@ public class PrivateBrowserSpan extends URLSpan {
         }
 
         if (useIncognitoBrowser) {
-            new FinestWebView.Builder(widget.getContext())
+            new FinestWebView.Builder(widget.getContext().getApplicationContext())
                     .theme(ThemeHelper.theme().noActionBar)
                     .iconDefaultColor(Color.WHITE)
                     .toolbarColorRes(ThemeHelper.theme().primaryColor)

@@ -225,15 +225,15 @@ public class NavigationProvider {
             }
         }
 
-        if (configService.config().secretSanta()) {
-            items.add(ImmutableNavigationItem.builder()
-                    .action(ActionType.SECRETSANTA)
-                    .title(getString(R.string.action_secret_santa))
-                    .icon(iconSecretSanta)
-                    .build());
-        }
-
         if (username != null) {
+            if (true || configService.config().secretSanta()) {
+                items.add(ImmutableNavigationItem.builder()
+                        .action(ActionType.SECRETSANTA)
+                        .title(getString(R.string.action_secret_santa))
+                        .icon(iconSecretSanta)
+                        .build());
+            }
+
             items.add(ImmutableNavigationItem.builder()
                     .action(ActionType.FAVORITES)
                     .filter(new FeedFilter().withFeedType(FeedType.NEW).withLikes(username))
