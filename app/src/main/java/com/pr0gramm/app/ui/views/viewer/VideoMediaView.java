@@ -155,6 +155,10 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     protected void onSeekbarVisibilityChanged(boolean show) {
+        // do not touch the button, if we dont have audio at all.
+        if (!hasAudio())
+            return;
+
         muteButtonView.animate().cancel();
 
         if (show) {

@@ -1,5 +1,14 @@
 [
   {
+    "version": 116,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Der Ton Button wird nicht mehr versehentlich angezeigt."
+      }
+    ]
+  },
+  {
     "version": 115,
     "changes": [
       {
