@@ -103,12 +103,7 @@ public class AndroidUtility {
      * @param context A context to resolve the styled attribute value for
      */
     public static int getActionBarContentOffset(Context context) {
-        int offset = 0;
-        if (Sdk.isAtLeastKitKat()) {
-            offset = getStatusBarHeight(context);
-        }
-
-        return getActionBarHeight(context) + offset;
+        return getStatusBarHeight(context) + getActionBarHeight(context);
     }
 
     /**
@@ -128,10 +123,13 @@ public class AndroidUtility {
      */
     public static int getStatusBarHeight(Context context) {
         int result = 0;
-        Resources resources = context.getResources();
-        int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = resources.getDimensionPixelSize(resourceId);
+
+        if (Sdk.isAtLeastKitKat()) {
+            Resources resources = context.getResources();
+            int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = resources.getDimensionPixelSize(resourceId);
+            }
         }
 
         return result;

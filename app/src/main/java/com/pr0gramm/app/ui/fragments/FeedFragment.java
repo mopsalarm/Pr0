@@ -25,7 +25,6 @@ import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -276,7 +275,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             int abHeight = AndroidUtility.getActionBarContentOffset(getActivity());
-            int offset = Sdk.isAtLeastKitKat() ? getStatusBarHeight(getActivity()) : 0;
+            int offset = getStatusBarHeight(getActivity());
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
 

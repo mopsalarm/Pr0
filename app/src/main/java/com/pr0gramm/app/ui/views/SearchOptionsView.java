@@ -155,6 +155,9 @@ public class SearchOptionsView extends LinearLayout {
             searchTerm = "? " + searchTerm;
         }
 
+        // replace all new line characters (why would you add a new line?)
+        searchTerm = searchTerm.replace('\n', ' ');
+
         searchQuery.onNext(searchTerm);
     }
 
@@ -211,8 +214,10 @@ public class SearchOptionsView extends LinearLayout {
     public void setPadding(int left, int top, int right, int bottom) {
         super.setPadding(left, 0, right, bottom);
 
-        // move top padding to search view (container)
-        searchTermContainer.setPadding(0, top, 0, 0);
+        if (searchTermContainer != null) {
+            // move top padding to search view (container)
+            searchTermContainer.setPadding(0, top, 0, 0);
+        }
     }
 
     public void requestSearchFocus() {
