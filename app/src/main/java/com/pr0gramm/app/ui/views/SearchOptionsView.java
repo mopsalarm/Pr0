@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -42,6 +41,7 @@ import static com.google.common.base.CharMatcher.whitespace;
 
 public class SearchOptionsView extends LinearLayout {
     private final PublishSubject<String> searchQuery = PublishSubject.create();
+    private final PublishSubject<Boolean> searchCanceled = PublishSubject.create();
 
     final Set<String> withoutTags = new HashSet<>();
 
@@ -51,8 +51,11 @@ public class SearchOptionsView extends LinearLayout {
     @BindView(R.id.search_term)
     EditText searchTermView;
 
+    @BindView(R.id.cancel_button)
+    View cancelButton;
+
     @BindView(R.id.search_button)
-    ImageButton searchButton;
+    View searchButton;
 
     @BindView(R.id.minimum_benis_slider)
     SeekBar minimumScoreSlider;
@@ -87,19 +90,22 @@ public class SearchOptionsView extends LinearLayout {
         addTextCheckboxes();
 
         searchButton.setOnClickListener(view -> handleSearchButtonClicked());
+        cancelButton.setOnClickListener(view -> searchCanceled.onNext(true));
 
         minimumScoreSlider.setMax(1000);
         minimumScoreSlider.setKeyProgressIncrement(5);
 
-        // update the value field with the slider
-        RxSeekBar.changes(minimumScoreSlider)
-                .map(value -> String.valueOf(roundScoreValue(value)))
-                .subscribe(minimumBenisValue::setText);
+        if (!isInEditMode()) {
+            // update the value field with the slider
+            RxSeekBar.changes(minimumScoreSlider)
+                    .map(value -> String.valueOf(roundScoreValue(value)))
+                    .subscribe(minimumBenisValue::setText);
 
-        // enter on search field should start the search
-        RxTextView
-                .editorActions(searchTermView, action -> action == EditorInfo.IME_ACTION_SEARCH)
-                .subscribe(e -> handleSearchButtonClicked());
+            // enter on search field should start the search
+            RxTextView
+                    .editorActions(searchTermView, action -> action == EditorInfo.IME_ACTION_SEARCH)
+                    .subscribe(e -> handleSearchButtonClicked());
+        }
     }
 
     private int roundScoreValue(int value) {
@@ -168,6 +174,10 @@ public class SearchOptionsView extends LinearLayout {
 
     public Observable<String> searchQuery() {
         return searchQuery;
+    }
+
+    public Observable<Boolean> searchCanceled() {
+        return searchCanceled;
     }
 
     private void addTextCheckboxes() {

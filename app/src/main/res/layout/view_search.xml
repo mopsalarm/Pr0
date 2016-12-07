@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:tools="http://schemas.android.com/tools"
-       tools:showIn="@layout/view_search_wrap">
+       tools:showIn="@layout/fragment_feed">
 
     <LinearLayout
         android:id="@+id/search_term_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimary"
+        android:clickable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/cancel_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="48dp"
+            android:layout_marginLeft="4dp"
+            android:src="@drawable/ic_arrow_back_24dp"/>
 
         <EditText
             android:id="@+id/search_term"
@@ -22,7 +32,6 @@
             android:inputType="text"
             android:lines="1"
             android:minHeight="?actionBarSize"
-            android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:textCursorDrawable="@drawable/text_cursor"/>
 
@@ -32,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="48dp"
+            android:layout_marginRight="4dp"
             android:src="@drawable/ic_white_action_search"/>
 
     </LinearLayout>
@@ -40,6 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimaryDark"
+        android:clickable="true"
         android:orientation="vertical"
         android:padding="16dp">
 

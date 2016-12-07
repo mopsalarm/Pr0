@@ -74,6 +74,7 @@ import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.RecyclerItemClickListener;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
+import com.pr0gramm.app.ui.back.BackAwareFragment;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.PopupPlayer;
@@ -126,7 +127,7 @@ import static java.util.Collections.emptyList;
 
 /**
  */
-public class FeedFragment extends BaseFragment implements FilterFragment {
+public class FeedFragment extends BaseFragment implements FilterFragment, BackAwareFragment {
     static final Logger logger = LoggerFactory.getLogger("FeedFragment");
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
@@ -295,6 +296,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
         // execute a search when we get a search term
         searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
+        searchView.searchCanceled().compose(bindToLifecycle()).subscribe(e -> hideSearchContainer());
         searchContainer.setOnClickListener(v -> hideSearchContainer());
     }
 
@@ -1200,7 +1202,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
 
     @OnOptionsItemSelected(R.id.action_search)
     public void showSearchContainer() {
-        if (searchContainer.getVisibility() != View.GONE)
+        if (searchContainerIsVisible())
             return;
 
         hideToolbar();
@@ -1224,8 +1226,22 @@ public class FeedFragment extends BaseFragment implements FilterFragment {
         searchView.setQueryHint(getString(R.string.action_search, typeName));
     }
 
+    @Override
+    public boolean onBackButton() {
+        if (searchContainerIsVisible()) {
+            hideSearchContainer();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean searchContainerIsVisible() {
+        return searchContainer.getVisibility() != View.GONE;
+    }
+
     private void hideSearchContainer() {
-        if (searchContainer.getVisibility() == View.GONE)
+        if (!searchContainerIsVisible())
             return;
 
         searchContainer.animate()

@@ -43,6 +43,7 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.ui.back.BackFragmentHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
@@ -457,6 +458,11 @@ public class MainActivity extends BaseAppCompatActivity implements
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
+            return;
+        }
+
+        // dispatch to fragments
+        if (BackFragmentHelper.dispatchOnBackAction(this)) {
             return;
         }
 

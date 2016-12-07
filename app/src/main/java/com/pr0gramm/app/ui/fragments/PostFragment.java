@@ -19,7 +19,6 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -68,6 +67,7 @@ import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
+import com.pr0gramm.app.ui.back.BackAwareFragment;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment;
 import com.pr0gramm.app.ui.views.CommentPostLine;
@@ -121,6 +121,7 @@ import static rx.Observable.just;
  */
 public class PostFragment extends BaseFragment implements
         NewTagDialogFragment.OnAddNewTagsListener,
+        BackAwareFragment,
         CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
 
     private static final Logger logger = LoggerFactory.getLogger("PostFragment");
@@ -505,7 +506,6 @@ public class PostFragment extends BaseFragment implements
             viewer.setVisibility(View.VISIBLE);
 
             activity.supportInvalidateOptionsMenu();
-            registerExitFullscreenListener();
 
             // forbid orientation changes while in fullscreen
             Screen.lockOrientation(activity);
@@ -525,38 +525,6 @@ public class PostFragment extends BaseFragment implements
         viewer.setTranslationY(params.trY);
         viewer.setScaleX(params.scale);
         viewer.setScaleY(params.scale);
-    }
-
-    private void registerExitFullscreenListener() {
-        // add a listener to show/hide the fullscreen.
-        View view = getView();
-        if (view != null) {
-            // get the focus for the back button
-            view.setFocusableInTouchMode(true);
-            view.requestFocus();
-
-            view.setOnKeyListener((v, keyCode, event) -> {
-                if (isVideoFullScreen()) {
-                    if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                        // remove listener
-                        view.setOnKeyListener(null);
-                        view.setOnFocusChangeListener(null);
-
-                        // and move back to normal state
-                        exitFullscreen();
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-
-            view.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus && isVideoFullScreen()) {
-                    view.requestFocus();
-                }
-            });
-        }
     }
 
     public void exitFullscreen() {
@@ -1159,6 +1127,16 @@ public class PostFragment extends BaseFragment implements
         if (viewer != null) {
             viewer.setTranslationX(offset);
         }
+    }
+
+    @Override
+    public boolean onBackButton() {
+        if (isVideoFullScreen()) {
+            exitFullscreen();
+            return true;
+        }
+
+        return false;
     }
 
     private class PlaceholderView extends FrameLayout {
