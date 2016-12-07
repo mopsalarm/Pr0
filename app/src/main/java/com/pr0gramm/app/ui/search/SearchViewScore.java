@@ -18,7 +18,7 @@ import rx.Observable;
 /**
  */
 public class SearchViewScore extends LinearLayout implements SearchView {
-    private final Observable<String> values;
+    private final Observable<Integer> values;
 
     @BindView(R.id.search_score_slider)
     SeekBar scoreSlider;
@@ -37,14 +37,15 @@ public class SearchViewScore extends LinearLayout implements SearchView {
         setGravity(Gravity.CENTER_VERTICAL);
 
         values = RxSeekBar.changes(scoreSlider)
-                .map(value -> String.valueOf((1 + Math.round(value / 500.f)) * 500))
+                .map(value -> (Math.round(value / 100.f)) * 100)
                 .share();
 
         values.compose(RxLifecycleAndroid.bindView(scoreSlider))
+                .map(SearchViewScore::valueToString)
                 .subscribe(scoreText::setText);
 
-        scoreSlider.setMax(9000);
-        scoreSlider.setKeyProgressIncrement(500);
+        scoreSlider.setMax(9500);
+        scoreSlider.setKeyProgressIncrement(100);
     }
 
     @Override
@@ -64,6 +65,10 @@ public class SearchViewScore extends LinearLayout implements SearchView {
 
     @Override
     public Observable<String> queryString() {
-        return values.map(value -> "s:" + value);
+        return values.map(value -> "s:" + valueToString(value));
+    }
+
+    private static String valueToString(Integer value) {
+        return value == 0 ? "shit" : String.valueOf(value);
     }
 }
