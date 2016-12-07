@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,11 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -84,6 +81,7 @@ import com.pr0gramm.app.ui.search.SearchConfigDialog;
 import com.pr0gramm.app.ui.search.SearchListener;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
+import com.pr0gramm.app.ui.views.SearchOptionsView;
 import com.pr0gramm.app.ui.views.UserInfoCell;
 import com.pr0gramm.app.ui.views.UserInfoFoundView;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -120,7 +118,9 @@ import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.endAction;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
+import static com.pr0gramm.app.util.AndroidUtility.hideViewOnAnimationEnd;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.util.AndroidUtility.isNotNull;
 import static java.lang.Math.max;
@@ -182,6 +182,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
 
     @BindView(empty)
     View noResultsView;
+
+    @BindView(R.id.search_container)
+    View searchContainer;
+
+    @BindView(R.id.search_options)
+    SearchOptionsView searchView;
 
     boolean userInfoCommentsOpen;
     private boolean bookmarkable;
@@ -261,7 +267,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Feed feed = feedAdapter.getFeed();
             if (feed.isAtStart() && !loader.isLoading()) {
-                loader.restart(Optional.<Long>absent());
+                loader.restart(Optional.absent());
             } else {
                 // do not refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -288,6 +294,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(name -> name.equalsIgnoreCase(activeUsername))
                 .subscribe(name -> getActivity().supportInvalidateOptionsMenu());
+
+        // execute a search when we get a search term
+        searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
+        searchContainer.setOnClickListener(v -> hideSearchContainer());
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -520,6 +530,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         }
     }
 
+    private void hideToolbar() {
+        if (getActivity() instanceof ToolbarActivity) {
+            ToolbarActivity activity = (ToolbarActivity) getActivity();
+            activity.getScrollHideToolbarListener().hide();
+        }
+    }
+
     private void onBookmarkableStateChanged(boolean bookmarkable) {
         this.bookmarkable = bookmarkable;
         getActivity().supportInvalidateOptionsMenu();
@@ -562,7 +579,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     }
 
     private FeedFilter getFilterArgument() {
-        return getArguments().<FeedFilter>getParcelable(ARG_FEED_FILTER);
+        return getArguments().getParcelable(ARG_FEED_FILTER);
     }
 
     private EnumSet<ContentType> getSelectedContentType() {
@@ -664,12 +681,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_feed, menu);
 
+        // hide search item, if we are not searchable
         MenuItem item = menu.findItem(R.id.action_search);
         if (item != null && getActivity() != null) {
             boolean searchable = getCurrentFilter().getFeedType().searchable();
-            if (searchable) {
-                initializeSearchView(item);
-            } else {
+            if (!searchable) {
                 item.setVisible(false);
             }
         }
@@ -798,7 +814,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.postDelayed(() -> {
             resetToolbar();
-            loader.restart(Optional.<Long>absent());
+            loader.restart(Optional.absent());
         }, 500);
     }
 
@@ -850,81 +866,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
                 .subscribe(Actions.empty(), Actions.empty());
     }
 
-    /**
-     * Registers the listeners for the search view.
-     *
-     * @param item The item containing the search view.
-     */
-    private void initializeSearchView(MenuItem item) {
-        final String[] from = new String[]{RecentSearchesServices.COLUMN_TERM};
-        final int[] to = new int[]{android.R.id.text1};
-
-        SimpleCursorAdapter suggestAdapter = new SimpleCursorAdapter(
-                getActivity(),
-                R.layout.hintrow, null, from, to, 0);
-
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-
-        searchView.setOnSearchClickListener(v -> {
-            searchView.setQuery(getCurrentFilter().getTags().or(""), false);
-
-            if (singleShotService.isFirstTime("extended_search_dialog_hint")) {
-                DialogBuilder.start(getActivity())
-                        .content("Probiere doch auch mal die neue Suchfunktion aus. Schaue dafür rechts ins Menü.")
-                        .negative(R.string.common_no_thanks)
-                        .positive(R.string.try_now, this::onSearchClicked)
-                        .show();
-            }
-        });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String term) {
-                recentSearchesServices.storeTerm(term);
-                performSearch(term);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String term) {
-                suggestAdapter.changeCursor(recentSearchesServices.asCursor(term));
-                return false;
-            }
-        });
-
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return true;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                // now get the correct value from the cursor
-                Object item = suggestAdapter.getItem(position);
-                if (item instanceof Cursor) {
-                    int idx;
-                    String term;
-                    Cursor cursor = (Cursor) item;
-                    if ((idx = cursor.getColumnIndex(RecentSearchesServices.COLUMN_TERM)) > 0
-                            && (term = cursor.getString(idx)) != null) {
-
-                        searchView.setQuery(term, false);
-                    }
-                }
-
-                return true;
-            }
-        });
-
-        searchView.setSuggestionsAdapter(suggestAdapter);
-
-        String typeName = feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
-        searchView.setQueryHint(getString(R.string.action_search, typeName));
-    }
-
     @Override
     public void performSearch(String term) {
+        hideSearchContainer();
+
         FeedFilter current = getCurrentFilter();
         FeedFilter filter = current.withTagsNoReset(term);
 
@@ -1259,6 +1204,48 @@ public class FeedFragment extends BaseFragment implements FilterFragment, Search
     private void updateNoResultsTextView() {
         boolean empty = feedAdapter.getItemCount() == 0;
         noResultsView.setVisibility(empty ? View.VISIBLE : View.GONE);
+    }
+
+
+    @OnOptionsItemSelected(R.id.action_search)
+    public void showSearchContainer() {
+        if (searchContainer.getVisibility() != View.GONE)
+            return;
+
+        hideToolbar();
+
+        searchView.setPadding(0, AndroidUtility.getStatusBarHeight(getContext()), 0, 0);
+
+        searchContainer.setAlpha(0.f);
+        searchContainer.setVisibility(View.VISIBLE);
+
+        searchContainer.animate()
+                .setListener(endAction(searchView::requestSearchFocus))
+                .alpha(1);
+
+        searchView.setTranslationY(-(int) (0.1 * getView().getHeight()));
+
+        searchView.animate()
+                .setInterpolator(new DecelerateInterpolator())
+                .translationY(0);
+
+        String typeName = feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
+        searchView.setQueryHint(getString(R.string.action_search, typeName));
+    }
+
+    private void hideSearchContainer() {
+        if (searchContainer.getVisibility() == View.GONE)
+            return;
+
+        searchContainer.animate()
+                .setListener(hideViewOnAnimationEnd(searchContainer))
+                .alpha(0);
+
+        searchView.animate().translationY(-(int) (0.1 * getView().getHeight()));
+
+        resetToolbar();
+
+        AndroidUtility.hideSoftKeyboard(searchView);
     }
 
     @SuppressWarnings("CodeBlock2Expr")

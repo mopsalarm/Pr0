@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
@@ -37,4 +38,21 @@
         android:layout_gravity="center"
         android:visibility="gone"/>
 
+    <FrameLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.pr0gramm.app.ui.views.SearchOptionsView
+            android:id="@+id/search_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?colorPrimaryDark"
+            android:elevation="4dp">
+
+        </com.pr0gramm.app.ui.views.SearchOptionsView>
+    </FrameLayout>
 </FrameLayout>

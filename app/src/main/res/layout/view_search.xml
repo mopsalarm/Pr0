@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:showIn="@layout/view_search_wrap">
+
+    <LinearLayout
+        android:id="@+id/search_term_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?colorPrimary"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search_term"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:elevation="4dp"
+            android:hint="@string/action_search_simple"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:lines="1"
+            android:minHeight="?actionBarSize"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:textCursorDrawable="@drawable/text_cursor"/>
+
+        <ImageButton
+            android:id="@+id/search_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="48dp"
+            android:src="@drawable/ic_white_action_search"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?colorPrimaryDark"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Minimaler Benis"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/minimum_benis_slider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+            <TextView
+                android:id="@+id/minimum_benis_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                tools:text="300"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Ohne"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
+        <LinearLayout
+            android:id="@+id/without_checks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1">
+
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Ohne diese Tags"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
+        <EditText
+            android:id="@+id/without_tags_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="süßvieh 0815"
+            android:lines="1"/>
+    </LinearLayout>
+</merge>

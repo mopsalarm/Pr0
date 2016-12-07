@@ -9,6 +9,7 @@ repositories {
     maven { url "https://maven.fabric.io/public" }
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url "http://dl.bintray.com/amulyakhare/maven" }
+    maven { url "http://dl.bintray.com/skoumal/maven" }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
@@ -51,6 +52,7 @@ dependencies {
     compile "com.indeed:java-dogstatsd-client:2.0.16"
     compile "me.leolin:ShortcutBadger:1.1.11@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
+    // compile 'net.skoumal.fragmentback:fragmentback:0.2.2'
 
     compile "com.google.android.exoplayer:exoplayer:r2.0.4"
 

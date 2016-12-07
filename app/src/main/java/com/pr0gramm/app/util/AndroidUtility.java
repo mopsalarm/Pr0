@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.akodiakson.sdk.simple.Sdk;
@@ -412,6 +413,18 @@ public class AndroidUtility {
         }
     }
 
+    public static void showSoftKeyboard(EditText view) {
+        try {
+            view.requestFocus();
+
+            InputMethodManager imm = (InputMethodManager) view.getContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        } catch (Exception ignored) {
+        }
+    }
+
     @ColorInt
     public static int darken(@ColorInt int color, float amount) {
         float[] hsv = new float[3];
@@ -490,5 +503,9 @@ public class AndroidUtility {
     public static boolean screenIsLandscape(Activity activity) {
         Point size = screenSize(activity);
         return size.x > size.y;
+    }
+
+    public static Animator.AnimatorListener hideViewOnAnimationEnd(View searchContainer) {
+        return endAction(() -> searchContainer.setVisibility(View.GONE));
     }
 }
