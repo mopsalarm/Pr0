@@ -1,5 +1,14 @@
 [
   {
+    "version": 117,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Erweiterter Suchdialog durch eine vereinfachte neue Suchmaske ersetzt."
+      }
+    ]
+  },
+  {
     "version": 116,
     "changes": [
       {
