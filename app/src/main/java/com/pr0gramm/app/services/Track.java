@@ -201,13 +201,6 @@ public final class Track {
                 .build());
     }
 
-    public static void advancedSearchWithDialog() {
-        ga().send(new HitBuilders.EventBuilder()
-                .setCategory("Feed")
-                .setAction("AdvancedSearchDialog")
-                .build());
-    }
-
     public static void passwordChanged() {
         ga().send(new HitBuilders.EventBuilder()
                 .setCategory("User")

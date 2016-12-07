@@ -72,7 +72,6 @@
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
 
     <string name="zoom">Zoom</string>
-    <string name="could_not_load_feed">Can not load the feed. Please try again.</string>
     <string name="could_not_load_feed_https">Can not load the feed via https. Please try again.</string>
     <string name="pref_fullscreen_zoom_view">Fullscreen image view</string>
     <string name="pref_fullscreen_zoom_view_summary">Check this to remove the status and navigation bar in the fullscreen image viewer.</string>
@@ -107,7 +106,6 @@
     <string name="pref_show_notifications_summary">Show notifications on new messages or comments.</string>
     <string name="badge_op">OP</string>
     <string name="could_not_play_video">Could not play video. If you can not play any videos, please report feedback.</string>
-    <string name="could_not_play_video_hardware">Could not play video without hardware acceleration. Looks like your system is too old.</string>
     <string name="could_not_play_video_io">Could not play video because of a network error.</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_keep_screen_on_summary">Keeps the screen on while looking at posts and comments</string>
@@ -170,7 +168,6 @@
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
     <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
-    <string name="pref_feed_type_login_required">You need to login to change this.</string>
     <string name="action_change_content_type">Change filter</string>
 
     <string name="user_type_admin">admin</string>
@@ -263,7 +260,6 @@
     <string name="hint_kfav_userscript"><![CDATA[You just faved a comment. You can find a list of your favorite comments under \"favorites → k-fav\".\nIf you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
     <string name="info_kfav_userscript"><![CDATA[If you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
-    <string name="hint_feedback_not_support"><b>Caution:</b> This is not the pr0gramm support. If you dont like it here, if you want to delete a picture or if you dont have sound on pr0gramm, then this is not the right place to ask! This is just for <b>feedback for the app</b>.\nIf you are expecting an answer, you need to provide your username in the field above</string>
     <string name="info">Info</string>
     <string name="error_json">Could not parse the response from the pr0gramm server.</string>
     <string name="could_not_load_feed_json">Could not load feed. The response looks a bit like as if you are in some wifi that does not allow internet access.</string>
@@ -322,7 +318,6 @@
     <string name="invite_redeemed" translatable="false">%1$s, %2$s</string>
     <string name="invite_unredeemed">not redeemed, %s</string>
     <string name="invite_remaining">Remaining invites: %d</string>
-    <string name="hint_use_incognito_browser"><![CDATA[The pr0gramm app now includes a simple incognito browser that can be used if you click on a link. Do you want to activate this browser now? You can change your decision anytime under settings -> behaviour.]]></string>
     <string name="action_follow">Follow</string>
     <string name="action_unfollow">Unfollow</string>
     <string name="pref_override_youtube_links_summary">Show youtube links in YouTube app even if incognito browser is activated.</string>
@@ -342,8 +337,6 @@
     <string name="media_exo_error_io">A network failure occurred (%s).</string>
     <string name="pref_compatibility">Compatibility</string>
     <string name="pref_compatibility_summary">If video playback does not work, try to tweak these settings</string>
-    <string name="pref_use_google_decoder_title">Software decoder</string>
-    <string name="pref_use_google_decoder_summary">Enabling this setting will let the app prefer the software decoder, which might be more stable and compatible with more devices. Disabling this might improve video performance (jellybean an up only).</string>
     <string name="report_video_summary">Size: %1$dx%2$d, format %3$s, duration: %4$f</string>
     <string name="report_video_stream">Stream, typ: %1$s, codec: %2$s</string>
     <string name="media_exo_error_topbit">This video has an invalid format and can not be played by your device.</string>
@@ -359,8 +352,6 @@
     <string name="pref_audio_codec_title">Audio codec</string>
     <string name="pref_audio_codec_summary">If you got problems playing video, try to manually select a codec here.</string>
     <string name="media_dropped_frames_hint">Your phone just dropped a lot of frames. If you can not watch videos correctly, or if they are really slow, try the compatibility settings.</string>
-    <string name="pref_show_dropped_frames_hint__title">Dropped frames</string>
-    <string name="pref_show_dropped_frames_hint_summary">Select this to warn if the video decoder needed to drop frames.</string>
     <string name="dialog_dont_show_again">Don\'t show again</string>
     <string name="pref_use_exo_player__title">Use new player</string>
     <string name="pref_use_exo_player__summary">Uses the new and recommended video player. You might need to tune the codec selection below if you encounter problems.</string>
@@ -381,9 +372,6 @@
     <string name="error_proxy_timeout">A timeout occurred while accessing the pr0gramm servers.</string>
     <string name="feedback_delete_post_hint">Für Löschanfragen bitte die exakte Adresse (URL), sowie ausreichende Beweise angeben, dass Du der Urheber des Bildes bist oder in seinem Auftrag handelst. Als Uploader des Bildes musst du keine Beweise vorlegen.</string>
     <string name="action_search_ex">Advanced search</string>
-    <string name="search_query_invalid">Invalid search query, please build a valid query below.</string>
-    <string name="search_query_query">Query:</string>
-    <string name="help">Help</string>
     <string name="login_password_recovery">Forgot password</string>
     <string name="hint_email">Email address</string>
     <string name="submit">Submit</string>
@@ -392,19 +380,12 @@
     <string name="action_change">Change</string>
     <string name="password_recovery_success">Password was changed successfully. You can now try to log in using the new password.</string>
     <string name="password_recovery_error">Failed to change password.</string>
-    <string name="common_no_thanks">No, thanks</string>
-    <string name="try_now">Try now</string>
     <string name="pref_use_texture_view_title">Use TextureView</string>
     <string name="pref_use_texture_view_summary">TextureView is more awesome and nicer. Disabling this will use SurfaceView to display videos which might cause errors.</string>
     <string name="invites_no_invites_sent">No invites sent</string>
     <string name="pref_pseudo_onboarding_title">Run Welcome again</string>
     <string name="pref_pseudo_onboarding_summary">Shows the welcome message and settings wizard again.</string>
-    <string name="bookmark_config_title">Bookmark config</string>
     <string name="action_done">DONE</string>
-    <string name="quality_sd" translatable="false">SD</string>
-    <string name="quality_hd" translatable="false">HD</string>
-    <string name="quality_4k" translatable="false">4k</string>
-    <string name="quality_potato" translatable="false">Kartoffel</string>
     <string name="action_secret_santa">WICHTELN</string>
 </resources>
 

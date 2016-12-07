@@ -66,7 +66,6 @@
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
     <string name="pref_double_tap_to_upvote">Doppelklick für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppelklick auf ein Bild oder Video führt einen Upvote aus</string>
-    <string name="could_not_load_feed">Kann den Feed nicht laden. Ist pr0gramm gerade nicht erreichbar?</string>
     <string name="could_not_load_feed_https">Kann den Feed über https nicht laden. Ist pr0gramm gerade nicht über https erreichbar?</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
@@ -156,7 +155,6 @@
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
     <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Vielleicht ist der Post, den du sehen wolltest, mit deiner sfw/nsfw Einstellungen nicht sichtbar?</string>
-    <string name="pref_feed_type_login_required">Zum Ändern musst du angemeldet sein.</string>
     <string name="action_change_content_type">Filter ändern</string>
     <string name="user_type_gesperrt">gesperrt</string>
     <string name="user_type_legende">legende</string>
@@ -246,7 +244,6 @@
     <string name="hint_kfav_userscript">Du hast gerade einen Kommentar als Favoriten markiert. Die Liste aller markierten Favoriten findest du aktuell unter \"Favoriten → k-fav\".\nWenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
     <string name="info_kfav_userscript">Wenn du deine favorisierten Kommentare direkt im pr0gramm am PC im Browser betrachten möchtest, kannst du das pr0gramm-comments UserScript unter https://goo.gl/py7xNW installieren.</string>
     <string name="action_kfav">K-FAV</string>
-    <string name="hint_feedback_not_support"><b>Achtung:</b> Dies ist nicht der pr0gramm-Support. Wenn du Dich hier unwohl fühlst, Bilder löschen möchtest, keinen Sound hast oder irgendeine andere Frage zum pr0gramm, dann bist du hier falsch. Hier geht es um <b>Feedback für die App</b>!\nWenn du eine Antwort erwartest, dann <b>musst</b> du oben deinen pr0gramm Benutzernamen angeben.</string>
     <string name="hint_user_search_dialog">Gib den Namen des Benutzer ein, den du suchst. Wenn es sich um einen aktiven Benutzer handelt, hilft dir eventuell die Autovervollständigung.</string>
     <string name="info">Info</string>
     <string name="could_not_load_feed_json">Feed konnte nicht geladen werden. Es sieht so aus, als wärst du in einem WLAN ohne Internetzugang.</string>
@@ -302,7 +299,6 @@
     <string name="invite_remaining">Invites vorhanden: %d</string>
     <string name="invite_unredeemed">nicht eingelöst, %s</string>
     <string name="invites_sent">Versendete Invites</string>
-    <string name="hint_use_incognito_browser"><![CDATA[Die pr0gramm App enthält nun einen einfachen Inkognito Browser. Möchtest du diesen beim Öffnen von Links verwenden? Die Option findest du auch unter Einstellungen -> Verhalten .]]></string>
     <string name="action_follow">Stelzen</string>
     <string name="action_unfollow">Unstelzen</string>
     <string name="pref_override_youtube_links_title">YouTube App</string>
@@ -310,7 +306,6 @@
     <string name="error_rate_limited">Halt, Stopp! Das pr0gramm meint, dass du gerade zu viele Aktionen zu schnell machst.</string>
     <string name="error_json_mapping">Die Antwort der API konnte nicht verarbeitet werden: %s</string>
     <string name="error_origin_timeout_ddos">Sieht so aus, als wäre das pr0gramm gerade nicht erreichbar. Vielleicht wieder DDoS?</string>
-    <string name="could_not_play_video_hardware">Video kann ohne Hardwarebeschleunigung nicht wiedergegeben werden. Sieht so aus, als wäre dein System zu alt.</string>
     <string name="media_error_io">Abspielen fehlgeschlagen: Datei- oder Netzwerkprobleme.</string>
     <string name="media_error_malformed">Abspielen fehlgeschlagen: Der Videobitstream hält sich nicht an den Dateistandard.</string>
     <string name="media_error_not_valid_for_progressive_playback">Abspielen fehlgeschlagen: Das Video ist nicht für pr0gressives Streaming ausgelegt.</string>
@@ -322,9 +317,7 @@
     <string name="media_exo_error">Video konnte nicht abgespielt werden. Wenn das öfter passiert, prüfe die Kompatibilitätseinstellungen. Fehler war: %s</string>
     <string name="media_exo_error_io">Ein Netzwerkfehler ist aufgetreten (%s).</string>
     <string name="pref_compatibility">Kompatibilität</string>
-    <string name="pref_use_google_decoder_title">Softwaredekoder</string>
     <string name="pref_compatibility_summary">Hilft eventuell bei Problemen mit der Video Wiedergabe</string>
-    <string name="pref_use_google_decoder_summary">Präferiert den Softwaredekoder. Kann bei Problemen mit Videos helfen. Deaktivieren dieser Option kann zu besserer Performance bei der Videowiedergabe führen. (Jellybean und neuer)</string>
     <string name="report_video_stream">Stream, Typ: %1$s, Codec: %2$s</string>
     <string name="report_video_summary">Größe: %1$dx%2$d, Format %3$s, Länge: %4$f</string>
     <string name="upload_error_video">Grund:</string>
@@ -340,8 +333,6 @@
     <string name="pref_audio_codec_title">Audio Codec </string>
     <string name="pref_audio_codec_summary">Probiere einen anderen Audio Codec, wenn du Probleme bei der Wiedergabe hast.</string>
     <string name="media_dropped_frames_hint">Dein Gerät kommt mit dem Dekodieren des Videos nicht hinterher. Falls das öfter passiert, probiere einen anderen Codec in die Kompatibilitätseinstellungen.</string>
-    <string name="pref_show_dropped_frames_hint__title">Ausgelassene Frames</string>
-    <string name="pref_show_dropped_frames_hint_summary">Deaktiviere diese Einstellungen um nicht darüber informiert zu werden, wenn der Videoplayer Frames auslassen musste, weil er mit seiner Arbeit nicht hinterhergekommen ist.</string>
     <string name="dialog_dont_show_again">Nicht wieder anzeigen</string>
     <string name="pref_use_exo_player__title">Neuen Videoplayer</string>
     <string name="pref_use_exo_player__summary">Verwende den neuen und empfohlenen Videoplayer. Eventuell musst du unten an den Codecs drehen, wenn Probleme bei der Wiedergabe auftreten.</string>
@@ -361,9 +352,6 @@
     <string name="feedback_name">Name</string>
     <string name="feedback_subject">Betreff</string>
     <string name="action_search_ex">Erweiterte Suche</string>
-    <string name="help">Hilfe</string>
-    <string name="search_query_invalid">Ungültige Suche, bitte fülle die Felder korrekt aus</string>
-    <string name="search_query_query">Suche:</string>
     <string name="action_change">Ändern</string>
     <string name="hint_email">E-Mail Adresse</string>
     <string name="login_password_recovery">Passwort vergessen</string>
@@ -372,11 +360,8 @@
     <string name="request_password_recovery_popup_hint">Eine E-Mail mit einem Link zum Ändern des Passwortes wurde an die angegebene Adresse gesendet.</string>
     <string name="request_password_recovery_title">Passwortwiederherstellung</string>
     <string name="submit">Absenden</string>
-    <string name="common_no_thanks">Nein, danke</string>
-    <string name="try_now">Ausprobieren</string>
     <string name="pref_use_texture_view_title">TextureView</string>
     <string name="pref_use_texture_view_summary">TextureView sollte besser sein um Videos anzuzeigen. Deaktiviere diese Einstellung um Videos auf einem SurfaceView anzuzeigen, was jedoch zu Anzeigeproblemen führen kann.</string>
-    <string name="bookmark_config_title">Lesezeichen</string>
     <string name="invites_no_invites_sent">Keine Invites versendet</string>
     <string name="pref_pseudo_onboarding_summary">Zeigt den Willkommensbildschirm noch mal</string>
     <string name="pref_pseudo_onboarding_title">Willkommensbildschirm</string>
