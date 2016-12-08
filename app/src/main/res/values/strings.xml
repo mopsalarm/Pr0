@@ -387,5 +387,9 @@
     <string name="pref_pseudo_onboarding_summary">Shows the welcome message and settings wizard again.</string>
     <string name="action_done">DONE</string>
     <string name="action_secret_santa">WICHTELN</string>
+    <string name="search_score">Minimum score: %s</string>
+    <string name="search_score_ignored">no minimum</string>
+    <string name="search_without_custom_tags">Exclude custom tags:</string>
+    <string name="search_without_tags">Exclude:</string>
 </resources>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:tools="http://schemas.android.com/tools"
-       tools:showIn="@layout/fragment_feed">
+    >
 
     <LinearLayout
         android:id="@+id/search_term_container"
@@ -10,15 +10,14 @@
         android:background="?colorPrimary"
         android:clickable="true"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:theme="?searchTheme">
 
         <ImageButton
-            android:id="@+id/cancel_button"
+            android:id="@+id/search_cancel"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:layout_marginLeft="4dp"
+            android:layout_width="?actionBarSize"
+            android:layout_height="?actionBarSize"
             android:src="@drawable/ic_arrow_back_24dp"/>
 
         <EditText
@@ -26,23 +25,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:elevation="4dp"
             android:hint="@string/action_search_simple"
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:lines="1"
-            android:minHeight="?actionBarSize"
-            android:paddingRight="16dp"
-            android:textCursorDrawable="@drawable/text_cursor"/>
+            android:minHeight="?actionBarSize"/>
 
         <ImageButton
-            android:id="@+id/search_button"
+            android:id="@+id/reset_button"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:layout_marginRight="4dp"
-            android:src="@drawable/ic_white_action_search"/>
+            android:layout_width="?actionBarSize"
+            android:layout_height="?actionBarSize"
+            android:src="@drawable/ic_close_24dp"/>
 
     </LinearLayout>
 
@@ -52,47 +46,49 @@
         android:background="?colorPrimaryDark"
         android:clickable="true"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:theme="?searchTheme">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@drawable/dropshadow_light"
+            />
 
         <TextView
+            android:id="@+id/minimum_benis_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Minimaler Benis"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/search_score"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
-        <LinearLayout
+        <SeekBar
+            android:id="@+id/minimum_benis_slider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <SeekBar
-                android:id="@+id/minimum_benis_slider"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-
-            <TextView
-                android:id="@+id/minimum_benis_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                tools:text="300"/>
-        </LinearLayout>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Ohne"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/search_without_tags"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
         <LinearLayout
             android:id="@+id/without_checks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_marginTop="4dp"
             android:orientation="horizontal"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1">
@@ -103,17 +99,48 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
-            android:text="Ohne diese Tags"
+            android:text="@string/search_without_custom_tags"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
 
         <EditText
             android:id="@+id/without_tags_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:hint="süßvieh 0815"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:lines="1"/>
+            android:lines="1"
+            tools:ignore="HardcodedText"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            style="@style/Widget.AppCompat.ButtonBar.AlertDialog">
+
+            <Button
+                android:id="@+id/search_advanced"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:text="ADVANCED"/>
+
+            <Button
+                android:id="@+id/search_button"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:text="SEARCH"/>
+
+        </LinearLayout>
     </LinearLayout>
 </merge>

@@ -20,6 +20,9 @@ import java.io.IOException;
 public abstract class Parceler<T> implements Parcelable {
     private static final Logger logger = LoggerFactory.getLogger("Parceler");
 
+    private final TypeToken<T> typeToken = new TypeToken<T>(getClass()) {
+    };
+
     private final T value;
 
     protected Parceler(T value) {
@@ -30,7 +33,9 @@ public abstract class Parceler<T> implements Parcelable {
         return value;
     }
 
-    public abstract TypeToken<T> getType();
+    public TypeToken<T> getType() {
+        return typeToken;
+    }
 
     public static <R, T extends Parceler<R>> R get(Class<T> clazz, Bundle bundle, String key) {
         T wrapper = bundle.getParcelable(key);

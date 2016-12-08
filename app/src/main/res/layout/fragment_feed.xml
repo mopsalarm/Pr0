@@ -39,7 +39,7 @@
         android:layout_gravity="center"
         android:visibility="gone"/>
 
-    <FrameLayout
+    <ScrollView
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -56,5 +56,5 @@
             tools:include="@layout/view_search">
 
         </com.pr0gramm.app.ui.views.SearchOptionsView>
-    </FrameLayout>
+    </ScrollView>
 </FrameLayout>

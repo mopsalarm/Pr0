@@ -107,6 +107,7 @@ import rx.functions.Actions;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
@@ -121,7 +122,6 @@ import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.hideViewOnAnimationEnd;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.util.AndroidUtility.isNotNull;
-import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
 /**
@@ -131,6 +131,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
     private static final String ARG_FEED_FILTER = "FeedFragment.filter";
     private static final String ARG_FEED_START = "FeedFragment.start.id";
+    private static final String ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState";
     private static final String ARG_SIMPLE_MODE = "FeedFragment.simpleMode";
 
     @Inject
@@ -297,6 +298,20 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
         searchView.searchCanceled().compose(bindToLifecycle()).subscribe(e -> hideSearchContainer());
         searchContainer.setOnClickListener(v -> hideSearchContainer());
+
+        if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
+            showSearchContainer(false);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("searchContainerVisible", searchContainerIsVisible());
+    }
+
+    private Bundle initialSearchViewState() {
+        return getArguments().getBundle(ARG_SEARCH_QUERY_STATE);
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -545,11 +560,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         logger.info("Restore adapter now");
         FeedFilter feedFilter = getFilterArgument();
 
-        Optional<Long> around = Optional.fromNullable(autoOpenOnLoad).transform(ItemWithComment::getItemId);
+        Long around = null;
+        if (autoOpenOnLoad != null) {
+            around = autoOpenOnLoad.getItemId();
+        }
+
         return newFeedAdapter(feedFilter, around);
     }
 
-    private FeedAdapter newFeedAdapter(FeedFilter feedFilter, Optional<Long> around) {
+    private FeedAdapter newFeedAdapter(FeedFilter feedFilter, @Nullable Long around) {
         Feed feed = new Feed(feedFilter, getSelectedContentType());
 
         loader = new FeedLoader(new FeedLoader.Binder() {
@@ -568,7 +587,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         }, feedService, feed);
 
         // start loading now
-        loader.restart(around);
+        loader.restart(fromNullable(around));
 
         boolean usersFavorites = feed.getFeedFilter().getLikes()
                 .transform(name -> name.equalsIgnoreCase(userService.getName().orNull()))
@@ -626,7 +645,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             autoScrollOnLoad = around.orNull();
 
             // set a new adapter if we have a new content type
-            setFeedAdapter(newFeedAdapter(feedFilter, around));
+            setFeedAdapter(newFeedAdapter(feedFilter, autoScrollOnLoad));
 
             getActivity().supportInvalidateOptionsMenu();
         }
@@ -869,7 +888,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (equal(current, filter))
             return;
 
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+        Bundle searchQueryState = searchView.currentState();
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, searchQueryState);
 
         Track.search(term);
     }
@@ -904,25 +924,31 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     }
 
     /**
-     * Creates a new {@link FeedFragment} for the given
-     * feed type.
+     * Creates a new {@link FeedFragment} for the given feed type.
      *
      * @param feedFilter A query to use for getting data
      * @return The type new fragment that can be shown now.
      */
-    public static FeedFragment newInstance(FeedFilter feedFilter, Optional<ItemWithComment> start) {
-        Bundle arguments = newArguments(feedFilter, true, start);
+    public static FeedFragment newInstance(FeedFilter feedFilter,
+                                           @Nullable ItemWithComment start,
+                                           @Nullable Bundle searchQueryState) {
+
+        Bundle arguments = newArguments(feedFilter, true, start, searchQueryState);
 
         FeedFragment fragment = new FeedFragment();
         fragment.setArguments(arguments);
         return fragment;
     }
 
-    public static Bundle newArguments(FeedFilter feedFilter, boolean simpleMode, Optional<ItemWithComment> start) {
+    public static Bundle newArguments(FeedFilter feedFilter, boolean simpleMode,
+                                      @Nullable ItemWithComment start,
+                                      @Nullable Bundle searchQueryState) {
+
         Bundle arguments = new Bundle();
         arguments.putParcelable(ARG_FEED_FILTER, feedFilter);
-        arguments.putParcelable(ARG_FEED_START, start.orNull());
+        arguments.putParcelable(ARG_FEED_START, start);
         arguments.putBoolean(ARG_SIMPLE_MODE, simpleMode);
+        arguments.putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState);
         return arguments;
     }
 
@@ -1029,7 +1055,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         }
 
         @Override
-        public void onBindViewHolder(FeedItemViewHolder holder, int position) {
+        public void onBindViewHolder(FeedItemViewHolder holder,
+                                     @SuppressLint("RecyclerView") int position) {
+
             FeedItem item = feed.at(position);
 
             with(fragment -> {
@@ -1071,7 +1099,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             return feed.at(position).id();
         }
 
-        public Set<ContentType> getContentType() {
+        Set<ContentType> getContentType() {
             return feed.getContentType();
         }
 
@@ -1114,6 +1142,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         public void onWrongContentType() {
             with(FeedFragment::showWrongContentTypeInfo);
         }
+
     }
 
     void showWrongContentTypeInfo() {
@@ -1200,29 +1229,47 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
 
     @OnOptionsItemSelected(R.id.action_search)
-    public void showSearchContainer() {
+    public void resetAndShowSearchContainer() {
+        searchView.applyState(initialSearchViewState());
+        showSearchContainer(true);
+    }
+
+    private void showSearchContainer(boolean animated) {
         if (searchContainerIsVisible())
             return;
 
-        hideToolbar();
+        View view = getView();
+        if (view == null)
+            return;
 
-        searchView.setPadding(0, AndroidUtility.getStatusBarHeight(getContext()), 0, 0);
+        view.post(this::hideToolbar);
 
-        searchContainer.setAlpha(0.f);
-        searchContainer.setVisibility(View.VISIBLE);
-
-        searchContainer.animate()
-                .setListener(endAction(searchView::requestSearchFocus))
-                .alpha(1);
-
-        searchView.setTranslationY(-(int) (0.1 * getView().getHeight()));
-
-        searchView.animate()
-                .setInterpolator(new DecelerateInterpolator())
-                .translationY(0);
-
+        // prepare search view
         String typeName = feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
         searchView.setQueryHint(getString(R.string.action_search, typeName));
+        searchView.setPadding(0, AndroidUtility.getStatusBarHeight(getContext()), 0, 0);
+
+        searchContainer.setVisibility(View.VISIBLE);
+
+        if (animated) {
+            searchContainer.setAlpha(0.f);
+
+            searchContainer.animate()
+                    .setListener(endAction(searchView::requestSearchFocus))
+                    .alpha(1);
+
+            searchView.setTranslationY(-(int) (0.1 * view.getHeight()));
+
+            searchView.animate()
+                    .setInterpolator(new DecelerateInterpolator())
+                    .translationY(0);
+        } else {
+            searchContainer.animate().cancel();
+            searchContainer.setAlpha(1.f);
+
+            searchView.animate().cancel();
+            searchView.setTranslationY(0);
+        }
     }
 
     @Override
@@ -1236,7 +1283,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     }
 
     public boolean searchContainerIsVisible() {
-        return searchContainer.getVisibility() != View.GONE;
+        return searchContainer != null && searchContainer.getVisibility() != View.GONE;
     }
 
     private void hideSearchContainer() {
@@ -1261,7 +1308,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (autoScrollOnLoad != null) {
             ifPresent(findItemIndexById(autoScrollOnLoad), idx -> {
                 // over scroll a bit
-                int scrollTo = max(idx + getThumbnailColumns(), 0);
+                int scrollTo = Math.max(idx + getThumbnailColumns(), 0);
                 recyclerView.scrollToPosition(scrollTo);
             });
         }

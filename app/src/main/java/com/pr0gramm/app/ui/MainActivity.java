@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -60,7 +61,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -243,22 +243,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         return settings.useBetaChannel()
                 && (singleShotService.firstTimeInVersion("hint_feedback_reminder")
                 | singleShotService.firstTimeToday("hint_feedback_reminder"));
-    }
-
-    /**
-     * Adds a bookmark if there currently are no bookmarks.
-     */
-    private void addOriginalContentBookmarkOnce() {
-        if (!singleShotService.isFirstTime("add_original_content_bookmarks"))
-            return;
-
-        bookmarkService.get().first().subscribe(bookmarks -> {
-            if (bookmarks.isEmpty()) {
-                bookmarkService.create(new FeedFilter()
-                        .withFeedType(FeedType.PROMOTED)
-                        .withTags("original content"));
-            }
-        }, Actions.empty());
     }
 
     @Override
@@ -588,7 +572,12 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public void onFeedFilterSelected(FeedFilter filter) {
-        gotoFeedFragment(filter, false);
+        onFeedFilterSelected(filter, null);
+    }
+
+    @Override
+    public void onFeedFilterSelected(FeedFilter filter, @Nullable Bundle searchQueryState) {
+        gotoFeedFragment(filter, false, null, searchQueryState);
     }
 
     @Override
@@ -598,11 +587,18 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private void gotoFeedFragment(FeedFilter newFilter, boolean clear) {
-        gotoFeedFragment(newFilter, clear, Optional.absent());
+        gotoFeedFragment(newFilter, clear, null, null);
     }
 
-    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, Optional<ItemWithComment> start) {
-        moveToFragment(FeedFragment.newInstance(newFilter, start), clear);
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear, @Nullable ItemWithComment start) {
+        gotoFeedFragment(newFilter, clear, start, null);
+    }
+
+    private void gotoFeedFragment(FeedFilter newFilter, boolean clear,
+                                  @Nullable ItemWithComment start,
+                                  @Nullable Bundle searchQueryState) {
+
+        moveToFragment(FeedFragment.newInstance(newFilter, start, searchQueryState), clear);
     }
 
     private void moveToFragment(Fragment fragment, boolean clear) {
@@ -670,7 +666,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             Optional<ItemWithComment> start = result.get().getStart();
 
             boolean clear = shouldClearOnIntent();
-            gotoFeedFragment(filter, clear, start);
+            gotoFeedFragment(filter, clear, start.orNull());
 
         } else {
             gotoFeedFragment(defaultFeedFilter(), true);

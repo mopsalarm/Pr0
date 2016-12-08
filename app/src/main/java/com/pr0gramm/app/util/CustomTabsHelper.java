@@ -1,6 +1,6 @@
 package com.pr0gramm.app.util;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -25,23 +25,24 @@ public class CustomTabsHelper {
     private static final String DEV_PACKAGE = "com.chrome.dev";
     private static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
 
-    private final Activity activity;
-    private String mPackageNameToUse;
+    private static String sPackageNameToUse;
 
-    public CustomTabsHelper(Activity activity) {
-        this.activity = activity;
+    private final Context context;
+
+    public CustomTabsHelper(Context context) {
+        this.context = context.getApplicationContext();
     }
 
     private String getPackageName() {
-        if (mPackageNameToUse != null) {
-            return mPackageNameToUse;
+        if (sPackageNameToUse != null) {
+            return sPackageNameToUse;
         }
 
         // Get default VIEW intent handler that can view a web url.
         Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.test-url.com"));
 
         // Get all apps that can handle VIEW intents.
-        PackageManager pm = activity.getPackageManager();
+        PackageManager pm = context.getPackageManager();
         List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
         List<String> packagesSupportingCustomTabs = new ArrayList<>();
         for (ResolveInfo info : resolvedActivityList) {
@@ -56,27 +57,27 @@ public class CustomTabsHelper {
         // Now packagesSupportingCustomTabs contains all apps that can handle both VIEW intents
         // and service calls.
         if (packagesSupportingCustomTabs.isEmpty()) {
-            mPackageNameToUse = null;
+            sPackageNameToUse = null;
         } else if (packagesSupportingCustomTabs.size() == 1) {
-            mPackageNameToUse = packagesSupportingCustomTabs.get(0);
+            sPackageNameToUse = packagesSupportingCustomTabs.get(0);
         } else if (packagesSupportingCustomTabs.contains(STABLE_PACKAGE)) {
-            mPackageNameToUse = STABLE_PACKAGE;
+            sPackageNameToUse = STABLE_PACKAGE;
         } else if (packagesSupportingCustomTabs.contains(BETA_PACKAGE)) {
-            mPackageNameToUse = BETA_PACKAGE;
+            sPackageNameToUse = BETA_PACKAGE;
         } else if (packagesSupportingCustomTabs.contains(DEV_PACKAGE)) {
-            mPackageNameToUse = DEV_PACKAGE;
+            sPackageNameToUse = DEV_PACKAGE;
         } else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE)) {
-            mPackageNameToUse = LOCAL_PACKAGE;
+            sPackageNameToUse = LOCAL_PACKAGE;
         }
-        return mPackageNameToUse;
+        return sPackageNameToUse;
     }
 
     public void openCustomTab(Uri uri) {
-        int primaryColor = ContextCompat.getColor(activity, ThemeHelper.primaryColor());
+        int primaryColor = ContextCompat.getColor(context, ThemeHelper.primaryColor());
 
         String packageName = getPackageName();
         if (packageName == null) {
-            new FinestWebView.Builder(activity.getApplicationContext())
+            new FinestWebView.Builder(context.getApplicationContext())
                     .theme(ThemeHelper.theme().noActionBar)
                     .iconDefaultColor(Color.WHITE)
                     .toolbarColorRes(ThemeHelper.theme().primaryColor)
@@ -94,8 +95,9 @@ public class CustomTabsHelper {
                     .build();
 
             customTabsIntent.intent.setPackage(packageName);
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            customTabsIntent.launchUrl(activity, uri);
+            customTabsIntent.launchUrl(context, uri);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.pr0gramm.app.parcel;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.reflect.TypeToken;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.parcel.core.Parceler;
 
@@ -16,15 +15,8 @@ public class CommentListParceler extends Parceler<List<Api.Comment>> {
         super(values);
     }
 
-    @SuppressWarnings("unused")
-    protected CommentListParceler(Parcel parcel) {
+    private CommentListParceler(Parcel parcel) {
         super(parcel);
-    }
-
-    @Override
-    public TypeToken<List<Api.Comment>> getType() {
-        return new TypeToken<List<Api.Comment>>() {
-        };
     }
 
     public static final Parcelable.Creator<CommentListParceler> CREATOR =

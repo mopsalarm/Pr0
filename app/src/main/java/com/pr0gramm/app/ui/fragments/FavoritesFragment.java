@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -71,7 +70,7 @@ public class FavoritesFragment extends BaseFragment implements FilterFragment {
         fixViewTopOffset(view);
         resetToolbar();
 
-        Bundle feedFragmentArguments = FeedFragment.newArguments(feedFilter, false, Optional.absent());
+        Bundle feedFragmentArguments = FeedFragment.newArguments(feedFilter, false, null, null);
 
         TabsAdapter adapter = new TabsAdapter(getContext(), getChildFragmentManager());
         adapter.addTab(R.string.action_favorites, FeedFragment.class, feedFragmentArguments);
