@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -61,6 +62,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
+import com.pr0gramm.app.ui.DetectTapTouchListener;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.FeedItemViewHolder;
@@ -183,7 +185,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     View noResultsView;
 
     @BindView(R.id.search_container)
-    View searchContainer;
+    ScrollView searchContainer;
 
     @BindView(R.id.search_options)
     SearchOptionsView searchView;
@@ -298,9 +300,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
         searchView.searchCanceled().compose(bindToLifecycle()).subscribe(e -> hideSearchContainer());
 
+        // restore open search
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
             showSearchContainer(false);
         }
+
+        // close search on click into the darkened area.
+        searchContainer.setOnTouchListener(
+                DetectTapTouchListener.withConsumer(this::hideSearchContainer));
     }
 
     @Override
@@ -1285,7 +1292,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         return searchContainer != null && searchContainer.getVisibility() != View.GONE;
     }
 
-    private void hideSearchContainer() {
+    void hideSearchContainer() {
         if (!searchContainerIsVisible())
             return;
 
