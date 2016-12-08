@@ -317,7 +317,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     }
 
     private Bundle initialSearchViewState() {
-        return getArguments().getBundle(ARG_SEARCH_QUERY_STATE);
+        Bundle state = getArguments().getBundle(ARG_SEARCH_QUERY_STATE);
+        if (state == null) {
+            Optional<String> tags = getCurrentFilter().getTags();
+            if (tags.isPresent()) {
+                state = SearchOptionsView.ofQueryTerm(tags.get());
+            }
+        }
+
+        return state;
     }
 
     private void setFeedAdapter(FeedAdapter adapter) {
@@ -821,7 +829,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     public void switchFeedType() {
         FeedFilter filter = getCurrentFilter();
         filter = filter.withFeedType(switchFeedTypeTarget(filter));
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, initialSearchViewState());
     }
 
     @OnOptionsItemSelected(R.id.action_refresh)

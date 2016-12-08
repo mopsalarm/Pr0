@@ -318,4 +318,13 @@ public class SearchOptionsView extends LinearLayout {
     public void setQueryHint(String queryHint) {
         searchTermView.setHint(queryHint);
     }
+
+    /**
+     * Creates a new state containing the given query term.
+     */
+    public static Bundle ofQueryTerm(String queryTerm) {
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence("queryTerm", queryTerm);
+        return bundle;
+    }
 }
