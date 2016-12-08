@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:tools="http://schemas.android.com/tools"
-    >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:clickable="true"
+              android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/search_term_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimary"
-        android:clickable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:theme="?searchTheme">
@@ -40,19 +42,18 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="?dropshadowPrimaryDark"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimaryDark"
-        android:clickable="true"
         android:orientation="vertical"
         android:theme="?searchTheme">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:background="@drawable/dropshadow_light"
-            />
 
         <TextView
             android:id="@+id/minimum_benis_label"
@@ -133,8 +134,8 @@
                 android:text="@string/search_advanced"/>
 
             <Button
-                style="@style/Widget.AppCompat.Button.Borderless"
                 android:id="@+id/search_button"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -144,4 +145,10 @@
 
         </LinearLayout>
     </LinearLayout>
-</merge>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/dropshadow_light"/>
+
+</LinearLayout>

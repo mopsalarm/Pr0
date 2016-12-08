@@ -51,10 +51,7 @@
             android:id="@+id/search_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?colorPrimaryDark"
             android:elevation="4dp"
-            tools:include="@layout/view_search">
-
-        </com.pr0gramm.app.ui.views.SearchOptionsView>
+            tools:include="@layout/view_search"/>
     </ScrollView>
 </FrameLayout>

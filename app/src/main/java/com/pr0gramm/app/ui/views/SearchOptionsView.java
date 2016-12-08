@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -45,7 +45,7 @@ import static java.util.Arrays.asList;
  * View for more search options.
  */
 
-public class SearchOptionsView extends LinearLayout {
+public class SearchOptionsView extends FrameLayout {
     private final PublishSubject<String> searchQuery = PublishSubject.create();
     private final PublishSubject<Boolean> searchCanceled = PublishSubject.create();
 
@@ -82,8 +82,6 @@ public class SearchOptionsView extends LinearLayout {
     }
 
     private void initView() {
-        setOrientation(VERTICAL);
-
         inflate(getContext(), R.layout.view_search, this);
         ButterKnife.bind(this);
 
@@ -270,7 +268,7 @@ public class SearchOptionsView extends LinearLayout {
         container.removeAllViews();
 
         LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-        params.leftMargin = AndroidUtility.dp(getContext(), 8);
+        params.rightMargin = AndroidUtility.dp(getContext(), 8);
 
         List<String> tags = ImmutableList.of("f:sound", "webm", "f:repost", "m:ftb");
         List<String> names = ImmutableList.of("sound", "webm", "repost", "ftb");
@@ -281,10 +279,7 @@ public class SearchOptionsView extends LinearLayout {
             CheckBox checkbox = new AppCompatCheckBox(getContext());
             checkbox.setText(names.get(idx));
             checkbox.setChecked(excludedTags.contains(tagValue));
-
-            if (idx > 0) {
-                checkbox.setLayoutParams(params);
-            }
+            checkbox.setLayoutParams(params);
 
             checkbox.setOnCheckedChangeListener((view, isChecked) -> {
                 if (isChecked) {

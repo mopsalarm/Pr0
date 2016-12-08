@@ -16,6 +16,7 @@
         <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Orange</item>
         <item name="searchTheme">@style/AppTheme.Orange.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_orange_dark</item>
         <item name="appIcon">@drawable/ic_app_orange</item>
     </style>
 
@@ -29,6 +30,7 @@
         <item name="popupTheme">@style/AppTheme.Popup.Green</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Green</item>
         <item name="searchTheme">@style/AppTheme.Green.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_green_dark</item>
         <item name="appIcon">@drawable/ic_app_green</item>
     </style>
 
@@ -42,6 +44,7 @@
         <item name="popupTheme">@style/AppTheme.Popup.Olive</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Olive</item>
         <item name="searchTheme">@style/AppTheme.Olive.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_olive_dark</item>
         <item name="appIcon">@drawable/ic_app_olive</item>
     </style>
 
@@ -55,6 +58,7 @@
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Pink</item>
         <item name="searchTheme">@style/AppTheme.Pink.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_pink_dark</item>
         <item name="appIcon">@drawable/ic_app_pink</item>
     </style>
 
@@ -68,6 +72,7 @@
         <item name="popupTheme">@style/AppTheme.Popup.Blue</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Blue</item>
         <item name="searchTheme">@style/AppTheme.Blue.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_blue_dark</item>
         <item name="appIcon">@drawable/ic_app_blue</item>
     </style>
 
