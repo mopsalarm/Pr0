@@ -1,9 +1,6 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.provider.BaseColumns;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
@@ -27,8 +24,6 @@ public class RecentSearchesServices {
     private static final String KEY = "RecentSearchesServices.terms";
     private static final Logger logger = LoggerFactory.getLogger("RecentSearchesServices");
 
-    public static final String COLUMN_TERM = "term";
-
     private final List<String> searches = new ArrayList<>();
     private final SharedPreferences sharedPreferences;
     private final Gson gson;
@@ -39,15 +34,6 @@ public class RecentSearchesServices {
         this.gson = gson;
 
         restoreState();
-    }
-
-    private void removeCaseInsensitive(String term) {
-        ListIterator<String> iter = searches.listIterator();
-        while (iter.hasNext()) {
-            if (iter.next().equalsIgnoreCase(term)) {
-                iter.remove();
-            }
-        }
     }
 
     public void storeTerm(String term) {
@@ -72,16 +58,15 @@ public class RecentSearchesServices {
         }
     }
 
-    public Cursor asCursor(String query) {
-        synchronized (searches) {
-            MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, COLUMN_TERM});
-            for (int i = 0; i < searches.size(); i++) {
-                String search = searches.get(i);
-                if (search.toLowerCase().startsWith(query.toLowerCase()))
-                    c.addRow(new Object[]{i, search});
+    /**
+     * Removes all occurrences of the given term, independend of case.
+     */
+    private void removeCaseInsensitive(String term) {
+        ListIterator<String> iter = searches.listIterator();
+        while (iter.hasNext()) {
+            if (iter.next().equalsIgnoreCase(term)) {
+                iter.remove();
             }
-
-            return c;
         }
     }
 
