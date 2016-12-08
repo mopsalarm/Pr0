@@ -120,26 +120,27 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            style="@style/Widget.AppCompat.ButtonBar.AlertDialog">
+            android:layout_gravity="right">
 
             <Button
                 android:id="@+id/search_advanced"
-                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
-                android:text="ADVANCED"/>
+                android:minWidth="64dp"
+                android:text="@string/search_advanced"/>
 
             <Button
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:id="@+id/search_button"
-                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
-                android:text="SEARCH"/>
+                android:minWidth="64dp"
+                android:text="@string/search_search"/>
 
         </LinearLayout>
     </LinearLayout>

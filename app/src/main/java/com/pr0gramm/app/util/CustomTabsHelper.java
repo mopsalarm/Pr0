@@ -1,6 +1,8 @@
 package com.pr0gramm.app.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -30,7 +32,17 @@ public class CustomTabsHelper {
     private final Context context;
 
     public CustomTabsHelper(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = tryExtractActivityFromContext(context);
+    }
+
+    private static Context tryExtractActivityFromContext(Context context) {
+        if (context instanceof Activity)
+            return context;
+
+        if (context instanceof ContextWrapper)
+            return tryExtractActivityFromContext(((ContextWrapper) context).getBaseContext());
+
+        return context;
     }
 
     private String getPackageName() {
@@ -95,7 +107,10 @@ public class CustomTabsHelper {
                     .build();
 
             customTabsIntent.intent.setPackage(packageName);
-            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            if (!(context instanceof Activity)) {
+                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
 
             customTabsIntent.launchUrl(context, uri);
         }

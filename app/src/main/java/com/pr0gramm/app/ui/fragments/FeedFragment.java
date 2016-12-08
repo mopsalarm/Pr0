@@ -297,7 +297,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // execute a search when we get a search term
         searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
         searchView.searchCanceled().compose(bindToLifecycle()).subscribe(e -> hideSearchContainer());
-        searchContainer.setOnClickListener(v -> hideSearchContainer());
 
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
             showSearchContainer(false);

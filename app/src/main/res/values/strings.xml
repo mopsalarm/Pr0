@@ -391,5 +391,7 @@
     <string name="search_score_ignored">no minimum</string>
     <string name="search_without_custom_tags">Exclude custom tags:</string>
     <string name="search_without_tags">Exclude:</string>
+    <string name="search_advanced">ADVANCED</string>
+    <string name="search_search">SEARCH</string>
 </resources>
 
