@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -22,8 +23,12 @@ import com.google.common.collect.Iterables;
 import com.jakewharton.rxbinding.widget.RxSeekBar;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.services.RecentSearchesServices;
+import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.CustomTabsHelper;
+
+import org.immutables.value.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,7 +51,7 @@ import static java.util.Arrays.asList;
  */
 
 public class SearchOptionsView extends FrameLayout {
-    private final PublishSubject<String> searchQuery = PublishSubject.create();
+    private final PublishSubject<SearchQuery> searchQuery = PublishSubject.create();
     private final PublishSubject<Boolean> searchCanceled = PublishSubject.create();
 
     final Set<String> excludedTags = new HashSet<>();
@@ -105,6 +110,14 @@ public class SearchOptionsView extends FrameLayout {
             RxTextView
                     .editorActions(customExcludesView, action -> action == EditorInfo.IME_ACTION_SEARCH)
                     .subscribe(e -> handleSearchButtonClicked());
+        }
+    }
+
+    public void setupAutoComplete(RecentSearchesServices recentSearchesServices) {
+        if (searchTermView instanceof AutoCompleteTextView) {
+            AutoCompleteTextView autoComplete = (AutoCompleteTextView) searchTermView;
+            autoComplete.setAdapter(new RecentSearchesAutoCompleteAdapter(recentSearchesServices,
+                    getContext(), android.R.layout.simple_dropdown_item_1line));
         }
     }
 
@@ -223,7 +236,10 @@ public class SearchOptionsView extends FrameLayout {
         // replace all new line characters (why would you add a new line?)
         searchTerm = searchTerm.replace('\n', ' ');
 
-        searchQuery.onNext(searchTerm);
+        searchQuery.onNext(ImmutableSearchQuery.builder()
+                .queryTerm(baseTerm)
+                .combined(searchTerm)
+                .build());
     }
 
     private int roundScoreValue(int value) {
@@ -254,7 +270,7 @@ public class SearchOptionsView extends FrameLayout {
         return withoutTags;
     }
 
-    public Observable<String> searchQuery() {
+    public Observable<SearchQuery> searchQuery() {
         return searchQuery;
     }
 
@@ -321,5 +337,13 @@ public class SearchOptionsView extends FrameLayout {
         Bundle bundle = new Bundle();
         bundle.putCharSequence("queryTerm", queryTerm);
         return bundle;
+    }
+
+
+    @Value.Immutable
+    public interface SearchQuery {
+        String combined();
+
+        String queryTerm();
     }
 }

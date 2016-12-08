@@ -299,6 +299,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // execute a search when we get a search term
         searchView.searchQuery().compose(bindToLifecycle()).subscribe(this::performSearch);
         searchView.searchCanceled().compose(bindToLifecycle()).subscribe(e -> hideSearchContainer());
+        searchView.setupAutoComplete(recentSearchesServices);
 
         // restore open search
         if (savedInstanceState != null && savedInstanceState.getBoolean("searchContainerVisible")) {
@@ -892,11 +893,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 .subscribe(Actions.empty(), Actions.empty());
     }
 
-    public void performSearch(String term) {
+    public void performSearch(SearchOptionsView.SearchQuery query) {
         hideSearchContainer();
 
         FeedFilter current = getCurrentFilter();
-        FeedFilter filter = current.withTagsNoReset(term);
+        FeedFilter filter = current.withTagsNoReset(query.combined());
 
         // do nothing, if the filter did not change
         if (equal(current, filter))
@@ -905,7 +906,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         Bundle searchQueryState = searchView.currentState();
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, searchQueryState);
 
-        Track.search(term);
+        // store the term for later
+        if (query.queryTerm().trim().length() > 0) {
+            recentSearchesServices.storeTerm(query.queryTerm());
+        }
+
+        Track.search(query.combined());
     }
 
     private void onItemClicked(int idx, Optional<Long> commentId, Optional<ImageView> preview) {

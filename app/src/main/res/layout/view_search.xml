@@ -22,7 +22,7 @@
             android:layout_height="?actionBarSize"
             android:src="@drawable/ic_arrow_back_24dp"/>
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/search_term"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

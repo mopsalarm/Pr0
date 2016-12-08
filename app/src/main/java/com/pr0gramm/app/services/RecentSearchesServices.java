@@ -55,7 +55,7 @@ public class RecentSearchesServices {
             removeCaseInsensitive(term);
             searches.add(0, term);
 
-            persistState();
+            persistStateAsync();
         }
     }
 
@@ -68,7 +68,7 @@ public class RecentSearchesServices {
     public void clearHistory() {
         synchronized (searches) {
             searches.clear();
-            persistState();
+            persistStateAsync();
         }
     }
 
@@ -85,7 +85,7 @@ public class RecentSearchesServices {
         }
     }
 
-    private void persistState() {
+    private void persistStateAsync() {
         try {
             // write down
             sharedPreferences.edit()
