@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Verstecken der Suchmaske, wenn man in den grauen Bereich klickt."
+      },
+      {
+        "type": "Fix",
+        "change": "Fortschrittsbalken hingt manchmal fest."
       }
     ]
   },
