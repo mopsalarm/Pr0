@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -505,5 +506,19 @@ public class AndroidUtility {
 
     public static Animator.AnimatorListener hideViewOnAnimationEnd(View searchContainer) {
         return endAction(() -> searchContainer.setVisibility(View.GONE));
+    }
+
+    /**
+     * Tries to get a basic activity from the given context. Returns an empty observable,
+     * if no activity could be found.
+     */
+    public static Optional<Activity> activityFromContext(Context context) {
+        if (context instanceof Activity)
+            return Optional.of((Activity) context);
+
+        if (context instanceof ContextWrapper)
+            return activityFromContext(((ContextWrapper) context).getBaseContext());
+
+        return Optional.absent();
     }
 }

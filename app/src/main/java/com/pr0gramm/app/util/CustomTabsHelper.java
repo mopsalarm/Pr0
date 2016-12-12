@@ -2,7 +2,6 @@ package com.pr0gramm.app.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -18,6 +17,8 @@ import com.thefinestartist.finestwebview.FinestWebView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 /**
  */
 
@@ -32,17 +33,7 @@ public class CustomTabsHelper {
     private final Context context;
 
     public CustomTabsHelper(Context context) {
-        this.context = tryExtractActivityFromContext(context);
-    }
-
-    private static Context tryExtractActivityFromContext(Context context) {
-        if (context instanceof Activity)
-            return context;
-
-        if (context instanceof ContextWrapper)
-            return tryExtractActivityFromContext(((ContextWrapper) context).getBaseContext());
-
-        return context;
+        this.context = firstNonNull(AndroidUtility.activityFromContext(context).orNull(), context);
     }
 
     private String getPackageName() {

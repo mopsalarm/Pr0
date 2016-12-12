@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.views;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -44,6 +45,7 @@ import rx.subjects.PublishSubject;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.google.common.base.CharMatcher.javaLetterOrDigit;
 import static com.google.common.base.CharMatcher.whitespace;
+import static com.pr0gramm.app.util.AndroidUtility.activityFromContext;
 import static java.util.Arrays.asList;
 
 /**
@@ -320,10 +322,15 @@ public class SearchOptionsView extends FrameLayout {
     }
 
     public void requestSearchFocus() {
-        // focus view and open keyboard
-        // post(() -> AndroidUtility.showSoftKeyboard(searchTermView));
-
-        post(() -> searchTermView.requestFocus());
+        post(() -> {
+            // only open keyboard if screen is large enought.
+            Point screenSize = activityFromContext(getContext()).transform(AndroidUtility::screenSize).orNull();
+            if (screenSize != null && getHeight() < screenSize.y * 0.4) {
+                AndroidUtility.showSoftKeyboard(searchTermView);
+            } else {
+                searchTermView.requestFocus();
+            }
+        });
     }
 
     public void setQueryHint(String queryHint) {
