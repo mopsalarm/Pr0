@@ -161,6 +161,11 @@ public final class Optional<T> {
         return new Optional<>(checkNotNull(value));
     }
 
+    @NonNull
+    public static <T> Optional<T> of(com.google.common.base.Optional<T> other) {
+        return fromNullable(other.orNull());
+    }
+
     /**
      * Gets an empty observable
      */
