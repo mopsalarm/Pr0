@@ -11,6 +11,8 @@ import rx.functions.Action0;
 public class DetectTapTouchListener implements View.OnTouchListener {
     private final Action0 consumer;
     private boolean moveOccurred;
+    private float firstX;
+    private float firstY;
 
     private DetectTapTouchListener(Action0 consumer) {
         this.consumer = consumer;
@@ -21,10 +23,14 @@ public class DetectTapTouchListener implements View.OnTouchListener {
         if (event.getActionIndex() == 0) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 moveOccurred = false;
+                firstX = event.getX();
+                firstY = event.getY();
             }
 
             if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                moveOccurred = true;
+                moveOccurred = moveOccurred
+                        || Math.abs(event.getX() - firstX) > 32
+                        || Math.abs(event.getY() - firstY) > 32;
             }
 
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -32,8 +38,6 @@ public class DetectTapTouchListener implements View.OnTouchListener {
                     consumer.call();
                     return true;
                 }
-
-                moveOccurred = false;
             }
         }
 
