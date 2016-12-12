@@ -83,9 +83,6 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     private static final int MAX_DROPPED_FRAMES = 75;
 
-    private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
-    private static final int BUFFER_SEGMENT_COUNT = 64;
-
     private final Context context;
     private final AspectLayout parentView;
     private final Handler handler;

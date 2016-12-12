@@ -116,17 +116,23 @@ public abstract class AbstractProgressMediaView extends MediaView {
         }
 
         if (viewToShow.getVisibility() != VISIBLE) {
-            viewToShow.setAlpha(0);
-            viewToShow.setTranslationY(deltaY);
-            viewToShow.setVisibility(VISIBLE);
-            viewToShow.animate()
-                    .alpha(1)
-                    .translationY(0)
-                    .setListener(null)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();
+            if (progressEnabled || progressView != viewToShow) {
+                viewToShow.setAlpha(0);
+                viewToShow.setTranslationY(deltaY);
+                viewToShow.setVisibility(VISIBLE);
+                viewToShow.animate()
+                        .alpha(1)
+                        .translationY(0)
+                        .setListener(null)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+            }
 
             onSeekbarVisibilityChanged(show);
+        }
+
+        if (show) {
+            updateTimeline();
         }
     }
 
@@ -141,7 +147,7 @@ public abstract class AbstractProgressMediaView extends MediaView {
         if (!progressTouched) {
             ProgressInfo info = getVideoProgress().orNull();
             if (info != null && shouldShowView(info)) {
-                if (firstTimeProgressValue) {
+                if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false;
                     progressView.setVisibility(VISIBLE);
                     progressView.setAlpha(1);
@@ -167,7 +173,7 @@ public abstract class AbstractProgressMediaView extends MediaView {
             }
         }
 
-        if (progressEnabled) {
+        if (progressEnabled || seekCurrentlyVisible()) {
             removeCallbacks(this::updateTimeline);
             postDelayed(this::updateTimeline, 200);
         }
@@ -180,7 +186,7 @@ public abstract class AbstractProgressMediaView extends MediaView {
     }
 
     private boolean shouldShowView(@NonNull ProgressInfo info) {
-        return progressEnabled
+        return (progressEnabled || seekCurrentlyVisible())
                 && (info.progress >= 0 && info.progress <= 1
                 || info.buffered >= 0 && info.buffered <= 1);
     }
@@ -193,6 +199,10 @@ public abstract class AbstractProgressMediaView extends MediaView {
     protected void userSeekTo(float fraction) {
     }
 
+    /**
+     * Disable the little progressbar. We still allow seeking, if the user
+     * touches the screen.
+     */
     public void setProgressEnabled(boolean visible) {
         progressEnabled = visible;
 
