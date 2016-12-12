@@ -374,4 +374,13 @@
     <string name="search_search">SUCHEN</string>
     <string name="search_without_custom_tags">Eigene Tags ausschließen:</string>
     <string name="search_without_tags">Von den Ergebnissen ausschließen:</string>
+    <string name="preload_ongoing">Vorladen…</string>
+    <string name="preload_failed">Vorladen fehlgeschlagen</string>
+    <string name="preload_finished">Vorladen abgeschlossen</string>
+    <string name="preload_canceled">abgebrochen</string>
+    <string name="preload_cleanup">Lösche alte Dateien</string>
+    <string name="preload_fetching">Lade %s</string>
+    <string name="preload_sub_downloaded">%d Dateien geladen</string>
+    <string name="preload_sub_failed">%d fehlgeschlagen</string>
+    <string name="preload_sub_finished">Stoppe…</string>
 </resources>

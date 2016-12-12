@@ -61,7 +61,6 @@ public class NotificationService {
     private final Picasso picasso;
     private final UriHelper uriHelper;
     private final UserService userService;
-    private final BadgeService badgeService;
 
     @Inject
     public NotificationService(Application context, InboxService inboxService, Picasso picasso,
@@ -74,7 +73,6 @@ public class NotificationService {
         this.uriHelper = UriHelper.of(context);
         this.settings = Settings.of(context);
         this.nm = NotificationManagerCompat.from(context);
-        this.badgeService = badgeService;
 
         // update the icon to show the current inbox count.
         this.inboxService.unreadMessagesCount().subscribe(unreadCount ->

@@ -393,5 +393,14 @@
     <string name="search_without_tags">Exclude:</string>
     <string name="search_advanced">ADVANCED</string>
     <string name="search_search">SEARCH</string>
+    <string name="preload_ongoing">Preloading…</string>
+    <string name="preload_finished">Finished preloading</string>
+    <string name="preload_failed">Preloading failed</string>
+    <string name="preload_sub_downloaded">%d files downloaded</string>
+    <string name="preload_sub_failed">%d failed</string>
+    <string name="preload_canceled">canceled</string>
+    <string name="preload_cleanup">Cleaning up old files</string>
+    <string name="preload_sub_finished">Finishing…</string>
+    <string name="preload_fetching">Fetching %s</string>
 </resources>
 

@@ -109,10 +109,11 @@ public class PreloadService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder noBuilder = new NotificationCompat.Builder(this)
-                .setContentTitle("Preloading pr0gramm")
+                .setContentTitle(getString(R.string.preload_ongoing))
                 .setSmallIcon(R.drawable.ic_notify_new_message)
                 .setProgress(100 * items.size(), 0, false)
                 .setOngoing(true)
+                .addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), contentIntent)
                 .setContentIntent(contentIntent);
 
         Instant creation = Instant.now();
@@ -176,8 +177,12 @@ public class PreloadService extends IntentService {
             showEndMessage(noBuilder, downloaded, failed);
 
         } catch (Throwable error) {
-            AndroidUtility.logToCrashlytics(error);
-            noBuilder.setContentTitle("Preloading failed");
+            //noinspection ThrowableResultOfMethodCallIgnored
+            if (Throwables.getRootCause(error) instanceof IOException) {
+                AndroidUtility.logToCrashlytics(error);
+            }
+
+            noBuilder.setContentTitle(getString(R.string.preload_failed));
 
         } finally {
             try {
@@ -186,8 +191,13 @@ public class PreloadService extends IntentService {
             } catch (RuntimeException ignored) {
             }
 
-            logger.info("Finished preloading");
-            show(noBuilder.setSmallIcon(R.drawable.ic_notify_preload_finished)
+            logger.info("Preloading finished");
+
+            // clear the action button
+            noBuilder.mActions.clear();
+
+            show(noBuilder
+                    .setSmallIcon(R.drawable.ic_notify_preload_finished)
                     .setSubText(null)
                     .setProgress(0, 0, false)
                     .setOngoing(false)
@@ -199,16 +209,18 @@ public class PreloadService extends IntentService {
 
     private void showEndMessage(NotificationCompat.Builder noBuilder, int downloaded, int failed) {
         List<String> contentText = new ArrayList<>();
-        contentText.add(String.format("%d files downloaded", downloaded));
+        contentText.add(getString(R.string.preload_sub_downloaded, downloaded));
         if (failed > 0) {
-            contentText.add(String.format("%d failed", failed));
+            contentText.add(getString(R.string.preload_sub_failed, failed));
         }
 
         if (canceled) {
-            contentText.add("canceled");
+            contentText.add(getString(R.string.preload_canceled));
         }
 
-        noBuilder.setContentText(Joiner.on(", ").join(contentText));
+        noBuilder
+                .setContentTitle(getString(R.string.preload_finished))
+                .setContentText(Joiner.on(", ").join(contentText));
     }
 
     /**
@@ -216,7 +228,7 @@ public class PreloadService extends IntentService {
      */
     private void doCleanup(NotificationCompat.Builder noBuilder, Instant threshold) {
         show(noBuilder
-                .setContentText("Cleaning up old files")
+                .setContentText(getString(R.string.preload_cleanup))
                 .setProgress(0, 0, true));
 
         preloadManager.deleteBefore(threshold);
@@ -243,9 +255,9 @@ public class PreloadService extends IntentService {
                 int progressTotal = 100 * total;
 
                 if (canceled) {
-                    msg = "Finishing";
+                    msg = getString(R.string.preload_sub_finished);
                 } else {
-                    msg = "Fetching " + uri.getPath();
+                    msg = getString(R.string.preload_fetching, uri.getPath());
                 }
 
                 maybeShow(noBuilder.setContentText(msg).setProgress(progressTotal, progressCurrent, false));
@@ -258,8 +270,7 @@ public class PreloadService extends IntentService {
             if (!tempFile.delete())
                 logger.warn("Could not remove temporary file");
 
-            Throwables.propagateIfInstanceOf(error, IOException.class);
-            Throwables.propagateIfPossible(error);
+            Throwables.throwIfInstanceOf(error, IOException.class);
             throw Throwables.propagate(error);
         }
     }

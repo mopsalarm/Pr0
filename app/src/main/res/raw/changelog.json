@@ -3,6 +3,10 @@
     "version": 118,
     "changes": [
       {
+        "type": "New",
+        "change": "'Abbrechen'-Knopf beim Vorladen hinzugefügt, Übersetzungen überarbeitet."
+      },
+      {
         "type": "Fix",
         "change": "Ausklappen der Tastatur in der neuen Suchmaske optimiert."
       },
