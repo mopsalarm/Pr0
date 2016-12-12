@@ -27,20 +27,17 @@
     "POST-api/comments/vote": {
       "category": "comments"
     },
-    "GET-api/user/sync": {
-      "category": "user"
-    },
     "POST-api/items/delete": {
       "category": "feed"
     },
-    "GET-user/info/theme": {
-      "category": "user"
+    "GET-api/items/get": {
+      "category": "feed"
     },
     "GET-api/items/ratelimited": {
       "category": "upload"
     },
-    "GET-api/items/get": {
-      "category": "feed"
+    "GET-api/user/sync": {
+      "category": "user"
     },
     "GET-api/user/theme": {
       "category": "user"
@@ -48,10 +45,13 @@
     "GET-api/profile/info": {
       "category": "user"
     },
+    "GET-api/user/info/theme": {
+      "category": "user"
+    },
     "GET-api/inbox/all": {
       "category": "inbox"
     },
-    "GET-api/user/info/theme": {
+    "GET-user/info/theme": {
       "category": "user"
     },
     "POST-api/comments/post": {

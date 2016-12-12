@@ -6,6 +6,8 @@ import android.content.Intent;
 
 import com.pr0gramm.app.Dagger;
 
+import org.joda.time.Instant;
+
 import javax.inject.Inject;
 
 /**
@@ -27,5 +29,11 @@ public class InboxNotificationCanceledReceiver extends BroadcastReceiver {
 
         // track this action
         Track.notificationClosed("swiped");
+    }
+
+    public static Intent makeIntent(Context context, Instant timestamp) {
+        Intent intent = new Intent(context, InboxNotificationCanceledReceiver.class);
+        intent.putExtra(InboxNotificationCanceledReceiver.EXTRA_MESSAGE_TIMESTAMP, timestamp.getMillis());
+        return intent;
     }
 }

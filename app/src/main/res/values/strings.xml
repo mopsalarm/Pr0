@@ -402,5 +402,9 @@
     <string name="preload_cleanup">Cleaning up old files</string>
     <string name="preload_sub_finished">Finishing…</string>
     <string name="preload_fetching">Fetching %s</string>
+    <string name="notify_reply">Reply</string>
+    <string name="notify_reply_to_x">Reply to %s</string>
+    <string name="notify_message_sent_to">Message sent to %s</string>
+    <string name="notify_goto_inbox">Go to inbox now</string>
 </resources>
 

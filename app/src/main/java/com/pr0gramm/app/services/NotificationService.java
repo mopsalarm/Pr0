@@ -5,15 +5,12 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.StyleSpan;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
@@ -28,6 +25,7 @@ import com.pr0gramm.app.ui.UpdateActivity;
 import com.pr0gramm.app.util.SenderDrawableProvider;
 import com.squareup.picasso.Picasso;
 
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,43 +115,83 @@ public class NotificationService {
                 ? context.getString(R.string.notify_new_message_title)
                 : context.getString(R.string.notify_new_messages_title, sync.inboxCount());
 
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle(title);
-        inboxStyle.setSummaryText(context.getString(R.string.notify_new_message_summary_text));
+        NotificationCompat.MessagingStyle inboxStyle = new NotificationCompat.MessagingStyle("Me");
         for (Api.Message msg : limit(messages, 5)) {
-            String sender = msg.getName();
-            String message = msg.getMessage();
-
-            //Create SpanableString to make styling possible
-            SpannableString line = new SpannableString(sender + ' ' + message);
-            line.setSpan(new StyleSpan(Typeface.BOLD), 0, sender.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-            //and add the line to our notification
-            inboxStyle.addLine(line);
+            inboxStyle.addMessage(msg.getMessage(), msg.getCreated().getMillis(), msg.getName());
         }
 
+        Instant minMessageTimestamp = Ordering.natural().min(transform(messages, Api.Message::getCreated));
+        Instant maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::getCreated));
 
-        long timestamp = Ordering.natural().min(transform(messages, msg -> msg.getCreated().getMillis()));
-        long maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::getCreated)).getMillis();
-
-        Notification notification = new NotificationCompat.Builder(context)
-                .setContentIntent(inboxActivityIntent(maxMessageTimestamp))
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
                 .setContentTitle(title)
                 .setContentText(context.getString(R.string.notify_new_message_summary_text))
                 .setStyle(inboxStyle)
                 .setSmallIcon(R.drawable.ic_notify_new_message)
                 .setLargeIcon(thumbnail(messages).orNull())
-                .setWhen(timestamp)
-                .setShowWhen(timestamp != 0)
+                .setWhen(minMessageTimestamp.getMillis())
+                .setShowWhen(minMessageTimestamp.getMillis() != 0)
                 .setAutoCancel(true)
                 .setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500)
+                .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500);
+
+        int replyToUserId = replyToUserId(messages);
+        if (replyToUserId != 0) {
+            NotificationCompat.Action action = buildReplyAction(messages.get(0));
+            builder.addAction(action);
+        }
+
+        nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build());
+        Track.notificationShown();
+    }
+
+    public void showSendSuccessfulNotification(String receiver) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setContentIntent(inboxActivityIntent(new Instant(0), InboxType.PRIVATE))
+                .setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
+                .setContentText(context.getString(R.string.notify_goto_inbox))
+                .setSmallIcon(R.drawable.ic_notify_new_message)
+                .setAutoCancel(true)
+                .setCategory(NotificationCompat.CATEGORY_EMAIL);
+
+        nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build());
+    }
+
+    /**
+     * This builds the little "reply" action under a notification.
+     */
+    private NotificationCompat.Action buildReplyAction(Api.Message message) {
+        // build the intent to fire on reply
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0,
+                MessageReplyReceiver.makeIntent(context, message),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // the input field
+        RemoteInput remoteInput = new RemoteInput.Builder("msg")
+                .setLabel(context.getString(R.string.notify_reply_to_x, message.getName()))
                 .build();
 
-        nm.notify(NOTIFICATION_NEW_MESSAGE_ID, notification);
+        // add everything as an action
+        return new NotificationCompat.Action
+                .Builder(R.drawable.ic_reply, context.getString(R.string.notify_reply), pendingIntent)
+                .addRemoteInput(remoteInput)
+                .build();
+    }
 
-        Track.notificationShown();
+    /**
+     * Only show if all messages are from the same sender
+     */
+    private static int replyToUserId(List<Api.Message> messages) {
+        int sender = messages.get(0).getSenderId();
+        for (Api.Message message : messages) {
+            if (message.getSenderId() != sender) {
+                return 0;
+            }
+        }
+
+        return sender;
     }
 
     /**
@@ -195,11 +233,11 @@ public class NotificationService {
         }
     }
 
-    private PendingIntent inboxActivityIntent(long maxMessageTimestamp) {
+    private PendingIntent inboxActivityIntent(Instant timestamp, InboxType inboxType) {
         Intent intent = new Intent(context, InboxActivity.class);
-        intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, InboxType.UNREAD.ordinal());
+        intent.putExtra(InboxActivity.EXTRA_INBOX_TYPE, inboxType.ordinal());
         intent.putExtra(InboxActivity.EXTRA_FROM_NOTIFICATION, true);
-        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, maxMessageTimestamp);
+        intent.putExtra(InboxActivity.EXTRA_MESSAGE_TIMESTAMP, timestamp.getMillis());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         return TaskStackBuilder.create(context)
@@ -207,10 +245,8 @@ public class NotificationService {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private PendingIntent markAsReadIntent(long maxMessageTimestamp) {
-        Intent intent = new Intent(context, InboxNotificationCanceledReceiver.class);
-        intent.putExtra(InboxNotificationCanceledReceiver.EXTRA_MESSAGE_TIMESTAMP, maxMessageTimestamp);
-
+    private PendingIntent markAsReadIntent(Instant timestamp) {
+        Intent intent = InboxNotificationCanceledReceiver.makeIntent(context, timestamp);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

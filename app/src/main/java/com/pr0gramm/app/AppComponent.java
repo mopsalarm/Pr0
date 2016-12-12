@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
+import com.pr0gramm.app.services.MessageReplyReceiver;
 import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SettingsTrackerService;
 import com.pr0gramm.app.services.ShareProvider;
@@ -74,4 +75,6 @@ public interface AppComponent {
     void inject(CommentPostLine commentPostLine);
 
     SettingsTrackerService settingsTracker();
+
+    void inject(MessageReplyReceiver receiver);
 }

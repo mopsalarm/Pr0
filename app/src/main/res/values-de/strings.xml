@@ -383,4 +383,8 @@
     <string name="preload_sub_downloaded">%d Dateien geladen</string>
     <string name="preload_sub_failed">%d fehlgeschlagen</string>
     <string name="preload_sub_finished">Stoppe…</string>
+    <string name="notify_goto_inbox">Zur den Nachrichten</string>
+    <string name="notify_message_sent_to">Nachricht an %s versendet</string>
+    <string name="notify_reply">Antworten</string>
+    <string name="notify_reply_to_x">%s antworten</string>
 </resources>
