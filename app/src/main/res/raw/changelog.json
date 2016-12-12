@@ -1,5 +1,18 @@
 [
   {
+    "version": 118,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Ausklappen der Tastatur in der neuen Suchmaske optimiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Verstecken der Suchmaske, wenn man in den grauen Bereich klickt."
+      }
+    ]
+  },
+  {
     "version": 117,
     "changes": [
       {
