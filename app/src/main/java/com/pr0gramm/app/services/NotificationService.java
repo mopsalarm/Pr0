@@ -3,9 +3,11 @@ package com.pr0gramm.app.services;
 import android.app.Application;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
@@ -78,7 +80,7 @@ public class NotificationService {
     }
 
     public void showUpdateNotification(Update update) {
-        Notification notification = new NotificationCompat.Builder(context)
+        Notification notification = newNotificationBuilder(context)
                 .setContentIntent(updateActivityIntent(update))
                 .setContentTitle(context.getString(R.string.notification_update_available))
                 .setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
@@ -115,15 +117,12 @@ public class NotificationService {
                 ? context.getString(R.string.notify_new_message_title)
                 : context.getString(R.string.notify_new_messages_title, sync.inboxCount());
 
-        NotificationCompat.MessagingStyle inboxStyle = new NotificationCompat.MessagingStyle("Me");
-        for (Api.Message msg : limit(messages, 5)) {
-            inboxStyle.addMessage(msg.getMessage(), msg.getCreated().getMillis(), msg.getName());
-        }
+        NotificationCompat.Style inboxStyle = formatMessages(messages);
 
         Instant minMessageTimestamp = Ordering.natural().min(transform(messages, Api.Message::getCreated));
         Instant maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::getCreated));
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = newNotificationBuilder(context)
                 .setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
                 .setContentTitle(title)
                 .setContentText(context.getString(R.string.notify_new_message_summary_text))
@@ -137,18 +136,28 @@ public class NotificationService {
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
                 .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500);
 
-        int replyToUserId = replyToUserId(messages);
-        if (replyToUserId != 0) {
-            NotificationCompat.Action action = buildReplyAction(messages.get(0));
-            builder.addAction(action);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            int replyToUserId = replyToUserId(messages);
+            if (replyToUserId != 0) {
+                NotificationCompat.Action action = buildReplyAction(messages.get(0));
+                builder.addAction(action);
+            }
         }
 
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build());
         Track.notificationShown();
     }
 
+    private NotificationCompat.MessagingStyle formatMessages(ImmutableList<Api.Message> messages) {
+        NotificationCompat.MessagingStyle inboxStyle = new NotificationCompat.MessagingStyle("Me");
+        for (Api.Message msg : limit(messages, 5)) {
+            inboxStyle.addMessage(msg.getMessage(), msg.getCreated().getMillis(), msg.getName());
+        }
+        return inboxStyle;
+    }
+
     public void showSendSuccessfulNotification(String receiver) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = newNotificationBuilder(context)
                 .setContentIntent(inboxActivityIntent(new Instant(0), InboxType.PRIVATE))
                 .setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
                 .setContentText(context.getString(R.string.notify_goto_inbox))
@@ -268,5 +277,13 @@ public class NotificationService {
 
     public void cancelForUpdate() {
         nm.cancel(NOTIFICATION_UPDATE_ID);
+    }
+
+
+    /**
+     * Creates a new v7 notification buidler
+     */
+    private static NotificationCompat.Builder newNotificationBuilder(Context context) {
+        return new android.support.v7.app.NotificationCompat.Builder(context);
     }
 }
