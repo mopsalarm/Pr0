@@ -94,9 +94,9 @@ dependencies {
     compile "pl.brightinventions:slf4android:0.1.2"
     compile "com.crashlytics.sdk.android:crashlytics:2.6.5"
 
-    apt "org.immutables:value:2.3.9"
-    provided "org.immutables:value:2.3.9"
-    provided "org.immutables:gson:2.3.9"
+    apt "org.immutables:value:2.3.10"
+    provided "org.immutables:value:2.3.10"
+    provided "org.immutables:gson:2.3.10"
 
     compile "com.google.dagger:dagger:2.8"
     apt "com.google.dagger:dagger-compiler:2.8"
