@@ -18,7 +18,6 @@ package com.pr0gramm.app.ui.views.viewer.video;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.media.MediaCodec;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -46,7 +45,10 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -121,8 +123,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         MediaCodecSelector mediaCodecSelector = new MediaCodecSelectorImpl(settings);
         exoVideoRenderer = new MediaCodecVideoRenderer(context, mediaCodecSelector,
-                MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, handler, videoListener,
-                MAX_DROPPED_FRAMES);
+                5000, handler, videoListener, MAX_DROPPED_FRAMES);
 
         Renderer[] renderers;
         if (hasAudio) {
@@ -132,7 +133,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
             renderers = new Renderer[]{exoVideoRenderer};
         }
 
-        exo = ExoPlayerFactory.newInstance(renderers, new DefaultTrackSelector(handler));
+        exo = ExoPlayerFactory.newInstance(renderers, new DefaultTrackSelector(new FixedTrackSelection.Factory()));
         exo.addListener(this);
 
         RxView.detaches(videoView).subscribe(event -> {
@@ -311,6 +312,11 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
     }
 
     @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+        // dont care!
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException error) {
         Throwable rootCause = Throwables.getRootCause(error);
 
@@ -428,7 +434,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
 
         @Override
-        public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
+        public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder, boolean requiresTunneling) throws MediaCodecUtil.DecoderQueryException {
             List<MediaCodecInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
             // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 
