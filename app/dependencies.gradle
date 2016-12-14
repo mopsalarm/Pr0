@@ -1,6 +1,6 @@
 
 ext {
-    VersionSupportLibrary = "25.0.1"
+    VersionSupportLibrary = "25.1.0"
     VersionRxBinding = "1.0.0"
 }
 
@@ -54,7 +54,7 @@ dependencies {
     compile "com.github.paolorotolo:appintro:4.0.0"
     // compile 'net.skoumal.fragmentback:fragmentback:0.2.2'
 
-    compile "com.google.android.exoplayer:exoplayer:r2.0.4"
+    compile "com.google.android.exoplayer:exoplayer:r2.1.0"
 
     compile "commons-io:commons-io:2.5"
 
@@ -107,5 +107,5 @@ dependencies {
     androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.2"
     androidTestCompile "com.android.support.test:runner:0.5"
     androidTestCompile "com.google.code.findbugs:jsr305:3.0.1"
-    androidTestCompile "com.android.support:support-annotations:25.0.1"
+    androidTestCompile "com.android.support:support-annotations:$VersionSupportLibrary"
 }
