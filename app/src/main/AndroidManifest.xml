@@ -137,6 +137,9 @@
                     android:pathPrefix="/user"
                     android:scheme="https"/>
             </intent-filter>
+            <meta-data
+                    android:name="android.app.shortcuts"
+                    android:resource="@xml/shortcuts"/>
         </activity>
         <activity
             android:name=".ui.InboxActivity"

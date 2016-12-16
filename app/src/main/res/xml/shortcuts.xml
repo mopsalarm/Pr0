@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="top"
+        android:enabled="true"
+        android:icon="@drawable/ic_black_action_home"
+        android:shortcutShortLabel="@string/action_feed_type_promoted"
+        android:shortcutLongLabel="@string/action_feed_type_promoted"
+        android:shortcutDisabledMessage="@string/action_feed_type_promoted">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.pr0gramm.app"
+            android:targetClass="com.pr0gramm.app.ui.MainActivity"
+            android:data="/top" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="new"
+        android:enabled="true"
+        android:icon="@drawable/ic_black_action_trending"
+        android:shortcutShortLabel="@string/action_feed_type_new"
+        android:shortcutLongLabel="@string/action_feed_type_new"
+        android:shortcutDisabledMessage="@string/action_feed_type_new">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.pr0gramm.app"
+            android:targetClass="com.pr0gramm.app.ui.MainActivity"
+            android:data="/new" />
+    </shortcut>
+</shortcuts>
