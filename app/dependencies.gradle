@@ -61,10 +61,10 @@ dependencies {
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202"
 
-    debugCompile "com.facebook.stetho:stetho:1.4.1"
-    debugCompile "com.facebook.stetho:stetho-okhttp3:1.4.1"
-    apt "com.facebook.stetho:stetho:1.4.1"
-    apt "com.facebook.stetho:stetho-okhttp3:1.4.1"
+    debugCompile "com.facebook.stetho:stetho:1.4.2"
+    debugCompile "com.facebook.stetho:stetho-okhttp3:1.4.2"
+    apt "com.facebook.stetho:stetho:1.4.2"
+    apt "com.facebook.stetho:stetho-okhttp3:1.4.2"
 
     compile "com.jakewharton:butterknife:8.4.0"
     compile "com.jakewharton:butterknife-annotations:8.4.0"
@@ -74,10 +74,10 @@ dependencies {
     apt "com.f2prateek.dart:dart-processor:2.0.1"
 
     // rx java
-    compile "io.reactivex:rxjava:1.2.3"
+    compile "io.reactivex:rxjava:1.2.4"
     compile "io.reactivex:rxandroid:1.2.1"
     compile "io.reactivex:rxjava-async-util:0.21.0"
-    compile "com.artemzin.rxjava:proguard-rules:1.2.3.0"
+    compile "com.artemzin.rxjava:proguard-rules:1.2.4.0"
     compile "com.trello:rxlifecycle:1.0"
     compile "com.trello:rxlifecycle-android:1.0"
     compile "com.trello:rxlifecycle-components:1.0"
