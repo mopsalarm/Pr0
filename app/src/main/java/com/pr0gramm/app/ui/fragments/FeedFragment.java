@@ -616,7 +616,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     }
 
     private EnumSet<ContentType> getSelectedContentType() {
-        if (!userService.isAuthorized())
+        if (userService == null || !userService.isAuthorized())
             return EnumSet.of(SFW);
 
         return settings.getContentType();
