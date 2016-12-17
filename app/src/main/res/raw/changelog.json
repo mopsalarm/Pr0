@@ -1,5 +1,14 @@
 [
   {
+    "version": 119,
+    "changes": [
+      {
+        "type": "New",
+        "change": "Android 7 Shortcuts"
+      }
+    ]
+  },
+  {
     "version": 118,
     "changes": [
       {
