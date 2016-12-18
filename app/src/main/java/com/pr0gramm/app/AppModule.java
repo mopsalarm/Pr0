@@ -48,8 +48,9 @@ public class AppModule {
 
         return Observable.fromCallable(() -> {
             SQLiteOpenHelper openHelper = new Databases.SqlBriteOpenHelper(application);
-            return SqlBrite
-                    .create(logger::info)
+            return new SqlBrite.Builder()
+                    .logger(logger::info)
+                    .build()
                     .wrapDatabaseHelper(openHelper, BackgroundScheduler.instance());
         }).cache();
     }

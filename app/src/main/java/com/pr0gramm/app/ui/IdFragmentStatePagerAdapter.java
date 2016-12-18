@@ -86,7 +86,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         }
 
         if (mCurTransaction == null) {
-            mCurTransaction = mFragmentManager.beginTransaction();
+            mCurTransaction = mFragmentManager.beginTransaction().setAllowOptimization(false);
         }
 
         Fragment fragment = getItem(position);
@@ -113,7 +113,7 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         long id = getItemId(position);
 
         if (mCurTransaction == null) {
-            mCurTransaction = mFragmentManager.beginTransaction();
+            mCurTransaction = mFragmentManager.beginTransaction().setAllowOptimization(false);
         }
         if (DEBUG) Log.v(TAG, "Removing item #" + position + ": f=" + object
                 + " v=" + ((Fragment) object).getView());

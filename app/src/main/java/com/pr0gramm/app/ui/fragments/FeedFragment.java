@@ -933,6 +933,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             }
 
             getActivity().getSupportFragmentManager().beginTransaction()
+                    .setAllowOptimization(false)
                     .replace(R.id.content, fragment)
                     .addToBackStack("Post" + idx)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
