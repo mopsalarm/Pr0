@@ -613,7 +613,6 @@ public class MainActivity extends BaseAppCompatActivity implements
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
-                .setAllowOptimization(false)
                 .replace(R.id.content, fragment);
 
         if (!clear) {
