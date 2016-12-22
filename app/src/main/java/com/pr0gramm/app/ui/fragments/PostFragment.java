@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,6 +66,7 @@ import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.Screen;
 import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SingleViewAdapter;
+import com.pr0gramm.app.ui.TriangleDrawable;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.back.BackAwareFragment;
@@ -849,6 +851,16 @@ public class PostFragment extends BaseFragment implements
                 .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .doOnNext(view -> logger.info("Adding view {} to placeholder", view))
                 .subscribe(mediaControlsContainer::addView);
+
+        // show sfw/nsfw as a little flag, if the user is admin
+        if (userService.userIsAdmin() && settings.showContentTypeFlag()) {
+            // show the little admin triangle
+            int size = AndroidUtility.dp(getContext(), 16);
+            ViewCompat.setBackground(mediaControlsContainer,
+                    new TriangleDrawable(feedItem.contentType(), size));
+
+            mediaControlsContainer.setMinimumHeight(size);
+        }
     }
 
     private void updatePlayerContainerBackground(Bitmap thumbnail) {

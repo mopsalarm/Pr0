@@ -387,4 +387,6 @@
     <string name="notify_message_sent_to">Nachricht an %s versendet</string>
     <string name="notify_reply">Antworten</string>
     <string name="notify_reply_to_x">%s antworten</string>
+    <string name="pref_show_content_type_flag_title">Zeige Dreieck</string>
+    <string name="pref_show_content_type_flag_summary">Zeige ein kleines Dreieck an, das den Filtertyp (sfw/nsfw) eines Posts angibt.</string>
 </resources>

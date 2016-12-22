@@ -243,6 +243,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_show_category_text", true);
     }
 
+    public boolean showContentTypeFlag() {
+        return preferences.getBoolean("pref_show_content_type_flag", true);
+    }
+
     public SharedPreferences raw() {
         return preferences;
     }
