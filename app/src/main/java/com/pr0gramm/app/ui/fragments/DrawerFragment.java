@@ -46,6 +46,7 @@ import com.pr0gramm.app.ui.LoginActivity;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.StatisticActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -210,10 +211,8 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void onBenisGraphClicked(View view) {
-        DialogBuilder.start(getActivity())
-                .content(R.string.benis_graph_explanation)
-                .positive()
-                .show();
+       Intent intent = new Intent(getActivity(), StatisticActivity.class);
+        startActivity(intent);
     }
 
     @Override

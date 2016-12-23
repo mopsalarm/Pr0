@@ -285,6 +285,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Intro.TranslucentStatus"/>
 
+        <activity
+            android:name=".ui.StatisticActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme" />
+
     </application>
 
 </manifest>
