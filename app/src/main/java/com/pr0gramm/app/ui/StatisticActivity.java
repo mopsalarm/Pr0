@@ -6,23 +6,28 @@ import android.os.Bundle;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.orm.BenisRecord;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import rx.functions.Actions;
 
-;
+import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 
 public class StatisticActivity extends BaseAppCompatActivity {
@@ -31,89 +36,74 @@ public class StatisticActivity extends BaseAppCompatActivity {
     UserService userService;
 
     @BindView(R.id.chart1)
-    LineChart mChart;
+    LineChart benisChart;
 
-    @Override
-    protected void injectComponent(ActivityComponent appComponent) {
-        appComponent.inject(this);
+    protected void injectComponent(ActivityComponent component) {
+        component.inject(this);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(ThemeHelper.theme().basic);
-
+        setTheme(theme().basic);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistic);
 
-        mChart.setViewPortOffsets(0, 0, 0, 0);
+        benisChart.getDescription().setEnabled(false);
 
-        mChart.getDescription().setEnabled(false);
-        mChart.setTouchEnabled(true);
-        mChart.setDragEnabled(true);
-        mChart.setScaleEnabled(true);
+        benisChart.setTouchEnabled(true);
+        benisChart.setDragEnabled(true);
+        benisChart.setScaleEnabled(true);
+        benisChart.setPinchZoom(true);
 
-        mChart.setPinchZoom(false);
-        mChart.setDrawGridBackground(false);
-        mChart.setMaxHighlightDistance(300);
+        benisChart.setDrawGridBackground(false);
+        benisChart.setMaxHighlightDistance(300);
 
-        XAxis x = mChart.getXAxis();
-        x.setEnabled(false);
 
-        YAxis y = mChart.getAxisLeft();
+        XAxis x = benisChart.getXAxis();
+        x.setEnabled(true);
+        //x.setLabelCount(6, false);
+        x.setDrawLabels(false);
+        x.setTextColor(Color.WHITE);
+        x.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+        x.setAxisLineColor(Color.WHITE);
+        x.setDrawGridLines(false);
+
+        YAxis y = benisChart.getAxisLeft();
         y.setLabelCount(6, false);
         y.setTextColor(Color.WHITE);
         y.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         y.setDrawGridLines(false);
         y.setAxisLineColor(Color.WHITE);
 
-        mChart.getAxisRight().setEnabled(false);
+        benisChart.getAxisRight().setEnabled(false);
 
-       userService.loginState().subscribe(s -> updateGraph(s));
-    }
+        LineDataSet set = new LineDataSet(null, null);
 
-    @Override
-    public void onResume() {
-        super.onResume();
 
-        userService.loginState()
-                .compose(bindToLifecycleAsync())
-                .subscribe(this::onLoginStateChanged, Actions.empty());
-    }
+        set.setColor(Color.WHITE);
+        set.setLineWidth(1.8f);
+        set.setDrawHorizontalHighlightIndicator(false);
 
-    private void onLoginStateChanged(UserService.LoginState state) {
-        //updateGraph(state);
-    }
+        set.setDrawCircles(false);
+        set.setCircleRadius(3f);
+        set.setCircleColor(Color.WHITE);
 
-    private void updateGraph(UserService.LoginState state) {
-        if (state.authorized()) {
-            LineDataSet set = null;
-            //set = state.benisFullHistory();
-            if (set == null) {
-                return;
-            }
-            set.setMode(LineDataSet.Mode.LINEAR);
-            set.setCubicIntensity(0.2f);
-            set.setDrawCircles(false);
-            set.setLineWidth(1.8f);
-            set.setCircleRadius(4f);
-            set.setCircleColor(Color.WHITE);
-            set.setHighLightColor(Color.rgb(244, 117, 117));
-            set.setColor(Color.WHITE);
-            set.setFillColor(Color.WHITE);
-            set.setFillAlpha(100);
-            set.setDrawHorizontalHighlightIndicator(false);
-            set.setFillFormatter(new IFillFormatter() {
-                @Override
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return -10;
-                }
-            });
-            LineData data = new LineData(set);
-            data.setValueTextSize(9f);
-            data.setDrawValues(false);
-            mChart.setData(data);
-        } else {
-            mChart.clear();
+        set.setDrawFilled(false);
+
+        set.setValueTextSize(6f);
+
+        set.setMode(LineDataSet.Mode.LINEAR);
+
+
+
+        for (BenisRecord record : userService.loadFullBenisHistory()) {
+            set.addEntry(new Entry((float) record.time, (float) record.benis));
         }
+        benisChart.getLegend().setEnabled(false);
+
+        benisChart.setData(new LineData(set));
+
+
     }
+
 }

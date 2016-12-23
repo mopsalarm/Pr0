@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  */
@@ -42,6 +46,26 @@ public class BenisRecord {
 
             return result;
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static List<BenisRecord> findAllValues(SQLiteDatabase db, int ownerId) {
+        List<BenisRecord> benis = null;
+
+        try (Cursor cursor = db.query("benis_record",
+                new String[]{"time", "benis"},
+                "owner_id=? or owner_id=0",
+                new String[]{String.valueOf(ownerId)},
+                null, null, "time ASC")) {
+
+            benis = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                benis.add(new BenisRecord(
+                        cursor.getLong(0),
+                        cursor.getInt(1)));
+            }
+        }
+        return benis;
     }
 
     public static void storeValue(SQLiteDatabase db, int ownerId, int benis) {
