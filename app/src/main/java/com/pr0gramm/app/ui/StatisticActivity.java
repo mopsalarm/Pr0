@@ -4,24 +4,22 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IFillFormatter;
-import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.google.common.collect.FluentIterable;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.orm.BenisRecord;
-import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 import javax.inject.Inject;
 
@@ -61,12 +59,17 @@ public class StatisticActivity extends BaseAppCompatActivity {
 
         XAxis x = benisChart.getXAxis();
         x.setEnabled(true);
-        //x.setLabelCount(6, false);
-        x.setDrawLabels(false);
+        x.setLabelCount(5, false);
+        x.setDrawLabels(true);
         x.setTextColor(Color.WHITE);
         x.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
         x.setAxisLineColor(Color.WHITE);
         x.setDrawGridLines(false);
+        x.setValueFormatter((value, axis) -> {
+            Date date = new Date((long) value);
+            DateFormat form = android.text.format.DateFormat.getDateFormat(getApplicationContext());
+            return form.format(date);
+        });
 
         YAxis y = benisChart.getAxisLeft();
         y.setLabelCount(6, false);
