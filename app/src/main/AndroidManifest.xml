@@ -137,9 +137,10 @@
                     android:pathPrefix="/user"
                     android:scheme="https"/>
             </intent-filter>
+
             <meta-data
-                    android:name="android.app.shortcuts"
-                    android:resource="@xml/shortcuts"/>
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
         </activity>
         <activity
             android:name=".ui.InboxActivity"
@@ -247,24 +248,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.LoginActivity"/>
-
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-
-                <data
-                    android:host="pr0gramm.com"
-                    android:pathPattern="/user/*/resetpass/*"
-                    android:scheme="http"/>
-                <data
-                    android:host="pr0gramm.com"
-                    android:pathPattern="/user/*/resetpass/*"
-                    android:scheme="https"/>
-            </intent-filter>
-            -->
         </activity>
         <activity
             android:name=".ui.PasswordRecoveryActivity"
