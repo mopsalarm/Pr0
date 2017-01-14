@@ -59,6 +59,7 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
+import com.pr0gramm.app.io.Cache;
 import com.pr0gramm.app.ui.views.AspectLayout;
 import com.pr0gramm.app.util.AndroidUtility;
 
@@ -68,8 +69,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
-
-import okhttp3.OkHttpClient;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses;
@@ -239,6 +238,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
     @Override
     public void seekTo(int position) {
+        logger.info("Seeking to position {}", position);
         exo.seekTo(position);
     }
 
@@ -496,8 +496,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 };
             } else {
                 logger.info("Got a remote file, using caching source.");
-                OkHttpClient httpClient = Dagger.appComponent(context).okHttpClient();
-                return new InputStreamCacheDataSource(context, httpClient, uri);
+                Cache cache = Dagger.appComponent(context).cache();
+                return new InputStreamCacheDataSource(uri, cache);
             }
         }
     }

@@ -3,6 +3,7 @@ package com.pr0gramm.app;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.analytics.Tracker;
+import com.pr0gramm.app.io.Cache;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.MessageReplyReceiver;
@@ -59,6 +60,8 @@ public interface AppComponent {
     UserSuggestionService suggestionService();
 
     Tracker googleAnalyticsTracker();
+
+    Cache cache();
 
     void inject(SyncIntentService service);
 

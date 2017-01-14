@@ -109,19 +109,22 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
                 .subscribe(this::showBusyIndicator);
 
 
-        long seekCacheKey = config.mediaUri().getId();
-
         videoPlayer.detaches().subscribe(event -> {
-            seekToCache.put(seekCacheKey, videoPlayer.currentPosition());
+            storePlaybackPosition();
         });
 
+        restorePreviousSeek();
+
+        publishControllerView(muteButtonView);
+    }
+
+    private void restorePreviousSeek() {
         // restore seek position if known
         Integer seekTo = seekToCache.getIfPresent(config.mediaUri().getId());
         if (seekTo != null) {
+            logger.info("Restoring playback position {}", seekTo);
             videoPlayer.seekTo(seekTo);
         }
-
-        publishControllerView(muteButtonView);
     }
 
     @Override
@@ -149,6 +152,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             videoPlayer.setVideoCallbacks(this);
             videoPlayer.open(getEffectiveUri());
         }
+
+        // restore seek position if known
+        restorePreviousSeek();
 
         videoPlayer.start();
     }
@@ -270,6 +276,14 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         videoPlayer.pause();
         audioManager.abandonAudioFocus(afChangeListener);
+
+        storePlaybackPosition();
+    }
+
+    public void storePlaybackPosition() {
+        int currentPosition = videoPlayer.currentPosition();
+        seekToCache.put(config.mediaUri().getId(), currentPosition);
+        logger.info("Stored current position {}", currentPosition);
     }
 
     @Override
@@ -314,6 +328,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Override
     protected void userSeekTo(float fraction) {
+        logger.info("User wants to seek to position {}", fraction);
         videoPlayer.seekTo((int) (fraction * videoPlayer.duration()));
     }
 
