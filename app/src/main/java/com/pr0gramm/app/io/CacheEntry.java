@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -257,6 +258,9 @@ class CacheEntry implements Cache.Entry {
 
             logger.info("Resume caching for {}", this);
             response = httpClient.newCall(request).execute();
+            if (response.code() == 404)
+                throw new FileNotFoundException("File not found at " + response.request().url());
+
             if (response.code() != 206)
                 throw new IOException("Expected status code 206, got " + response.code());
 

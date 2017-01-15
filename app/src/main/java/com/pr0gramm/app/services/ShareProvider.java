@@ -23,6 +23,7 @@ import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.feed.FeedItem;
+import com.pr0gramm.app.io.Cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,6 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -46,7 +43,7 @@ public class ShareProvider extends ContentProvider {
     private static final Logger logger = LoggerFactory.getLogger("ShareProvider");
 
     @Inject
-    OkHttpClient httpClient;
+    Cache cache;
 
     @Override
     public boolean onCreate() {
@@ -96,15 +93,7 @@ public class ShareProvider extends ContentProvider {
 
     private long getSizeForUri(Uri uri) throws IOException {
         String url = decode(uri).toString();
-
-        Request request = new Request.Builder().url(url).head().build();
-        Response response = httpClient.newCall(request).execute();
-        try {
-            return response.body().contentLength();
-
-        } finally {
-            response.body().close();
-        }
+        return cache.entryOf(Uri.parse(url)).totalSize();
     }
 
     @Override
@@ -140,8 +129,7 @@ public class ShareProvider extends ContentProvider {
         return openPipeHelper(uri, null, null, null, (output, uri1, mimeType, opts, args) -> {
             try {
                 if (url.matches("https?://.*")) {
-                    Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute();
-                    try (InputStream source = response.body().byteStream()) {
+                    try (InputStream source = cache.entryOf(Uri.parse(url)).inputStreamAt(0)) {
                         // stream the data to the caller
                         ByteStreams.copy(source, new FileOutputStream(output.getFileDescriptor()));
                     }

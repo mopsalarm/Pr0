@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.jakewharton.picasso.OkHttp3Downloader;
@@ -66,6 +67,7 @@ public class HttpModule {
 
                 .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
 
+                .addInterceptor(new DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))
                 .addNetworkInterceptor(BuildConfig.DEBUG ? StethoWrapper.networkInterceptor() : noop)
 
@@ -95,10 +97,10 @@ public class HttpModule {
 
     @Provides
     @Singleton
-    public ProxyService proxyService(Settings settings, OkHttpClient httpClient) {
+    public ProxyService proxyService(com.pr0gramm.app.io.Cache cache) {
         for (int i = 0; i < 10; i++) {
             try {
-                HttpProxyService proxy = new HttpProxyService(httpClient);
+                HttpProxyService proxy = new HttpProxyService(cache);
                 proxy.start();
 
                 // return the proxy
@@ -155,6 +157,29 @@ public class HttpModule {
                     .build();
 
             return chain.proceed(request);
+        }
+    }
+
+    private static class DoNotCacheInterceptor implements Interceptor {
+        private static final Logger logger = LoggerFactory.getLogger("DoNotCacheInterceptor");
+
+        private final ImmutableSet<String> domains;
+
+        DoNotCacheInterceptor(String... domains) {
+            this.domains = ImmutableSet.copyOf(domains);
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request();
+            Response response = chain.proceed(request);
+
+            if (domains.contains(request.url().host())) {
+                logger.info("Disable caching for {}", request.url());
+                response.header("Cache-Control", "no-store");
+            }
+
+            return response;
         }
     }
 }

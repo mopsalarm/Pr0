@@ -33,9 +33,9 @@ public class MediaViews {
             return new DelayedMediaView(config.withMediaUri(config.mediaUri().withDelay(false)));
         }
 
-//        if (!config.mediaUri().isLocal()) {
-//            config = config.withMediaUri(config.mediaUri().withProxy(true));
-//        }
+        if (!config.mediaUri().isLocal() && config.mediaUri().getMediaType() != MediaUri.MediaType.VIDEO) {
+            config = config.withMediaUri(config.mediaUri().withProxy(true));
+        }
 
         final MediaUri uri = config.mediaUri();
         if (uri.getMediaType() == MediaUri.MediaType.VIDEO) {

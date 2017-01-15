@@ -1,16 +1,13 @@
 package com.pr0gramm.app.services.proxy;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
-import com.google.common.primitives.Ints;
-import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.io.Cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,16 +15,15 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import fi.iki.elonen.NanoHTTPD;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
@@ -37,25 +33,28 @@ import static java.lang.System.currentTimeMillis;
  */
 @Singleton
 public class HttpProxyService extends NanoHTTPD implements ProxyService {
-    static final Logger logger = LoggerFactory.getLogger("HttpProxyService");
+    private static final Logger logger = LoggerFactory.getLogger("HttpProxyService");
 
     private static final Response ERROR_RESPONSE = newFixedLengthResponse(
             Response.Status.INTERNAL_ERROR, "text/plain", null);
 
+    private static final Response ERROR_RESPONSE_NOT_FOUND = newFixedLengthResponse(
+            Response.Status.NOT_FOUND, "text/plain", null);
+
     private final String nonce;
-    private final OkHttpClient okHttpClient;
+    private final Cache cache;
     private final int port;
 
     @Inject
-    public HttpProxyService(OkHttpClient okHttpClient) {
-        this(okHttpClient, getRandomPort());
+    public HttpProxyService(Cache cache) {
+        this(cache, getRandomPort());
     }
 
-    private HttpProxyService(OkHttpClient okHttpClient, int port) {
+    private HttpProxyService(Cache cache, int port) {
         super("127.0.0.1", port);
+        this.cache = cache;
 
         this.port = port;
-        this.okHttpClient = okHttpClient;
         this.nonce = Hashing.md5().hashLong(currentTimeMillis()).toString();
         logger.info("Open simple proxy on port " + port);
     }
@@ -66,7 +65,7 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
      * @return A random free port number
      */
     private static int getRandomPort() {
-        return (int) (10000 + (Math.random() * 40000));
+        return (int) (10000 + (Math.random() * 20000));
     }
 
     @Override
@@ -131,60 +130,83 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
                 guessContentType(file.toString()), stream, size);
 
         response.setGzipEncoding(false);
+        response.setChunkedTransfer(false);
         return response;
     }
 
     private Response proxyHttpUri(IHTTPSession session, final String url) throws IOException {
-        Request request = buildRequest(url, session);
-        okhttp3.Response response = okHttpClient.newCall(request).execute();
+        Cache.Entry entry = cache.entryOf(Uri.parse(url));
 
-        Response.IStatus status = translateStatus(response.code(), response.message());
-        String contentType = response.header("Content-Type", guessContentType(url));
+        int totalSize = entry.totalSize();
 
-        InputStream stream;
-        final Optional<Integer> length = parseContentLength(response);
-        if (length.isPresent()) {
-            stream = new BlockingInputStream(response, length.get(), url);
+        ContentRange range = null;
+        String rangeValue = session.getHeaders().get("Range");
+        if (rangeValue != null) {
+            range = ContentRange.parse(rangeValue, totalSize);
+        }
+
+        InputStream input = entry.inputStreamAt(range != null ? range.start : 0);
+        String contentType = guessContentType(url);
+
+        Response.Status status;
+        int contentLength;
+        if (range != null) {
+            status = Response.Status.PARTIAL_CONTENT;
+            contentLength = range.length();
+
+            // limit the input stream to the content amount
+            input = ByteStreams.limit(input, contentLength);
         } else {
-            stream = response.body().byteStream();
+            status = Response.Status.OK;
+            contentLength = totalSize;
         }
 
-        if (BuildConfig.DEBUG && response.cacheResponse() != null) {
-            logger.info("Response came from the cache");
-        }
-
-        Response result = newFixedLengthResponse(status, contentType, stream, length.or(-1));
+        Response result = newFixedLengthResponse(status, contentType, input, totalSize);
         result.setGzipEncoding(false);
         result.setChunkedTransfer(false);
-        // result.addHeader("Accept-Range", "bytes");
+        result.addHeader("Accept-Ranges", "bytes");
         result.addHeader("Cache-Content", "no-cache");
+        result.addHeader("Content-Length", String.valueOf(contentLength));
 
-        // forward content range header
-//        String contentRange = response.header("Content-Range");
-//        if (contentRange != null)
-//            result.addHeader("Content-Range", contentRange);
-
-        if (length.isPresent()) {
-            result.addHeader("Content-Length", String.valueOf(length.get()));
+        if (range != null) {
+            result.addHeader("Content-Range", String.format("bytes %d-%d/%d", range.start, range.end, totalSize));
         }
 
-        logger.info("Start sending {} ({} kb)", url, length.or(-1) / 1024);
+        logger.info("Start sending {} ({} kb)", url, totalSize / 1024);
         return result;
     }
 
-    /**
-     * Parses the content length. Will return null, if the length is not parsable
-     * or not a positive number.
-     *
-     * @return The content length.
-     */
-    private Optional<Integer> parseContentLength(okhttp3.Response response) {
-        Integer parsed = Ints.tryParse(response.header("Content-Length", ""));
-        if (parsed != null && parsed <= 0) {
-            parsed = null;
+    private static class ContentRange {
+        final int start;
+        final int end;
+
+        private ContentRange(int start, int end) {
+            this.start = start;
+            this.end = end;
         }
 
-        return Optional.fromNullable(parsed);
+        public int length() {
+            return 1 + end - start;
+        }
+
+        public static ContentRange parse(String inputValue, int totalSize) {
+            Matcher matcher = Pattern.compile("^(\\d*)-(\\d*)").matcher(inputValue);
+            if (!matcher.find()) {
+                throw new IllegalArgumentException("Could not parse content range from input.");
+            }
+
+            int start = 0;
+            if (matcher.group(1).length() > 0) {
+                start = Integer.parseInt(matcher.group(1), 10);
+            }
+
+            int end = totalSize - 1;
+            if (matcher.group(2).length() > 0) {
+                end = Integer.parseInt(matcher.group(2), 10);
+            }
+
+            return new ContentRange(start, end);
+        }
     }
 
     /**
@@ -206,66 +228,6 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
             return "image/gif";
         } else {
             return "application/octet-stream";
-        }
-    }
-
-    private static Request buildRequest(String url, IHTTPSession session) {
-        Request.Builder req = new Request.Builder().url(url);
-
-        // forward the range header
-        // String range = session.getHeaders().get("range");
-        // if (range != null)
-        //    req = req.addHeader("Range", range);
-
-        return req.build();
-    }
-
-    private static Response.IStatus translateStatus(int code, String description) {
-        return new Response.IStatus() {
-            @Override
-            public int getRequestStatus() {
-                return code;
-            }
-
-            @Override
-            public String getDescription() {
-                return code + " " + firstNonNull(description, "unknown");
-            }
-        };
-    }
-
-    /**
-     * Reads data in exactly the requested block sizes, if possible.
-     * Also prints debug information, if available.
-     */
-    private static class BlockingInputStream extends FilterInputStream {
-        private int read;
-        private final String url;
-        private final int length;
-
-        public BlockingInputStream(okhttp3.Response response, int length, String url) {
-            super(response.body().byteStream());
-
-            this.url = url;
-            this.length = length;
-        }
-
-        @Override
-        public int read(@NonNull byte[] buffer, int byteOffset, int byteCount) throws IOException {
-            int result = ByteStreams.read(in, buffer, byteOffset, byteCount);
-
-            if (BuildConfig.DEBUG && read / 500_000 != (read + result) / 500_000) {
-                int percent = 100 * read / length;
-                int loaded = (read + result) / 1024;
-                logger.info("Approx {}% loaded ({}, {}kb)", percent, url, loaded);
-
-                read += result;
-                if (read == length) {
-                    logger.info("Finished sending file {}", url);
-                }
-            }
-
-            return result == 0 ? -1 : result;
         }
     }
 }

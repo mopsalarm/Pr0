@@ -56,8 +56,7 @@ public class ImageMediaView extends MediaView {
     SingleShotService singleShotService;
 
     ImageMediaView(Config config) {
-        super(ImmutableConfig.copyOf(config).withMediaUri(config.mediaUri().withProxy(false)),
-                R.layout.player_kind_image);
+        super(config, R.layout.player_kind_image);
 
         zoomView = findViewById(R.id.tabletlayout) != null;
 
