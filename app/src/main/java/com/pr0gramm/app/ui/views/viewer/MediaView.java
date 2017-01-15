@@ -138,8 +138,11 @@ public abstract class MediaView extends FrameLayout {
             thumbnail.onCompleted();
         });
 
-        if (ThumbyService.isEligibleForPreview(mediaUri)) {
-            RxView.attaches(this).limit(1).subscribe(event -> {
+        if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
+            logger.info("XXX {}, {}", preview != null, mediaUri);
+
+            RxView.attachEvents(this).limit(1).subscribe(event -> {
+
                 // test if we need to load the thumby preview.
                 if (hasPreviewView()) {
                     Uri uri = ThumbyService.thumbUri(mediaUri);
@@ -275,6 +278,8 @@ public abstract class MediaView extends FrameLayout {
      */
     public void removePreviewImage() {
         AndroidUtility.removeView(preview);
+        preview = null;
+
         onPreviewRemoved();
     }
 
