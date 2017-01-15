@@ -108,7 +108,7 @@ public class HttpModule {
                     return fallback.load(uri, networkPolicy);
                 } else {
                     logger.debug("Using cache to download image {}", uri);
-                    try (com.pr0gramm.app.io.Cache.Entry entry = cache.entryOf(uri)) {
+                    try (com.pr0gramm.app.io.Cache.Entry entry = cache.get(uri)) {
                         boolean fullyCached = entry.fractionCached() == 1;
                         return new Response(entry.inputStreamAt(0), fullyCached, entry.totalSize());
                     }

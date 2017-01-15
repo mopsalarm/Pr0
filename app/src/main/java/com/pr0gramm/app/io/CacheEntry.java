@@ -32,7 +32,7 @@ import rx.schedulers.Schedulers;
 /**
  * A entry that is hold by the {@link Cache}.
  */
-class CacheEntry implements Cache.Entry {
+final class CacheEntry implements Cache.Entry {
     private static final int PAYLOAD_OFFSET = 16;
 
     private final Logger logger = LoggerFactory.getLogger("CacheEntry");
@@ -56,8 +56,7 @@ class CacheEntry implements Cache.Entry {
         this.uri = uri;
     }
 
-    @Override
-    public int read(int pos, byte[] data, int offset, int amount) throws IOException {
+    int read(int pos, byte[] data, int offset, int amount) throws IOException {
         ensureInitialized();
 
         // check how much we can actually read at most!
@@ -245,10 +244,8 @@ class CacheEntry implements Cache.Entry {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private int resumeCaching(int offset) throws IOException {
-        Response response = null;
 
         cachingStarted();
-
         try {
             Request request = new Request.Builder()
                     .url(uri.toString())
@@ -257,29 +254,29 @@ class CacheEntry implements Cache.Entry {
                     .build();
 
             logger.debug("Resume caching for {}", this);
-            response = httpClient.newCall(request).execute();
-            if (response.code() == 404)
-                throw new FileNotFoundException("File not found at " + response.request().url());
+            Response response = httpClient.newCall(request).execute();
+            try {
+                if (response.code() == 403)
+                    throw new IOException("Not allowed to read file, are you on a public wifi?");
 
-            if (response.code() != 206)
-                throw new IOException("Expected status code 206, got " + response.code());
+                if (response.code() == 404)
+                    throw new FileNotFoundException("File not found at " + response.request().url());
 
-            // now that we have the response, we'll write it to the file in
-            // another thread
-            int contentLength = (int) response.body().contentLength();
+                if (response.code() != 206)
+                    throw new IOException("Expected status code 206, got " + response.code());
 
-            Response r = response;
-            doAsync(() -> writeResponseToEntry(r));
-
-            return contentLength;
-
-        } catch (IOException err) {
-            if (response != null) {
+            } catch (IOException | RuntimeException err) {
                 response.close();
+                throw err;
             }
 
-            cachingStopped();
+            // read the response in some other thread.
+            doAsync(() -> writeResponseToEntry(response));
 
+            return (int) response.body().contentLength();
+
+        } catch (IOException | RuntimeException err) {
+            cachingStopped();
             throw err;
         }
     }
@@ -293,9 +290,28 @@ class CacheEntry implements Cache.Entry {
     /**
      * Increment the refCount
      */
-    CacheEntry incrementRefCount() {
+    public CacheEntry incrementRefCount() {
         refCount.incrementAndGet();
         return this;
+    }
+
+    /**
+     * Deletes the file if it is currently closed.
+     */
+    public boolean deleteIfClosed() {
+        synchronized (lock) {
+            if (fp != null) {
+                return false;
+            }
+
+            if (!file.delete()) {
+                logger.warn("Could not delete file {}", file);
+                return false;
+            }
+
+            // deletion went good!
+            return true;
+        }
     }
 
     /**

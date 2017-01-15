@@ -25,8 +25,16 @@ class InputStreamCacheDataSource implements BufferedDataSource {
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
-        entry = cache.entryOf(uri);
+        entry = cache.get(uri);
+
+        // get the input stream from the entry.
         inputStream = entry.inputStreamAt((int) dataSpec.position);
+
+        if (dataSpec.length >= 0) {
+            // limit amount to the requestet length.
+            inputStream = ByteStreams.limit(inputStream, dataSpec.length);
+        }
+
         return entry.totalSize();
     }
 
@@ -37,8 +45,10 @@ class InputStreamCacheDataSource implements BufferedDataSource {
             entry = null;
         }
 
-        Closeables.closeQuietly(inputStream);
-        inputStream = null;
+        if (inputStream != null) {
+            Closeables.closeQuietly(inputStream);
+            inputStream = null;
+        }
     }
 
     @Override
@@ -56,6 +66,6 @@ class InputStreamCacheDataSource implements BufferedDataSource {
      */
     @Override
     public float buffered() {
-        return entry.fractionCached();
+        return entry != null ? entry.fractionCached() : -1;
     }
 }

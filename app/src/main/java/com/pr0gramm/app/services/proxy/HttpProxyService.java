@@ -1,6 +1,8 @@
 package com.pr0gramm.app.services.proxy;
 
+import android.annotation.TargetApi;
 import android.net.Uri;
+import android.os.Build;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
@@ -134,46 +136,47 @@ public class HttpProxyService extends NanoHTTPD implements ProxyService {
         return response;
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private Response proxyHttpUri(IHTTPSession session, final String url) throws IOException {
-        Cache.Entry entry = cache.entryOf(Uri.parse(url));
+        try (Cache.Entry entry = cache.get(Uri.parse(url))) {
+            int totalSize = entry.totalSize();
 
-        int totalSize = entry.totalSize();
+            ContentRange range = null;
+            String rangeValue = session.getHeaders().get("Range");
+            if (rangeValue != null) {
+                range = ContentRange.parse(rangeValue, totalSize);
+            }
 
-        ContentRange range = null;
-        String rangeValue = session.getHeaders().get("Range");
-        if (rangeValue != null) {
-            range = ContentRange.parse(rangeValue, totalSize);
+            InputStream input = entry.inputStreamAt(range != null ? range.start : 0);
+            String contentType = guessContentType(url);
+
+            Response.Status status;
+            int contentLength;
+            if (range != null) {
+                status = Response.Status.PARTIAL_CONTENT;
+                contentLength = range.length();
+
+                // limit the input stream to the content amount
+                input = ByteStreams.limit(input, contentLength);
+            } else {
+                status = Response.Status.OK;
+                contentLength = totalSize;
+            }
+
+            Response result = newFixedLengthResponse(status, contentType, input, totalSize);
+            result.setGzipEncoding(false);
+            result.setChunkedTransfer(false);
+            result.addHeader("Accept-Ranges", "bytes");
+            result.addHeader("Cache-Content", "no-cache");
+            result.addHeader("Content-Length", String.valueOf(contentLength));
+
+            if (range != null) {
+                result.addHeader("Content-Range", String.format("bytes %d-%d/%d", range.start, range.end, totalSize));
+            }
+
+            logger.info("Start sending {} ({} kb)", url, totalSize / 1024);
+            return result;
         }
-
-        InputStream input = entry.inputStreamAt(range != null ? range.start : 0);
-        String contentType = guessContentType(url);
-
-        Response.Status status;
-        int contentLength;
-        if (range != null) {
-            status = Response.Status.PARTIAL_CONTENT;
-            contentLength = range.length();
-
-            // limit the input stream to the content amount
-            input = ByteStreams.limit(input, contentLength);
-        } else {
-            status = Response.Status.OK;
-            contentLength = totalSize;
-        }
-
-        Response result = newFixedLengthResponse(status, contentType, input, totalSize);
-        result.setGzipEncoding(false);
-        result.setChunkedTransfer(false);
-        result.addHeader("Accept-Ranges", "bytes");
-        result.addHeader("Cache-Content", "no-cache");
-        result.addHeader("Content-Length", String.valueOf(contentLength));
-
-        if (range != null) {
-            result.addHeader("Content-Range", String.format("bytes %d-%d/%d", range.start, range.end, totalSize));
-        }
-
-        logger.info("Start sending {} ({} kb)", url, totalSize / 1024);
-        return result;
     }
 
     private static class ContentRange {

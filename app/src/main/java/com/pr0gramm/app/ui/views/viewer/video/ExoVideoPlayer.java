@@ -50,7 +50,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.base.Optional;
@@ -485,20 +484,8 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
         @Override
         public DataSource createDataSource() {
-            if ("file".equals(uri.getScheme())) {
-                logger.info("Got a local file, reading directly from that file.");
-                return new ForwardingDataSource(new FileDataSource()) {
-                    @Override
-                    public float buffered() {
-                        // always fully buffered.
-                        return 1;
-                    }
-                };
-            } else {
-                logger.info("Got a remote file, using caching source.");
-                Cache cache = Dagger.appComponent(context).cache();
-                return new InputStreamCacheDataSource(uri, cache);
-            }
+            Cache cache = Dagger.appComponent(context).cache();
+            return new InputStreamCacheDataSource(uri, cache);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.pr0gramm.app.io;
 import android.content.Context;
 import android.net.Uri;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.BuildConfig;
 
@@ -26,6 +27,8 @@ import okhttp3.OkHttpClient;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
+import static com.pr0gramm.app.util.AndroidUtility.toFile;
+
 /**
  * A cache we can use for linear caching of http requests.
  */
@@ -36,7 +39,7 @@ public class Cache {
     private final Logger logger = LoggerFactory.getLogger("Cache");
 
     private final Object lock = new Object();
-    private final Map<String, CacheEntry> cache = new HashMap<>();
+    private final Map<String, Entry> cache = new HashMap<>();
 
     private final long maxCacheSize;
     private final File root;
@@ -68,7 +71,7 @@ public class Cache {
     private void printCache() {
         synchronized (cache) {
             logger.debug("Cache:");
-            for (CacheEntry entry : cache.values()) {
+            for (Entry entry : cache.values()) {
                 logger.debug("  * {}", entry);
             }
         }
@@ -78,22 +81,36 @@ public class Cache {
      * Returns a cached or caching entry. You need to close your reference
      * once you are finish with it.
      */
-    public Cache.Entry entryOf(Uri uri) {
+    public Cache.Entry get(Uri uri) {
         String key = uri.toString();
 
         synchronized (lock) {
-            CacheEntry entry = cache.get(key);
+            Entry entry = cache.get(key);
             if (entry == null) {
                 entry = createEntry(uri);
                 cache.put(key, entry);
             }
 
-            return entry.incrementRefCount();
+            return refCountIfNeeded(entry);
         }
     }
 
-    private CacheEntry createEntry(Uri uri) {
+    private Entry refCountIfNeeded(Entry entry) {
+        if (entry instanceof CacheEntry) {
+            ((CacheEntry) entry).incrementRefCount();
+        }
+
+        return entry;
+    }
+
+    private Entry createEntry(Uri uri) {
         logger.debug("Creating a new cache entry for uri {}", uri);
+
+        // just open the file directly if it is local.
+        if ("file".equals(uri.getScheme())) {
+            return new FileEntry(toFile(uri));
+        }
+
         File cacheFile = cacheFileFor(uri);
         return new CacheEntry(httpClient, cacheFile, uri);
     }
@@ -144,26 +161,22 @@ public class Cache {
         }
 
         synchronized (lock) {
-            for (Map.Entry<String, CacheEntry> entry : cache.entrySet()) {
-                if (entry.getValue().file.getName().equals(file.getName())) {
-                    // remove the entry from our cache
-                    cache.remove(entry.getKey());
-
-                    // close our reference to the entry
-                    entry.getValue().close();
-
-                    break;
+            for (Entry entry : cache.values()) {
+                if (entry instanceof CacheEntry) {
+                    if (((CacheEntry) entry).deleteIfClosed()) {
+                        // remove the entry from our cache
+                        Iterables.removeIf(cache.values(), entry::equals);
+                        break;
+                    }
                 }
             }
         }
     }
 
     public interface Entry extends Closeable {
-        int read(int pos, byte[] bytes, int offset, int length) throws IOException;
-
         int totalSize() throws IOException;
 
-        InputStream inputStreamAt(int offset);
+        InputStream inputStreamAt(int offset) throws IOException;
 
         /**
          * Returns a value between 0 and 1 that specifies how much of this

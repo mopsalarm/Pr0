@@ -93,7 +93,7 @@ public class ShareProvider extends ContentProvider {
 
     private long getSizeForUri(Uri uri) throws IOException {
         String url = decode(uri).toString();
-        return cache.entryOf(Uri.parse(url)).totalSize();
+        return cache.get(Uri.parse(url)).totalSize();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class ShareProvider extends ContentProvider {
         return openPipeHelper(uri, null, null, null, (output, uri1, mimeType, opts, args) -> {
             try {
                 if (url.matches("https?://.*")) {
-                    try (InputStream source = cache.entryOf(Uri.parse(url)).inputStreamAt(0)) {
+                    try (InputStream source = cache.get(Uri.parse(url)).inputStreamAt(0)) {
                         // stream the data to the caller
                         ByteStreams.copy(source, new FileOutputStream(output.getFileDescriptor()));
                     }

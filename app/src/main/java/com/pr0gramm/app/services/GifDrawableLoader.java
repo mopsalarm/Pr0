@@ -53,7 +53,7 @@ public class GifDrawableLoader {
                     return;
                 }
 
-                try (Cache.Entry entry = cache.entryOf(uri)) {
+                try (Cache.Entry entry = cache.get(uri)) {
                     loadGifUsingTempFile(subscriber, entry);
                 }
             } catch (Throwable error) {
