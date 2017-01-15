@@ -12,23 +12,17 @@ public final class MediaUri {
     private final long id;
     private final Uri uri;
     private final MediaType mediaType;
-    private final boolean proxy;
     private final boolean delay;
 
     private MediaUri(long id, Uri uri, MediaType mediaType) {
-        this(id, uri, mediaType, false, false);
+        this(id, uri, mediaType, false);
     }
 
-    private MediaUri(long id, Uri uri, MediaType mediaType, boolean proxy, boolean delay) {
+    private MediaUri(long id, Uri uri, MediaType mediaType, boolean delay) {
         this.id = id;
         this.uri = uri;
         this.mediaType = mediaType;
-        this.proxy = proxy;
         this.delay = delay;
-    }
-
-    public boolean hasProxyFlag() {
-        return proxy;
     }
 
     public boolean hasDelayFlag() {
@@ -40,15 +34,11 @@ public final class MediaUri {
     }
 
     public MediaUri withDelay(boolean value) {
-        return new MediaUri(id, uri, mediaType, proxy, value);
-    }
-
-    public MediaUri withProxy(boolean value) {
-        return new MediaUri(id, uri, mediaType, value, delay);
+        return new MediaUri(id, uri, mediaType, value);
     }
 
     public MediaUri withUri(Uri uri, MediaType mediaType) {
-        return new MediaUri(id, uri, mediaType, true, delay);
+        return new MediaUri(id, uri, mediaType, delay);
     }
 
     public MediaType getMediaType() {

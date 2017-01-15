@@ -1,7 +1,10 @@
 package com.pr0gramm.app;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
@@ -55,7 +58,7 @@ public class HttpModule {
 
         int version = AndroidUtility.buildVersionCode();
         return new OkHttpClient.Builder()
-                .cache(new Cache(cacheDir, 256 * 1024 * 1024))
+                .cache(new Cache(cacheDir, 64 * 1024 * 1024))
                 .socketFactory(new SmallBufferSocketFactory())
 
                 .cookieJar(cookieHandler)
@@ -91,8 +94,32 @@ public class HttpModule {
 
     @Provides
     @Singleton
-    public Downloader downloader(OkHttpClient client) {
-        return new OkHttp3Downloader(client);
+    public Downloader downloader(OkHttpClient client, com.pr0gramm.app.io.Cache cache) {
+        OkHttp3Downloader fallback = new OkHttp3Downloader(client);
+
+        return new Downloader() {
+            private final Logger logger = LoggerFactory.getLogger("Picasso.Downloader");
+
+            @TargetApi(Build.VERSION_CODES.KITKAT)
+            @Override
+            public Response load(Uri uri, int networkPolicy) throws IOException {
+                // load thumbnails normally
+                if (uri.getHost().contains("thumb.pr0gramm.com") || uri.getPath().contains("/thumb.jpg")) {
+                    return fallback.load(uri, networkPolicy);
+                } else {
+                    logger.debug("Using cache to download image {}", uri);
+                    try (com.pr0gramm.app.io.Cache.Entry entry = cache.entryOf(uri)) {
+                        boolean fullyCached = entry.fractionCached() == 1;
+                        return new Response(entry.inputStreamAt(0), fullyCached, entry.totalSize());
+                    }
+                }
+            }
+
+            @Override
+            public void shutdown() {
+                fallback.shutdown();
+            }
+        };
     }
 
     @Provides

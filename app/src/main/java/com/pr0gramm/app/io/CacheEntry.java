@@ -65,7 +65,7 @@ class CacheEntry implements Cache.Entry {
 
         // we are at end of file
         if (amount <= 0) {
-            return 0;
+            return -1;
         }
 
         synchronized (lock) {
@@ -124,7 +124,7 @@ class CacheEntry implements Cache.Entry {
                 return;
             }
 
-            logger.info("Entry needs to be initialized: {}", this);
+            logger.debug("Entry needs to be initialized: {}", this);
             initialize();
         }
     }
@@ -135,13 +135,13 @@ class CacheEntry implements Cache.Entry {
      */
     private void ensureCachingIfNeeded() throws IOException {
         if (!caching && !fullyCached()) {
-            logger.info("Caching will start on entry {}", this);
+            logger.debug("Caching will start on entry {}", this);
             resumeCaching(written);
         }
     }
 
     private void cachingStarted() {
-        logger.info("Caching starts now.");
+        logger.debug("Caching starts now.");
 
         synchronized (this) {
             incrementRefCount();
@@ -153,7 +153,7 @@ class CacheEntry implements Cache.Entry {
      * This method is called from the caching thread once caching stops.
      */
     private void cachingStopped() {
-        logger.info("Caching stopped on entry {}", this);
+        logger.debug("Caching stopped on entry {}", this);
         synchronized (lock) {
             if (caching) {
                 caching = false;
@@ -197,20 +197,20 @@ class CacheEntry implements Cache.Entry {
             boolean newlyCreated = length < 4;
 
             if (newlyCreated) {
-                logger.info("Entry is new, no data is previously cached.");
+                logger.debug("Entry is new, no data is previously cached.");
 
                 // start caching now.
                 totalSize = resumeCaching(0);
                 fp.writeInt(totalSize);
 
             } else {
-                logger.info("Found already cached file, loading metadata.");
+                logger.debug("Found already cached file, loading metadata.");
 
                 totalSize = fp.readInt();
                 written = Math.max(0, length - PAYLOAD_OFFSET);
             }
 
-            logger.info("Initialized entry {}", this);
+            logger.debug("Initialized entry {}", this);
 
         } catch (IOException err) {
             // resetting fp on error.
@@ -256,7 +256,7 @@ class CacheEntry implements Cache.Entry {
                     .header("Range", String.format("bytes=%d-", offset))
                     .build();
 
-            logger.info("Resume caching for {}", this);
+            logger.debug("Resume caching for {}", this);
             response = httpClient.newCall(request).execute();
             if (response.code() == 404)
                 throw new FileNotFoundException("File not found at " + response.request().url());
@@ -293,7 +293,7 @@ class CacheEntry implements Cache.Entry {
     /**
      * Increment the refCount
      */
-    Cache.Entry incrementRefCount() {
+    CacheEntry incrementRefCount() {
         refCount.incrementAndGet();
         return this;
     }
@@ -304,8 +304,8 @@ class CacheEntry implements Cache.Entry {
      */
     @Override
     public void close() {
+        this.refCount.decrementAndGet();
         synchronized (lock) {
-            this.refCount.decrementAndGet();
 
             // try to correct value on error :/
             int refCount;
@@ -316,7 +316,7 @@ class CacheEntry implements Cache.Entry {
 
             // close if ref count is zero.
             if (this.refCount.get() <= 0 && this.fp != null) {
-                logger.info("Closing cache file for entry {} now.", this);
+                logger.debug("Closing cache file for entry {} now.", this);
 
                 try {
                     this.fp.close();
@@ -334,8 +334,7 @@ class CacheEntry implements Cache.Entry {
             logger.warn("Could not update timestamp on {}", file);
         }
 
-        incrementRefCount();
-        return new EntryInputStream(this, position);
+        return new EntryInputStream(incrementRefCount(), position);
     }
 
     @Override

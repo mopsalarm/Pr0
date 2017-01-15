@@ -1,9 +1,12 @@
 package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
+import com.pr0gramm.app.io.Cache;
 import com.pr0gramm.app.services.proxy.ProxyService;
 
 import org.slf4j.Logger;
@@ -17,14 +20,9 @@ import java.io.RandomAccessFile;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import pl.droidsonroids.gif.GifDrawable;
 import rx.Observable;
 import rx.Subscriber;
-import rx.subscriptions.Subscriptions;
 
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static java.lang.System.identityHashCode;
@@ -35,15 +33,16 @@ import static java.lang.System.identityHashCode;
 public class GifDrawableLoader {
     private static final Logger logger = LoggerFactory.getLogger("GifLoader");
 
-    private final OkHttpClient okHttpClient;
+    private final Cache cache;
     private final File fileCache;
 
     @Inject
-    public GifDrawableLoader(Context context, OkHttpClient okHttpClient, ProxyService proxyService) {
-        this.okHttpClient = okHttpClient;
+    public GifDrawableLoader(Context context, Cache cache, ProxyService proxyService) {
+        this.cache = cache;
         this.fileCache = context.getCacheDir();
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public Observable<DownloadStatus> load(Uri uri) {
         return Observable.<DownloadStatus>create(subscriber -> {
             try {
@@ -54,24 +53,11 @@ public class GifDrawableLoader {
                     return;
                 }
 
-                // request the gif file
-                Call call = okHttpClient.newCall(new Request.Builder()
-                        .url(uri.toString())
-                        .build());
-
-                // stop the call on unsubscribe
-                subscriber.add(Subscriptions.create(call::cancel));
-
-                Response response = call.execute();
-                if (response.isSuccessful()) {
-                    loadGifUsingTempFile(subscriber, response);
-
-                } else {
-                    subscriber.onError(new IOException(
-                            "Could not download gif, response code: " + response.code()));
+                try (Cache.Entry entry = cache.entryOf(uri)) {
+                    loadGifUsingTempFile(subscriber, entry);
                 }
             } catch (Throwable error) {
-                logger.warn("Error during loading", error);
+                logger.warn("Error during gif-loading", error);
 
                 if (!subscriber.isUnsubscribed())
                     subscriber.onError(error);
@@ -85,8 +71,8 @@ public class GifDrawableLoader {
      * after loading the gif (or on failure).
      */
     @SuppressLint("NewApi")
-    private void loadGifUsingTempFile(Subscriber<? super GifDrawableLoader.DownloadStatus> subscriber,
-                                      Response response) throws IOException {
+    private void loadGifUsingTempFile(Subscriber<? super DownloadStatus> subscriber,
+                                      Cache.Entry entry) throws IOException {
 
         File temporary = new File(fileCache, "tmp" + identityHashCode(subscriber) + ".gif");
 
@@ -100,8 +86,8 @@ public class GifDrawableLoader {
 
             // copy data to the file.
             long lastStatusTime = System.currentTimeMillis();
-            float contentLength = (float) response.body().contentLength();
-            try (InputStream stream = response.body().byteStream()) {
+            float contentLength = (float) entry.totalSize();
+            try (InputStream stream = entry.inputStreamAt(0)) {
                 int length, count = 0;
                 byte[] buffer = new byte[16 * 1024];
                 while ((length = stream.read(buffer)) >= 0) {

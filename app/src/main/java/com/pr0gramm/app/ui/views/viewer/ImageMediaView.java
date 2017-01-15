@@ -13,8 +13,8 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.ErrorFormatting;
-import com.pr0gramm.app.util.PicassoDecoder;
 import com.pr0gramm.app.util.decoders.Decoders;
+import com.pr0gramm.app.util.decoders.PicassoDecoder;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -70,10 +70,10 @@ public class ImageMediaView extends MediaView {
         imageView.setZoomEnabled(zoomView);
 
         // try not to use too much memory, even on big devices
-        imageView.setMaxTileSize(4096);
+        imageView.setMaxTileSize(2048);
 
         imageView.setBitmapDecoderFactory(() -> new PicassoDecoder(tag, picasso));
-        imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
+        imageView.setRegionDecoderFactory(() -> Decoders.newFancyRegionDecoder(downloader));
         imageView.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
             @Override
             public void onImageLoaded() {
@@ -110,7 +110,12 @@ public class ImageMediaView extends MediaView {
         });
 
         // start loading
-        imageView.setImage(ImageSource.uri(getEffectiveUri()));
+        boolean tiling = config.previewInfo()
+                .transform(info -> info.getWidth() > 2000 || info.getHeight() > 2000)
+                .or(false);
+
+        imageView.setImage(ImageSource.uri(getEffectiveUri()).tiling(tiling));
+
         showBusyIndicator();
     }
 

@@ -23,6 +23,7 @@ import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
+import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.AspectLayout;
 import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer;
@@ -69,6 +70,9 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
     @Inject
     SharedPreferences preferences;
+
+    @Inject
+    ProxyService proxyService;
 
     private boolean videoViewInitialized;
 
@@ -150,7 +154,13 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             videoViewInitialized = true;
 
             videoPlayer.setVideoCallbacks(this);
-            videoPlayer.open(getEffectiveUri());
+
+            if (getMediaUri().isLocal() || videoPlayer instanceof ExoVideoPlayer) {
+                videoPlayer.open(getEffectiveUri());
+            } else {
+                // for the old player, we need to proxy the url to improve caching.
+                videoPlayer.open(proxyService.proxy(getEffectiveUri()));
+            }
         }
 
         // restore seek position if known

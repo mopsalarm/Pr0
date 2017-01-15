@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.google.common.collect.Ordering;
+import com.pr0gramm.app.BuildConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,14 @@ import rx.schedulers.Schedulers;
  */
 @Singleton
 public class Cache {
-    private static final int MAX_CACHE_SIZE = 256 * 1024 * 1024;
+    private final long MEGA = 1024 * 1024;
 
     private final Logger logger = LoggerFactory.getLogger("Cache");
 
     private final Object lock = new Object();
     private final Map<String, CacheEntry> cache = new HashMap<>();
 
+    private final long maxCacheSize;
     private final File root;
     private final OkHttpClient httpClient;
 
@@ -52,16 +54,22 @@ public class Cache {
                 .onErrorResumeNext(Observable.empty())
                 .subscribe();
 
-        Observable
-                .interval(5, TimeUnit.SECONDS, Schedulers.io())
-                .subscribe(v -> printCache());
+        // print cache every few seconds for debugging
+        if (BuildConfig.DEBUG) {
+            Observable
+                    .interval(5, TimeUnit.SECONDS, Schedulers.io())
+                    .subscribe(v -> printCache());
+        }
+
+        this.maxCacheSize = (root.getFreeSpace() > 1024 * MEGA ? (256 * MEGA) : (128 * MEGA));
+        logger.debug("Initialized cache with {}mb of space", maxCacheSize / (double) MEGA);
     }
 
     private void printCache() {
         synchronized (cache) {
-            logger.info("Cache:");
-            for (Map.Entry<String, CacheEntry> entry : cache.entrySet()) {
-                logger.info("  {}: {}", entry.getKey(), entry.getValue());
+            logger.debug("Cache:");
+            for (CacheEntry entry : cache.values()) {
+                logger.debug("  * {}", entry);
             }
         }
     }
@@ -85,7 +93,7 @@ public class Cache {
     }
 
     private CacheEntry createEntry(Uri uri) {
-        logger.info("Creating a new cache entry for uri {}", uri);
+        logger.debug("Creating a new cache entry for uri {}", uri);
         File cacheFile = cacheFileFor(uri);
         return new CacheEntry(httpClient, cacheFile, uri);
     }
@@ -94,7 +102,7 @@ public class Cache {
      * Retuns the cache file for the given uri.
      */
     private File cacheFileFor(Uri uri) {
-        String filename = uri.toString().replaceFirst("https?://", "").replaceAll("[^a-z0-9.]+", "_");
+        String filename = uri.toString().replaceFirst("https?://", "").replaceAll("[^a-zA-Z0-9.]+", "_");
         return new File(root, filename);
     }
 
@@ -112,23 +120,25 @@ public class Cache {
                 .reverse()
                 .sortedCopy(Arrays.asList(root.listFiles()));
 
-        logger.info("Doing cache cleanup, found {} files", files.size());
+        logger.debug("Doing cache cleanup, found {} files", files.size());
 
         long totalSize = 0;
         for (File file : files) {
             totalSize += file.length();
 
-            if (totalSize > MAX_CACHE_SIZE) {
+            if (totalSize > maxCacheSize) {
                 forgetEntryForFile(file);
             }
         }
+
+        logger.debug("Cache took {}mb", totalSize / (1024.f * 1024.f));
     }
 
     /**
      * Removes the cached entyr with the given filename.
      */
     private void forgetEntryForFile(File file) {
-        logger.info("Remove old cache file {}", file);
+        logger.debug("Remove old cache file {}", file);
         if (!file.delete()) {
             logger.warn("Could not delete cached file {}", file);
         }

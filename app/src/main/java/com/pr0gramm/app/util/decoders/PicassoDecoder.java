@@ -1,4 +1,4 @@
-package com.pr0gramm.app.util;
+package com.pr0gramm.app.util.decoders;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -28,6 +28,7 @@ public class PicassoDecoder implements ImageDecoder {
                     .config(Bitmap.Config.RGB_565)
                     .memoryPolicy(MemoryPolicy.NO_CACHE)
                     .get();
+
         } catch (OutOfMemoryError error) {
             throw new RuntimeException(error);
         }

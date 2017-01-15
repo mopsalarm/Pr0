@@ -60,7 +60,7 @@ public class DownloadService {
     }
 
     /**
-     * Enqueues an object for download. If an error occures, this method returns
+     * Enqueues an object for download. If an error occurs this method returns
      * the error string. You can then display it as you please.
      */
     public Optional<String> download(FeedItem feedItem) {

@@ -22,7 +22,7 @@ public final class PreviewInfo {
     private final Drawable preview;
 
 
-    public PreviewInfo(long id, Uri thumbnail, int width, int height, @Nullable Drawable drawable) {
+    private PreviewInfo(long id, Uri thumbnail, int width, int height, @Nullable Drawable drawable) {
         this.itemId = id;
         this.previewUri = thumbnail;
         this.width = width;

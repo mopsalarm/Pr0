@@ -9,7 +9,7 @@ import com.squareup.picasso.Downloader;
  * A class
  */
 public class Decoders {
-    public static ImageRegionDecoder regionDecoder(Downloader downloader) {
+    public static ImageRegionDecoder newFancyRegionDecoder(Downloader downloader) {
         //noinspection unchecked
         return new DownloadingRegionDecoder(downloader,
                 FallbackRegionDecoder.chain(

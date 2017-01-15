@@ -25,8 +25,8 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.pr0gramm.app.util.PicassoDecoder;
 import com.pr0gramm.app.util.decoders.Decoders;
+import com.pr0gramm.app.util.decoders.PicassoDecoder;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
@@ -80,7 +80,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         imageView.setMaxTileSize(4096);
         imageView.setDebug(BuildConfig.DEBUG);
         imageView.setBitmapDecoderFactory(() -> new PicassoDecoder(tag, picasso));
-        imageView.setRegionDecoderFactory(() -> Decoders.regionDecoder(downloader));
+        imageView.setRegionDecoderFactory(() -> Decoders.newFancyRegionDecoder(downloader));
 
         rxImageLoaded(imageView)
                 .compose(RxLifecycleAndroid.bindActivity(lifecycle()))

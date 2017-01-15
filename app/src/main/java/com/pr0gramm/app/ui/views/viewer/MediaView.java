@@ -31,7 +31,6 @@ import com.pr0gramm.app.Dagger;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.ThemeHelper;
-import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.views.AspectImageView;
@@ -98,9 +97,6 @@ public abstract class MediaView extends FrameLayout {
 
     @Inject
     InMemoryCacheService inMemoryCacheService;
-
-    @Inject
-    ProxyService proxyService;
 
     @Inject
     FancyExifThumbnailGenerator fancyThumbnailGenerator;
@@ -410,19 +406,15 @@ public abstract class MediaView extends FrameLayout {
     /**
      * Returns the url that this view should display.
      */
-    public MediaUri getMediaUri() {
+    protected MediaUri getMediaUri() {
         return mediaUri;
     }
 
     /**
      * Gets the effective uri that should be downloaded
      */
-    public Uri getEffectiveUri() {
-        if (!mediaUri.isLocal() && mediaUri.hasProxyFlag()) {
-            return proxyService.proxy(mediaUri.getBaseUri());
-        } else {
-            return mediaUri.getBaseUri();
-        }
+    protected Uri getEffectiveUri() {
+        return mediaUri.getBaseUri();
     }
 
     public void playMedia() {
