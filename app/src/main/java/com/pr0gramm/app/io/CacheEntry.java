@@ -64,7 +64,7 @@ final class CacheEntry implements Cache.Entry {
 
         // we are at end of file
         if (amount <= 0) {
-            return -1;
+            return Math.max(-1, amount);
         }
 
         synchronized (lock) {
