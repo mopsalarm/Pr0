@@ -8,10 +8,12 @@ import android.support.annotation.NonNull;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,14 +43,12 @@ final class CacheEntry implements Cache.Entry {
     private final AtomicInteger refCount = new AtomicInteger();
     private final OkHttpClient httpClient;
     private final Uri uri;
+    private final File file;
 
-    final File file;
-
-    private RandomAccessFile fp;
-    private int totalSize;
-    private int written;
-
-    private boolean caching;
+    private volatile RandomAccessFile fp;
+    private volatile int totalSize;
+    private volatile int written;
+    private volatile boolean caching;
 
     CacheEntry(OkHttpClient httpClient, File file, Uri uri) {
         this.httpClient = httpClient;
@@ -59,12 +59,17 @@ final class CacheEntry implements Cache.Entry {
     int read(int pos, byte[] data, int offset, int amount) throws IOException {
         ensureInitialized();
 
+        // if we are at the end of the file, we need to signal that
+        if (pos >= totalSize) {
+            return -1;
+        }
+
         // check how much we can actually read at most!
         amount = Math.min(pos + amount, totalSize) - pos;
 
-        // we are at end of file
+        // do nothing if we can not read anything.
         if (amount <= 0) {
-            return Math.max(-1, amount);
+            return 0;
         }
 
         synchronized (lock) {
@@ -72,10 +77,37 @@ final class CacheEntry implements Cache.Entry {
 
             // okay, we should be able to get the data now.
             seek(pos);
-            fp.readFully(data, offset, amount);
 
-            return amount;
+            // now try to read the bytes we requested
+            int byteCount = read(fp, data, offset, amount);
+
+            // check if we got as much bytes as we wanted to.
+            if (byteCount != amount) {
+                AndroidUtility.logToCrashlytics(
+                        new EOFException("Expected to read %d bytes, but got only %d. Cache entry: " + this));
+            }
+
+            return byteCount;
         }
+    }
+
+    /**
+     * Reads the given number of bytes from the current position of the stream
+     * if possible. The method returns the numbers of bytes actually read.
+     */
+    private static int read(RandomAccessFile fp, byte[] data, int offset, int amount) throws IOException {
+        int totalCount = 0;
+
+        do {
+            int count = fp.read(data, offset + totalCount, amount - totalCount);
+            if (count < 0) {
+                break;
+            }
+
+            totalCount += count;
+        } while (totalCount < amount);
+
+        return totalCount;
     }
 
 
@@ -101,11 +133,11 @@ final class CacheEntry implements Cache.Entry {
     /**
      * Waits until at least the given amount of data is written.
      */
-    private void expectWritten(int byteCount) throws IOException {
+    private void expectWritten(int requiredCount) throws IOException {
         try {
-            while (written < byteCount) {
+            while (written < requiredCount) {
                 ensureCachingIfNeeded();
-                lock.wait();
+                lock.wait(2500);
             }
         } catch (InterruptedException err) {
             throw new InterruptedIOException("Waiting for bytes was interrupted.");
@@ -142,7 +174,7 @@ final class CacheEntry implements Cache.Entry {
     private void cachingStarted() {
         logger.debug("Caching starts now.");
 
-        synchronized (this) {
+        synchronized (lock) {
             incrementRefCount();
             caching = true;
         }
@@ -234,6 +266,9 @@ final class CacheEntry implements Cache.Entry {
                 write(buffer, 0, byteCount);
             }
 
+            // sync file to disk
+            fp.getFD().sync();
+
         } catch (IOException error) {
             logger.error("Could not buffer the complete response.", error);
 
@@ -290,7 +325,7 @@ final class CacheEntry implements Cache.Entry {
     /**
      * Increment the refCount
      */
-    public CacheEntry incrementRefCount() {
+    CacheEntry incrementRefCount() {
         refCount.incrementAndGet();
         return this;
     }
@@ -298,7 +333,7 @@ final class CacheEntry implements Cache.Entry {
     /**
      * Deletes the file if it is currently closed.
      */
-    public boolean deleteIfClosed() {
+    boolean deleteIfClosed() {
         synchronized (lock) {
             if (fp != null) {
                 return false;
@@ -346,7 +381,8 @@ final class CacheEntry implements Cache.Entry {
 
     @Override
     public InputStream inputStreamAt(int position) {
-        if (!file.setLastModified(System.currentTimeMillis())) {
+        // update the time stamp if the cache file already exists.
+        if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
             logger.warn("Could not update timestamp on {}", file);
         }
 
@@ -359,6 +395,16 @@ final class CacheEntry implements Cache.Entry {
             return written / (float) totalSize;
         } else {
             return -1;
+        }
+    }
+
+    /**
+     * Returns the number of bytes that are available too read without caching
+     * from the given position.
+     */
+    int availableStartingAt(int position) {
+        synchronized (lock) {
+            return Math.max(0, written - position);
         }
     }
 
@@ -379,6 +425,7 @@ final class CacheEntry implements Cache.Entry {
     private static class EntryInputStream extends InputStream {
         private final CacheEntry entry;
         private int position;
+        private int mark;
 
         EntryInputStream(CacheEntry entry, int position) {
             this.entry = entry;
@@ -393,15 +440,43 @@ final class CacheEntry implements Cache.Entry {
         @Override
         public int read(@NonNull byte[] bytes, int off, int len) throws IOException {
             int byteCount = entry.read(position, bytes, off, len);
-            position += byteCount;
+            if (byteCount > 0) {
+                position += byteCount;
+            }
 
             return byteCount;
+        }
+
+        @Override
+        public long skip(long amount) throws IOException {
+            amount = Math.max(entry.totalSize(), position + amount) - position;
+            position += amount;
+            return amount;
         }
 
         @Override
         public void close() throws IOException {
             entry.close();
         }
-    }
 
+        @Override
+        public int available() throws IOException {
+            return entry.availableStartingAt(position);
+        }
+
+        @Override
+        public boolean markSupported() {
+            return true;
+        }
+
+        @Override
+        public synchronized void mark(int readlimit) {
+            mark = position;
+        }
+
+        @Override
+        public synchronized void reset() throws IOException {
+            position = mark;
+        }
+    }
 }

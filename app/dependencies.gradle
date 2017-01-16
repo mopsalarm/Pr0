@@ -2,7 +2,7 @@
 ext {
     VersionSupportLibrary = "25.0.1"
     VersionRxBinding = "1.0.0"
-    $VersionImmutables = "2.4.1"
+    VersionImmutables = "2.4.1"
 }
 
 repositories {
