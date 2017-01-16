@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Bugfixes."
+      },
+      {
+        "type": "Fix",
+        "change": "Caching innerhalb der App stark verbessert."
       }
     ]
   },
