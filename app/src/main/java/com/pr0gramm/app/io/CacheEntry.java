@@ -57,6 +57,11 @@ final class CacheEntry implements Cache.Entry {
     }
 
     int read(int pos, byte[] data, int offset, int amount) throws IOException {
+        // Always succeed when reading 0 bytes.
+        if (amount == 0) {
+            return 0;
+        }
+
         ensureInitialized();
 
         // if we are at the end of the file, we need to signal that
@@ -66,11 +71,6 @@ final class CacheEntry implements Cache.Entry {
 
         // check how much we can actually read at most!
         amount = Math.min(pos + amount, totalSize) - pos;
-
-        // do nothing if we can not read anything.
-        if (amount <= 0) {
-            return 0;
-        }
 
         synchronized (lock) {
             expectWritten(pos + amount);
@@ -136,7 +136,7 @@ final class CacheEntry implements Cache.Entry {
     private void expectWritten(int requiredCount) throws IOException {
         try {
             while (written < requiredCount) {
-                ensureCachingIfNeeded();
+                ensureCaching();
                 lock.wait(2500);
             }
         } catch (InterruptedException err) {
@@ -162,9 +162,9 @@ final class CacheEntry implements Cache.Entry {
 
     /**
      * Ensure that the entry is caching data. Caching is needed, if it is not fully
-     * cached yet, and currently not caching
+     * cached yet and currently not caching.
      */
-    private void ensureCachingIfNeeded() throws IOException {
+    private void ensureCaching() throws IOException {
         if (!caching && !fullyCached()) {
             logger.debug("Caching will start on entry {}", this);
             resumeCaching(written);
@@ -449,6 +449,10 @@ final class CacheEntry implements Cache.Entry {
 
         @Override
         public long skip(long amount) throws IOException {
+            if (amount < 0) {
+                return 0;
+            }
+
             amount = Math.min(entry.totalSize(), position + amount) - position;
             position += amount;
             return amount;
