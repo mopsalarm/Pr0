@@ -402,7 +402,7 @@ final class CacheEntry implements Cache.Entry {
      * Returns the number of bytes that are available too read without caching
      * from the given position.
      */
-    int availableStartingAt(int position) {
+    private int availableStartingAt(int position) {
         synchronized (lock) {
             return Math.max(0, written - position);
         }
@@ -449,7 +449,7 @@ final class CacheEntry implements Cache.Entry {
 
         @Override
         public long skip(long amount) throws IOException {
-            amount = Math.max(entry.totalSize(), position + amount) - position;
+            amount = Math.min(entry.totalSize(), position + amount) - position;
             position += amount;
             return amount;
         }
