@@ -84,7 +84,7 @@ final class CacheEntry implements Cache.Entry {
             // check if we got as much bytes as we wanted to.
             if (byteCount != amount) {
                 AndroidUtility.logToCrashlytics(
-                        new EOFException("Expected to read %d bytes, but got only %d. Cache entry: " + this));
+                        new EOFException(String.format("Expected to read %d bytes at %d, but got only %d. Cache entry: %s", amount, pos, byteCount, this)));
             }
 
             return byteCount;
@@ -121,9 +121,12 @@ final class CacheEntry implements Cache.Entry {
         ensureInitialized();
 
         synchronized (lock) {
-            seek(written);
-            fp.write(data, offset, amount);
-            written += amount;
+            // only really write if we have a positive amount here.
+            if (amount > 0) {
+                seek(written);
+                fp.write(data, offset, amount);
+                written += amount;
+            }
 
             // tell the readers about the new data.
             lock.notifyAll();
@@ -219,26 +222,36 @@ final class CacheEntry implements Cache.Entry {
             }
         }
 
+        // we expect the hash of the filename as the checksum.
+        int expectedChecksum = file.getName().hashCode();
+
         // open the file in read/write mode, creating it if it did not exist.
         fp = new RandomAccessFile(file, "rw");
         try {
-            // get the length of the file to check if we just created it, or if it already
-            // contains data.
+            // get the length of the file and the checksum to test if we just created it,
+            // or if it already contains data.
             int length = (int) fp.length();
-            boolean newlyCreated = length < 4;
+            boolean fileIsValid = length >= 8 && fp.readInt() == expectedChecksum;
 
-            if (newlyCreated) {
+            if (fileIsValid) {
+                logger.debug("Found already cached file, loading metadata.");
+
+                // read the total size from the file now.
+                // We've previously read the first four bytes (checksum).
+                totalSize = fp.readInt();
+                written = Math.max(0, length - PAYLOAD_OFFSET);
+            } else {
                 logger.debug("Entry is new, no data is previously cached.");
+                // we can not have written anything yet.
+                written = 0;
 
                 // start caching now.
                 totalSize = resumeCaching(0);
+
+                // write header at the beginning of the file
+                fp.getChannel().truncate(0);
+                fp.writeInt(expectedChecksum);
                 fp.writeInt(totalSize);
-
-            } else {
-                logger.debug("Found already cached file, loading metadata.");
-
-                totalSize = fp.readInt();
-                written = Math.max(0, length - PAYLOAD_OFFSET);
             }
 
             logger.debug("Initialized entry {}", this);
@@ -407,6 +420,7 @@ final class CacheEntry implements Cache.Entry {
             return Math.max(0, written - position);
         }
     }
+
 
     @Override
     public String toString() {
