@@ -53,7 +53,11 @@ class InputStreamCacheDataSource implements BufferedDataSource {
 
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
-        return ByteStreams.read(inputStream, buffer, offset, readLength);
+        if (readLength == 0) {
+            return 0;
+        }
+
+        return inputStream.read(buffer, offset, readLength);
     }
 
     @Override
