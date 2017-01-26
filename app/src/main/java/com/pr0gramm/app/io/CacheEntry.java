@@ -304,13 +304,17 @@ final class CacheEntry implements Cache.Entry {
             logger.debug("Resume caching for {}", this);
             Response response = httpClient.newCall(request).execute();
             try {
-                if (response.code() == 403)
+                if (response.code() == 200) {
+                    // reset the write-position and just re-write the complete response.
+                    written = 0;
+
+                } else if (response.code() == 403)
                     throw new IOException("Not allowed to read file, are you on a public wifi?");
 
-                if (response.code() == 404)
+                else if (response.code() == 404)
                     throw new FileNotFoundException("File not found at " + response.request().url());
 
-                if (response.code() != 206)
+                else if (response.code() != 206)
                     throw new IOException("Expected status code 206, got " + response.code());
 
             } catch (IOException | RuntimeException err) {
