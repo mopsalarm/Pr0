@@ -19,6 +19,7 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler;
 import com.pr0gramm.app.ui.PermissionHelper;
 
 import java.io.EOFException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.ProtocolException;
@@ -185,6 +186,10 @@ public class ErrorFormatting {
 
         formatters.add(new Formatter<>(JsonSyntaxException.class,
                 R.string.error_json));
+
+        formatters.add(new Formatter<>(Throwable.class,
+                err -> err instanceof FileNotFoundException,
+                R.string.error_post_not_found).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
                 err -> Throwables.getRootCause(err) instanceof TimeoutException,
