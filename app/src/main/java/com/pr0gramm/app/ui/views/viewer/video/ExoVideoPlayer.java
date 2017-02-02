@@ -162,7 +162,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
                 new FragmentedMp4Extractor(), new Mp4Extractor()};
 
         MediaSource mediaSource = new LoopingMediaSource(new ExtractorMediaSource(uri,
-                new DataSourceFactory(context, uri), extractorsFactory, 2, handler,
+                new DataSourceFactory(context, uri), extractorsFactory, handler,
                 new MediaSourceListener(callbacks)));
 
         // apply volume before starting the player
@@ -433,7 +433,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
 
 
         @Override
-        public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder, boolean requiresTunneling) throws MediaCodecUtil.DecoderQueryException {
+        public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder) throws MediaCodecUtil.DecoderQueryException {
             List<MediaCodecInfo> codecs = MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
             // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 

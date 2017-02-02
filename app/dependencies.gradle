@@ -36,7 +36,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:2.1.0"
     compile "com.squareup.retrofit2:converter-gson:2.1.0"
     compile "com.squareup.retrofit2:adapter-rxjava:2.1.0"
-    compile "com.squareup.okhttp3:okhttp:3.5.0"
+    compile "com.squareup.okhttp3:okhttp:3.6.0"
     compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
     compile "pl.droidsonroids.gif:android-gif-drawable:1.2.3"
@@ -54,7 +54,7 @@ dependencies {
     compile "me.leolin:ShortcutBadger:1.1.11@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
 
-    compile "com.google.android.exoplayer:exoplayer:r2.1.1"
+    compile "com.google.android.exoplayer:exoplayer:r2.2.0"
 
     compile "commons-io:commons-io:2.5"
 
