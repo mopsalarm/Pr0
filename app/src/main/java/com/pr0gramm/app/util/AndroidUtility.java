@@ -390,14 +390,6 @@ public class AndroidUtility {
         };
     }
 
-    public static Func1<Boolean, Boolean> isTrue() {
-        return val -> val != null && val;
-    }
-
-    public static Func1<Boolean, Boolean> isFalse() {
-        return val -> val == null || !val;
-    }
-
     public static <T> Func1<T, Boolean> isNotNull() {
         return val -> val != null;
     }

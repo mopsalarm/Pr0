@@ -1,5 +1,14 @@
 [
   {
+    "version": 120,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Man kann nun direkt zu einem Post springen, indem man seine Nummer in die Suche eingibt. Hat die ID weniger als 6 Ziffern, muss der Prefix 'id:' verwendet werden."
+      }
+    ]
+  },
+  {
     "version": 119,
     "changes": [
       {

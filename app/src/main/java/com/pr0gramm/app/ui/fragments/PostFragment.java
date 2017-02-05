@@ -1113,8 +1113,9 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public void onTagClicked(Api.Tag tag) {
-        if (getParentFragment() instanceof PostPagerFragment)
+        if (getParentFragment() instanceof PostPagerFragment) {
             ((PostPagerFragment) getParentFragment()).onTagClicked(tag);
+        }
     }
 
     @Override

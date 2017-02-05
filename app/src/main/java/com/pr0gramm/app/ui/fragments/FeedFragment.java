@@ -25,6 +25,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -902,8 +903,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (equal(current, filter))
             return;
 
+        ItemWithComment startAt = null;
+        if (query.combined().trim().matches("[1-9][0-9]{5,}|id:[0-9]+")) {
+            filter = filter.withTags("");
+            startAt = new ItemWithComment(Long.parseLong(
+                    CharMatcher.digit().retainFrom(query.combined())), null);
+        }
+
         Bundle searchQueryState = searchView.currentState();
-        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, searchQueryState);
+        ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, searchQueryState, startAt);
 
         // store the term for later
         if (query.queryTerm().trim().length() > 0) {

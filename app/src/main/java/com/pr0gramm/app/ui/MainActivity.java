@@ -581,6 +581,13 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     @Override
+    public void onFeedFilterSelected(FeedFilter filter, @Nullable Bundle searchQueryState,
+                                     @Nullable ItemWithComment startAt) {
+
+        gotoFeedFragment(filter, false, startAt, searchQueryState);
+    }
+
+    @Override
     public void pinFeedFilter(FeedFilter filter, String title) {
         bookmarkService.create(filter, title).subscribe(Actions.empty(), defaultOnError());
         drawerLayout.openDrawer(GravityCompat.START);
