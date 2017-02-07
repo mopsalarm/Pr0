@@ -1,9 +1,5 @@
 package com.pr0gramm.app.services;
 
-import android.util.Pair;
-
-import com.google.common.base.Charsets;
-import com.google.common.hash.Hashing;
 import com.google.gson.GsonBuilder;
 import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -34,7 +30,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -91,25 +86,6 @@ public class FavedCommentService {
                 .subscribe(comments -> {
                     updateCommentIds(new TLongHashSet(transform(comments, FavedComment::id)));
                 });
-
-        // migrate if not yet done
-        userHash.filter(FavedCommentService::isUserHashAvailable)
-                .filter(hash -> singleShotService.firstTimeToday("kfav.migrate2-" + hash))
-                .zipWith(userService.accountInfo().retry(2), Pair::create)
-                .flatMap(values -> {
-                    String userHash = values.first;
-                    Api.AccountInfo accountInfo = values.second;
-
-                    String emailHash = Hashing.md5()
-                            .hashString(accountInfo.account().email(), Charsets.UTF_8)
-                            .toString();
-
-                    logger.info("migrating from {} to {} now", emailHash, userHash);
-                    return api.migrate(emailHash, userHash).retry(2);
-                })
-                .doOnError(error -> logger.warn("Could not do the migration."))
-                .onErrorResumeNext(Observable.empty())
-                .subscribe(Actions.empty());
     }
 
     private void updateCommentIds(TLongHashSet commentIds) {
@@ -201,11 +177,6 @@ public class FavedCommentService {
         Observable<List<FavedComment>> list(@Path("userHash") String userHash,
                                             @Query("flags") int flags);
 
-        /**
-         * Migrate from the given user id to the new one.
-         */
-        @POST("migrate")
-        Observable<Void> migrate(@Query("from") String from, @Query("to") String to);
     }
 
     @SuppressWarnings("WeakerAccess")
