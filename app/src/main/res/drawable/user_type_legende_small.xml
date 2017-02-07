@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-       android:shape="oval">
+<rotate
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromDegrees="45"
+    android:toDegrees="45">
 
-    <size
-        android:width="@dimen/user_type_circle_diameter"
-        android:height="@dimen/user_type_circle_diameter"/>
 
-    <solid android:color="@color/user_type_legende"/>
-</shape>
+    <shape android:shape="rectangle">
+        <size
+            android:width="@dimen/user_type_diamond_diameter"
+            android:height="@dimen/user_type_diamond_diameter"/>
+
+        <solid android:color="@color/user_type_legende"/>
+    </shape>
+</rotate>
