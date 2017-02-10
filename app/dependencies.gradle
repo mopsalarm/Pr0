@@ -51,7 +51,7 @@ dependencies {
     compile "com.github.akodiakson:sdkcheck:0.2.4"
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
-    compile "me.leolin:ShortcutBadger:1.1.13@aar"
+    compile "me.leolin:ShortcutBadger:1.1.11@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
 
     compile "com.google.android.exoplayer:exoplayer:r2.2.0"
