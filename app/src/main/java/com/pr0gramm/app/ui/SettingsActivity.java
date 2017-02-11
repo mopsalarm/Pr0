@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -125,7 +126,26 @@ public class SettingsActivity extends BaseAppCompatActivity {
             }
 
             if (!BuildConfig.DEBUG) {
-                hideDebugPreferences();
+                hidePreferenceByName("prefcat_debug");
+            }
+
+            if (!userService.userIsAdmin()) {
+                hidePreferenceByName("pref_show_content_type_flag");
+            }
+        }
+
+        public void hidePreferenceByName(String pref_show_content_type_flag) {
+            Preference pref = getPreferenceScreen().findPreference(pref_show_content_type_flag);
+            if (pref != null) {
+                getPreferenceScreen().removePreference(pref);
+
+                for (int idx = 0; idx < getPreferenceScreen().getPreferenceCount(); idx++) {
+                    Preference preference = getPreferenceScreen().getPreference(idx);
+                    if (preference instanceof PreferenceGroup) {
+                        if (((PreferenceGroup) preference).removePreference(pref))
+                            break;
+                    }
+                }
             }
         }
 
@@ -160,13 +180,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 pref.setEntryValues(entryValues.toArray(new CharSequence[0]));
             } else {
                 pref.setEnabled(false);
-            }
-        }
-
-        private void hideDebugPreferences() {
-            Preference pref = findPreference("prefcat_debug");
-            if (pref != null) {
-                getPreferenceScreen().removePreference(pref);
             }
         }
 
