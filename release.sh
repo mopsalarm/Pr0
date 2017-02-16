@@ -38,10 +38,8 @@ function format_version() {
 }
 
 function deploy_upload_apk() {
-  local FLAVOR=$1
-
-  local APK_ALIGNED=app/build/outputs/apk/app-${FLAVOR}-release.apk
-  local APK_UNALIGNED=app/build/outputs/apk/app-${FLAVOR}-release-unaligned.apk
+  local APK_ALIGNED=app/build/outputs/apk/app-release.apk
+  local APK_UNALIGNED=app/build/outputs/apk/app-release-unaligned.apk
 
   echo "Upload apk file now..."
   curl -u "$UPLOAD_AUTH" -F apk=@"${APK_ALIGNED}" \
@@ -49,11 +47,9 @@ function deploy_upload_apk() {
 }
 
 # compile code and create apks
-./gradlew clean assembleOpenRelease generateOpenDebugSources
+./gradlew clean assembleRelease generateDebugSources
 
-for FLAVOR in "open" ; do
-  deploy_upload_apk ${FLAVOR}
-done
+deploy_upload_apk
 
 # create tag for this version
 git tag -a "$(format_version ${VERSION})" \

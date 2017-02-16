@@ -27,7 +27,8 @@ android {
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 25
+        applicationId "com.pr0gramm.app"
 
         versionCode appVersion
         versionName "1.${(int) (appVersion / 10)}.${(int) (appVersion % 10)}"
@@ -55,7 +56,7 @@ android {
     }
 
     signingConfigs {
-        open {
+        release {
             storeFile file("../release.keystore")
             storePassword "android"
             keyAlias "androiddebugkey"
@@ -81,13 +82,8 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles 'proguard-rules-release.pro', getDefaultProguardFile('proguard-android-optimize.txt')
-        }
-    }
 
-    productFlavors {
-        open {
-            applicationId "com.pr0gramm.app"
-            signingConfig signingConfigs.open
+            signingConfig signingConfigs.release
         }
     }
 
