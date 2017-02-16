@@ -1,6 +1,6 @@
 
 ext {
-    VersionSupportLibrary = "25.0.1"
+    VersionSupportLibrary = "25.1.1"
     VersionRxBinding = "1.0.0"
     VersionImmutables = "2.4.3"
 }
@@ -20,7 +20,7 @@ dependencies {
     compile "javax.annotation:jsr250-api:1.0"
     compile "com.google.code.findbugs:jsr305:3.0.1"
 
-    compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
+    compile("com.android.support:appcompat-v7:25.0.1") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
     }
@@ -29,6 +29,7 @@ dependencies {
     compile "com.android.support:design:$VersionSupportLibrary"
     compile "com.android.support:customtabs:$VersionSupportLibrary"
     compile "com.android.support:palette-v7:$VersionSupportLibrary"
+    compile "com.android.support:support-annotations:$VersionSupportLibrary"
     compile "com.google.android.gms:play-services-analytics:10.0.1"
     compile "com.google.guava:guava:20.0"
 
@@ -59,7 +60,7 @@ dependencies {
     compile "commons-io:commons-io:2.5"
 
     // forked dependencies.
-    compile "com.github.mopsalarm:FinestWebView-Android:2cf36fd5298052490c5bc4535ba6a666c4208202"
+    compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
 
     debugCompile "com.facebook.stetho:stetho:1.4.2"
     debugCompile "com.facebook.stetho:stetho-okhttp3:1.4.2"
@@ -70,8 +71,8 @@ dependencies {
     compile "com.jakewharton:butterknife-annotations:8.5.1"
     apt "com.jakewharton:butterknife-compiler:8.5.1"
 
-    compile "com.f2prateek.dart:dart:2.0.1"
-    apt "com.f2prateek.dart:dart-processor:2.0.1"
+    compile "com.f2prateek.dart:dart:2.0.2"
+    apt "com.f2prateek.dart:dart-processor:2.0.2"
 
     // rx java
     compile "io.reactivex:rxjava:1.2.6"
@@ -87,7 +88,6 @@ dependencies {
     compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7:$VersionRxBinding"
     compile "com.jakewharton.rxbinding:rxbinding-design:$VersionRxBinding"
     compile "com.jakewharton.rxbinding:rxbinding-recyclerview-v7:$VersionRxBinding"
-    compile "com.android.support:support-annotations:$VersionSupportLibrary"
 
     // bottomsheets
     compile "com.flipboard:bottomsheet-core:1.5.3"
