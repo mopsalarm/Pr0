@@ -1,6 +1,6 @@
 
 ext {
-    VersionSupportLibrary = "25.1.1"
+    VersionSupportLibrary = "25.0.1"
     VersionRxBinding = "1.0.0"
     VersionImmutables = "2.4.3"
 }
@@ -20,7 +20,7 @@ dependencies {
     compile "javax.annotation:jsr250-api:1.0"
     compile "com.google.code.findbugs:jsr305:3.0.1"
 
-    compile("com.android.support:appcompat-v7:25.0.1") {
+    compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
     }
