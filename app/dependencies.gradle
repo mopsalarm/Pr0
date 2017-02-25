@@ -1,8 +1,9 @@
 
 ext {
-    VersionSupportLibrary = "25.0.1"
+    VersionSupportLibrary = "25.2.0"
     VersionRxBinding = "1.0.0"
     VersionImmutables = "2.4.3"
+    VersionRetrofit = "2.2.0"
 }
 
 repositories {
@@ -20,6 +21,11 @@ dependencies {
     compile "javax.annotation:jsr250-api:1.0"
     compile "com.google.code.findbugs:jsr305:3.0.1"
 
+    // use older fragment library
+    compile("com.android.support:support-fragment:25.0.1") {
+        force = true
+    }
+
     compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
@@ -30,13 +36,14 @@ dependencies {
     compile "com.android.support:customtabs:$VersionSupportLibrary"
     compile "com.android.support:palette-v7:$VersionSupportLibrary"
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
-    compile "com.google.android.gms:play-services-analytics:10.0.1"
     compile "com.google.guava:guava:20.0"
 
+    compile "com.google.android.gms:play-services-analytics:10.2.0"
+
     compile "net.danlew:android.joda:2.9.5.1"
-    compile "com.squareup.retrofit2:retrofit:2.1.0"
-    compile "com.squareup.retrofit2:converter-gson:2.1.0"
-    compile "com.squareup.retrofit2:adapter-rxjava:2.1.0"
+    compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"
+    compile "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
+    compile "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
     compile "com.squareup.okhttp3:okhttp:3.6.0"
     compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
@@ -75,7 +82,7 @@ dependencies {
     apt "com.f2prateek.dart:dart-processor:2.0.2"
 
     // rx java
-    compile "io.reactivex:rxjava:1.2.6"
+    compile "io.reactivex:rxjava:1.2.7"
     compile "io.reactivex:rxandroid:1.2.1"
     compile "io.reactivex:rxjava-async-util:0.21.0"
     compile "com.artemzin.rxjava:proguard-rules:1.2.6.0"
