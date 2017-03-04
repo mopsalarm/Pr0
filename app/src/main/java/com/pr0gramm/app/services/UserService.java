@@ -8,6 +8,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import com.google.gson.Gson;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -403,7 +404,15 @@ public class UserService {
 
     private boolean isTruthValue(LoginCookieHandler.Cookie cookie) {
         String repr = String.valueOf(cookie.admin);
-        return repr.startsWith("1") || "true".equalsIgnoreCase(repr);
+
+        // try to parse the value as integer.
+        Integer asInteger = Ints.tryParse(repr, 10);
+        if (asInteger != null) {
+            return asInteger != 0;
+        }
+
+        // if it is not an integer, maybe a truth value?
+        return "t".equals(repr) || "true".equalsIgnoreCase(repr);
     }
 
     private Graph loadBenisHistory(int userId) {
