@@ -85,9 +85,6 @@ public class NavigationProvider {
     @BindDrawable(R.drawable.ic_black_action_upload)
     Drawable iconUpload;
 
-    @BindDrawable(R.drawable.ic_drawer_kfav)
-    Drawable iconKFav;
-
     private final Observable<Boolean> extraCategoryApiAvailable;
 
     @Inject

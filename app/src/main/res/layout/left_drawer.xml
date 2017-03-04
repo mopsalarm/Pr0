@@ -125,36 +125,42 @@
         <TextView
             android:id="@+id/action_settings"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_grey_action_settings"
             android:text="@string/action_settings"/>
 
         <TextView
             android:id="@+id/action_contact"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_grey_action_feedback"
             android:text="@string/action_contact"/>
 
         <TextView
             android:id="@+id/action_invite"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_contact_mail_black_24dp"
             android:text="@string/action_invite"/>
 
         <TextView
             android:id="@+id/action_rules"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_assignment"
             android:text="@string/action_rules"/>
 
         <TextView
             android:id="@+id/action_logout"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_black_action_exit"
             android:text="@string/action_logout"/>
 
         <TextView
             android:id="@+id/action_login"
             style="@style/DrawerItem"
+            android:drawableTint="@color/drawer_secondary_action"
             android:drawableLeft="@drawable/ic_grey_action_login"
             android:text="@string/action_login"/>
     </LinearLayout>

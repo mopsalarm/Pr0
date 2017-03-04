@@ -76,6 +76,7 @@
     <string name="theme_blue" translatable="false">Episches Blau</string>
     <string name="theme_orange" translatable="false">Bewährtes Orange</string>
     <string name="theme_green" translatable="false">Angenehmes Grün</string>
+    <string name="theme_black" translatable="false">Verdammtes Schwarz</string>
 
     <string-array name="pref_theme_values">
         <item>ORANGE</item>
@@ -83,6 +84,7 @@
         <item>OLIVE</item>
         <item>BLUE</item>
         <item>PINK</item>
+        <item>BLACK</item>
     </string-array>
 
     <string-array name="pref_theme_human">
@@ -91,6 +93,7 @@
         <item>@string/theme_olive</item>
         <item>@string/theme_blue</item>
         <item>@string/theme_pink</item>
+        <item>@string/theme_black</item>
     </string-array>
 
     <string name="pref_volume_navigation_default" translatable="false">disabled</string>

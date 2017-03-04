@@ -76,49 +76,71 @@
         <item name="appIcon">@drawable/ic_app_blue</item>
     </style>
 
+    <style name="AppTheme.Black">
+        <item name="colorPrimary">@color/black_primary</item>
+        <item name="colorPrimaryDark">@color/black_primary_dark</item>
+        <item name="colorAccent">@color/black_accent</item>
+        <item name="loginBackground">@drawable/login_background_black</item>
+        <item name="roundedCornerBackground">@drawable/rounded_corner_background_black</item>
+        <item name="drawerTheme">@style/DrawerTheme.Black</item>
+        <item name="popupTheme">@style/AppTheme.Popup.Black</item>
+        <item name="alertDialogTheme">@style/AppTheme.Dialog.Black</item>
+        <item name="searchTheme">@style/AppTheme.Black.NoActionBar.WhiteAccent</item>
+        <item name="dropshadowPrimaryDark">@drawable/dropshadow_black_dark</item>
+        <item name="appIcon">@drawable/ic_app_black</item>
+
+        <!-- Extra styles -->
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
     <!-- Now do the same for popup menus -->
-    <style name="AppTheme.Popup" parent="ThemeOverlay.AppCompat.Light"/>
-
-    <style name="AppTheme.Popup.Orange">
-        <item name="colorAccent">@color/orange_primary</item>
+    <style name="AppTheme.Popup.Orange" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/orange_accent</item>
     </style>
 
-    <style name="AppTheme.Popup.Green">
-        <item name="colorAccent">@color/green_primary</item>
+    <style name="AppTheme.Popup.Green" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/green_accent</item>
     </style>
 
-    <style name="AppTheme.Popup.Olive">
-        <item name="colorAccent">@color/olive_primary</item>
+    <style name="AppTheme.Popup.Olive" parent="ThemeOverlay.AppCompat.Light" >
+        <item name="colorAccent">@color/olive_accent</item>
     </style>
 
-    <style name="AppTheme.Popup.Pink">
-        <item name="colorAccent">@color/pink_primary</item>
+    <style name="AppTheme.Popup.Pink" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/pink_accent</item>
     </style>
 
-    <style name="AppTheme.Popup.Blue">
-        <item name="colorAccent">@color/blue_primary</item>
+    <style name="AppTheme.Popup.Blue" parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">@color/blue_accent</item>
+    </style>
+
+    <style name="AppTheme.Popup.Black" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorAccent">@color/black_accent</item>
     </style>
 
     <!-- And for everything based on alert dialogs -->
-    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
-    <style name="AppTheme.Dialog.Orange">
-        <item name="colorAccent">@color/orange_primary</item>
+    <style name="AppTheme.Dialog.Orange" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/orange_accent</item>
     </style>
 
-    <style name="AppTheme.Dialog.Green">
-        <item name="colorAccent">@color/green_primary</item>
+    <style name="AppTheme.Dialog.Green" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/green_accent</item>
     </style>
 
-    <style name="AppTheme.Dialog.Olive">
-        <item name="colorAccent">@color/olive_primary</item>
+    <style name="AppTheme.Dialog.Olive" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/olive_accent</item>
     </style>
 
-    <style name="AppTheme.Dialog.Pink">
-        <item name="colorAccent">@color/pink_primary</item>
+    <style name="AppTheme.Dialog.Pink" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/pink_accent</item>
     </style>
 
-    <style name="AppTheme.Dialog.Blue">
-        <item name="colorAccent">@color/blue_primary</item>
+    <style name="AppTheme.Dialog.Blue" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/blue_accent</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Black" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/black_accent</item>
     </style>
 
     <!-- now specialize by overriding specific flags. -->
@@ -157,6 +179,13 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
+    <style name="AppTheme.Black.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
     <!-- This one is used in the login page -->
     <style name="AppTheme.Orange.NoActionBar.WhiteAccent">
         <item name="colorControlNormal">@color/white</item>
@@ -188,18 +217,26 @@
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
+    <style name="AppTheme.Black.NoActionBar.WhiteAccent">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
     <!-- Just placeholder for newer versions of androids -->
     <style name="AppTheme.Orange.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Green.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Olive.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Pink.NoActionBar.Fullscreen"/>
     <style name="AppTheme.Blue.NoActionBar.Fullscreen"/>
+    <style name="AppTheme.Black.NoActionBar.Fullscreen"/>
 
     <style name="AppTheme.Orange.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Green.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Olive.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Pink.NoActionBar.TranslucentStatus"/>
     <style name="AppTheme.Blue.NoActionBar.TranslucentStatus"/>
+    <style name="AppTheme.Black.NoActionBar.TranslucentStatus"/>
 
     <style name="Button" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.Button</item>
@@ -209,22 +246,35 @@
     <!-- ###### This is for the drawer ###### -->
     <style name="DrawerTheme.Orange" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorAccent">@color/orange_accent</item>
     </style>
 
     <style name="DrawerTheme.Green" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorAccent">@color/green_accent</item>
     </style>
 
     <style name="DrawerTheme.Olive" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/olive_primary</item>
+        <item name="colorAccent">@color/olive_accent</item>
     </style>
 
     <style name="DrawerTheme.Pink" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/pink_primary</item>
+        <item name="colorAccent">@color/pink_accent</item>
     </style>
 
     <style name="DrawerTheme.Blue" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorAccent">@color/blue_accent</item>
+    </style>
+
+    <style name="DrawerTheme.Black" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/black_primary</item>
+        <item name="colorAccent">@color/black_accent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
     </style>
 
     <!-- This is all color independent! -->

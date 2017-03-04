@@ -113,7 +113,7 @@ public class AndroidUtility {
     public static int getActionBarHeight(Context context) {
         TypedArray arr = context.obtainStyledAttributes(new int[]{R.attr.actionBarSize});
         try {
-            return arr.getDimensionPixelSize(0, -1);
+            return arr.getDimensionPixelSize(arr.getIndex(0), -1);
         } finally {
             arr.recycle();
         }
@@ -512,5 +512,15 @@ public class AndroidUtility {
             return activityFromContext(((ContextWrapper) context).getBaseContext());
 
         return Optional.absent();
+    }
+
+    @ColorInt
+    public static int resolveColorAttribute(Context context, int attr) {
+        TypedArray arr = context.obtainStyledAttributes(new int[]{attr});
+        try {
+            return arr.getColor(arr.getIndex(0), 0);
+        } finally {
+            arr.recycle();
+        }
     }
 }

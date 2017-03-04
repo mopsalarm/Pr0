@@ -5,7 +5,6 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
 
 /**
@@ -13,7 +12,6 @@ import com.pr0gramm.app.R;
  */
 public enum Themes {
     ORANGE(R.string.theme_orange,
-            "ee4d2e",
             R.color.orange_primary,
             R.color.orange_primary_dark,
             R.style.AppTheme_Orange,
@@ -24,7 +22,6 @@ public enum Themes {
     ),
 
     GREEN(R.string.theme_green,
-            "1db992",
             R.color.green_primary,
             R.color.green_primary_dark,
             R.style.AppTheme_Green,
@@ -35,7 +32,6 @@ public enum Themes {
     ),
 
     OLIVE(R.string.theme_olive,
-            "b0ad05",
             R.color.olive_primary,
             R.color.olive_primary_dark,
             R.style.AppTheme_Olive,
@@ -46,7 +42,6 @@ public enum Themes {
     ),
 
     BLUE(R.string.theme_blue,
-            "008fff",
             R.color.blue_primary,
             R.color.blue_primary_dark,
             R.style.AppTheme_Blue,
@@ -57,7 +52,6 @@ public enum Themes {
     ),
 
     PINK(R.string.theme_pink,
-            "ff0082",
             R.color.pink_primary,
             R.color.pink_primary_dark,
             R.style.AppTheme_Pink,
@@ -65,9 +59,17 @@ public enum Themes {
             R.style.AppTheme_Pink_NoActionBar_Fullscreen,
             R.style.AppTheme_Pink_NoActionBar_TranslucentStatus,
             R.style.AppTheme_Pink_NoActionBar_WhiteAccent
-    );
+    ),
 
-    private final String remoteName;
+    BLACK(R.string.theme_black,
+            R.color.black_accent,
+            R.color.black_primary_dark,
+            R.style.AppTheme_Black,
+            R.style.AppTheme_Black_NoActionBar,
+            R.style.AppTheme_Black_NoActionBar_Fullscreen,
+            R.style.AppTheme_Black_NoActionBar_TranslucentStatus,
+            R.style.AppTheme_Black_NoActionBar_WhiteAccent
+    );
 
     @StringRes
     public final int title;
@@ -94,7 +96,6 @@ public enum Themes {
     public final int whiteAccent;
 
     Themes(@StringRes int title,
-           String remoteName,
            @ColorRes int primaryColor,
            @ColorRes int primaryColorDark,
            @StyleRes int basic,
@@ -104,7 +105,6 @@ public enum Themes {
            @StyleRes int whiteAccent) {
 
         this.title = title;
-        this.remoteName = remoteName;
         this.primaryColor = primaryColor;
         this.primaryColorDark = primaryColorDark;
         this.basic = basic;
@@ -116,18 +116,5 @@ public enum Themes {
 
     public String title(Context context) {
         return context.getString(title);
-    }
-
-    /**
-     * Tries to get the theme with the provided remote name.
-     */
-    public static Optional<Themes> byRemoteName(String name) {
-        for (Themes theme : values()) {
-            if (theme.remoteName.equals(name)) {
-                return Optional.of(theme);
-            }
-        }
-
-        return Optional.absent();
     }
 }

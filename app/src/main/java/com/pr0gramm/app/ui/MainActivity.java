@@ -434,6 +434,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private boolean dispatchFakeHomeEvent(MenuItem item) {
+        //noinspection RestrictedApi
         return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, new ActionMenuItem(
                 this, item.getGroupId(), ID_FAKE_HOME, 0, item.getOrder(), item.getTitle()));
     }
@@ -694,7 +695,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public void showUploadBottomSheet() {
-        MenuSheetView menuSheetView = new MenuSheetView(this, R.string.hint_upload, item -> {
+        MenuSheetView menuSheetView = new MenuSheetView(getBaseContext(), R.string.hint_upload, item -> {
             if (bottomSheet != null)
                 bottomSheet.dismissSheet();
 

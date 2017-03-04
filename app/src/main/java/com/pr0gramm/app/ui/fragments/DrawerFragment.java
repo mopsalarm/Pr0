@@ -1,8 +1,8 @@
 package com.pr0gramm.app.ui.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -128,7 +128,7 @@ public class DrawerFragment extends BaseFragment {
     private final NavigationAdapter navigationAdapter = new NavigationAdapter();
 
     private static final int ICON_ALPHA = 127;
-    final ColorStateList defaultColor = ColorStateList.valueOf(Color.BLACK);
+    ColorStateList defaultColor;
     ColorStateList markedColor;
 
     private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
@@ -148,9 +148,18 @@ public class DrawerFragment extends BaseFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // get "marked" color
-        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
-        markedColor = ColorStateList.valueOf(primary);
+//        // get "marked" color
+//        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
+//        markedColor = ColorStateList.valueOf(primary);
+
+        TypedArray result = view.getContext().obtainStyledAttributes(new int[]{
+                R.attr.colorAccent, android.R.attr.textColorPrimary});
+        try {
+            markedColor = ColorStateList.valueOf(result.getColor(result.getIndex(0), 0));
+            defaultColor = ColorStateList.valueOf(result.getColor(result.getIndex(1), 0));
+        } finally {
+            result.recycle();
+        }
 
         // add some space on the top for the translucent status bar
         if (Sdk.isAtLeastKitKat()) {
@@ -195,7 +204,7 @@ public class DrawerFragment extends BaseFragment {
 
         benisGraph.setOnClickListener(this::onBenisGraphClicked);
 
-        changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
+        // changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
 
         feedbackView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ContactActivity.class);
@@ -357,8 +366,11 @@ public class DrawerFragment extends BaseFragment {
 
         @Override
         public NavigationItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            View view = LayoutInflater.from(context).inflate(viewType, parent, false);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+            inflater = inflater.cloneInContext(parent.getContext());
+
+            View view = inflater.inflate(viewType, parent, false);
             return new NavigationItemViewHolder(view);
         }
 
@@ -376,7 +388,7 @@ public class DrawerFragment extends BaseFragment {
 
             // update color
             ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
-            holder.text.setTextColor(color);
+            // holder.text.setTextColor(color);
             changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA));
 
             // handle clicks

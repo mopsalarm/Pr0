@@ -7,7 +7,8 @@ themes = {
     "green": ["#1db992", "#137e64"],
     "olive": ["#b0ad05", "#797703"],
     "pink": ["#ff0082", "#b7005d"],
-    "blue": ["#008fff", "#0067b6"]
+    "blue": ["#008fff", "#0067b6"],
+    "black": ["#333333", "#1a1a1a"],
 }
 
 for name, target_colors in themes.items():

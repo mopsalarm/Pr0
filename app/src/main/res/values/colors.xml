@@ -8,9 +8,8 @@
 
     <color name="grey_200">#eeeeee</color>
     <color name="grey_700">#616161</color>
-    <color name="grey_800">#424242</color>
-    <color name="grey_white_1000">#ffffff</color>
 
+    <color name="grey_800">#424242</color>
     <color name="blue_grey_500">#607d8b</color>
 
 
@@ -39,13 +38,20 @@
     <color name="blue_primary_dark">#0067b6</color>
     <color name="blue_accent">@color/blue_primary</color>
 
+    <!-- Colors for the app -->
+    <color name="black_primary">#505050</color>
+    <color name="black_primary_dark">#303030</color>
+    <color name="black_accent">@color/orange_primary</color>
+
     <color name="feed_background">#161618</color>
     <color name="brighter_background">#515158</color>
     <color name="selected_comment_background">#222226</color>
     <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>
 
-    <color name="white">@color/grey_white_1000</color>
+    <color name="drawer_secondary_action">#aaaaaa</color>
+
+    <color name="white">#ffffff</color>
 
     <color name="message_text_received">@android:color/primary_text_dark</color>
     <color name="message_text_sent">@color/grey_700</color>
