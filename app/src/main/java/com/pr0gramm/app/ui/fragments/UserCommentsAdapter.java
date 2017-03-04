@@ -34,7 +34,7 @@ public class UserCommentsAdapter extends MessageAdapter {
             Api.Message message = this.messages.get(position);
 
             UriHelper uriHelper = UriHelper.of(activity);
-            Uri uri = uriHelper.post(FeedType.NEW, message.getItemId(), message.id());
+            Uri uri = uriHelper.post(FeedType.NEW, message.itemId(), message.id());
             Intent intent = new Intent(Intent.ACTION_VIEW, uri, activity, MainActivity.class);
             activity.startActivity(intent);
         });

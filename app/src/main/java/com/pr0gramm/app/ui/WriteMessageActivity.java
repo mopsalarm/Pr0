@@ -216,7 +216,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     }
 
     public static Intent intent(Context context, Api.Message message) {
-        Intent intent = intent(context, message.getSenderId(), message.getName());
+        Intent intent = intent(context, message.senderId(), message.name());
         intent.putExtra(ARGUMENT_MESSAGE, new MessageParceler(message));
         return intent;
     }
@@ -233,7 +233,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     }
 
     public static Intent answerToComment(Context context, Api.Message message) {
-        long itemId = message.getItemId();
+        long itemId = message.itemId();
         long commentId = message.id();
 
         Intent intent = intent(context, message);

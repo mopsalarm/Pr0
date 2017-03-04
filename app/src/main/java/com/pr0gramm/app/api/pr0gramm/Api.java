@@ -183,7 +183,7 @@ public interface Api {
     final class Nonce {
         public final String value;
 
-        public Nonce(String userId) {
+        Nonce(String userId) {
             this.value = userId.substring(0, 16);
         }
 
@@ -369,23 +369,35 @@ public interface Api {
      */
     @Value.Immutable
     abstract class Message implements HasThumbnail {
+        /**
+         * If this message is a comment, this is the id of the comment.
+         */
         public abstract long id();
 
-        public abstract Instant getCreated();
+        @Gson.Named("created")
+        public abstract Instant creationTime();
 
-        public abstract long getItemId();
+        public abstract long itemId();
 
-        public abstract int getMark();
+        public abstract int mark();
 
-        public abstract String getMessage();
+        public abstract String message();
 
-        public abstract String getName();
+        public abstract String name();
 
-        public abstract int getScore();
+        public abstract int score();
 
-        public abstract int getSenderId();
+        public abstract int senderId();
 
-        @android.support.annotation.Nullable
+        public boolean isComment() {
+            return itemId() != 0;
+        }
+
+        public long commentId() {
+            return id();
+        }
+
+        @Nullable
         @Gson.Named("thumb")
         public abstract String thumbnail();
 
@@ -394,7 +406,7 @@ public interface Api {
                     .message(message.getMessage())
                     .id(message.getId())
                     .itemId(0)
-                    .created(message.getCreated())
+                    .creationTime(message.getCreated())
                     .mark(message.getSenderMark())
                     .name(message.getSenderName())
                     .senderId(message.getSenderId())
@@ -412,7 +424,7 @@ public interface Api {
                     .name(comment.getName())
                     .mark(comment.getMark())
                     .score(comment.getUp() - comment.getDown())
-                    .created(comment.getCreated())
+                    .creationTime(comment.getCreated())
                     .thumbnail(item.thumbnail())
                     .build();
         }
@@ -428,7 +440,7 @@ public interface Api {
         public static Message of(int senderId, String name, int mark, UserComments.UserComment comment) {
             return ImmutableApi.Message.builder()
                     .id((int) comment.getId())
-                    .created(comment.getCreated())
+                    .creationTime(comment.getCreated())
                     .score(comment.getUp() - comment.getDown())
                     .itemId((int) comment.getItemId())
                     .mark(mark)

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import rx.Observable;
+import rx.Completable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -30,18 +30,27 @@ public class MessageReplyReceiver extends BroadcastReceiver {
     InboxService inboxService;
 
     @Inject
+    VoteService voteService;
+
+    @Inject
     NotificationService notificationService;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Dagger.appComponent(context).inject(this);
 
+        // normal receiver info
         int receiverId = intent.getIntExtra("receiverId", 0);
         String receiverName = intent.getStringExtra("receiverName");
+
+        // receiver infos for comments
+        long itemId = intent.getLongExtra("itemId", 0);
+        long commentId = intent.getLongExtra("commentId", 0);
+
         String text = getMessageText(intent);
 
         // validate parameters
-        if (receiverId == 0 || Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(receiverName)) {
+        if (Strings.isNullOrEmpty(text) || Strings.isNullOrEmpty(receiverName)) {
             logger.error("No receiver id or message.");
             return;
         }
@@ -49,15 +58,28 @@ public class MessageReplyReceiver extends BroadcastReceiver {
         // timestamp the original message was sent
         Instant messageCreated = new Instant(intent.getLongExtra("messageCreated", -1));
 
-        // send message now
-        inboxService.send(receiverId, text)
-                .subscribeOn(Schedulers.io())
-                .onErrorResumeNext(Observable.empty())
-                .doOnNext(val -> {
+        // decide if we are sending a message or a comment
+        boolean isMessage = itemId == 0 || commentId == 0;
+
+        Completable result = isMessage
+                ? sendResponseToMessage(receiverId, text)
+                : sendResponseAsComment(itemId, commentId, text);
+
+        // and handle the result.
+        result.subscribeOn(Schedulers.io())
+                .onErrorComplete()
+                .subscribe(() -> {
                     notificationService.showSendSuccessfulNotification(receiverName);
                     markMessageAsRead(context, messageCreated);
-                })
-                .subscribe();
+                });
+    }
+
+    public Completable sendResponseAsComment(long itemId, long commentId, String text) {
+        return voteService.postComment(itemId, commentId, text).toCompletable();
+    }
+
+    public Completable sendResponseToMessage(int receiverId, String text) {
+        return inboxService.send(receiverId, text).toCompletable();
     }
 
     private void markMessageAsRead(Context context, Instant messageTimestamp) {
@@ -78,9 +100,15 @@ public class MessageReplyReceiver extends BroadcastReceiver {
 
     public static Intent makeIntent(Context context, Api.Message message) {
         Intent intent = new Intent(context, MessageReplyReceiver.class);
-        intent.putExtra("receiverId", message.getSenderId());
-        intent.putExtra("receiverName", message.getName());
-        intent.putExtra("messageCreated", message.getCreated().getMillis());
+        if (message.isComment()) {
+            intent.putExtra("itemId", message.itemId());
+            intent.putExtra("commentId", message.commentId());
+        }
+
+        intent.putExtra("receiverId", message.senderId());
+        intent.putExtra("receiverName", message.name());
+
+        intent.putExtra("messageCreated", message.creationTime().getMillis());
         return intent;
     }
 }

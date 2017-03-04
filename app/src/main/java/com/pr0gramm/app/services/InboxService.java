@@ -51,7 +51,7 @@ public class InboxService {
         return api.inboxUnread().map(Api.MessageFeed::getMessages).doOnNext(messages -> {
             if (messages.size() > 0) {
                 markAsRead(Ordering.natural()
-                        .onResultOf(Api.Message::getCreated)
+                        .onResultOf(Api.Message::creationTime)
                         .max(messages));
             }
         });
@@ -85,7 +85,7 @@ public class InboxService {
      * This will not affect the observable you get from {@link #unreadMessagesCount()}.
      */
     public void markAsRead(Api.Message message) {
-        markAsRead(message.getCreated().getMillis());
+        markAsRead(message.creationTime().getMillis());
     }
 
     public void markAsRead(long timestamp) {
@@ -115,7 +115,7 @@ public class InboxService {
      * according to {@link #markAsRead(Api.Message)}.
      */
     public boolean messageIsUnread(Api.Message message) {
-        return messageIsUnread(message.getCreated().getMillis());
+        return messageIsUnread(message.creationTime().getMillis());
     }
 
     public boolean messageIsUnread(long timestamp) {

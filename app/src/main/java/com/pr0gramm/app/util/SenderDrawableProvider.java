@@ -25,8 +25,8 @@ public final class SenderDrawableProvider {
     }
 
     public TextDrawable makeSenderDrawable(Api.Message message) {
-        int color = ColorGenerator.MATERIAL.getColor(message.getSenderId());
-        return shapes.buildRect(iconText(message.getName()), color);
+        int color = ColorGenerator.MATERIAL.getColor(message.senderId());
+        return shapes.buildRect(iconText(message.name()), color);
     }
 
     public Bitmap makeSenderBitmap(Api.Message message, int width, int height) {

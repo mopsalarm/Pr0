@@ -119,8 +119,8 @@ public class NotificationService {
 
         NotificationCompat.Style inboxStyle = formatMessages(messages);
 
-        Instant minMessageTimestamp = Ordering.natural().min(transform(messages, Api.Message::getCreated));
-        Instant maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::getCreated));
+        Instant minMessageTimestamp = Ordering.natural().min(transform(messages, Api.Message::creationTime));
+        Instant maxMessageTimestamp = Ordering.natural().max(transform(messages, Api.Message::creationTime));
 
         NotificationCompat.Builder builder = newNotificationBuilder(context)
                 .setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
@@ -151,7 +151,7 @@ public class NotificationService {
     private NotificationCompat.MessagingStyle formatMessages(ImmutableList<Api.Message> messages) {
         NotificationCompat.MessagingStyle inboxStyle = new NotificationCompat.MessagingStyle("Me");
         for (Api.Message msg : limit(messages, 5)) {
-            inboxStyle.addMessage(msg.getMessage(), msg.getCreated().getMillis(), msg.getName());
+            inboxStyle.addMessage(msg.message(), msg.creationTime().getMillis(), msg.name());
         }
         return inboxStyle;
     }
@@ -179,7 +179,7 @@ public class NotificationService {
 
         // the input field
         RemoteInput remoteInput = new RemoteInput.Builder("msg")
-                .setLabel(context.getString(R.string.notify_reply_to_x, message.getName()))
+                .setLabel(context.getString(R.string.notify_reply_to_x, message.name()))
                 .build();
 
         // add everything as an action
@@ -193,9 +193,9 @@ public class NotificationService {
      * Only show if all messages are from the same sender
      */
     private static int replyToUserId(List<Api.Message> messages) {
-        int sender = messages.get(0).getSenderId();
+        int sender = messages.get(0).senderId();
         for (Api.Message message : messages) {
-            if (message.getSenderId() != sender) {
+            if (message.senderId() != sender) {
                 return 0;
             }
         }
@@ -210,18 +210,18 @@ public class NotificationService {
         Api.Message message = messages.get(0);
 
         boolean allForTheSamePost = FluentIterable.from(messages)
-                .transform(Api.Message::getItemId)
+                .transform(Api.Message::itemId)
                 .toSet().size() == 1;
 
-        if (allForTheSamePost && message.getItemId() != 0 && !isNullOrEmpty(message.thumbnail())) {
+        if (allForTheSamePost && message.itemId() != 0 && !isNullOrEmpty(message.thumbnail())) {
             return loadThumbnail(message);
         }
 
         boolean allForTheSameUser = FluentIterable.from(messages)
-                .transform(Api.Message::getSenderId)
+                .transform(Api.Message::senderId)
                 .toSet().size() == 1;
 
-        if (allForTheSameUser && message.getItemId() == 0 && !isNullOrEmpty(message.getName())) {
+        if (allForTheSameUser && message.itemId() == 0 && !isNullOrEmpty(message.name())) {
             int width = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
             int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
 

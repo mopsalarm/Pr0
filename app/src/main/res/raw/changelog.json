@@ -1,5 +1,14 @@
 [
   {
+    "version": 121,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Direktes Antworten auf einen Kommentar aus einer Benachrichtigung funktioniert nun."
+      }
+    ]
+  },
+  {
     "version": 120,
     "changes": [
       {

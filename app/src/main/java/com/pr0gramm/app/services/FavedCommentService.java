@@ -213,7 +213,7 @@ public class FavedCommentService {
                 .message(comment.content())
                 .score(comment.up() - comment.down())
                 .thumbnail(thumbnail)
-                .created(comment.created())
+                .creationTime(comment.created())
                 .mark(comment.mark())
 
                 /* we dont have the sender :/ */

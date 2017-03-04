@@ -99,7 +99,7 @@ public class MessageView extends RelativeLayout {
 
     public void update(Api.Message message, @Nullable String name, PointsVisibility pointsVisibility) {
         // set the type. if we have an item, we  have a comment
-        boolean isComment = message.getItemId() != 0;
+        boolean isComment = message.itemId() != 0;
         if (type != null) {
             type.setText(isComment
                     ? getContext().getString(R.string.inbox_message_comment)
@@ -107,7 +107,7 @@ public class MessageView extends RelativeLayout {
         }
 
         // the text of the message
-        AndroidUtility.linkify(text, message.getMessage());
+        AndroidUtility.linkify(text, message.message());
 
         // draw the image for this post
         if (isComment) {
@@ -121,16 +121,16 @@ public class MessageView extends RelativeLayout {
         }
 
         // show the points
-        boolean visible = (name != null && Ascii.equalsIgnoreCase(message.getName(), name))
-                || message.getCreated().isBefore(scoreVisibleThreshold);
+        boolean visible = (name != null && Ascii.equalsIgnoreCase(message.name(), name))
+                || message.creationTime().isBefore(scoreVisibleThreshold);
 
         // sender info
-        sender.setSenderName(message.getName(), message.getMark());
-        sender.setDate(message.getCreated());
+        sender.setSenderName(message.name(), message.mark());
+        sender.setDate(message.creationTime());
 
         if ((admin || pointsVisibility != PointsVisibility.NEVER) && isComment) {
             if (admin || pointsVisibility == PointsVisibility.ALWAYS || visible) {
-                sender.setPoints(message.getScore());
+                sender.setPoints(message.score());
             } else {
                 sender.setPointsUnknown();
             }
