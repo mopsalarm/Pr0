@@ -149,6 +149,15 @@ public interface Api {
             @Field("days") Float days);
 
     @FormUrlEncoded
+    @POST("api/tags/delete")
+    Observable<Nothing> deleteTag(
+            @Field("_nonce") Nonce nonce,
+            @Field("itemId") long itemId,
+            @Field("banUsers") String banUser,
+            @Field("days") int days,
+            @Field("tags[]") long tagId);
+
+    @FormUrlEncoded
     @POST("api/profile/follow")
     Observable<Nothing> profileFollow(@Field("_nonce") Nonce nonce, @Field("name") String username);
 

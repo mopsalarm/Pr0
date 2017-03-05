@@ -102,22 +102,22 @@ public class DrawerFragment extends BaseFragment {
     ImageView benisGraph;
 
     @BindView(R.id.action_rules)
-    View actionRules;
+    TextView actionRules;
 
     @BindView(R.id.action_login)
-    View loginView;
+    TextView loginView;
 
     @BindView(R.id.action_logout)
-    View logoutView;
+    TextView logoutView;
 
     @BindView(R.id.action_contact)
     TextView feedbackView;
 
     @BindView(R.id.action_settings)
-    View settingsView;
+    TextView settingsView;
 
     @BindView(R.id.action_invite)
-    View actionInvite;
+    TextView inviteView;
 
     @BindView(R.id.user_image)
     View userImageView;
@@ -147,10 +147,6 @@ public class DrawerFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-//        // get "marked" color
-//        int primary = ContextCompat.getColor(getActivity(), ThemeHelper.primaryColor());
-//        markedColor = ColorStateList.valueOf(primary);
 
         TypedArray result = view.getContext().obtainStyledAttributes(new int[]{
                 R.attr.colorAccent, android.R.attr.textColorPrimary});
@@ -182,7 +178,7 @@ public class DrawerFragment extends BaseFragment {
             startActivity(intent);
         });
 
-        actionInvite.setOnClickListener(v -> {
+        inviteView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), InviteActivity.class);
             startActivity(intent);
         });
@@ -202,14 +198,19 @@ public class DrawerFragment extends BaseFragment {
             fragment.show(getFragmentManager(), null);
         });
 
-        benisGraph.setOnClickListener(this::onBenisGraphClicked);
-
-        // changeCompoundDrawableColor(feedbackView, defaultColor.withAlpha(ICON_ALPHA));
-
         feedbackView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ContactActivity.class);
             startActivity(intent);
         });
+
+        benisGraph.setOnClickListener(this::onBenisGraphClicked);
+
+        // colorize all the secondary icons.
+        ImmutableList<TextView> views = ImmutableList.of(loginView, logoutView, feedbackView, settingsView, inviteView, actionRules);
+        for (TextView v : views) {
+            ColorStateList secondary = ColorStateList.valueOf(0x80808080);
+            changeCompoundDrawableColor(v, secondary);
+        }
     }
 
     @Override
@@ -290,7 +291,7 @@ public class DrawerFragment extends BaseFragment {
             loginView.setVisibility(View.GONE);
             logoutView.setVisibility(View.VISIBLE);
             actionRules.setVisibility(View.VISIBLE);
-            actionInvite.setVisibility(View.VISIBLE);
+            inviteView.setVisibility(View.VISIBLE);
         } else {
             usernameView.setText(R.string.pr0gramm);
             usernameView.setOnClickListener(null);
@@ -304,7 +305,7 @@ public class DrawerFragment extends BaseFragment {
             loginView.setVisibility(View.VISIBLE);
             logoutView.setVisibility(View.GONE);
             actionRules.setVisibility(View.GONE);
-            actionInvite.setVisibility(View.GONE);
+            inviteView.setVisibility(View.GONE);
         }
     }
 
@@ -388,7 +389,7 @@ public class DrawerFragment extends BaseFragment {
 
             // update color
             ColorStateList color = (selected.orNull() == item) ? markedColor : defaultColor;
-            // holder.text.setTextColor(color);
+            holder.text.setTextColor(color);
             changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA));
 
             // handle clicks

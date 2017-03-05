@@ -9,5 +9,5 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:text="@string/action_add_tag"
-    android:textColor="?colorPrimary"
+    android:textColor="?colorAccent"
     android:background="?selectableItemBackgroundBorderless"/>

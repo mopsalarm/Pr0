@@ -49,8 +49,6 @@
     <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>
 
-    <color name="drawer_secondary_action">#aaaaaa</color>
-
     <color name="white">#ffffff</color>
 
     <color name="message_text_received">@android:color/primary_text_dark</color>
