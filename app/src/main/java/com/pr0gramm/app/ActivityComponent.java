@@ -10,6 +10,7 @@ import com.pr0gramm.app.ui.PasswordRecoveryActivity;
 import com.pr0gramm.app.ui.RequestPasswordRecoveryActivity;
 import com.pr0gramm.app.ui.RulesActivity;
 import com.pr0gramm.app.ui.SettingsActivity;
+import com.pr0gramm.app.ui.StatisticActivity;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.ZoomViewActivity;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
@@ -116,4 +117,6 @@ public interface ActivityComponent {
     void inject(PasswordRecoveryActivity passwordRecoveryActivity);
 
     void inject(BookmarksActionItemsSlide bookmarksActionItemsSlide);
+
+    void inject(StatisticActivity statisticActivity);
 }

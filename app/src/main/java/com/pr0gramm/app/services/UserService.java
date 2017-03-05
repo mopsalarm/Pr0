@@ -434,6 +434,11 @@ public class UserService {
         return new Graph(start.getMillis(), now.getMillis(), points);
     }
 
+    public List<BenisRecord> loadFullBenisHistory(){
+        return BenisRecord.findAllValues(database.value(), loginState.id());
+
+    }
+
     /**
      * Gets the name of the current user from the cookie. This will only
      * work, if the user is authorized.
