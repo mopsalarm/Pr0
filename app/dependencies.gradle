@@ -100,7 +100,7 @@ dependencies {
     compile "com.flipboard:bottomsheet-core:1.5.3"
 
     compile "pl.brightinventions:slf4android:0.1.2"
-    compile "com.crashlytics.sdk.android:crashlytics:2.6.6"
+    compile "com.crashlytics.sdk.android:crashlytics:2.6.7"
 
     apt "org.immutables:value:$VersionImmutables"
     provided "org.immutables:value:$VersionImmutables"
