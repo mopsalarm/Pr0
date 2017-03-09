@@ -112,18 +112,17 @@ public class NavigationProvider {
     private Observable<Boolean> checkExtraCategoryApi(ExtraCategoryApiProvider extraCategoryApi) {
         Observable<Boolean> activeByConfig = configService.observeConfig().map(Config::extraCategories);
 
-        return activeByConfig
-                .switchMap(active -> {
-                    if (!active) {
-                        return just(false);
-                    }
+        return activeByConfig.switchMap(active -> {
+            if (!active) {
+                return just(false);
+            }
 
-                    return extraCategoryApi.get().ping().map(r -> true)
-                            .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
-                            .onErrorResumeNext(just(false))
-                            .distinctUntilChanged()
-                            .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed));
-                });
+            return extraCategoryApi.get().ping().map(r -> true)
+                    .doOnError(err -> logger.error("Could not reach category api: {}", String.valueOf(err)))
+                    .onErrorResumeNext(just(false))
+                    .distinctUntilChanged()
+                    .doOnNext(allowed -> logger.info("Showing extra categories: {}", allowed));
+        });
     }
 
     public Observable<List<NavigationItem>> navigationItems() {

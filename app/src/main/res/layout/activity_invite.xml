@@ -30,10 +30,10 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:layout_marginTop="8dp"
-            android:background="@color/input_background"
+            android:background="?secondaryBackground"
             android:text="@string/invite_description_warning"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="?colorPrimary"/>
+            android:textColor="?colorAccent"/>
 
         <TextView
             android:id="@+id/remaining"

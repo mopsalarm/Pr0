@@ -695,7 +695,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public void showUploadBottomSheet() {
-        MenuSheetView menuSheetView = new MenuSheetView(getBaseContext(), R.string.hint_upload, item -> {
+        MenuSheetView menuSheetView = new MenuSheetView(this, R.string.hint_upload, item -> {
             if (bottomSheet != null)
                 bottomSheet.dismissSheet();
 

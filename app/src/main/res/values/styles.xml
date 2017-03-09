@@ -87,6 +87,7 @@
 
         <!-- extra overrides -->
         <item name="drawerTheme">@style/DrawerTheme.Black</item>
+        <item name="secondaryBackground">@color/black_secondary_background</item>
 
         <!-- Extra styles -->
         <item name="android:windowBackground">@android:color/black</item>
@@ -246,14 +247,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white</item>
-        <item name="secondaryBackground">@color/black_secondary_background</item>
     </style>
-
-    <!-- This is all color independent! -->
-    <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="colorAccent">@color/white</item>
-    </style>
-
 
     <!-- For the intro activity -->
     <style name="AppTheme.Intro">

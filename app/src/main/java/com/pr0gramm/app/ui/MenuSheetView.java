@@ -3,13 +3,10 @@ package com.pr0gramm.app.ui;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.ColorInt;
 import android.support.annotation.MenuRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -44,11 +41,6 @@ import java.util.ArrayList;
  */
 @SuppressLint("ViewConstructor")
 public class MenuSheetView extends FrameLayout {
-    @ColorInt
-    final int defaultColor = ColorStateList.valueOf(Color.BLACK)
-            .withAlpha(127)
-            .getDefaultColor();
-
     /**
      * A listener for menu item clicks in the sheet
      */
@@ -347,8 +339,11 @@ public class MenuSheetView extends FrameLayout {
             }
 
             public void bindView(SheetMenuItem item) {
+                int iconColor = AndroidUtility.resolveColorAttribute(icon.getContext(),
+                        android.R.attr.textColorSecondary);
+
                 Drawable icon = item.getMenuItem().getIcon();
-                icon.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN);
+                icon.mutate().setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
 
                 this.icon.setImageDrawable(icon);
                 label.setText(item.getMenuItem().getTitle());
