@@ -7,6 +7,8 @@
         <attr name="appIcon" format="reference"/>
         <attr name="searchTheme" format="reference"/>
         <attr name="dropshadowPrimaryDark" format="reference"/>
+
+        <attr name="secondaryBackground" format="color"/>
     </declare-styleable>
 
     <declare-styleable name="VoteView">

@@ -4,6 +4,8 @@
         <item name="android:textColorLink">@color/blue_grey_500</item>
         <item name="android:windowBackground">@color/feed_background</item>
         <item name="buttonStyle">@style/Button</item>
+        <item name="secondaryBackground">@color/secondary_background</item>
+        <item name="drawerTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="AppTheme.Orange">
@@ -12,7 +14,6 @@
         <item name="colorAccent">@color/orange_accent</item>
         <item name="loginBackground">@drawable/login_background_orange</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_orange</item>
-        <item name="drawerTheme">@style/DrawerTheme.Orange</item>
         <item name="popupTheme">@style/AppTheme.Popup.Orange</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Orange</item>
         <item name="searchTheme">@style/AppTheme.Orange.NoActionBar.WhiteAccent</item>
@@ -26,7 +27,6 @@
         <item name="colorAccent">@color/green_accent</item>
         <item name="loginBackground">@drawable/login_background_green</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_green</item>
-        <item name="drawerTheme">@style/DrawerTheme.Green</item>
         <item name="popupTheme">@style/AppTheme.Popup.Green</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Green</item>
         <item name="searchTheme">@style/AppTheme.Green.NoActionBar.WhiteAccent</item>
@@ -40,7 +40,6 @@
         <item name="colorAccent">@color/olive_accent</item>
         <item name="loginBackground">@drawable/login_background_olive</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_olive</item>
-        <item name="drawerTheme">@style/DrawerTheme.Olive</item>
         <item name="popupTheme">@style/AppTheme.Popup.Olive</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Olive</item>
         <item name="searchTheme">@style/AppTheme.Olive.NoActionBar.WhiteAccent</item>
@@ -54,7 +53,6 @@
         <item name="colorAccent">@color/pink_accent</item>
         <item name="loginBackground">@drawable/login_background_pink</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_pink</item>
-        <item name="drawerTheme">@style/DrawerTheme.Pink</item>
         <item name="popupTheme">@style/AppTheme.Popup.Pink</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Pink</item>
         <item name="searchTheme">@style/AppTheme.Pink.NoActionBar.WhiteAccent</item>
@@ -68,7 +66,6 @@
         <item name="colorAccent">@color/blue_accent</item>
         <item name="loginBackground">@drawable/login_background_blue</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_blue</item>
-        <item name="drawerTheme">@style/DrawerTheme.Blue</item>
         <item name="popupTheme">@style/AppTheme.Popup.Blue</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Blue</item>
         <item name="searchTheme">@style/AppTheme.Blue.NoActionBar.WhiteAccent</item>
@@ -82,12 +79,14 @@
         <item name="colorAccent">@color/black_accent</item>
         <item name="loginBackground">@drawable/login_background_black</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_black</item>
-        <item name="drawerTheme">@style/DrawerTheme.Black</item>
         <item name="popupTheme">@style/AppTheme.Popup.Black</item>
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Black</item>
         <item name="searchTheme">@style/AppTheme.Black.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_black_dark</item>
         <item name="appIcon">@drawable/ic_app_black</item>
+
+        <!-- extra overrides -->
+        <item name="drawerTheme">@style/DrawerTheme.Black</item>
 
         <!-- Extra styles -->
         <item name="android:windowBackground">@android:color/black</item>
@@ -242,39 +241,12 @@
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.Button</item>
     </style>
 
-
-    <!-- ###### This is for the drawer ###### -->
-    <style name="DrawerTheme.Orange" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/orange_primary</item>
-        <item name="colorAccent">@color/orange_accent</item>
-    </style>
-
-    <style name="DrawerTheme.Green" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/green_primary</item>
-        <item name="colorAccent">@color/green_accent</item>
-    </style>
-
-    <style name="DrawerTheme.Olive" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/olive_primary</item>
-        <item name="colorAccent">@color/olive_accent</item>
-    </style>
-
-    <style name="DrawerTheme.Pink" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/pink_primary</item>
-        <item name="colorAccent">@color/pink_accent</item>
-    </style>
-
-    <style name="DrawerTheme.Blue" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/blue_primary</item>
-        <item name="colorAccent">@color/blue_accent</item>
-    </style>
-
-    <style name="DrawerTheme.Black" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/black_primary</item>
-        <item name="colorAccent">@color/black_accent</item>
+    <style name="DrawerTheme.Black" parent="AppTheme.Black">
+        <item name="android:windowBackground">?colorPrimaryDark</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white</item>
+        <item name="secondaryBackground">@color/black_secondary_background</item>
     </style>
 
     <!-- This is all color independent! -->

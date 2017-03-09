@@ -39,12 +39,14 @@
     <color name="blue_accent">@color/blue_primary</color>
 
     <!-- Colors for the app -->
-    <color name="black_primary">#505050</color>
-    <color name="black_primary_dark">#303030</color>
+    <color name="black_primary">#303030</color>
+    <color name="black_primary_dark">#202020</color>
     <color name="black_accent">@color/orange_primary</color>
+    <color name="black_secondary_background">#282828</color>
 
     <color name="feed_background">#161618</color>
-    <color name="brighter_background">#515158</color>
+    <color name="secondary_background">#515158</color>
+
     <color name="selected_comment_background">#222226</color>
     <color name="comment_line">#2A2E31</color>
     <color name="input_background">#1B1E1F</color>

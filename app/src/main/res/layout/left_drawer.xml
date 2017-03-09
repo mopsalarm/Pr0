@@ -57,7 +57,7 @@
             android:id="@+id/benis_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/brighter_background"
+            android:background="?secondaryBackground"
             android:orientation="horizontal">
 
             <TextView

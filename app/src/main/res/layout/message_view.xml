@@ -47,6 +47,6 @@
         android:layout_alignParentRight="true"
         android:layout_below="@id/message_sender_info"
         android:layout_marginTop="8dp"
-        android:background="@color/brighter_background"/>
+        android:background="?secondaryBackground"/>
 
 </merge>
