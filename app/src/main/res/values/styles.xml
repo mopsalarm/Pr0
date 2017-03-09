@@ -75,7 +75,6 @@
         <item name="colorAccent">@color/black_accent</item>
         <item name="loginBackground">@drawable/login_background_black</item>
         <item name="roundedCornerBackground">@drawable/rounded_corner_background_black</item>
-        <item name="alertDialogTheme">@style/AppTheme.Dialog.Black</item>
         <item name="searchTheme">@style/AppTheme.Black.NoActionBar.WhiteAccent</item>
         <item name="dropshadowPrimaryDark">@drawable/dropshadow_black_dark</item>
         <item name="appIcon">@drawable/ic_app_black</item>
@@ -108,10 +107,6 @@
 
     <style name="AppTheme.Dialog.Blue" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/blue_accent</item>
-    </style>
-
-    <style name="AppTheme.Dialog.Black" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="colorAccent">@color/black_accent</item>
     </style>
 
     <!-- now specialize by overriding specific flags. -->
