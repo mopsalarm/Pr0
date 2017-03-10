@@ -140,14 +140,20 @@ public class TagsDetailsDialog extends BaseDialogFragment {
             view.checkbox.setText(item.tag());
             view.info.setText(String.format("%s, +%d, -%d", item.user(), item.up(), item.down()));
 
+            view.checkbox.setOnCheckedChangeListener(null);
             view.checkbox.setChecked(selected.contains(item.id()));
 
             // register a listener to check/uncheck this tag.
             view.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                boolean changed = false;
                 if (isChecked) {
-                    selected.add(item.id());
+                    changed = selected.add(item.id());
                 } else {
-                    selected.remove(item.id());
+                    changed = selected.remove(item.id());
+                }
+
+                if (changed && view.getAdapterPosition() != -1) {
+                    notifyItemChanged(view.getAdapterPosition());
                 }
             });
         }
