@@ -32,7 +32,7 @@ public class ThemeActionItemsSlide extends ActionItemsSlide {
 
     @Override
     protected List<ActionItem> getIntroActionItems() {
-        return FluentIterable.of(Themes.values())
+        return FluentIterable.from(Themes.values())
                 .transform(ThemeActionItem::new)
                 .filter(ActionItem.class)
                 .toList();
@@ -63,7 +63,7 @@ public class ThemeActionItemsSlide extends ActionItemsSlide {
 
             View view = getView();
             if (view != null) {
-                view.setBackgroundResource(theme.accentColor);
+                view.setBackgroundResource(theme.primaryColor);
             }
         }
 
