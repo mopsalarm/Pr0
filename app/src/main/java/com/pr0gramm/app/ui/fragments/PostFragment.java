@@ -468,6 +468,9 @@ public class PostFragment extends BaseFragment implements
 
         if ((item = menu.findItem(R.id.action_delete_item)) != null)
             item.setVisible(adminMode);
+
+        if ((item = menu.findItem(R.id.action_tags_details)) != null)
+            item.setVisible(adminMode);
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
@@ -717,6 +720,12 @@ public class PostFragment extends BaseFragment implements
     @OnOptionsItemSelected(R.id.action_delete_item)
     public void showDeleteItemDialog() {
         ItemAdminDialog dialog = ItemAdminDialog.newInstance(feedItem);
+        dialog.show(getFragmentManager(), null);
+    }
+
+    @OnOptionsItemSelected(R.id.action_tags_details)
+    public void showTagsDetailsDialog() {
+        TagsDetailsDialog dialog = TagsDetailsDialog.newInstance(feedItem.id());
         dialog.show(getFragmentManager(), null);
     }
 

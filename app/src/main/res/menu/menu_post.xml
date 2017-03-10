@@ -57,5 +57,10 @@
         android:title="@string/action_delete_item"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/action_tags_details"
+        android:title="@string/action_tags_details"
+        app:showAsAction="never"/>
+
 
 </menu>

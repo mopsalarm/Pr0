@@ -1,12 +1,15 @@
 package com.pr0gramm.app.services;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Longs;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import gnu.trove.set.TLongSet;
 import rx.Observable;
 
 /**
@@ -27,7 +30,11 @@ public class AdminService {
         return deleteItem(item, reason, notifyUser, null);
     }
 
-    public Observable<Void> deleteItem(FeedItem item, String reason, boolean notifyUser, Float blockDays) {
+    public Observable<Api.TagDetails> tagsDetails(long itemId) {
+        return api.tagDetails(itemId);
+    }
+
+    public Observable<Void> deleteItem(FeedItem item, String reason, boolean notifyUser, @Nullable Float blockDays) {
         String pNotifyUser = notifyUser ? "on" : null;
         String blockUser = blockDays != null && blockDays >= 0 ? "on" : null;
         return api
@@ -35,6 +42,12 @@ public class AdminService {
                 .map(response -> (Void) null);
     }
 
+    public Observable<Void> deleteTags(long itemId, TLongSet tagIds, @Nullable Float blockDays) {
+        String pBlockUser = blockDays != null ? "on" : null;
+        return api
+                .deleteTag(null, itemId, pBlockUser, blockDays, Longs.asList(tagIds.toArray()))
+                .map(response -> (Void) null);
+    }
 
     public static final ImmutableList<String> REASONS = ImmutableList.of(
             "Repost",
@@ -52,4 +65,5 @@ public class AdminService {
             "Regel #14 - Screamer/Sound-getrolle",
             "Regel #15 - reiner Musikupload",
             "Trollscheiße.");
+
 }

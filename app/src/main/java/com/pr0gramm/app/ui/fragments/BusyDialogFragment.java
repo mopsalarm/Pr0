@@ -71,8 +71,8 @@ public class BusyDialogFragment extends BaseDialogFragment {
         final FragmentManager fragmentManager;
         final Func1<T, Float> progressMapper;
 
-        public BusyDialogOperator(FragmentManager fragmentManager, String text,
-                                  Func1<T, Float> progressMapper) {
+        BusyDialogOperator(FragmentManager fragmentManager, String text,
+                           Func1<T, Float> progressMapper) {
 
             this.fragmentManager = fragmentManager;
             this.progressMapper = progressMapper;

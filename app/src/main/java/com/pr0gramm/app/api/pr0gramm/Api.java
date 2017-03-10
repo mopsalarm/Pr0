@@ -148,14 +148,17 @@ public interface Api {
             @Field("banUser") String banUser,
             @Field("days") Float days);
 
+    @GET("api/tags/details")
+    Observable<TagDetails> tagDetails(@Query("itemId") long itemId);
+
     @FormUrlEncoded
     @POST("api/tags/delete")
     Observable<Nothing> deleteTag(
             @Field("_nonce") Nonce nonce,
             @Field("itemId") long itemId,
             @Field("banUsers") String banUser,
-            @Field("days") int days,
-            @Field("tags[]") long tagId);
+            @Field("days") Float days,
+            @Field("tags[]") List<Long> tagId);
 
     @FormUrlEncoded
     @POST("api/profile/follow")
@@ -677,5 +680,34 @@ public interface Api {
     interface ResetPasswordResponse {
         @Nullable
         String error();
+    }
+
+    @Value.Immutable
+    interface TagDetails {
+        List<TagInfo> tags();
+
+        @Value.Immutable
+        interface TagInfo {
+            long id();
+
+            int up();
+
+            int down();
+
+            float confidence();
+
+            String tag();
+
+            String user();
+
+            List<Vote> votes();
+        }
+
+        @Value.Immutable
+        interface Vote {
+            int vote();
+
+            String user();
+        }
     }
 }
