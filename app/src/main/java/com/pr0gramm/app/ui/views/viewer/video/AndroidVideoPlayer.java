@@ -25,6 +25,7 @@ import android.view.View;
 
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.ui.views.AspectLayout;
 
 import org.slf4j.Logger;
@@ -81,7 +82,9 @@ public class AndroidVideoPlayer extends RxVideoPlayer implements VideoPlayer {
         this.parentView = aspectLayout;
 
         // always use surface view.
-        mBackendView = new TextureViewBackend(context, backendViewCallbacks);
+        mBackendView = Settings.of(context).useTextureView()
+                ? new TextureViewBackend(context, backendViewCallbacks)
+                : new SurfaceViewBackend(context, backendViewCallbacks);
 
         View view = mBackendView.getView();
         view.setAlpha(0.01f);

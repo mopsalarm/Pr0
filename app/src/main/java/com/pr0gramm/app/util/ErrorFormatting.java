@@ -10,7 +10,6 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
 import com.pr0gramm.app.R;
@@ -32,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLException;
 
-import okhttp3.ResponseBody;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.functions.Func2;
 
@@ -277,14 +275,6 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(Throwable.class, guessMessage::call));
 
         return formatters;
-    }
-
-    private static String toString(ResponseBody body) {
-        try {
-            return CharStreams.toString(body.charStream());
-        } catch (IOException err) {
-            return "";
-        }
     }
 
     private static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());

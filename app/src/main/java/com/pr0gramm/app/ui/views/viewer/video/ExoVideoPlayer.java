@@ -320,7 +320,7 @@ public class ExoVideoPlayer extends RxVideoPlayer implements VideoPlayer, ExoPla
         Throwable rootCause = Throwables.getRootCause(error);
 
         String messageChain = getMessageWithCauses(error);
-        if (messageChain.contains("::pr0:: network error")) {
+        if (error.type == ExoPlaybackException.TYPE_SOURCE) {
             String message = context.getString(R.string.media_exo_error_io, rootCause.getMessage());
             callbacks.onVideoError(message, ErrorKind.NETWORK);
 
