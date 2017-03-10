@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.fragments;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,7 +32,6 @@ import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.Graph;
 import com.pr0gramm.app.services.NavigationProvider;
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem;
-import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.ContactActivity;
@@ -49,7 +47,6 @@ import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
-import com.thefinestartist.finestwebview.FinestWebView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +61,7 @@ import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.R.id.unread_count;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
+import static com.pr0gramm.app.util.CustomTabsHelper.newWebviewBuilder;
 
 /**
  */
@@ -486,14 +484,7 @@ public class DrawerFragment extends BaseFragment {
         javaScript = javaScript.replace("UNIQUE", String.valueOf(System.currentTimeMillis()));
 
         String url = "https://pr0gramm.com/secret-santa/iap";
-        new FinestWebView.Builder(getActivity().getApplicationContext())
-                .theme(ThemeHelper.theme().noActionBar)
-                .iconDefaultColor(Color.WHITE)
-                .toolbarColorRes(ThemeHelper.theme().primaryColor)
-                .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
-                .webViewSupportZoom(true)
-                .webViewBuiltInZoomControls(true)
-                .webViewDisplayZoomControls(false)
+        newWebviewBuilder(getActivity())
                 .injectJavaScript("javascript:" + javaScript)
                 .show(url);
 

@@ -1,14 +1,13 @@
 package com.pr0gramm.app.ui;
 
-import android.graphics.Color;
 import android.net.Uri;
 import android.text.style.URLSpan;
 import android.view.View;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Settings;
-import com.pr0gramm.app.services.ThemeHelper;
-import com.thefinestartist.finestwebview.FinestWebView;
+
+import static com.pr0gramm.app.util.CustomTabsHelper.newWebviewBuilder;
 
 /**
  */
@@ -32,15 +31,7 @@ public class PrivateBrowserSpan extends URLSpan {
         }
 
         if (useIncognitoBrowser) {
-            new FinestWebView.Builder(widget.getContext().getApplicationContext())
-                    .theme(ThemeHelper.theme().noActionBar)
-                    .iconDefaultColor(Color.WHITE)
-                    .toolbarColorRes(ThemeHelper.theme().primaryColor)
-                    .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
-                    .webViewSupportZoom(true)
-                    .webViewBuiltInZoomControls(true)
-                    .webViewDisplayZoomControls(false)
-                    .show(url);
+            newWebviewBuilder(widget.getContext()).show(url);
 
         } else {
             // dispatch link normally

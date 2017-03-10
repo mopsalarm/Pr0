@@ -17,7 +17,7 @@ public class ThemeActionItemsSlide extends ActionItemsSlide {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.setBackgroundResource(ThemeHelper.theme().primaryColor);
+        view.setBackgroundResource(ThemeHelper.theme().accentColor);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ThemeActionItemsSlide extends ActionItemsSlide {
 
             View view = getView();
             if (view != null) {
-                view.setBackgroundResource(theme.primaryColor);
+                view.setBackgroundResource(theme.accentColor);
             }
         }
 

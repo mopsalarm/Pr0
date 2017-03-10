@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsService;
-import android.support.v4.content.ContextCompat;
 
 import com.pr0gramm.app.services.ThemeHelper;
 import com.thefinestartist.finestwebview.FinestWebView;
@@ -17,6 +16,7 @@ import com.thefinestartist.finestwebview.FinestWebView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.support.v4.content.ContextCompat.getColor;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
@@ -76,25 +76,17 @@ public class CustomTabsHelper {
     }
 
     public void openCustomTab(Uri uri) {
-        int primaryColor = ContextCompat.getColor(context, ThemeHelper.primaryColor());
 
         String packageName = getPackageName();
         if (packageName == null) {
-            new FinestWebView.Builder(context.getApplicationContext())
-                    .theme(ThemeHelper.theme().noActionBar)
-                    .iconDefaultColor(Color.WHITE)
-                    .toolbarColorRes(ThemeHelper.theme().primaryColor)
-                    .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
-                    .webViewSupportZoom(true)
-                    .webViewBuiltInZoomControls(true)
-                    .webViewDisplayZoomControls(false)
-                    .show(uri.toString());
+            newWebviewBuilder(context).show(uri.toString());
 
         } else {
             CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
                     .enableUrlBarHiding()
                     .addDefaultShareMenuItem()
-                    .setToolbarColor(primaryColor)
+                    .setToolbarColor(getColor(context, ThemeHelper.theme().primaryColor))
+                    .setSecondaryToolbarColor(getColor(context, ThemeHelper.theme().primaryColorDark))
                     .build();
 
             customTabsIntent.intent.setPackage(packageName);
@@ -105,5 +97,19 @@ public class CustomTabsHelper {
 
             customTabsIntent.launchUrl(context, uri);
         }
+    }
+
+    /**
+     * Creates a builder with reasonable defaults to create a webview activity.
+     */
+    public static FinestWebView.Builder newWebviewBuilder(Context context) {
+        return new FinestWebView.Builder(context.getApplicationContext())
+                .theme(ThemeHelper.theme().noActionBar)
+                .iconDefaultColor(Color.WHITE)
+                .toolbarColorRes(ThemeHelper.theme().primaryColor)
+                .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
+                .webViewSupportZoom(true)
+                .webViewBuiltInZoomControls(true)
+                .webViewDisplayZoomControls(false);
     }
 }

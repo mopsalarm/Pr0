@@ -239,7 +239,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
             storeUnmuteTime(System.currentTimeMillis());
 
             icon = AndroidUtility.getTintentDrawable(getContext(),
-                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.primaryColor());
+                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor());
         }
 
         muteButtonView.setImageDrawable(icon);

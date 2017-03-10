@@ -41,7 +41,7 @@ import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
 import static com.pr0gramm.app.R.color.grey_700;
-import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 
 
 /**
@@ -124,7 +124,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
                 holder.setTextColorId(version.current
-                        ? primaryColor() : grey_700);
+                        ? accentColor() : grey_700);
             }
         }
 

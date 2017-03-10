@@ -174,7 +174,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 boolean isFavorite = favedComments.contains(comment.getId());
 
                 if (isFavorite) {
-                    int color = ContextCompat.getColor(context, ThemeHelper.primaryColor());
+                    int color = ContextCompat.getColor(context, ThemeHelper.accentColor());
                     view.kFav.setColorFilter(color);
                     view.kFav.setImageResource(R.drawable.ic_favorite);
                 } else {

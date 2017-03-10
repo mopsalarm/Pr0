@@ -93,7 +93,7 @@ public class ContactActivity extends BaseAppCompatActivity {
             actionbar.setDisplayHomeAsUpEnabled(true);
         }
 
-        int primary = ContextCompat.getColor(this, ThemeHelper.primaryColor());
+        int primary = ContextCompat.getColor(this, ThemeHelper.accentColor());
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary));
 
         // register all the change listeners

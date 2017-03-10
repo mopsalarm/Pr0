@@ -114,7 +114,7 @@ import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
 import static com.pr0gramm.app.feed.ContentType.SFW;
-import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
@@ -282,7 +282,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
 
-        swipeRefreshLayout.setColorSchemeResources(primaryColor());
+        swipeRefreshLayout.setColorSchemeResources(accentColor());
 
         resetToolbar();
 

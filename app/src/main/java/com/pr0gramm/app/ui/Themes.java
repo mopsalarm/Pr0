@@ -12,6 +12,7 @@ import com.pr0gramm.app.R;
  */
 public enum Themes {
     ORANGE(R.string.theme_orange,
+            R.color.orange_accent,
             R.color.orange_primary,
             R.color.orange_primary_dark,
             R.style.AppTheme_Orange,
@@ -22,6 +23,7 @@ public enum Themes {
     ),
 
     GREEN(R.string.theme_green,
+            R.color.green_accent,
             R.color.green_primary,
             R.color.green_primary_dark,
             R.style.AppTheme_Green,
@@ -32,6 +34,7 @@ public enum Themes {
     ),
 
     OLIVE(R.string.theme_olive,
+            R.color.olive_accent,
             R.color.olive_primary,
             R.color.olive_primary_dark,
             R.style.AppTheme_Olive,
@@ -42,6 +45,7 @@ public enum Themes {
     ),
 
     BLUE(R.string.theme_blue,
+            R.color.blue_accent,
             R.color.blue_primary,
             R.color.blue_primary_dark,
             R.style.AppTheme_Blue,
@@ -52,6 +56,7 @@ public enum Themes {
     ),
 
     PINK(R.string.theme_pink,
+            R.color.pink_accent,
             R.color.pink_primary,
             R.color.pink_primary_dark,
             R.style.AppTheme_Pink,
@@ -63,6 +68,7 @@ public enum Themes {
 
     BLACK(R.string.theme_black,
             R.color.black_accent,
+            R.color.black_primary,
             R.color.black_primary_dark,
             R.style.AppTheme_Black,
             R.style.AppTheme_Black_NoActionBar,
@@ -73,6 +79,9 @@ public enum Themes {
 
     @StringRes
     public final int title;
+
+    @ColorRes
+    public final int accentColor;
 
     @ColorRes
     public final int primaryColor;
@@ -96,6 +105,7 @@ public enum Themes {
     public final int whiteAccent;
 
     Themes(@StringRes int title,
+           @ColorRes int accentColor,
            @ColorRes int primaryColor,
            @ColorRes int primaryColorDark,
            @StyleRes int basic,
@@ -105,6 +115,7 @@ public enum Themes {
            @StyleRes int whiteAccent) {
 
         this.title = title;
+        this.accentColor = accentColor;
         this.primaryColor = primaryColor;
         this.primaryColorDark = primaryColorDark;
         this.basic = basic;

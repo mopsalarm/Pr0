@@ -21,8 +21,8 @@ public final class ThemeHelper {
     }
 
     @ColorRes
-    public static int primaryColor() {
-        return theme().primaryColor;
+    public static int accentColor() {
+        return theme().accentColor;
     }
 
     @ColorRes

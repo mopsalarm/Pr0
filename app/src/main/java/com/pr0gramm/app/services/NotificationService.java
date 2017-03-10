@@ -42,7 +42,7 @@ import rx.functions.Actions;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.limit;
 import static com.google.common.collect.Iterables.transform;
-import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 
 /**
  */
@@ -134,7 +134,7 @@ public class NotificationService {
                 .setAutoCancel(true)
                 .setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(ContextCompat.getColor(context, primaryColor()), 500, 500);
+                .setLights(ContextCompat.getColor(context, accentColor()), 500, 500);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             int replyToUserId = replyToUserId(messages);

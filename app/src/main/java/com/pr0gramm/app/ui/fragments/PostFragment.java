@@ -107,7 +107,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
 import static com.pr0gramm.app.R.id.player_container;
-import static com.pr0gramm.app.services.ThemeHelper.primaryColor;
+import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -300,7 +300,7 @@ public class PostFragment extends BaseFragment implements
 
         content.addOnScrollListener(scrollHandler);
 
-        swipeRefreshLayout.setColorSchemeResources(primaryColor());
+        swipeRefreshLayout.setColorSchemeResources(accentColor());
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!isVideoFullScreen()) {
                 rewindOnLoad = true;
