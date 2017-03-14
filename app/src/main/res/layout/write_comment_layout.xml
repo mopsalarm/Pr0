@@ -40,5 +40,5 @@
         android:gravity="center"
         android:padding="8dp"
         android:text="@string/post_comment"
-        android:textColor="?colorAccent"/>
+        android:textColor="?colorPrimary"/>
 </LinearLayout>
