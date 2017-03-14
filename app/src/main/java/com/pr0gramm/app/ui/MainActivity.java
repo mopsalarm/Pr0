@@ -28,7 +28,6 @@ import android.view.Window;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -233,18 +232,8 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         if (configService.config().adType() == Config.AdType.MAIN) {
             Ad.shouldShowAds(userService).compose(bindToLifecycle()).subscribe(show -> {
-                if (show) {
-                    globalAdView.setAdListener(new AdListener() {
-                        @Override
-                        public void onAdLoaded() {
-                            globalAdView.setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                    Ad.load(globalAdView);
-                } else {
-                    globalAdView.setVisibility(View.GONE);
-                }
+                globalAdView.setVisibility(show ? View.VISIBLE : View.GONE);
+                Ad.load(globalAdView);
             });
         }
 
