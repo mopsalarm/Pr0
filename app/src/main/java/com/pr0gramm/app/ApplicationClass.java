@@ -67,6 +67,10 @@ public class ApplicationClass extends Application {
             Dart.setDebug(true);
 
         } else {
+            // allow all the dirty stuff.
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
+
             logger.info("Initialize fabric");
             Fabric.with(this, new Crashlytics());
 
