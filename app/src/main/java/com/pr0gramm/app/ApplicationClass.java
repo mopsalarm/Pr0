@@ -6,6 +6,7 @@ import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
 import com.f2prateek.dart.Dart;
+import com.google.android.gms.ads.MobileAds;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
@@ -67,6 +68,10 @@ public class ApplicationClass extends Application {
             Dart.setDebug(true);
 
         } else {
+            // allow all the dirty stuff.
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
+
             logger.info("Initialize fabric");
             Fabric.with(this, new Crashlytics());
 
@@ -98,6 +103,9 @@ public class ApplicationClass extends Application {
                 h.setLevel(Level.INFO);
             }
         }
+
+        // enable ads.
+        MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673");
     }
 
     public static ApplicationClass get(Context context) {

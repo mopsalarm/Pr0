@@ -2,8 +2,9 @@
 ext {
     VersionSupportLibrary = "25.2.0"
     VersionRxBinding = "1.0.1"
-    VersionImmutables = "2.4.3"
+    VersionImmutables = "2.4.4"
     VersionRetrofit = "2.2.0"
+    VersionGoogleServices = "10.2.0"
 }
 
 repositories {
@@ -38,7 +39,8 @@ dependencies {
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
     compile "com.google.guava:guava:20.0"
 
-    compile "com.google.android.gms:play-services-analytics:10.2.0"
+    compile "com.google.android.gms:play-services-analytics:$VersionGoogleServices"
+    compile "com.google.android.gms:play-services-ads:$VersionGoogleServices"
 
     compile "net.danlew:android.joda:2.9.7"
     compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"

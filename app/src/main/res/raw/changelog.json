@@ -1,5 +1,14 @@
 [
   {
+    "version": 122,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Kleine Ausbesserung fürs neues Theme."
+      }
+    ]
+  },
+  {
     "version": 121,
     "changes": [
       {

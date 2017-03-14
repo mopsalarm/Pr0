@@ -27,13 +27,6 @@ public class TrackingModule {
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
         tracker.setAppVersion(String.valueOf(BuildConfig.VERSION_NAME));
-
-        tracker.setSampleRate(25);
-
-        configService.observeConfig().subscribe(config -> {
-            tracker.setSampleRate(config.googleAnalyticsSampleRate());
-        });
-
         return tracker;
     }
 }
