@@ -50,11 +50,11 @@ public class Config {
     static Map<String, Object> defaultValues() {
         return ImmutableMap.<String, Object>builder()
                 .put("extra_categories", true)
-                .put("max_upload_size_normal", 8L * 1024 * 1024)
+                .put("max_upload_size_normal", 6L * 1024 * 1024)
                 .put("max_upload_size_premium", 12L * 1024 * 1024)
                 .put("search_using_tag_service_default", false)
                 .put("secret_santa", false)
-                .put("ad_banner_type", "FEED")
+                .put("ad_banner_type", "NONE")
                 .build();
     }
 

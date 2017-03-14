@@ -3,8 +3,8 @@
     "version": 122,
     "changes": [
       {
-        "type": "Info",
-        "change": "Interne Umbauten."
+        "type": "Fix",
+        "change": "Kleine Ausbesserung fürs neues Theme."
       }
     ]
   },
