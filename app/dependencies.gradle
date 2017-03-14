@@ -2,7 +2,7 @@
 ext {
     VersionSupportLibrary = "25.2.0"
     VersionRxBinding = "1.0.1"
-    VersionImmutables = "2.4.3"
+    VersionImmutables = "2.4.4"
     VersionRetrofit = "2.2.0"
     GoogleServices = "9.8.0"
 }
