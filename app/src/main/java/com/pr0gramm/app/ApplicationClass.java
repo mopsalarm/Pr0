@@ -106,6 +106,8 @@ public class ApplicationClass extends Application {
 
         // enable ads.
         MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673");
+        MobileAds.setAppVolume(0);
+        MobileAds.setAppMuted(true);
     }
 
     public static ApplicationClass get(Context context) {

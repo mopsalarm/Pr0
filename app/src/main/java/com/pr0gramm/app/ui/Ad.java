@@ -21,6 +21,7 @@ public class Ad {
     public static void load(AdView view) {
         if (view != null) {
             view.loadAd(new AdRequest.Builder()
+                    .setIsDesignedForFamilies(false)
                     .addTestDevice("5436541A8134C1A32DACFD10442A32A1")
                     .build());
         }
