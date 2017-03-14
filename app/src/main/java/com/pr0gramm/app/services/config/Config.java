@@ -9,23 +9,18 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 public abstract class Config {
     @Value.Default
-    public double googleAnalyticsSampleRate() {
-        return 0.5;
-    }
-
-    @Value.Default
     public boolean extraCategories() {
         return true;
     }
 
     @Value.Default
     public long maxUploadSizeNormal() {
-        return 4 * 1024 * 1024;
+        return 6 * 1024 * 1024;
     }
 
     @Value.Default
     public long maxUploadSizePremium() {
-        return 8 * 1024 * 1024;
+        return 12 * 1024 * 1024;
     }
 
     @Value.Default
@@ -41,5 +36,14 @@ public abstract class Config {
     @Value.Default
     public boolean secretSanta() {
         return false;
+    }
+
+    @Value.Default
+    public AdType adType() {
+        return AdType.NONE;
+    }
+
+    public enum AdType {
+        NONE, FEED, MAIN;
     }
 }

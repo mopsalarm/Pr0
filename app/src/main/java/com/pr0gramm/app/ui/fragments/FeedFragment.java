@@ -59,8 +59,11 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.config.Config;
+import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
+import com.pr0gramm.app.ui.Ad;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.DetectTapTouchListener;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -172,6 +175,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     @Inject
     FollowingService followService;
 
+    @Inject
+    ConfigService configService;
+
     @BindView(R.id.list)
     RecyclerView recyclerView;
 
@@ -189,6 +195,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
     @BindView(R.id.search_options)
     SearchOptionsView searchView;
+
+    private final AdViewAdapter adViewAdapter = new AdViewAdapter();
 
     boolean userInfoCommentsOpen;
     private boolean bookmarkable;
@@ -223,6 +231,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         }
 
         this.scrollToolbar = useToolbarTopMargin();
+
+        // show ads if enabled.
+        if (configService.config().adType() == Config.AdType.FEED) {
+            Ad.shouldShowAds(userService)
+                    .compose(bindToLifecycle())
+                    .subscribe(adViewAdapter::showAds);
+        }
     }
 
     @Override
@@ -337,7 +352,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             merged.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
         }
 
+        merged.addAdapter(adViewAdapter);
+
         merged.addAdapter(adapter);
+
         recyclerView.setAdapter(merged);
 
         updateSpanSizeLookup();
@@ -453,7 +471,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             for (int idx = 0; idx < subAdapters.size(); idx++) {
                 offset = idx;
 
-                if (subAdapters.get(idx) instanceof FeedAdapter) {
+                RecyclerView.Adapter<?> subAdapter = subAdapters.get(idx);
+                if (subAdapter instanceof FeedAdapter || subAdapter instanceof AdViewAdapter) {
                     break;
                 }
             }
