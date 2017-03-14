@@ -29,11 +29,6 @@ public abstract class Config {
     }
 
     @Value.Default
-    public boolean enableNotSafeForPublic() {
-        return true;
-    }
-
-    @Value.Default
     public boolean secretSanta() {
         return false;
     }

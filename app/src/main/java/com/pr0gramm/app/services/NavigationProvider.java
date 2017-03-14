@@ -113,7 +113,7 @@ public class NavigationProvider {
     private Observable<Boolean> checkExtraCategoryApi(ExtraCategoryApiProvider extraCategoryApi) {
         Observable<Boolean> activeByConfig = configService.observeConfig().map(Config::extraCategories);
 
-        return activeByConfig.switchMap(active -> {
+        return activeByConfig.distinctUntilChanged().switchMap(active -> {
             if (!active) {
                 return just(false);
             }
@@ -133,8 +133,8 @@ public class NavigationProvider {
 
                 userService.loginState()
                         .flatMap(ignored -> bookmarkService.get())
-                        .map(this::bookmarksToNavItem)
-                        .startWith(Collections.<NavigationItem>emptyList()),
+                        .startWith(Collections.<Bookmark>emptyList())
+                        .map(this::bookmarksToNavItem),
 
                 inboxService.unreadMessagesCount()
                         .startWith(0)
