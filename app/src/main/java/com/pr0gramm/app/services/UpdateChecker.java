@@ -117,10 +117,10 @@ public class UpdateChecker {
         List<String> urls = new ArrayList<>();
 
         if (betaChannel) {
-            urls.add("https://pr0.wibbly-wobbly.de/beta/" + flavor + "/");
+            urls.add("https://pr0.wibbly-wobbly.de/beta");
             urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor + "/");
         } else {
-            urls.add("https://pr0.wibbly-wobbly.de/stable/" + flavor + "/");
+            urls.add("https://pr0.wibbly-wobbly.de/stable");
             urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor + "/");
         }
 

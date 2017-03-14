@@ -1,5 +1,14 @@
 [
   {
+    "version": 122,
+    "changes": [
+      {
+        "type": "Info",
+        "change": "Interne Umbauten."
+      }
+    ]
+  },
+  {
     "version": 121,
     "changes": [
       {

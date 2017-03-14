@@ -108,17 +108,9 @@ public class UserService {
 
         loginStateObservable.subscribe(this::persistLatestLoginState);
 
-        // this is not nice, and will get removed in one or two versions!
-        // TODO REMOVE THIS ASAP.
-        loginStateObservable
-                .filter(state -> state.authorized() && state.uniqueToken() == null)
-                .switchMap(state -> api.identifier().subscribeOn(BackgroundScheduler.instance()))
-                .map(Api.UserIdentifier::identifier)
-                .onErrorResumeNext(Observable.empty())
-                .subscribe(this::updateUniqueToken);
-
         loginStateObservable.subscribe(state -> {
             Track.updateAuthorizedState(state.authorized());
+            Track.updatePremiumState(state.premium());
         });
     }
 

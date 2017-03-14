@@ -4,6 +4,7 @@ ext {
     VersionRxBinding = "1.0.1"
     VersionImmutables = "2.4.3"
     VersionRetrofit = "2.2.0"
+    GoogleServices = "9.8.0"
 }
 
 repositories {
@@ -38,7 +39,9 @@ dependencies {
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
     compile "com.google.guava:guava:20.0"
 
-    compile "com.google.android.gms:play-services-analytics:10.2.0"
+    compile "com.google.firebase:firebase-core:$GoogleServices"
+    compile "com.google.firebase:firebase-ads:$GoogleServices"
+    compile "com.google.firebase:firebase-config:$GoogleServices"
 
     compile "net.danlew:android.joda:2.9.7"
     compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"

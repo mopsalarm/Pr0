@@ -22,7 +22,6 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.Stats;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.ThemeHelper;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.views.AspectLayout;
@@ -101,7 +100,6 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         muteButtonView.setOnClickListener(v -> {
             setMuted(!videoPlayer.isMuted());
-            Track.muted(!videoPlayer.isMuted());
         });
 
         RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
