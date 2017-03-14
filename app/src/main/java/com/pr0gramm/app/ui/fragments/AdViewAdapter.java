@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.pr0gramm.app.R;
@@ -21,13 +20,6 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
         AdView view = new AdView(context);
         view.setAdSize(AdSize.SMART_BANNER);
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
-        view.setAdListener(new AdListener() {
-            @Override
-            public void onAdFailedToLoad(int err) {
-                view.setVisibility(View.GONE);
-            }
-        });
-
         return view;
     }
 
