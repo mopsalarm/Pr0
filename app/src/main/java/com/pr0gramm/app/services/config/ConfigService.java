@@ -1,12 +1,19 @@
 package com.pr0gramm.app.services.config;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.pr0gramm.app.BuildConfig;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +36,8 @@ import rx.subjects.Subject;
 @Singleton
 public class ConfigService {
     private static final Logger logger = LoggerFactory.getLogger("ConfigService");
-    private static final String PREF_KEY = "ConfigService.data";
+    private static final String PREF_DATA_KEY = "ConfigService.data";
+    private static final String PREF_ID_KEY = "ConfigService.id";
 
     private final Subject<Config, Config> configSubject = BehaviorSubject.<Config>create(
             ImmutableConfig.builder().build()).toSerialized();
@@ -38,15 +46,22 @@ public class ConfigService {
     private final OkHttpClient okHttpClient;
     private final SharedPreferences preferences;
 
+    // We are using a device hash so we can return the same config if
+    // the devices asks multiple times. We do this so that we can always derive the same
+    // config from the hash without storing anything on the server side.
+    private final String deviceHash;
+
     private volatile Config configState;
 
     @Inject
-    public ConfigService(OkHttpClient okHttpClient, Gson gson, SharedPreferences preferences) {
+    public ConfigService(Context context, OkHttpClient okHttpClient, Gson gson, SharedPreferences preferences) {
         this.okHttpClient = okHttpClient;
         this.gson = gson;
         this.preferences = preferences;
 
-        String jsonCoded = preferences.getString(PREF_KEY, "{}");
+        this.deviceHash = makeUniqueIdentifier(context, preferences);
+
+        String jsonCoded = preferences.getString(PREF_DATA_KEY, "{}");
         this.configState = loadState(gson, jsonCoded);
 
         publishState();
@@ -55,12 +70,41 @@ public class ConfigService {
         Observable.interval(0, 1, TimeUnit.HOURS, Schedulers.io()).subscribe(event -> update());
     }
 
+    @SuppressLint("HardwareIds")
+    private static String makeUniqueIdentifier(Context context, SharedPreferences preferences) {
+        // get a cached version
+        String cached = preferences.getString(PREF_ID_KEY, null);
+
+        if (Strings.isNullOrEmpty(cached)) {
+            // try the device id.
+            ContentResolver resolver = context.getApplicationContext().getContentResolver();
+            cached = Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID);
+
+            // still nothing? create a random id.
+            if (Strings.isNullOrEmpty(cached)) {
+                cached = RandomStringUtils.random(16, "0123456789abcdef");
+            }
+
+            // now cache the new id
+            logger.info("Caching new device id.");
+            preferences.edit()
+                    .putString(PREF_ID_KEY, cached)
+                    .apply();
+        }
+
+        return cached;
+    }
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void update() {
+        Uri url = Uri.parse("http://pr0.wibbly-wobbly.de/app-config/v2/").buildUpon()
+                .appendEncodedPath("version").appendPath(BuildConfig.VERSION_NAME)
+                .appendEncodedPath("hash").appendPath(deviceHash)
+                .appendEncodedPath("config.json")
+                .build();
+
         try {
-            Request request = new Request.Builder()
-                    .url("http://pr0.wibbly-wobbly.de/app-config/" + BuildConfig.VERSION_CODE + "/config.json")
-                    .build();
+            Request request = new Request.Builder().url(url.toString()).build();
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (response.isSuccessful()) {
@@ -88,7 +132,7 @@ public class ConfigService {
         try {
             String jsonCoded = gson.toJson(configState);
             preferences.edit()
-                    .putString(PREF_KEY, jsonCoded)
+                    .putString(PREF_DATA_KEY, jsonCoded)
                     .apply();
 
         } catch (Exception err) {
