@@ -113,15 +113,14 @@ public class UpdateChecker {
      * Returns the Endpoint-URL that is to be queried
      */
     private static ImmutableList<String> updateUrls(boolean betaChannel) {
-        String flavor = BuildConfig.FLAVOR;
         List<String> urls = new ArrayList<>();
 
         if (betaChannel) {
             urls.add("https://pr0.wibbly-wobbly.de/beta/");
-            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/" + flavor + "/");
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/beta/");
         } else {
             urls.add("https://pr0.wibbly-wobbly.de/stable/");
-            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/" + flavor + "/");
+            urls.add("https://github.com/mopsalarm/pr0gramm-updates/raw/master/");
         }
 
         return ImmutableList.copyOf(urls);
