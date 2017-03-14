@@ -1,17 +1,14 @@
 package com.pr0gramm.app.services;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.os.Bundle;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.feed.Vote;
 
 import java.util.concurrent.TimeUnit;
-
-import static com.pr0gramm.app.util.FluentBundle.newFluentBundle;
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
@@ -24,59 +21,87 @@ public final class Track {
     }
 
     public static void loginSuccessful() {
-        ga().logEvent(FirebaseAnalytics.Event.LOGIN, null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("Login")
+                .setLabel("Success")
+                .build());
     }
 
     public static void loginFailed() {
-        ga().logEvent("login_failed", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("Login")
+                .setLabel("Success")
+                .build());
     }
 
     public static void logout() {
-        ga().logEvent("logout", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("Logout")
+                .build());
     }
 
     public static void search(String query) {
-        ga().logEvent(FirebaseAnalytics.Event.SEARCH, newFluentBundle()
-                .put(FirebaseAnalytics.Param.SEARCH_TERM, query)
-                .put("advanced", false)
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Feed")
+                .setAction("Search")
+                .setLabel(query)
+                .build());
     }
 
     public static void writeComment() {
-        ga().logEvent("write_comment", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("WriteComment")
+                .build());
     }
 
     public static void writeMessage() {
-        ga().logEvent("write_message", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("WriteMessage")
+                .build());
     }
 
     public static void searchImage() {
-        ga().logEvent("search_image", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("SearchImage")
+                .build());
     }
 
     public static void share(String type) {
-        ga().logEvent(FirebaseAnalytics.Event.SHARE, newFluentBundle()
-                .put(FirebaseAnalytics.Param.CONTENT_TYPE, type)
-                .put(FirebaseAnalytics.Param.ITEM_ID, "0")
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Share")
+                .setLabel(type)
+                .build());
     }
 
     public static void votePost(Vote vote) {
-        ga().logEvent("Vote" + vote.name(), newFluentBundle()
-                .put(FirebaseAnalytics.Param.CONTENT_TYPE, "post")
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Vote" + vote.name())
+                .setLabel("Post")
+                .build());
     }
 
     public static void voteTag(Vote vote) {
-        ga().logEvent("Vote" + vote.name(), newFluentBundle()
-                .put(FirebaseAnalytics.Param.CONTENT_TYPE, "tag")
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Vote" + vote.name())
+                .setLabel("Tag")
+                .build());
     }
 
     public static void voteComment(Vote vote) {
-        ga().logEvent("Vote" + vote.name(), newFluentBundle()
-                .put(FirebaseAnalytics.Param.CONTENT_TYPE, "comment")
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Vote" + vote.name())
+                .setLabel("Comment")
+                .build());
     }
 
     public static void upload(long size) {
@@ -85,13 +110,18 @@ public final class Track {
         @SuppressLint("DefaultLocale")
         String sizeCategory = String.format("%d-%d kb", categoryStart, categoryStart + 512);
 
-        ga().logEvent("upload", newFluentBundle()
-                .put("size", sizeCategory)
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Upload")
+                .setLabel(sizeCategory)
+                .build());
     }
 
     public static void download() {
-        ga().logEvent("download", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("Download")
+                .build());
     }
 
     public static void statistics() {
@@ -99,78 +129,115 @@ public final class Track {
     }
 
     public static void notificationShown() {
-        ga().logEvent("notification_shown", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Notification")
+                .setAction("Shown")
+                .build());
     }
 
     public static void notificationClosed(String method) {
-        ga().logEvent("notification_closed", newFluentBundle()
-                .put("method", method)
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Notification")
+                .setAction("Closed")
+                .setLabel(method)
+                .build());
     }
 
     public static void preloadCurrentFeed(int size) {
-        ga().logEvent("preload", newFluentBundle()
-                .put("item_count", size)
-                .get());
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Feed")
+                .setAction("Preload")
+                .setLabel(String.valueOf(size))
+                .build());
     }
 
     public static void inviteSent() {
-        ga().logEvent("invite_sent", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("Invited")
+                .build());
     }
 
     public static void commentFaved() {
-        ga().logEvent("kfav_created", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("KFavCreated")
+                .build());
     }
 
     public static void listFavedComments() {
-        ga().logEvent("kfav_list", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction("KFavViewed")
+                .build());
     }
 
     public static void quickPeek() {
-        ga().logEvent("quickpeek", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Feed")
+                .setAction("QuickPeek")
+                .build());
+    }
+
+    public static void muted(boolean mute) {
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Content")
+                .setAction(mute ? "Muted" : "Unmuted")
+                .build());
     }
 
     public static void registerLinkClicked() {
-        ga().logEvent("begin_register", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Register")
+                .setAction("Clicked")
+                .build());
     }
 
     public static void advancedSearch(String query) {
-        ga().logEvent(FirebaseAnalytics.Event.SEARCH, newFluentBundle()
-                .put(FirebaseAnalytics.Param.SEARCH_TERM, query)
-                .put("advanced", true)
-                .get());
-
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Feed")
+                .setAction("AdvancedSearch")
+                .setLabel(query)
+                .build());
     }
 
     public static void passwordChanged() {
-        ga().logEvent("password_changed", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("User")
+                .setAction("PasswordChanged")
+                .build());
     }
 
     public static void secretSantaClicked() {
-        ga().logEvent("secret_santa_clicked", null);
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("SecretSanta")
+                .setAction("Clicked")
+                .build());
     }
 
-    public static void screen(Activity activity, String name) {
-        ga().setCurrentScreen(activity, name, name);
+    public static void screen(String name) {
+        Tracker tr = ga();
+        tr.setScreenName(name);
+        tr.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     static void updateAuthorizedState(boolean authorized) {
-        ga().setUserProperty("authorized", String.valueOf(authorized));
-    }
-
-    static void updatePremiumState(boolean premium) {
-        ga().setUserProperty("premium", String.valueOf(premium));
+        ga().set(
+                GA_CUSTOM_AUTHORIZED,
+                String.valueOf(authorized ? 1 : 0));
     }
 
     public static void trackApiCallSpeed(Stopwatch watch, String methodName, boolean success) {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, methodName);
-        bundle.putLong(FirebaseAnalytics.Param.VALUE, watch.elapsed(TimeUnit.MILLISECONDS));
-        bundle.putBoolean("success", success);
-        ga().logEvent("api", bundle);
+        ga().send(
+                new HitBuilders.TimingBuilder()
+                        .setCategory("Api")
+                        .setValue(watch.elapsed(TimeUnit.MILLISECONDS))
+                        .setVariable(methodName)
+                        .setLabel(success ? "success" : "failure")
+                        .build());
     }
 
-    private static FirebaseAnalytics ga() {
-        return ApplicationClass.appComponent().tracker();
+    private static Tracker ga() {
+        return ApplicationClass.appComponent().googleAnalyticsTracker();
     }
 }

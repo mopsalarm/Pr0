@@ -1,64 +1,45 @@
 package com.pr0gramm.app.services.config;
 
-import com.google.common.base.Enums;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.pr0gramm.app.BuildConfig;
-
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
-
-import java.util.Map;
 
 /**
  */
-public class Config {
-    private final FirebaseRemoteConfig config;
-
-    protected Config(FirebaseRemoteConfig config) {
-        this.config = config;
+@Value.Immutable
+@Gson.TypeAdapters
+public abstract class Config {
+    @Value.Default
+    public double googleAnalyticsSampleRate() {
+        return 0.5;
     }
 
+    @Value.Default
     public boolean extraCategories() {
-        return config.getBoolean("extra_categories");
+        return true;
     }
 
+    @Value.Default
     public long maxUploadSizeNormal() {
-        return config.getLong("max_upload_size_normal");
+        return 4 * 1024 * 1024;
     }
 
+    @Value.Default
     public long maxUploadSizePremium() {
-        return config.getLong("max_upload_size_premium");
+        return 8 * 1024 * 1024;
     }
 
+    @Value.Default
     public boolean searchUsingTagService() {
-        return config.getBoolean("search_using_tag_service_default");
+        return false;
     }
 
-    public AdType adType() {
-        if (BuildConfig.DEBUG) {
-            return AdType.FEED;
-        }
-
-        return Enums.getIfPresent(AdType.class, config.getString("ad_banner_type")).or(AdType.NONE);
+    @Value.Default
+    public boolean enableNotSafeForPublic() {
+        return true;
     }
 
     @Value.Default
     public boolean secretSanta() {
-        return config.getBoolean("secret_santa");
-    }
-
-    static Map<String, Object> defaultValues() {
-        return ImmutableMap.<String, Object>builder()
-                .put("extra_categories", true)
-                .put("max_upload_size_normal", 8L * 1024 * 1024)
-                .put("max_upload_size_premium", 12L * 1024 * 1024)
-                .put("search_using_tag_service_default", false)
-                .put("secret_santa", false)
-                .put("ad_banner_type", "FEED")
-                .build();
-    }
-
-    public enum AdType {
-        NONE, MAIN, FEED
+        return false;
     }
 }

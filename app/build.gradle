@@ -18,7 +18,6 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.22.1'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
@@ -138,5 +137,3 @@ retrolambda {
 }
 
 apply from: "dependencies.gradle"
-
-apply plugin: 'com.google.gms.google-services'

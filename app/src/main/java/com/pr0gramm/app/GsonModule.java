@@ -6,6 +6,7 @@ import com.pr0gramm.app.api.InstantTypeAdapter;
 import com.pr0gramm.app.api.pr0gramm.GsonAdaptersApi;
 import com.pr0gramm.app.services.GsonAdaptersUpdate;
 import com.pr0gramm.app.services.GsonAdaptersUserService;
+import com.pr0gramm.app.services.config.GsonAdaptersConfig;
 
 import org.joda.time.Instant;
 
@@ -24,6 +25,7 @@ public class GsonModule {
             .registerTypeAdapterFactory(new GsonAdaptersApi())
             .registerTypeAdapterFactory(new GsonAdaptersUpdate())
             .registerTypeAdapterFactory(new GsonAdaptersUserService())
+            .registerTypeAdapterFactory(new GsonAdaptersConfig())
             .create();
 
     @Singleton

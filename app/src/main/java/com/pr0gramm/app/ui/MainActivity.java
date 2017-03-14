@@ -28,7 +28,6 @@ import android.view.Window;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.google.android.gms.ads.AdView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -44,8 +43,6 @@ import com.pr0gramm.app.services.InfoMessageService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.services.config.Config;
-import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.back.BackFragmentHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -58,7 +55,6 @@ import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
 import com.pr0gramm.app.ui.intro.IntroActivity;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.util.AndroidUtility;
-import com.trello.rxlifecycle.android.ActivityEvent;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import java.util.ArrayList;
@@ -99,9 +95,6 @@ public class MainActivity extends BaseAppCompatActivity implements
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.ad_view)
-    AdView globalAdView;
-
     @Nullable
     @BindView(R.id.toolbar_container)
     View toolbarContainer;
@@ -132,9 +125,6 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Inject
     InfoMessageService infoMessageService;
-
-    @Inject
-    ConfigService configService;
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -229,17 +219,6 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
-
-        if (configService.config().adType() == Config.AdType.MAIN) {
-            Ad.shouldShowAds(userService).compose(bindToLifecycle()).subscribe(show -> {
-                globalAdView.setVisibility(show ? View.VISIBLE : View.GONE);
-                Ad.load(globalAdView);
-            });
-        }
-
-        lifecycle().filter(ev -> ev == ActivityEvent.DESTROY).subscribe(event -> {
-            globalAdView.destroy();
-        });
     }
 
     private boolean shouldShowOnboardingActivity() {

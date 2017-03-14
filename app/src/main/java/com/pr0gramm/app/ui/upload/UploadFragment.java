@@ -137,6 +137,13 @@ public class UploadFragment extends BaseFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // show nsfp conditionally.
+        View nsfpView = ButterKnife.findById(view, R.id.upload_type_nsfp);
+        if (nsfpView != null) {
+            boolean visible = configService.config().enableNotSafeForPublic();
+            nsfpView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+
         Optional<Uri> uri = getUrlArgument();
         if (uri.isPresent()) {
             handleImageUri(uri.get());

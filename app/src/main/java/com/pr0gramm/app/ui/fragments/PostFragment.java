@@ -53,7 +53,6 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -343,10 +342,8 @@ public class PostFragment extends BaseFragment implements
         repostHint.setVisibility(isRepost() ? View.VISIBLE : View.GONE);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Track.screen(getActivity(), "Post");
+    private boolean isRepost() {
+        return inMemoryCacheService.isRepost(feedItem);
     }
 
     @Override
@@ -885,10 +882,6 @@ public class PostFragment extends BaseFragment implements
                         playerContainer.setBackgroundColor(AndroidUtility.darken(color, 0.5f));
                     }
                 });
-    }
-
-    private boolean isRepost() {
-        return inMemoryCacheService.isRepost(feedItem);
     }
 
     @NonNull

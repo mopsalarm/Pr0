@@ -167,16 +167,16 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
      */
     private void trackScreen(int index) {
         if (index == 0)
-            Track.screen(this, "InboxUnread");
+            Track.screen("InboxUnread");
 
         if (index == 1)
-            Track.screen(this, "InboxOverview");
+            Track.screen("InboxOverview");
 
         if (index == 2)
-            Track.screen(this, "InboxPrivate");
+            Track.screen("InboxPrivate");
 
         if (index == 3)
-            Track.screen(this, "InboxComments");
+            Track.screen("InboxComments");
     }
 
     @Override

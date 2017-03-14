@@ -2,7 +2,7 @@ package com.pr0gramm.app;
 
 import android.content.SharedPreferences;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.pr0gramm.app.io.Cache;
 import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
@@ -55,9 +55,11 @@ public interface AppComponent {
 
     DownloadService downloadService();
 
+    Tracker googleAnalytics();
+
     UserSuggestionService suggestionService();
 
-    FirebaseAnalytics tracker();
+    Tracker googleAnalyticsTracker();
 
     Cache cache();
 
