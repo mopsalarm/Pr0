@@ -1,5 +1,7 @@
 package com.pr0gramm.app.services.config;
 
+import android.support.annotation.Keep;
+
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
@@ -38,6 +40,7 @@ public abstract class Config {
         return AdType.NONE;
     }
 
+    @Keep
     public enum AdType {
         NONE, FEED, MAIN;
     }
