@@ -1,9 +1,12 @@
 package com.pr0gramm.app.ui;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
+import com.pr0gramm.app.services.config.Config;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,5 +35,19 @@ public class Ad {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(info -> !info.premium() || BuildConfig.DEBUG)
                 .distinctUntilChanged();
+    }
+
+    public static class TrackingAdListener extends AdListener {
+        private final Config.AdType adType;
+
+        public TrackingAdListener(Config.AdType adType) {
+            this.adType = adType;
+        }
+
+        @Override
+        public void onAdLeftApplication() {
+            Track.adClicked(adType);
+
+        }
     }
 }

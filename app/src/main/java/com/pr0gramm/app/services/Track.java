@@ -7,6 +7,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
 import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.services.config.Config;
 
 import java.util.concurrent.TimeUnit;
 
@@ -212,6 +213,14 @@ public final class Track {
         ga().send(new HitBuilders.EventBuilder()
                 .setCategory("SecretSanta")
                 .setAction("Clicked")
+                .build());
+    }
+
+    public static void adClicked(Config.AdType type) {
+        ga().send(new HitBuilders.EventBuilder()
+                .setCategory("Ads")
+                .setAction("Clicked")
+                .setLabel(String.valueOf(type))
                 .build());
     }
 

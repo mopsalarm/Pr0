@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.Ad;
 
 /**
@@ -20,6 +21,18 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
         AdView view = new AdView(context);
         view.setAdSize(AdSize.SMART_BANNER);
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
+        view.setAdListener(new Ad.TrackingAdListener(Config.AdType.FEED));
+
+        // This object will be destroyed once the adView loses the reference to the object.
+        // It then can correctly destroy the adView.
+        view.setTag(new Object() {
+            @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+                view.destroy();
+            }
+        });
+
         return view;
     }
 

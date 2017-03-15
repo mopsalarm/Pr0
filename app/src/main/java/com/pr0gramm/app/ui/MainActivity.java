@@ -231,6 +231,8 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
 
+        globalAdView.setAdListener(new Ad.TrackingAdListener(Config.AdType.MAIN));
+
         if (configService.config().adType() == Config.AdType.MAIN) {
             Ad.shouldShowAds(userService).compose(bindToLifecycle()).subscribe(show -> {
                 if (show) {
@@ -252,6 +254,13 @@ public class MainActivity extends BaseAppCompatActivity implements
         lifecycle().filter(ev -> ev == ActivityEvent.DESTROY).subscribe(event -> {
             globalAdView.destroy();
         });
+
+        // migrate the surface view option.
+        if (singleShotService.isFirstTime("migrate.SurfaceView")) {
+            settings.edit()
+                    .putBoolean("pref_use_texture_view_new", true)
+                    .apply();
+        }
     }
 
     private boolean shouldShowOnboardingActivity() {

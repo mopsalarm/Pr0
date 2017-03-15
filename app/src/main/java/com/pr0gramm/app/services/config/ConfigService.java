@@ -98,7 +98,7 @@ public class ConfigService {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void update() {
         Uri url = Uri.parse("http://pr0.wibbly-wobbly.de/app-config/v2/").buildUpon()
-                .appendEncodedPath("version").appendPath(BuildConfig.VERSION_NAME)
+                .appendEncodedPath("version").appendPath(String.valueOf(BuildConfig.VERSION_CODE))
                 .appendEncodedPath("hash").appendPath(deviceHash)
                 .appendEncodedPath("config.json")
                 .build();
@@ -143,7 +143,7 @@ public class ConfigService {
     private void publishState() {
         logger.info("Publishing change in config state");
         try {
-            configSubject.onNext(configState);
+            configSubject.onNext(config());
         } catch (Exception err) {
             logger.warn("Could not publish the current state Oo", err);
         }
@@ -157,6 +157,12 @@ public class ConfigService {
     }
 
     public Config config() {
+        if (BuildConfig.DEBUG) {
+            // add debug overlays
+            return ImmutableConfig.copyOf(configState)
+                    .withAdType(Config.AdType.FEED);
+        }
+
         return configState;
     }
 
