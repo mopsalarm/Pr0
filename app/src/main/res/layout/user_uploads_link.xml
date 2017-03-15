@@ -22,7 +22,7 @@
         android:padding="16dp"
         android:text="@string/user_info_uploads"
         android:background="?selectableItemBackgroundBorderless"
-        android:textColor="?colorPrimary"/>
+        android:textColor="?colorAccent"/>
 
     <View
         android:layout_width="match_parent"
