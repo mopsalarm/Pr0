@@ -19,9 +19,10 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
 
     private AdView newAdView(Context context) {
         AdView view = new AdView(context);
-        view.setAdSize(AdSize.SMART_BANNER);
+        view.setAdSize(AdSize.LARGE_BANNER);
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
         view.setAdListener(new Ad.TrackingAdListener(Config.AdType.FEED));
+        view.setBackgroundResource(R.color.feed_background);
 
         // This object will be destroyed once the adView loses the reference to the object.
         // It then can correctly destroy the adView.
@@ -32,6 +33,8 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
                 view.destroy();
             }
         });
+
+        Ad.load(view);
 
         return view;
     }
@@ -50,7 +53,7 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
 
     @Override
     public void onBindViewHolder(AdViewHolder holder, int position) {
-        Ad.load(holder.view);
+
     }
 
     @Override
