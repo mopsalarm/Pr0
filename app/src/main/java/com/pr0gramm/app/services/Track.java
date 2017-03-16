@@ -6,6 +6,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
+import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.config.Config;
 
@@ -243,6 +244,7 @@ public final class Track {
                         .setValue(watch.elapsed(TimeUnit.MILLISECONDS))
                         .setVariable(methodName)
                         .setLabel(success ? "success" : "failure")
+                        .setNonInteraction(true)
                         .build());
     }
 

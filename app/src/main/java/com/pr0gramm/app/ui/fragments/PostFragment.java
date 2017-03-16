@@ -53,8 +53,10 @@ import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
+import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.LoginActivity;
 import com.pr0gramm.app.ui.MainActivity;
@@ -96,7 +98,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 
@@ -117,6 +118,7 @@ import static com.pr0gramm.app.util.AndroidUtility.screenIsLandscape;
 import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
 import static rx.Observable.just;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 /**
  * This fragment shows the content of one post.
@@ -185,6 +187,9 @@ public class PostFragment extends BaseFragment implements
     @Inject
     FavedCommentService favedCommentService;
 
+    @Inject
+    ConfigService configService;
+
     @BindView(R.id.refresh)
     SwipeRefreshLayout swipeRefreshLayout;
 
@@ -245,7 +250,7 @@ public class PostFragment extends BaseFragment implements
         // check if we are admin or not
         userService.loginState()
                 .filter(UserService.LoginState::admin)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(event -> adminMode = true);
     }
@@ -325,7 +330,7 @@ public class PostFragment extends BaseFragment implements
         // apply login state.
         userService.loginState()
                 .map(UserService.LoginState::authorized)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setShowFavCommentButton);
 
@@ -647,8 +652,19 @@ public class PostFragment extends BaseFragment implements
         super.onStart();
 
         favedCommentService.favedCommentIds()
-                .compose(bindToLifecycleAsync())
+                .observeOn(mainThread())
+                .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setFavedComments);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // track that the user visited this post.
+        if (configService.config().trackItemView()) {
+            Track.screen("Item");
+        }
     }
 
     /**
@@ -659,7 +675,7 @@ public class PostFragment extends BaseFragment implements
         int delay = Sdk.isAtLeastLollipop() ? 500 : 100;
 
         feedService.loadPostDetails(feedItem.id())
-                .delay(delay, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .delay(delay, TimeUnit.MILLISECONDS, mainThread())
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribe(this::onPostReceived, defaultOnError());
     }

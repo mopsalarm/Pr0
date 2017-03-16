@@ -645,6 +645,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     public void onResume() {
         super.onResume();
 
+        Track.screen("Item");
+
         // check if we should show the pin button or not.
         if (settings.showPinButton()) {
             bookmarkService.isBookmarkable(getCurrentFilter())

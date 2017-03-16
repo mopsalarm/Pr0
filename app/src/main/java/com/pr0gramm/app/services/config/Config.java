@@ -40,6 +40,11 @@ public abstract class Config {
         return AdType.NONE;
     }
 
+    @Value.Default
+    public boolean trackItemView() {
+        return false;
+    }
+
     @Keep
     public enum AdType {
         NONE, FEED, MAIN;

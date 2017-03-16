@@ -47,7 +47,6 @@ public class Ad {
         @Override
         public void onAdLeftApplication() {
             Track.adClicked(adType);
-
         }
     }
 }
