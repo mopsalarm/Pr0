@@ -75,13 +75,13 @@ public class ConfigService {
         // get a cached version
         String cached = preferences.getString(PREF_ID_KEY, null);
 
-        if (Strings.isNullOrEmpty(cached)) {
+        if (invalidUniqueIdentifier(cached)) {
             // try the device id.
             ContentResolver resolver = context.getApplicationContext().getContentResolver();
             cached = Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID);
 
             // still nothing? create a random id.
-            if (Strings.isNullOrEmpty(cached)) {
+            if (invalidUniqueIdentifier(cached)) {
                 cached = RandomStringUtils.random(16, "0123456789abcdef");
             }
 
@@ -93,6 +93,10 @@ public class ConfigService {
         }
 
         return cached;
+    }
+
+    private static boolean invalidUniqueIdentifier(String cached) {
+        return Strings.isNullOrEmpty(cached) || "DEFACE".equals(cached);
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
