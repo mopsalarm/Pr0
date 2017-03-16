@@ -118,7 +118,7 @@ public class UserService {
                 .subscribe(this::updateUniqueToken);
 
         loginStateObservable.subscribe(state -> {
-            Track.updateAuthorizedState(state.authorized());
+            Track.updateUserState(state);
         });
     }
 

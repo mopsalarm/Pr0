@@ -29,9 +29,15 @@ public class AdService {
 
     @Inject
     public AdService(ConfigService configService, UserService userService, Settings settings) {
+
         this.configService = configService;
         this.userService = userService;
         this.settings = settings;
+
+        // track that we use ads.
+        configService.observeConfig().subscribe(config -> {
+            Track.updateAdType(config.adType());
+        });
     }
 
     private boolean isEnabledFor(Config.AdType type) {

@@ -6,7 +6,6 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
-import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Vote;
 import com.pr0gramm.app.services.config.Config;
 
@@ -17,7 +16,9 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("WeakerAccess")
 public final class Track {
-    private static final String GA_CUSTOM_AUTHORIZED = "&cm1";
+    public static final String GA_CUSTOM_AUTHORIZED = "&cd1";
+    public static final String GA_CUSTOM_PREMIUM = "&cd2";
+    public static final String GA_CUSTOM_ADS = "&cd3";
 
     private Track() {
     }
@@ -231,10 +232,14 @@ public final class Track {
         tr.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
-    static void updateAuthorizedState(boolean authorized) {
-        ga().set(
-                GA_CUSTOM_AUTHORIZED,
-                String.valueOf(authorized ? 1 : 0));
+    static void updateUserState(UserService.LoginState loginState) {
+        Tracker tracker = ga();
+        tracker.set(GA_CUSTOM_AUTHORIZED, String.valueOf(loginState.authorized()));
+        tracker.set(GA_CUSTOM_PREMIUM, String.valueOf(loginState.premium()));
+    }
+
+    public static void updateAdType(Config.AdType adType) {
+        ga().set(GA_CUSTOM_ADS, String.valueOf(adType));
     }
 
     public static void trackApiCallSpeed(Stopwatch watch, String methodName, boolean success) {
