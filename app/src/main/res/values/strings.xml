@@ -410,5 +410,7 @@
     <string name="pref_show_content_type_flag_summary">Show a little triangle that indicates the content type of a post.</string>
     <string name="error_post_not_found">The post could not be found - maybe it was deleted.</string>
     <string name="action_tags_details">Tags</string>
+    <string name="pref_always_show_ads_title">Always show ads</string>
+    <string name="pref_always_show_ads_summary">Show ads even with a paid pr0mium account.</string>
 </resources>
 

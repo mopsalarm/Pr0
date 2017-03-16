@@ -13,10 +13,10 @@ import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.TrackingModule;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
+import com.pr0gramm.app.ui.AdService;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.views.CommentPostLine;
 import com.squareup.picasso.Picasso;
@@ -57,11 +57,13 @@ public interface AppComponent {
 
     Tracker googleAnalytics();
 
-    UserSuggestionService suggestionService();
-
     Tracker googleAnalyticsTracker();
 
     Cache cache();
+
+    SettingsTrackerService settingsTracker();
+
+    AdService adService();
 
     void inject(SyncIntentService service);
 
@@ -76,8 +78,6 @@ public interface AppComponent {
     void inject(InboxNotificationCanceledReceiver receiver);
 
     void inject(CommentPostLine commentPostLine);
-
-    SettingsTrackerService settingsTracker();
 
     void inject(MessageReplyReceiver receiver);
 }

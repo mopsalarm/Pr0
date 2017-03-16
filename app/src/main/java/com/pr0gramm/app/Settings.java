@@ -247,6 +247,10 @@ public class Settings implements SharedPreferences.OnSharedPreferenceChangeListe
         return preferences.getBoolean("pref_show_content_type_flag", true);
     }
 
+    public boolean alwaysShowAds() {
+        return preferences.getBoolean("pref_always_show_ads", false);
+    }
+
     public SharedPreferences raw() {
         return preferences;
     }

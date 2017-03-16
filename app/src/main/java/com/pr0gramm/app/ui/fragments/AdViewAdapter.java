@@ -9,19 +9,22 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.config.Config;
-import com.pr0gramm.app.ui.Ad;
+import com.pr0gramm.app.ui.AdService;
+
+import static com.pr0gramm.app.ApplicationClass.appComponent;
 
 /**
  * A simple adapter that shows one or zero views.
  */
 class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
+    private final AdService adService = appComponent().adService();
+
     private boolean showAds;
 
     private AdView newAdView(Context context) {
         AdView view = new AdView(context);
         view.setAdSize(AdSize.LARGE_BANNER);
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
-        view.setAdListener(new Ad.TrackingAdListener(Config.AdType.FEED));
         view.setBackgroundResource(R.color.feed_background);
 
         // This object will be destroyed once the adView loses the reference to the object.
@@ -34,12 +37,13 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
             }
         });
 
-        Ad.load(view);
+        // now load the ad.
+        adService.load(view, Config.AdType.FEED);
 
         return view;
     }
 
-    public void showAds(boolean show) {
+    public void setShowAds(boolean show) {
         if (showAds != show) {
             this.showAds = show;
             notifyDataSetChanged();
@@ -62,12 +66,8 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     }
 
     static class AdViewHolder extends RecyclerView.ViewHolder {
-        final AdView view;
-
         AdViewHolder(View itemView) {
             super(itemView);
-
-            view = (AdView) itemView;
         }
     }
 }

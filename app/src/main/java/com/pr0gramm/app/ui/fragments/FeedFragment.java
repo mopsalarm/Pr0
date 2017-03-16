@@ -60,10 +60,9 @@ import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
-import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
-import com.pr0gramm.app.ui.Ad;
+import com.pr0gramm.app.ui.AdService;
 import com.pr0gramm.app.ui.ContentTypeDrawable;
 import com.pr0gramm.app.ui.DetectTapTouchListener;
 import com.pr0gramm.app.ui.DialogBuilder;
@@ -106,7 +105,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Actions;
 
@@ -128,6 +126,7 @@ import static com.pr0gramm.app.util.AndroidUtility.hideViewOnAnimationEnd;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
 import static com.pr0gramm.app.util.AndroidUtility.isNotNull;
 import static java.util.Collections.emptyList;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 /**
  */
@@ -176,7 +175,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     FollowingService followService;
 
     @Inject
-    ConfigService configService;
+    AdService adService;
 
     @BindView(R.id.list)
     RecyclerView recyclerView;
@@ -232,12 +231,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         this.scrollToolbar = useToolbarTopMargin();
 
-        // show ads if enabled.
-        if (configService.config().adType() == Config.AdType.FEED) {
-            Ad.shouldShowAds(userService)
-                    .compose(bindToLifecycle())
-                    .subscribe(adViewAdapter::showAds);
-        }
+        adService.enabledForType(Config.AdType.FEED)
+                .observeOn(mainThread())
+                .compose(bindToLifecycle())
+                .subscribe((show) -> {
+                    adViewAdapter.setShowAds(show);
+                    updateSpanSizeLookup();
+                });
     }
 
     @Override
@@ -307,7 +307,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // observe changes so we can update the mehu
         followService.changes()
                 .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .filter(name -> name.equalsIgnoreCase(activeUsername))
                 .subscribe(name -> getActivity().supportInvalidateOptionsMenu());
 
@@ -1222,7 +1222,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         feedService.getFeedItems(query)
                 .subscribeOn(BackgroundScheduler.instance())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(mainThread())
                 .subscribe(items -> {
                     if (items.getItems().size() > 0) {
                         List<Long> ids = Lists.transform(items.getItems(), Api.Feed.Item::getId);

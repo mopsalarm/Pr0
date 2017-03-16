@@ -390,4 +390,7 @@
     <string name="pref_show_content_type_flag_title">Zeige Dreieck</string>
     <string name="pref_show_content_type_flag_summary">Zeige ein kleines Dreieck an, das den Filtertyp (sfw/nsfw) eines Posts angibt.</string>
     <string name="error_post_not_found">Der Post kann nicht gefunden werden, vielleicht wurde er bereits gelöscht.</string>
+    <string name="action_tags_details">Tags</string>
+    <string name="pref_always_show_ads_summary">Hilf dem pr0gramm und zeige Werbung auch mit pr0mium an.</string>
+    <string name="pref_always_show_ads_title">Werbung immer anzeigen</string>
 </resources>

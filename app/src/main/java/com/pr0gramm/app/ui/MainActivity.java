@@ -28,7 +28,6 @@ import android.view.Window;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -46,7 +45,6 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
-import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.sync.SyncBroadcastReceiver;
 import com.pr0gramm.app.ui.back.BackFragmentHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -70,14 +68,15 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 
+import static android.view.View.GONE;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.util.Noop.noop;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 
 /**
@@ -135,7 +134,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     InfoMessageService infoMessageService;
 
     @Inject
-    ConfigService configService;
+    AdService adService;
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -226,31 +225,25 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         if (updateCheck) {
             Observable.just(null)
-                    .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                    .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, mainThread())
                     .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
 
-        globalAdView.setAdListener(new Ad.TrackingAdListener(Config.AdType.MAIN));
+        adService.enabledForType(Config.AdType.MAIN)
+                .observeOn(mainThread())
+                .compose(bindToLifecycle())
+                .subscribe(show -> {
+                    globalAdView.setVisibility(GONE);
+                    if (show) {
+                        // load ad, show view once loaded.
+                        adService.load(globalAdView, Config.AdType.MAIN)
+                                .compose(bindToLifecycle().forCompletable())
+                                .subscribe(() -> globalAdView.setVisibility(View.VISIBLE));
+                    }
+                });
 
-        if (configService.config().adType() == Config.AdType.MAIN) {
-            Ad.shouldShowAds(userService).compose(bindToLifecycle()).subscribe(show -> {
-                if (show) {
-                    globalAdView.setAdListener(new AdListener() {
-                        @Override
-                        public void onAdLoaded() {
-                            // only show ad once it is loaded.
-                            globalAdView.setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                    Ad.load(globalAdView);
-                } else {
-                    globalAdView.setVisibility(View.GONE);
-                }
-            });
-        }
-
+        // destroy the ad view once the activity is destroyed.
         lifecycle().filter(ev -> ev == ActivityEvent.DESTROY).subscribe(event -> {
             globalAdView.destroy();
         });
@@ -547,7 +540,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         super.onStart();
 
         // schedule a sync operation every minute
-        Observable.interval(0, 1, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
+        Observable.interval(0, 1, TimeUnit.MINUTES, mainThread())
                 .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                 .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
     }

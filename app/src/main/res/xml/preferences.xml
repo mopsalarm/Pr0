@@ -267,6 +267,12 @@
                     android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
                     android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
 
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_always_show_ads"
+                    android:summary="@string/pref_always_show_ads_summary"
+                    android:title="@string/pref_always_show_ads_title"/>
+
             </PreferenceCategory>
         </PreferenceScreen>
 
