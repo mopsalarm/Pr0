@@ -3,6 +3,10 @@
     "version": 122,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Werbung. Natürlich nicht für pr0mium User (https://pr0gramm.com/pr0mium)."
+      },
+      {
         "type": "Fix",
         "change": "Kleine Ausbesserungen fürs neues Theme."
       }

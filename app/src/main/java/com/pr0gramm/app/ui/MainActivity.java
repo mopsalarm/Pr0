@@ -529,9 +529,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     private void showInfoMessage(InfoMessageService.Message message) {
         if (message.endOfLife() >= AndroidUtility.buildVersionCode()) {
             DialogBuilder.start(this)
-                    .contentWithLinks("Support für deine Version ist eingestellt. Um die pr0gramm-App weiter benutzen zu können, lade eine aktuelle Version von http://app.pr0gramm.com herunter.")
+                    .contentWithLinks("Support für deine Version ist eingestellt. Um die pr0gramm-App weiter benutzen zu können, lade eine aktuelle Version von https://app.pr0gramm.com herunter.")
                     .positive(R.string.okay, () -> {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://app.pr0gramm.com")));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://app.pr0gramm.com")));
                         finish();
                     })
                     .show();

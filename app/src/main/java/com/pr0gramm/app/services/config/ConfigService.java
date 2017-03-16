@@ -45,6 +45,7 @@ public class ConfigService {
 
     private final Gson gson;
     private final OkHttpClient okHttpClient;
+    private final com.pr0gramm.app.Settings settings;
     private final SharedPreferences preferences;
 
     // We are using a device hash so we can return the same config if
@@ -55,9 +56,12 @@ public class ConfigService {
     private volatile Config configState;
 
     @Inject
-    public ConfigService(Context context, OkHttpClient okHttpClient, Gson gson, SharedPreferences preferences) {
+    public ConfigService(Context context, OkHttpClient okHttpClient, Gson gson, com.pr0gramm.app.Settings settings,
+                         SharedPreferences preferences) {
+
         this.okHttpClient = okHttpClient;
         this.gson = gson;
+        this.settings = settings;
         this.preferences = preferences;
 
         this.deviceHash = makeUniqueIdentifier(context, preferences);
@@ -111,10 +115,11 @@ public class ConfigService {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void update() {
-        Uri url = Uri.parse("http://pr0.wibbly-wobbly.de/app-config/v2/").buildUpon()
+        Uri url = Uri.parse("https://pr0.wibbly-wobbly.de/app-config/v2/").buildUpon()
                 .appendEncodedPath("version").appendPath(String.valueOf(BuildConfig.VERSION_CODE))
                 .appendEncodedPath("hash").appendPath(deviceHash)
                 .appendEncodedPath("config.json")
+                .appendQueryParameter("beta", String.valueOf(settings.useBetaChannel()))
                 .build();
 
         try {
@@ -174,6 +179,7 @@ public class ConfigService {
         if (BuildConfig.DEBUG) {
             // add debug overlays
             return ImmutableConfig.copyOf(configState)
+                    .withTrackItemView(true)
                     .withAdType(Config.AdType.FEED);
         }
 
