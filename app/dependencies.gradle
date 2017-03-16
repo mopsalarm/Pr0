@@ -1,6 +1,6 @@
 
 ext {
-    VersionSupportLibrary = "25.2.0"
+    VersionSupportLibrary = "25.3.0"
     VersionRxBinding = "1.0.1"
     VersionImmutables = "2.4.4"
     VersionRetrofit = "2.2.0"
@@ -22,21 +22,17 @@ dependencies {
     compile "javax.annotation:jsr250-api:1.0"
     compile "com.google.code.findbugs:jsr305:3.0.1"
 
-    // use older fragment library
-    compile("com.android.support:support-fragment:25.0.1") {
-        force = true
-    }
-
-    compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
-        exclude(module: "support-media-compat")
-        exclude(module: "support-core-utils")
-    }
-
+    compile "com.android.support:support-fragment:$VersionSupportLibrary"
     compile "com.android.support:recyclerview-v7:$VersionSupportLibrary"
     compile "com.android.support:design:$VersionSupportLibrary"
     compile "com.android.support:customtabs:$VersionSupportLibrary"
     compile "com.android.support:palette-v7:$VersionSupportLibrary"
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
+    compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
+        exclude(module: "support-media-compat")
+        exclude(module: "support-core-utils")
+    }
+
     compile "com.google.guava:guava:20.0"
 
     compile "com.google.android.gms:play-services-analytics:$VersionGoogleServices"
