@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -95,8 +96,17 @@ public class ConfigService {
         return cached;
     }
 
-    private static boolean invalidUniqueIdentifier(String cached) {
-        return Strings.isNullOrEmpty(cached) || "DEFACE".equals(cached);
+    @SuppressWarnings("RedundantIfStatement")
+    private static boolean invalidUniqueIdentifier(@Nullable String cached) {
+        if (Strings.isNullOrEmpty(cached) || cached.length() < 5 || "DEFACE".equals(cached)) {
+            return true;
+        }
+
+        if ("123456789".startsWith(cached)) {
+            return true;
+        }
+
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
