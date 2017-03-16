@@ -20,7 +20,7 @@ class ViewerFullscreenParameters {
         this.rotation = rotation;
     }
 
-    public static ViewerFullscreenParameters forViewer(Activity activity, View viewer) {
+    static ViewerFullscreenParameters forViewer(Activity activity, View viewer) {
         Point screenSize = AndroidUtility.screenSize(activity);
 
         int windowWidth = screenSize.x;

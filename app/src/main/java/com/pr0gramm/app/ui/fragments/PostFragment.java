@@ -57,6 +57,7 @@ import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.services.config.ConfigService;
+import com.pr0gramm.app.ui.AdControl;
 import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.LoginActivity;
 import com.pr0gramm.app.ui.MainActivity;
@@ -521,11 +522,15 @@ public class PostFragment extends BaseFragment implements
             Screen.lockOrientation(activity);
 
             // move to fullscreen!?
-            AndroidUtility.applyWindowFullscreen(getActivity(), true);
+            AndroidUtility.applyWindowFullscreen(activity, true);
 
             if (mediaControlsContainer != null) {
                 AndroidUtility.removeView(mediaControlsContainer);
                 viewer.addView(mediaControlsContainer);
+            }
+
+            if (activity instanceof AdControl) {
+                ((AdControl) activity).showAds(false);
             }
         }
     }
@@ -566,6 +571,10 @@ public class PostFragment extends BaseFragment implements
         if (activity instanceof ToolbarActivity) {
             // show the toolbar again
             ((ToolbarActivity) activity).getScrollHideToolbarListener().reset();
+        }
+
+        if (activity instanceof AdControl) {
+            ((AdControl) activity).showAds(true);
         }
 
         Screen.unlockOrientation(activity);

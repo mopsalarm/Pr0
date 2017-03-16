@@ -69,8 +69,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import rx.Observable;
 import rx.functions.Actions;
+import rx.subjects.BehaviorSubject;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -86,12 +88,15 @@ public class MainActivity extends BaseAppCompatActivity implements
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
-        MainActionHandler, PermissionHelperActivity {
+        MainActionHandler, PermissionHelperActivity,
+        AdControl {
 
     // we use this to propagate a fake-home event to the fragments.
     public static final int ID_FAKE_HOME = android.R.id.list;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final BehaviorSubject<Boolean> doNotShowAds = BehaviorSubject.create(false);
+
 
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -230,16 +235,25 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
         }
 
-        adService.enabledForType(Config.AdType.MAIN)
+        // combine observables into one
+        Observable<Boolean> shouldShowAds = Observable.combineLatest(
+                adService.enabledForType(Config.AdType.MAIN), doNotShowAds,
+                (shouldShow, overrideNoAds) -> shouldShow && !overrideNoAds);
+
+        shouldShowAds
+                .distinctUntilChanged()
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
+                .doOnNext(v -> globalAdView.setVisibility(GONE))
                 .subscribe(show -> {
-                    globalAdView.setVisibility(GONE);
                     if (show) {
                         // load ad, show view once loaded.
                         adService.load(globalAdView, Config.AdType.MAIN)
                                 .compose(bindToLifecycle().forCompletable())
-                                .subscribe(() -> globalAdView.setVisibility(View.VISIBLE));
+                                .subscribe(() -> {
+                                    boolean gone = doNotShowAds.getValue();
+                                    globalAdView.setVisibility(gone ? GONE : VISIBLE);
+                                });
                     }
                 });
 
@@ -254,6 +268,11 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .putBoolean("pref_use_texture_view_new", true)
                     .apply();
         }
+    }
+
+    @Override
+    public void showAds(boolean show) {
+        doNotShowAds.onNext(!show);
     }
 
     private boolean shouldShowOnboardingActivity() {
@@ -753,5 +772,4 @@ public class MainActivity extends BaseAppCompatActivity implements
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
     }
-
 }
