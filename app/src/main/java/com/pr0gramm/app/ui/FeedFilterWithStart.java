@@ -67,7 +67,7 @@ public class FeedFilterWithStart {
                 if ("likes".equals(subcategory)) {
                     filter = filter.withLikes(user);
                 } else {
-                    filter = filter.withUser(user);
+                    filter = filter.withFeedType(FeedType.NEW).withUser(user);
                 }
             }
 

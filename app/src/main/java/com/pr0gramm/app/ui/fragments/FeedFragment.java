@@ -416,7 +416,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
             @Override
             public void onShowUploadsClicked(int id, String name) {
-                FeedFilter filter = getCurrentFilter().basic().withUser(name);
+                FeedFilter filter = getCurrentFilter().basic().withFeedType(FeedType.NEW).withUser(name);
                 if (!filter.equals(getCurrentFilter())) {
                     ((MainActionHandler) getActivity()).onFeedFilterSelected(filter);
                 }
@@ -455,7 +455,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         UserInfoFoundView view = new UserInfoFoundView(getActivity(), info);
         view.setUploadsClickedListener((userId, name) -> {
-            FeedFilter newFilter = getCurrentFilter().basic().withUser(name);
+            FeedFilter newFilter = getCurrentFilter().basic()
+                    .withFeedType(FeedType.NEW).withUser(name);
+
             ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
         });
 
@@ -793,14 +795,21 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         MenuItem follow = menu.findItem(R.id.action_follow);
         MenuItem unfollow = menu.findItem(R.id.action_unfollow);
-        if (follow != null && unfollow != null) {
-            if (activeUsername != null && userService.isPremiumUser()) {
-                boolean following = followService.isFollowing(activeUsername);
-                follow.setVisible(!following);
-                unfollow.setVisible(following);
-            } else {
-                follow.setVisible(false);
-                unfollow.setVisible(false);
+        MenuItem bookmark = menu.findItem(R.id.action_pin);
+        if (follow != null && unfollow != null && bookmark != null) {
+            // go to default state.
+            follow.setVisible(false);
+            unfollow.setVisible(false);
+
+            if (activeUsername != null) {
+                if (userService.isPremiumUser()) {
+                    boolean following = followService.isFollowing(activeUsername);
+                    follow.setVisible(!following);
+                    unfollow.setVisible(following);
+                }
+
+                // never bookmark a user
+                bookmark.setVisible(false);
             }
         }
     }
