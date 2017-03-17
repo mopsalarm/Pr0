@@ -11,11 +11,14 @@ import android.widget.TextView;
 
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api.Info;
+import com.pr0gramm.app.ui.LoginActivity;
 
 import net.danlew.android.joda.DateUtils;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
+
+import butterknife.ButterKnife;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,10 +31,14 @@ public class UserInfoCell extends FrameLayout {
     private final View messages;
     private final View showComments;
     private final TextView extraInfo;
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper;
     private UserActionListener userActionListener;
 
-    public UserInfoCell(Context context, Info userInfo) {
+    public UserInfoCell(Context context, Info userInfo, LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper) {
         super(context);
+
+        this.doIfAuthorizedHelper = doIfAuthorizedHelper;
+
         inflate(context, R.layout.user_info_cell_v2, this);
 
         username = findView(R.id.username);
@@ -61,7 +68,8 @@ public class UserInfoCell extends FrameLayout {
         // open message dialog for user
         messages.setOnClickListener(view -> {
             if (userActionListener != null) {
-                userActionListener.onWriteMessageClicked(user.getId(), user.getName());
+                doIfAuthorizedHelper.run(() ->
+                        userActionListener.onWriteMessageClicked(user.getId(), user.getName()));
             }
         });
 
@@ -77,7 +85,7 @@ public class UserInfoCell extends FrameLayout {
             }
         });
 
-        if (info.likesArePublic()) {
+        if (info.likesArePublic() && info.getLikeCount() > 0) {
             favorites.setText(String.valueOf(info.getLikeCount()));
 
             ((View) favorites.getParent()).setOnClickListener(view -> {
@@ -124,8 +132,7 @@ public class UserInfoCell extends FrameLayout {
     @NonNull
     @SuppressWarnings("unchecked")
     private <T extends View> T findView(@IdRes int id) {
-        View view = checkNotNull(findViewById(id), "view not found");
-        return (T) view;
+        return checkNotNull(ButterKnife.findById(this, id), "view not found");
     }
 
     public interface UserActionListener {

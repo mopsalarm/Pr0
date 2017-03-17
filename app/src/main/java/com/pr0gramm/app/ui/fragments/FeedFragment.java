@@ -69,6 +69,8 @@ import com.pr0gramm.app.ui.DialogBuilder;
 import com.pr0gramm.app.ui.FeedFilterFormatter;
 import com.pr0gramm.app.ui.FeedItemViewHolder;
 import com.pr0gramm.app.ui.FilterFragment;
+import com.pr0gramm.app.ui.LoginActivity;
+import com.pr0gramm.app.ui.LoginActivity.DoIfAuthorizedHelper;
 import com.pr0gramm.app.ui.MainActionHandler;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.OnOptionsItemSelected;
@@ -196,6 +198,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     SearchOptionsView searchView;
 
     private final AdViewAdapter adViewAdapter = new AdViewAdapter();
+    private final DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
     boolean userInfoCommentsOpen;
     private boolean bookmarkable;
@@ -393,7 +396,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             messages.setComments(info.getInfo().getUser(), comments);
         }
 
-        UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo());
+        UserInfoCell view = new UserInfoCell(getActivity(), info.getInfo(), doIfAuthorizedHelper);
 
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
             @Override
