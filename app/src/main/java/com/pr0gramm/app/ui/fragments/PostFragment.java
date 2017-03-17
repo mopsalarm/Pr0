@@ -737,8 +737,10 @@ public class PostFragment extends BaseFragment implements
         });
 
         infoLineView.setOnAddTagClickedListener(() -> {
-            NewTagDialogFragment dialog = new NewTagDialogFragment();
-            dialog.show(getChildFragmentManager(), null);
+            doIfAuthorizedHelper.run(() -> {
+                NewTagDialogFragment dialog = new NewTagDialogFragment();
+                dialog.show(getChildFragmentManager(), null);
+            });
         });
     }
 
