@@ -253,7 +253,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                                 .subscribe(() -> {
                                     boolean gone = doNotShowAds.getValue();
                                     globalAdView.setVisibility(gone ? GONE : VISIBLE);
-                                });
+                                }, Actions.empty());
                     }
                 });
 
