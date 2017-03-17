@@ -3,12 +3,20 @@
     "version": 122,
     "changes": [
       {
-        "type": "Neu",
-        "change": "Werbung. Natürlich nicht für pr0mium User (https://pr0gramm.com/pr0mium)."
+        "type": "Werbung",
+        "change": "Betrifft natürlich keine pr0mium User: https://pr0gramm.com/pr0mium. Mehr Informationen: /top/1820638."
       },
       {
         "type": "Fix",
         "change": "Kleine Ausbesserungen fürs neues Theme."
+      },
+      {
+        "type": "Fix",
+        "change": "Dialoge verhalten sich jetzt im Schwarzen Theme korrekt."
+      },
+      {
+        "type": "Änderung",
+        "change": "Die Useruploads werden nun standardmäßig in 'Neu' geöffnet."
       }
     ]
   },

@@ -40,7 +40,6 @@ import butterknife.BindView;
 import proguard.annotation.Keep;
 import proguard.annotation.KeepClassMembers;
 
-import static com.pr0gramm.app.R.color.grey_700;
 import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 
 
@@ -123,8 +122,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
             if (item instanceof Version) {
                 Version version = (Version) item;
                 holder.setVersion(version.formatted);
-                holder.setTextColorId(version.current
-                        ? accentColor() : grey_700);
+                holder.setTextColorId(accentColor(), version.current ? 1 : 0.5f);
             }
         }
 
@@ -172,9 +170,10 @@ public class ChangeLogDialog extends BaseDialogFragment {
             this.text.setText(version);
         }
 
-        public void setTextColorId(@ColorRes int textColorId) {
+        public void setTextColorId(@ColorRes int textColorId, float alpha) {
             int color = ContextCompat.getColor(itemView.getContext(), textColorId);
             this.text.setTextColor(color);
+            this.text.setAlpha(alpha);
         }
     }
 
