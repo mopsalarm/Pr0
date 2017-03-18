@@ -412,5 +412,6 @@
     <string name="action_tags_details">Tags</string>
     <string name="pref_always_show_ads_title">Always show ads</string>
     <string name="pref_always_show_ads_summary">Show ads even with a paid pr0mium account.</string>
+    <string name="hint_dont_like_ads">Sorry,\nyou don\'t like ads?</string>
 </resources>
 

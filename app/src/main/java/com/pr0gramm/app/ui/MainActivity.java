@@ -57,6 +57,7 @@ import com.pr0gramm.app.ui.fragments.PostPagerNavigation;
 import com.pr0gramm.app.ui.intro.IntroActivity;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.util.AndroidUtility;
+import com.pr0gramm.app.util.CustomTabsHelper;
 import com.trello.rxlifecycle.android.ActivityEvent;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
@@ -68,6 +69,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 
@@ -226,6 +228,8 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .show();
 
             updateCheckDelay = true;
+        } else {
+            preparePremiumHint();
         }
 
         if (updateCheck) {
@@ -267,6 +271,28 @@ public class MainActivity extends BaseAppCompatActivity implements
             settings.edit()
                     .putBoolean("pref_use_texture_view_new", true)
                     .apply();
+        }
+    }
+
+    private void preparePremiumHint() {
+        if (singleShotService.firstTimeToday("hint_ads_pr0mium:2")) {
+            Observable<Boolean> showAnyAds = Observable.merge(
+                    adService.enabledForType(Config.AdType.FEED).take(1),
+                    adService.enabledForType(Config.AdType.MAIN).take(1));
+
+            showAnyAds.takeFirst(v -> v)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .compose(bindToLifecycle())
+                    .onErrorResumeNext(Observable.empty())
+                    .subscribe(adsAreShown -> {
+                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 20000)
+                                .setAction("pr0mium", v -> {
+                                    Track.registerLinkClicked();
+                                    Uri uri = Uri.parse("https://pr0gramm.com/pr0mium/iap");
+                                    new CustomTabsHelper(this).openCustomTab(uri);
+                                })
+                                .show();
+                    });
         }
     }
 
