@@ -483,6 +483,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         DrawerFragment fragment = new DrawerFragment();
 
         getSupportFragmentManager().beginTransaction()
+                .setAllowOptimization(false)
                 .replace(R.id.left_drawer, fragment)
                 .commit();
     }
@@ -701,6 +702,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
+                .setAllowOptimization(false)
                 .replace(R.id.content, fragment);
 
         if (!clear) {

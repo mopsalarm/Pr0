@@ -139,8 +139,6 @@ public abstract class MediaView extends FrameLayout {
         });
 
         if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
-            logger.info("XXX {}, {}", preview != null, mediaUri);
-
             RxView.attachEvents(this).limit(1).subscribe(event -> {
 
                 // test if we need to load the thumby preview.
