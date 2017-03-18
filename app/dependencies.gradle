@@ -60,7 +60,7 @@ dependencies {
     compile "me.leolin:ShortcutBadger:1.1.11@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
 
-    compile "com.google.android.exoplayer:exoplayer:r2.2.0"
+    compile "com.google.android.exoplayer:exoplayer:r2.3.0"
 
     compile "commons-io:commons-io:2.5"
 
