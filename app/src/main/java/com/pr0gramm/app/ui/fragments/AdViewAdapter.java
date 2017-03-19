@@ -11,6 +11,8 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.AdService;
 
+import rx.android.schedulers.AndroidSchedulers;
+
 import static com.pr0gramm.app.ApplicationClass.appComponent;
 
 /**
@@ -33,7 +35,9 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
-                view.destroy();
+
+                // finalize no main thread
+                AndroidSchedulers.mainThread().createWorker().schedule(view::destroy);
             }
         });
 
