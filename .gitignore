@@ -89,7 +89,7 @@ crashlytics-build.properties
 
 *.keystore
 
-captures/
+/captures
 droid.js
 
 upload_auth

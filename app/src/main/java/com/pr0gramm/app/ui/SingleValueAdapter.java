@@ -12,6 +12,7 @@ public abstract class SingleValueAdapter<T, V extends View> extends RecyclerView
 
     public SingleValueAdapter(T object) {
         this.object = object;
+        setHasStableIds(true);
     }
 
     @Override

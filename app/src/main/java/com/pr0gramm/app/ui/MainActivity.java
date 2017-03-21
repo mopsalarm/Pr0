@@ -58,7 +58,6 @@ import com.pr0gramm.app.ui.intro.IntroActivity;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.CustomTabsHelper;
-import com.trello.rxlifecycle.android.ActivityEvent;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import java.util.ArrayList;
@@ -178,7 +177,8 @@ public class MainActivity extends BaseAppCompatActivity implements
         // listen to fragment changes
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        if (savedInstanceState == null) {
+        boolean coldStart = savedInstanceState == null;
+        if (coldStart) {
             Intent intent = getIntent();
             boolean startedFromLauncher = intent == null || Intent.ACTION_MAIN.equals(intent.getAction());
 
@@ -207,36 +207,38 @@ public class MainActivity extends BaseAppCompatActivity implements
             }
         }
 
-        boolean updateCheck = true;
-        boolean updateCheckDelay = false;
-
         if (shouldShowOnboardingActivity()) {
             startActivityForResult(new Intent(this, IntroActivity.class), RequestCodes.INTRO_ACTIVITY);
             return;
         }
 
-        if (singleShotService.firstTimeInVersion("changelog")) {
-            updateCheck = false;
+        if (coldStart) {
+            boolean updateCheck = true;
+            boolean updateCheckDelay = false;
 
-            ChangeLogDialog dialog = new ChangeLogDialog();
-            dialog.show(getSupportFragmentManager(), null);
+            if (singleShotService.firstTimeInVersion("changelog")) {
+                updateCheck = false;
 
-        } else if (shouldShowFeedbackReminder()) {
-            //noinspection ResourceType
-            Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                    .setAction(R.string.okay, noop)
-                    .show();
+                ChangeLogDialog dialog = new ChangeLogDialog();
+                dialog.show(getSupportFragmentManager(), null);
 
-            updateCheckDelay = true;
-        } else {
-            preparePremiumHint();
-        }
+            } else if (shouldShowFeedbackReminder()) {
+                //noinspection ResourceType
+                Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                        .setAction(R.string.okay, noop)
+                        .show();
 
-        if (updateCheck) {
-            Observable.just(null)
-                    .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, mainThread())
-                    .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
-                    .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
+                updateCheckDelay = true;
+            } else {
+                preparePremiumHint();
+            }
+
+            if (updateCheck) {
+                Observable.just(null)
+                        .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, mainThread())
+                        .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
+                        .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
+            }
         }
 
         // combine observables into one
@@ -249,6 +251,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .doOnNext(v -> globalAdView.setVisibility(GONE))
+                .filter(v -> AndroidUtility.screenIsPortrait(this))
                 .subscribe(show -> {
                     if (show) {
                         // load ad, show view once loaded.
@@ -260,11 +263,6 @@ public class MainActivity extends BaseAppCompatActivity implements
                                 }, Actions.empty());
                     }
                 });
-
-        // destroy the ad view once the activity is destroyed.
-        lifecycle().filter(ev -> ev == ActivityEvent.DESTROY).subscribe(event -> {
-            globalAdView.destroy();
-        });
 
         // migrate the surface view option.
         if (singleShotService.isFirstTime("migrate.SurfaceView")) {
@@ -347,6 +345,9 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Override
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
+
+        // destroy the ad-view
+        globalAdView.destroy();
 
         try {
             super.onDestroy();

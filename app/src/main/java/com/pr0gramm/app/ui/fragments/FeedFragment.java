@@ -30,7 +30,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -96,7 +95,6 @@ import com.trello.rxlifecycle.android.FragmentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.util.EnumSet;
 import java.util.List;
@@ -107,8 +105,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Actions;
+import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
@@ -197,6 +195,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     @BindView(R.id.search_options)
     SearchOptionsView searchView;
 
+    @Nullable
+    private Dialog quickPeekDialog;
+
     private final AdViewAdapter adViewAdapter = new AdViewAdapter();
     private final DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
 
@@ -210,7 +211,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     FeedLoader loader;
     boolean scrollToolbar;
 
-    private WeakReference<Dialog> quickPeekDialog = new WeakReference<>(null);
     private String activeUsername;
 
     /**
@@ -218,7 +218,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
      */
     public FeedFragment() {
         setHasOptionsMenu(true);
-        setRetainInstance(true);
     }
 
     @Override
@@ -238,7 +237,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe((show) -> {
-                    adViewAdapter.setShowAds(show);
+                    adViewAdapter.setShowAds(show && AndroidUtility.screenIsPortrait(getActivity()));
                     updateSpanSizeLookup();
                 });
     }
@@ -260,15 +259,19 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         super.onViewCreated(view, savedInstanceState);
 
         if (feedAdapter == null) {
-            if (busyIndicator != null)
+            Feed feed = null;
+            if (savedInstanceState != null) {
+                Bundle bundle = savedInstanceState.getBundle("feed");
+                if (bundle != null) {
+                    feed = Feed.restore(bundle);
+                }
+            }
+
+            feedAdapter = newFeedAdapter(feed);
+
+            if (feed == null && busyIndicator != null) {
                 busyIndicator.setVisibility(View.VISIBLE);
-
-            // create a new adapter if necessary
-            feedAdapter = newFeedAdapter();
-
-        } else {
-            updateNoResultsTextView();
-            removeBusyIndicator();
+            }
         }
 
         seenIndicatorStyle = settings.seenIndicatorStyle();
@@ -307,10 +310,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         createRecyclerViewClickListener();
         recyclerView.addOnScrollListener(onScrollListener);
 
-        // observe changes so we can update the mehu
+        // observe changes so we can update the menu
         followService.changes()
-                .compose(bindToLifecycle())
                 .observeOn(mainThread())
+                .compose(bindToLifecycle())
                 .filter(name -> name.equalsIgnoreCase(activeUsername))
                 .subscribe(name -> getActivity().supportInvalidateOptionsMenu());
 
@@ -333,6 +336,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("searchContainerVisible", searchContainerIsVisible());
+        outState.putBundle("feed", feedAdapter.feed.persist(0));
+
+        outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem(ContentType.ALL)
+                .transform(FeedItem::id).or(-1L));
+
     }
 
     private Bundle initialSearchViewState() {
@@ -472,7 +480,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         MergeRecyclerAdapter mainAdapter = getMainAdapter().orNull();
         if (mainAdapter != null) {
             int offset = 0;
-            ImmutableList<? extends RecyclerView.Adapter<?>> subAdapters = mainAdapter.getAdapters();
+            List<? extends RecyclerView.Adapter<?>> subAdapters = mainAdapter.getAdapters();
             for (int idx = 0; idx < subAdapters.size(); idx++) {
                 offset = idx;
 
@@ -527,7 +535,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         GridLayoutManager layoutManager = getRecyclerViewLayoutManager().orNull();
         if (mainAdapter != null && layoutManager != null) {
             int itemCount = 0;
-            ImmutableList<? extends RecyclerView.Adapter<?>> adapters = mainAdapter.getAdapters();
+            List<? extends RecyclerView.Adapter<?>> adapters = mainAdapter.getAdapters();
             for (RecyclerView.Adapter<?> adapter : adapters) {
                 if (adapter instanceof FeedAdapter)
                     break;
@@ -564,6 +572,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             recyclerView.removeOnScrollListener(onScrollListener);
         }
 
+        adViewAdapter.destroy();
+
         super.onDestroyView();
     }
 
@@ -595,7 +605,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         getActivity().supportInvalidateOptionsMenu();
     }
 
-    private FeedAdapter newFeedAdapter() {
+    private FeedAdapter newFeedAdapter(@Nullable Feed feed) {
         logger.info("Restore adapter now");
         FeedFilter feedFilter = getFilterArgument();
 
@@ -604,11 +614,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             around = autoOpenOnLoad.getItemId();
         }
 
-        return newFeedAdapter(feedFilter, around);
+        return newFeedAdapter(feedFilter, around, feed);
     }
 
-    private FeedAdapter newFeedAdapter(FeedFilter feedFilter, @Nullable Long around) {
-        Feed feed = new Feed(feedFilter, getSelectedContentType());
+    private FeedAdapter newFeedAdapter(FeedFilter feedFilter, @Nullable Long around, @Nullable Feed feed) {
+        boolean isNewFeed = (feed == null);
+        if (isNewFeed) {
+            // create a new feed
+            feed = new Feed(feedFilter, getSelectedContentType());
+        }
 
         loader = new FeedLoader(new FeedLoader.Binder() {
             @Override
@@ -625,14 +639,16 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             }
         }, feedService, feed);
 
-        // start loading now
-        loader.restart(fromNullable(around));
+        if (isNewFeed) {
+            // start loading now
+            loader.restart(fromNullable(around));
+        }
 
         boolean usersFavorites = feed.getFeedFilter().getLikes()
                 .transform(name -> name.equalsIgnoreCase(userService.getName().orNull()))
                 .or(false);
 
-        return new FeedAdapter(this, feed, usersFavorites);
+        return new FeedAdapter(feed, usersFavorites);
     }
 
     private FeedFilter getFilterArgument() {
@@ -668,9 +684,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             feedAdapter.notifyDataSetChanged();
         }
 
-        preloadManager.all()
-                .compose(bindToLifecycleAsync())
-                .subscribe(ignored -> feedAdapter.notifyDataSetChanged());
+        // Load all preloaded items once to get them into the cache.
+        // Also inform us once all items are loaded.
+
+//        preloadManager.all()
+//                .compose(bindToLifecycleAsync())
+//                .doOnCompleted(() -> feedAdapter.notifyDataSetChanged())
+//                .subscribe(Actions.empty(), Actions.empty());
     }
 
     private void recheckContentTypes() {
@@ -686,7 +706,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             autoScrollOnLoad = around.orNull();
 
             // set a new adapter if we have a new content type
-            setFeedAdapter(newFeedAdapter(feedFilter, autoScrollOnLoad));
+            setFeedAdapter(newFeedAdapter(feedFilter, autoScrollOnLoad, null));
 
             getActivity().supportInvalidateOptionsMenu();
         }
@@ -1040,9 +1060,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         listener.itemLongClicked()
                 .map(FeedFragment::extractFeedItemHolder)
                 .filter(isNotNull())
-                .subscribe(holder -> openQuickPeek(holder.item));
+                .subscribe(holder -> openQuickPeekDialog(holder.item));
 
-        listener.itemLongClickEnded().subscribe(event -> dismissPopupPlayer());
+        listener.itemLongClickEnded().subscribe(event -> dismissQuickPeekDialog());
 
         settings.change()
                 .compose(bindToLifecycle())
@@ -1050,14 +1070,14 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 .subscribe(key -> listener.enableLongClick(settings.enableQuickPeek()));
     }
 
-    private void openQuickPeek(FeedItem item) {
+    private void openQuickPeekDialog(FeedItem item) {
+        dismissQuickPeekDialog();
+
         // check that the activity is not zero. Might happen, as this method might
         // get called shortly after detaching the activity - which sucks. thanks android.
         Activity activity = getActivity();
         if (activity != null) {
-            this.quickPeekDialog = new WeakReference<>(
-                    PopupPlayer.newInstance(activity, item));
-
+            quickPeekDialog = PopupPlayer.newInstance(activity, item);
             swipeRefreshLayout.setEnabled(false);
             Track.quickPeek();
         }
@@ -1069,33 +1089,27 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         return tag instanceof FeedItemViewHolder ? (FeedItemViewHolder) tag : null;
     }
 
-    private void dismissPopupPlayer() {
-        swipeRefreshLayout.setEnabled(true);
+    private void dismissQuickPeekDialog() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setEnabled(true);
+        }
 
-        Dialog quickPeek = quickPeekDialog.get();
-        if (quickPeek != null)
-            quickPeek.dismiss();
+        if (quickPeekDialog != null) {
+            quickPeekDialog.dismiss();
+            quickPeekDialog = null;
+        }
     }
 
-    private static class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
-        private final boolean usersFavorites;
-        private final WeakReference<FeedFragment> parent;
-        private final Feed feed;
+    private class FeedAdapter extends RecyclerView.Adapter<FeedItemViewHolder> implements Feed.FeedListener {
+        final boolean usersFavorites;
+        final Feed feed;
 
-        FeedAdapter(FeedFragment fragment, Feed feed, boolean usersFavorites) {
+        FeedAdapter(Feed feed, boolean usersFavorites) {
             this.usersFavorites = usersFavorites;
-            this.parent = new WeakReference<>(fragment);
             this.feed = feed;
             this.feed.setFeedListener(this);
 
             setHasStableIds(true);
-        }
-
-        private void with(Action1<FeedFragment> action) {
-            FeedFragment fragment = parent.get();
-            if (fragment != null) {
-                action.call(fragment);
-            }
         }
 
         public FeedFilter getFilter() {
@@ -1109,7 +1123,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         @SuppressLint("InflateParams")
         @Override
         public FeedItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(this.parent.get().getActivity());
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
             View view = inflater.inflate(R.layout.feed_item_view, null);
             return new FeedItemViewHolder(view);
         }
@@ -1120,33 +1134,31 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
             FeedItem item = feed.at(position);
 
-            with(fragment -> {
-                Uri imageUri = UriHelper.of(fragment.getContext()).thumbnail(item);
-                fragment.picasso.load(imageUri)
-                        .config(Bitmap.Config.RGB_565)
-                        .placeholder(new ColorDrawable(0xff333333))
-                        .into(holder.image);
+            Uri imageUri = UriHelper.of(getContext()).thumbnail(item);
+            picasso.load(imageUri)
+                    .config(Bitmap.Config.RGB_565)
+                    .placeholder(new ColorDrawable(0xff333333))
+                    .into(holder.image);
 
-                holder.itemView.setTag(holder);
-                holder.index = position;
-                holder.item = item;
+            holder.itemView.setTag(holder);
+            holder.index = position;
+            holder.item = item;
 
-                // show preload-badge
-                holder.setIsPreloaded(fragment.preloadManager.exists(item.id()));
+            // show preload-badge
+            holder.setIsPreloaded(preloadManager.exists(item.id()));
 
-                // check if this item was already seen.
-                if (fragment.inMemoryCacheService.isRepost(item.id())) {
-                    holder.setIsRepost();
+            // check if this item was already seen.
+            if (inMemoryCacheService.isRepost(item.id())) {
+                holder.setIsRepost();
 
-                } else if (fragment.seenIndicatorStyle == IndicatorStyle.ICON
-                        && !usersFavorites && fragment.isSeen(item)) {
+            } else if (seenIndicatorStyle == IndicatorStyle.ICON
+                    && !usersFavorites && isSeen(item)) {
 
-                    holder.setIsSeen();
+                holder.setIsSeen();
 
-                } else {
-                    holder.clear();
-                }
-            });
+            } else {
+                holder.clear();
+            }
         }
 
         @Override
@@ -1180,17 +1192,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             }
 
             // load meta data for the items.
-            with(fragment -> {
-                if (newItems.size() > 0) {
-                    FeedItem mostRecentItem = Ordering.natural()
-                            .onResultOf((Function<FeedItem, Long>) FeedItem::id)
-                            .min(newItems);
+            if (newItems.size() > 0) {
+                FeedItem mostRecentItem = Ordering.natural()
+                        .onResultOf((Function<FeedItem, Long>) FeedItem::id)
+                        .min(newItems);
 
-                    fragment.refreshRepostInfos(mostRecentItem.id(), feed.getFeedFilter());
-                }
+                refreshRepostInfos(mostRecentItem.id(), feed.getFeedFilter());
+            }
 
-                fragment.performAutoOpen();
-            });
+            performAutoOpen();
         }
 
         @Override
@@ -1200,7 +1210,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         @Override
         public void onWrongContentType() {
-            with(FeedFragment::showWrongContentTypeInfo);
+            showWrongContentTypeInfo();
         }
 
     }
@@ -1224,31 +1234,38 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (queryTooLong)
             return;
 
+        String queryTerm = filter.getTags().transform(tags -> tags + " repost").or("repost");
         FeedService.FeedQuery query = ImmutableFeedQuery.builder()
                 .contentTypes(getSelectedContentType())
+                .feedFilter(filter.withTags(queryTerm))
                 .older(id)
-                .feedFilter(filter.withTags(filter.getTags().transform(tags -> tags + " repost").or("repost")))
                 .build();
 
-        InMemoryCacheService cacheService = this.inMemoryCacheService;
-        WeakReference<FeedFragment> fragment = new WeakReference<>(this);
+        refreshRepostsCache(feedService, inMemoryCacheService, query)
+                .observeOn(mainThread())
+                .compose(bindToLifecycle())
+                .subscribe(ids -> feedAdapter.notifyDataSetChanged());
+    }
 
+    private static Observable<List<Long>> refreshRepostsCache(
+            FeedService feedService, InMemoryCacheService cacheService, FeedService.FeedQuery query) {
+
+        PublishSubject<List<Long>> subject = PublishSubject.create();
+
+        // refresh happens completely in background to let the query run even if the
+        // fragments lifecycle is already destroyed.
         feedService.getFeedItems(query)
                 .subscribeOn(BackgroundScheduler.instance())
-                .observeOn(mainThread())
+                .doAfterTerminate(subject::onCompleted)
                 .subscribe(items -> {
                     if (items.getItems().size() > 0) {
                         List<Long> ids = Lists.transform(items.getItems(), Api.Feed.Item::getId);
                         cacheService.cacheReposts(ids);
-
-                        // update feed adapter to show new 'repost' badges.
-                        FeedFragment frm = fragment.get();
-                        if (frm != null) {
-                            frm.feedAdapter.notifyDataSetChanged();
-                        }
-
+                        subject.onNext(ids);
                     }
                 }, Actions.empty());
+
+        return subject;
     }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

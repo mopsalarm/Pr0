@@ -11,8 +11,6 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.AdService;
 
-import rx.android.schedulers.AndroidSchedulers;
-
 import static com.pr0gramm.app.ApplicationClass.appComponent;
 
 /**
@@ -21,25 +19,19 @@ import static com.pr0gramm.app.ApplicationClass.appComponent;
 class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     private final AdService adService = appComponent().adService();
 
+    private AdView viewInstance;
     private boolean showAds;
 
+    AdViewAdapter() {
+        setHasStableIds(true);
+    }
+
     private AdView newAdView(Context context) {
-        AdView view = new AdView(context);
+        AdView view = new AdView(context.getApplicationContext());
+
         view.setAdSize(AdSize.LARGE_BANNER);
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
         view.setBackgroundResource(R.color.feed_background);
-
-        // This object will be destroyed once the adView loses the reference to the object.
-        // It then can correctly destroy the adView.
-        view.setTag(new Object() {
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
-
-                // finalize no main thread
-                AndroidSchedulers.mainThread().createWorker().schedule(view::destroy);
-            }
-        });
 
         // now load the ad.
         adService.load(view, Config.AdType.FEED);
@@ -51,17 +43,40 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
         if (showAds != show) {
             this.showAds = show;
             notifyDataSetChanged();
+
+            if (!show) {
+                // destroy previous view if needed
+                destroy();
+            }
         }
     }
 
     @Override
     public AdViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new AdViewHolder(newAdView(parent.getContext()));
+        if (viewInstance != null) {
+            // check if we can re-use the previous viewInstance
+            if (viewInstance.getParent() != null) {
+                destroy();
+            }
+        }
+
+        if (viewInstance == null) {
+            viewInstance = newAdView(parent.getContext());
+        }
+
+        return new AdViewHolder(viewInstance);
+    }
+
+    public void destroy() {
+        if (viewInstance != null) {
+            viewInstance.destroy();
+            viewInstance = null;
+        }
     }
 
     @Override
     public void onBindViewHolder(AdViewHolder holder, int position) {
-
+        // nothing to bind here.
     }
 
     @Override

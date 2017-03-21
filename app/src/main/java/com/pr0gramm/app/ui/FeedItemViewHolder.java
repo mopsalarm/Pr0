@@ -14,9 +14,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * View holder for one feed item.
  */
 public final class FeedItemViewHolder extends RecyclerView.ViewHolder {
-    public final ImageView seen;
-    public final ImageView repost;
-    public final View preloaded;
+    private final ImageView seen;
+    private final ImageView repost;
+    private final View preloaded;
+
     public final ImageView image;
 
     public FeedItem item;

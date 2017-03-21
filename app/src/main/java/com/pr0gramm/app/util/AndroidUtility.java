@@ -492,8 +492,16 @@ public class AndroidUtility {
     }
 
     public static boolean screenIsLandscape(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+
         Point size = screenSize(activity);
         return size.x > size.y;
+    }
+
+    public static boolean screenIsPortrait(Activity activity) {
+        return !screenIsLandscape(activity);
     }
 
     public static Animator.AnimatorListener hideViewOnAnimationEnd(View searchContainer) {

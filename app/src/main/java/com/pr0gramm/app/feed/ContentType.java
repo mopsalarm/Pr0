@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import com.pr0gramm.app.R;
 
 import java.util.Collection;
@@ -18,6 +19,8 @@ import java.util.Set;
  */
 public enum ContentType implements Parcelable {
     SFW(1, R.string.type_sfw), NSFW(2, R.string.type_nsfw), NSFL(4, R.string.type_nsfl), NSFP(8, R.string.type_nsfp);
+
+    public static final ImmutableSet<ContentType> ALL = ImmutableSet.copyOf(values());
 
     private final int flag;
     private final int title;

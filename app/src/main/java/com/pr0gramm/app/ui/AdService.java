@@ -70,8 +70,7 @@ public class AdService {
 
         view.loadAd(new AdRequest.Builder()
                 .setIsDesignedForFamilies(false)
-                .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
-                .addTestDevice("3D53B67A1E0EA6031517DA562AF40662") // samsung
+                // .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
                 .build());
 
         return listener.loadedSubject.toCompletable();

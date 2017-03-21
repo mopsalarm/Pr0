@@ -1,55 +1,30 @@
 package com.pr0gramm.app.ui;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 
-import java.lang.ref.WeakReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import rx.functions.Action1;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Adapted from https://gist.github.com/athornz/008edacd1d3b2f1e1836
  */
-public class MergeRecyclerAdapter extends RecyclerView.Adapter {
+public final class MergeRecyclerAdapter extends RecyclerView.Adapter {
+    private static final Logger logger = LoggerFactory.getLogger("MergeRecyclerAdapter");
 
-    final List<LocalAdapter> adapters = new ArrayList<>();
-    private int mViewTypeIndex = 0;
-
-    /**
-     */
-    private class LocalAdapter {
-        public final TIntIntMap viewTypeMap = new TIntIntHashMap();
-        public final RecyclerView.Adapter adapter;
-        public final RecyclerView.AdapterDataObserver observer;
-
-        public int mLocalPosition = 0;
-        public int mAdapterIndex = 0;
-
-        public LocalAdapter(RecyclerView.Adapter adapter) {
-            this.adapter = adapter;
-            observer = new ForwardingDataSetObserver(MergeRecyclerAdapter.this, adapter);
-        }
-
-        @Override
-        public int hashCode() {
-            return adapter.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof MergeRecyclerAdapter.LocalAdapter
-                    ? adapter.equals(((MergeRecyclerAdapter.LocalAdapter) o).adapter)
-                    : adapter.equals(o);
-        }
-    }
+    private final List<Holder> adapters = new ArrayList<>();
+    private int globalViewTypeIndex = 0;
 
     public MergeRecyclerAdapter() {
         setHasStableIds(true);
@@ -66,23 +41,34 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
      * Add the given adapter to the list of merged adapters at the given index.
      */
     public void addAdapter(int index, RecyclerView.Adapter adapter) {
-        LocalAdapter localAdapter = new LocalAdapter(adapter);
-        adapters.add(index, localAdapter);
+        if (adapters.size() == 16) {
+            throw new IllegalStateException("Can only add up to 16 adapters to merge adapter.");
+        }
 
-        adapter.registerAdapterDataObserver(localAdapter.observer);
+        if (!adapter.hasStableIds()) {
+            logger.warn("Added recycler adapter without stable ids: {}", adapter);
+        }
+
+        Holder holder = new Holder(adapter);
+        adapters.add(index, holder);
+
+        adapter.registerAdapterDataObserver(holder.observer);
         notifyDataSetChanged();
     }
 
-    public ImmutableList<? extends RecyclerView.Adapter<?>> getAdapters() {
-        return FluentIterable.from(adapters)
-                .transform(a -> (RecyclerView.Adapter<?>) a.adapter)
-                .toList();
+    public List<? extends RecyclerView.Adapter<?>> getAdapters() {
+        ArrayList<RecyclerView.Adapter<?>> copy = new ArrayList<>(adapters.size());
+        for (Holder adapter : adapters) {
+            copy.add(adapter.adapter);
+        }
+
+        return copy;
     }
 
     @Override
     public int getItemCount() {
         int count = 0;
-        for (LocalAdapter adapter : adapters)
+        for (Holder adapter : adapters)
             count += adapter.adapter.getItemCount();
 
         return count;
@@ -95,13 +81,14 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
      * @param position a merged (global) position
      * @return the matching Adapter and local position, or null if not found
      */
-    public LocalAdapter getAdapterOffsetForItem(final int position) {
+    @Nullable
+    private Holder getAdapterOffsetForItem(final int position) {
         final int adapterCount = adapters.size();
         int i = 0;
         int count = 0;
 
         while (i < adapterCount) {
-            LocalAdapter a = adapters.get(i);
+            Holder a = adapters.get(i);
             int newCount = count + a.adapter.getItemCount();
             if (position < newCount) {
                 a.mLocalPosition = position - count;
@@ -116,7 +103,8 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public long getItemId(int position) {
-        LocalAdapter adapter = getAdapterOffsetForItem(position);
+        Holder adapter = checkNotNull(getAdapterOffsetForItem(position),
+                "No adapter found for position");
 
         long uniq = (long) adapter.mAdapterIndex << 60;
         return uniq | (0x0fffffffffffffffL & adapter.adapter.getItemId(adapter.mLocalPosition));
@@ -124,29 +112,30 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        LocalAdapter result = getAdapterOffsetForItem(position);
-        int localViewType = result.adapter.getItemViewType(result.mLocalPosition);
-        if (result.viewTypeMap.containsValue(localViewType)) {
-            int[] keys = result.viewTypeMap.keys();
-            int[] values = result.viewTypeMap.values();
+        Holder result = checkNotNull(getAdapterOffsetForItem(position),
+                "No adapter found for position");
 
-            for (int idx = 0; idx < keys.length; idx++) {
-                if (values[idx] == localViewType) {
-                    return keys[idx];
-                }
-            }
+        int localViewType = result.adapter.getItemViewType(result.mLocalPosition);
+        int globalViewType = result.viewTypeLocalToGlobal.get(localViewType);
+        if (globalViewType != result.viewTypeLocalToGlobal.getNoEntryValue()) {
+            return globalViewType;
         }
-        mViewTypeIndex += 1;
-        result.viewTypeMap.put(mViewTypeIndex, localViewType);
-        return mViewTypeIndex;
+
+        // remember new mapping
+        globalViewTypeIndex += 1;
+        result.viewTypeGlobalToLocal.put(globalViewTypeIndex, localViewType);
+        result.viewTypeLocalToGlobal.put(localViewType, globalViewTypeIndex);
+        return globalViewTypeIndex;
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        for (LocalAdapter adapter : adapters) {
-            if (adapter.viewTypeMap.containsKey(viewType))
-                return adapter.adapter.onCreateViewHolder(viewGroup, adapter.viewTypeMap.get(viewType));
+        for (Holder adapter : adapters) {
+            int localViewType = adapter.viewTypeGlobalToLocal.get(viewType);
+            if (localViewType != adapter.viewTypeGlobalToLocal.getNoEntryValue()) {
+                return adapter.adapter.onCreateViewHolder(viewGroup, localViewType);
+            }
         }
         return null;
     }
@@ -154,7 +143,9 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     @SuppressWarnings("unchecked")
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        LocalAdapter result = getAdapterOffsetForItem(position);
+        Holder result = checkNotNull(getAdapterOffsetForItem(position),
+                "No adapter found for position");
+
         result.adapter.onBindViewHolder(viewHolder, result.mLocalPosition);
     }
 
@@ -177,52 +168,77 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     public void clear() {
-        for (LocalAdapter adapter : this.adapters) {
+        for (Holder adapter : this.adapters) {
             adapter.adapter.unregisterAdapterDataObserver(adapter.observer);
         }
 
         this.adapters.clear();
-        this.mViewTypeIndex = 0;
+        this.globalViewTypeIndex = 0;
 
         notifyDataSetChanged();
     }
 
-    private static class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {
-        private final RecyclerView.Adapter owning;
-        private final WeakReference<MergeRecyclerAdapter> merge;
+    /**
+     */
+    private class Holder {
+        final TIntIntMap viewTypeGlobalToLocal = new TIntIntHashMap(8, 0.75f, -1, -1);
+        final TIntIntMap viewTypeLocalToGlobal = new TIntIntHashMap(8, 0.75f, -1, -1);
 
-        ForwardingDataSetObserver(MergeRecyclerAdapter merge, RecyclerView.Adapter owning) {
+        final RecyclerView.Adapter adapter;
+        final ForwardingDataSetObserver observer;
+
+        int mLocalPosition = 0;
+        int mAdapterIndex = 0;
+
+        Holder(RecyclerView.Adapter adapter) {
+            this.adapter = adapter;
+            this.observer = new ForwardingDataSetObserver(adapter);
+        }
+
+        @Override
+        public int hashCode() {
+            return adapter.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Holder
+                    ? adapter.equals(((Holder) o).adapter)
+                    : adapter.equals(o);
+        }
+    }
+
+    private class ForwardingDataSetObserver extends RecyclerView.AdapterDataObserver {
+        private final RecyclerView.Adapter owning;
+
+        ForwardingDataSetObserver(RecyclerView.Adapter owning) {
             this.owning = owning;
-            this.merge = new WeakReference<>(merge);
         }
 
         @Override
         public void onChanged() {
-            withAdapter(MergeRecyclerAdapter::notifyDataSetChanged);
+            notifyDataSetChanged();
         }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
-            withAdapter(base -> base.notifyItemRangeChanged(
-                    localToMergedIndex(base, positionStart), itemCount));
+            notifyItemRangeChanged(localToMergedIndex(positionStart), itemCount);
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            withAdapter(base -> base.notifyItemRangeInserted(
-                    localToMergedIndex(base, positionStart), itemCount));
+            notifyItemRangeInserted(localToMergedIndex(positionStart), itemCount);
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            withAdapter(base -> base.notifyItemRangeRemoved(
-                    localToMergedIndex(base, positionStart), itemCount));
+            notifyItemRangeRemoved(localToMergedIndex(positionStart), itemCount);
         }
 
         @SuppressWarnings("EqualsBetweenInconvertibleTypes")
-        private int localToMergedIndex(MergeRecyclerAdapter base, int index) {
+        private int localToMergedIndex(int index) {
             int result = index;
-            for (LocalAdapter adapter : base.adapters) {
+            for (Holder adapter : adapters) {
                 if (adapter.equals(owning)) {
                     break;
                 }
@@ -230,13 +246,6 @@ public class MergeRecyclerAdapter extends RecyclerView.Adapter {
                 result += adapter.adapter.getItemCount();
             }
             return result;
-        }
-
-        private void withAdapter(Action1<MergeRecyclerAdapter> action) {
-            MergeRecyclerAdapter adapter = merge.get();
-            if (adapter != null) {
-                action.call(adapter);
-            }
         }
     }
 }
