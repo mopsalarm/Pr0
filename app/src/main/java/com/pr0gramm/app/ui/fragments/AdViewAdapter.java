@@ -29,7 +29,7 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     private AdView newAdView(Context context) {
         AdView view = new AdView(context.getApplicationContext());
 
-        view.setAdSize(AdSize.LARGE_BANNER);
+        view.setAdSize(new AdSize(AdSize.FULL_WIDTH, 70));
         view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
         view.setBackgroundResource(R.color.feed_background);
 
