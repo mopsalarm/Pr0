@@ -28,7 +28,6 @@ import android.view.Window;
 
 import com.akodiakson.sdk.simple.Sdk;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.google.android.gms.ads.AdView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -72,8 +71,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -114,9 +111,6 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @BindView(R.id.bottomsheet)
     BottomSheetLayout bottomSheet;
-
-    @BindView(R.id.ad_view)
-    AdView globalAdView;
 
     @Inject
     UserService userService;
@@ -241,29 +235,6 @@ public class MainActivity extends BaseAppCompatActivity implements
             }
         }
 
-        // combine observables into one
-        Observable<Boolean> shouldShowAds = Observable.combineLatest(
-                adService.enabledForType(Config.AdType.MAIN), doNotShowAds,
-                (shouldShow, overrideNoAds) -> shouldShow && !overrideNoAds);
-
-        shouldShowAds
-                .distinctUntilChanged()
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .doOnNext(v -> globalAdView.setVisibility(GONE))
-                .filter(v -> AndroidUtility.screenIsPortrait(this))
-                .subscribe(show -> {
-                    if (show) {
-                        // load ad, show view once loaded.
-                        adService.load(globalAdView, Config.AdType.MAIN)
-                                .compose(bindToLifecycle())
-                                .subscribe(state -> {
-                                    boolean gone = doNotShowAds.getValue() || state == AdService.AdLoadState.FAILURE;
-                                    globalAdView.setVisibility(gone ? GONE : VISIBLE);
-                                }, Actions.empty());
-                    }
-                });
-
         // migrate the surface view option.
         if (singleShotService.isFirstTime("migrate.SurfaceView")) {
             settings.edit()
@@ -346,9 +317,6 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Override
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
-
-        // destroy the ad-view
-        globalAdView.destroy();
 
         try {
             super.onDestroy();

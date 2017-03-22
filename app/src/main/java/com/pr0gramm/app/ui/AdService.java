@@ -46,11 +46,6 @@ public class AdService {
             return type == Config.AdType.FEED;
         }
 
-        // if we are on debug mode, we show ads on main.
-        if (BuildConfig.DEBUG) {
-            return type == Config.AdType.MAIN;
-        }
-
         // do not show ads for premium users
         return !userService.isPremiumUser() && configService.config().adType() == type;
     }
