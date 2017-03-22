@@ -40,7 +40,7 @@ public class Dagger {
         return appComponent(activity).activiyComponent(new ActivityModule(activity));
     }
 
-    public static void initEagerSingletons(Application application) {
+    static void initEagerSingletons(Application application) {
         AsyncTask.execute(() -> {
             try {
                 Dagger.appComponent(application).inject(new EagerSingletons());

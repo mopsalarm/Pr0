@@ -1,8 +1,8 @@
 package com.pr0gramm.app.ui.base;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import com.f2prateek.dart.Dart;
@@ -29,10 +29,13 @@ public abstract class BaseFragment extends RxFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        FragmentActivity activity = getActivity();
-        injectComponent(Dagger.activityComponent(activity));
+    public void onAttach(Context context) {
+        injectComponent(Dagger.activityComponent(getActivity()));
+        super.onAttach(context);
+    }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         if (getArguments() != null)
             Dart.inject(this, getArguments());
 

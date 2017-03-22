@@ -2,7 +2,7 @@
 ext {
     VersionSupportLibrary = "25.3.0"
     VersionRxBinding = "1.0.1"
-    VersionImmutables = "2.4.4"
+    VersionImmutables = "2.4.6"
     VersionRetrofit = "2.2.0"
     VersionGoogleServices = "10.2.0"
 }
@@ -57,7 +57,7 @@ dependencies {
     compile "com.github.akodiakson:sdkcheck:0.2.4"
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
-    compile "me.leolin:ShortcutBadger:1.1.11@aar"
+    compile "me.leolin:ShortcutBadger:1.1.14@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
 
     compile "com.google.android.exoplayer:exoplayer:r2.3.0"
@@ -104,8 +104,8 @@ dependencies {
     provided "org.immutables:value:$VersionImmutables"
     provided "org.immutables:gson:$VersionImmutables"
 
-    compile "com.google.dagger:dagger:2.9"
-    apt "com.google.dagger:dagger-compiler:2.9"
+    compile "com.google.dagger:dagger:2.10"
+    apt "com.google.dagger:dagger-compiler:2.10"
 
     // use a newer version of retrolambda
     retrolambdaConfig "net.orfjackal.retrolambda:retrolambda:2.5.1"
