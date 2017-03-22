@@ -282,6 +282,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                     .observeOn(AndroidSchedulers.mainThread())
                     .compose(bindToLifecycle())
                     .onErrorResumeNext(Observable.empty())
+                    .filter(v -> !userService.isPremiumUser())
                     .subscribe(adsAreShown -> {
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 20000)
                                 .setAction("pr0mium", v -> {
