@@ -256,9 +256,9 @@ public class MainActivity extends BaseAppCompatActivity implements
                     if (show) {
                         // load ad, show view once loaded.
                         adService.load(globalAdView, Config.AdType.MAIN)
-                                .compose(bindToLifecycle().forCompletable())
-                                .subscribe(() -> {
-                                    boolean gone = doNotShowAds.getValue();
+                                .compose(bindToLifecycle())
+                                .subscribe(state -> {
+                                    boolean gone = doNotShowAds.getValue() || state == AdService.AdLoadState.FAILURE;
                                     globalAdView.setVisibility(gone ? GONE : VISIBLE);
                                 }, Actions.empty());
                     }

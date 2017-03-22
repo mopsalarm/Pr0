@@ -13,10 +13,10 @@ import com.pr0gramm.app.services.config.ConfigService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Completable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subjects.PublishSubject;
+import rx.subjects.ReplaySubject;
+import rx.subjects.Subject;
 
 /**
  * Utility methods for ads.
@@ -59,9 +59,9 @@ public class AdService {
      * Loads an ad into this view. This method also registers a listener to track the view.
      * The resulting completable completes once the ad finishes loading.
      */
-    public Completable load(AdView view, Config.AdType type) {
+    public Observable<AdLoadState> load(AdView view, Config.AdType type) {
         if (view == null) {
-            return Completable.never();
+            return Observable.empty();
         }
 
         // we want to have tracking and information about the ad loading.
@@ -73,7 +73,7 @@ public class AdService {
                 // .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
                 .build());
 
-        return listener.loadedSubject.toCompletable();
+        return listener.loadedSubject;
     }
 
     public Observable<Boolean> enabledForType(Config.AdType type) {
@@ -86,7 +86,9 @@ public class AdService {
 
     private static class TrackingAdListener extends AdListener {
         private final Config.AdType adType;
-        final PublishSubject<Void> loadedSubject = PublishSubject.create();
+
+        final Subject<AdLoadState, AdLoadState> loadedSubject = ReplaySubject
+                .<AdLoadState>create().toSerialized();
 
         TrackingAdListener(Config.AdType adType) {
             this.adType = adType;
@@ -99,7 +101,18 @@ public class AdService {
 
         @Override
         public void onAdLoaded() {
+            loadedSubject.onNext(AdLoadState.SUCCESS);
             loadedSubject.onCompleted();
         }
+
+        @Override
+        public void onAdFailedToLoad(int i) {
+            loadedSubject.onNext(AdLoadState.FAILURE);
+            loadedSubject.onCompleted();
+        }
+    }
+
+    public enum AdLoadState {
+        SUCCESS, FAILURE
     }
 }
