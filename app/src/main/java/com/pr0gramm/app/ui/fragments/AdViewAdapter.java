@@ -11,6 +11,7 @@ import com.google.android.gms.ads.AdView;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.AdService;
+import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,13 @@ import static com.pr0gramm.app.ApplicationClass.appComponent;
 class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     private static final Logger logger = LoggerFactory.getLogger("AdViewAdapter");
 
+    // count failures in all adapter instances
+    private static int failureCount = 0;
+
     private final AdService adService = appComponent().adService();
 
     private AdView viewInstance;
     private boolean showAds;
-    private int failureCount = 5;
 
     AdViewAdapter() {
         setHasStableIds(true);
@@ -43,18 +46,24 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
         logger.info("Starting loading ad now.");
 
         // now load the ad and show it, once it finishes loading
-        adService.load(view, Config.AdType.FEED).subscribe(state -> {
-            if (state == AdService.AdLoadState.SUCCESS && view.getParent() == null) {
-                parent.post(() -> {
-                    logger.info("Ad was loaded, showing ad now.");
-                    parent.addView(view);
-                });
-            }
+        adService.load(view, Config.AdType.FEED)
+                .compose(RxLifecycleAndroid.bindView(view))
+                .compose(RxLifecycleAndroid.bindView(parent))
+                .subscribe(state -> {
+                    if (state == AdService.AdLoadState.SUCCESS && view.getParent() == null) {
+                        logger.info("Ad was loaded, showing ad now.");
+                        parent.addView(view);
+                    }
 
-            // count loads/failures
-            int change = state == AdService.AdLoadState.SUCCESS ? -1 : 1;
-            failureCount = Math.min(6, Math.max(0, failureCount + change));
-        });
+                    // on failure we hide the view - which should also collapse the parent.
+                    if (state == AdService.AdLoadState.FAILURE) {
+                        view.setVisibility(View.GONE);
+                    }
+
+                    // count loads/failures
+                    int change = state == AdService.AdLoadState.SUCCESS ? -1 : 1;
+                    failureCount = Math.min(6, Math.max(0, failureCount + change));
+                });
 
         // if it did not fail three or more times, we expect it to work.
         if (failureCount < 3) {

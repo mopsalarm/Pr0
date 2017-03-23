@@ -232,14 +232,6 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         }
 
         this.scrollToolbar = useToolbarTopMargin();
-
-        adService.enabledForType(Config.AdType.FEED)
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe((show) -> {
-                    adViewAdapter.setShowAds(show && AndroidUtility.screenIsPortrait(getActivity()));
-                    updateSpanSizeLookup();
-                });
     }
 
     @Override
@@ -330,6 +322,15 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(
                 DetectTapTouchListener.withConsumer(this::hideSearchContainer));
+
+        // start showing ads.
+        adService.enabledForType(Config.AdType.FEED)
+                .observeOn(mainThread())
+                .compose(bindToLifecycle())
+                .subscribe((show) -> {
+                    adViewAdapter.setShowAds(show && AndroidUtility.screenIsPortrait(getActivity()));
+                    updateSpanSizeLookup();
+                });
     }
 
     @Override

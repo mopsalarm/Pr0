@@ -112,7 +112,7 @@
     <string name="inbox_type_all">Inbox</string>
     <string name="inbox_type_private">Privat</string>
     <string name="inbox_type_unread">Ungelesen</string>
-    <string name="prefcat_behaviour_summary">Verhaltenseinstellungen wie: Doppelt-Tab zum Voten und Benachrichtigungen.</string>
+    <string name="prefcat_behaviour_summary">Verhaltenseinstellungen wie: Doppelttap zum Voten und Benachrichtigungen.</string>
     <string name="prefcat_settings_title">Einstellungen</string>
     <string name="prefcat_visual_summary">Hier kannst du einstellen, wie die App aussehen soll.</string>
     <string name="prefcat_visual_title">Visuell</string>

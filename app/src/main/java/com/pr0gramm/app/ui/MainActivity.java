@@ -245,9 +245,8 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     private void preparePremiumHint() {
         if (singleShotService.firstTimeToday("hint_ads_pr0mium:2")) {
-            Observable<Boolean> showAnyAds = Observable.merge(
-                    adService.enabledForType(Config.AdType.FEED).take(1),
-                    adService.enabledForType(Config.AdType.MAIN).take(1));
+            Observable<Boolean> showAnyAds =
+                    adService.enabledForType(Config.AdType.FEED).take(1);
 
             showAnyAds.takeFirst(v -> v)
                     .observeOn(AndroidSchedulers.mainThread())

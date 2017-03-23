@@ -47,6 +47,8 @@ public abstract class Config {
 
     @Keep
     public enum AdType {
-        NONE, FEED, MAIN;
+        NONE,
+        FEED,
+        MAIN /* deprecated - dont use */;
     }
 }
