@@ -8,7 +8,6 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.AdService;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
@@ -37,11 +36,8 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     }
 
     private AdView newAdView(Context context, ViewGroup parent) {
-        AdView view = new AdView(context.getApplicationContext());
-
+        AdView view = adService.newAdView(context);
         view.setAdSize(new AdSize(AdSize.FULL_WIDTH, 70));
-        view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
-        view.setBackgroundResource(R.color.feed_background);
 
         logger.info("Starting loading ad now.");
 

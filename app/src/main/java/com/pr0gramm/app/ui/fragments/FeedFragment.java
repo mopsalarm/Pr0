@@ -25,6 +25,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 
+import com.google.android.gms.ads.MobileAds;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -35,6 +36,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.gson.JsonSyntaxException;
 import com.pr0gramm.app.ActivityComponent;
+import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -814,6 +816,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             }
         }
 
+        // show debug menu entry for ads only on debug builds.
+        if ((item = menu.findItem(R.id.action_ad_info)) != null) {
+            item.setVisible(BuildConfig.DEBUG);
+        }
+
         MenuItem follow = menu.findItem(R.id.action_follow);
         MenuItem unfollow = menu.findItem(R.id.action_unfollow);
         MenuItem bookmark = menu.findItem(R.id.action_pin);
@@ -945,6 +952,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         followService.unfollow(activeUsername)
                 .subscribeOn(BackgroundScheduler.instance())
                 .subscribe(Actions.empty(), Actions.empty());
+    }
+
+    @OnOptionsItemSelected(R.id.action_ad_info)
+    public void onOpenAdInfoClicked() {
+        MobileAds.openDebugMenu(getContext(), getString(R.string.banner_ad_unit_id));
     }
 
     public void performSearch(SearchOptionsView.SearchQuery query) {

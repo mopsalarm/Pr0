@@ -63,4 +63,10 @@
         android:id="@+id/action_unfollow"
         android:title="@string/action_unfollow"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_ad_info"
+        android:title="Ads"
+        android:visible="false"
+        app:showAsAction="never"/>
 </menu>

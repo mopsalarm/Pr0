@@ -1,14 +1,17 @@
 package com.pr0gramm.app.ui;
 
+import android.content.Context;
+
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.pr0gramm.app.BuildConfig;
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.services.config.ConfigService;
+import com.pr0gramm.app.util.AndroidUtility;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -77,6 +80,16 @@ public class AdService {
                 .map(info -> isEnabledFor(type))
                 .startWith(isEnabledFor(type))
                 .distinctUntilChanged();
+    }
+
+    public AdView newAdView(Context context) {
+        AdView view = new AdView(context.getApplicationContext());
+        view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
+
+        int backgroundColor = AndroidUtility.resolveColorAttribute(context, android.R.attr.windowBackground);
+        view.setBackgroundColor(backgroundColor);
+
+        return view;
     }
 
     private static class TrackingAdListener extends AdListener {
