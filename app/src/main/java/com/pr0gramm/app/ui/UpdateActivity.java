@@ -1,6 +1,8 @@
 package com.pr0gramm.app.ui;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 
 import com.f2prateek.dart.InjectExtra;
@@ -10,6 +12,7 @@ import com.pr0gramm.app.services.Update;
 import com.pr0gramm.app.services.UpdateChecker;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
+import com.pr0gramm.app.util.CustomTabsHelper;
 
 /**
  * This activity is just there to host the update dialog fragment.
@@ -17,6 +20,7 @@ import com.pr0gramm.app.ui.dialogs.DialogDismissListener;
 public class UpdateActivity extends BaseAppCompatActivity implements DialogDismissListener {
     public static final String EXTRA_UPDATE = "UpdateActivity__EXTRA_UPDATE";
 
+    @Nullable
     @InjectExtra(EXTRA_UPDATE)
     Update update;
 
@@ -25,8 +29,15 @@ public class UpdateActivity extends BaseAppCompatActivity implements DialogDismi
         setTheme(ThemeHelper.theme().basic);
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && this.update != null) {
             UpdateChecker.download(this, update);
+
+        } else {
+            // forward to app page.
+            Uri uri = Uri.parse("https://app.pr0gramm.com");
+            new CustomTabsHelper(this).openCustomTab(uri);
+
+            finish();
         }
     }
 

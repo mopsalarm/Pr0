@@ -31,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLException;
 
-import retrofit2.adapter.rxjava.HttpException;
 import rx.functions.Func2;
 
 import static com.google.common.primitives.Ints.asList;
@@ -50,28 +49,28 @@ public class ErrorFormatting {
     }
 
     public static class Formatter<T extends Throwable> {
-        private final Class<T> errorType;
+        private final Class<? extends T> errorType;
         private final Predicate<T> check;
         private final Func2<T, Context, String> message;
         private boolean report = true;
 
-        Formatter(Class<T> errorType, Func2<T, Context, String> message) {
+        Formatter(Class<? extends T> errorType, Func2<T, Context, String> message) {
             this(errorType, Predicates.alwaysTrue(), message);
         }
 
-        Formatter(Class<T> errorType, @StringRes int message) {
+        Formatter(Class<? extends T> errorType, @StringRes int message) {
             this(errorType, Predicates.alwaysTrue(), (err, ctx) -> ctx.getString(message));
         }
 
-        Formatter(Class<T> errorType, Predicate<T> check) {
+        Formatter(Class<? extends T> errorType, Predicate<T> check) {
             this(errorType, check, (err, ctx) -> null);
         }
 
-        Formatter(Class<T> errorType, Predicate<T> check, @StringRes int message) {
+        Formatter(Class<? extends T> errorType, Predicate<T> check, @StringRes int message) {
             this(errorType, check, (err, ctx) -> ctx.getString(message));
         }
 
-        Formatter(Class<T> errorType, Predicate<T> check, Func2<T, Context, String> message) {
+        Formatter(Class<? extends T> errorType, Predicate<T> check, Func2<T, Context, String> message) {
             this.errorType = errorType;
             this.check = check;
             this.message = message;
@@ -116,8 +115,8 @@ public class ErrorFormatting {
         @SuppressWarnings("SimplifiableIfStatement")
         RetrofitStatusFormatter(Predicate<HttpErrorException> check, @StringRes int message) {
             super(Exception.class, err -> {
-                if (err instanceof HttpException)
-                    return check.apply(HttpErrorException.from((HttpException) err));
+                if (err instanceof retrofit2.HttpException)
+                    return check.apply(HttpErrorException.from((retrofit2.HttpException) err));
 
                 if (err instanceof HttpErrorException)
                     return check.apply((HttpErrorException) err);
@@ -186,37 +185,37 @@ public class ErrorFormatting {
                 R.string.error_json));
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> err instanceof FileNotFoundException,
+                err -> hasCause(err, FileNotFoundException.class),
                 R.string.error_post_not_found).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof TimeoutException,
+                err -> hasCause(err, TimeoutException.class),
                 R.string.error_timeout).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof SocketTimeoutException,
+                err -> hasCause(err, SocketTimeoutException.class),
                 R.string.error_timeout).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof MalformedJsonException,
+                err -> hasCause(err, MalformedJsonException.class),
                 R.string.error_conversion).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof UnknownHostException,
+                err -> hasCause(err, UnknownHostException.class),
                 R.string.error_host_not_found).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof SSLException,
+                err -> hasCause(err, SSLException.class),
                 R.string.error_ssl_error).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof ProtocolException,
+                err -> hasCause(err, ProtocolException.class),
                 R.string.error_protocol_exception));
 
         final int error_connect_exception_https = R.string.error_connect_exception_https;
         final int error_connect_exception = R.string.error_connect_exception;
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof ConnectException,
+                err -> hasCause(err, ConnectException.class),
                 (err, context) -> {
                     ConnectException error = (ConnectException) Throwables.getRootCause(err);
                     if (error.toString().contains(":443")) {
@@ -229,22 +228,22 @@ public class ErrorFormatting {
                 }).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof SocketException,
+                err -> hasCause(err, SocketException.class),
                 R.string.error_socket).doNotReport());
 
         formatters.add(new Formatter<>(Throwable.class,
-                err -> Throwables.getRootCause(err) instanceof EOFException,
+                err -> hasCause(err, EOFException.class),
                 R.string.error_socket).doNotReport());
 
         formatters.add(new Formatter<>(LoginCookieHandler.LoginRequiredException.class,
                 R.string.error_login_required_exception));
 
         formatters.add(new Formatter<>(IllegalStateException.class,
-                err -> err.toString().contains("onSaveInstanceState")).doNotReport());
+                err -> String.valueOf(err).contains("onSaveInstanceState")).doNotReport());
 
         final int error_json_mapping = R.string.error_json_mapping;
         formatters.add(new Formatter<>(IllegalStateException.class,
-                err -> err.toString().contains(": Expected "),
+                err -> String.valueOf(err).contains(": Expected "),
                 (err, context) -> context.getString(error_json_mapping, err.getMessage())).doNotReport());
 
         final int error_permission_not_granted = R.string.error_permission_not_granted;
@@ -263,7 +262,7 @@ public class ErrorFormatting {
                 }));
 
         // add a default formatter for io exceptions, but do not log them
-        formatters.add(new Formatter<>(IOException.class, guessMessage::call).doNotReport());
+        formatters.add(new Formatter<>(IOException.class, guessMessage).doNotReport());
 
         // oops
         formatters.add(new Formatter<>(NullPointerException.class, R.string.error_nullpointer));
@@ -272,9 +271,24 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(OutOfMemoryError.class, R.string.error_oom));
 
         // add a default formatter.
-        formatters.add(new Formatter<>(Throwable.class, guessMessage::call));
+        formatters.add(new Formatter<>(Throwable.class, guessMessage));
 
         return formatters;
+    }
+
+    /**
+     * Checks if the given throwable or any of it's causes is of the given type.
+     */
+    private static boolean hasCause(Throwable thr, Class<? extends Throwable> causeClass) {
+        while (thr != null) {
+            if (causeClass.isInstance(thr)) {
+                return true;
+            }
+
+            thr = thr.getCause();
+        }
+
+        return false;
     }
 
     private static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());

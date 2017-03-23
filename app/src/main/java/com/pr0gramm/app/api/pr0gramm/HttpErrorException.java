@@ -2,7 +2,7 @@ package com.pr0gramm.app.api.pr0gramm;
 
 import java.io.IOException;
 
-import retrofit2.adapter.rxjava.HttpException;
+import retrofit2.HttpException;
 
 /**
  */
