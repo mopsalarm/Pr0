@@ -9,6 +9,7 @@ enum ProtocolToken {
     STRING(JsonToken.STRING),
 
     BYTE(JsonToken.NUMBER),
+    SHORT(JsonToken.NUMBER),
     INTEGER(JsonToken.NUMBER),
     LONG(JsonToken.NUMBER),
     FLOAT(JsonToken.NUMBER),

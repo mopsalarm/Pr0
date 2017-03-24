@@ -218,8 +218,8 @@ public class Feed {
         bundle.putInt(FEED_FIELD_CONTENT_TYPE, ContentType.combine(contentType));
 
         // add a subset of the items
-        int start = Math.min(items.size(), max(0, idx - 100));
-        int stop = Math.min(items.size(), max(0, idx + 100));
+        int start = Math.min(items.size(), max(0, idx - 64));
+        int stop = Math.min(items.size(), max(0, idx + 64));
         List<FeedItem> items = this.items.subList(start, stop);
         bundle.putParcelableArrayList(FEED_FIELD_ITEMS, new ArrayList<>(items));
         bundle.putBoolean(FEED_FIELD_AT_START, start == 0);

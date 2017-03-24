@@ -74,7 +74,10 @@ public abstract class Parceler<T> implements Parcelable {
     @SuppressLint("NewApi")
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        Stopwatch watch = Stopwatch.createStarted();
+        Stopwatch watch = null;
+        if (BuildConfig.DEBUG) {
+            watch = Stopwatch.createStarted();
+        }
 
         BinaryWriter writer = new BinaryWriter();
         GsonModule.INSTANCE.toJson(value, getType().getType(), writer);
@@ -84,7 +87,7 @@ public abstract class Parceler<T> implements Parcelable {
         byte[] output = writer.toByteArray();
         dest.writeByteArray(output);
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && watch != null) {
             logger.info("writing of {} took {} ({} bytes)", getType(), watch, output.length);
         }
     }

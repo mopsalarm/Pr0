@@ -284,7 +284,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         private final Feed proxy;
         private final FeedLoader loader;
 
-        public PostAdapter(FragmentManager fragmentManager, Feed proxy, FeedLoader loader) {
+        PostAdapter(FragmentManager fragmentManager, Feed proxy, FeedLoader loader) {
             super(fragmentManager);
 
             this.proxy = proxy;

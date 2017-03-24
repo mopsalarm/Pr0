@@ -91,7 +91,7 @@ class BinaryReader extends JsonReader {
                 return name;
 
             case NAME_REF:
-                return nameCache.get(input.readByte() & 0xff);
+                return nameCache.get(input.readByte());
 
             default:
                 throw new IOException("Invalid name command");
@@ -121,6 +121,9 @@ class BinaryReader extends JsonReader {
 
             case INTEGER:
                 return input.readInt();
+
+            case SHORT:
+                return input.readShort();
 
             case BYTE:
                 return input.readByte();
@@ -235,7 +238,9 @@ class BinaryReader extends JsonReader {
     private static byte[] inflate(byte[] input, int start) {
         try {
             try (InputStream inputStream = new ByteArrayInputStream(input, start, input.length - start)) {
-                return ByteStreams.toByteArray(new InflaterInputStream(inputStream));
+                try (InputStream inflated = new InflaterInputStream(inputStream)) {
+                    return ByteStreams.toByteArray(inflated);
+                }
             }
 
         } catch (IOException err) {
