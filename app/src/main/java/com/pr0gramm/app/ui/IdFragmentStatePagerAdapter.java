@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.google.common.base.Predicates.alwaysTrue;
-import static com.google.common.collect.Iterators.limit;
-import static com.google.common.collect.Iterators.removeIf;
-
 /**
  * This implementation has a {@link #getItemId(int)} to identify items
  * and fragments, even if they change places between adapter updates.
@@ -34,15 +29,21 @@ import static com.google.common.collect.Iterators.removeIf;
 public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
     private static final Logger logger = LoggerFactory.getLogger("IdFragmentStatePagerAdapter");
 
-    private static final String TAG = "MyFrgmntStatePgrAdapter";
-    private static final boolean DEBUG = false;
 
     private final FragmentManager mFragmentManager;
-    private FragmentTransaction mCurTransaction = null;
 
-    private final LinkedHashMap<Long, Fragment.SavedState> mSavedState = new LinkedHashMap<>();
+    // we only cache the most recent few saved states.
+    private final LinkedHashMap<Long, Fragment.SavedState> mSavedState = new LinkedHashMap<Long, Fragment.SavedState>() {
+        @Override
+        protected boolean removeEldestEntry(Entry eldest) {
+            return size() > 5;
+        }
+    };
+
     private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
-    private Fragment mCurrentPrimaryItem = null;
+
+    private FragmentTransaction mCurTransaction;
+    private Fragment mCurrentPrimaryItem;
 
     public IdFragmentStatePagerAdapter(FragmentManager fm) {
         mFragmentManager = fm;
@@ -90,7 +91,6 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         }
 
         Fragment fragment = getItem(position);
-        if (DEBUG) Log.v(TAG, "Adding item #" + position + ": f=" + fragment);
         Fragment.SavedState fss = mSavedState.get(id);
         if (fss != null) {
             fragment.setInitialSavedState(fss);
@@ -115,21 +115,14 @@ public abstract class IdFragmentStatePagerAdapter extends PagerAdapter {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        if (DEBUG) Log.v(TAG, "Removing item #" + position + ": f=" + object
-                + " v=" + ((Fragment) object).getView());
 
         mSavedState.remove(id);
 
         try {
             mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment));
         } catch (IllegalStateException ignored) {
-            // looks like this sometimes happen during save if the frgment is not in the
+            // looks like this sometimes happen during save if the fragment is not in the
             // fragment manager. We will ignore it.
-        }
-
-        // remove the oldest items
-        if (mSavedState.size() > 10) {
-            removeIf(limit(mSavedState.values().iterator(), mSavedState.size() - 10), alwaysTrue());
         }
 
         mFragments.remove(id);
