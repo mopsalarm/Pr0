@@ -1,13 +1,11 @@
 package com.pr0gramm.app.services;
 
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.feed.Nothing;
-import com.pr0gramm.app.util.Holder;
 
 import org.joda.time.Duration;
 import org.joda.time.Instant;
@@ -33,15 +31,13 @@ public class InboxService {
     private static final Logger logger = LoggerFactory.getLogger("InboxService");
     private static final String KEY_MAX_READ_MESSAGE_ID = "InboxService.maxReadMessageId";
 
-    private final Holder<SQLiteDatabase> db;
     private final Api api;
     private final SharedPreferences preferences;
 
     private final Subject<Integer, Integer> unreadMessagesCount = BehaviorSubject.create(0).toSerialized();
 
     @Inject
-    public InboxService(Holder<SQLiteDatabase> db, Api api, SharedPreferences preferences) {
-        this.db = db;
+    public InboxService(Api api, SharedPreferences preferences) {
         this.api = api;
         this.preferences = preferences;
     }
@@ -142,17 +138,5 @@ public class InboxService {
      */
     public Observable<Nothing> send(long receiverId, String message) {
         return api.sendMessage(null, message, receiverId);
-    }
-
-    public static void onCreate(SQLiteDatabase db) {
-        logger.info("Initializing sqlite database");
-        db.execSQL(
-                "CREATE TABLE IF NOT EXISTS inbox_messages (" +
-                        "id INTEGER PRIMARY KEY," +
-                        "timestamp INT NOT NULL," +
-                        "text TEXT NOT NULL," +
-                        "partnerName TEXT NOT NULL," +
-                        "partnerId INTEGER NOT NULL," +
-                        "outgoing BOOLEAN NOT NULL)");
     }
 }

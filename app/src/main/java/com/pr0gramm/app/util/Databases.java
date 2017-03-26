@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.pr0gramm.app.orm.BenisRecord;
 import com.pr0gramm.app.orm.Bookmark;
 import com.pr0gramm.app.orm.CachedVote;
-import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager;
 
 /**
@@ -38,7 +37,6 @@ public class Databases {
             BenisRecord.prepareDatabase(db);
             Bookmark.prepareDatabase(db);
             DatabasePreloadManager.onCreate(db);
-            InboxService.onCreate(db);
         }
 
         @Override
