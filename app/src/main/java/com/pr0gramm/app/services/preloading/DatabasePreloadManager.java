@@ -29,6 +29,9 @@ import javax.inject.Singleton;
 
 import rx.Observable;
 
+import static com.pr0gramm.app.util.AndroidUtility.checkNotMainThread;
+import static com.pr0gramm.app.util.AndroidUtility.doInBackground;
+
 /**
  */
 @Singleton
@@ -38,14 +41,13 @@ public class DatabasePreloadManager implements PreloadManager {
     private static final String TABLE_NAME = "preload_2";
     private static final String QUERY_ALL_ITEM_IDS = "SELECT * FROM " + TABLE_NAME;
 
-    private final Observable<BriteDatabase> database;
     private final AtomicReference<ImmutableMap<Long, PreloadItem>> preloadCache =
             new AtomicReference<>(ImmutableMap.<Long, PreloadItem>of());
+    private final BriteDatabase database;
 
     @Inject
-    public DatabasePreloadManager(Observable<BriteDatabase> database) {
+    public DatabasePreloadManager(BriteDatabase database) {
         this.database = database;
-
         // initialize in background.
         queryAllItems()
                 .subscribeOn(BackgroundScheduler.instance())
@@ -67,9 +69,9 @@ public class DatabasePreloadManager implements PreloadManager {
 
         if (missing.size() > 0) {
             // delete missing entries in background.
-            this.database.subscribeOn(BackgroundScheduler.instance()).subscribe(db -> {
-                try (BriteDatabase.Transaction tx = db.newTransaction()) {
-                    deleteTx(db, missing);
+            doInBackground(() -> {
+                try (BriteDatabase.Transaction tx = database.newTransaction()) {
+                    deleteTx(database, missing);
                     tx.markSuccessful();
                 }
             });
@@ -79,7 +81,7 @@ public class DatabasePreloadManager implements PreloadManager {
     }
 
     private Observable<ImmutableMap<Long, PreloadItem>> queryAllItems() {
-        return this.database
+        return Observable.just(database)
                 .flatMap(db -> db.createQuery(TABLE_NAME, QUERY_ALL_ITEM_IDS).mapToList(this::readPreloadItem))
                 .map(this::readPreloadEntriesFromCursor)
                 .doOnError(AndroidUtility::logToCrashlytics)
@@ -105,16 +107,18 @@ public class DatabasePreloadManager implements PreloadManager {
     }
 
     /**
-     * Inserts the given entry blockingly into the database.
+     * Inserts the given entry blockingly into the database. Must not be run on the main thread.
      */
     @Override
     public void store(PreloadItem entry) {
+        checkNotMainThread();
+
         ContentValues values = new ContentValues();
         values.put("itemId", entry.itemId());
         values.put("creation", entry.creation().getMillis());
         values.put("media", entry.media().getPath());
         values.put("thumbnail", entry.thumbnail().getPath());
-        db().insert(TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
+        database.insert(TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     /**
@@ -138,18 +142,16 @@ public class DatabasePreloadManager implements PreloadManager {
     public void deleteBefore(Instant threshold) {
         logger.info("Removing all files preloaded before {}", threshold);
 
-        BriteDatabase db = db();
-
-        try (BriteDatabase.Transaction tx = db.newTransaction()) {
+        try (BriteDatabase.Transaction tx = database.newTransaction()) {
             List<PreloadItem> items = new ArrayList<>();
-            try (Cursor cursor = db.query("SELECT * FROM " + TABLE_NAME + " WHERE creation<?",
+            try (Cursor cursor = database.query("SELECT * FROM " + TABLE_NAME + " WHERE creation<?",
                     String.valueOf(threshold.getMillis()))) {
 
                 while (cursor.moveToNext())
                     items.add(readPreloadItem(cursor));
             }
 
-            deleteTx(db, items);
+            deleteTx(database, items);
             tx.markSuccessful();
         }
     }
@@ -174,10 +176,6 @@ public class DatabasePreloadManager implements PreloadManager {
      */
     public Observable<ImmutableCollection<PreloadItem>> all() {
         return queryAllItems().map(ImmutableMap::values);
-    }
-
-    private BriteDatabase db() {
-        return database.toBlocking().single();
     }
 
     public static void onCreate(SQLiteDatabase db) {

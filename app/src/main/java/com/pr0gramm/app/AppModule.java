@@ -22,7 +22,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import rx.Observable;
 import rx.Single;
 
 /**
@@ -43,24 +42,30 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public Observable<BriteDatabase> sqlBrite(Application application) {
+    public BriteDatabase sqlBrite(SQLiteOpenHelper dbOpenHelper) {
         Logger logger = LoggerFactory.getLogger("SqlBrite");
+        return new SqlBrite.Builder()
+                .logger(logger::info)
+                .build()
+                .wrapDatabaseHelper(dbOpenHelper, BackgroundScheduler.instance());
 
-        return Observable.fromCallable(() -> {
-            SQLiteOpenHelper openHelper = new Databases.SqlBriteOpenHelper(application);
-            return new SqlBrite.Builder()
-                    .logger(logger::info)
-                    .build()
-                    .wrapDatabaseHelper(openHelper, BackgroundScheduler.instance());
-        }).cache();
     }
+
 
     @Provides
     @Singleton
-    public Holder<SQLiteDatabase> sqLiteDatabase(Application application) {
-        return Holder.ofSingle(Single
-                .fromCallable(() -> new Databases.PlainOpenHelper(application).getWritableDatabase())
-                .subscribeOn(BackgroundScheduler.instance()));
+    public Holder<SQLiteDatabase> databaseInstance(SQLiteOpenHelper dbOpenHelper) {
+        Single<SQLiteDatabase> db = Single.fromCallable(dbOpenHelper::getWritableDatabase);
+        return Holder.ofSingle(db.subscribeOn(BackgroundScheduler.instance()));
+    }
+
+    /**
+     * Returns a single that returns the open helper
+     */
+    @Provides
+    @Singleton
+    public SQLiteOpenHelper dbOpenHelper(Application application) {
+        return new Databases.PlainOpenHelper(application);
     }
 
     @Provides

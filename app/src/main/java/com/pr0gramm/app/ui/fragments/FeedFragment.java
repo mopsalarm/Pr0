@@ -687,13 +687,12 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             feedAdapter.notifyDataSetChanged();
         }
 
-        // Load all preloaded items once to get them into the cache.
-        // Also inform us once all items are loaded.
-
-//        preloadManager.all()
-//                .compose(bindToLifecycleAsync())
-//                .doOnCompleted(() -> feedAdapter.notifyDataSetChanged())
-//                .subscribe(Actions.empty(), Actions.empty());
+        // Observe all preloaded items to get them into the cache and to show the
+        // correct state in the ui.
+        preloadManager.all()
+                .compose(bindToLifecycleAsync())
+                .doOnEach(v -> feedAdapter.notifyDataSetChanged())
+                .subscribe(Actions.empty(), Actions.empty());
     }
 
     private void recheckContentTypes() {

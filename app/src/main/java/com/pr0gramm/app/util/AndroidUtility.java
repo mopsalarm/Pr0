@@ -67,10 +67,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
+import rx.Completable;
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Action2;
 import rx.functions.Func1;
+import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -195,7 +198,7 @@ public class AndroidUtility {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+        return ConnectivityManagerCompat.isActiveNetworkMetered(cm) && !BuildConfig.DEBUG;
     }
 
     /**
@@ -530,5 +533,14 @@ public class AndroidUtility {
         } finally {
             arr.recycle();
         }
+    }
+
+    public static Completable doInBackground(Action0 action) {
+        Observable<Object> o = Async.start(() -> {
+            action.call();
+            return null;
+        }, BackgroundScheduler.instance());
+
+        return o.toCompletable();
     }
 }
