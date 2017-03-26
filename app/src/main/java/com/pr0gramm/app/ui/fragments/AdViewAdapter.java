@@ -6,8 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.ip.sdk.banner.AdView;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.ui.AdService;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
@@ -36,13 +35,12 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     }
 
     private AdView newAdView(Context context, ViewGroup parent) {
-        AdView view = adService.newAdView(context);
-        view.setAdSize(new AdSize(AdSize.FULL_WIDTH, 70));
+        AdView view = adService.newAdView(context, Config.AdType.FEED);
 
         logger.info("Starting loading ad now.");
 
         // now load the ad and show it, once it finishes loading
-        adService.load(view, Config.AdType.FEED)
+        adService.observeState(view)
                 .compose(RxLifecycleAndroid.bindView(view))
                 .compose(RxLifecycleAndroid.bindView(parent))
                 .subscribe(state -> {
@@ -101,7 +99,6 @@ class AdViewAdapter extends RecyclerView.Adapter<AdViewAdapter.AdViewHolder> {
     public void destroy() {
         if (viewInstance != null) {
             logger.info("Destroying previous adView");
-            viewInstance.destroy();
             viewInstance = null;
         }
     }
