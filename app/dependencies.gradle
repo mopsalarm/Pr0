@@ -4,7 +4,7 @@ ext {
     VersionRxBinding = "1.0.1"
     VersionImmutables = "2.4.6"
     VersionRetrofit = "2.2.0"
-    VersionGoogleServices = "10.2.0"
+    VersionGoogleServices = "10.2.1"
 }
 
 repositories {
