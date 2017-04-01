@@ -29,7 +29,7 @@ import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.api.pr0gramm.ImmutableApi;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.sync.SyncJob;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.CustomTabsHelper;
@@ -44,7 +44,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import retrofit2.adapter.rxjava.HttpException;
+import retrofit2.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -203,7 +203,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     private void onLoginResponse(Api.Login response) {
         if (response.success()) {
-            SyncBroadcastReceiver.scheduleNextSync(this);
+            SyncJob.scheduleNextSync();
 
             // signal success
             setResult(RESULT_OK);

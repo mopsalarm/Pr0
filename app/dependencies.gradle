@@ -59,6 +59,7 @@ dependencies {
     compile "com.indeed:java-dogstatsd-client:2.0.16"
     compile "me.leolin:ShortcutBadger:1.1.14@aar"
     compile "com.github.paolorotolo:appintro:4.0.0"
+    compile 'com.evernote:android-job:1.1.8'
 
     compile "com.google.android.exoplayer:exoplayer:r2.3.1"
 

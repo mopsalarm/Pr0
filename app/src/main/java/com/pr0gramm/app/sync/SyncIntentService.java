@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import static android.support.v4.content.WakefulBroadcastReceiver.completeWakefulIntent;
 import static com.google.common.base.Stopwatch.createStarted;
 import static com.pr0gramm.app.services.Track.statistics;
 import static com.pr0gramm.app.util.AndroidUtility.toOptional;
@@ -101,7 +100,7 @@ public class SyncIntentService extends IntentService {
             logger.error("Error while syncing", thr);
 
         } finally {
-            completeWakefulIntent(intent);
+            SyncJob.completeWakefulIntent(intent);
         }
     }
 }

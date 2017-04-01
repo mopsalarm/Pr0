@@ -5,9 +5,11 @@ import android.content.Context;
 import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
+import com.evernote.android.job.JobManager;
 import com.f2prateek.dart.Dart;
 import com.google.android.gms.ads.MobileAds;
 import com.pr0gramm.app.services.ThemeHelper;
+import com.pr0gramm.app.sync.SyncJob;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
 import com.pr0gramm.app.util.Lazy;
@@ -19,6 +21,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -60,6 +63,14 @@ public class ApplicationClass extends Application {
         Base.initialize(this);
 
         Settings.initialize(this);
+
+        // do job handling & scheduling
+        JobManager jobManager = JobManager.create(this);
+        jobManager.getConfig().setVerbose(true);
+        jobManager.addJobCreator(new SyncJob.Creator());
+
+        // schedule first sync 30seconds after bootup.
+        SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS);
 
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.");

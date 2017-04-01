@@ -44,7 +44,7 @@ import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
-import com.pr0gramm.app.sync.SyncBroadcastReceiver;
+import com.pr0gramm.app.sync.SyncJob;
 import com.pr0gramm.app.ui.back.BackFragmentHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
@@ -557,7 +557,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         // schedule a sync operation every minute
         Observable.interval(0, 1, TimeUnit.MINUTES, mainThread())
                 .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
-                .subscribe(event -> SyncBroadcastReceiver.syncNow(MainActivity.this));
+                .subscribe(event -> SyncJob.syncNow(this));
     }
 
     @Override
