@@ -1,6 +1,6 @@
 
 ext {
-    VersionSupportLibrary = "25.3.0"
+    VersionSupportLibrary = "25.3.1"
     VersionRxBinding = "1.0.1"
     VersionImmutables = "2.4.6"
     VersionRetrofit = "2.2.0"
