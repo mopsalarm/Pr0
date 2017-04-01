@@ -6,6 +6,7 @@ import android.os.StrictMode;
 
 import com.crashlytics.android.Crashlytics;
 import com.f2prateek.dart.Dart;
+import com.google.android.gms.ads.MobileAds;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.ui.ActivityErrorHandler;
 import com.pr0gramm.app.util.CrashlyticsLogHandler;
@@ -102,6 +103,11 @@ public class ApplicationClass extends Application {
                 h.setLevel(Level.INFO);
             }
         }
+
+        // enable ads.
+        MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673");
+        MobileAds.setAppVolume(0);
+        MobileAds.setAppMuted(true);
     }
 
     public static ApplicationClass get(Context context) {

@@ -2,18 +2,16 @@ package com.pr0gramm.app.ui;
 
 import android.content.Context;
 
-import com.ip.sdk.Ad;
-import com.ip.sdk.AdListener;
-import com.ip.sdk.banner.AdView;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
 import com.pr0gramm.app.services.config.ConfigService;
 import com.pr0gramm.app.util.AndroidUtility;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,6 +53,27 @@ public class AdService {
         return !userService.isPremiumUser() && configService.config().adType() == type;
     }
 
+    /**
+     * Loads an ad into this view. This method also registers a listener to track the view.
+     * The resulting completable completes once the ad finishes loading.
+     */
+    public Observable<AdLoadState> load(AdView view, Config.AdType type) {
+        if (view == null) {
+            return Observable.empty();
+        }
+
+        // we want to have tracking and information about the ad loading.
+        TrackingAdListener listener = new TrackingAdListener(type);
+        view.setAdListener(listener);
+
+        view.loadAd(new AdRequest.Builder()
+                .setIsDesignedForFamilies(false)
+                // .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
+                .build());
+
+        return listener.loadedSubject;
+    }
+
     public Observable<Boolean> enabledForType(Config.AdType type) {
         return userService.loginState()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -63,15 +82,9 @@ public class AdService {
                 .distinctUntilChanged();
     }
 
-    public AdView newAdView(Context context, Config.AdType type) {
-        AdView view = new AdView(context.getApplicationContext(), "VZV725518V7C637D");
-        view.setAdspaceWidth(468);
-        view.setAdspaceHeight(60);
-        // view.setInternalBrowser(true);
-
-        TrackingAdListener listener = new TrackingAdListener(type);
-        view.setAdListener(listener);
-        view.setTag(listener);
+    public AdView newAdView(Context context) {
+        AdView view = new AdView(context.getApplicationContext());
+        view.setAdUnitId(context.getString(R.string.banner_ad_unit_id));
 
         int backgroundColor = AndroidUtility.resolveColorAttribute(context, android.R.attr.windowBackground);
         view.setBackgroundColor(backgroundColor);
@@ -79,11 +92,7 @@ public class AdService {
         return view;
     }
 
-    public Observable<AdLoadState> observeState(AdView view) {
-        return ((TrackingAdListener) view.getTag()).loadedSubject;
-    }
-
-    private static class TrackingAdListener implements AdListener {
+    private static class TrackingAdListener extends AdListener {
         private final Config.AdType adType;
 
         final Subject<AdLoadState, AdLoadState> loadedSubject = ReplaySubject
@@ -94,29 +103,18 @@ public class AdService {
         }
 
         @Override
-        public void adClicked() {
+        public void onAdLeftApplication() {
             Track.adClicked(adType);
         }
 
         @Override
-        public void adClosed(Ad ad, boolean b) {
-        }
-
-        @Override
-        public void adLoadSucceeded(Ad ad) {
-            logger.info("Ad loaded successful");
+        public void onAdLoaded() {
             loadedSubject.onNext(AdLoadState.SUCCESS);
             loadedSubject.onCompleted();
         }
 
         @Override
-        public void adShown(Ad ad, boolean b) {
-            logger.info("Ad was shown: {}, b={}", ad, b);
-        }
-
-        @Override
-        public void noAdFound() {
-            logger.info("Ad could not be loaded.");
+        public void onAdFailedToLoad(int i) {
             loadedSubject.onNext(AdLoadState.FAILURE);
             loadedSubject.onCompleted();
         }
@@ -125,6 +123,4 @@ public class AdService {
     public enum AdLoadState {
         SUCCESS, FAILURE
     }
-
-    static final Logger logger = LoggerFactory.getLogger("AdService");
 }
