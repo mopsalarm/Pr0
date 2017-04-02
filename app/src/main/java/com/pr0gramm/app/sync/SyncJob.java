@@ -9,6 +9,7 @@ import com.evernote.android.job.JobCreator;
 import com.evernote.android.job.JobManager;
 import com.evernote.android.job.JobRequest;
 import com.evernote.android.job.util.support.PersistableBundleCompat;
+import com.pr0gramm.app.util.SimpleJobCreator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 public class SyncJob extends Job {
+    public static final JobCreator CREATOR = SimpleJobCreator.forSupplier("sync", SyncJob::new);
+
     private static final long DEFAULT_SYNC_DELAY_MS = TimeUnit.MINUTES.toMillis(5);
 
     private static final Logger logger = LoggerFactory.getLogger("SyncJob");
 
-    SyncJob() {
+    private SyncJob() {
     }
 
     @NonNull
@@ -71,16 +74,5 @@ public class SyncJob extends Job {
     private static long nextInterval(Params params) {
         long previousDelay = params.getExtras().getLong("delay", DEFAULT_SYNC_DELAY_MS);
         return Math.min(2 * previousDelay, TimeUnit.HOURS.toMillis(1));
-    }
-
-    public static class Creator implements JobCreator {
-        @Override
-        public Job create(String s) {
-            if ("sync".equals(s)) {
-                return new SyncJob();
-            } else {
-                return null;
-            }
-        }
     }
 }

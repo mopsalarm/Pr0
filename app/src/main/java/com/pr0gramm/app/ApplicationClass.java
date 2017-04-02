@@ -67,7 +67,7 @@ public class ApplicationClass extends Application {
         // do job handling & scheduling
         JobManager jobManager = JobManager.create(this);
         jobManager.getConfig().setVerbose(true);
-        jobManager.addJobCreator(new SyncJob.Creator());
+        jobManager.addJobCreator(SyncJob.CREATOR);
 
         // schedule first sync 30seconds after bootup.
         SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS);
