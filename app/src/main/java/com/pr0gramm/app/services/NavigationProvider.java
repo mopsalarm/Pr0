@@ -35,6 +35,7 @@ import rx.Observable;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static rx.Observable.combineLatest;
+import static rx.Observable.empty;
 import static rx.Observable.just;
 
 /**
@@ -134,7 +135,8 @@ public class NavigationProvider {
                 userService.loginState()
                         .flatMap(ignored -> bookmarkService.get())
                         .startWith(Collections.<Bookmark>emptyList())
-                        .map(this::bookmarksToNavItem),
+                        .map(this::bookmarksToNavItem)
+                        .onErrorResumeNext(empty()),
 
                 inboxService.unreadMessagesCount()
                         .startWith(0)

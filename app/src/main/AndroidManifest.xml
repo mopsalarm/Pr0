@@ -17,7 +17,8 @@
         android:allowBackup="false"
         android:icon="@drawable/ic_app_orange"
         android:label="@string/app_name"
-        android:largeHeap="true">
+        android:largeHeap="true"
+        tools:replace="android:allowBackup">
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
