@@ -1,5 +1,18 @@
 [
   {
+    "version": 123,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Beim Verfassen einer Nachricht oder eines Kommentars wird der Entwurf gespeichert und das nächste mal wiederhergestellt."
+      },
+      {
+        "type": "Fix",
+        "change": "Heufiges Einfrieren und Hängenbleiben in der App behoben."
+      }
+    ]
+  },
+  {
     "version": 122,
     "changes": [
       {
