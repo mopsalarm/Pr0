@@ -26,10 +26,8 @@ import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import rx.Completable;
-import rx.functions.Action0;
-import rx.functions.Actions;
-import rx.schedulers.Schedulers;
+
+import static com.pr0gramm.app.util.AndroidUtility.doInBackground;
 
 /**
  * A entry that is hold by the {@link Cache}.
@@ -323,7 +321,7 @@ final class CacheEntry implements Cache.Entry {
             }
 
             // read the response in some other thread.
-            doAsync(() -> writeResponseToEntry(response));
+            doInBackground(() -> writeResponseToEntry(response));
 
             return (int) response.body().contentLength();
 
@@ -331,12 +329,6 @@ final class CacheEntry implements Cache.Entry {
             cachingStopped();
             throw err;
         }
-    }
-
-    private void doAsync(Action0 runnable) {
-        Completable.fromAction(runnable)
-                .subscribeOn(Schedulers.io())
-                .subscribe(Actions.empty(), err -> logger.error("Error in background thread", err));
     }
 
     /**
