@@ -24,6 +24,9 @@ import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -91,8 +94,10 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 boolean empty = s.toString().trim().isEmpty();
                 buttonSubmit.setEnabled(!empty);
-
                 supportInvalidateOptionsMenu();
+
+                // cache to restore it later.
+                CACHE.put(getMessageCacheKey(), s.toString());
             }
         });
 
@@ -102,6 +107,11 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor));
 
+        // restore cached text.
+        String cached = CACHE.get(getMessageCacheKey());
+        if (cached != null) {
+            messageText.setText(cached);
+        }
     }
 
     @Override
@@ -136,6 +146,11 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return true;
     }
 
+    private void finishAfterSending() {
+        CACHE.remove(getMessageCacheKey());
+        finish();
+    }
+
     @OnOptionsItemSelected(R.id.action_send)
     public void sendMessageNow() {
         String message = getMessageText();
@@ -155,7 +170,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             voteService.postComment(itemId, parentComment, message)
                     .compose(bindToLifecycleAsync())
                     .lift(busyDialog(this))
-                    .doOnCompleted(this::finish)
+                    .doOnCompleted(this::finishAfterSending)
                     .subscribe(newComments -> {
                         Intent result = new Intent();
                         result.putExtra(RESULT_EXTRA_NEW_COMMENT, new NewCommentParceler(newComments));
@@ -169,14 +184,14 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             inboxService.send(getReceiverId(), message)
                     .compose(bindToLifecycleAsync())
                     .lift(busyDialog(this))
-                    .doOnCompleted(this::finish)
+                    .doOnCompleted(this::finishAfterSending)
                     .subscribe(Actions.empty(), defaultOnError());
 
             Track.writeMessage();
         }
     }
 
-    private String getMessageText() {
+    String getMessageText() {
         return messageText.getText().toString().trim();
     }
 
@@ -215,6 +230,14 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return getIntent().getLongExtra(ARGUMENT_ITEM_ID, 0);
     }
 
+    String getMessageCacheKey() {
+        if (isCommentAnswer()) {
+            return getItemId() + "-" + getParentCommentId();
+        } else {
+            return "msg-" + getReceiverId();
+        }
+    }
+
     public static Intent intent(Context context, Api.Message message) {
         Intent intent = intent(context, message.senderId(), message.name());
         intent.putExtra(ARGUMENT_MESSAGE, new MessageParceler(message));
@@ -246,4 +269,6 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         return Parceler.get(NewCommentParceler.class,
                 data.getExtras(), RESULT_EXTRA_NEW_COMMENT);
     }
+
+    static Map<String, String> CACHE = new HashMap<>();
 }
