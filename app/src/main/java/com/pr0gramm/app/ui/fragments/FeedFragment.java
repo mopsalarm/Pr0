@@ -112,7 +112,6 @@ import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
@@ -283,7 +282,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Feed feed = feedAdapter.getFeed();
             if (feed.isAtStart() && !loader.isLoading()) {
-                loader.restart(Optional.absent());
+                loader.restart(null);
             } else {
                 // do not refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -644,7 +643,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         if (isNewFeed) {
             // start loading now
-            loader.restart(fromNullable(around));
+            loader.restart(around);
         }
 
         boolean usersFavorites = feed.getFeedFilter().getLikes()
@@ -901,7 +900,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.postDelayed(() -> {
             resetToolbar();
-            loader.restart(Optional.absent());
+            loader.restart(null);
         }, 500);
     }
 
@@ -1067,18 +1066,22 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         listener.itemClicked()
                 .map(FeedFragment::extractFeedItemHolder)
                 .filter(isNotNull())
+                .compose(bindToLifecycle())
                 .subscribe(holder -> onItemClicked(holder.index, absent(), of(holder.image)));
 
         listener.itemLongClicked()
                 .map(FeedFragment::extractFeedItemHolder)
                 .filter(isNotNull())
+                .compose(bindToLifecycle())
                 .subscribe(holder -> openQuickPeekDialog(holder.item));
 
-        listener.itemLongClickEnded().subscribe(event -> dismissQuickPeekDialog());
+        listener.itemLongClickEnded()
+                .compose(bindToLifecycle())
+                .subscribe(event -> dismissQuickPeekDialog());
 
         settings.change()
-                .compose(bindToLifecycle())
                 .startWith("")
+                .compose(bindToLifecycle())
                 .subscribe(key -> listener.enableLongClick(settings.enableQuickPeek()));
     }
 

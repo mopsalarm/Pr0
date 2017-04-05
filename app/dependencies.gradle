@@ -20,7 +20,7 @@ dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
 
     compile "javax.annotation:jsr250-api:1.0"
-    compile "com.google.code.findbugs:jsr305:3.0.1"
+    compile "com.google.code.findbugs:jsr305:3.0.2"
 
     compile "com.android.support:support-fragment:$VersionSupportLibrary"
     compile "com.android.support:recyclerview-v7:$VersionSupportLibrary"
@@ -38,7 +38,7 @@ dependencies {
     compile "com.google.android.gms:play-services-analytics:$VersionGoogleServices"
     compile "com.google.android.gms:play-services-ads:$VersionGoogleServices"
 
-    compile "net.danlew:android.joda:2.9.7"
+    compile "net.danlew:android.joda:2.9.9"
     compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     compile "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     compile "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
@@ -81,10 +81,10 @@ dependencies {
     apt "com.f2prateek.dart:dart-processor:2.0.2"
 
     // rx java
-    compile "io.reactivex:rxjava:1.2.7"
+    compile "io.reactivex:rxjava:1.2.9"
     compile "io.reactivex:rxandroid:1.2.1"
     compile "io.reactivex:rxjava-async-util:0.21.0"
-    compile "com.artemzin.rxjava:proguard-rules:1.2.7.0"
+    compile "com.artemzin.rxjava:proguard-rules:1.2.9.0"
     compile "com.trello:rxlifecycle:1.0"
     compile "com.trello:rxlifecycle-android:1.0"
     compile "com.trello:rxlifecycle-components:1.0"
@@ -113,6 +113,6 @@ dependencies {
 
     androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.2"
     androidTestCompile "com.android.support.test:runner:0.5"
-    androidTestCompile "com.google.code.findbugs:jsr305:3.0.1"
+    androidTestCompile "com.google.code.findbugs:jsr305:3.0.2"
     androidTestCompile "com.android.support:support-annotations:$VersionSupportLibrary"
 }

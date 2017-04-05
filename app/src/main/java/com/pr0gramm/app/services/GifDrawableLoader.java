@@ -21,8 +21,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import pl.droidsonroids.gif.GifDrawable;
+import rx.Emitter;
 import rx.Observable;
-import rx.Subscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import static com.pr0gramm.app.util.AndroidUtility.toFile;
 import static java.lang.System.identityHashCode;
@@ -44,25 +46,23 @@ public class GifDrawableLoader {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public Observable<DownloadStatus> load(Uri uri) {
-        return Observable.<DownloadStatus>create(subscriber -> {
+        return Observable.<DownloadStatus>create(emitter -> {
             try {
                 if ("file".equals(uri.getScheme())) {
                     File file = toFile(uri);
-                    subscriber.onNext(new DownloadStatus(new GifDrawable(file)));
-                    subscriber.onCompleted();
+                    emitter.onNext(new DownloadStatus(new GifDrawable(file)));
+                    emitter.onCompleted();
                     return;
                 }
 
                 try (Cache.Entry entry = cache.get(uri)) {
-                    loadGifUsingTempFile(subscriber, entry);
+                    loadGifUsingTempFile(emitter, entry);
                 }
             } catch (Throwable error) {
                 logger.warn("Error during gif-loading", error);
-
-                if (!subscriber.isUnsubscribed())
-                    subscriber.onError(error);
+                emitter.onError(error);
             }
-        }).serialize();
+        }, Emitter.BackpressureMode.LATEST).serialize();
     }
 
     /**
@@ -71,12 +71,15 @@ public class GifDrawableLoader {
      * after loading the gif (or on failure).
      */
     @SuppressLint("NewApi")
-    private void loadGifUsingTempFile(Subscriber<? super DownloadStatus> subscriber,
+    private void loadGifUsingTempFile(Emitter<? super DownloadStatus> subscriber,
                                       Cache.Entry entry) throws IOException {
 
         File temporary = new File(fileCache, "tmp" + identityHashCode(subscriber) + ".gif");
 
         logger.info("storing data into temporary file");
+
+        Subscription subscription = Subscriptions.empty();
+        subscriber.setSubscription(subscription);
 
         try (RandomAccessFile storage = new RandomAccessFile(temporary, "rw")) {
             // remove entry from filesystem now - the system will remove the data
@@ -94,7 +97,7 @@ public class GifDrawableLoader {
                     storage.write(buffer, 0, length);
                     count += length;
 
-                    if (subscriber.isUnsubscribed()) {
+                    if (subscription.isUnsubscribed()) {
                         logger.info("Stopped because the subscriber unsubscribed");
                         return;
                     }
@@ -108,8 +111,9 @@ public class GifDrawableLoader {
                 }
             }
 
-            if (subscriber.isUnsubscribed())
+            if (subscription.isUnsubscribed()) {
                 return;
+            }
 
             try {
                 GifDrawable drawable = new GifDrawable(storage.getFD());

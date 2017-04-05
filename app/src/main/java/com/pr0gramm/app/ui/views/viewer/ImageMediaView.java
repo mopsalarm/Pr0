@@ -9,7 +9,6 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.ErrorFormatting;
@@ -42,9 +41,6 @@ public class ImageMediaView extends MediaView {
 
     @BindView(R.id.error)
     TextView errorIndicator;
-
-    @Inject
-    Settings settings;
 
     @Inject
     Picasso picasso;
@@ -85,10 +81,6 @@ public class ImageMediaView extends MediaView {
             public void onImageLoadError(Exception error) {
                 hideBusyIndicator();
                 showErrorIndicator(error);
-
-                if (settings.useBetaChannel()) {
-                    AndroidUtility.logToCrashlytics(error);
-                }
             }
 
             @Override

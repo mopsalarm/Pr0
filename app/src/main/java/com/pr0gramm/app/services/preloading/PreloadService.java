@@ -178,7 +178,7 @@ public class PreloadService extends IntentService {
 
         } catch (Throwable error) {
             //noinspection ThrowableResultOfMethodCallIgnored
-            if (Throwables.getRootCause(error) instanceof IOException) {
+            if (!(Throwables.getRootCause(error) instanceof IOException)) {
                 AndroidUtility.logToCrashlytics(error);
             }
 

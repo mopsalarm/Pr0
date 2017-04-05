@@ -1,6 +1,7 @@
 package com.pr0gramm.app.feed;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Optional;
 import com.pr0gramm.app.api.pr0gramm.Api;
@@ -32,11 +33,7 @@ public class FeedLoader {
         return feed;
     }
 
-    public void restart() {
-        restart(Optional.<Long>absent());
-    }
-
-    public void restart(Optional<Long> around) {
+    public void restart(@Nullable Long around) {
         stop();
 
         // clear old feed
@@ -46,7 +43,7 @@ public class FeedLoader {
         response = feedService.getFeedItems(ImmutableFeedQuery.builder()
                 .feedFilter(feed.getFeedFilter())
                 .contentTypes(feed.getContentType())
-                .around(around)
+                .around(Optional.fromNullable(around))
                 .build());
 
         subscribeTo(response);
@@ -95,7 +92,7 @@ public class FeedLoader {
     /**
      * Stops all loading operations.
      */
-    public void stop() {
+    private void stop() {
         if (subscription != null) {
             subscription.unsubscribe();
             subscription = null;

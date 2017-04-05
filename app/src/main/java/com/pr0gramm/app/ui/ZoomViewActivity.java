@@ -24,16 +24,15 @@ import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.proxy.ProxyService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
-import com.pr0gramm.app.util.AndroidUtility;
 import com.pr0gramm.app.util.decoders.Decoders;
 import com.pr0gramm.app.util.decoders.PicassoDecoder;
 import com.squareup.picasso.Downloader;
 import com.squareup.picasso.Picasso;
-import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import rx.Emitter;
 import rx.Observable;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
@@ -83,7 +82,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         imageView.setRegionDecoderFactory(() -> Decoders.newFancyRegionDecoder(downloader));
 
         rxImageLoaded(imageView)
-                .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
+                .compose(bindToLifecycle())
                 .subscribe(event -> {
                     hideBusyIndicator();
 
@@ -186,7 +185,6 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void hideBusyIndicator() {
         if (busyIndicator == null) {
-            AndroidUtility.logToCrashlytics(new NullPointerException("Oops, busyIndicator is already null."));
             return;
         }
 
@@ -194,13 +192,14 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     }
 
     private static Observable<Void> rxImageLoaded(SubsamplingScaleImageView view) {
-        return Observable.create(subscriber -> {
+        return Observable.create((emitter) -> {
             view.setOnImageEventListener(new SubsamplingScaleImageView.DefaultOnImageEventListener() {
                 @Override
                 public void onImageLoaded() {
-                    subscriber.onNext(null);
+                    emitter.onNext(null);
+                    emitter.onCompleted();
                 }
             });
-        });
+        }, Emitter.BackpressureMode.NONE);
     }
 }

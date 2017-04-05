@@ -27,7 +27,7 @@ public class ExceptionCatchingTextView extends AppCompatTextView {
         try {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } catch (Exception error) {
-            AndroidUtility.logToCrashlytics(error);
+            AndroidUtility.logToCrashlytics(new TextRenderException(error));
 
             setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
                     getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
@@ -39,7 +39,7 @@ public class ExceptionCatchingTextView extends AppCompatTextView {
         try {
             super.draw(canvas);
         } catch (Exception error) {
-            AndroidUtility.logToCrashlytics(error);
+            AndroidUtility.logToCrashlytics(new TextRenderException(error));
         }
     }
 
@@ -48,7 +48,7 @@ public class ExceptionCatchingTextView extends AppCompatTextView {
         try {
             return super.onPreDraw();
         } catch (Exception error) {
-            AndroidUtility.logToCrashlytics(error);
+            AndroidUtility.logToCrashlytics(new TextRenderException(error));
             return true;
         }
     }
@@ -58,8 +58,14 @@ public class ExceptionCatchingTextView extends AppCompatTextView {
         try {
             return super.getBaseline();
         } catch (Exception error) {
-            AndroidUtility.logToCrashlytics(error);
+            AndroidUtility.logToCrashlytics(new TextRenderException(error));
             return -1;
+        }
+    }
+
+    private static class TextRenderException extends RuntimeException {
+        TextRenderException(Throwable cause) {
+            super(cause);
         }
     }
 }

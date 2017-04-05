@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui;
 import android.view.MenuItem;
 
 import com.google.common.base.Throwables;
-import com.pr0gramm.app.util.AndroidUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,6 @@ public class OptionMenuHelper {
 
         } catch (IllegalAccessException error) {
             // should not occur
-            AndroidUtility.logToCrashlytics(error);
             return false;
 
         } catch (InvocationTargetException e) {

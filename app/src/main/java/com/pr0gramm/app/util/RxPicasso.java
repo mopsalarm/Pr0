@@ -7,8 +7,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import rx.Emitter;
 import rx.Observable;
-import rx.subscriptions.Subscriptions;
 
 /**
  */
@@ -17,20 +17,20 @@ public class RxPicasso {
     }
 
     public static Observable<Bitmap> load(Picasso picasso, RequestCreator request) {
-        return Observable.create(ob -> {
+        return Observable.create(emitter -> {
             Target target = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     try {
-                        ob.onNext(bitmap);
+                        emitter.onNext(bitmap);
                     } finally {
-                        ob.onCompleted();
+                        emitter.onCompleted();
                     }
                 }
 
                 @Override
                 public void onBitmapFailed(Drawable errorDrawable) {
-                    ob.onError(new RuntimeException("Could not load image"));
+                    emitter.onError(new RuntimeException("Could not load image"));
                 }
 
                 @Override
@@ -39,10 +39,10 @@ public class RxPicasso {
             };
 
 
-            ob.add(Subscriptions.create(() -> picasso.cancelRequest(target)));
+            emitter.setCancellation(() -> picasso.cancelRequest(target));
 
             // load!
             request.into(target);
-        });
+        }, Emitter.BackpressureMode.NONE);
     }
 }
