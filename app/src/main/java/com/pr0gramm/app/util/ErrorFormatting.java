@@ -3,12 +3,12 @@ package com.pr0gramm.app.util;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.MalformedJsonException;
@@ -33,6 +33,7 @@ import javax.net.ssl.SSLException;
 
 import rx.functions.Func2;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.primitives.Ints.asList;
 
 /**
@@ -217,7 +218,7 @@ public class ErrorFormatting {
         formatters.add(new Formatter<>(Throwable.class,
                 err -> hasCause(err, ConnectException.class),
                 (err, context) -> {
-                    ConnectException error = (ConnectException) Throwables.getRootCause(err);
+                    ConnectException error = checkNotNull(getCause(err, ConnectException.class));
                     if (error.toString().contains(":443")) {
                         return context.getString(error_connect_exception_https,
                                 String.valueOf(err.getLocalizedMessage()));
@@ -276,19 +277,24 @@ public class ErrorFormatting {
         return formatters;
     }
 
-    /**
-     * Checks if the given throwable or any of it's causes is of the given type.
-     */
-    private static boolean hasCause(Throwable thr, Class<? extends Throwable> causeClass) {
+    @Nullable
+    private static <T extends Throwable> T getCause(Throwable thr, Class<T> causeClass) {
         while (thr != null) {
             if (causeClass.isInstance(thr)) {
-                return true;
+                return causeClass.cast(thr);
             }
 
             thr = thr.getCause();
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Checks if the given throwable or any of it's causes is of the given type.
+     */
+    private static boolean hasCause(Throwable thr, Class<? extends Throwable> causeClass) {
+        return getCause(thr, causeClass) != null;
     }
 
     private static final ImmutableList<Formatter<?>> FORMATTERS = ImmutableList.copyOf(makeErrorFormatters());
