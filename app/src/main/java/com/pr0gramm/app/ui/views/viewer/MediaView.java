@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.views.viewer;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -22,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.jakewharton.rxbinding.view.RxView;
 import com.pr0gramm.app.ActivityComponent;
@@ -472,13 +470,12 @@ public abstract class MediaView extends FrameLayout {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setClipBoundsCompat(Rect clipBounds) {
-        if (Sdk.isAtLeastLollipop()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setClipBounds(clipBounds);
         } else if (this.clipBounds != clipBounds) {
             this.clipBounds = clipBounds;
-            if (Sdk.isAtLeastJellyBeanMR2()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 setClipBounds(clipBounds);
             } else {
                 invalidate();

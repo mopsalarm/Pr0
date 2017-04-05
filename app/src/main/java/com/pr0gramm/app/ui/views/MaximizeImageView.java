@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.pr0gramm.app.R;
 
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class MaximizeImageView extends GifImageView {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private int getMaximumHeightCompat() {
-        if (Sdk.isAtLeastJellyBean())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
             return getMaxHeight();
 
         return getContext().getResources().getDimensionPixelSize(R.dimen.max_image_view_height);

@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
@@ -156,7 +156,7 @@ public class DrawerFragment extends BaseFragment {
         }
 
         // add some space on the top for the translucent status bar
-        if (Sdk.isAtLeastKitKat()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)
                     userImageView.getLayoutParams();
 

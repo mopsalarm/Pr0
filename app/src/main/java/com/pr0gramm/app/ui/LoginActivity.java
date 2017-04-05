@@ -8,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.ActivityComponent;
@@ -110,7 +110,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     private Drawable createBackgroundDrawable(int drawableId, int fallbackColor) {
         Drawable background;
-        if (Sdk.isAtLeastKitKat()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             background = new WrapCrashingDrawable(fallbackColor,
                     ResourcesCompat.getDrawable(getResources(), drawableId, getTheme()));
         } else {

@@ -2,7 +2,6 @@ package com.pr0gramm.app.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -38,7 +37,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
@@ -128,7 +126,7 @@ public class AndroidUtility {
     public static int getStatusBarHeight(Context context) {
         int result = 0;
 
-        if (Sdk.isAtLeastKitKat()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Resources resources = context.getResources();
             int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
             if (resourceId > 0) {
@@ -307,7 +305,7 @@ public class AndroidUtility {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void setViewBackground(View view, Drawable drawable) {
-        if (Sdk.isAtLeastJellyBean()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             view.setBackground(drawable);
         } else {
             view.setBackgroundDrawable(drawable);
@@ -465,14 +463,14 @@ public class AndroidUtility {
         if (fullscreen) {
             flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
-            if (Sdk.isAtLeastJellyBean()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_FULLSCREEN;
             }
 
-            if (Sdk.isAtLeastKitKat())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
 
@@ -480,12 +478,11 @@ public class AndroidUtility {
         decorView.setSystemUiVisibility(flags);
     }
 
-    @SuppressLint("NewApi")
     public static Point screenSize(Activity activity) {
         Point screenSize = new Point();
         Display display = activity.getWindowManager().getDefaultDisplay();
 
-        if (Sdk.isAtLeastJellyBeanMR1()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             display.getRealSize(screenSize);
         } else {
             display.getSize(screenSize);

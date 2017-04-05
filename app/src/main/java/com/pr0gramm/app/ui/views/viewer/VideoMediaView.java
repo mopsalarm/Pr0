@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -85,7 +85,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
 
         audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
-        if (Sdk.isAtLeastJellyBean() && settings.useExoPlayer()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer()) {
             logger.info("Using exo player to play videos.");
             videoPlayer = new ExoVideoPlayer(getContext(), config.audio(), videoPlayerParent);
         } else {

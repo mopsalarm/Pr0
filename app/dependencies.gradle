@@ -54,7 +54,6 @@ dependencies {
     compile "net.sf.trove4j:trove4j:3.0.3"
     compile "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
     compile "org.nanohttpd:nanohttpd:2.3.1"
-    compile "com.github.akodiakson:sdkcheck:0.2.4"
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
     compile "me.leolin:ShortcutBadger:1.1.14@aar"
@@ -99,7 +98,9 @@ dependencies {
     compile "com.flipboard:bottomsheet-core:1.5.3"
 
     compile "pl.brightinventions:slf4android:0.1.2"
-    compile "com.crashlytics.sdk.android:crashlytics:2.6.7"
+    compile("com.crashlytics.sdk.android:crashlytics:2.6.7") {
+        exclude(group: "com.crashlytics.sdk.android", module: "beta")
+    }
 
     apt "org.immutables:value:$VersionImmutables"
     provided "org.immutables:value:$VersionImmutables"

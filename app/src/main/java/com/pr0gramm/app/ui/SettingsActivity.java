@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -13,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.akodiakson.sdk.simple.Sdk;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.pr0gramm.app.ActivityComponent;
@@ -157,7 +157,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             if (pref == null)
                 return;
 
-            if (Sdk.isAtLeastJellyBean()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 entries.add("Software");
                 entryValues.add("software");
 
