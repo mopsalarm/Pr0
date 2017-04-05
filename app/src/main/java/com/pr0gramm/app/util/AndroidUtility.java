@@ -52,7 +52,6 @@ import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.PrivateBrowserSpan;
 import com.pr0gramm.app.ui.Truss;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -426,7 +425,10 @@ public class AndroidUtility {
     }
 
     public static String getMessageWithCauses(Throwable error) {
-        String type = ClassUtils.getShortClassName(error.getClass());
+        String type = error.getClass().getName()
+                .replaceFirst(".+\\.", "")
+                .replace('$', '.');
+
         Throwable cause = error.getCause();
 
         boolean hasCause = cause != null && error != cause;

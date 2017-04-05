@@ -13,7 +13,6 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.pr0gramm.app.BuildConfig;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +86,7 @@ public class ConfigService {
 
             // still nothing? create a random id.
             if (invalidUniqueIdentifier(cached)) {
-                cached = RandomStringUtils.random(16, "0123456789abcdef");
+                cached = randomIdentifier();
             }
 
             // now cache the new id
@@ -98,19 +97,6 @@ public class ConfigService {
         }
 
         return cached;
-    }
-
-    @SuppressWarnings("RedundantIfStatement")
-    private static boolean invalidUniqueIdentifier(@Nullable String cached) {
-        if (Strings.isNullOrEmpty(cached) || cached.length() < 5 || "DEFACE".equals(cached)) {
-            return true;
-        }
-
-        if ("123456789".startsWith(cached)) {
-            return true;
-        }
-
-        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -193,5 +179,31 @@ public class ConfigService {
             logger.warn("Could not decode state", err);
             return ImmutableConfig.builder().build();
         }
+    }
+
+    @SuppressWarnings("RedundantIfStatement")
+    private static boolean invalidUniqueIdentifier(@Nullable String cached) {
+        if (Strings.isNullOrEmpty(cached) || cached.length() < 5 || "DEFACE".equals(cached)) {
+            return true;
+        }
+
+        if ("123456789".startsWith(cached)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static String randomIdentifier() {
+        final int length = 16;
+        final String alphabet = "0123456789abcdef";
+
+        StringBuilder b = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int r = (int) (Math.random() * alphabet.length());
+            b.append(alphabet.charAt(r));
+        }
+
+        return b.toString();
     }
 }

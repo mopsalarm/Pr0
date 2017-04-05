@@ -19,7 +19,6 @@ repositories {
 dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
 
-    compile "javax.annotation:jsr250-api:1.0"
     compile "com.google.code.findbugs:jsr305:3.0.2"
 
     compile "com.android.support:support-fragment:$VersionSupportLibrary"
@@ -28,12 +27,15 @@ dependencies {
     compile "com.android.support:customtabs:$VersionSupportLibrary"
     compile "com.android.support:palette-v7:$VersionSupportLibrary"
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
+    compile "com.android.support:exifinterface:$VersionSupportLibrary"
     compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
     }
 
-    compile "com.google.guava:guava:20.0"
+    compile("com.google.guava:guava:20.0") {
+        force = true
+    }
 
     compile "com.google.android.gms:play-services-analytics:$VersionGoogleServices"
     compile "com.google.android.gms:play-services-ads:$VersionGoogleServices"
@@ -54,15 +56,14 @@ dependencies {
     compile "net.sf.trove4j:trove4j:3.0.3"
     compile "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
     compile "org.nanohttpd:nanohttpd:2.3.1"
-    compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
     compile "me.leolin:ShortcutBadger:1.1.14@aar"
-    compile "com.github.paolorotolo:appintro:4.0.0"
     compile 'com.evernote:android-job:1.1.8'
 
-    compile "com.google.android.exoplayer:exoplayer:r2.3.1"
+    // a little bit more recent then 4.1.0
+    compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
 
-    compile "commons-io:commons-io:2.5"
+    compile "com.google.android.exoplayer:exoplayer:r2.3.1"
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"

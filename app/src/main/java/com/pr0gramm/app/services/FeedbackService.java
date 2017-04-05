@@ -16,10 +16,10 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.util.AndroidUtility;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -73,7 +73,7 @@ public class FeedbackService {
 
         return Observable.fromCallable(this::payload)
                 .flatMap(logcat -> {
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream(logcat.length() / 2);
                     try (OutputStream gzipStream = new DeflaterOutputStream(outputStream)) {
                         try (Writer writer = new OutputStreamWriter(gzipStream, Charsets.UTF_8)) {
                             writer.write(logcat);

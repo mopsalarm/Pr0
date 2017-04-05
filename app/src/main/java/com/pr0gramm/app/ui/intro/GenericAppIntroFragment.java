@@ -2,10 +2,10 @@ package com.pr0gramm.app.ui.intro;
 
 import android.os.Bundle;
 
-import com.github.paolorotolo.appintro.MyAppIntroBaseFragment;
+import com.github.paolorotolo.appintro.AppIntroBaseFragment;
 import com.pr0gramm.app.R;
 
-public final class GenericAppIntroFragment extends MyAppIntroBaseFragment {
+public final class GenericAppIntroFragment extends AppIntroBaseFragment {
     public static GenericAppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor) {
         return newInstance(title, description, imageDrawable, bgColor, 0, 0);
     }

@@ -1,10 +1,8 @@
 package com.pr0gramm.app.ui;
 
-/**
- * Generates fancy thumbnails from exif data
- */
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,12 +12,15 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 
 import com.google.common.io.ByteStreams;
 import com.pr0gramm.app.R;
 import com.squareup.picasso.Downloader;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -27,7 +28,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import it.sephiroth.android.library.exif2.ExifInterface;
 
 /**
  */
@@ -55,8 +55,9 @@ public class FancyExifThumbnailGenerator {
 
         // load exif thumbnail or fall back to square image, if loading fails
         Bitmap low = exifThumbnail(bytes);
-        if (low == null)
+        if (low == null) {
             return decode565(bytes);
+        }
 
         // decode image as a mutable bitmap
         Bitmap normal = decodeMutableBitmap(bytes);
@@ -117,10 +118,22 @@ public class FancyExifThumbnailGenerator {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
     }
 
+    @Nullable
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private Bitmap exifThumbnail(byte[] bytes) throws IOException {
-        ExifInterface exif = new ExifInterface();
-        exif.readExif(bytes, ExifInterface.Options.OPTION_ALL);
-        return exif.getThumbnailBitmap();
+        byte[] thumbnail;
+        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
+            ExifInterface exif = new ExifInterface(inputStream);
+            thumbnail = exif.getThumbnail();
+        }
+
+        // no thumbnail found
+        if (thumbnail == null) {
+            return null;
+        }
+
+        // decode thumbnail as image.
+        return BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
     }
 
     @SuppressLint("NewApi")
