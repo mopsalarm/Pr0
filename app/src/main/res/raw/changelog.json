@@ -8,7 +8,11 @@
       },
       {
         "type": "Fix",
-        "change": "Heufiges Einfrieren und Hängenbleiben in der App behoben."
+        "change": "Fehlerbehandlung verbessert."
+      },
+      {
+        "type": "Fix",
+        "change": "Häufiges Einfrieren und Hängenbleiben in der App behoben."
       }
     ]
   },

@@ -34,6 +34,7 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import rx.Emitter;
 import rx.Observable;
 import rx.subscriptions.Subscriptions;
 
@@ -134,7 +135,7 @@ public class DownloadService {
                     // now do the request
                     Request request = new Request.Builder().url(uri).build();
                     Call call = okHttpClient.newCall(request);
-                    subscriber.add(Subscriptions.create(call::cancel));
+                    subscriber.setCancellation(call::cancel);
 
                     Response response = call.execute();
                     Interval interval = new Interval(250);
@@ -158,7 +159,7 @@ public class DownloadService {
             } catch (Throwable error) {
                 subscriber.onError(error);
             }
-        });
+        }, Emitter.BackpressureMode.LATEST);
     }
 
     private static class Interval {
