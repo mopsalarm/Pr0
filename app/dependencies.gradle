@@ -58,7 +58,9 @@ dependencies {
     compile "org.nanohttpd:nanohttpd:2.3.1"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
     compile "me.leolin:ShortcutBadger:1.1.14@aar"
-    compile 'com.evernote:android-job:1.1.8'
+
+    // compile 'com.evernote:android-job:1.1.8'
+    compile "com.github.evernote:android-job:cdb9d51ba25260fd4294154e70da0657bffd448d"
 
     // a little bit more recent then 4.1.0
     compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
