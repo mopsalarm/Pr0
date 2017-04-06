@@ -314,9 +314,11 @@ public class UploadFragment extends BaseFragment {
             return;
         }
 
-        logger.error("got some error loading the image", throwable);
-        AndroidUtility.logToCrashlytics(throwable);
-        getActivity().finish();
+        DialogBuilder.start(getActivity())
+                .positive(android.R.string.ok, getActivity()::finish)
+                .onCancel(v -> getActivity().finish())
+                .content(R.string.error_check_file_permission)
+                .show();
     }
 
     private void onUploadError(Throwable throwable) {
