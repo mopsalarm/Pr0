@@ -72,7 +72,7 @@ public class DownloadUpdateDialog extends BaseDialogFragment {
     private void updateStatus(DownloadService.Status status) {
         checkMainThread();
 
-        progressBar.setIndeterminate(status.progress < 0);
-        progressBar.setProgress((int) (1000 * status.progress));
+        progressBar.setIndeterminate(status.getProgress() < 0);
+        progressBar.setProgress((int) (1000 * status.getProgress()));
     }
 }

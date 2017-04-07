@@ -141,7 +141,7 @@ public class UpdateChecker {
         progress.filter(DownloadService.Status::finished)
                 .flatMap(status -> {
                     try {
-                        install(appContext, status.file);
+                        install(appContext, status.getFile());
                         return Observable.empty();
 
                     } catch (IOException error) {

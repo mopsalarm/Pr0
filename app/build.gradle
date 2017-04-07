@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
@@ -7,6 +8,8 @@ apply plugin: 'me.tatarka.retrolambda'
 apply from: 'version.gradle'
 
 buildscript {
+    ext.VersionKotlin = "1.1.1"
+
     repositories {
         jcenter()
         mavenCentral()
@@ -18,6 +21,7 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.22.1'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
 
@@ -51,8 +55,7 @@ android {
     }
 
     sourceSets.main {
-        jni.srcDirs = []
-        jniLibs.srcDir 'src/main/libs'
+        java.srcDirs += 'src/main/kotlin'
     }
 
     signingConfigs {
