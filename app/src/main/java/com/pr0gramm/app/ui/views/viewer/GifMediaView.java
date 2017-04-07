@@ -66,10 +66,10 @@ public class GifMediaView extends AbstractProgressMediaView {
     private void onDownloadStatus(GifDrawableLoader.DownloadStatus state) {
         checkMainThread();
 
-        onDownloadProgress(state.progress);
+        onDownloadProgress(state.getProgress());
 
-        if (state.finished()) {
-            gif = state.drawable;
+        if (state.getFinished()) {
+            gif = state.getDrawable();
             imageView.setImageDrawable(this.gif);
 
             setViewAspect((float) gif.getIntrinsicWidth() / gif.getIntrinsicHeight());

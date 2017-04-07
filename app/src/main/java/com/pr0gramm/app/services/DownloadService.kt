@@ -8,13 +8,13 @@ import android.os.Build
 import android.os.Environment
 import com.google.common.base.Joiner
 import com.google.common.base.Optional
-import com.google.common.io.ByteStreams
 import com.google.common.io.CountingInputStream
 import com.google.common.io.PatternFilenameFilter
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.proxy.ProxyService
+import com.pr0gramm.app.util.readStream
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.joda.time.format.DateTimeFormat
@@ -113,14 +113,7 @@ constructor(private val downloadManager: DownloadManager,
                     val response = call.execute()
                     val interval = Interval(250)
                     CountingInputStream(response.body().byteStream()).use { input ->
-                        val buffer = ByteArray(1024 * 32)
-
-                        while (true) {
-                            val count = ByteStreams.read(input, buffer, 0, buffer.size)
-                            if (count <= 0) {
-                                break
-                            }
-
+                        readStream(input) { buffer, count ->
                             output.write(buffer, 0, count)
 
                             interval.doIfTime {
@@ -140,8 +133,8 @@ constructor(private val downloadManager: DownloadManager,
         }, Emitter.BackpressureMode.LATEST)
     }
 
-    private class Interval(private val interval: Long) {
-        private var last = System.currentTimeMillis()
+    class Interval(val interval: Long) {
+        var last = System.currentTimeMillis()
 
         inline fun doIfTime(fn: () -> Unit) {
             val now = System.currentTimeMillis()
