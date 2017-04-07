@@ -138,7 +138,7 @@ public class UpdateChecker {
 
         // install on finish
         Context appContext = activity.getApplicationContext();
-        progress.filter(DownloadService.Status::finished)
+        progress.filter(DownloadService.Status::getFinished)
                 .flatMap(status -> {
                     try {
                         install(appContext, status.getFile());
