@@ -13,6 +13,7 @@ import android.widget.Button;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.MessageConverter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.parcel.MessageParceler;
 import com.pr0gramm.app.parcel.NewCommentParceler;
@@ -252,7 +253,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     }
 
     public static Intent answerToComment(Context context, FeedItem feedItem, Api.Comment comment) {
-        return answerToComment(context, Api.Message.of(feedItem, comment));
+        return answerToComment(context, MessageConverter.of(feedItem, comment));
     }
 
     public static Intent answerToComment(Context context, Api.Message message) {

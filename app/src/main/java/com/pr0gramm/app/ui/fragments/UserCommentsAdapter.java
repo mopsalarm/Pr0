@@ -7,6 +7,7 @@ import android.net.Uri;
 import com.google.common.collect.FluentIterable;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.MessageConverter;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.MainActivity;
@@ -42,7 +43,7 @@ public class UserCommentsAdapter extends MessageAdapter {
 
     public void setComments(Api.Info.User user, List<Api.UserComments.UserComment> comments) {
         setMessages(FluentIterable.from(comments)
-                .transform(c -> Api.Message.of(user, c))
+                .transform(c -> MessageConverter.of(user, c))
                 .toList());
     }
 }

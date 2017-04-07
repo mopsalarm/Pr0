@@ -2,9 +2,8 @@ package com.pr0gramm.app.api.pr0gramm;
 
 import com.google.common.base.Optional;
 import com.google.gson.annotations.SerializedName;
-import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.feed.Nothing;
-import com.pr0gramm.app.services.HasThumbnail;
+import com.pr0gramm.app.HasThumbnail;
+import com.pr0gramm.app.Nothing;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -15,7 +14,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import okhttp3.RequestBody;
-import proguard.annotation.KeepPublicClassMemberNames;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
@@ -30,7 +28,6 @@ import rx.Observable;
 @Value.Enclosing
 @Gson.TypeAdapters
 @Value.Style(get = {"get*", "is*"})
-@KeepPublicClassMemberNames
 public interface Api {
     @GET("/api/items/get")
     Observable<Feed> itemsGet(
@@ -413,55 +410,6 @@ public interface Api {
         @Gson.Named("thumb")
         public abstract String thumbnail();
 
-        public static Message of(PrivateMessage message) {
-            return ImmutableApi.Message.builder()
-                    .message(message.getMessage())
-                    .id(message.getId())
-                    .itemId(0)
-                    .creationTime(message.getCreated())
-                    .mark(message.getSenderMark())
-                    .name(message.getSenderName())
-                    .senderId(message.getSenderId())
-                    .score(0)
-                    .thumbnail(null)
-                    .build();
-        }
-
-        public static Message of(FeedItem item, Comment comment) {
-            return ImmutableApi.Message.builder()
-                    .id((int) comment.getId())
-                    .itemId((int) item.id())
-                    .message(comment.getContent())
-                    .senderId(0)
-                    .name(comment.getName())
-                    .mark(comment.getMark())
-                    .score(comment.getUp() - comment.getDown())
-                    .creationTime(comment.getCreated())
-                    .thumbnail(item.thumbnail())
-                    .build();
-        }
-
-        public static Message of(UserComments.UserInfo sender, UserComments.UserComment comment) {
-            return of(sender.getId(), sender.getName(), sender.getMark(), comment);
-        }
-
-        public static Message of(Info.User sender, UserComments.UserComment comment) {
-            return of(sender.getId(), sender.getName(), sender.getMark(), comment);
-        }
-
-        public static Message of(int senderId, String name, int mark, UserComments.UserComment comment) {
-            return ImmutableApi.Message.builder()
-                    .id((int) comment.getId())
-                    .creationTime(comment.getCreated())
-                    .score(comment.getUp() - comment.getDown())
-                    .itemId((int) comment.getItemId())
-                    .mark(mark)
-                    .name(name)
-                    .senderId(senderId)
-                    .message(comment.getContent())
-                    .thumbnail(comment.getThumb())
-                    .build();
-        }
     }
 
     /**
@@ -511,10 +459,10 @@ public interface Api {
                     : -1;
         }
 
-        @android.support.annotation.Nullable
+        @Nullable
         public abstract String getError();
 
-        @android.support.annotation.Nullable
+        @Nullable
         public abstract PostedItem getItem();
 
         public abstract List<SimilarItem> getSimilar();
@@ -551,7 +499,7 @@ public interface Api {
             @Nullable
             public abstract String format();
 
-            @android.support.annotation.Nullable
+            @Nullable
             public abstract String error();
 
             public abstract List<MediaStream> streams();

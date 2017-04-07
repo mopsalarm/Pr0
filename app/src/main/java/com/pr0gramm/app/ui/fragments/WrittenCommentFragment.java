@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.MessageConverter;
 import com.pr0gramm.app.feed.ContentType;
 import com.pr0gramm.app.services.UserService;
 
@@ -33,7 +34,7 @@ public class WrittenCommentFragment extends MessageInboxFragment {
                     .map(userComments -> {
                         //noinspection CodeBlock2Expr
                         return Lists.transform(userComments.getComments(),
-                                comment -> Api.Message.of(userComments.getUser(), comment));
+                                comment -> MessageConverter.of(userComments.getUser(), comment));
                     });
         });
     }

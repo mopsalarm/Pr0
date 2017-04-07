@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.pr0gramm.app.Dagger;
+import com.pr0gramm.app.HasThumbnail;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedType;

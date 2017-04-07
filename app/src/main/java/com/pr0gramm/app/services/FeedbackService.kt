@@ -8,8 +8,8 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Charsets
 import com.google.common.io.CharStreams
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Nothing
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.feed.Nothing
 import com.pr0gramm.app.util.AndroidUtility
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory

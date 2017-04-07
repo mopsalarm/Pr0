@@ -1,6 +1,7 @@
-package com.pr0gramm.app.services;
+package com.pr0gramm.app;
 
-import android.support.annotation.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  */

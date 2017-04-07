@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.pr0gramm.app.HasThumbnail;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.services.HasThumbnail;
 
 import org.joda.time.Instant;
 

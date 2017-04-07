@@ -1,4 +1,4 @@
-package com.pr0gramm.app.feed;
+package com.pr0gramm.app;
 
 /**
  */

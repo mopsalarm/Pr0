@@ -1,0 +1,27 @@
+apply plugin: 'java'
+
+ext {
+    VersionImmutables = "2.4.6"
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+    compileOnly "org.immutables:value:$VersionImmutables"
+    compileOnly "org.immutables:gson:$VersionImmutables"
+
+    compileOnly 'joda-time:joda-time:2.9.9'
+    compileOnly 'com.squareup.retrofit2:retrofit:2.2.0'
+    compileOnly 'io.reactivex:rxjava:1.2.9'
+
+    compile("com.google.guava:guava:20.0") {
+        force = true
+    }
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+

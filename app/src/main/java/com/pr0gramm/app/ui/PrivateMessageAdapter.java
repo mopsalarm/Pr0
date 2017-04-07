@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
+import com.pr0gramm.app.api.pr0gramm.MessageConverter;
 import com.pr0gramm.app.ui.views.SenderInfoView;
 import com.pr0gramm.app.ui.views.UsernameView;
 import com.pr0gramm.app.util.AndroidUtility;
@@ -79,7 +80,7 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
             });
 
             view.sender.setOnAnswerClickedListener(v -> {
-                actionListener.onAnswerToPrivateMessage(Api.Message.of(item.message));
+                actionListener.onAnswerToPrivateMessage(MessageConverter.of(item.message));
             });
         } else {
             // reset the answer click listener

@@ -15,8 +15,8 @@ import android.widget.ImageView;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Dagger;
+import com.pr0gramm.app.HasThumbnail;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.services.HasThumbnail;
 import com.pr0gramm.app.services.UriHelper;
 import com.squareup.picasso.Picasso;
 
