@@ -21,7 +21,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import rx.Observable;
+import rx.Completable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -71,10 +71,10 @@ public class ItemAdminDialog extends BaseDialogFragment {
     @Override
     protected void onDialogViewCreated() {
         reasonListView.setAdapter(new ArrayAdapter<>(getDialog().getContext(),
-                android.R.layout.simple_list_item_1, AdminService.REASONS));
+                android.R.layout.simple_list_item_1, AdminService.Companion.getREASONS()));
 
         RxAdapterView.itemClicks(reasonListView).subscribe(index -> {
-            customReasonText.setText(AdminService.REASONS.get(index));
+            customReasonText.setText(AdminService.Companion.getREASONS().get(index));
         });
     }
 
@@ -87,14 +87,14 @@ public class ItemAdminDialog extends BaseDialogFragment {
             return;
         }
 
-        Observable<Void> response = deleteItem(reason, notifyUser, ban);
-        response.compose(bindToLifecycleAsync())
-                .lift(BusyDialogFragment.busyDialog(this))
-                .subscribe(event -> dismiss(), defaultOnError());
+        deleteItem(reason, notifyUser, ban)
+                .compose(bindToLifecycleAsync().forCompletable())
+                .lift(BusyDialogFragment.busyDialog(this).forCompletable())
+                .subscribe(this::dismiss, defaultOnError());
 
     }
 
-    private Observable<Void> deleteItem(String reason, boolean notifyUser, boolean ban) {
+    private Completable deleteItem(String reason, boolean notifyUser, boolean ban) {
         if (ban) {
             float banUserDays = firstNonNull(Floats.tryParse(blockUserForDays.getText().toString()), 1.f);
             return adminService.deleteItem(item, reason, notifyUser, banUserDays);

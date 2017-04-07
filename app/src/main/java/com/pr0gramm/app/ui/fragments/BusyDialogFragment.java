@@ -16,8 +16,11 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 
 import butterknife.BindView;
+import rx.Completable;
+import rx.CompletableSubscriber;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.functions.Func1;
 
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -66,7 +69,7 @@ public class BusyDialogFragment extends BaseDialogFragment {
         }
     }
 
-    private static class BusyDialogOperator<T> implements Observable.Operator<T, T> {
+    public static class BusyDialogOperator<T> implements Observable.Operator<T, T> {
         final String tag = "BusyDialog-" + System.identityHashCode(this);
         final FragmentManager fragmentManager;
         final Func1<T, Float> progressMapper;
@@ -140,6 +143,35 @@ public class BusyDialogFragment extends BaseDialogFragment {
                     }
 
                     subscriber.onNext(value);
+                }
+            };
+        }
+
+        public Completable.Operator forCompletable() {
+            return subscriber -> new CompletableSubscriber() {
+                @Override
+                public void onCompleted() {
+                    try {
+                        dismiss();
+                    } catch (Throwable ignored) {
+                    }
+
+                    subscriber.onCompleted();
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    try {
+                        dismiss();
+                    } catch (Throwable ignored) {
+                    }
+
+                    subscriber.onError(throwable);
+                }
+
+                @Override
+                public void onSubscribe(Subscription subscription) {
+                    subscriber.onSubscribe(subscription);
                 }
             };
         }

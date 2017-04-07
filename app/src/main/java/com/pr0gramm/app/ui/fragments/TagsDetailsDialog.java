@@ -111,9 +111,9 @@ public class TagsDetailsDialog extends BaseDialogFragment {
                 blockUser.isChecked() ? blockUserDays.getText().toString() : "");
 
         adminService.deleteTags(itemId, selected, blockAmount)
-                .compose(bindToLifecycleAsync())
-                .lift(BusyDialogFragment.busyDialog(this))
-                .subscribe(event -> dismiss(), defaultOnError());
+                .compose(bindToLifecycleAsync().forCompletable())
+                .lift(BusyDialogFragment.busyDialog(this).forCompletable())
+                .subscribe(this::dismiss, defaultOnError());
     }
 
     public static TagsDetailsDialog newInstance(long itemId) {
