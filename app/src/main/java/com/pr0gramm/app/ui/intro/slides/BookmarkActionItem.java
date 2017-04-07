@@ -30,9 +30,7 @@ class BookmarkActionItem extends ActionItem {
 
     @Override
     public void activate() {
-        bookmarkService.create(filter, title)
-                .onErrorResumeNext(Observable.empty())
-                .subscribe();
+        bookmarkService.create(filter, title);
     }
 
     @Override

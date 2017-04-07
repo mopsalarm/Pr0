@@ -60,7 +60,6 @@ public final class Bookmark {
         return new Bookmark(title, filterTags, filterUsername, filterFeedType);
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static Optional<Bookmark> byFilter(SQLiteDatabase database, FeedFilter filter) {
         return tryFind(Bookmark.all(database), bookmark -> equal(filter, bookmark.asFeedFilter()));
     }

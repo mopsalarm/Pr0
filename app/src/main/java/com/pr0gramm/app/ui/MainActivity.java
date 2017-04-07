@@ -640,7 +640,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public void pinFeedFilter(FeedFilter filter, String title) {
-        bookmarkService.create(filter, title).subscribe(Actions.empty(), defaultOnError());
+        bookmarkService.create(filter, title);
         drawerLayout.openDrawer(GravityCompat.START);
     }
 
