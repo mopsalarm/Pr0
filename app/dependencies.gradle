@@ -92,12 +92,13 @@ dependencies {
     compile "com.trello:rxlifecycle:1.0"
     compile "com.trello:rxlifecycle-android:1.0"
     compile "com.trello:rxlifecycle-components:1.0"
+    compile "com.trello:rxlifecycle-kotlin:1.0"
 
-    compile "com.jakewharton.rxbinding:rxbinding:$VersionRxBinding"
-    compile "com.jakewharton.rxbinding:rxbinding-support-v4:$VersionRxBinding"
-    compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7:$VersionRxBinding"
-    compile "com.jakewharton.rxbinding:rxbinding-design:$VersionRxBinding"
-    compile "com.jakewharton.rxbinding:rxbinding-recyclerview-v7:$VersionRxBinding"
+    compile "com.jakewharton.rxbinding:rxbinding-kotlin:$VersionRxBinding"
+    compile "com.jakewharton.rxbinding:rxbinding-support-v4-kotlin:$VersionRxBinding"
+    compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:$VersionRxBinding"
+    compile "com.jakewharton.rxbinding:rxbinding-design-kotlin:$VersionRxBinding"
+    compile "com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:$VersionRxBinding"
 
     // bottomsheets
     compile "com.flipboard:bottomsheet-core:1.5.3"

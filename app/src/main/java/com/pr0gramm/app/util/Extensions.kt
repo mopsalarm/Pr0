@@ -5,6 +5,7 @@ import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
 import rx.Emitter
 import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStream
 
 
@@ -27,6 +28,10 @@ fun <T> createObservable(mode: Emitter.BackpressureMode,
 }
 
 fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = onErrorResumeNext(Observable.empty())
+
+fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler.instance())
+
+fun <T> Observable<T>.observeOnMain(): Observable<T> = observeOn(AndroidSchedulers.mainThread())
 
 inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (ByteArray, Int) -> Unit): Unit {
     val buffer = ByteArray(bufferSize)
