@@ -50,13 +50,13 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.feed.ImmutableFeedQuery;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
-import com.pr0gramm.app.services.FollowingService;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.RecentSearchesServices;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.StalkService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
@@ -173,7 +173,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     RecentSearchesServices recentSearchesServices;
 
     @Inject
-    FollowingService followService;
+    StalkService followService;
 
     @Inject
     AdService adService;
