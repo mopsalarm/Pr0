@@ -73,29 +73,29 @@ public class GraphDrawable extends Drawable {
     }
 
     private Path newGraphPath(Rect bounds) {
-        double padding = 0.1 * (graph.maxValue() - graph.minValue());
-        double minY = graph.minValue() - padding;
-        double maxY = graph.maxValue() + padding;
-        double minX = graph.range().lowerEndpoint();
-        double maxX = graph.range().upperEndpoint();
+        double padding = 0.1 * (graph.getMaxValue() - graph.getMinValue());
+        double minY = graph.getMinValue() - padding;
+        double maxY = graph.getMaxValue() + padding;
+        double minX = graph.getRange().lowerEndpoint();
+        double maxX = graph.getRange().upperEndpoint();
 
         double scaleX = (maxX - minX) / bounds.width();
         double scaleY = (maxY - minY) / bounds.height();
 
         // add a point the the start and end of the graph
         Iterable<Graph.Point> points = Iterables.concat(
-                singleton(new Graph.Point(minX, graph.first().y)),
-                graph.points(),
-                singleton(new Graph.Point(maxX, graph.last().y)));
+                singleton(new Graph.Point(minX, graph.getFirst().getY())),
+                graph.getPoints(),
+                singleton(new Graph.Point(maxX, graph.getLast().getY())));
 
         Path path = new Path();
 
         Float previous = null;
         double previousY = 0;
         for (Graph.Point current : points) {
-            float x = (float) ((current.x - minX) / scaleX);
+            float x = (float) ((current.getX() - minX) / scaleX);
             float y = (float) (scaleY > 0
-                    ? bounds.height() - (current.y - minY) / scaleY
+                    ? bounds.height() - (current.getY() - minY) / scaleY
                     : bounds.height() * 0.5);
 
             if (previous == null) {
@@ -105,7 +105,7 @@ public class GraphDrawable extends Drawable {
             } else if (x - previous > 1 || Math.abs(y - previousY) > 100) {
                 path.lineTo(x, y);
                 previous = x;
-                previousY = current.y;
+                previousY = current.getY();
             }
         }
 

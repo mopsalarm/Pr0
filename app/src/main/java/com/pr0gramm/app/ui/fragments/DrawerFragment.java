@@ -278,7 +278,7 @@ public class DrawerFragment extends BaseFragment {
             benisView.setText(String.valueOf(state.score()));
 
             Graph benis = state.benisHistory();
-            if (benis != null && benis.points().size() > 2) {
+            if (benis != null && benis.getPoints().size() > 2) {
                 benisGraph.setImageDrawable(new GraphDrawable(benis));
                 benisContainer.setVisibility(View.VISIBLE);
 
@@ -309,7 +309,7 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void updateBenisDeltaForGraph(Graph benis) {
-        int delta = (int) (benis.last().y - benis.first().y);
+        int delta = (int) (benis.getLast().getY() - benis.getFirst().getY());
         updateBenisDelta(delta);
     }
 
