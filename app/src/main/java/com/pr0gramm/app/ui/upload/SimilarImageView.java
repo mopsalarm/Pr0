@@ -60,7 +60,7 @@ public class SimilarImageView extends RecyclerView {
         public void onBindViewHolder(ThumbnailViewHolder holder, int position) {
             HasThumbnail thumb = thumbnails.get(position);
 
-            Uri imageUri = UriHelper.of(getContext()).thumbnail(thumb);
+            Uri imageUri = UriHelper.Companion.of(getContext()).thumbnail(thumb);
             picasso.load(imageUri)
                     .config(Bitmap.Config.RGB_565)
                     .placeholder(new ColorDrawable(0xff333333))

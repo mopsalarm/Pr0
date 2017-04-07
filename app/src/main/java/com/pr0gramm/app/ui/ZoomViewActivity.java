@@ -143,7 +143,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     }
 
     private void loadImage() {
-        Uri url = UriHelper.of(this).media(item);
+        Uri url = UriHelper.Companion.of(this).media(item);
         loadImageWithUrl(url);
 
         if (isHqImageAvailable()) {
@@ -163,7 +163,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
         hq.setImageDrawable(getColoredHqIcon(ThemeHelper.accentColor()));
         hq.animate().alpha(1).start();
 
-        Uri url = UriHelper.of(this).media(item, true);
+        Uri url = UriHelper.Companion.of(this).media(item, true);
         loadImageWithUrl(url);
     }
 

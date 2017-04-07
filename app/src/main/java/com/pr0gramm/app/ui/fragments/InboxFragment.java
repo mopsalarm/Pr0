@@ -208,7 +208,7 @@ public abstract class InboxFragment<T> extends BaseFragment {
 
         @Override
         public void onCommentClicked(long itemId, long commentId) {
-            open(UriHelper.of(getActivity()).post(FeedType.NEW, itemId, commentId));
+            open(UriHelper.Companion.of(getActivity()).post(FeedType.NEW, itemId, commentId));
         }
 
         private void open(Uri uri) {
@@ -218,7 +218,7 @@ public abstract class InboxFragment<T> extends BaseFragment {
 
         @Override
         public void onUserClicked(int userId, String username) {
-            open(UriHelper.of(getActivity()).uploads(username));
+            open(UriHelper.Companion.of(getActivity()).uploads(username));
         }
     };
 }

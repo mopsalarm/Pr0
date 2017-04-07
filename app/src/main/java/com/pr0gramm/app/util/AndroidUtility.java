@@ -327,7 +327,7 @@ public class AndroidUtility {
     }
 
     public static void linkify(TextView view, SpannableStringBuilder text) {
-        Uri base = UriHelper.of(view.getContext()).base();
+        Uri base = UriHelper.Companion.of(view.getContext()).base();
         String scheme = base.getScheme() + "://";
 
         Linkify.addLinks(text, Linkify.WEB_URLS);

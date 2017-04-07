@@ -51,7 +51,6 @@ import com.pr0gramm.app.services.ImmutableFavedComment;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
-import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
@@ -467,7 +466,7 @@ public class PostFragment extends BaseFragment implements
             item.setVisible(!isVideoFullScreen() && (isImage || !isLandscape));
 
         if ((item = menu.findItem(R.id.action_share_image)) != null)
-            item.setVisible(ShareProvider.canShare(getActivity(), feedItem));
+            item.setVisible(true);
 
         if ((item = menu.findItem(R.id.action_search_image)) != null)
             item.setVisible(isImage && settings.showGoogleImageButton());
@@ -716,7 +715,7 @@ public class PostFragment extends BaseFragment implements
                 showPostVoteAnimation(vote);
 
                 voteService.vote(feedItem, vote)
-                        .compose(bindToLifecycleAsync())
+                        .compose(bindToLifecycleAsync().forCompletable())
                         .subscribe(Actions.empty(), defaultOnError());
             };
 
@@ -728,7 +727,7 @@ public class PostFragment extends BaseFragment implements
         infoLineView.setTagVoteListener((tag, vote) -> {
             Runnable action = () -> {
                 voteService.vote(tag, vote)
-                        .compose(bindToLifecycleAsync())
+                        .compose(bindToLifecycleAsync().forCompletable())
                         .doAfterTerminate(() -> infoLineView.addVote(tag, vote))
                         .subscribe(Actions.empty(), defaultOnError());
             };
@@ -993,7 +992,7 @@ public class PostFragment extends BaseFragment implements
         // and update tags with votes later.
         voteService.getTagVotes(tags)
                 .filter(votes -> !votes.isEmpty())
-                .onErrorResumeNext(just(VoteService.NO_VOTES))
+                .onErrorResumeNext(just(VoteService.Companion.getNO_VOTES()))
                 .compose(bindToLifecycleAsync())
                 .subscribe(votes -> infoLineView.setTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
@@ -1024,7 +1023,7 @@ public class PostFragment extends BaseFragment implements
         this.comments = ImmutableList.copyOf(comments);
 
         // show now
-        commentsAdapter.set(comments, VoteService.NO_VOTES, feedItem.user());
+        commentsAdapter.set(comments, VoteService.Companion.getNO_VOTES(), feedItem.user());
 
         long commentId = getArguments().getLong(ARG_AUTOSCROLL_COMMENT_ID, 0);
         if (commentId > 0) {
@@ -1084,7 +1083,7 @@ public class PostFragment extends BaseFragment implements
     public boolean onCommentVoteClicked(Api.Comment comment, Vote vote) {
         return doIfAuthorizedHelper.run(() -> {
             voteService.vote(comment, vote)
-                    .compose(bindToLifecycleAsync())
+                    .compose(bindToLifecycleAsync().forCompletable())
                     .subscribe(Actions.empty(), defaultOnError());
         });
     }

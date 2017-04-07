@@ -21,6 +21,10 @@ inline fun <T> Optional<T>.ifPresent(fn: () -> Unit): Unit {
     }
 }
 
+inline fun <T, R> Optional<T>.map(noinline fn: (T) -> R): Optional<R> {
+    return transform { fn(it!!) }
+}
+
 fun <T> createObservable(mode: Emitter.BackpressureMode,
                          fn: (emitter: Emitter<T>) -> Unit): Observable<T> {
 
@@ -46,7 +50,7 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (Byt
     }
 }
 
-fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit): Unit {
+inline fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit): Unit {
     val editor = edit()
     editor.fn()
     editor.apply();

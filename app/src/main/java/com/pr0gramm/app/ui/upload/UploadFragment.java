@@ -217,14 +217,14 @@ public class UploadFragment extends BaseFragment {
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doAfterTerminate(() -> busyIndicator.setVisibility(View.GONE))
                 .subscribe(status -> {
-                    if (status.isFinished()) {
+                    if (status.getFinished()) {
                         logger.info("finished! item id is {}", status.getId());
                         onUploadComplete(status.getId());
 
-                    } else if (status.hasSimilar()) {
+                    } else if (status.getHasSimilar()) {
                         logger.info("Found similar posts. Showing them now");
                         this.uploadInfo = status;
-                        showSimilarPosts(status.similar());
+                        showSimilarPosts(status.getSimilar());
                         setFormEnabled(true);
 
                     } else if (status.getProgress() >= 0.99) {
@@ -273,7 +273,7 @@ public class UploadFragment extends BaseFragment {
 
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(UriHelper.of(getActivity()).post(FeedType.NEW, postId));
+        intent.setData(UriHelper.Companion.of(getActivity()).post(FeedType.NEW, postId));
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
 
@@ -483,7 +483,7 @@ public class UploadFragment extends BaseFragment {
 
         Truss text = new Truss().append(context.getString(firstNonNull(textId, R.string.upload_error_unknown)));
 
-        Optional<Api.Posted.VideoReport> report = exception.report;
+        Optional<Api.Posted.VideoReport> report = exception.getReport();
         if (report.isPresent()) {
             Integer videoErrorId = ImmutableMap.<String, Integer>builder()
                     .put("dimensionsTooSmall", R.string.upload_error_video_too_small)

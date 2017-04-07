@@ -56,7 +56,7 @@ public final class PreviewInfo {
     }
 
     public static PreviewInfo of(Context context, FeedItem item, @Nullable Drawable drawable) {
-        Uri thumbnail = UriHelper.of(context).thumbnail(item);
+        Uri thumbnail = UriHelper.Companion.of(context).thumbnail(item);
         return new PreviewInfo(item.id(), thumbnail, item.width(), item.height(), drawable);
     }
 }

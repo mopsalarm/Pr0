@@ -503,20 +503,8 @@ public class UserService {
         @Nullable
         private final Api.Login login;
 
-        private final float progress;
-
-        LoginProgress(float progress) {
-            this.progress = progress;
-            this.login = null;
-        }
-
         LoginProgress(@Nullable Api.Login login) {
-            this.progress = 1.f;
             this.login = login;
-        }
-
-        public float getProgress() {
-            return progress;
         }
 
         public Optional<Api.Login> getLogin() {

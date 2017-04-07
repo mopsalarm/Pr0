@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.support.v4.app.ShareCompat;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
@@ -23,7 +22,7 @@ public class ShareHelper {
     }
 
     public static void searchImage(Activity activity, FeedItem feedItem) {
-        String imageUri = UriHelper.of(activity).media(feedItem).toString().replace("https://", "http://");
+        String imageUri = UriHelper.Companion.of(activity).media(feedItem).toString().replace("https://", "http://");
 
         Uri uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
                 .appendQueryParameter("hl", "en")
@@ -38,8 +37,8 @@ public class ShareHelper {
 
     public static void sharePost(Activity activity, FeedItem feedItem) {
         String text = feedItem.promotedId() > 0
-                ? UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.id()).toString()
-                : UriHelper.of(activity).post(FeedType.NEW, feedItem.id()).toString();
+                ? UriHelper.Companion.of(activity).post(FeedType.PROMOTED, feedItem.id()).toString()
+                : UriHelper.Companion.of(activity).post(FeedType.NEW, feedItem.id()).toString();
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")
@@ -51,7 +50,7 @@ public class ShareHelper {
     }
 
     public static void shareDirectLink(Activity activity, FeedItem feedItem) {
-        String uri = UriHelper.of(activity).noPreload().media(feedItem).toString();
+        String uri = UriHelper.Companion.of(activity).noPreload().media(feedItem).toString();
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")
@@ -63,26 +62,24 @@ public class ShareHelper {
     }
 
     public static void shareImage(Activity activity, FeedItem feedItem) {
-        Optional<String> mimetype = ShareProvider.guessMimetype(activity, feedItem);
-        if (mimetype.isPresent()) {
-            ShareCompat.IntentBuilder.from(activity)
-                    .setType(mimetype.get())
-                    .addStream(ShareProvider.getShareUri(activity, feedItem))
-                    .setChooserTitle(R.string.share_with)
-                    .startChooser();
+        String mimetype = ShareProvider.Companion.guessMimetype(activity, feedItem);
+        ShareCompat.IntentBuilder.from(activity)
+                .setType(mimetype)
+                .addStream(ShareProvider.Companion.getShareUri(activity, feedItem))
+                .setChooserTitle(R.string.share_with)
+                .startChooser();
 
-            Track.share("image");
-        }
+        Track.share("image");
     }
 
     public static void copyLink(Context context, FeedItem feedItem) {
-        UriHelper helper = UriHelper.of(context);
+        UriHelper helper = UriHelper.Companion.of(context);
         String uri = helper.post(FeedType.NEW, feedItem.id()).toString();
         copyToClipboard(context, uri);
     }
 
     public static void copyLink(Context context, FeedItem feedItem, Api.Comment comment) {
-        UriHelper helper = UriHelper.of(context);
+        UriHelper helper = UriHelper.Companion.of(context);
         String uri = helper.post(FeedType.NEW, feedItem.id(), comment.getId()).toString();
         copyToClipboard(context, uri);
     }

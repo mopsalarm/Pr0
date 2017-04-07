@@ -16,7 +16,7 @@ dependencies {
     compileOnly 'com.squareup.retrofit2:retrofit:2.2.0'
     compileOnly 'io.reactivex:rxjava:1.2.9'
 
-    compile("com.google.guava:guava:20.0") {
+    compileOnly("com.google.guava:guava:20.0") {
         force = true
     }
 }

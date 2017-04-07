@@ -85,6 +85,6 @@ public final class MediaUri {
     }
 
     public static MediaUri of(Context context, FeedItem item) {
-        return of(item.id(), UriHelper.of(context).media(item));
+        return of(item.id(), UriHelper.Companion.of(context).media(item));
     }
 }

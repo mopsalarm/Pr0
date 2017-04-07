@@ -117,7 +117,7 @@ public class PreloadService extends IntentService {
                 .setContentIntent(contentIntent);
 
         Instant creation = Instant.now();
-        UriHelper uriHelper = UriHelper.of(this);
+        UriHelper uriHelper = UriHelper.Companion.of(this);
 
         // create a wake lock
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(

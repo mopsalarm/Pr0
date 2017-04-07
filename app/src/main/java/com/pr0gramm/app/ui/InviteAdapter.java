@@ -87,7 +87,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteView
 
         private void openUsersProfile(String name) {
             Context context = itemView.getContext();
-            UriHelper uriHelper = UriHelper.of(context);
+            UriHelper uriHelper = UriHelper.Companion.of(context);
 
             // open users profile
             Uri url = uriHelper.uploads(name);

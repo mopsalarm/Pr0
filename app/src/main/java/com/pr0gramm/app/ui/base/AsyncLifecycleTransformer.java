@@ -12,7 +12,7 @@ import rx.android.schedulers.AndroidSchedulers;
 
 /**
  */
-class AsyncLifecycleTransformer<T> implements LifecycleTransformer<T> {
+public class AsyncLifecycleTransformer<T> implements LifecycleTransformer<T> {
     private final LifecycleTransformer<T> transformer;
 
     AsyncLifecycleTransformer(LifecycleTransformer<T> transformer) {

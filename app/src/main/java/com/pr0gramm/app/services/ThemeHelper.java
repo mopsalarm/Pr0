@@ -2,7 +2,7 @@ package com.pr0gramm.app.services;
 
 import android.content.Context;
 import android.support.annotation.ColorRes;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.google.common.base.Enums;
 import com.pr0gramm.app.Settings;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
  * A little service to get theme stuff.
  */
 public final class ThemeHelper {
-    @Nullable
+    @NonNull
     private static Themes THEME = Themes.ORANGE;
 
     private ThemeHelper() {
@@ -32,7 +32,7 @@ public final class ThemeHelper {
 
     @Nonnull
     public static Themes theme() {
-        return THEME != null ? THEME : Themes.ORANGE;
+        return THEME;
     }
 
 

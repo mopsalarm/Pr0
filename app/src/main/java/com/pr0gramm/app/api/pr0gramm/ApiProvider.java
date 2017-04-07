@@ -69,7 +69,7 @@ public class ApiProvider implements Provider<Api> {
             // activate this to use a mock
             baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888");
         } else {
-            baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString());
+            baseUrl = HttpUrl.parse(UriHelper.Companion.of(context).base().toString());
         }
 
         return new Retrofit.Builder()

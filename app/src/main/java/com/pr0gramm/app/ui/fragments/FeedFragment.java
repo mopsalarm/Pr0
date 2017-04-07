@@ -1149,7 +1149,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
             FeedItem item = feed.at(position);
 
-            Uri imageUri = UriHelper.of(getContext()).thumbnail(item);
+            Uri imageUri = UriHelper.Companion.of(getContext()).thumbnail(item);
             picasso.load(imageUri)
                     .config(Bitmap.Config.RGB_565)
                     .placeholder(new ColorDrawable(0xff333333))

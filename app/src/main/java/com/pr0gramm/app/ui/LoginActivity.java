@@ -155,7 +155,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
         userService.login(username, password)
                 .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
-                .lift(busyDialog(this, getString(R.string.login_please_wait), UserService.LoginProgress::getProgress))
+                .lift(busyDialog(this, getString(R.string.login_please_wait)))
                 .flatMap(progress -> toObservable(progress.getLogin()))
                 .lift(new LoginErrorInterceptor())
                 .doOnError(err -> enableView(true))
