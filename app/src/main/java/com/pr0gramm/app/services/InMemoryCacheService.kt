@@ -59,7 +59,7 @@ constructor() {
     @Synchronized
     fun cacheReposts(newRepostIds: List<Long>) {
         val reposts = TreeSet<Long>()
-        reposts.addAll(Longs.asList(*repostCache.get()))
+        reposts.addAll(repostCache.get().asList())
         reposts.addAll(newRepostIds)
 
         repostCache.set(Longs.toArray(reposts))
@@ -101,7 +101,8 @@ constructor() {
     fun cacheTags(itemId: Long, tags: List<String>) {
         enhanceTags(itemId, tags.map { tag ->
             ImmutableApi.Tag.builder()
-                    .tag(tag).id(0).confidence(0.5f).build()
+                    .tag(tag).id(0).confidence(0.5f)
+                    .build()
         })
     }
 }

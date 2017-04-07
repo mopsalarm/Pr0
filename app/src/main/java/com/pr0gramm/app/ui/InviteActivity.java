@@ -81,9 +81,9 @@ public class InviteActivity extends BaseAppCompatActivity {
         disableInputViews();
 
         inviteService.send(email)
-                .compose(bindToLifecycleAsync())
+                .compose(bindToLifecycleAsync().forCompletable())
                 .doAfterTerminate(this::requeryInvites)
-                .subscribe(event -> onInviteSent(), this::onInviteError);
+                .subscribe(this::onInviteSent, this::onInviteError);
 
         Track.inviteSent();
     }
@@ -95,13 +95,13 @@ public class InviteActivity extends BaseAppCompatActivity {
     }
 
     private void handleInvites(InviteService.Invites invites) {
-        this.invites.setAdapter(new InviteAdapter(invites.invited()));
-        this.invitesEmptyHint.setVisibility(invites.invited().size() > 0 ? View.GONE : View.VISIBLE);
+        this.invites.setAdapter(new InviteAdapter(invites.getInvited()));
+        this.invitesEmptyHint.setVisibility(invites.getInvited().size() > 0 ? View.GONE : View.VISIBLE);
 
-        String text = getString(R.string.invite_remaining, invites.inviteCount());
+        String text = getString(R.string.invite_remaining, invites.getInviteCount());
         remainingInvites.setText(text);
 
-        if (invites.inviteCount() > 0) {
+        if (invites.getInviteCount() > 0) {
             enableInputViews();
         }
     }
