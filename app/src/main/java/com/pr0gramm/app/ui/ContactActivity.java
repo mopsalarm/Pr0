@@ -17,7 +17,6 @@ import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.feed.Nothing;
 import com.pr0gramm.app.services.ContactService;
 import com.pr0gramm.app.services.FeedbackService;
 import com.pr0gramm.app.services.ThemeHelper;
@@ -32,8 +31,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.OnClick;
-import rx.Observable;
-import rx.functions.Actions;
+import rx.Completable;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
@@ -163,22 +161,22 @@ public class ContactActivity extends BaseAppCompatActivity {
     void submitClicked() {
         String feedback = vText.getText().toString().trim();
 
-        Observable<Nothing> response;
+        Completable response;
         if (isNormalSupport()) {
             String email = vMail.getText().toString().trim();
             String subject = vSubject.getText().toString().trim();
 
             feedback += "\n\nGesendet mit der App v" + BuildConfig.VERSION_NAME;
 
-            response = contactService.contactFeedback(email, subject, feedback).toObservable();
+            response = contactService.contactFeedback(email, subject, feedback);
         } else {
             String name = userService.getName().or(vName.getText().toString().trim());
             response = feedbackService.post(name, feedback);
         }
 
-        response.compose(bindToLifecycleAsync())
-                .lift(busyDialog(this))
-                .subscribe(Actions.empty(), defaultOnError(), this::onSubmitSuccess);
+        response.compose(bindToLifecycleAsync().forCompletable())
+                .lift(busyDialog(this).forCompletable())
+                .subscribe(this::onSubmitSuccess, defaultOnError());
     }
 
     private void onSubmitSuccess() {
