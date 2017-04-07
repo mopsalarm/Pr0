@@ -182,8 +182,8 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         } else {
             // now send message
             inboxService.send(getReceiverId(), message)
-                    .compose(bindToLifecycleAsync())
-                    .lift(busyDialog(this))
+                    .compose(bindToLifecycleAsync().forCompletable())
+                    .lift(busyDialog(this).forCompletable())
                     .doOnCompleted(this::finishAfterSending)
                     .subscribe(Actions.empty(), defaultOnError());
 

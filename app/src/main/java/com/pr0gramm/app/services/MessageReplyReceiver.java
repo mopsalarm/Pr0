@@ -79,7 +79,7 @@ public class MessageReplyReceiver extends BroadcastReceiver {
     }
 
     public Completable sendResponseToMessage(int receiverId, String text) {
-        return inboxService.send(receiverId, text).toCompletable();
+        return inboxService.send(receiverId, text);
     }
 
     private void markMessageAsRead(Context context, Instant messageTimestamp) {

@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import android.content.SharedPreferences
 import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
 import rx.Emitter
@@ -37,4 +38,10 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (Byt
 
         fn(buffer, read);
     }
+}
+
+fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit): Unit {
+    val editor = edit()
+    editor.fn()
+    editor.apply();
 }
