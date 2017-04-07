@@ -408,9 +408,9 @@ public class UploadFragment extends BaseFragment {
                 int count = ByteStreams.read(input, bytes, 0, bytes.length);
 
                 // and guess the type
-                Optional<String> ext = MimeTypeHelper.guess(bytes);
+                Optional<String> ext = MimeTypeHelper.INSTANCE.guess(bytes);
                 if (ext.isPresent())
-                    ext = MimeTypeHelper.extension(ext.get());
+                    ext = MimeTypeHelper.INSTANCE.extension(ext.get());
 
                 // fail if we couldnt get the type
                 if (!ext.isPresent())

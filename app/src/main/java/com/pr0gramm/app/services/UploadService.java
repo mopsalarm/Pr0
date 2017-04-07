@@ -126,7 +126,7 @@ public class UploadService {
             @Override
             public MediaType contentType() {
                 try {
-                    String type = MimeTypeHelper.guess(file).or("image/jpeg");
+                    String type = MimeTypeHelper.INSTANCE.guess(file).or("image/jpeg");
                     return MediaType.parse(type);
                 } catch (IOException ignored) {
                     return MediaType.parse("image/jpeg");

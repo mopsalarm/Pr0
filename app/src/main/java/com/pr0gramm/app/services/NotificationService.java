@@ -174,7 +174,7 @@ public class NotificationService {
     private NotificationCompat.Action buildReplyAction(Api.Message message) {
         // build the intent to fire on reply
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0,
-                MessageReplyReceiver.makeIntent(context, message),
+                MessageReplyReceiver.Companion.makeIntent(context, message),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         // the input field
