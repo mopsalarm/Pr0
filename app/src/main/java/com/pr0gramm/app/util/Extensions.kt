@@ -20,12 +20,13 @@ inline fun <T> Optional<T>.ifPresent(fn: () -> Unit): Unit {
     }
 }
 
-
 fun <T> createObservable(mode: Emitter.BackpressureMode,
                          fn: (emitter: Emitter<T>) -> Unit): Observable<T> {
 
     return Observable.create(fn, mode)
 }
+
+fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = onErrorResumeNext(Observable.empty())
 
 inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (ByteArray, Int) -> Unit): Unit {
     val buffer = ByteArray(bufferSize)
