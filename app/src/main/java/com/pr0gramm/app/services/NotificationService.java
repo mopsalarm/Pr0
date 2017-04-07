@@ -255,7 +255,7 @@ public class NotificationService {
     }
 
     private PendingIntent markAsReadIntent(Instant timestamp) {
-        Intent intent = InboxNotificationCanceledReceiver.makeIntent(context, timestamp);
+        Intent intent = InboxNotificationCanceledReceiver.Companion.makeIntent(context, timestamp);
         return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

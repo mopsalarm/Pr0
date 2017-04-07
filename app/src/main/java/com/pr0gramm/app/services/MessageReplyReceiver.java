@@ -83,7 +83,7 @@ public class MessageReplyReceiver extends BroadcastReceiver {
     }
 
     private void markMessageAsRead(Context context, Instant messageTimestamp) {
-        Intent intent = InboxNotificationCanceledReceiver.makeIntent(context, messageTimestamp);
+        Intent intent = InboxNotificationCanceledReceiver.Companion.makeIntent(context, messageTimestamp);
         context.sendBroadcast(intent);
     }
 
