@@ -203,7 +203,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     private void onLoginResponse(Api.Login response) {
         if (response.success()) {
-            SyncJob.scheduleNextSync();
+            SyncJob.Companion.scheduleNextSync();
 
             // signal success
             setResult(RESULT_OK);

@@ -67,10 +67,10 @@ public class ApplicationClass extends Application {
         // do job handling & scheduling
         JobManager jobManager = JobManager.create(this);
         jobManager.getConfig().setVerbose(true);
-        jobManager.addJobCreator(SyncJob.CREATOR);
+        jobManager.addJobCreator(SyncJob.Companion.getCREATOR());
 
         // schedule first sync 30seconds after bootup.
-        SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS);
+        SyncJob.Companion.scheduleNextSyncIn(30, TimeUnit.SECONDS);
 
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.");

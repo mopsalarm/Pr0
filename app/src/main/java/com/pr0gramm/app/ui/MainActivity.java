@@ -557,7 +557,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         // schedule a sync operation every minute
         Observable.interval(0, 1, TimeUnit.MINUTES, mainThread())
                 .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
-                .subscribe(event -> SyncJob.syncNow(this));
+                .subscribe(event -> SyncJob.Companion.syncNow(this));
     }
 
     @Override

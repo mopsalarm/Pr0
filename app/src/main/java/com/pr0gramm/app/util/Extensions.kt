@@ -18,9 +18,9 @@ inline fun <T> Optional<T>.ifAbsent(fn: () -> Unit): Unit {
     }
 }
 
-inline fun <T> Optional<T>.ifPresent(fn: () -> Unit): Unit {
+inline fun <T> Optional<T>.ifPresent(fn: (T) -> Unit): Unit {
     if (this.isPresent) {
-        fn()
+        fn(get())
     }
 }
 
