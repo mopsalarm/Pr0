@@ -40,7 +40,7 @@ class UriHelper private constructor(context: Context) {
 
     fun thumbnail(item: HasThumbnail): Uri {
         return preloadManager.get(item.id())
-                .map { pi -> Uri.fromFile(pi.thumbnail()) }
+                .map { pi -> Uri.fromFile(pi.thumbnail) }
                 .or { noPreload.thumbnail(item) }
     }
 
@@ -49,7 +49,7 @@ class UriHelper private constructor(context: Context) {
             return noPreload.media(item, true)
 
         return preloadManager.get(item.id())
-                .map { pi -> Uri.fromFile(pi.media()) }
+                .map { pi -> Uri.fromFile(pi.media) }
                 .or { noPreload.media(item, false) }
     }
 

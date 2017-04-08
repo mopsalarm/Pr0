@@ -1,12 +1,15 @@
 package com.pr0gramm.app.util
 
 import android.content.SharedPreferences
+import android.os.PowerManager
+import android.util.Log
 import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
 import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 
 
 inline fun <T> Optional<T>.ifAbsent(fn: () -> Unit): Unit {
@@ -54,4 +57,17 @@ inline fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit): Unit
     val editor = edit()
     editor.fn()
     editor.apply();
+}
+
+inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn: () -> R): R {
+    acquire(timeUnit.toMillis(timeValue))
+    try {
+        return fn()
+    } finally {
+        try {
+            Log.i("pr0", "Releasing wake lock")
+            release()
+        } catch (ignored: RuntimeException) {
+        }
+    }
 }

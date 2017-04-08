@@ -193,8 +193,8 @@ public class SettingsActivity extends BaseAppCompatActivity {
                         .subscribe(items -> {
                             long totalSize = 0;
                             for (PreloadManager.PreloadItem item : items) {
-                                totalSize += item.media().length();
-                                totalSize += item.thumbnail().length();
+                                totalSize += item.getMedia().length();
+                                totalSize += item.getThumbnail().length();
                             }
 
                             preference.setSummary(getString(pseudo_clean_preloaded_summary_with_size,

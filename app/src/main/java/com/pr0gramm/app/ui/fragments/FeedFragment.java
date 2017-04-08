@@ -925,7 +925,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             return;
         }
 
-        Intent intent = PreloadService.newIntent(getActivity(), feedAdapter.getFeed().getItems());
+        Intent intent = PreloadService.Companion.newIntent(getActivity(), feedAdapter.getFeed().getItems());
         getActivity().startService(intent);
 
         Track.preloadCurrentFeed(feedAdapter.getFeed().getItems().size());

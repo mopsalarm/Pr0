@@ -1,0 +1,324 @@
+package com.pr0gramm.app.services.preloading
+
+import android.app.IntentService
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.PowerManager
+import android.support.v4.app.NotificationCompat
+import com.google.common.base.Joiner
+import com.google.common.base.Throwables
+import com.google.common.collect.Lists.newArrayList
+import com.google.common.io.ByteStreams
+import com.pr0gramm.app.Dagger
+import com.pr0gramm.app.R
+import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.services.DownloadService
+import com.pr0gramm.app.services.NotificationService
+import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.AndroidUtility.toFile
+import com.pr0gramm.app.util.readStream
+import com.pr0gramm.app.util.use
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.joda.time.Duration.standardDays
+import org.joda.time.Instant
+import org.slf4j.LoggerFactory
+import java.io.*
+import java.util.*
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+
+/**
+ * This service handles preloading and resolving of preloaded images.
+ */
+class PreloadService : IntentService("PreloadService") {
+    @Inject
+    internal lateinit var httpClient: OkHttpClient
+
+    @Inject
+    internal lateinit var notificationManager: NotificationManager
+
+    @Inject
+    internal lateinit var preloadManager: PreloadManager
+
+    @Inject
+    internal lateinit var powerManager: PowerManager
+
+    @Volatile
+    private var canceled: Boolean = false
+
+    private var jobId: Long = 0
+    private val interval = DownloadService.Interval(500)
+
+    private lateinit var preloadCache: File
+
+    override fun onCreate() {
+        super.onCreate()
+        Dagger.appComponent(this).inject(this)
+
+        preloadCache = File(cacheDir, "preload").apply {
+            if (mkdirs()) {
+                logger.info("preload directory created at {}", this)
+            }
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.getLongExtra(EXTRA_CANCEL, -1) == jobId) {
+            canceled = true
+            return Service.START_NOT_STICKY
+        }
+
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onHandleIntent(intent: Intent?) {
+        val items = intent?.extras?.getParcelableArrayList<FeedItem>(EXTRA_LIST_OF_ITEMS)
+        if (items == null || items.isEmpty())
+            return
+
+        jobId = System.currentTimeMillis()
+        canceled = false
+
+        val cancelIntent = PendingIntent.getService(this, 0,
+                Intent(this, PreloadService::class.java).putExtra(EXTRA_CANCEL, jobId),
+                PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val noBuilder = NotificationCompat.Builder(this)
+                .setContentTitle(getString(R.string.preload_ongoing))
+                .setSmallIcon(R.drawable.ic_notify_new_message)
+                .setProgress(100 * items.size, 0, false)
+                .setOngoing(true)
+                .addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), cancelIntent)
+                .setContentIntent(cancelIntent)
+
+        val creation = Instant.now()
+        val uriHelper = UriHelper.of(this)
+
+        // send out the initial notification and bring the service into foreground mode!
+        startForeground(NotificationService.NOTIFICATION_PRELOAD_ID, noBuilder.build())
+
+        // create a wake lock
+        val wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK, PreloadService::class.java.name)
+
+        try {
+            logger.info("Acquire wake lock for at most 10 minutes")
+            wakeLock.use(10, TimeUnit.MINUTES) {
+
+                var statsFailed = 0
+                var statsDownloaded = 0
+                var idx = 0
+                while (idx < items.size && !canceled) {
+                    if (AndroidUtility.isOnMobile(this))
+                        break
+
+                    val item = items[idx]
+                    try {
+                        val mediaUri = uriHelper.media(item)
+                        val mediaIsLocal = "file" == mediaUri.scheme
+                        val mediaFile = if (mediaIsLocal) toFile(mediaUri) else cacheFileForUri(mediaUri)
+
+                        val thumbUri = uriHelper.thumbnail(item)
+                        val thumbIsLocal = "file" == thumbUri.scheme
+                        val thumbFile = if (thumbIsLocal) toFile(thumbUri) else cacheFileForUri(thumbUri)
+
+                        // update the notification
+                        maybeShow(noBuilder.setProgress(items.size, idx, false))
+
+                        // prepare the entry that will be put into the database later
+                        val entry = PreloadManager.PreloadItem(item.id(), creation, mediaFile, thumbFile)
+
+                        if (!mediaIsLocal)
+                            download(noBuilder, 2 * idx, 2 * items.size, mediaUri, entry.media)
+
+                        if (!thumbIsLocal)
+                            download(noBuilder, 2 * idx + 1, 2 * items.size, thumbUri, entry.thumbnail)
+
+                        preloadManager.store(entry)
+
+                        statsDownloaded += 1
+                    } catch (ioError: IOException) {
+                        statsFailed += 1
+                        logger.warn("Could not preload image id=" + item.id(), ioError)
+                    }
+
+                    idx++
+                }
+
+                // doing cleanup
+                doCleanup(noBuilder, createdBefore = Instant.now().minus(standardDays(1)))
+
+                // setting end message
+                showEndMessage(noBuilder, statsDownloaded, statsFailed)
+            }
+
+        } catch (error: Throwable) {
+            if (Throwables.getRootCause(error) !is IOException) {
+                AndroidUtility.logToCrashlytics(error)
+            }
+
+            noBuilder.setContentTitle(getString(R.string.preload_failed))
+
+        } finally {
+            logger.info("Preloading finished")
+
+            // clear the action button
+            noBuilder.mActions.clear()
+
+            show(noBuilder
+                    .setSmallIcon(R.drawable.ic_notify_preload_finished)
+                    .setSubText(null)
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+                    .setContentIntent(null))
+
+            stopForeground(false)
+        }
+    }
+
+    private fun showEndMessage(noBuilder: NotificationCompat.Builder, downloaded: Int, failed: Int) {
+        val contentText = ArrayList<String>()
+        contentText.add(getString(R.string.preload_sub_downloaded, downloaded))
+        if (failed > 0) {
+            contentText.add(getString(R.string.preload_sub_failed, failed))
+        }
+
+        if (canceled) {
+            contentText.add(getString(R.string.preload_canceled))
+        }
+
+        noBuilder
+                .setContentTitle(getString(R.string.preload_finished))
+                .setContentText(Joiner.on(", ").join(contentText))
+    }
+
+    /**
+     * Cleaning old files before the given threshold.
+     */
+    private fun doCleanup(noBuilder: NotificationCompat.Builder, createdBefore: Instant) {
+        show(noBuilder
+                .setContentText(getString(R.string.preload_cleanup))
+                .setProgress(0, 0, true))
+
+        preloadManager.deleteBefore(createdBefore)
+    }
+
+    @Throws(IOException::class)
+    private fun download(noBuilder: NotificationCompat.Builder, index: Int, total: Int,
+                         uri: Uri, targetFile: File) {
+
+        // if the file exists, we dont need to download it again
+        if (targetFile.exists()) {
+            logger.info("File {} already exists", targetFile)
+
+            if (!targetFile.setLastModified(System.currentTimeMillis()))
+                logger.warn("Could not touch file {}", targetFile)
+
+            return
+        }
+
+        val tempFile = File(targetFile.path + ".tmp")
+        try {
+            download(uri, tempFile) { progress ->
+                val msg: String
+                val progressCurrent = (100 * (index + progress)).toInt()
+                val progressTotal = 100 * total
+
+                if (canceled) {
+                    msg = getString(R.string.preload_sub_finished)
+                } else {
+                    msg = getString(R.string.preload_fetching, uri.path)
+                }
+
+                maybeShow(noBuilder.setContentText(msg).setProgress(progressTotal, progressCurrent, false))
+            }
+
+            if (!tempFile.renameTo(targetFile))
+                throw IOException("Could not rename file")
+
+        } catch (error: Throwable) {
+            if (!tempFile.delete())
+                logger.warn("Could not remove temporary file")
+
+            Throwables.throwIfInstanceOf(error, IOException::class.java)
+            throw Throwables.propagate(error)
+        }
+
+    }
+
+    private fun show(notification: NotificationCompat.Builder) {
+        notificationManager.notify(NotificationService.NOTIFICATION_PRELOAD_ID, notification.build())
+    }
+
+    private fun maybeShow(builder: NotificationCompat.Builder) {
+        interval.doIfTime {
+            show(builder)
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun download(uri: Uri, targetFile: File, progress: (Float) -> Unit) {
+        logger.info("Start downloading {} to {}", uri, targetFile)
+
+        val request = Request.Builder().get().url(uri.toString()).build()
+        val response = httpClient.newCall(request).execute()
+
+        val contentLength = response.body().contentLength()
+
+        response.body().byteStream().use { inputStream ->
+            FileOutputStream(targetFile).use { outputStream ->
+                if (contentLength < 0) {
+                    progress(0.0f)
+                    ByteStreams.copy(inputStream, outputStream)
+                    progress(1.0f)
+                } else {
+                    copyWithProgress(progress, contentLength, inputStream, outputStream)
+                }
+            }
+        }
+    }
+
+    /**
+     * Copies from the input stream to the output stream.
+     * The progress is written to the given observable.
+     */
+    @Throws(IOException::class)
+    private fun copyWithProgress(
+            progress: (Float) -> Unit, contentLength: Long,
+            inputStream: InputStream, outputStream: OutputStream) {
+
+        var totalCount: Long = 0
+        readStream(inputStream) { buffer, count ->
+            outputStream.write(buffer, 0, count)
+
+            totalCount += count.toLong()
+            progress(totalCount.toFloat() / contentLength)
+        }
+    }
+
+    /**
+     * Name of the cache file for the given [Uri].
+     */
+    private fun cacheFileForUri(uri: Uri): File {
+        val filename = uri.toString().replaceFirst("https?://".toRegex(), "").replace("[^0-9a-zA-Z.]+".toRegex(), "_")
+        return File(preloadCache, filename)
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger("PreloadService")
+        private val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
+        private val EXTRA_CANCEL = "PreloadService.cancel"
+
+        fun newIntent(context: Context, items: Iterable<FeedItem>): Intent {
+            val intent = Intent(context, PreloadService::class.java)
+            intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, newArrayList(items))
+            return intent
+        }
+    }
+}
