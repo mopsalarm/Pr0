@@ -33,10 +33,11 @@ class AndroidRegionDecoder(private val config: Bitmap.Config) : ImageRegionDecod
     }
 
     override fun isReady(): Boolean {
-        return decoder?.isRecycled ?: false
+        return decoder?.let { !it.isRecycled } ?: false
     }
 
     override fun recycle() {
         decoder?.recycle()
+        decoder = null
     }
 }
