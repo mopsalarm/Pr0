@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Optional
 import com.google.common.base.Stopwatch
-import com.google.common.primitives.Doubles
 import com.google.gson.*
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Settings.resetContentTypeSettings
@@ -58,7 +57,7 @@ class UserService @Inject constructor(private val api: Api,
             restoreLatestUserInfo()
         }
 
-        this.cookieHandler.setOnCookieChangedListener { this.onCookieChanged() }
+        this.cookieHandler.onCookieChanged = { this.onCookieChanged() }
 
         loginStateObservable.subscribe { this.persistLatestLoginState(it) }
 
@@ -133,7 +132,7 @@ class UserService @Inject constructor(private val api: Api,
     }
 
     private fun onCookieChanged() {
-        val cookie = cookieHandler.loginCookie
+        val cookie = cookieHandler.loginCookieValue
         if (!cookie.isPresent) {
             logout()
         }
@@ -340,21 +339,8 @@ class UserService @Inject constructor(private val api: Api,
     }
 
     val userIsAdmin: Boolean
-        get() = cookieHandler.cookie.map { isTruthValue(it) }.or(false)
+        get() = cookieHandler.cookie.map { it.admin }.or(false)
 
-
-    private fun isTruthValue(cookie: LoginCookieHandler.Cookie): Boolean {
-        val repr = cookie.admin.toString()
-
-        // try to parse the value as numeric value.
-        val numericValue = Doubles.tryParse(repr)
-        if (numericValue != null) {
-            return numericValue.toInt() != 0
-        }
-
-        // if it is not an integer, maybe a truth value?
-        return "t".equals(repr, ignoreCase = true) || "true".equals(repr, ignoreCase = true)
-    }
 
     private fun loadBenisHistory(userId: Int): Graph {
         val watch = Stopwatch.createStarted()
@@ -380,7 +366,7 @@ class UserService @Inject constructor(private val api: Api,
      * @return The name of the currently signed in user.
      */
     val name: Optional<String>
-        get() = cookieHandler.cookie.map { cookie -> cookie.n }
+        get() = cookieHandler.cookie.map { cookie -> cookie.name }
 
 
     /**
@@ -419,14 +405,14 @@ class UserService @Inject constructor(private val api: Api,
         override fun deserialize(value: JsonElement, type: Type?, ctx: JsonDeserializationContext?): LoginState {
             if (value is JsonObject) {
                 return LoginState(
-                        id = value.get("id").asInt,
-                        name = value.get("name")?.asString,
-                        mark = value.get("mark").asInt,
-                        score = value.get("score").asInt,
-                        uniqueToken = value.get("uniqueToken")?.asString,
-                        admin = value.get("admin").asBoolean,
-                        premium = value.get("premium").asBoolean,
-                        authorized = value.get("authorized").asBoolean)
+                        id = value.getIfPrimitive("id")!!.asInt,
+                        name = value.getIfPrimitive("name")?.asString,
+                        mark = value.getIfPrimitive("mark")!!.asInt,
+                        score = value.getIfPrimitive("score")!!.asInt,
+                        uniqueToken = value.getIfPrimitive("uniqueToken")?.asString,
+                        admin = value.getIfPrimitive("admin")!!.asBoolean,
+                        premium = value.getIfPrimitive("premium")!!.asBoolean,
+                        authorized = value.getIfPrimitive("authorized")!!.asBoolean)
 
             } else {
                 return NOT_AUTHORIZED

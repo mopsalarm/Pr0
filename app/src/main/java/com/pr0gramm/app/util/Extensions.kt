@@ -6,6 +6,8 @@ import android.os.PowerManager
 import android.util.Log
 import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -25,8 +27,20 @@ inline fun <T> Optional<T>.ifPresent(fn: (T) -> Unit): Unit {
     }
 }
 
-inline fun <T, R> Optional<T>.map(noinline fn: (T) -> R): Optional<R> {
-    return transform { fn(it!!) }
+inline fun <T, R> Optional<T>.map(fn: (T) -> R?): Optional<R> {
+    if (isPresent) {
+        return Optional.fromNullable(fn(get()))
+    } else {
+        return Optional.absent()
+    }
+}
+
+inline fun <T> Optional<T>.filter(fn: (T) -> Boolean): Optional<T> {
+    if (isPresent && fn(get())) {
+        return this
+    } else {
+        return Optional.absent()
+    }
 }
 
 fun <T> createObservable(mode: Emitter.BackpressureMode,
@@ -88,4 +102,8 @@ fun arrayOfStrings(vararg args: Any): Array<String> {
 
 fun <T> T?.toOptional(): Optional<T> {
     return Optional.fromNullable(this)
+}
+
+fun JsonObject.getIfPrimitive(key: String): JsonPrimitive? {
+    return get(key)?.takeIf { it is JsonPrimitive } as JsonPrimitive?
 }

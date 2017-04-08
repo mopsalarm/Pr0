@@ -468,7 +468,7 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void openSecretSanta() {
-        String cookieValue = cookieHandler.getLoginCookie().orNull();
+        String cookieValue = cookieHandler.getLoginCookieValue().orNull();
 
         // check if the cookie is set. If not, set it.
         String javaScript = Joiner.on("").join(ImmutableList.of(
