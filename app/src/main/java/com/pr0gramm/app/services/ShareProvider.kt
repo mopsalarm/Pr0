@@ -102,7 +102,7 @@ class ShareProvider : ContentProvider() {
         val url = decode(uri).toString()
         val mimeType = guessMimetype(decode(uri))
 
-        return openPipeHelper<Any>(uri, mimeType, null, null) { output, uri1, mimeType, opts, args ->
+        return openPipeHelper<Any>(uri, mimeType, null, null) { output, _, _, _, _ ->
             try {
                 if (url.matches("https?://.*".toRegex())) {
                     cache.get(Uri.parse(url)).inputStreamAt(0).use { source ->

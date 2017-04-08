@@ -23,9 +23,6 @@ abstract class Parceler<T> : Parcelable {
     }
 
     protected constructor(parcel: Parcel) {
-
-        val watch = Stopwatch.createStarted()
-
         // read binary data from the parcel
         val input = parcel.createByteArray()
         value = try {

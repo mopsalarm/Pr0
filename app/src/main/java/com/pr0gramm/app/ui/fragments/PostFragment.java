@@ -151,8 +151,8 @@ public class PostFragment extends BaseFragment implements
     @Nullable
     private ObjectAnimator fullscreenAnimator;
 
-    private List<Api.Tag> tags;
-    private List<Api.Comment> comments;
+    private List<? extends Api.Tag> tags;
+    private List<? extends Api.Comment> comments;
     private boolean rewindOnLoad;
     private boolean adminMode;
 
@@ -338,7 +338,7 @@ public class PostFragment extends BaseFragment implements
         // restore the postInfo, if possible.
         if (tags != null && comments != null) {
             displayTags(tags);
-            displayComments(comments);
+            displayComments((List<Api.Comment>) comments);
         }
 
         loadPostDetails();
@@ -982,7 +982,7 @@ public class PostFragment extends BaseFragment implements
         }
     }
 
-    private void displayTags(List<Api.Tag> tags_) {
+    private void displayTags(List<? extends Api.Tag> tags_) {
         List<Api.Tag> tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_);
         this.tags = ImmutableList.copyOf(tags);
 

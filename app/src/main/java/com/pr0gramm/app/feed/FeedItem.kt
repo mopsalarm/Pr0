@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.parcel.core.creator
 import org.joda.time.Instant
 
 /**
@@ -134,15 +135,7 @@ class FeedItem : Parcelable, HasThumbnail {
     }
 
     companion object {
-        @JvmStatic
-        val CREATOR: Parcelable.Creator<FeedItem> = object : Parcelable.Creator<FeedItem> {
-            override fun createFromParcel(source: Parcel): FeedItem {
-                return FeedItem(source)
-            }
-
-            override fun newArray(size: Int): Array<FeedItem?> {
-                return arrayOfNulls(size)
-            }
-        }
+        @JvmField
+        val CREATOR = creator(::FeedItem)
     }
 }

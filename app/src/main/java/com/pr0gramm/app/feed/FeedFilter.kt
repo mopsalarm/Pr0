@@ -7,6 +7,7 @@ import com.google.common.base.Optional
 import com.google.common.base.Optional.absent
 import com.google.common.base.Optional.fromNullable
 import com.google.common.base.Strings.emptyToNull
+import com.pr0gramm.app.parcel.core.creator
 
 /**
  */
@@ -141,15 +142,7 @@ class FeedFilter() : Parcelable {
     }
 
     companion object {
-        @JvmStatic
-        val CREATOR: Parcelable.Creator<FeedFilter> = object : Parcelable.Creator<FeedFilter> {
-            override fun createFromParcel(source: Parcel): FeedFilter {
-                return FeedFilter(source)
-            }
-
-            override fun newArray(size: Int): Array<FeedFilter?> {
-                return arrayOfNulls(size)
-            }
-        }
+        @JvmField
+        val CREATOR = creator(::FeedFilter)
     }
 }

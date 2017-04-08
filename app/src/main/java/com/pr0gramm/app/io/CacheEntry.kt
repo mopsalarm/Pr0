@@ -45,7 +45,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
             // check how much we can actually read at most!
             val amount = Math.min(pos + amount, totalSize) - pos
 
-
             // wait for the data to be there
             expectCached(pos + amount)
             seek(fp, pos)
