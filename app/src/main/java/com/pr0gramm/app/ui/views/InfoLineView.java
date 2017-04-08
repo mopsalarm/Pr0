@@ -77,7 +77,7 @@ public class InfoLineView extends LinearLayout {
         super(context, attrs, defStyleAttr);
 
         settings = isInEditMode() ? null : Settings.of(context);
-        admin = !isInEditMode() && appComponent(context).userService().userIsAdmin();
+        admin = !isInEditMode() && appComponent(context).userService().getUserIsAdmin();
 
         setOrientation(VERTICAL);
 

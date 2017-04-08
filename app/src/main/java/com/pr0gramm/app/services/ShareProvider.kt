@@ -13,6 +13,7 @@ import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.BaseEncoding
 import com.google.common.io.ByteStreams
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache

@@ -68,7 +68,7 @@ public class MessageView extends RelativeLayout {
 
         if (!isInEditMode()) {
             AppComponent appComponent = Dagger.appComponent(context);
-            admin = appComponent.userService().userIsAdmin();
+            admin = appComponent.userService().getUserIsAdmin();
             picasso = appComponent.picasso();
         } else {
             admin = false;

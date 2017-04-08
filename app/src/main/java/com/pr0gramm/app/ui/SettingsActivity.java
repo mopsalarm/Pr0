@@ -129,7 +129,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
                 hidePreferenceByName("prefcat_debug");
             }
 
-            if (!userService.userIsAdmin()) {
+            if (!userService.getUserIsAdmin()) {
                 hidePreferenceByName("pref_show_content_type_flag");
             }
         }

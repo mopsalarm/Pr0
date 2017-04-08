@@ -277,7 +277,7 @@ public class NavigationProvider {
 
     private Observable<List<NavigationItem>> categoryNavigationItems() {
         return combineLatest(
-                userService.loginState().map(UserService.LoginState::name),
+                userService.loginState().map(UserService.LoginState::getName),
                 extraCategoryApiAvailable.startWith(true),
                 this::categoryNavigationItems);
     }

@@ -249,7 +249,7 @@ public class PostFragment extends BaseFragment implements
 
         // check if we are admin or not
         userService.loginState()
-                .filter(UserService.LoginState::admin)
+                .filter(UserService.LoginState::getAdmin)
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(event -> adminMode = true);
@@ -329,7 +329,7 @@ public class PostFragment extends BaseFragment implements
 
         // apply login state.
         userService.loginState()
-                .map(UserService.LoginState::authorized)
+                .map(UserService.LoginState::getAuthorized)
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setShowFavCommentButton);
@@ -888,7 +888,7 @@ public class PostFragment extends BaseFragment implements
                 .subscribe(mediaControlsContainer::addView);
 
         // show sfw/nsfw as a little flag, if the user is admin
-        if (userService.userIsAdmin() && settings.showContentTypeFlag()) {
+        if (userService.getUserIsAdmin() && settings.showContentTypeFlag()) {
             // show the little admin triangle
             int size = AndroidUtility.dp(getContext(), 16);
             ViewCompat.setBackground(mediaControlsContainer,

@@ -234,8 +234,8 @@ public final class Track {
 
     static void updateUserState(UserService.LoginState loginState) {
         Tracker tracker = ga();
-        tracker.set(GA_CUSTOM_AUTHORIZED, String.valueOf(loginState.authorized()));
-        tracker.set(GA_CUSTOM_PREMIUM, String.valueOf(loginState.premium()));
+        tracker.set(GA_CUSTOM_AUTHORIZED, String.valueOf(loginState.getAuthorized()));
+        tracker.set(GA_CUSTOM_PREMIUM, String.valueOf(loginState.getPremium()));
     }
 
     public static void updateAdType(Config.AdType adType) {

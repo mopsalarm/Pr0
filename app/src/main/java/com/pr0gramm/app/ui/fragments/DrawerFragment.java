@@ -261,23 +261,23 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void onLoginStateChanged(UserService.LoginState state) {
-        if (state.authorized()) {
+        if (state.getAuthorized()) {
             View.OnClickListener onUsernameClicked = v -> getCallback().onUsernameClicked();
 
-            usernameView.setText(state.name());
+            usernameView.setText(state.getName());
             usernameView.setOnClickListener(onUsernameClicked);
 
             userTypeView.setVisibility(View.VISIBLE);
             userTypeView.setTextColor(ContextCompat.getColor(getContext(),
-                    UserClasses.MarkColors.get(state.mark())));
+                    UserClasses.MarkColors.get(state.getMark())));
 
-            userTypeView.setText(getString(UserClasses.MarkStrings.get(state.mark())).toUpperCase());
+            userTypeView.setText(getString(UserClasses.MarkStrings.get(state.getMark())).toUpperCase());
             userTypeView.setOnClickListener(onUsernameClicked);
 
 
-            benisView.setText(String.valueOf(state.score()));
+            benisView.setText(String.valueOf(state.getScore()));
 
-            Graph benis = state.benisHistory();
+            Graph benis = state.getBenisHistory();
             if (benis != null && benis.getPoints().size() > 2) {
                 benisGraph.setImageDrawable(new GraphDrawable(benis));
                 benisContainer.setVisibility(View.VISIBLE);
