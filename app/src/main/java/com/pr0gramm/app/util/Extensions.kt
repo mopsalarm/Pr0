@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.content.SharedPreferences
+import android.database.Cursor
 import android.os.PowerManager
 import android.util.Log
 import com.google.common.base.Optional
@@ -70,4 +71,21 @@ inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn
         } catch (ignored: RuntimeException) {
         }
     }
+}
+
+inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
+    val values = mutableListOf<R>()
+    while (moveToNext()) {
+        values.add(fn())
+    }
+
+    return values
+}
+
+fun arrayOfStrings(vararg args: Any): Array<String> {
+    return Array<String>(args.size) { args[it].toString() }
+}
+
+fun <T> T?.toOptional(): Optional<T> {
+    return Optional.fromNullable(this)
 }

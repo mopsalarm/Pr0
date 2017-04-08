@@ -4,7 +4,6 @@ import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
-import com.pr0gramm.app.orm.Bookmark.byFilter
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.BackgroundScheduler
@@ -34,7 +33,7 @@ class BookmarkService @Inject constructor(
     fun create(filter: FeedFilter, title: String): Completable {
         return doInBackground {
             // check if here is an existing item
-            byFilter(database.value(), filter).ifAbsent {
+            Bookmark.byFilter(database.value(), filter).ifAbsent {
                 // create new entry
                 Bookmark.save(database.value(), Bookmark.of(filter, title))
                 triggerChange()

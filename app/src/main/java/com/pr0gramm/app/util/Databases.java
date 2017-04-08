@@ -38,9 +38,9 @@ public class Databases {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            CachedVote.prepareDatabase(db);
-            BenisRecord.prepareDatabase(db);
-            Bookmark.prepareDatabase(db);
+            CachedVote.Companion.prepareDatabase(db);
+            BenisRecord.Companion.prepareDatabase(db);
+            Bookmark.Companion.prepareDatabase(db);
             DatabasePreloadManager.Companion.onCreate(db);
         }
 
