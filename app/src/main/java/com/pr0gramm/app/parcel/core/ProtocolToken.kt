@@ -1,10 +1,10 @@
-package com.pr0gramm.app.parcel.core;
+package com.pr0gramm.app.parcel.core
 
-import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonToken
 
 /**
  */
-enum ProtocolToken {
+internal enum class ProtocolToken constructor(val token: JsonToken) {
     NULL(JsonToken.NULL),
     STRING(JsonToken.STRING),
 
@@ -26,11 +26,5 @@ enum ProtocolToken {
     BOOLEAN_TRUE(JsonToken.BOOLEAN),
     BOOLEAN_FALSE(JsonToken.BOOLEAN),
 
-    DOCUMENT_END(JsonToken.END_DOCUMENT);
-
-    final JsonToken token;
-
-    ProtocolToken(JsonToken token) {
-        this.token = token;
-    }
+    DOCUMENT_END(JsonToken.END_DOCUMENT)
 }

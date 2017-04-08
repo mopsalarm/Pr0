@@ -15,7 +15,6 @@ public class TagListParceler extends Parceler<List<Api.Tag>> {
         super(values);
     }
 
-    @SuppressWarnings("unused")
     private TagListParceler(Parcel parcel) {
         super(parcel);
     }

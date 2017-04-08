@@ -229,8 +229,8 @@ public class PostFragment extends BaseFragment implements
                 "No feed item given to post fragment");
 
         if (savedState != null) {
-            tags = Parceler.get(TagListParceler.class, savedState, "PostFragment.tags");
-            comments = Parceler.get(CommentListParceler.class, savedState, "PostFragment.comments");
+            tags = Parceler.Companion.get(TagListParceler.class, savedState, "PostFragment.tags");
+            comments = Parceler.Companion.get(CommentListParceler.class, savedState, "PostFragment.comments");
         }
 
         activeState().compose(bindToLifecycle()).subscribe(active -> {

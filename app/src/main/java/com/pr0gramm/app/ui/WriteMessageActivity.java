@@ -204,7 +204,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
         if (extras == null)
             return;
 
-        Api.Message message = Parceler.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
+        Api.Message message = Parceler.Companion.get(MessageParceler.class, extras, ARGUMENT_MESSAGE);
         if (message != null) {
             messageView.update(message, userService.getName().orNull());
             messageView.setVisibility(View.VISIBLE);
@@ -267,7 +267,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     }
 
     public static Api.NewComment getNewComment(Intent data) {
-        return Parceler.get(NewCommentParceler.class,
+        return Parceler.Companion.get(NewCommentParceler.class,
                 data.getExtras(), RESULT_EXTRA_NEW_COMMENT);
     }
 

@@ -13,7 +13,6 @@ public class MessageParceler extends Parceler<Api.Message> {
         super(value);
     }
 
-    @SuppressWarnings("unused")
     private MessageParceler(Parcel parcel) {
         super(parcel);
     }
