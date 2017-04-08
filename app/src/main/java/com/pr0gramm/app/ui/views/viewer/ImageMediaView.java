@@ -167,6 +167,6 @@ public class ImageMediaView extends MediaView {
 
         // set a more useful error message
         errorIndicator.setText(getContext().getText(R.string.could_not_load_image)
-                + "\n\n" + ErrorFormatting.getFormatter(error).getMessage(getContext(), error));
+                + "\n\n" + ErrorFormatting.INSTANCE.getFormatter(error).getMessage(getContext(), error));
     }
 }

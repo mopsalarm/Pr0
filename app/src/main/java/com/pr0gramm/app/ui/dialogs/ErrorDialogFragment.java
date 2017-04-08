@@ -32,7 +32,7 @@ public class ErrorDialogFragment extends DialogFragment {
     public interface OnErrorDialogHandler {
         /**
          */
-        void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter);
+        void showErrorDialog(Throwable error, ErrorFormatting.Formatter formatter);
     }
 
     public static void setGlobalErrorDialogHandler(OnErrorDialogHandler handler) {
@@ -67,7 +67,7 @@ public class ErrorDialogFragment extends DialogFragment {
             PREVIOUS_ERROR = new WeakReference<>(error);
 
             // format and log
-            ErrorFormatting.Formatter<?> formatter = ErrorFormatting.getFormatter(error);
+            ErrorFormatting.Formatter formatter = ErrorFormatting.getFormatter(error);
             if (sendToCrashlytics && formatter.shouldSendToCrashlytics())
                 logToCrashlytics(error);
 

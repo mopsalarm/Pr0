@@ -336,7 +336,7 @@ public class UploadFragment extends BaseFragment {
             logger.error("got an upload error", throwable);
             AndroidUtility.logToCrashlytics(throwable);
 
-            String str = ErrorFormatting.getFormatter(throwable).getMessage(getActivity(), throwable);
+            String str = ErrorFormatting.INSTANCE.getFormatter(throwable).getMessage(getActivity(), throwable);
             if (str != null) {
                 ErrorDialogFragment.showErrorString(getFragmentManager(), str);
             }

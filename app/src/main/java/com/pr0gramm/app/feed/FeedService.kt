@@ -52,7 +52,7 @@ constructor(private val mainApi: Api,
 
             FeedType.BESTOF -> {
                 val benisScore = settings.bestOfBenisThreshold()
-                return categoryApi.bestof(q.tags, user!!, flags, query.older, benisScore)
+                return categoryApi.bestof(q.tags, user, flags, query.older, benisScore)
             }
 
             FeedType.CONTROVERSIAL -> return categoryApi.controversial(q.tags, flags, query.older)
@@ -65,7 +65,7 @@ constructor(private val mainApi: Api,
 
                 if (likes == null && configService.config().searchUsingTagService()) {
                     return categoryApi
-                            .general(promoted, q.tags, user!!, flags, query.older, query.newer, query.around)
+                            .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                             .onErrorResumeNext(officialCall)
 
                 } else if (query.around == null && query.newer == null) {
@@ -75,7 +75,7 @@ constructor(private val mainApi: Api,
 
                         logger.info("Using general search api, but falling back on old one in case of an error.")
                         return categoryApi
-                                .general(promoted, q.tags, user!!, flags, query.older, query.newer, query.around)
+                                .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                                 .onErrorResumeNext(officialCall)
                     }
                 }

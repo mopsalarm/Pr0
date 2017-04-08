@@ -26,7 +26,7 @@ interface ExtraCategoryApi {
 
     @GET("bestof")
     fun bestof(@Query("tags") tags: String?,
-               @Query("user") user: String,
+               @Query("user") user: String?,
                @Query("flags") flags: Int,
                @Query("older") older: Long?,
                @Query("score") benisScore: Int): Observable<Api.Feed>
@@ -34,7 +34,7 @@ interface ExtraCategoryApi {
     @GET("general")
     fun general(@Query("promoted") promoted: Int?,
                 @Query("tags") tags: String?,
-                @Query("user") user: String,
+                @Query("user") user: String?,
                 @Query("flags") flags: Int,
                 @Query("older") older: Long?,
                 @Query("newer") newer: Long?,

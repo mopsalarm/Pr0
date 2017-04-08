@@ -19,14 +19,14 @@ public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHa
     private WeakReference<FragmentActivity> current = NULL;
 
     private Throwable pendingError;
-    private ErrorFormatting.Formatter<?> pendingFormatter;
+    private ErrorFormatting.Formatter pendingFormatter;
 
     public ActivityErrorHandler(Application application) {
         application.registerActivityLifecycleCallbacks(this);
     }
 
     @Override
-    public void showErrorDialog(Throwable error, ErrorFormatting.Formatter<?> formatter) {
+    public void showErrorDialog(Throwable error, ErrorFormatting.Formatter formatter) {
         FragmentActivity activity = current.get();
         if (activity != null) {
             String message = formatter.handles(error)
