@@ -57,7 +57,7 @@ public class CommentPostLine extends FrameLayout {
 
         // change the anchorViews id so it is unique in the view hierarchy
         View anchorView = findViewById(R.id.auto_complete_popup_anchor);
-        anchorView.setId(ViewUtility.generateViewId());
+        anchorView.setId(ViewUtility.INSTANCE.generateViewId());
 
         commentTextView.setAnchorView(anchorView);
         commentTextView.setTokenizer(new UsernameTokenizer());

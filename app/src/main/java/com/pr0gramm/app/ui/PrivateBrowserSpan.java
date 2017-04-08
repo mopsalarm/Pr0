@@ -6,8 +6,7 @@ import android.view.View;
 
 import com.google.common.collect.ImmutableList;
 import com.pr0gramm.app.Settings;
-
-import static com.pr0gramm.app.util.CustomTabsHelper.newWebviewBuilder;
+import com.pr0gramm.app.util.CustomTabsHelper;
 
 /**
  */
@@ -31,7 +30,7 @@ public class PrivateBrowserSpan extends URLSpan {
         }
 
         if (useIncognitoBrowser) {
-            newWebviewBuilder(widget.getContext()).show(url);
+            CustomTabsHelper.newWebviewBuilder(widget.getContext()).show(url);
 
         } else {
             // dispatch link normally

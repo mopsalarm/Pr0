@@ -47,6 +47,7 @@ import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment;
+import com.pr0gramm.app.util.CustomTabsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,6 @@ import static com.google.common.base.Objects.equal;
 import static com.pr0gramm.app.R.id.unread_count;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
 import static com.pr0gramm.app.util.AndroidUtility.ifPresent;
-import static com.pr0gramm.app.util.CustomTabsHelper.newWebviewBuilder;
 
 /**
  */
@@ -485,7 +485,7 @@ public class DrawerFragment extends BaseFragment {
         javaScript = javaScript.replace("UNIQUE", String.valueOf(System.currentTimeMillis()));
 
         String url = "https://pr0gramm.com/secret-santa/iap";
-        newWebviewBuilder(getActivity())
+        CustomTabsHelper.newWebviewBuilder(getActivity())
                 .injectJavaScript("javascript:" + javaScript)
                 .show(url);
 

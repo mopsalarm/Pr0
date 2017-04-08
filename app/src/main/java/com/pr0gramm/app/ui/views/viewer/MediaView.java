@@ -143,7 +143,7 @@ public abstract class MediaView extends FrameLayout {
                 if (hasPreviewView()) {
                     Uri uri = ThumbyService.thumbUri(mediaUri);
 
-                    RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
+                    RxPicasso.INSTANCE.load(picasso, picasso.load(uri).noPlaceholder())
                             .onErrorResumeNext(Observable.empty())
                             .observeOn(AndroidSchedulers.mainThread())
                             .compose(RxLifecycleAndroid.bindView(this))
