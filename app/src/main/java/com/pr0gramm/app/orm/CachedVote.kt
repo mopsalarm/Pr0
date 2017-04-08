@@ -3,7 +3,6 @@ package com.pr0gramm.app.orm
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Optional
-import com.pr0gramm.app.feed.Vote
 import com.pr0gramm.app.util.mapToList
 import org.slf4j.LoggerFactory
 
@@ -53,7 +52,7 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
         fun quickSave(database: SQLiteDatabase, type: Type, itemId: Long, vote: Vote) {
             database.execSQL("""
                 INSERT OR REPLACE INTO cached_vote (id, item_id, type, vote)
-                VALUES (${voteId(type, itemId)}, $itemId, "${type.name}", "${vote.name}")"
+                VALUES (${voteId(type, itemId)}, $itemId, "${type.name}", "${vote.name}")
             """)
         }
 

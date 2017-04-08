@@ -45,7 +45,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     @JvmOverloads fun media(item: FeedItem, hq: Boolean = false): Uri {
-        if (hq && !Strings.isNullOrEmpty(item.fullsize()))
+        if (hq && !Strings.isNullOrEmpty(item.fullsize))
             return noPreload.media(item, true)
 
         return preloadManager.get(item.id())
@@ -88,9 +88,9 @@ class UriHelper private constructor(context: Context) {
 
         internal fun media(item: FeedItem, highQuality: Boolean): Uri {
             return if (highQuality && !item.isVideo)
-                join(start("full"), item.fullsize())
+                join(start("full"), item.fullsize)
             else
-                join(start(if (item.isVideo) "vid" else "img"), item.image())
+                join(start(if (item.isVideo) "vid" else "img"), item.image)
         }
 
         fun thumbnail(item: HasThumbnail): Uri {

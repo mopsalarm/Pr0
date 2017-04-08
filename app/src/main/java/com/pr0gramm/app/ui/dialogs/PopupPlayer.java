@@ -20,7 +20,7 @@ public class PopupPlayer {
     public static Dialog newInstance(Activity activity, FeedItem item) {
         MediaUri uri = MediaUri.of(activity, item);
         MediaView mediaView = MediaViews.newInstance(ImmutableConfig.of(activity, uri)
-                .withAudio(item.audio())
+                .withAudio(item.getAudio())
                 .withPreviewInfo(PreviewInfo.of(activity, item)));
 
         Dialog dialog = new Dialog(activity);

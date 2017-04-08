@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,13 +42,13 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.ContentType;
+import com.pr0gramm.app.feed.ContentTypeKt;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedLoader;
 import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
-import com.pr0gramm.app.feed.ImmutableFeedQuery;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
 import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
@@ -256,7 +257,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             if (savedInstanceState != null) {
                 Bundle bundle = savedInstanceState.getBundle("feed");
                 if (bundle != null) {
-                    feed = Feed.restore(bundle);
+                    feed = Feed.Companion.restore(bundle);
                 }
             }
 
@@ -340,7 +341,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         outState.putBoolean("searchContainerVisible", searchContainerIsVisible());
         outState.putBundle("feed", feedAdapter.feed.persist(0));
 
-        outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem(ContentType.ALL)
+        outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem(ContentType.Companion.getAllSet())
                 .transform(FeedItem::id).or(-1L));
 
     }
@@ -732,7 +733,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             int idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset;
             if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size()) {
                 for (FeedItem item : Lists.reverse(items.subList(0, idx))) {
-                    if (contentType.contains(item.contentType())) {
+                    if (contentType.contains(item.getContentType())) {
                         return Optional.of(item);
                     }
                 }
@@ -764,7 +765,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // hide search item, if we are not searchable
         MenuItem item = menu.findItem(R.id.action_search);
         if (item != null && getActivity() != null) {
-            boolean searchable = getCurrentFilter().getFeedType().searchable();
+            boolean searchable = getCurrentFilter().getFeedType().getSearchable();
             if (!searchable) {
                 item.setVisible(false);
             }
@@ -787,7 +788,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             item.setVisible(bookmarkable);
 
         if ((item = menu.findItem(R.id.action_preload)) != null)
-            item.setVisible(feedType.preloadable() && !AndroidUtility.isOnMobile(getActivity()));
+            item.setVisible(feedType.getPreloadable() && !AndroidUtility.isOnMobile(getActivity()));
 
         if ((item = menu.findItem(R.id.action_feedtype)) != null) {
             item.setVisible(!filter.isBasic() &&
@@ -846,7 +847,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
     private void updateContentTypeItems(Menu menu) {
         // only one content type selected?
-        boolean single = ContentType.withoutImplicit(settings.getContentType()).size() == 1;
+        EnumSet<ContentType> withoutImplicits = ContentTypeKt.withoutImplicit(settings.getContentType());
+        boolean single = withoutImplicits.size() == 1;
 
         Map<Integer, Boolean> types = ImmutableMap.<Integer, Boolean>builder()
                 .put(R.id.action_content_type_sfw, settings.getContentTypeSfw())
@@ -1191,7 +1193,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         }
 
         @Override
-        public void onNewItems(List<FeedItem> newItems) {
+        public void onNewItems(@NonNull List<FeedItem> newItems) {
             // check if we prepended items to the list.
             int prependCount = 0;
             for (int idx = 0; idx < newItems.size(); idx++) {
@@ -1250,11 +1252,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             return;
 
         String queryTerm = filter.getTags().transform(tags -> tags + " repost").or("repost");
-        FeedService.FeedQuery query = ImmutableFeedQuery.builder()
-                .contentTypes(getSelectedContentType())
-                .feedFilter(filter.withTags(queryTerm))
-                .older(id)
-                .build();
+        FeedService.FeedQuery query = new FeedService.FeedQuery(
+                filter.withTags(queryTerm),
+                getSelectedContentType(),
+                null, id, null);
 
         refreshRepostsCache(feedService, inMemoryCacheService, query)
                 .observeOn(mainThread())

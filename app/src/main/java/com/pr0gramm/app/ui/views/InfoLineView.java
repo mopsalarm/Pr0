@@ -17,7 +17,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
-import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.orm.Vote;
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager;
 import com.pr0gramm.app.ui.MergeRecyclerAdapter;
 import com.pr0gramm.app.ui.SingleViewAdapter;
@@ -136,13 +136,13 @@ public class InfoLineView extends LinearLayout {
         this.isSelfPost = isSelfPost;
 
         // update the views!
-        usernameView.setUsername(item.user(), item.mark());
-        dateView.setText(getRelativeTimeSpanString(getContext(), item.created()));
+        usernameView.setUsername(item.getUser(), item.getMark());
+        dateView.setText(getRelativeTimeSpanString(getContext(), item.getCreated()));
         updateViewState(Vote.NEUTRAL);
 
         usernameView.setOnClickListener(v -> {
             if (onDetailClickedListener != null) {
-                String username = item.user();
+                String username = item.getUser();
                 onDetailClickedListener.onUserClicked(username);
             }
         });
@@ -165,11 +165,11 @@ public class InfoLineView extends LinearLayout {
             return;
 
         if (isOneHourOld() || isSelfPost || admin) {
-            int rating = feedItem.up() - feedItem.down() + min(1, vote.getVoteValue());
+            int rating = feedItem.getUp() - feedItem.getDown() + min(1, vote.getVoteValue());
             ratingView.setText(String.valueOf(rating));
             ratingView.setOnLongClickListener(v -> {
                 Toast.makeText(getContext(),
-                        String.format("%d up, %d down", feedItem.up(), feedItem.down()),
+                        String.format("%d up, %d down", feedItem.getUp(), feedItem.getDown()),
                         Toast.LENGTH_SHORT).show();
 
                 return true;
@@ -241,7 +241,7 @@ public class InfoLineView extends LinearLayout {
 
     public boolean isOneHourOld() {
         Instant oneHourAgo = Instant.now().minus(Duration.standardHours(1));
-        return feedItem.created().isBefore(oneHourAgo);
+        return feedItem.getCreated().isBefore(oneHourAgo);
     }
 
     public void addVote(Api.Tag tag, Vote vote) {

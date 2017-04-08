@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.pr0gramm.app.R;
-import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.orm.Vote;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.accentColor;

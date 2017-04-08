@@ -20,7 +20,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
-import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.orm.Vote;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.util.AndroidUtility;
 

@@ -80,7 +80,7 @@ public class FavedCommentService {
         userHash.mergeWith(forceUpdateUserHash.observeOn(BackgroundScheduler.instance()))
                 .switchMap(userHash -> userHash == null
                         ? Observable.just(Collections.<FavedComment>emptyList())
-                        : api.list(userHash, ContentType.combine(EnumSet.allOf(ContentType.class))).onErrorResumeNext(Observable.empty()))
+                        : api.list(userHash, ContentType.Companion.combine(EnumSet.allOf(ContentType.class))).onErrorResumeNext(Observable.empty()))
 
                 .subscribeOn(BackgroundScheduler.instance())
                 .subscribe(comments -> {
@@ -120,7 +120,7 @@ public class FavedCommentService {
     }
 
     public Observable<List<FavedComment>> list(EnumSet<ContentType> contentType) {
-        int flags = ContentType.combine(contentType);
+        int flags = ContentType.Companion.combine(contentType);
 
         Track.listFavedComments();
 

@@ -62,10 +62,10 @@ constructor(private val downloadManager: DownloadManager,
         }
 
         val format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss")
-        val fileType = feedItem.image().toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
+        val fileType = feedItem.image.toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
         val prefix = Joiner.on("-").join(
-                feedItem.created().toString(format),
-                feedItem.user(),
+                feedItem.created.toString(format),
+                feedItem.user,
                 "id" + feedItem.id())
 
         val name = prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType

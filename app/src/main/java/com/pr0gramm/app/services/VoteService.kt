@@ -12,9 +12,9 @@ import com.google.common.io.BaseEncoding
 import com.google.common.io.LittleEndianDataInputStream
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.feed.Vote
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
+import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.Databases.withTransaction

@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -81,7 +82,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         // get the feed to show and setup a loader to load more data
         feed = getArgumentFeed(savedInstanceState);
         FeedLoader loader = new FeedLoader(
-                FeedLoader.bindTo(bindToLifecycleAsync(), AndroidUtility::logToCrashlytics),
+                FeedLoader.Companion.bindTo(bindToLifecycleAsync(), AndroidUtility::logToCrashlytics),
                 feedService, feed);
 
         // create the adapter on the view
@@ -200,7 +201,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         if (encoded == null)
             encoded = getArguments().getBundle(ARG_FEED_PROXY);
 
-        return Feed.restore(checkNotNull(encoded, "No feed-proxy found"));
+        return Feed.Companion.restore(checkNotNull(encoded, "No feed-proxy found"));
     }
 
     /**
@@ -328,7 +329,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
         }
 
         @Override
-        public void onNewItems(List<FeedItem> newItems) {
+        public void onNewItems(@NonNull List<FeedItem> newItems) {
             notifyDataSetChanged();
         }
 

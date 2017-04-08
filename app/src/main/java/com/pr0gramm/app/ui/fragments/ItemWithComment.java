@@ -35,7 +35,7 @@ public class ItemWithComment implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(Parcel dest, int f) {
         dest.writeLong(this.itemId);
         dest.writeValue(this.commentId);
     }

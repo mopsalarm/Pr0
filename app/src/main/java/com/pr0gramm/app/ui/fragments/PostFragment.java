@@ -41,7 +41,7 @@ import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedItem;
 import com.pr0gramm.app.feed.FeedService;
-import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.orm.Vote;
 import com.pr0gramm.app.parcel.CommentListParceler;
 import com.pr0gramm.app.parcel.TagListParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
@@ -372,7 +372,7 @@ public class PostFragment extends BaseFragment implements
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {
         // add a view over the main view, if the post is not visible now
-        if (userService.isAuthorized() && !settings.getContentType().contains(feedItem.contentType())) {
+        if (userService.isAuthorized() && !settings.getContentType().contains(feedItem.getContentType())) {
             View overlay = inflater.inflate(R.layout.warn_post_can_not_be_viewed, view, false);
             view.addView(overlay);
 
@@ -701,7 +701,7 @@ public class PostFragment extends BaseFragment implements
         }
 
         boolean isSelfPost = userService.getName()
-                .transform(name -> name.equalsIgnoreCase(feedItem.user()))
+                .transform(name -> name.equalsIgnoreCase(feedItem.getUser()))
                 .or(false);
 
         // display the feed item in the view
@@ -802,7 +802,7 @@ public class PostFragment extends BaseFragment implements
         }
 
         viewer = MediaViews.newInstance(ImmutableConfig.of(getActivity(), uri)
-                .withAudio(feedItem.audio())
+                .withAudio(feedItem.getAudio())
                 .withPreviewInfo(previewInfo()));
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
@@ -892,7 +892,7 @@ public class PostFragment extends BaseFragment implements
             // show the little admin triangle
             int size = AndroidUtility.dp(getContext(), 16);
             ViewCompat.setBackground(mediaControlsContainer,
-                    new TriangleDrawable(feedItem.contentType(), size));
+                    new TriangleDrawable(feedItem.getContentType(), size));
 
             mediaControlsContainer.setMinimumHeight(size);
         }
@@ -1023,7 +1023,7 @@ public class PostFragment extends BaseFragment implements
         this.comments = ImmutableList.copyOf(comments);
 
         // show now
-        commentsAdapter.set(comments, VoteService.Companion.getNO_VOTES(), feedItem.user());
+        commentsAdapter.set(comments, VoteService.Companion.getNO_VOTES(), feedItem.getUser());
 
         long commentId = getArguments().getLong(ARG_AUTOSCROLL_COMMENT_ID, 0);
         if (commentId > 0) {
@@ -1035,7 +1035,7 @@ public class PostFragment extends BaseFragment implements
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(empty())
                 .compose(bindToLifecycleAsync())
-                .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.user()));
+                .subscribe(votes -> commentsAdapter.set(comments, votes, feedItem.getUser()));
     }
 
     /**
@@ -1120,7 +1120,7 @@ public class PostFragment extends BaseFragment implements
                     .mark(comment.getMark())
                     .thumb(feedItem.thumbnail())
                     .itemId(feedItem.id())
-                    .flags(feedItem.flags())
+                    .flags(feedItem.getFlags())
                     .build());
         } else {
             result = favedCommentService.delete(comment.getId());
@@ -1307,6 +1307,6 @@ public class PostFragment extends BaseFragment implements
      * @param image The url of the image to check
      */
     static boolean isStaticImage(FeedItem image) {
-        return image.image().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
+        return image.getImage().toLowerCase().matches(".*\\.(jpg|jpeg|png)");
     }
 }

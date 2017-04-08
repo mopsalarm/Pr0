@@ -36,7 +36,7 @@ public class ShareHelper {
     }
 
     public static void sharePost(Activity activity, FeedItem feedItem) {
-        String text = feedItem.promotedId() > 0
+        String text = feedItem.getPromotedId() > 0
                 ? UriHelper.Companion.of(activity).post(FeedType.PROMOTED, feedItem.id()).toString()
                 : UriHelper.Companion.of(activity).post(FeedType.NEW, feedItem.id()).toString();
 

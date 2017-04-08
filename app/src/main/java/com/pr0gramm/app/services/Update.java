@@ -29,7 +29,7 @@ public abstract class Update implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(Parcel dest, int f) {
         dest.writeInt(version());
         dest.writeString(apk());
         dest.writeString(changelog());

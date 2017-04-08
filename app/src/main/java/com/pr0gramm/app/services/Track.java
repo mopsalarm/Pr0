@@ -6,7 +6,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.base.Stopwatch;
 import com.pr0gramm.app.ApplicationClass;
-import com.pr0gramm.app.feed.Vote;
+import com.pr0gramm.app.orm.Vote;
 import com.pr0gramm.app.services.config.Config;
 
 import java.util.concurrent.TimeUnit;
