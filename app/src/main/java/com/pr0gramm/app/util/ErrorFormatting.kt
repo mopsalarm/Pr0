@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.MalformedJsonException
 import com.google.gson.JsonSyntaxException
 import com.pr0gramm.app.R
-import com.pr0gramm.app.R.string.error_permission_not_granted
 import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
@@ -22,7 +21,7 @@ object ErrorFormatting {
     @JvmStatic
     fun getFormatter(error: Throwable): Formatter {
         return Formatters.firstOrNull { it.handles(error) }
-                ?: throw IllegalStateException("There should always be a default formatter")
+                ?: throw IllegalStateException("There should always be a default formatter", error)
     }
 
     class Formatter internal constructor(private val errorCheck: (Throwable) -> Boolean,
@@ -100,8 +99,8 @@ object ErrorFormatting {
     private class FormatterList {
         val formatters = mutableListOf<Formatter>()
 
-        inline fun <reified ErrType : Throwable> add(configure: Builder<ErrType>.() -> Unit): Formatter {
-            val b = Builder(ErrType::class.java)
+        inline fun <reified T : Throwable> add(configure: Builder<T>.() -> Unit): Formatter {
+            val b = Builder(T::class.java)
             b.configure()
             return b.build()
         }
@@ -260,7 +259,7 @@ object ErrorFormatting {
                 } catch (err: Throwable) {
                 }
 
-                getString(error_permission_not_granted, permissionName)
+                getString(R.string.error_permission_not_granted, permissionName)
             }
         }
 

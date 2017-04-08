@@ -43,8 +43,8 @@ class ApiProvider @Inject constructor(context: Context, client: OkHttpClient,
 
     private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
         // proxy to add the nonce if not provided
-        return Reflection.newProxy(Api::class.java) { _, method, args_ ->
-            var args = args_
+        return Reflection.newProxy(Api::class.java) { _, method, nullableArguments ->
+            var args: Array<Any?> = nullableArguments ?: emptyArray()
             val watch = Stopwatch.createStarted()
 
             val params = method.parameterTypes
@@ -150,7 +150,7 @@ class ApiProvider @Inject constructor(context: Context, client: OkHttpClient,
 
     @Suppress("UNCHECKED_CAST")
     private fun invokeWithRetry(
-            api: Api, method: Method, args: Array<Any>,
+            api: Api, method: Method, args: Array<Any?>,
             shouldRetryTest: (Throwable) -> Boolean, retryCount: Int): Observable<Any> {
 
         var result = method.invoke(api, *args) as Observable<Any>
