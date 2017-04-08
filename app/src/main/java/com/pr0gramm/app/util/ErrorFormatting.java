@@ -117,7 +117,7 @@ public class ErrorFormatting {
         RetrofitStatusFormatter(Predicate<HttpErrorException> check, @StringRes int message) {
             super(Exception.class, err -> {
                 if (err instanceof retrofit2.HttpException)
-                    return check.apply(HttpErrorException.from((retrofit2.HttpException) err));
+                    return check.apply(HttpErrorException.Companion.from((retrofit2.HttpException) err));
 
                 if (err instanceof HttpErrorException)
                     return check.apply((HttpErrorException) err);
@@ -151,35 +151,35 @@ public class ErrorFormatting {
         };
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 403 && err.getErrorBody().contains("cloudflare"),
+                err -> err.getCode() == 403 && err.getErrorBody().contains("cloudflare"),
                 R.string.error_cloudflare).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 403 && err.getErrorBody().contains("<html>"),
+                err -> err.getCode() == 403 && err.getErrorBody().contains("<html>"),
                 R.string.error_blocked).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> asList(401, 403).contains(err.code()),
+                err -> asList(401, 403).contains(err.getCode()),
                 R.string.error_not_authorized).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 429,
+                err -> err.getCode() == 429,
                 R.string.error_rate_limited).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 404,
+                err -> err.getCode() == 404,
                 R.string.error_not_found).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 504,
+                err -> err.getCode() == 504,
                 R.string.error_proxy_timeout).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() == 522,
+                err -> err.getCode() == 522,
                 R.string.error_origin_timeout_ddos).doNotReport());
 
         formatters.add(new RetrofitStatusFormatter(
-                err -> err.code() / 100 == 5,
+                err -> err.getCode() / 100 == 5,
                 R.string.error_service_unavailable).doNotReport());
 
         formatters.add(new Formatter<>(JsonSyntaxException.class,

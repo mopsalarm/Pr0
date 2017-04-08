@@ -70,6 +70,6 @@ class InputStreamCacheDataSource implements BufferedDataSource {
      */
     @Override
     public float buffered() {
-        return entry != null ? entry.fractionCached() : -1;
+        return entry != null ? entry.getFractionCached() : -1;
     }
 }

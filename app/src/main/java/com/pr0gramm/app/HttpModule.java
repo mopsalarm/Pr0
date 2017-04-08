@@ -109,7 +109,7 @@ public class HttpModule {
                 } else {
                     logger.debug("Using cache to download image {}", uri);
                     try (com.pr0gramm.app.io.Cache.Entry entry = cache.get(uri)) {
-                        boolean fullyCached = entry.fractionCached() == 1;
+                        boolean fullyCached = entry.getFractionCached() == 1;
                         return new Response(entry.inputStreamAt(0), fullyCached, entry.totalSize());
                     }
                 }
