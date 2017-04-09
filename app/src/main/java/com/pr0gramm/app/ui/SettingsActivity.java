@@ -232,7 +232,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
             String preferenceKey = preference.getKey();
             if ("pref_pseudo_update".equals(preferenceKey)) {
                 BaseAppCompatActivity activity = (BaseAppCompatActivity) getActivity();
-                UpdateDialogFragment.checkForUpdates(activity, true);
+                UpdateDialogFragment.Companion.checkForUpdates(activity, true);
                 return true;
             }
 

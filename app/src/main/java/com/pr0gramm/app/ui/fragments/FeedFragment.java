@@ -84,7 +84,7 @@ import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.back.BackAwareFragment;
 import com.pr0gramm.app.ui.base.BaseFragment;
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment;
-import com.pr0gramm.app.ui.dialogs.PopupPlayer;
+import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory;
 import com.pr0gramm.app.ui.views.BusyIndicator;
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout;
 import com.pr0gramm.app.ui.views.SearchOptionsView;
@@ -1094,7 +1094,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         // get called shortly after detaching the activity - which sucks. thanks android.
         Activity activity = getActivity();
         if (activity != null) {
-            quickPeekDialog = PopupPlayer.newInstance(activity, item);
+            quickPeekDialog = PopupPlayerFactory.newInstance(activity, item);
             swipeRefreshLayout.setEnabled(false);
             Track.quickPeek();
         }
@@ -1289,16 +1289,16 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         logger.error("Error loading the feed", error);
 
         if (autoOpenOnLoad != null) {
-            ErrorDialogFragment.showErrorString(getFragmentManager(),
+            ErrorDialogFragment.Companion.showErrorString(getFragmentManager(),
                     getString(R.string.could_not_load_feed_nsfw));
 
         } else if (error instanceof JsonSyntaxException) {
             // show a special error
-            ErrorDialogFragment.showErrorString(getFragmentManager(),
+            ErrorDialogFragment.Companion.showErrorString(getFragmentManager(),
                     getString(R.string.could_not_load_feed_json));
 
         } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.useHttps()) {
-            ErrorDialogFragment.showErrorString(getFragmentManager(),
+            ErrorDialogFragment.Companion.showErrorString(getFragmentManager(),
                     getString(R.string.could_not_load_feed_https));
 
         } else {

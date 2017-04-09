@@ -40,7 +40,7 @@ import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.Truss
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError
+import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri

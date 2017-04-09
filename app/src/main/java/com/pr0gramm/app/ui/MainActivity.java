@@ -231,7 +231,7 @@ public class MainActivity extends BaseAppCompatActivity implements
                 Observable.just(null)
                         .delay(updateCheckDelay ? 10 : 0, TimeUnit.SECONDS, mainThread())
                         .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
-                        .subscribe(event -> UpdateDialogFragment.checkForUpdates(this, false));
+                        .subscribe(event -> UpdateDialogFragment.Companion.checkForUpdates(this, false));
             }
         }
 
