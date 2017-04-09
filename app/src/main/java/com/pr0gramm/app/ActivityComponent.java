@@ -32,7 +32,6 @@ import com.pr0gramm.app.ui.fragments.WrittenCommentFragment;
 import com.pr0gramm.app.ui.intro.slides.BookmarksActionItemsSlide;
 import com.pr0gramm.app.ui.upload.UploadActivity;
 import com.pr0gramm.app.ui.upload.UploadFragment;
-import com.pr0gramm.app.ui.views.viewer.DelayedMediaView;
 import com.pr0gramm.app.ui.views.viewer.Gif2VideoMediaView;
 import com.pr0gramm.app.ui.views.viewer.GifMediaView;
 import com.pr0gramm.app.ui.views.viewer.ImageMediaView;
@@ -77,8 +76,6 @@ public interface ActivityComponent {
     void inject(FavedCommentFragment fragment);
 
     void inject(PrivateMessageInboxFragment fragment);
-
-    void inject(DelayedMediaView delayedMediaView);
 
     void inject(Gif2VideoMediaView gif2VideoMediaView);
 

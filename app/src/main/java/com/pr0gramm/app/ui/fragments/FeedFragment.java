@@ -1002,7 +1002,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 // pass pixels info to target fragment.
                 Drawable image = preview.get().getDrawable();
                 FeedItem item = feed.at(idx);
-                fragment.setPreviewInfo(PreviewInfo.of(getContext(), item, image));
+                fragment.setPreviewInfo(PreviewInfo.Companion.of(getContext(), item, image));
             }
 
             getActivity().getSupportFragmentManager().beginTransaction()

@@ -1,9 +1,7 @@
 package com.pr0gramm.app.services
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.createObservable
@@ -14,7 +12,6 @@ import rx.Emitter
 import rx.Observable
 import rx.subscriptions.Subscriptions
 import java.io.File
-import java.io.IOException
 import java.io.RandomAccessFile
 import java.lang.System.identityHashCode
 import javax.inject.Inject
@@ -26,7 +23,6 @@ import javax.inject.Singleton
 class GifDrawableLoader @Inject constructor(context: Context, private val cache: Cache) {
     private val fileCache: File = context.cacheDir
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     fun load(uri: Uri): Observable<DownloadStatus> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
@@ -51,7 +47,6 @@ class GifDrawableLoader @Inject constructor(context: Context, private val cache:
      * loads the gif from this temporary file. The temporary file is removed
      * after loading the gif (or on failure).
      */
-    @Throws(IOException::class)
     private fun loadGifUsingTempFile(emitter: Emitter<in DownloadStatus>,
                                      entry: Cache.Entry) {
 

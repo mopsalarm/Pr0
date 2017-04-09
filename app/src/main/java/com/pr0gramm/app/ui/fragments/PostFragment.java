@@ -79,7 +79,6 @@ import com.pr0gramm.app.ui.views.CommentsAdapter;
 import com.pr0gramm.app.ui.views.InfoLineView;
 import com.pr0gramm.app.ui.views.Pr0grammIconView;
 import com.pr0gramm.app.ui.views.viewer.AbstractProgressMediaView;
-import com.pr0gramm.app.ui.views.viewer.ImmutableConfig;
 import com.pr0gramm.app.ui.views.viewer.MediaUri;
 import com.pr0gramm.app.ui.views.viewer.MediaView;
 import com.pr0gramm.app.ui.views.viewer.MediaViews;
@@ -801,7 +800,7 @@ public class PostFragment extends BaseFragment implements
             }
         }
 
-        viewer = MediaViews.newInstance(ImmutableConfig.of(getActivity(), uri)
+        viewer = MediaViews.newInstance(MediaView.Config.of(getActivity(), uri)
                 .withAudio(feedItem.getAudio())
                 .withPreviewInfo(previewInfo()));
 
@@ -1009,7 +1008,7 @@ public class PostFragment extends BaseFragment implements
 
         if (actualView instanceof AbstractProgressMediaView) {
             if (Iterables.any(tags, tag -> isLoopTag(tag.getTag()))) {
-                ((AbstractProgressMediaView) actualView).setProgressEnabled(false);
+                ((AbstractProgressMediaView) actualView).hideVideoProgress();
             }
         }
     }
