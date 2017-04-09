@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Optional;
 import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
+import com.pr0gramm.app.Settings;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.Feed;
 import com.pr0gramm.app.feed.FeedFilter;
@@ -110,21 +111,24 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             });
         }
 
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                ViewPager pager = PostPagerFragment.this.viewPager;
-                if (pager != null && position >= 0 && position + 1 < adapter.getCount()) {
-                    Fragment prev = adapter.getFragment(position).orNull();
-                    Fragment next = adapter.getFragment(position + 1).orNull();
-                    if (prev instanceof PostFragment && next instanceof PostFragment) {
-                        int offset = positionOffsetPixels / 2;
-                        ((PostFragment) prev).mediaHorizontalOffset(offset);
-                        ((PostFragment) next).mediaHorizontalOffset(offset - pager.getWidth() / 2);
+        boolean fancyScroll = Settings.of(getContext()).useTextureView();
+        if (fancyScroll) {
+            viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    ViewPager pager = PostPagerFragment.this.viewPager;
+                    if (pager != null && position >= 0 && position + 1 < adapter.getCount()) {
+                        Fragment prev = adapter.getFragment(position).orNull();
+                        Fragment next = adapter.getFragment(position + 1).orNull();
+                        if (prev instanceof PostFragment && next instanceof PostFragment) {
+                            int offset = positionOffsetPixels / 2;
+                            ((PostFragment) prev).mediaHorizontalOffset(offset);
+                            ((PostFragment) next).mediaHorizontalOffset(offset - pager.getWidth() / 2);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         viewPager.setAdapter(adapter);
 

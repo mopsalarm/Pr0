@@ -7,7 +7,7 @@ package android.support.v4.app
  */
 object SupportV4App {
     @JvmStatic
-    fun fragmentChildFragmentManager(fragment: Fragment): FragmentManager {
+    fun fragmentChildFragmentManager(fragment: Fragment): FragmentManager? {
         return fragment.mChildFragmentManager
     }
 }

@@ -100,8 +100,8 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
         muteButtonView.setVisibility(hasAudio() ? VISIBLE : GONE);
 
         muteButtonView.setOnClickListener(v -> {
-            setMuted(!videoPlayer.isMuted());
-            Track.muted(!videoPlayer.isMuted());
+            setMuted(!videoPlayer.getMuted());
+            Track.muted(!videoPlayer.getMuted());
         });
 
         RxView.detaches(this).subscribe(event -> videoPlayer.setVideoCallbacks(null));
@@ -248,7 +248,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     @Override
     protected Optional<ProgressInfo> getVideoProgress() {
         if (videoPlayer != null && videoViewInitialized && isPlaying()) {
-            return Optional.of(new ProgressInfo(videoPlayer.progress(), videoPlayer.buffered()));
+            return Optional.of(new ProgressInfo(videoPlayer.getProgress(), videoPlayer.getBuffered()));
         }
 
         return Optional.absent();
@@ -291,7 +291,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     }
 
     public void storePlaybackPosition() {
-        int currentPosition = videoPlayer.currentPosition();
+        int currentPosition = videoPlayer.getCurrentPosition();
         seekToCache.put(config.mediaUri().getId(), currentPosition);
         logger.info("Stored current position {}", currentPosition);
     }
@@ -339,7 +339,7 @@ public class VideoMediaView extends AbstractProgressMediaView implements VideoPl
     @Override
     protected void userSeekTo(float fraction) {
         logger.info("User wants to seek to position {}", fraction);
-        videoPlayer.seekTo((int) (fraction * videoPlayer.duration()));
+        videoPlayer.seekTo((int) (fraction * videoPlayer.getDuration()));
     }
 
     final AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
