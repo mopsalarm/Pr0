@@ -39,6 +39,7 @@ import com.squareup.picasso.Picasso;
 import com.trello.rxlifecycle.android.RxLifecycleAndroid;
 
 import org.immutables.value.Value;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -571,6 +572,11 @@ public abstract class MediaView extends FrameLayout {
         @Value.Default
         public boolean audio() {
             return false;
+        }
+
+        @NotNull
+        public static Config of(@NotNull Activity activity, @NotNull MediaUri uri) {
+            return ImmutableConfig.of(activity, uri);
         }
     }
 }

@@ -751,11 +751,11 @@ public class MainActivity extends BaseAppCompatActivity implements
                 bottomSheet.dismissSheet();
 
             if (item.getItemId() == R.id.action_upload_image) {
-                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_IMAGE);
+                UploadActivity.openForType(this, UploadActivity.getMediaTypeImage());
             }
 
             if (item.getItemId() == R.id.action_upload_video) {
-                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_VIDEO);
+                UploadActivity.openForType(this, UploadActivity.getMediaTypeVideo());
             }
 
             return true;

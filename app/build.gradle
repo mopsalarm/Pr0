@@ -219,6 +219,7 @@ dependencies {
 
     compile "com.jakewharton:butterknife:8.5.1"
     compile "com.jakewharton:butterknife-annotations:8.5.1"
+    compile 'com.github.JakeWharton:kotterknife:6cc0fe3fee'
     apt "com.jakewharton:butterknife-compiler:8.5.1"
 
     compile "com.f2prateek.dart:dart:2.0.2"
