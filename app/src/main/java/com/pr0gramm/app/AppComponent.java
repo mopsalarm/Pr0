@@ -80,4 +80,6 @@ public interface AppComponent {
     void inject(CommentPostLine commentPostLine);
 
     void inject(MessageReplyReceiver receiver);
+
+    void inject(KApp kApp);
 }

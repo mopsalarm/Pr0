@@ -14,15 +14,14 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Optional
 import com.google.common.cache.CacheBuilder
 import com.google.common.hash.Hashing
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
-import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.proxy.ProxyService
@@ -34,16 +33,15 @@ import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.endAction
+import com.pr0gramm.app.util.edit
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
 import rx.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @SuppressLint("ViewConstructor")
 class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(config, R.layout.player_kind_video), VideoPlayer.Callbacks {
-
     private val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     // the video player that does all the magic
@@ -52,17 +50,9 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     private val videoPlayerParent: AspectLayout by bindView(R.id.video_container)
 
-    @Inject
-    internal lateinit var singleShotService: SingleShotService
-
-    @Inject
-    internal lateinit var settings: Settings
-
-    @Inject
-    internal lateinit var preferences: SharedPreferences
-
-    @Inject
-    internal lateinit var proxyService: ProxyService
+    private val settings: Settings = instance()
+    private val proxyService: ProxyService = instance()
+    private val preferences: SharedPreferences = instance()
 
     private var videoViewInitialized: Boolean = false
     private var errorShown: Boolean = false
@@ -116,10 +106,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     override fun userSeekable(): Boolean {
         return true
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
-        component.inject(this)
     }
 
     override fun playMedia() {
@@ -190,9 +176,9 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     }
 
     private fun storeUnmuteTime(time: Long) {
-        preferences.edit()
-                .putLong(KEY_LAST_UNMUTED_VIDEO, time)
-                .apply()
+        preferences.edit {
+            putLong(KEY_LAST_UNMUTED_VIDEO, time)
+        }
     }
 
     internal fun setMuted(muted: Boolean) {

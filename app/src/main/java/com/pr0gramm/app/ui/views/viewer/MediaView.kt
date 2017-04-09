@@ -16,16 +16,16 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
 import butterknife.ButterKnife
+import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.views.AspectImageView
+import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.RxPicasso
@@ -38,11 +38,10 @@ import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
 import java.lang.ref.WeakReference
-import javax.inject.Inject
 
 /**
  */
-abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity) {
+abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin {
     private val previewTarget = PreviewTarget(this)
     private val onViewListener = BehaviorSubject.create<Void>()
     private val thumbnail = BehaviorSubject.create<Bitmap>()
@@ -88,19 +87,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     var previewView: AspectImageView? = null
         internal set
 
-    @Inject
-    internal lateinit var picasso: Picasso
-
-    @Inject
-    internal lateinit var inMemoryCacheService: InMemoryCacheService
-
-    @Inject
-    internal lateinit var fancyThumbnailGenerator: FancyExifThumbnailGenerator
+    protected val picasso: Picasso = instance()
+    private val inMemoryCacheService: InMemoryCacheService = instance()
+    private val fancyThumbnailGenerator: FancyExifThumbnailGenerator = instance()
 
     init {
-        // inject all the stuff!
-        injectComponent(Dagger.activityComponent(config.activity))
-
         this.mediaUri = config.mediaUri
 
         layoutParams = DEFAULT_PARAMS
@@ -176,11 +167,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                     .compose(RxLifecycleAndroid.bindView<T>(this))
         }
     }
-
-    /**
-     * Implement to do dependency injection.
-     */
-    protected abstract fun injectComponent(component: ActivityComponent)
 
     /**
      * Sets the pixels image for this media view. You need to provide a width and height.
@@ -491,3 +477,4 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                 Gravity.CENTER_HORIZONTAL)
     }
 }
+

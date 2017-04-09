@@ -251,6 +251,10 @@ dependencies {
     provided "org.immutables:value:$VersionImmutables"
     provided "org.immutables:gson:$VersionImmutables"
 
+    // dependency injection using kotlin.
+    compile 'com.github.salomonbrys.kodein:kodein:3.3.0'
+    compile 'com.github.salomonbrys.kodein:kodein-android:3.3.0'
+
     compile "com.google.dagger:dagger:2.10"
     apt "com.google.dagger:dagger-compiler:2.10"
 

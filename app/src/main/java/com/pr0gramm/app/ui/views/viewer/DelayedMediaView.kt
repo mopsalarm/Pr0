@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.endAction
@@ -31,10 +30,6 @@ class DelayedMediaView(config: MediaView.Config) : ProxyMediaView(config) {
                 .setStartDelay(300).start()
 
         addView(overlay)
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
-        component.inject(this)
     }
 
     override fun onSingleTap(event: MotionEvent): Boolean {

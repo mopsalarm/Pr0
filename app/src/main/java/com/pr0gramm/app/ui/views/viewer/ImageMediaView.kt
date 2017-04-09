@@ -5,18 +5,16 @@ import android.view.View
 import android.widget.TextView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
-import javax.inject.Inject
 
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
@@ -26,11 +24,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)
 
-    @Inject
-    internal lateinit var downloader: Downloader
-
-    @Inject
-    internal lateinit var singleShotService: SingleShotService
+    private val downloader: Downloader = instance()
 
     init {
         imageView.visibility = View.VISIBLE
@@ -102,10 +96,6 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         imageView.maxScale = maxScale
         imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
         imageView.resetScaleAndCenter()
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
-        component.inject(this)
     }
 
     override var viewAspect: Float

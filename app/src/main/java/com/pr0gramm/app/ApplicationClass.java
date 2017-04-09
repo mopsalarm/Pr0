@@ -7,6 +7,8 @@ import android.os.StrictMode;
 import com.crashlytics.android.Crashlytics;
 import com.evernote.android.job.JobManager;
 import com.f2prateek.dart.Dart;
+import com.github.salomonbrys.kodein.Kodein;
+import com.github.salomonbrys.kodein.KodeinAware;
 import com.google.android.gms.ads.MobileAds;
 import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.sync.SyncJob;
@@ -18,6 +20,7 @@ import com.thefinestartist.Base;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,7 @@ import static com.pr0gramm.app.util.AndroidUtility.buildVersionCode;
 /**
  * Global application class for pr0gramm app.
  */
-public class ApplicationClass extends Application {
+public class ApplicationClass extends Application implements KodeinAware {
     private static final Logger logger = LoggerFactory.getLogger("Pr0grammApplication");
 
     final Lazy<AppComponent> appComponent = Lazy.of(() -> DaggerAppComponent.builder()
@@ -136,5 +139,11 @@ public class ApplicationClass extends Application {
                 return LooperScheduler.MAIN;
             }
         });
+    }
+
+    @NotNull
+    @Override
+    public Kodein getKodein() {
+        return new KApp(this).getKodein();
     }
 }

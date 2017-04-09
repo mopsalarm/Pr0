@@ -2,31 +2,20 @@ package com.pr0gramm.app.ui.views.viewer
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import com.pr0gramm.app.ActivityComponent
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.services.gif.GifToVideoService
-import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import org.slf4j.LoggerFactory
 import rx.Observable
-import javax.inject.Inject
 
 /**
  */
 @SuppressLint("ViewConstructor")
 class Gif2VideoMediaView internal constructor(config: MediaView.Config) : ProxyMediaView(config) {
-
-    @Inject
-    internal lateinit var gifToVideoService: GifToVideoService
-
-    @Inject
-    internal lateinit var proxyService: ProxyService
+    private val gifToVideoService: GifToVideoService = instance()
 
     init {
         startWebmConversion()
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
-        component.inject(this)
     }
 
     private fun startWebmConversion() {

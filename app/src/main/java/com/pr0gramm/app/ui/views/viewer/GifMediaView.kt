@@ -3,11 +3,10 @@ package com.pr0gramm.app.ui.views.viewer
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Optional
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
@@ -16,17 +15,12 @@ import com.pr0gramm.app.util.AndroidUtility.endAction
 import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
 import rx.functions.Action1
-import javax.inject.Inject
 
 /**
  */
 @SuppressLint("ViewConstructor")
 class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config, R.layout.player_gif) {
-    @Inject
-    internal lateinit var settings: Settings
-
-    @Inject
-    internal lateinit var gifDrawableLoader: GifDrawableLoader
+    private val gifDrawableLoader: GifDrawableLoader = instance()
 
     private val imageView: ImageView by bindView(R.id.image)
 
@@ -106,10 +100,6 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         }
 
         return Optional.absent<AbstractProgressMediaView.ProgressInfo>()
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
-        component.inject(this)
     }
 
     override fun onPause() {
