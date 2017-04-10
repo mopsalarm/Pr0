@@ -72,8 +72,8 @@ public class SenderInfoView extends LinearLayout {
     }
 
     public void setPoints(CommentScore commentScore) {
-        setPoints(commentScore.score, v -> {
-            String msg = String.format("%d up, %d down", commentScore.up, commentScore.down);
+        setPoints(commentScore.getScore(), v -> {
+            String msg = String.format("%d up, %d down", commentScore.getUp(), commentScore.getDown());
             Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
             return true;
         });

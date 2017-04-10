@@ -13,13 +13,9 @@ data class BenisRecord(val time: Long, val benis: Int) {
         private val logger = LoggerFactory.getLogger("BenisRecord")
 
         fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: ReadableInstant): List<BenisRecord> {
-            db.query("benis_record",
-                    arrayOf("time", "benis"),
-                    "time >= ? and (owner_id=? or owner_id=0)",
-                    arrayOfStrings(time.millis, ownerId), null, null, "time ASC").use { cursor ->
-
-                return cursor.mapToList { BenisRecord(getLong(0), getInt(1)) }
-            }
+            return db
+                    .query("benis_record", arrayOf("time", "benis"), "time >= ? and (owner_id=? or owner_id=0)", arrayOfStrings(time.millis, ownerId), null, null, "time ASC")
+                    .mapToList { BenisRecord(getLong(0), getInt(1)) }
         }
 
         fun storeValue(db: SQLiteDatabase, ownerId: Int, benis: Int) {

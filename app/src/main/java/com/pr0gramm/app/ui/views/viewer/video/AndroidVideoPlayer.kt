@@ -193,7 +193,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
             mBackendView.size = ViewBackend.Size(mVideoWidth, mVideoHeight)
 
             logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight)
-            parentView.setAspect(mVideoWidth.toFloat() / mVideoHeight)
+            parentView.aspect = mVideoWidth.toFloat() / mVideoHeight
         }
 
         callbacks.onVideoSizeChanged(width, height)
@@ -214,7 +214,7 @@ class AndroidVideoPlayer(private val context: Context, internal val parentView: 
         if (mVideoWidth != 0 && mVideoHeight != 0) {
             logger.info("set video aspect to {}x{}", mVideoWidth, mVideoHeight)
             mBackendView.size = ViewBackend.Size(mVideoWidth, mVideoHeight)
-            parentView.setAspect(mVideoWidth.toFloat() / mVideoHeight)
+            parentView.aspect = mVideoWidth.toFloat() / mVideoHeight
 
             if (mSurfaceWidth != 0 && mSurfaceHeight != 0) {
                 // We didn't actually change the size (it was already at the size

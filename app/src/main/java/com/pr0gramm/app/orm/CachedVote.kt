@@ -4,6 +4,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Optional
 import com.pr0gramm.app.util.mapToList
+import com.pr0gramm.app.util.use
 import org.slf4j.LoggerFactory
 
 /**
@@ -44,9 +45,7 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
 
             val encodedIds = ids.sorted().map { voteId(type, it) }.joinToString(",")
             val query = "SELECT item_id, type, vote FROM cached_vote WHERE id IN ($encodedIds)"
-            return db.rawQuery(query, emptyArray()).use { cursor ->
-                cursor.mapToList { ofCursor(this) }
-            }
+            return db.rawQuery(query, emptyArray()).mapToList { ofCursor(this) }
         }
 
         fun quickSave(database: SQLiteDatabase, type: Type, itemId: Long, vote: Vote) {

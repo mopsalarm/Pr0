@@ -74,7 +74,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      */
     open var viewAspect = -1f
         set(viewAspect) {
-            previewView?.setAspect(if (viewAspect > 0) Math.max(viewAspect, MIN_PREVIEW_ASPECT) else -1f)
+            previewView?.aspect = if (viewAspect > 0) Math.max(viewAspect, MIN_PREVIEW_ASPECT) else -1f
 
             if (this.viewAspect != viewAspect) {
                 field = viewAspect

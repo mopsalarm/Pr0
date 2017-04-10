@@ -1,9 +1,12 @@
 package com.pr0gramm.app.util
 
 import android.content.SharedPreferences
+import android.content.res.TypedArray
 import android.database.Cursor
 import android.os.PowerManager
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
@@ -13,6 +16,8 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
+import kotlin.properties.ReadWriteProperty
 
 
 inline fun <T> Optional<T>.ifAbsent(fn: () -> Unit): Unit {
@@ -88,12 +93,31 @@ inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn
 }
 
 inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
-    val values = mutableListOf<R>()
-    while (moveToNext()) {
-        values.add(fn())
-    }
+    return use {
+        val values = mutableListOf<R>()
+        while (moveToNext()) {
+            values.add(fn())
+        }
 
-    return values
+        values
+    }
+}
+
+@Suppress("ConvertTryFinallyToUseCall")
+inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
+    try {
+        return fn(this)
+    } finally {
+        close()
+    }
+}
+
+inline fun <R> TypedArray.use(fn: (TypedArray) -> R): R {
+    try {
+        return fn(this)
+    } finally {
+        this.recycle()
+    }
 }
 
 fun arrayOfStrings(vararg args: Any): Array<String> {
@@ -107,3 +131,17 @@ fun <T> T?.toOptional(): Optional<T> {
 fun JsonObject.getIfPrimitive(key: String): JsonPrimitive? {
     return get(key)?.takeIf { it is JsonPrimitive } as JsonPrimitive?
 }
+
+inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<R, T> {
+    return Delegates.observable(def) { _, old, new ->
+        onChange()
+    }
+}
+
+inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit): ReadWriteProperty<R, T> {
+    return Delegates.observable(def) { _, old, new ->
+        onChange(old, new)
+    }
+}
+
+val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)

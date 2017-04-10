@@ -5,6 +5,7 @@ import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.autoAndroidModule
 import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.services.InMemoryCacheService
+import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
@@ -20,6 +21,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var downloader: Downloader
     @Inject lateinit var gifDrawableLoader: GifDrawableLoader
     @Inject lateinit var gifToVideoService: GifToVideoService
+    @Inject lateinit var UserSuggestionService: UserSuggestionService
 
     init {
         app.appComponent.get().inject(this)
@@ -41,6 +43,8 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<Downloader>() with instance(downloader)
         bind<GifDrawableLoader>() with instance(gifDrawableLoader)
         bind<GifToVideoService>() with instance(gifToVideoService)
+
+        bind<UserSuggestionService>() with instance(UserSuggestionService)
 
     }
 }

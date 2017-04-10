@@ -307,7 +307,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
                 logger.info("Got video track with size {}x{}", scaledWidth, height)
 
-                this.parentView.get()?.setAspect(scaledWidth.toFloat() / height)
+                this.parentView.get()?.aspect = scaledWidth.toFloat() / height
                 this.callbacks.get()?.onVideoSizeChanged(scaledWidth, height)
             }
         }

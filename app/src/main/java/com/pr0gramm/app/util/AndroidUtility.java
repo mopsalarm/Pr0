@@ -302,7 +302,6 @@ public class AndroidUtility {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void setViewBackground(View view, Drawable drawable) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             view.setBackground(drawable);
