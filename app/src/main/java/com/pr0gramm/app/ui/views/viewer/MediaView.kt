@@ -20,6 +20,7 @@ import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
+import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.InMemoryCacheService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
@@ -452,14 +453,20 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                       val previewInfo: PreviewInfo? = null,
                       val audio: Boolean = false) {
 
-        fun withAudio(audio: Boolean) = copy(audio = audio)
-
-        fun withPreviewInfo(p: PreviewInfo) = copy(previewInfo = previewInfo)
+        fun withPreviewInfo(p: PreviewInfo) = copy(previewInfo = p)
 
         companion object {
             @JvmStatic
             fun of(activity: Activity, uri: MediaUri): Config {
                 return Config(activity, uri)
+            }
+
+            @JvmStatic
+            fun ofFeedItem(activity: Activity, item: FeedItem): Config {
+                return Config(activity,
+                        mediaUri = MediaUri.Companion.of(activity, item),
+                        audio = item.audio,
+                        previewInfo = PreviewInfo.of(activity, item))
             }
         }
     }

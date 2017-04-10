@@ -800,8 +800,7 @@ public class PostFragment extends BaseFragment implements
             }
         }
 
-        viewer = MediaViews.newInstance(MediaView.Config.of(getActivity(), uri)
-                .withAudio(feedItem.getAudio())
+        viewer = MediaViews.newInstance(MediaView.Config.ofFeedItem(getActivity(), feedItem)
                 .withPreviewInfo(previewInfo()));
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
@@ -909,6 +908,7 @@ public class PostFragment extends BaseFragment implements
                 });
     }
 
+    // TODO Remove after kotlin migration.
     @NonNull
     private PreviewInfo previewInfo() {
         PreviewInfo result = null;

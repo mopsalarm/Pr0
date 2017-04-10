@@ -15,11 +15,7 @@ object PopupPlayerFactory {
     @JvmStatic
     fun newInstance(activity: Activity, item: FeedItem): Dialog {
         val uri = MediaUri.of(activity, item)
-        val mediaView = MediaViews.newInstance(MediaView.Config.of(activity, uri)
-                // FIXME (kotlin) add this back
-                // .withAudio(item.audio)
-                // .withPreviewInfo(PreviewInfo.of(activity, item))
-        )
+        val mediaView = MediaViews.newInstance(MediaView.Config.ofFeedItem(activity, item))
 
         val dialog = Dialog(activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
