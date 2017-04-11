@@ -96,6 +96,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import kotlin.Unit;
 import rx.Observable;
 import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
@@ -739,6 +740,8 @@ public class PostFragment extends BaseFragment implements
                 NewTagDialogFragment dialog = new NewTagDialogFragment();
                 dialog.show(getChildFragmentManager(), null);
             });
+
+            return Unit.INSTANCE;
         });
     }
 
@@ -986,14 +989,14 @@ public class PostFragment extends BaseFragment implements
         this.tags = ImmutableList.copyOf(tags);
 
         // show tags now
-        infoLineView.setTags(toMap(tags, tag -> Vote.NEUTRAL));
+        infoLineView.updateTags(toMap(tags, tag -> Vote.NEUTRAL));
 
         // and update tags with votes later.
         voteService.getTagVotes(tags)
                 .filter(votes -> !votes.isEmpty())
                 .onErrorResumeNext(just(VoteService.Companion.getNO_VOTES()))
                 .compose(bindToLifecycleAsync())
-                .subscribe(votes -> infoLineView.setTags(toMap(tags,
+                .subscribe(votes -> infoLineView.updateTags(toMap(tags,
                         tag -> firstNonNull(votes.get(tag.getId()), Vote.NEUTRAL))));
 
         hideProgressIfLoop(tags);

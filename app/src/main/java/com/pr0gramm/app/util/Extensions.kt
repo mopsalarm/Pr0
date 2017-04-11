@@ -3,6 +3,7 @@ package com.pr0gramm.app.util
 import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
+import android.graphics.Canvas
 import android.os.PowerManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -112,9 +113,9 @@ inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
     }
 }
 
-inline fun <R> TypedArray.use(fn: (TypedArray) -> R): R {
+inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
     try {
-        return fn(this)
+        return block(this)
     } finally {
         this.recycle()
     }
@@ -145,3 +146,45 @@ inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit):
 }
 
 val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
+
+interface CachedValue<T> {
+    val value: T
+
+    fun invalidate(): Unit
+}
+
+inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : CachedValue<T> {
+    private var _value: T? = null
+
+    override val value: T get() {
+        if (_value == null) {
+            _value = fn()
+        }
+
+        return _value!!
+    }
+
+    override fun invalidate(): Unit {
+        _value = null
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : View> View.findView(id: Int): T {
+    return findViewById(id) as T
+}
+
+var View.visible: Boolean
+    get() = visibility == View.VISIBLE
+    set(v) {
+        visibility = if (v) View.VISIBLE else View.GONE
+    }
+
+fun Canvas.save(block: () -> Unit) {
+    val count = save()
+    try {
+        block()
+    } finally {
+        restoreToCount(count)
+    }
+}

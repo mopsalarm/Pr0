@@ -112,8 +112,8 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
         // and register a vote handler
         view.vote.setVote(entry.vote, true)
-        view.vote.setOnVoteListener { view ->
-            val changed = doVote(entry, view)
+        view.vote.onVote = { vote ->
+            val changed = doVote(entry, vote)
             notifyItemChanged(position)
             changed
         }

@@ -323,7 +323,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(
-                DetectTapTouchListener.withConsumer(this::hideSearchContainer));
+                DetectTapTouchListener.Companion.withConsumer(this::hideSearchContainer));
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
@@ -351,7 +351,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (state == null) {
             Optional<String> tags = getCurrentFilter().getTags();
             if (tags.isPresent()) {
-                state = SearchOptionsView.ofQueryTerm(tags.get());
+                state = SearchOptionsView.Companion.ofQueryTerm(tags.get());
             }
         }
 
@@ -963,28 +963,28 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         hideSearchContainer();
 
         FeedFilter current = getCurrentFilter();
-        FeedFilter filter = current.withTagsNoReset(query.combined());
+        FeedFilter filter = current.withTagsNoReset(query.getCombined());
 
         // do nothing, if the filter did not change
         if (equal(current, filter))
             return;
 
         ItemWithComment startAt = null;
-        if (query.combined().trim().matches("[1-9][0-9]{5,}|id:[0-9]+")) {
+        if (query.getCombined().trim().matches("[1-9][0-9]{5,}|id:[0-9]+")) {
             filter = filter.withTags("");
             startAt = new ItemWithComment(Long.parseLong(
-                    CharMatcher.digit().retainFrom(query.combined())), null);
+                    CharMatcher.digit().retainFrom(query.getCombined())), null);
         }
 
         Bundle searchQueryState = searchView.currentState();
         ((MainActionHandler) getActivity()).onFeedFilterSelected(filter, searchQueryState, startAt);
 
         // store the term for later
-        if (query.queryTerm().trim().length() > 0) {
-            recentSearchesServices.storeTerm(query.queryTerm());
+        if (query.getQueryTerm().trim().length() > 0) {
+            recentSearchesServices.storeTerm(query.getQueryTerm());
         }
 
-        Track.search(query.combined());
+        Track.search(query.getCombined());
     }
 
     private void onItemClicked(int idx, Optional<Long> commentId, Optional<ImageView> preview) {
