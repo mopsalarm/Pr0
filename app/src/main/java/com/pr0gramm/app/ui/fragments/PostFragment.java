@@ -803,7 +803,7 @@ public class PostFragment extends BaseFragment implements
             }
         }
 
-        viewer = MediaViews.newInstance(MediaView.Config.ofFeedItem(getActivity(), feedItem)
+        viewer = MediaViews.newInstance(MediaView.Config.of(getActivity(), uri)
                 .withPreviewInfo(previewInfo()));
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {

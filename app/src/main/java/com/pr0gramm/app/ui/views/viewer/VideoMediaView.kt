@@ -18,7 +18,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Optional
 import com.google.common.cache.CacheBuilder
 import com.google.common.hash.Hashing
-import com.jakewharton.rxbinding.view.RxView
+import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
@@ -79,7 +79,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             Track.muted(!videoPlayer.muted)
         }
 
-        RxView.detaches(this).subscribe { videoPlayer.videoCallbacks = null }
+        detaches().subscribe { videoPlayer.videoCallbacks = null }
 
         videoPlayer.buffering()
                 .sample(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())

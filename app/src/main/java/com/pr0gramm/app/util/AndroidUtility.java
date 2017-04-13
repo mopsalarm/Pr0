@@ -195,7 +195,7 @@ public class AndroidUtility {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return ConnectivityManagerCompat.isActiveNetworkMetered(cm) && !BuildConfig.DEBUG;
+        return ConnectivityManagerCompat.isActiveNetworkMetered(cm) /*&& !BuildConfig.DEBUG*/;
     }
 
     /**

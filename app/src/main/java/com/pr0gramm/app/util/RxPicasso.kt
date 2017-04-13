@@ -2,19 +2,16 @@ package com.pr0gramm.app.util
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
 import com.squareup.picasso.Target
-
-import rx.Emitter
 import rx.Observable
 
 /**
  */
 object RxPicasso {
     fun load(picasso: Picasso, request: RequestCreator): Observable<Bitmap> {
-        return createObservable(Emitter.BackpressureMode.NONE) { emitter ->
+        return createObservable { emitter ->
             val target = object : Target {
                 override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
                     try {

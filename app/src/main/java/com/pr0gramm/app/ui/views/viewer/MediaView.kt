@@ -18,6 +18,7 @@ import android.widget.TextView
 import butterknife.ButterKnife
 import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
+import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -30,6 +31,7 @@ import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.RxPicasso
+import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.slf4j.LoggerFactory
@@ -123,16 +125,16 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
 
         if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
-            RxView.attachEvents(this).limit(1).subscribe {
+            attachEvents().limit(1).subscribe {
 
                 // test if we need to load the thumby preview.
                 if (hasPreviewView()) {
                     val uri = ThumbyService.thumbUri(mediaUri)
 
                     RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
-                            .onErrorResumeNext(Observable.empty<Bitmap>())
+                            .onErrorResumeEmpty()
                             .observeOn(AndroidSchedulers.mainThread())
-                            .compose(RxLifecycleAndroid.bindView<Bitmap>(this))
+                            .compose(RxLifecycleAndroid.bindView(this))
                             .subscribe(previewTarget)
                 }
             }
@@ -398,18 +400,14 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         // forward the gravity to the preview if possible
         if (params is FrameLayout.LayoutParams) {
-            val gravity = params.gravity
-            if (hasPreviewView()) {
-                assert(previewView != null)
-                (previewView!!.layoutParams as FrameLayout.LayoutParams).gravity = gravity
+            previewView?.apply {
+                (layoutParams as FrameLayout.LayoutParams).gravity = params.gravity
             }
         }
     }
 
     fun setPreviewDrawable(previewDrawable: Drawable) {
-        if (hasPreviewView()) {
-            this.previewView!!.setImageDrawable(previewDrawable)
-        }
+        this.previewView?.setImageDrawable(previewDrawable)
     }
 
     protected fun hasAudio(): Boolean {
@@ -434,7 +432,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         fun onDoubleTap(): Boolean
     }
 
-    private class PreviewTarget internal constructor(mediaView: MediaView) : Action1<Bitmap> {
+    private class PreviewTarget(mediaView: MediaView) : Action1<Bitmap> {
         private val mediaView = WeakReference(mediaView)
 
         override fun call(bitmap: Bitmap) {
@@ -464,7 +462,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             @JvmStatic
             fun ofFeedItem(activity: Activity, item: FeedItem): Config {
                 return Config(activity,
-                        mediaUri = MediaUri.Companion.of(activity, item),
+                        mediaUri = MediaUri.of(activity, item),
                         audio = item.audio,
                         previewInfo = PreviewInfo.of(activity, item))
             }

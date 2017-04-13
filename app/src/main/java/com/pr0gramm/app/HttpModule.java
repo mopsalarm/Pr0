@@ -68,7 +68,7 @@ public class HttpModule {
                 .connectionPool(new ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
 
-                .addInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
+                .addNetworkInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
 
                 .addInterceptor(new DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))

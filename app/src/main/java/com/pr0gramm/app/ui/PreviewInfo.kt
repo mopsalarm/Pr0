@@ -11,7 +11,7 @@ import com.pr0gramm.app.services.UriHelper
  * Info about a pixels. Can be given to a post fragment to create
  * the fragment animation on newer versions of android.
  */
-class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val width: Int, val height: Int, val preview: Drawable? = null) {
+class PreviewInfo(val itemId: Long, val previewUri: Uri, val width: Int, val height: Int, val preview: Drawable? = null) {
     companion object {
         @JvmStatic
         @JvmOverloads

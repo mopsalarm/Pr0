@@ -49,10 +49,10 @@ inline fun <T> Optional<T>.filter(fn: (T) -> Boolean): Optional<T> {
     }
 }
 
-fun <T> createObservable(mode: Emitter.BackpressureMode,
-                         fn: (emitter: Emitter<T>) -> Unit): Observable<T> {
+inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.BackpressureMode.NONE,
+                                crossinline block: (emitter: Emitter<T>) -> Unit): Observable<T> {
 
-    return Observable.create(fn, mode)
+    return Observable.create({ block(it) }, mode)
 }
 
 fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = onErrorResumeNext(Observable.empty())
