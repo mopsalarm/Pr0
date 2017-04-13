@@ -51,7 +51,7 @@ constructor(private val mainApi: Api,
             FeedType.RANDOM -> return categoryApi.random(q.tags, flags)
 
             FeedType.BESTOF -> {
-                val benisScore = settings.bestOfBenisThreshold()
+                val benisScore = settings.bestOfBenisThreshold
                 return categoryApi.bestof(q.tags, user, flags, query.older, benisScore)
             }
 

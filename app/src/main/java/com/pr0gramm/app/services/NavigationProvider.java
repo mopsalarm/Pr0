@@ -178,7 +178,7 @@ public class NavigationProvider {
 
 
         if (extraCategory) {
-            if (settings.showCategoryBestOf()) {
+            if (settings.getShowCategoryBestOf()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.BESTOF))
@@ -187,7 +187,7 @@ public class NavigationProvider {
                         .build());
             }
 
-            if (settings.showCategoryControversial()) {
+            if (settings.getShowCategoryControversial()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.CONTROVERSIAL))
@@ -196,7 +196,7 @@ public class NavigationProvider {
                         .build());
             }
 
-            if (settings.showCategoryRandom()) {
+            if (settings.getShowCategoryRandom()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.RANDOM))
@@ -205,7 +205,7 @@ public class NavigationProvider {
                         .build());
             }
 
-            if (settings.showCategoryText()) {
+            if (settings.getShowCategoryText()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)
                         .filter(new FeedFilter().withFeedType(FeedType.TEXT))
@@ -215,7 +215,7 @@ public class NavigationProvider {
             }
         }
 
-        if (settings.showCategoryPremium()) {
+        if (settings.getShowCategoryPremium()) {
             if (userService.isPremiumUser()) {
                 items.add(ImmutableNavigationItem.builder()
                         .action(ActionType.FILTER)

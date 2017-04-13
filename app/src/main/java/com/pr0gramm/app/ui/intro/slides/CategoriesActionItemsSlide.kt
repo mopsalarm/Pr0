@@ -14,7 +14,7 @@ class CategoriesActionItemsSlide : ActionItemsSlide() {
             = "Die App bietet dir mehr als nur 'Top' und 'Neu' - welche Kategorien interessieren dich?"
 
     override val introActionItems: List<ActionItem> get() {
-        val settings = Settings.of(context)
+        val settings = Settings.get()
         return listOf(
                 SettingActionItem(settings, "Zufall", "pref_show_category_random"),
                 SettingActionItem(settings, "Kontrovers", "pref_show_category_controversial"),

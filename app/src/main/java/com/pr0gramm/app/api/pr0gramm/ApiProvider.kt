@@ -113,10 +113,10 @@ class ApiProvider @Inject constructor(context: Context, client: OkHttpClient,
 
 
     private fun newRestAdapter(context: Context, client: OkHttpClient, gson: Gson): Api {
-        val settings = Settings.of(context)
+        val settings = Settings.get()
 
         val baseUrl: HttpUrl
-        if (BuildConfig.DEBUG && settings.mockApi()) {
+        if (BuildConfig.DEBUG && settings.mockApi) {
             // activate this to use a mock
             baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888")
         } else {

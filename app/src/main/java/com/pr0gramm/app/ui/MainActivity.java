@@ -177,7 +177,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             boolean startedFromLauncher = intent == null || Intent.ACTION_MAIN.equals(intent.getAction());
 
             // reset to sfw only.
-            if (settings.feedStartAtSfw() && startedFromLauncher) {
+            if (settings.getFeedStartAtSfw() && startedFromLauncher) {
                 logger.info("Force-switch to sfw only.");
                 settings.edit()
                         .putBoolean("pref_feed_type_sfw", true)
@@ -289,7 +289,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     private boolean shouldShowFeedbackReminder() {
         // By design it is | and not ||. We want both conditions to
         // be evaluated for the sideeffects
-        return settings.useBetaChannel()
+        return settings.getUseBetaChannel()
                 && (singleShotService.firstTimeInVersion("hint_feedback_reminder")
                 | singleShotService.firstTimeToday("hint_feedback_reminder"));
     }
@@ -343,7 +343,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Settings.VolumeNavigationType navigationType = settings.volumeNavigation();
+        Settings.VolumeNavigationType navigationType = settings.getVolumeNavigation();
         Fragment fragment = getCurrentFragment();
         if (fragment instanceof PostPagerNavigation) {
             PostPagerNavigation pager = (PostPagerNavigation) fragment;
@@ -583,7 +583,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     }
 
     private FeedFilter defaultFeedFilter() {
-        FeedType type = settings.feedStartAtNew() ? FeedType.NEW : FeedType.PROMOTED;
+        FeedType type = settings.getFeedStartAtNew() ? FeedType.NEW : FeedType.PROMOTED;
         return new FeedFilter().withFeedType(type);
     }
 

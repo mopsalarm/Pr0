@@ -105,7 +105,7 @@ public class ConfigService {
                 .appendEncodedPath("version").appendPath(String.valueOf(BuildConfig.VERSION_CODE))
                 .appendEncodedPath("hash").appendPath(deviceHash)
                 .appendEncodedPath("config.json")
-                .appendQueryParameter("beta", String.valueOf(settings.useBetaChannel()))
+                .appendQueryParameter("beta", String.valueOf(settings.getUseBetaChannel()))
                 .build();
 
         try {

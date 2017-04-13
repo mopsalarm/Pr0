@@ -111,7 +111,7 @@ public class PostPagerFragment extends BaseFragment implements FilterFragment, P
             });
         }
 
-        boolean fancyScroll = Settings.of(getContext()).useTextureView();
+        boolean fancyScroll = Settings.get().getUseTextureView();
         if (fancyScroll) {
             viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
                 @Override

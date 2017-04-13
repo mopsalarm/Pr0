@@ -62,7 +62,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     private val context = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
-    private val settings = Settings.of(context)
+    private val settings = Settings.get()
 
     internal val exo: ExoPlayer
     internal val exoVideoRenderer: MediaCodecVideoRenderer
@@ -94,7 +94,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     init {
         // Use a texture view to display the video.
-        surfaceProvider = if (settings.useTextureView()) {
+        surfaceProvider = if (settings.useTextureView) {
             TextureViewBackend(context, backendViewCallbacks)
         } else {
             SurfaceViewBackend(context, backendViewCallbacks)
@@ -336,7 +336,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
             // logger.info("Codec selector for {} returned: {}", mimeType, Lists.transform(codecs, codec -> codec.name));
 
             // look fo the best matching codec to return to the user.
-            val preference = if (mimeType.startsWith("video/")) settings.videoCodec() else settings.audioCodec()
+            val preference = if (mimeType.startsWith("video/")) settings.videoCodec else settings.audioCodec
             return bestMatchingCodec(codecs, preference) ?: codecs.firstOrNull()
         }
 

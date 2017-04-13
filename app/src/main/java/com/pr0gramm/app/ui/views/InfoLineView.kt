@@ -40,7 +40,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
     private val ratingUnknownView: View by bindView(R.id.rating_hidden)
     val voteView: VoteView by bindView(R.id.voting)
 
-    private val settings: Settings? = if (isInEditMode) null else Settings.of(context)
+    private val settings: Settings? = if (isInEditMode) null else Settings.get()
     private val admin: Boolean = !isInEditMode && appComponent(context).userService().userIsAdmin
 
     private var feedItem: FeedItem? = null
@@ -59,7 +59,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         View.inflate(context, R.layout.post_info_line, this)
 
         val tagGaps = resources.getDimensionPixelSize(R.dimen.tag_gap_size)
-        if (settings != null && settings.tagCloudView()) {
+        if (settings != null && settings.tagCloudView) {
             tagsView.itemAnimator = null
             tagsView.layoutManager = TagCloudLayoutManager(tagGaps, tagGaps, 3)
         } else {
@@ -184,7 +184,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
     private inner class TagsAdapter(tags: List<Api.Tag>, votes: Map<Api.Tag, Vote>) : RecyclerView.Adapter<TagViewHolder>() {
         private val tags = tags.toList()
         private val votes = votes.toMutableMap()
-        private val alwaysVoteViews = settings != null && !settings.hideTagVoteButtons()
+        private val alwaysVoteViews = settings != null && !settings.hideTagVoteButtons
         private var selected = -1
 
         init {

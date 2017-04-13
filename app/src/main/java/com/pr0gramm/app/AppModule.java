@@ -41,6 +41,11 @@ public class AppModule {
     }
 
     @Provides
+    public Settings settings() {
+        return Settings.get();
+    }
+
+    @Provides
     @Singleton
     public BriteDatabase sqlBrite(SQLiteOpenHelper dbOpenHelper) {
         Logger logger = LoggerFactory.getLogger("SqlBrite");

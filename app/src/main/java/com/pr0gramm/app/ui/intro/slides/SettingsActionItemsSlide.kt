@@ -14,7 +14,7 @@ class SettingsActionItemsSlide : ActionItemsSlide() {
             = "Unter Einstellungen gibt es viel zu entdecken. Einfach mal durchblättern!"
 
     override val introActionItems: List<ActionItem> get() {
-        val settings = Settings.of(context)
+        val settings = Settings.get()
 
         return listOf(
                 SettingActionItem(settings, "HTTPS verwenden", "pref_use_https"),

@@ -6,7 +6,6 @@ import com.google.common.base.Optional
 import com.google.common.base.Stopwatch
 import com.google.gson.*
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.Settings.resetContentTypeSettings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.feed.ContentType
@@ -199,7 +198,7 @@ class UserService @Inject constructor(private val api: Api,
 
             // and reset the content user, because only signed in users can
             // see the nsfw and nsfl stuff.
-            resetContentTypeSettings(settings)
+            settings.resetContentTypeSettings()
         }
     }
 

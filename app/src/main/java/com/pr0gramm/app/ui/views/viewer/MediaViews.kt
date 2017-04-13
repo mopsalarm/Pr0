@@ -20,9 +20,9 @@ object MediaViews {
     fun newInstance(config_: MediaView.Config): MediaView {
         var config = config_
 
-        val settings = Settings.of(config.activity)
+        val settings = Settings.get()
 
-        if (config.audio && settings.disableAudio())
+        if (config.audio && settings.disableAudio)
             config = config.copy(audio = false)
 
         // handle delay urls first.
@@ -48,7 +48,7 @@ object MediaViews {
 
 
     private fun shouldUseGifToWebm(uri: MediaUri, settings: Settings): Boolean {
-        return !uri.isLocal && settings.convertGifToWebm()
+        return !uri.isLocal && settings.convertGifToWebm
     }
 
     @JvmStatic

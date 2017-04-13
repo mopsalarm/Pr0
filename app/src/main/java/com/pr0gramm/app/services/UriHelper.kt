@@ -18,7 +18,7 @@ import com.pr0gramm.app.util.map
  * A little helper class to work with URLs
  */
 class UriHelper private constructor(context: Context) {
-    private val settings: Settings = Settings.of(context)
+    private val settings: Settings = Settings.get()
     private val preloadManager: PreloadManager = Dagger.appComponent(context).preloadManager()
     private val noPreload = NoPreload()
 
@@ -29,7 +29,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     private fun scheme(): String {
-        return if (settings.useHttps()) "https" else "http"
+        return if (settings.useHttps) "https" else "http"
     }
 
     internal fun start(subdomain: String): Uri.Builder {

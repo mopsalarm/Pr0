@@ -54,7 +54,7 @@ public class UpdateChecker {
     public UpdateChecker(Context context) {
         currentVersion = AndroidUtility.buildVersionCode();
 
-        boolean betaChannel = Settings.of(context).useBetaChannel();
+        boolean betaChannel = Settings.get().getUseBetaChannel();
         endpoints = updateUrls(betaChannel);
     }
 

@@ -16,7 +16,7 @@ class BetaActionItemsSlide : ActionItemsSlide() {
             "enthalten möglicherweise Fehler."
 
     override val introActionItems: List<ActionItem> get() {
-        val settings = Settings.of(context)
+        val settings = Settings.get()
         return listOf(SettingActionItem(settings, "Beta aktivieren", "pref_use_beta_channel"))
     }
 }

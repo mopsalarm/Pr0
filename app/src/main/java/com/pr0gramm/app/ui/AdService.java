@@ -44,7 +44,7 @@ public class AdService {
     }
 
     private boolean isEnabledFor(Config.AdType type) {
-        if (settings.alwaysShowAds()) {
+        if (settings.getAlwaysShowAds()) {
             // If the user opted in to ads, we always show the feed ad.
             return type == Config.AdType.FEED;
         }

@@ -339,8 +339,8 @@ public class AndroidUtility {
         Linkify.addLinks(text, RE_GENERIC_SHORT_LINK, scheme, null,
                 (match, url) -> base.buildUpon().appendEncodedPath(match.group(1)).toString());
 
-        Settings settings = Settings.of(view.getContext());
-        if (settings.useIncognitoBrowser()) {
+        Settings settings = Settings.get();
+        if (settings.getUseIncognitoBrowser()) {
             URLSpan[] spans = text.getSpans(0, text.length(), URLSpan.class);
             for (URLSpan span : spans) {
                 String url = span.getURL();

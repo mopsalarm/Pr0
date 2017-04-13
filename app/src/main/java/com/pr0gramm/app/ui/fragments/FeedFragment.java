@@ -268,7 +268,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             }
         }
 
-        seenIndicatorStyle = settings.seenIndicatorStyle();
+        seenIndicatorStyle = settings.getSeenIndicatorStyle();
 
         // prepare the list of items
         int columnCount = getThumbnailColumns();
@@ -672,7 +672,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         Track.screen("Feed");
 
         // check if we should show the pin button or not.
-        if (settings.showPinButton()) {
+        if (settings.getShowPinButton()) {
             bookmarkService.isBookmarkable(getCurrentFilter())
                     .toObservable()
                     .compose(bindToLifecycleAsync())
@@ -682,8 +682,8 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         recheckContentTypes();
 
         // set new indicator style
-        if (seenIndicatorStyle != settings.seenIndicatorStyle()) {
-            seenIndicatorStyle = settings.seenIndicatorStyle();
+        if (seenIndicatorStyle != settings.getSeenIndicatorStyle()) {
+            seenIndicatorStyle = settings.getSeenIndicatorStyle();
             feedAdapter.notifyDataSetChanged();
         }
 
@@ -782,7 +782,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         MenuItem item;
         if ((item = menu.findItem(R.id.action_refresh)) != null)
-            item.setVisible(settings.showRefreshButton());
+            item.setVisible(settings.getShowRefreshButton());
 
         if ((item = menu.findItem(R.id.action_pin)) != null)
             item.setVisible(bookmarkable);
@@ -1081,10 +1081,10 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 .compose(bindToLifecycle())
                 .subscribe(event -> dismissQuickPeekDialog());
 
-        settings.change()
+        settings.changes()
                 .startWith("")
                 .compose(bindToLifecycle())
-                .subscribe(key -> listener.enableLongClick(settings.enableQuickPeek()));
+                .subscribe(key -> listener.enableLongClick(settings.getEnableQuickPeek()));
     }
 
     private void openQuickPeekDialog(FeedItem item) {
@@ -1297,7 +1297,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             ErrorDialogFragment.Companion.showErrorString(getFragmentManager(),
                     getString(R.string.could_not_load_feed_json));
 
-        } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.useHttps()) {
+        } else if (Throwables.getRootCause(error) instanceof ConnectException && settings.getUseHttps()) {
             ErrorDialogFragment.Companion.showErrorString(getFragmentManager(),
                     getString(R.string.could_not_load_feed_https));
 

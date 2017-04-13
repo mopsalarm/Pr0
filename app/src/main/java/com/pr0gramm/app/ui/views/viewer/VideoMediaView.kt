@@ -60,7 +60,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
     private var droppedFramesShown: Boolean = false
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && settings.useExoPlayer) {
             logger.info("Using exo player to play videos.")
             videoPlayer = ExoVideoPlayer(context, config.audio, videoPlayerParent)
         } else {

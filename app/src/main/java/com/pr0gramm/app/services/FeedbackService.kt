@@ -107,7 +107,7 @@ constructor(okHttpClient: OkHttpClient, private val context: Context) {
     }
 
     private fun appendPreferences(result: StringBuilder) {
-        Settings.of(context).raw().all.forEach { name, value ->
+        Settings.get().raw().all.forEach { name, value ->
             if (name.startsWith("pref_")) {
                 result.append(name).append(": ").append(value).append("\n")
             }

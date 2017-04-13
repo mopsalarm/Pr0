@@ -313,7 +313,7 @@ public class PostFragment extends BaseFragment implements
             }
         });
 
-        swipeRefreshLayout.setKeepScreenOn(settings.keepScreenOn());
+        swipeRefreshLayout.setKeepScreenOn(settings.getKeepScreenOn());
 
         content.setItemAnimator(null);
         content.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -460,7 +460,7 @@ public class PostFragment extends BaseFragment implements
 
         MenuItem item;
         if ((item = menu.findItem(R.id.action_refresh)) != null)
-            item.setVisible(settings.showRefreshButton() && !isVideoFullScreen());
+            item.setVisible(settings.getShowRefreshButton() && !isVideoFullScreen());
 
         if ((item = menu.findItem(R.id.action_zoom)) != null)
             item.setVisible(!isVideoFullScreen() && (isImage || !isLandscape));
@@ -469,7 +469,7 @@ public class PostFragment extends BaseFragment implements
             item.setVisible(true);
 
         if ((item = menu.findItem(R.id.action_search_image)) != null)
-            item.setVisible(isImage && settings.showGoogleImageButton());
+            item.setVisible(isImage && settings.getShowGoogleImageButton());
 
         if ((item = menu.findItem(R.id.action_delete_item)) != null)
             item.setVisible(adminMode);
@@ -485,7 +485,7 @@ public class PostFragment extends BaseFragment implements
             return;
 
         if (isStaticImage(feedItem)) {
-            boolean hq = settings.loadHqInZoomView();
+            boolean hq = settings.getLoadHqInZoomView();
             Intent intent = ZoomViewActivity.newIntent(activity, feedItem, hq);
             startActivity(intent);
 
@@ -792,7 +792,7 @@ public class PostFragment extends BaseFragment implements
         // initialize a new viewer fragment
         MediaUri uri = MediaUri.of(getContext(), feedItem);
         if (!uri.isLocal() && AndroidUtility.isOnMobile(getActivity())) {
-            Settings.ConfirmOnMobile confirmOnMobile = settings.confirmPlayOnMobile(getContext());
+            Settings.ConfirmOnMobile confirmOnMobile = settings.getConfirmPlayOnMobile();
             if (confirmOnMobile == Settings.ConfirmOnMobile.ALL) {
                 uri = uri.withDelay(true);
 
@@ -889,7 +889,7 @@ public class PostFragment extends BaseFragment implements
                 .subscribe(mediaControlsContainer::addView);
 
         // show sfw/nsfw as a little flag, if the user is admin
-        if (userService.getUserIsAdmin() && settings.showContentTypeFlag()) {
+        if (userService.getUserIsAdmin() && settings.getShowContentTypeFlag()) {
             // show the little admin triangle
             int size = AndroidUtility.dp(getContext(), 16);
             ViewCompat.setBackground(mediaControlsContainer,
@@ -948,7 +948,7 @@ public class PostFragment extends BaseFragment implements
 
             @Override
             public boolean onSingleTap(MotionEvent event) {
-                if (isImage && settings.singleTapForFullscreen()) {
+                if (isImage && settings.getSingleTapForFullscreen()) {
                     enterFullscreen();
                 }
 
@@ -957,7 +957,7 @@ public class PostFragment extends BaseFragment implements
 
             @Override
             public boolean onDoubleTap() {
-                if (settings.doubleTapToUpvote()) {
+                if (settings.getDoubleTapToUpvote()) {
                     infoLineView.getVoteView().triggerUpVoteClicked();
                 }
 

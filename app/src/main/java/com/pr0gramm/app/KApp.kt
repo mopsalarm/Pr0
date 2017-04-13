@@ -32,7 +32,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
 
         bind<SharedPreferences>(overrides = true) with instance(app.appComponent.get().sharedPreferences())
 
-        bind<Settings>() with instance(Settings.of(app))
+        bind<Settings>() with instance(Settings.get())
 
         bind<Picasso>() with instance(app.appComponent.get().picasso())
         bind<InMemoryCacheService>() with instance(inMemoryCacheService)

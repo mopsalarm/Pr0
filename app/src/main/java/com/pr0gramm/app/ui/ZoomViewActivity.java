@@ -111,7 +111,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        if (hasFocus && settings.fullscreenZoomView()) {
+        if (hasFocus && settings.getFullscreenZoomView()) {
             View decorView = getWindow().getDecorView();
             int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 

@@ -108,7 +108,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if (!userService.isAuthorized()) {
                 // reset those content types - better be sure!
-                Settings.resetContentTypeSettings(settings);
+                settings.resetContentTypeSettings();
             }
 
             addPreferencesFromResource(R.xml.preferences);

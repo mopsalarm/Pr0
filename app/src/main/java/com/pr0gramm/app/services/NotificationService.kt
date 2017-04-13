@@ -38,7 +38,7 @@ class NotificationService @Inject constructor(private val context: Application,
                                               private val userService: UserService,
                                               badgeService: BadgeService) {
 
-    private val settings: Settings = Settings.of(context)
+    private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)
     private val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
@@ -63,7 +63,7 @@ class NotificationService @Inject constructor(private val context: Application,
     }
 
     fun showForInbox(sync: Api.Sync) {
-        if (!settings.showNotifications())
+        if (!settings.showNotifications)
             return
 
         // try to get the new messages, ignore all errors.

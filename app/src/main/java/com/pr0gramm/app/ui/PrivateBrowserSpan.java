@@ -19,11 +19,11 @@ public class PrivateBrowserSpan extends URLSpan {
     public void onClick(View widget) {
         String url = getURL();
 
-        Settings settings = Settings.of(widget.getContext());
-        boolean useIncognitoBrowser = settings.useIncognitoBrowser();
+        Settings settings = Settings.get();
+        boolean useIncognitoBrowser = settings.getUseIncognitoBrowser();
 
         // check if youtube-links should be opened in normal app
-        if (useIncognitoBrowser && settings.overrideYouTubeLinks()) {
+        if (useIncognitoBrowser && settings.getOverrideYouTubeLinks()) {
             String host = Uri.parse(url).getHost();
             if (host != null && BLACKLIST.contains(host.toLowerCase()))
                 useIncognitoBrowser = false;

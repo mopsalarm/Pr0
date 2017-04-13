@@ -65,7 +65,7 @@ public class ApplicationClass extends Application implements KodeinAware {
         JodaTimeAndroid.init(this);
         Base.initialize(this);
 
-        Settings.initialize(this);
+        Settings.Companion.initialize(this);
 
         // do job handling & scheduling
         JobManager jobManager = JobManager.create(this);

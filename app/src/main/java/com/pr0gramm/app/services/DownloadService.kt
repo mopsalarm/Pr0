@@ -35,7 +35,7 @@ constructor(private val downloadManager: DownloadManager,
             private val context: Context,
             private val okHttpClient: OkHttpClient) {
 
-    private val settings: Settings = Settings.of(context)
+    private val settings: Settings = Settings.get()
 
     /**
      * Enqueues an object for download. If an error occurs this method returns
@@ -45,7 +45,7 @@ constructor(private val downloadManager: DownloadManager,
         // download over proxy to use caching
         val url = proxyService.proxy(UriHelper.of(context).media(feedItem, true))
 
-        val external = when (settings.downloadLocation(context)) {
+        val external = when (settings.downloadLocation) {
             context.getString(R.string.pref_downloadLocation_value_downloads) ->
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
