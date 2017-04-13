@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import butterknife.ButterKnife
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions.checkNotNull
@@ -33,7 +34,6 @@ import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagInputView
@@ -57,21 +57,13 @@ import rx.Observable
 import rx.functions.Action1
 import java.io.File
 import java.io.FileOutputStream
-import javax.inject.Inject
 
 /**
  * This activity performs the actual upload.
  */
 class UploadFragment : BaseFragment() {
-
-    @Inject
-    internal lateinit var uploadService: UploadService
-
-    @Inject
-    internal lateinit var rulesService: RulesService
-
-    @Inject
-    internal lateinit var configService: ConfigService
+    private val uploadService: UploadService by instance()
+    private val rulesService: RulesService by instance()
 
     private val busyIndicator by bindView<BusyIndicator>(R.id.busy_indicator)
     private val contentTypeGroup by bindView<RadioGroup>(R.id.content_type_group)

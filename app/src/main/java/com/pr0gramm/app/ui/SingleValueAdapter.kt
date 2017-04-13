@@ -1,0 +1,39 @@
+package com.pr0gramm.app.ui
+
+import android.content.Context
+import android.support.v7.widget.RecyclerView
+import android.view.View
+import android.view.ViewGroup
+
+/**
+ */
+abstract class SingleValueAdapter<T, V : View>(private val value: T) :
+        RecyclerView.Adapter<SingleValueAdapter.Holder<V>>() {
+
+    init {
+        setHasStableIds(true)
+    }
+
+    final override fun setHasStableIds(hasStableIds: Boolean) {
+        super.setHasStableIds(hasStableIds)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder<V> {
+        return Holder(createView(parent.context, parent))
+    }
+
+    override fun onBindViewHolder(view: Holder<V>, position: Int) {
+        bindView(view.view, value)
+    }
+
+    override fun getItemCount(): Int {
+        return 1
+    }
+
+    protected abstract fun createView(context: Context, parent: ViewGroup): V
+
+    protected abstract fun bindView(view: V, value: T)
+
+
+    class Holder<out V : View>(internal val view: V) : RecyclerView.ViewHolder(view)
+}

@@ -5,7 +5,7 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.f2prateek.dart.Dart
 import com.github.salomonbrys.kodein.KodeinInjector
-import com.github.salomonbrys.kodein.android.ActivityInjector
+import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
@@ -19,7 +19,7 @@ import rx.Observable
 /**
  * A [android.support.v7.app.AppCompatActivity] with dagger injection and stuff.
  */
-abstract class BaseAppCompatActivity : RxAppCompatActivity(), ActivityInjector {
+abstract class BaseAppCompatActivity : RxAppCompatActivity(), AppCompatActivityInjector {
     @JvmField
     protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -42,8 +42,6 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), ActivityInjector {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
 
-    final override fun initializeInjector() = super.initializeInjector()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         injectComponent(activityComponent)
         initializeInjector()
@@ -53,6 +51,7 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), ActivityInjector {
     }
 
     protected abstract fun injectComponent(appComponent: ActivityComponent)
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -67,4 +66,6 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), ActivityInjector {
         unbinder = ButterKnife.bind(this)
     }
 
+    final override fun initializeInjector() = super.initializeInjector()
+    final override fun destroyInjector() = super.destroyInjector()
 }

@@ -12,17 +12,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import rx.Observable
 import java.util.regex.Pattern
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class RulesService @Inject constructor(okHttpClient: OkHttpClient) {
-    private val rules: Observable<String>
-
-    init {
-        this.rules = Observable
+class RulesService(okHttpClient: OkHttpClient) {
+    private val rules: Observable<String> = Observable
                 .fromCallable {
                     val cacheSlayer = System.currentTimeMillis() / (24 * 3600)
                     val url = "https://pr0gramm.com/media/pr0gramm.min.js?appCacheSlayer=$cacheSlayer"
@@ -46,7 +40,6 @@ class RulesService @Inject constructor(okHttpClient: OkHttpClient) {
 
                 // Cache the last one
                 .replay(1).autoConnect(0)
-    }
 
     fun displayInto(targetView: TextView) {
         this.rules
@@ -72,6 +65,6 @@ class RulesService @Inject constructor(okHttpClient: OkHttpClient) {
     }
 
     companion object {
-        private val DEFAULT_RULES_TEXT = "<li>nsfw/nsfl Bilder müssen vor dem Upload entsprechend markiert werden!</li> <li>Keine suggestiven Bilder oder Gore von/mit Minderjährigen/Babys/Föten.</li> <li>Keine Tierpornos.</li> <li>Kein stumpfer Rassismus, kein rechtes Gedankengut, keine Nazi-Nostalgie.</li> <li>Keine Werbung; keine Affiliate Links in den Bildern; kein Spam.</li> <li>Keine Informationen oder Bilder von Privatpersonen; Keine Klarnamen in den Uploads, Tags oder Kommentaren.</li> <li>Ein Mindestmaß an Bildqualität wird erwartet. Bildmaterial mit starken Kompressionsartefakten, übermäßig großen Watermarks oder unsinnig beschnittene/skalierte Bilder werden gelöscht.</li> <li>Keine Bilder mit ähnlichem Inhalt in Reihe. Zugehöriger Content kann in den Kommentaren verlinkt werden.</li> <li> Kommentare wie <em>“Tag deinen Scheiß”</em> und ähnliches gehören nicht in die Tags. Genaueres im FAQ: <a href=\"#faq:tags\">Was gehört in die Tags?</a> </li> <li>Downvote-Spam, Vote-Manipulation und Tag-Vandalismus werden nicht geduldet.</li> <li>Pro Benutzer ist nur ein Account erlaubt. Indizien für Multiaccounts sind gegenseitige Upvotes oder Spamaktionen.</li> <li>Keine Warez, gestohlene Logins zu Pay Sites o.ä</li> <li>Überzogene oder häufige Beleidigungen anderen Benutzern und insbesondere gegenüber Moderatoren wird mit einer Sperrung bestraft.</li> <li>Keine “Screamer” oder sonstige Videos mit der Absicht Benutzer zu erschrecken.</li> <li>Keine reinen Musikuploads (außer bei OC).</li>"
+        private const val DEFAULT_RULES_TEXT = "<li>nsfw/nsfl Bilder müssen vor dem Upload entsprechend markiert werden!</li> <li>Keine suggestiven Bilder oder Gore von/mit Minderjährigen/Babys/Föten.</li> <li>Keine Tierpornos.</li> <li>Kein stumpfer Rassismus, kein rechtes Gedankengut, keine Nazi-Nostalgie.</li> <li>Keine Werbung; keine Affiliate Links in den Bildern; kein Spam.</li> <li>Keine Informationen oder Bilder von Privatpersonen; Keine Klarnamen in den Uploads, Tags oder Kommentaren.</li> <li>Ein Mindestmaß an Bildqualität wird erwartet. Bildmaterial mit starken Kompressionsartefakten, übermäßig großen Watermarks oder unsinnig beschnittene/skalierte Bilder werden gelöscht.</li> <li>Keine Bilder mit ähnlichem Inhalt in Reihe. Zugehöriger Content kann in den Kommentaren verlinkt werden.</li> <li> Kommentare wie <em>“Tag deinen Scheiß”</em> und ähnliches gehören nicht in die Tags. Genaueres im FAQ: <a href=\"#faq:tags\">Was gehört in die Tags?</a> </li> <li>Downvote-Spam, Vote-Manipulation und Tag-Vandalismus werden nicht geduldet.</li> <li>Pro Benutzer ist nur ein Account erlaubt. Indizien für Multiaccounts sind gegenseitige Upvotes oder Spamaktionen.</li> <li>Keine Warez, gestohlene Logins zu Pay Sites o.ä</li> <li>Überzogene oder häufige Beleidigungen anderen Benutzern und insbesondere gegenüber Moderatoren wird mit einer Sperrung bestraft.</li> <li>Keine “Screamer” oder sonstige Videos mit der Absicht Benutzer zu erschrecken.</li> <li>Keine reinen Musikuploads (außer bei OC).</li>"
     }
 }

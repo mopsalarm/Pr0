@@ -26,6 +26,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var OkHttpClient: OkHttpClient
     @Inject lateinit var Cache: Cache
     @Inject lateinit var UserService: UserService
+    @Inject lateinit var UploadService: UploadService
 
     init {
         app.appComponent.get().inject(this)
@@ -51,11 +52,13 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
 
         bind<UserService>() with instance(UserService)
         bind<UserSuggestionService>() with instance(UserSuggestionService)
+        bind<UploadService>() with instance(UploadService)
 
         bind<ContactService>() with singleton { ContactService(instance()) }
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
         bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
+        bind<RulesService>() with singleton { RulesService(instance()) }
 
     }
 }
