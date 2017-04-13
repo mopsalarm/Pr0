@@ -1,5 +1,6 @@
 package com.pr0gramm.app.util
 
+import android.app.Activity
 import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
@@ -17,6 +18,7 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 
@@ -170,7 +172,12 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : View> View.findView(id: Int): T {
+fun <T : View> View.find(id: Int): T {
+    return findViewById(id) as T
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : View> Activity.find(id: Int): T {
     return findViewById(id) as T
 }
 
@@ -187,4 +194,8 @@ fun Canvas.save(block: () -> Unit) {
     } finally {
         restoreToCount(count)
     }
+}
+
+fun CharSequence.matches(pattern: Pattern): Boolean {
+    return pattern.matcher(this).matches()
 }

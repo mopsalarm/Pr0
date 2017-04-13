@@ -14,13 +14,10 @@ import rx.subscriptions.Subscriptions
 import java.io.File
 import java.io.RandomAccessFile
 import java.lang.System.identityHashCode
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class GifDrawableLoader @Inject constructor(context: Context, private val cache: Cache) {
+class GifDrawableLoader(context: Context, private val cache: Cache) {
     private val fileCache: File = context.cacheDir
 
     fun load(uri: Uri): Observable<DownloadStatus> {

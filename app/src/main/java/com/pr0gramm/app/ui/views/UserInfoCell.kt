@@ -8,7 +8,7 @@ import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api.Info
 import com.pr0gramm.app.ui.LoginActivity
-import com.pr0gramm.app.util.findView
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import net.danlew.android.joda.DateUtils
@@ -36,7 +36,7 @@ class UserInfoCell(context: Context, userInfo: Info,
 
     init {
         View.inflate(context, R.layout.user_info_cell_v2, this)
-        showComments = findView<View>(R.id.kpi_comments).parent as View
+        showComments = find<View>(R.id.kpi_comments).parent as View
         updateUserInfo(userInfo)
     }
 

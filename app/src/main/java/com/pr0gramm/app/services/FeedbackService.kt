@@ -1,7 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.annotation.TargetApi
-import android.content.Context
 import android.os.Build
 import android.util.Base64
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
@@ -27,15 +25,12 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.lang.reflect.Modifier
 import java.util.zip.DeflaterOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A simple service to generate and send a feedback to the feedback server.
  */
-@Singleton
-class FeedbackService @Inject
-constructor(okHttpClient: OkHttpClient, private val context: Context) {
+class FeedbackService(okHttpClient: OkHttpClient) {
+
     private val api: Api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
@@ -43,7 +38,6 @@ constructor(okHttpClient: OkHttpClient, private val context: Context) {
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build().create(Api::class.java)
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     fun post(name: String, feedback: String): Completable {
         val version = AndroidUtility.buildVersionCode().toString()
 

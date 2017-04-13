@@ -23,7 +23,7 @@ import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
-import com.pr0gramm.app.util.findView
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.map
 import kotterknife.bindView
 import rx.Observable
@@ -71,10 +71,10 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
                     .subscribe { handleSearchButtonClicked() }
         }
 
-        findView<View>(R.id.reset_button).setOnClickListener { reset() }
-        findView<View>(R.id.search_cancel).setOnClickListener { cancel() }
-        findView<View>(R.id.search_advanced).setOnClickListener { showAdvancedHelpPage() }
-        findView<View>(R.id.search_button).setOnClickListener { handleSearchButtonClicked() }
+        find<View>(R.id.reset_button).setOnClickListener { reset() }
+        find<View>(R.id.search_cancel).setOnClickListener { cancel() }
+        find<View>(R.id.search_advanced).setOnClickListener { showAdvancedHelpPage() }
+        find<View>(R.id.search_button).setOnClickListener { handleSearchButtonClicked() }
     }
 
     fun setupAutoComplete(recentSearchesServices: RecentSearchesServices) {

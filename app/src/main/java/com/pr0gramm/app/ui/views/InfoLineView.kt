@@ -19,7 +19,7 @@ import com.pr0gramm.app.ui.MergeRecyclerAdapter
 import com.pr0gramm.app.ui.SingleViewAdapter
 import com.pr0gramm.app.ui.TagCloudLayoutManager
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.findView
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
 import net.danlew.android.joda.DateUtils.getRelativeTimeSpanString
@@ -252,8 +252,8 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     private class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tag: TextView = itemView.findView(R.id.tag_text)
-        val vote: VoteView = itemView.findView(R.id.tag_vote)
+        val tag: TextView = itemView.find(R.id.tag_text)
+        val vote: VoteView = itemView.find(R.id.tag_vote)
     }
 
     interface OnDetailClickedListener {
