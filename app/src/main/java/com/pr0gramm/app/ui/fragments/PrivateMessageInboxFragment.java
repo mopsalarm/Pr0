@@ -37,7 +37,7 @@ public class PrivateMessageInboxFragment extends InboxFragment<Api.PrivateMessag
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+        return OptionMenuHelper.INSTANCE.dispatch(this, item) || super.onOptionsItemSelected(item);
     }
 
     @OnOptionsItemSelected(R.id.action_new_message)

@@ -196,6 +196,6 @@ fun Canvas.save(block: () -> Unit) {
     }
 }
 
-fun CharSequence.matches(pattern: Pattern): Boolean {
-    return pattern.matcher(this).matches()
+fun CharSequence?.matches(pattern: Pattern): Boolean {
+    return this != null && pattern.matcher(this).matches()
 }

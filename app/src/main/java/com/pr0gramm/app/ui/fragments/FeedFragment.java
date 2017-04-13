@@ -884,7 +884,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             return true;
         }
 
-        return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+        return OptionMenuHelper.INSTANCE.dispatch(this, item) || super.onOptionsItemSelected(item);
     }
 
     @OnOptionsItemSelected(R.id.action_feedtype)

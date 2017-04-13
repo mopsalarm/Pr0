@@ -77,7 +77,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().whiteAccent);
+        setTheme(theme().getWhiteAccent());
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);

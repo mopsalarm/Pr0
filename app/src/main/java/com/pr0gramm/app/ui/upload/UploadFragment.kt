@@ -447,13 +447,13 @@ class UploadFragment : BaseFragment() {
 
                 if (videoErrorId != null) {
                     text.append("\n\n")
-                            .append(context.getString(R.string.upload_error_video), Truss.bold())
+                            .append(context.getString(R.string.upload_error_video), Truss.bold)
                             .append(" ")
                             .append(context.getString(videoErrorId))
                 }
 
                 text.append("\n\n")
-                        .append("Info:\n", Truss.bold())
+                        .append("Info:\n", Truss.bold)
                         .append(context.getString(R.string.report_video_summary,
                                 report.get().width(), report.get().height(),
                                 report.get().format(), report.get().duration()))

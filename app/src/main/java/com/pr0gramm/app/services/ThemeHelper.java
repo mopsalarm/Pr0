@@ -22,12 +22,12 @@ public final class ThemeHelper {
 
     @ColorRes
     public static int accentColor() {
-        return theme().accentColor;
+        return theme().getAccentColor();
     }
 
     @ColorRes
     public static int primaryColorDark() {
-        return theme().primaryColorDark;
+        return theme().getPrimaryColorDark();
     }
 
     @Nonnull

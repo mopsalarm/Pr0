@@ -147,7 +147,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         }
 
-        setTheme(theme().translucentStatus);
+        setTheme(theme().getTranslucentStatus());
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);

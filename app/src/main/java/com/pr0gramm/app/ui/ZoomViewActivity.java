@@ -70,7 +70,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().fullscreen);
+        setTheme(theme().getFullscreen());
         super.onCreate(savedInstanceState);
 
         // normal content view

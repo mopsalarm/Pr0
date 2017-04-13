@@ -53,7 +53,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().noActionBar);
+        setTheme(theme().getNoActionBar());
         super.onCreate(savedInstanceState);
 
         if (!userService.isAuthorized()) {
@@ -72,7 +72,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        tabsAdapter = new TabsAdapter(this);
+        tabsAdapter = new TabsAdapter(this, this.getSupportFragmentManager());
         tabsAdapter.addTab(R.string.inbox_type_unread, MessageInboxFragment.class,
                 MessageInboxFragment.buildArguments(InboxType.UNREAD));
 
@@ -110,7 +110,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item) || OptionMenuHelper.dispatch(this, item);
+        return super.onOptionsItemSelected(item) || OptionMenuHelper.INSTANCE.dispatch(this, item);
     }
 
     @OnOptionsItemSelected(android.R.id.home)

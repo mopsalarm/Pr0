@@ -1,16 +1,25 @@
-package com.pr0gramm.app.ui;
+package com.pr0gramm.app.ui
 
-import android.content.Context;
-import android.support.annotation.ColorRes;
-import android.support.annotation.StringRes;
-import android.support.annotation.StyleRes;
+import android.content.Context
+import android.support.annotation.ColorRes
+import android.support.annotation.StringRes
+import android.support.annotation.StyleRes
 
-import com.pr0gramm.app.R;
+import com.pr0gramm.app.R
 
 /**
  * App themes.
  */
-public enum Themes {
+enum class Themes(@StringRes val title: Int,
+                  @ColorRes val accentColor: Int,
+                  @ColorRes val primaryColor: Int,
+                  @ColorRes val primaryColorDark: Int,
+                  @StyleRes val basic: Int,
+                  @StyleRes val noActionBar: Int,
+                  @StyleRes val fullscreen: Int,
+                  @StyleRes val translucentStatus: Int,
+                  @StyleRes val whiteAccent: Int) {
+
     ORANGE(R.string.theme_orange,
             R.color.orange_accent,
             R.color.orange_primary,
@@ -77,55 +86,7 @@ public enum Themes {
             R.style.AppTheme_Black_NoActionBar_WhiteAccent
     );
 
-    @StringRes
-    public final int title;
-
-    @ColorRes
-    public final int accentColor;
-
-    @ColorRes
-    public final int primaryColor;
-
-    @ColorRes
-    public final int primaryColorDark;
-
-    @StyleRes
-    public final int basic;
-
-    @StyleRes
-    public final int noActionBar;
-
-    @StyleRes
-    public final int fullscreen;
-
-    @StyleRes
-    public final int translucentStatus;
-
-    @StyleRes
-    public final int whiteAccent;
-
-    Themes(@StringRes int title,
-           @ColorRes int accentColor,
-           @ColorRes int primaryColor,
-           @ColorRes int primaryColorDark,
-           @StyleRes int basic,
-           @StyleRes int noActionBar,
-           @StyleRes int fullscreen,
-           @StyleRes int translucentStatus,
-           @StyleRes int whiteAccent) {
-
-        this.title = title;
-        this.accentColor = accentColor;
-        this.primaryColor = primaryColor;
-        this.primaryColorDark = primaryColorDark;
-        this.basic = basic;
-        this.noActionBar = noActionBar;
-        this.fullscreen = fullscreen;
-        this.translucentStatus = translucentStatus;
-        this.whiteAccent = whiteAccent;
-    }
-
-    public String title(Context context) {
-        return context.getString(title);
+    fun title(context: Context): String {
+        return context.getString(title)
     }
 }

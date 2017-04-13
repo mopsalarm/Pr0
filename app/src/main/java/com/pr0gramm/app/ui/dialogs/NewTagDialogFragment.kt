@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.MultiAutoCompleteTextView
-import butterknife.BindView
 import com.google.common.base.Splitter
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
@@ -11,12 +10,12 @@ import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.util.AndroidUtility
+import kotterknife.bindView
 
 /**
  */
 class NewTagDialogFragment : BaseDialogFragment() {
-    @BindView(R.id.tag)
-    internal var tagInput: MultiAutoCompleteTextView? = null
+    private val tagInput: MultiAutoCompleteTextView by bindView(R.id.tag)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return DialogBuilder.start(activity)
@@ -31,11 +30,10 @@ class NewTagDialogFragment : BaseDialogFragment() {
     }
 
     private fun onOkayClicked() {
-        val text = tagInput!!.text.toString()
+        val text = tagInput.text.toString()
 
         // split text into tags.
-        val splitter = Splitter.on(",").omitEmptyStrings().trimResults()
-        val tags = splitter.splitToList(text)
+        val tags = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(text)
 
         // do nothing if the user had not typed any tags
         if (tags.isEmpty())
@@ -48,7 +46,6 @@ class NewTagDialogFragment : BaseDialogFragment() {
     }
 
     override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
     }
 
     /**

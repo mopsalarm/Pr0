@@ -40,7 +40,7 @@ class SearchUserDialog : BaseDialogFragment() {
 
     override fun onDialogViewCreated() {
         inputView.setAdapter(UsernameAutoCompleteAdapter(suggestionService, themedContext,
-                "", android.R.layout.simple_dropdown_item_1line))
+                android.R.layout.simple_dropdown_item_1line, ""))
 
     }
 

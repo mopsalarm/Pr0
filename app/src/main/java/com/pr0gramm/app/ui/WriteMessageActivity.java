@@ -71,7 +71,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().basic);
+        setTheme(theme().getBasic());
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.fragment_write_message);
@@ -104,7 +104,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
         messageText.setTokenizer(new UsernameTokenizer());
         messageText.setAdapter(new UsernameAutoCompleteAdapter(suggestionService, this,
-                android.R.layout.simple_dropdown_item_1line));
+                android.R.layout.simple_dropdown_item_1line, "@"));
 
         messageText.setAnchorView(findViewById(R.id.auto_complete_popup_anchor));
 
@@ -122,7 +122,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return OptionMenuHelper.dispatch(this, item);
+        return OptionMenuHelper.INSTANCE.dispatch(this, item);
     }
 
     @OnOptionsItemSelected(android.R.id.home)

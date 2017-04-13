@@ -50,7 +50,7 @@ import static org.joda.time.Instant.now;
 public class SettingsActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().basic);
+        setTheme(theme().getBasic());
         super.onCreate(savedInstanceState);
 
         String category = null;

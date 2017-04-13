@@ -627,7 +627,7 @@ public class PostFragment extends BaseFragment implements
                 return true;
 
             default:
-                return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
+                return OptionMenuHelper.INSTANCE.dispatch(this, item) || super.onOptionsItemSelected(item);
         }
     }
 

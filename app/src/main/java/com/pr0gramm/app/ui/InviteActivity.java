@@ -52,7 +52,7 @@ public class InviteActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().basic);
+        setTheme(theme().getBasic());
 
         super.onCreate(savedInstanceState);
 
