@@ -78,12 +78,10 @@ class FavoritesFragment : BaseFragment(), FilterFragment {
         }
     }
 
-    override fun getCurrentFilter(): FeedFilter {
-        return feedFilter
-    }
+    override val currentFilter: FeedFilter get() = feedFilter
 
     companion object {
-        private val ARG_USERNAME = "FavoritesFragment.username"
+        private const val ARG_USERNAME = "FavoritesFragment.username"
 
         @JvmStatic
         fun newInstance(username: String): FavoritesFragment {

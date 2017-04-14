@@ -56,7 +56,7 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
      */
     @Keep
     @KeepClassMembers
-    private data class ConvertResult(var path: String = "")
+    private class ConvertResult(var path: String = "")
 
     companion object {
         private const val DEFAULT_ENDPOINT = "https://pr0.wibbly-wobbly.de/api/gif-to-webm/v1/"

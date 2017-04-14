@@ -119,7 +119,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
 import static com.pr0gramm.app.feed.ContentType.SFW;
 import static com.pr0gramm.app.services.ThemeHelper.accentColor;
-import static com.pr0gramm.app.ui.FeedFilterFormatter.feedTypeToString;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
@@ -913,7 +912,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         onBookmarkableStateChanged(false);
 
         FeedFilter filter = getCurrentFilter();
-        String title = FeedFilterFormatter.format(getActivity(), filter).singleline();
+        String title = FeedFilterFormatter.format(getContext(), filter).getSingleline();
         ((MainActionHandler) getActivity()).pinFeedFilter(filter, title);
     }
 
@@ -1339,7 +1338,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         view.post(this::hideToolbar);
 
         // prepare search view
-        String typeName = feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
+        String typeName = FeedFilterFormatter.feedTypeToString(getContext(), getCurrentFilter().withTagsNoReset("dummy"));
         searchView.setQueryHint(getString(R.string.action_search, typeName));
         searchView.setPadding(0, AndroidUtility.getStatusBarHeight(getContext()), 0, 0);
 

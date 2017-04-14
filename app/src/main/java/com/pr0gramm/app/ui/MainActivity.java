@@ -128,13 +128,12 @@ public class MainActivity extends BaseAppCompatActivity implements
     SingleShotService singleShotService;
 
     @Inject
-    PermissionHelper permissionHelper;
-
-    @Inject
     InfoMessageService infoMessageService;
 
     @Inject
     AdService adService;
+
+    PermissionHelper permissionHelper = new PermissionHelper(this);
 
     private ActionBarDrawerToggle drawerToggle;
     private ScrollHideToolbarListener scrollHideToolbarListener;
@@ -413,8 +412,8 @@ public class MainActivity extends BaseAppCompatActivity implements
                 bar.setSubtitle(null);
             } else {
                 FeedFilterFormatter.FeedTitle feed = FeedFilterFormatter.format(this, filter);
-                bar.setTitle(feed.title);
-                bar.setSubtitle(feed.subtitle);
+                bar.setTitle(feed.getTitle());
+                bar.setSubtitle(feed.getSubtitle());
             }
         }
     }
@@ -721,13 +720,14 @@ public class MainActivity extends BaseAppCompatActivity implements
             return;
         }
 
-        Optional<FeedFilterWithStart> result = FeedFilterWithStart.fromUri(uri);
+        Optional<FeedFilterWithStart> result = FeedFilterWithStart.Companion.fromUri(uri);
         if (result.isPresent()) {
-            FeedFilter filter = result.get().getFilter();
-            Optional<ItemWithComment> start = result.get().getStart();
-
             boolean clear = shouldClearOnIntent();
-            gotoFeedFragment(filter, clear, start.orNull());
+
+            FeedFilter filter = result.get().getFilter();
+            ItemWithComment start = result.get().getStart();
+
+            gotoFeedFragment(filter, clear, start);
 
         } else {
             gotoFeedFragment(defaultFeedFilter(), true);
