@@ -113,7 +113,6 @@ import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
-import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.util.AndroidUtility.screenIsLandscape;
 import static rx.Observable.combineLatest;
 import static rx.Observable.empty;
@@ -417,7 +416,7 @@ public class PostFragment extends BaseFragment implements
     private void writeComment(String text) {
         voteService.postComment(feedItem, 0, text)
                 .compose(bindToLifecycleAsync())
-                .lift(busyDialog(this))
+                .lift(BusyDialog.busyDialog(getActivity()))
                 .subscribe(this::onNewComments, defaultOnError());
 
         AndroidUtility.hideSoftKeyboard(getView());
@@ -1062,7 +1061,7 @@ public class PostFragment extends BaseFragment implements
     public void onAddNewTags(List<String> tags) {
         voteService.tag(feedItem, tags)
                 .compose(bindToLifecycleAsync())
-                .lift(busyDialog(this))
+                .lift(BusyDialog.busyDialog(getActivity()))
                 .subscribe(this::displayTags, defaultOnError());
     }
 

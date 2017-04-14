@@ -22,7 +22,7 @@ import com.pr0gramm.app.services.ThemeHelper.theme
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
+import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import kotterknife.bindView
 import kotterknife.bindViews
@@ -126,7 +126,7 @@ class ContactActivity : BaseAppCompatActivity() {
         }
 
         response.compose(bindToLifecycleAsync<Any>().forCompletable())
-                .lift(busyDialog<Any>(this).forCompletable())
+                .withBusyDialog(this)
                 .subscribe(Action0({ this.onSubmitSuccess() }), defaultOnError())
 
         // hide keyboard if still open

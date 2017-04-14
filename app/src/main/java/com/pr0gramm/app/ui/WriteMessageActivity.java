@@ -24,6 +24,7 @@ import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.UserSuggestionService;
 import com.pr0gramm.app.services.VoteService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
+import com.pr0gramm.app.ui.fragments.BusyDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,6 @@ import rx.functions.Actions;
 
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 
 /**
  */
@@ -170,7 +170,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
             voteService.postComment(itemId, parentComment, message)
                     .compose(bindToLifecycleAsync())
-                    .lift(busyDialog(this))
+                    .lift(BusyDialog.busyDialog(this))
                     .doOnCompleted(this::finishAfterSending)
                     .subscribe(newComments -> {
                         Intent result = new Intent();
@@ -184,7 +184,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
             // now send message
             inboxService.send(getReceiverId(), message)
                     .compose(bindToLifecycleAsync().forCompletable())
-                    .lift(busyDialog(this).forCompletable())
+                    .lift(BusyDialog.busyDialog(this).forCompletable())
                     .doOnCompleted(this::finishAfterSending)
                     .subscribe(Actions.empty(), defaultOnError());
 

@@ -32,7 +32,7 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
-import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
+import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.toObservable
 import com.pr0gramm.app.util.CustomTabsHelper
@@ -138,7 +138,7 @@ class LoginActivity : BaseAppCompatActivity() {
 
         userService.login(username, password)
                 .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
-                .lift(busyDialog(this, getString(R.string.login_please_wait)))
+                .withBusyDialog(this, R.string.login_please_wait)
                 .flatMap { progress -> toObservable(progress.getLogin()) }
                 .interceptLoginFailures()
                 .doOnSubscribe { enableView(false) }

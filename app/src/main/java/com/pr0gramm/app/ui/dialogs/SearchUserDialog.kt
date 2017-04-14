@@ -11,7 +11,7 @@ import com.pr0gramm.app.services.UserSuggestionService
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.fragments.BusyDialogFragment
+import com.pr0gramm.app.ui.fragments.withBusyDialog
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -45,11 +45,11 @@ class SearchUserDialog : BaseDialogFragment() {
     }
 
     private fun onSearchClicked() {
-        val username = inputView.text.toString().trim { it <= ' ' }
+        val username = inputView.text.toString().trim()
 
         userService.info(username)
                 .compose(bindToLifecycleAsync())
-                .lift(BusyDialogFragment.busyDialog(this))
+                .withBusyDialog(this)
                 .subscribe({ this.onSearchSuccess(it) }, { this.onSearchFailure() })
     }
 

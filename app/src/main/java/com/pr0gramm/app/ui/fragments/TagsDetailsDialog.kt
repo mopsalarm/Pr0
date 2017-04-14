@@ -87,7 +87,7 @@ class TagsDetailsDialog : BaseDialogFragment() {
 
         adminService.deleteTags(itemId, selected, blockAmount)
                 .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .lift(BusyDialogFragment.busyDialog<Any>(this).forCompletable())
+                .withBusyDialog(this)
                 .subscribe(Action0 { this.dismiss() }, defaultOnError())
     }
 

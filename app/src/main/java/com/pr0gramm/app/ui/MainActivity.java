@@ -48,6 +48,7 @@ import com.pr0gramm.app.sync.SyncJob;
 import com.pr0gramm.app.ui.back.BackFragmentHelper;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment;
+import com.pr0gramm.app.ui.fragments.BusyDialog;
 import com.pr0gramm.app.ui.fragments.DrawerFragment;
 import com.pr0gramm.app.ui.fragments.FavoritesFragment;
 import com.pr0gramm.app.ui.fragments.FeedFragment;
@@ -74,7 +75,6 @@ import rx.subjects.BehaviorSubject;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog;
 import static com.pr0gramm.app.util.Noop.noop;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -569,7 +569,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         userService.logout()
                 .toObservable()
                 .compose(bindToLifecycleAsync())
-                .lift(busyDialog(this))
+                .lift(BusyDialog.busyDialog(this))
                 .doOnCompleted(() -> {
                     // show a short information.
                     Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)

@@ -40,7 +40,7 @@ import com.pr0gramm.app.ui.Truss
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
+import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
@@ -327,7 +327,7 @@ class UploadFragment : BaseFragment() {
     private fun shrinkImage() {
         uploadService.downsize(file!!)
                 .compose(bindToLifecycleAsync<File>())
-                .lift(busyDialog<File>(this))
+                .withBusyDialog(this)
                 .subscribe(Action1 { newFile ->
                     handleImageUri(Uri.fromFile(newFile))
                     imageShrankSuccess()

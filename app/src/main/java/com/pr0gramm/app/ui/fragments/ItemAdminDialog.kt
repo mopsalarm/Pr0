@@ -67,7 +67,7 @@ class ItemAdminDialog : BaseDialogFragment() {
 
         deleteItem(reason, notifyUser, ban)
                 .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .lift(BusyDialogFragment.busyDialog<Any>(this).forCompletable())
+                .withBusyDialog(this)
                 .subscribe(Action0 { this.dismiss() }, defaultOnError())
 
     }

@@ -13,7 +13,7 @@ import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
+import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
 import com.trello.rxlifecycle.android.ActivityEvent
 import org.joda.time.Duration.standardHours
 import org.joda.time.Instant
