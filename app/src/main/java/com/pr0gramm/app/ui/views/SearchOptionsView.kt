@@ -18,7 +18,6 @@ import com.google.common.base.Splitter
 import com.google.common.collect.ImmutableList
 import com.jakewharton.rxbinding.widget.changes
 import com.jakewharton.rxbinding.widget.editorActions
-import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
@@ -44,7 +43,6 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     private val minimumScoreLabel: TextView by bindView(R.id.minimum_benis_label)
     private val minimumScoreSlider: SeekBar by bindView(R.id.minimum_benis_slider)
     private val customExcludesView: EditText by bindView(R.id.without_tags_text)
-    private val searchTermContainer: View by bindView(R.id.search_term_container)
 
     init {
         View.inflate(context, R.layout.view_search, this)
@@ -269,7 +267,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         super.setPadding(left, 0, right, bottom)
 
         // move top padding to search view (container)
-        searchTermContainer.setPadding(0, top, 0, 0)
+        val container: View? = findViewById(R.id.search_term_container)
+        container?.setPadding(0, top, 0, 0)
     }
 
     fun requestSearchFocus() {

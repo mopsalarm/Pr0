@@ -1,16 +1,13 @@
 package com.pr0gramm.app.services
 
-import android.annotation.TargetApi
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import com.google.common.base.Joiner
 import com.google.common.base.Optional
 import com.google.common.io.CountingInputStream
 import com.google.common.io.PatternFilenameFilter
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.proxy.ProxyService
@@ -85,7 +82,6 @@ constructor(private val downloadManager: DownloadManager,
     }
 
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     fun downloadToFile(uri: String): Observable<Status> {
         return Observable.create<Status>({ subscriber ->
             try {

@@ -35,7 +35,7 @@ class ExtraCategories @Inject constructor(
     private val updateState = PublishSubject.create<Boolean>()
 
     init {
-        val byConfig = configService.observeConfig().map { it.extraCategories() }
+        val byConfig = configService.observeConfig().map { it.getExtraCategories() }
         Observable.merge(updateState, byConfig)
                 .debounce(1, TimeUnit.SECONDS, BackgroundScheduler.instance())
                 .switchMap { pingOnce() }
@@ -49,7 +49,7 @@ class ExtraCategories @Inject constructor(
     }
 
     private fun pingOnce(): Observable<Boolean>? {
-        if (configService.config().extraCategories()) {
+        if (configService.config().getExtraCategories()) {
             return api.ping().subscribeOnBackground()
                     .map { true }
                     .onErrorReturn { false }

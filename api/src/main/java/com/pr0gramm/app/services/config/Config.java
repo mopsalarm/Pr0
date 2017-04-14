@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services.config;
 
-import android.support.annotation.Keep;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -11,41 +10,40 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 public abstract class Config {
     @Value.Default
-    public boolean extraCategories() {
+    public boolean getExtraCategories() {
         return true;
     }
 
     @Value.Default
-    public long maxUploadSizeNormal() {
+    public long getMaxUploadSizeNormal() {
         return 6 * 1024 * 1024;
     }
 
     @Value.Default
-    public long maxUploadSizePremium() {
+    public long getMaxUploadSizePremium() {
         return 12 * 1024 * 1024;
     }
 
     @Value.Default
-    public boolean searchUsingTagService() {
+    public boolean getSearchUsingTagService() {
         return false;
     }
 
     @Value.Default
-    public boolean secretSanta() {
+    public boolean getSecretSanta() {
         return false;
     }
 
     @Value.Default
-    public AdType adType() {
+    public AdType getAdType() {
         return AdType.NONE;
     }
 
     @Value.Default
-    public boolean trackItemView() {
+    public boolean getTrackItemView() {
         return false;
     }
 
-    @Keep
     public enum AdType {
         NONE,
         FEED,

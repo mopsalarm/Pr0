@@ -28,19 +28,19 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
     /**
      * Converts this gif into a webm, if possible.
 
-     * @param gifUrl The url of the gif to convert.
+     * @param url The url of the gif to convert.
      * *
      * @return A observable producing exactly one item with the result.
      */
-    override fun toVideo(gifUrl: String): Observable<GifToVideoService.Result> {
-        val fallback = Observable.just(GifToVideoService.Result(gifUrl))
-        if (!gifUrl.toLowerCase().endsWith(".gif")) {
+    override fun toVideo(url: String): Observable<GifToVideoService.Result> {
+        val fallback = Observable.just(GifToVideoService.Result(url))
+        if (!url.toLowerCase().endsWith(".gif")) {
             return fallback
         }
 
-        val encoded = BaseEncoding.base64Url().encode(gifUrl.toByteArray(Charsets.UTF_8))
+        val encoded = BaseEncoding.base64Url().encode(url.toByteArray(Charsets.UTF_8))
         return api.convert(encoded)
-                .map { result -> GifToVideoService.Result(gifUrl, DEFAULT_ENDPOINT + result.path) }
+                .map { result -> GifToVideoService.Result(url, DEFAULT_ENDPOINT + result.path) }
                 .onErrorResumeNext(fallback)
     }
 

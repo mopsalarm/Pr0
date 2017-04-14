@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
 import com.google.common.collect.ImmutableList
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedFilter
@@ -143,7 +142,7 @@ class NavigationProvider(
         }
 
         if (username != null) {
-            if (configService.config().secretSanta()) {
+            if (configService.config().getSecretSanta()) {
 
                 items.add(NavigationItem(
                         action = ActionType.SECRETSANTA,

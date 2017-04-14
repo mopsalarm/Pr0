@@ -4,7 +4,6 @@ import android.app.IntentService
 import android.content.Intent
 import com.evernote.android.job.Job
 import com.google.common.base.Stopwatch.createStarted
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.*
@@ -39,7 +38,7 @@ class SyncIntentService : IntentService(SyncIntentService::class.java.simpleName
             Track.statistics()
 
         if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
-            toOptional(UpdateChecker(this).check()).ifPresent {
+            toOptional(UpdateChecker().check()).ifPresent {
                 notificationService.showUpdateNotification(it)
             }
         }

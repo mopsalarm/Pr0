@@ -39,7 +39,7 @@ public class AdService {
 
         // track that we use ads.
         configService.observeConfig().subscribe(config -> {
-            Track.updateAdType(config.adType());
+            Track.updateAdType(config.getAdType());
         });
     }
 
@@ -50,7 +50,7 @@ public class AdService {
         }
 
         // do not show ads for premium users
-        return !userService.isPremiumUser() && configService.config().adType() == type;
+        return !userService.isPremiumUser() && configService.config().getAdType() == type;
     }
 
     /**

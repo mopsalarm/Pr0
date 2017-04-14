@@ -38,10 +38,9 @@ class Gif2VideoMediaView internal constructor(config: MediaView.Config) : ProxyM
 
         // create the correct child-viewer
         val mediaView: MediaView
-        val oVideoUrl = result.videoUrl
-        if (oVideoUrl.isPresent) {
+        if (result.videoUrl != null) {
             logger.info("Converted successfully, replace with video player")
-            val videoUri = Uri.parse(oVideoUrl.get())
+            val videoUri = Uri.parse(result.videoUrl)
             val webm = mediaUri.withUri(videoUri, MediaUri.MediaType.VIDEO)
             mediaView = MediaViews.newInstance(config.copy(mediaUri = webm))
 

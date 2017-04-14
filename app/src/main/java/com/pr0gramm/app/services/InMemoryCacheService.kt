@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.collect.ImmutableList
 import com.google.common.primitives.Longs
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import java.util.*
@@ -82,7 +81,7 @@ constructor() {
      * Stores the given entry for a few minutes in the cache
      */
     fun cacheUserInfo(contentTypes: Set<ContentType>, info: EnhancedUserInfo) {
-        val name = info.info.user.name.trim { it <= ' ' }.toLowerCase()
+        val name = info.info.user.name.trim().toLowerCase()
         val key = name + ContentType.combine(contentTypes)
         userInfoCache.put(key, info)
     }
@@ -91,7 +90,7 @@ constructor() {
      * Gets a cached instance, if there is one.
      */
     fun getUserInfo(contentTypes: Set<ContentType>, name: String): Optional<EnhancedUserInfo> {
-        val key = name.trim { it <= ' ' }.toLowerCase() + ContentType.combine(contentTypes)
+        val key = name.trim().toLowerCase() + ContentType.combine(contentTypes)
         return Optional.fromNullable(userInfoCache.getIfPresent(key))
     }
 

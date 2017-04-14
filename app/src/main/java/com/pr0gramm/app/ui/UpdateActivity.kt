@@ -10,20 +10,17 @@ import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
 import com.pr0gramm.app.util.CustomTabsHelper
-import kotlin.LazyThreadSafetyMode.NONE
 
 /**
  * This activity is just there to host the update dialog fragment.
  */
 class UpdateActivity : BaseAppCompatActivity(), DialogDismissListener {
-
-    internal val update: Update? by lazy(NONE) { intent.getParcelableExtra<Update?>(EXTRA_UPDATE) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme().basic)
         super.onCreate(savedInstanceState)
 
-        if (savedInstanceState == null && this.update != null) {
+        val update = intent.getParcelableExtra<Update?>(EXTRA_UPDATE)
+        if (savedInstanceState == null && update != null) {
             UpdateChecker.download(this, update)
 
         } else {

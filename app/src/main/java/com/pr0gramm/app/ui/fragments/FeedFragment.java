@@ -51,7 +51,6 @@ import com.pr0gramm.app.feed.FeedService;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.EnhancedUserInfo;
-import com.pr0gramm.app.services.ImmutableEnhancedUserInfo;
 import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.RecentSearchesServices;
@@ -524,7 +523,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                     .map(Api.UserComments::getComments)
                     .onErrorResumeNext(Observable.just(emptyList()));
 
-            return Observable.zip(first, third, ImmutableEnhancedUserInfo::of)
+            return Observable.zip(first, third, EnhancedUserInfo::new)
                     .ofType(EnhancedUserInfo.class)
                     .doOnNext(info -> inMemoryCacheService.cacheUserInfo(contentTypes, info));
 

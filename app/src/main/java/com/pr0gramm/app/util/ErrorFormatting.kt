@@ -3,7 +3,6 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.util.MalformedJsonException
 import com.google.gson.JsonSyntaxException
-import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
@@ -99,17 +98,17 @@ object ErrorFormatting {
     private class FormatterList {
         val formatters = mutableListOf<Formatter>()
 
-        inline fun <reified T : Throwable> add(configure: Builder<T>.() -> Unit): Formatter {
+        inline fun <reified T : Throwable> add(configure: Builder<T>.() -> Unit) {
             val b = Builder(T::class.java)
             b.configure()
-            return b.build()
+            formatters.add(b.build())
         }
 
-        inline fun <reified T : Throwable> addCaused(configure: Builder<T>.() -> Unit): Formatter {
+        inline fun <reified T : Throwable> addCaused(configure: Builder<T>.() -> Unit) {
             val b = Builder<T>(Throwable::class.java)
             b.hasCause<T>()
             b.configure()
-            return b.build()
+            formatters.add(b.build())
         }
     }
 

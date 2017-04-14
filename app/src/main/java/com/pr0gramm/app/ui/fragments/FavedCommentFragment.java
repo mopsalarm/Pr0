@@ -43,7 +43,7 @@ public class FavedCommentFragment extends MessageInboxFragment {
         return LoaderHelper.of(() -> {
             return favedCommentService
                     .list(settings.getContentType())
-                    .map(comments -> transform(comments, FavedCommentService::commentToMessage));
+                    .map(comments -> transform(comments, FavedCommentService.Companion::commentToMessage));
         });
     }
 

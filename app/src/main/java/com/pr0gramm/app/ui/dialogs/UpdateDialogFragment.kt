@@ -5,15 +5,14 @@ import android.app.DownloadManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.pr0gramm.app.ActivityComponent
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
-import com.pr0gramm.app.R
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
+import com.pr0gramm.app.util.arguments
 import com.trello.rxlifecycle.android.ActivityEvent
 import org.joda.time.Duration.standardHours
 import org.joda.time.Instant
@@ -37,7 +36,7 @@ class UpdateDialogFragment : BaseDialogFragment() {
 
     private fun updateAvailableDialog(update: Update): Dialog {
         return dialog(activity) {
-            content(getString(R.string.new_update_available, update.changelog()))
+            content(getString(R.string.new_update_available, update.changelog))
             positive(R.string.download) { UpdateChecker.download(activity, update) }
             negative(R.string.ignore)
         }
@@ -56,12 +55,9 @@ class UpdateDialogFragment : BaseDialogFragment() {
 
     companion object {
         private fun newInstance(update: Update): UpdateDialogFragment {
-            val bundle = Bundle()
-            bundle.putParcelable("update", update)
-
-            val dialog = UpdateDialogFragment()
-            dialog.arguments = bundle
-            return dialog
+            return UpdateDialogFragment().arguments {
+                putParcelable("update", update)
+            }
         }
 
         /**
@@ -90,18 +86,17 @@ class UpdateDialogFragment : BaseDialogFragment() {
             val busyOperator = if (interactive) busyDialog<Update>(activity) else null
 
             // do the check
-            UpdateChecker(activity).check()
-                    .onErrorResumeNext(Observable.empty<Update>())
+            UpdateChecker().check()
+                    .onErrorResumeNext(Observable.empty())
                     .defaultIfEmpty(null)
-                    .compose(activity.bindUntilEventAsync<Update>(ActivityEvent.DESTROY))
-                    .run { busyOperator?.let { lift(it) } ?: this }
                     .doAfterTerminate(storeCheckTime)
+                    .compose(activity.bindUntilEventAsync(ActivityEvent.DESTROY))
+                    .run { busyOperator?.let { lift(it) } ?: this }
                     .subscribe({ update ->
                         if (interactive || update != null) {
-                            val dialog = newInstance(update)
-                            dialog.show(activity.supportFragmentManager, null)
+                            newInstance(update).show(activity.supportFragmentManager, null)
                         }
-                    }, {})
+                    })
         }
 
         private val KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck"

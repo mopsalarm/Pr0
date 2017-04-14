@@ -625,7 +625,7 @@ public class PostFragment extends BaseFragment implements
                 return true;
 
             default:
-                return OptionMenuHelper.INSTANCE.dispatch(this, item) || super.onOptionsItemSelected(item);
+                return OptionMenuHelper.dispatch(this, item) || super.onOptionsItemSelected(item);
         }
     }
 
@@ -657,7 +657,7 @@ public class PostFragment extends BaseFragment implements
     public void onStart() {
         super.onStart();
 
-        favedCommentService.favedCommentIds()
+        favedCommentService.getFavedCommentIds()
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
                 .subscribe(commentsAdapter::setFavedComments);
@@ -668,7 +668,7 @@ public class PostFragment extends BaseFragment implements
         super.onResume();
 
         // track that the user visited this post.
-        if (configService.config().trackItemView()) {
+        if (configService.config().getTrackItemView()) {
             Track.screen("Item");
         }
     }
@@ -1144,7 +1144,7 @@ public class PostFragment extends BaseFragment implements
 
     @Override
     public void onCopyCommentLink(Api.Comment comment) {
-        ShareHelper.copyLink(getContext(), feedItem, comment);
+        ShareHelper.INSTANCE.copyLink(getContext(), feedItem, comment);
     }
 
     @Override

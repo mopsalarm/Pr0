@@ -60,7 +60,7 @@ constructor(private val api: Api,
                 // prepare the call to the official api. The call is only made on subscription.
                 val officialCall = api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, q.tags, likes, self, user)
 
-                if (likes == null && configService.config().searchUsingTagService()) {
+                if (likes == null && configService.config().getSearchUsingTagService()) {
                     return extraCategories.api
                             .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                             .onErrorResumeNext(officialCall)

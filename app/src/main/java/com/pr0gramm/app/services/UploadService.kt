@@ -35,9 +35,9 @@ class UploadService @Inject constructor(private val api: Api,
     private val maxSize: Observable<Long> get() {
         return userService.loginState().take(1).map { state ->
             if (state.premium)
-                configService.config().maxUploadSizePremium()
+                configService.config().getMaxUploadSizePremium()
             else
-                configService.config().maxUploadSizeNormal()
+                configService.config().getMaxUploadSizeNormal()
         }
     }
 
