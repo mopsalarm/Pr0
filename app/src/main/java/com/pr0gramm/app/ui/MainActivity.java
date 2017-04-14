@@ -697,7 +697,9 @@ public class MainActivity extends BaseAppCompatActivity implements
         try {
             getSupportFragmentManager().popBackStackImmediate(
                     null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        } catch (Exception ignored) {
+        } catch (Exception err) {
+            AndroidUtility.logToCrashlytics(new RuntimeException(
+                    "Ignoring exception from popBackStackImmediate:", err));
         }
     }
 

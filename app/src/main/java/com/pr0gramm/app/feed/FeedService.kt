@@ -3,7 +3,7 @@ package com.pr0gramm.app.feed
 import com.google.common.base.Strings
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
-import com.pr0gramm.app.api.categories.ExtraCategoryApiProvider
+import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
@@ -17,12 +17,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class FeedService @Inject
-constructor(private val mainApi: Api,
-            categoryApi: ExtraCategoryApiProvider,
-            private val settings: Settings,
+constructor(private val api: Api,
+            private val extraCategories: ExtraCategories,
             private val configService: ConfigService) {
-
-    private val categoryApi = categoryApi.get()
 
     fun getFeedItems(query: FeedQuery): Observable<Api.Feed> {
         val feedFilter = query.filter
@@ -48,23 +45,23 @@ constructor(private val mainApi: Api,
         val q = SearchQuery(tags)
 
         when (feedType) {
-            FeedType.RANDOM -> return categoryApi.random(q.tags, flags)
+            FeedType.RANDOM -> return extraCategories.api.random(q.tags, flags)
 
             FeedType.BESTOF -> {
-                val benisScore = settings.bestOfBenisThreshold
-                return categoryApi.bestof(q.tags, user, flags, query.older, benisScore)
+                val benisScore = Settings.get().bestOfBenisThreshold
+                return extraCategories.api.bestof(q.tags, user, flags, query.older, benisScore)
             }
 
-            FeedType.CONTROVERSIAL -> return categoryApi.controversial(q.tags, flags, query.older)
+            FeedType.CONTROVERSIAL -> return extraCategories.api.controversial(q.tags, flags, query.older)
 
-            FeedType.TEXT -> return categoryApi.text(q.tags, flags, query.older)
+            FeedType.TEXT -> return extraCategories.api.text(q.tags, flags, query.older)
 
             else -> {
                 // prepare the call to the official api. The call is only made on subscription.
-                val officialCall = mainApi.itemsGet(promoted, following, query.older, query.newer, query.around, flags, q.tags, likes, self, user)
+                val officialCall = api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, q.tags, likes, self, user)
 
                 if (likes == null && configService.config().searchUsingTagService()) {
-                    return categoryApi
+                    return extraCategories.api
                             .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                             .onErrorResumeNext(officialCall)
 
@@ -74,7 +71,7 @@ constructor(private val mainApi: Api,
                         Track.advancedSearch(q.tags)
 
                         logger.info("Using general search api, but falling back on old one in case of an error.")
-                        return categoryApi
+                        return extraCategories.api
                                 .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                                 .onErrorResumeNext(officialCall)
                     }
@@ -86,7 +83,7 @@ constructor(private val mainApi: Api,
     }
 
     fun loadPostDetails(id: Long): Observable<Api.Post> {
-        return mainApi.info(id)
+        return api.info(id)
     }
 
     data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,

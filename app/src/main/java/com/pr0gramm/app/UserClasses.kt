@@ -1,16 +1,10 @@
-package com.pr0gramm.app;
-
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
+package com.pr0gramm.app
 
 /**
  */
-public class UserClasses {
-    private UserClasses() {
-    }
-
-    public static final List<Integer> MarkDrawables = ImmutableList.of(
+object UserClasses {
+    @JvmStatic
+    val MarkDrawables: List<Int> = listOf(
             R.drawable.user_type_schwuchtel_small,
             R.drawable.user_type_neuschwuchtel_small,
             R.drawable.user_type_altschwuchtel_small,
@@ -20,9 +14,10 @@ public class UserClasses {
             R.drawable.user_type_fliesentisch_small,
             R.drawable.user_type_legende_small,
             R.drawable.user_type_wichtler_small,
-            R.drawable.user_type_pr0mium_small);
+            R.drawable.user_type_pr0mium_small)
 
-    public static final List<Integer> MarkStrings = ImmutableList.of(
+    @JvmStatic
+    val MarkStrings: List<Int> = listOf(
             R.string.user_type_schwuchtel,
             R.string.user_type_neuschwuchtel,
             R.string.user_type_altschwuchtel,
@@ -32,9 +27,10 @@ public class UserClasses {
             R.string.user_type_fliesentisch,
             R.string.user_type_legende,
             R.string.user_type_wichtler,
-            R.string.user_type_pr0mium);
+            R.string.user_type_pr0mium)
 
-    public static final List<Integer> MarkColors = ImmutableList.of(
+    @JvmStatic
+    val MarkColors: List<Int> = listOf(
             R.color.user_type_schwuchtel,
             R.color.user_type_neuschwuchtel,
             R.color.user_type_altschwuchtel,
@@ -44,5 +40,5 @@ public class UserClasses {
             R.color.user_type_fliesentisch,
             R.color.user_type_legende,
             R.color.user_type_wichtler,
-            R.color.user_type_pr0mium);
+            R.color.user_type_pr0mium)
 }

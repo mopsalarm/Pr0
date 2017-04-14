@@ -61,7 +61,7 @@ public class ApplicationClass extends Application implements KodeinAware {
     public void onCreate() {
         super.onCreate();
 
-        Stats.init(buildVersionCode());
+        Stats.INSTANCE.init(buildVersionCode());
         JodaTimeAndroid.init(this);
         Base.initialize(this);
 
@@ -104,7 +104,7 @@ public class ApplicationClass extends Application implements KodeinAware {
         Dagger.initEagerSingletons(this);
 
         if (BuildConfig.DEBUG) {
-            StethoWrapper.init(this);
+            StethoWrapper.INSTANCE.init(this);
         }
 
         // get the correct theme for the app!

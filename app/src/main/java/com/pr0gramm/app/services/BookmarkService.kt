@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
@@ -19,9 +18,7 @@ import javax.inject.Singleton
 /**
  */
 @Singleton
-class BookmarkService @Inject constructor(
-        private val context: Application,
-        private val database: Holder<SQLiteDatabase>) {
+class BookmarkService @Inject constructor(private val database: Holder<SQLiteDatabase>) {
 
     private val onChange = BehaviorSubject.create<Void>(null as Void?).toSerialized()
 

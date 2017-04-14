@@ -72,7 +72,7 @@ public class HttpModule {
 
                 .addInterceptor(new DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))
-                .addNetworkInterceptor(BuildConfig.DEBUG ? StethoWrapper.networkInterceptor() : noop)
+                .addNetworkInterceptor(BuildConfig.DEBUG ? StethoWrapper.INSTANCE.networkInterceptor() : noop)
 
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();
