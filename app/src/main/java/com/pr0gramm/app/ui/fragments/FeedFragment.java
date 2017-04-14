@@ -79,6 +79,7 @@ import com.pr0gramm.app.ui.OnOptionsItemSelected;
 import com.pr0gramm.app.ui.OptionMenuHelper;
 import com.pr0gramm.app.ui.PreviewInfo;
 import com.pr0gramm.app.ui.RecyclerItemClickListener;
+import com.pr0gramm.app.ui.ScrollHideToolbarListener;
 import com.pr0gramm.app.ui.SingleViewAdapter;
 import com.pr0gramm.app.ui.WriteMessageActivity;
 import com.pr0gramm.app.ui.back.BackAwareFragment;
@@ -120,7 +121,6 @@ import static com.pr0gramm.app.R.id.empty;
 import static com.pr0gramm.app.feed.ContentType.SFW;
 import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
-import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.endAction;
 import static com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight;
@@ -1069,13 +1069,13 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
                 .map(FeedFragment::extractFeedItemHolder)
                 .filter(isNotNull())
                 .compose(bindToLifecycle())
-                .subscribe(holder -> onItemClicked(holder.index, absent(), of(holder.image)));
+                .subscribe(holder -> onItemClicked(holder.getIndex(), absent(), of(holder.getImage())));
 
         listener.itemLongClicked()
                 .map(FeedFragment::extractFeedItemHolder)
                 .filter(isNotNull())
                 .compose(bindToLifecycle())
-                .subscribe(holder -> openQuickPeekDialog(holder.item));
+                .subscribe(holder -> openQuickPeekDialog(holder.getItem()));
 
         listener.itemLongClickEnded()
                 .compose(bindToLifecycle())
@@ -1155,11 +1155,11 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             picasso.load(imageUri)
                     .config(Bitmap.Config.RGB_565)
                     .placeholder(new ColorDrawable(0xff333333))
-                    .into(holder.image);
+                    .into(holder.getImage());
 
             holder.itemView.setTag(holder);
-            holder.index = position;
-            holder.item = item;
+            holder.setIndex(position);
+            holder.setItem(item);
 
             // show preload-badge
             holder.setIsPreloaded(preloadManager.exists(item.id()));
@@ -1477,7 +1477,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 if (getActivity() instanceof ToolbarActivity) {
-                    int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE);
+                    int y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE);
 
                     ToolbarActivity activity = (ToolbarActivity) getActivity();
                     activity.getScrollHideToolbarListener().onScrollFinished(y);

@@ -110,7 +110,6 @@ import static com.google.common.collect.Maps.toMap;
 import static com.pr0gramm.app.R.id.player_container;
 import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
-import static com.pr0gramm.app.ui.ScrollHideToolbarListener.estimateRecyclerViewScrollY;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
 import static com.pr0gramm.app.util.AndroidUtility.screenIsLandscape;
@@ -1226,7 +1225,7 @@ public class PostFragment extends BaseFragment implements
 
             // get our facts straight
             int recyclerHeight = recyclerView.getHeight();
-            Optional<Integer> scrollEstimate = estimateRecyclerViewScrollY(recyclerView);
+            Optional<Integer> scrollEstimate = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView);
             boolean viewerVisible = scrollEstimate.isPresent();
 
             int scrollY = scrollEstimate.or(viewer.getHeight());
@@ -1270,7 +1269,7 @@ public class PostFragment extends BaseFragment implements
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (!isVideoFullScreen() && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                int y = estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE);
+                int y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE);
                 activity.getScrollHideToolbarListener().onScrollFinished(y);
             }
         }

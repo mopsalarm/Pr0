@@ -70,7 +70,6 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
     @Override
     protected void injectComponent(ActivityComponent appComponent) {
-        appComponent.inject(this);
     }
 
     @Override
