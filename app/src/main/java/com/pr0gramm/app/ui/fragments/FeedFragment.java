@@ -201,7 +201,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     private Dialog quickPeekDialog;
 
     private final AdViewAdapter adViewAdapter = new AdViewAdapter();
-    private final DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.Companion.helper(this);
 
     boolean userInfoCommentsOpen;
     private boolean bookmarkable;

@@ -129,7 +129,7 @@ public class DrawerFragment extends BaseFragment {
     ColorStateList defaultColor;
     ColorStateList markedColor;
 
-    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.Companion.helper(this);
 
 
     @Override

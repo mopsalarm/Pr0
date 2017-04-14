@@ -4,13 +4,10 @@ import android.util.Patterns
 import com.pr0gramm.app.api.pr0gramm.Api
 import rx.Completable
 import rx.Observable
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class InviteService @Inject constructor(private val api: Api) {
+class InviteService(private val api: Api) {
     /**
      * Send an invite to the given email address.
      */

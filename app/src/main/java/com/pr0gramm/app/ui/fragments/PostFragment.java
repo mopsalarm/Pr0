@@ -138,7 +138,7 @@ public class PostFragment extends BaseFragment implements
     MediaView viewer;
 
     private final MergeRecyclerAdapter adapter = new MergeRecyclerAdapter();
-    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.helper(this);
+    private final LoginActivity.DoIfAuthorizedHelper doIfAuthorizedHelper = LoginActivity.Companion.helper(this);
     private final BehaviorSubject<Boolean> activeStateSubject = BehaviorSubject.create(false);
 
     InfoLineView infoLineView;
@@ -804,7 +804,8 @@ public class PostFragment extends BaseFragment implements
         }
 
         viewer = MediaViews.newInstance(MediaView.Config.of(getActivity(), uri)
-                .withPreviewInfo(previewInfo()));
+                .withPreviewInfo(previewInfo())
+                .withAudio(feedItem.getAudio()));
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
             //  mark this item seen. We do that in a background thread

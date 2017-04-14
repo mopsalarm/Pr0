@@ -58,6 +58,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
         bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
+        bind<InviteService>() with singleton { InviteService(instance()) }
         bind<RulesService>() with singleton { RulesService(instance()) }
 
     }

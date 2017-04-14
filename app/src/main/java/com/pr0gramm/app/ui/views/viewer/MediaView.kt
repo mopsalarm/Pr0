@@ -453,6 +453,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         fun withPreviewInfo(p: PreviewInfo) = copy(previewInfo = p)
 
+        fun withAudio(a: Boolean) = copy(audio = a)
+
         companion object {
             @JvmStatic
             fun of(activity: Activity, uri: MediaUri): Config {

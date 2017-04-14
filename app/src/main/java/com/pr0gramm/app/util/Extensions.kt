@@ -6,6 +6,7 @@ import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
 import android.os.PowerManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -171,14 +172,16 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
     }
 }
 
-@Suppress("UNCHECKED_CAST")
-fun <T : View> View.find(id: Int): T {
+inline fun <reified T : View> Activity.find(id: Int): T {
     return findViewById(id) as T
 }
 
-@Suppress("UNCHECKED_CAST")
-fun <T : View> Activity.find(id: Int): T {
+inline fun <reified T : View> View.find(id: Int): T {
     return findViewById(id) as T
+}
+
+inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
+    return itemView.findViewById(id) as T
 }
 
 var View.visible: Boolean

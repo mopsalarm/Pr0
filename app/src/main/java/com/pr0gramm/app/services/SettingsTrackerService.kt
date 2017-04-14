@@ -45,7 +45,7 @@ class SettingsTrackerService @Inject constructor(
     @KeepPublicClassMemberNames
     private interface HttpInterface {
         @POST("track-settings")
-        fun track(@Body values: Map<String, Any>): Call<Void>
+        fun track(@Body values: Any): Call<Void>
     }
 
     companion object {
