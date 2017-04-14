@@ -10,9 +10,9 @@ import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
 import com.trello.rxlifecycle.android.ActivityEvent
 import org.joda.time.Duration.standardHours
@@ -36,18 +36,18 @@ class UpdateDialogFragment : BaseDialogFragment() {
     }
 
     private fun updateAvailableDialog(update: Update): Dialog {
-        return DialogBuilder.start(activity)
-                .content(getString(R.string.new_update_available, update.changelog()))
-                .positive(R.string.download, Runnable { UpdateChecker.download(activity, update) })
-                .negative(R.string.ignore)
-                .build()
+        return dialog(activity) {
+            content(getString(R.string.new_update_available, update.changelog()))
+            positive(R.string.download) { UpdateChecker.download(activity, update) }
+            negative(R.string.ignore)
+        }
     }
 
     private fun noNewUpdateDialog(): Dialog {
-        return DialogBuilder.start(activity)
-                .content(R.string.no_new_update)
-                .positive()
-                .build()
+        return dialog(activity) {
+            content(R.string.no_new_update)
+            positive()
+        }
     }
 
     override fun injectComponent(activityComponent: ActivityComponent) {

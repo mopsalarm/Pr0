@@ -37,7 +37,7 @@ public class BusyDialogFragment extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return DialogBuilder.start(getActivity())
+        return DialogBuilder.Companion.start(getActivity())
                 .layout(R.layout.progress_dialog)
                 .cancelable()
                 .build();

@@ -282,7 +282,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if ("pref_convert_gif_to_webm".equals(key)) {
                 if (preferences.getBoolean("pref_convert_gif_to_webm", false)) {
-                    DialogBuilder.start(activity)
+                    DialogBuilder.Companion.start(activity)
                             .content(R.string.gif_as_webm_might_be_buggy)
                             .positive()
                             .show();

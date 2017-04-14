@@ -156,7 +156,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
     public void sendMessageNow() {
         String message = getMessageText();
         if (message.isEmpty()) {
-            DialogBuilder.start(this)
+            DialogBuilder.Companion.start(this)
                     .content(R.string.message_must_not_be_empty)
                     .positive()
                     .show();

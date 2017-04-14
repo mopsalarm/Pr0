@@ -57,9 +57,9 @@ public class RequestPasswordRecoveryActivity extends BaseAppCompatActivity {
     }
 
     private void requestCompleted() {
-        DialogBuilder.start(this)
+        DialogBuilder.Companion.start(this)
                 .content(R.string.request_password_recovery_popup_hint)
-                .positive(R.string.okay, d -> finish())
+                .positive(R.string.okay, () -> finish())
                 .show();
     }
 }

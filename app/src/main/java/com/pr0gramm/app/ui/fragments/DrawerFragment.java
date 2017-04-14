@@ -218,7 +218,7 @@ public class DrawerFragment extends BaseFragment {
     }
 
     private void onBenisGraphClicked(View view) {
-        DialogBuilder.start(getActivity())
+        DialogBuilder.Companion.start(getActivity())
                 .cancelable()
                 .content(R.string.benis_graph_explanation)
                 .positive()
@@ -512,9 +512,8 @@ public class DrawerFragment extends BaseFragment {
     }
 
     void showDialogToRemoveBookmark(Bookmark bookmark) {
-        DialogBuilder.start(getActivity())
+        DialogBuilder.Companion.start(getActivity())
                 .content(R.string.do_you_want_to_remove_this_bookmark)
-                .cancelable()
                 .negative(R.string.cancel)
                 .positive(R.string.delete, () -> bookmarkService.delete(bookmark))
                 .show();

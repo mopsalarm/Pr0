@@ -112,25 +112,23 @@ class InviteActivity : BaseAppCompatActivity() {
     private fun onInviteError(error: Throwable) {
         val cause = Throwables.getRootCause(error)
         if (cause is InviteService.InviteException) {
-            if (cause.noMoreInvites()) {
-                DialogBuilder.start(this)
-                        .content(R.string.invite_no_more_invites)
-                        .positive()
-                        .show()
+            when {
+                cause.noMoreInvites() -> showDialog(this) {
+                    content(R.string.invite_no_more_invites)
+                    positive()
+                }
 
-            } else if (cause.emailFormat()) {
-                DialogBuilder.start(this)
-                        .content(R.string.error_email)
-                        .positive()
-                        .show()
+                cause.emailFormat() -> showDialog(this) {
+                    content(R.string.error_email)
+                    positive()
+                }
 
-            } else if (cause.emailInUse()) {
-                DialogBuilder.start(this)
-                        .content(R.string.invite_email_in_use)
-                        .positive()
-                        .show()
-            } else {
-                defaultOnError().call(error)
+                cause.emailInUse() -> showDialog(this) {
+                    content(R.string.invite_email_in_use)
+                    positive()
+                }
+
+                else -> defaultOnError().call(error)
             }
         } else {
             defaultOnError().call(error)

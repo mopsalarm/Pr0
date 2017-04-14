@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Activity
 import android.content.Intent
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.FeedType
@@ -13,7 +14,8 @@ import com.pr0gramm.app.ui.MessageAdapter
  * Extends a normal [MessageAdapter] to display a users comment. If you click
  * one of those comments, it will open the post/comment.
  */
-class UserCommentsAdapter(private val activity: Activity) : MessageAdapter(activity, emptyList(), null, R.layout.user_info_comment) {
+class UserCommentsAdapter(private val activity: Activity) :
+        MessageAdapter(activity, emptyList(), null, R.layout.user_info_comment) {
 
     override fun onBindViewHolder(view: MessageAdapter.MessageViewHolder, position: Int) {
         super.onBindViewHolder(view, position)

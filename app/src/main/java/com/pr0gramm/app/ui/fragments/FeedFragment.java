@@ -920,7 +920,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     @OnOptionsItemSelected(R.id.action_preload)
     public void preloadCurrentFeed() {
         if (AndroidUtility.isOnMobile(getActivity())) {
-            DialogBuilder.start(getActivity())
+            DialogBuilder.Companion.start(getActivity())
                     .content(R.string.preload_not_on_mobile)
                     .positive()
                     .show();
@@ -934,7 +934,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         Track.preloadCurrentFeed(feedAdapter.getFeed().getItems().size());
 
         if (singleShotService.isFirstTime("preload_info_hint")) {
-            DialogBuilder.start(getActivity())
+            DialogBuilder.Companion.start(getActivity())
                     .content(R.string.preload_info_hint)
                     .positive()
                     .show();
@@ -1236,7 +1236,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     void showWrongContentTypeInfo() {
         Context context = getActivity();
         if (context != null) {
-            DialogBuilder.start(context)
+            DialogBuilder.Companion.start(context)
                     .content(R.string.hint_wrong_content_type)
                     .positive()
                     .show();

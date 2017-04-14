@@ -72,9 +72,9 @@ public class PasswordRecoveryActivity extends BaseAppCompatActivity {
     private void requestCompleted(boolean success) {
         Track.passwordChanged();
 
-        DialogBuilder.start(this)
+        DialogBuilder.Companion.start(this)
                 .content(success ? R.string.password_recovery_success : R.string.password_recovery_error)
-                .positive(R.string.okay, d -> finish())
+                .positive(R.string.okay, () -> finish())
                 .show();
     }
 }

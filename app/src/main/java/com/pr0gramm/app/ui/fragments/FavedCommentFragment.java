@@ -76,9 +76,9 @@ public class FavedCommentFragment extends MessageInboxFragment {
     }
 
     private void showKFavInfoPopup() {
-        DialogBuilder.start(getContext())
+        DialogBuilder.Companion.start(getContext())
                 .content(R.string.info_kfav_userscript)
-                .positive(R.string.open_website, di -> {
+                .positive(R.string.open_website, () -> {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"));
                     getContext().startActivity(intent);
                 })

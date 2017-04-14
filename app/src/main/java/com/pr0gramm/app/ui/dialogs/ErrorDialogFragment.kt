@@ -4,7 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentManager
-import com.pr0gramm.app.ui.DialogBuilder
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.ErrorFormatting
@@ -21,10 +21,10 @@ class ErrorDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DialogBuilder.start(activity)
-                .content(arguments.getString("content") ?: "no content :(")
-                .positive()
-                .build()
+        return dialog(activity) {
+            content(arguments.getString("content") ?: "no content :(")
+            positive()
+        }
     }
 
     companion object {

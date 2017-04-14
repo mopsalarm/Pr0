@@ -11,10 +11,11 @@ import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.primitives.Floats
 import com.jakewharton.rxbinding.widget.itemClicks
 import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.AdminService
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.arguments
 import kotterknife.bindView
@@ -38,12 +39,12 @@ class ItemAdminDialog : BaseDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DialogBuilder.start(context)
-                .layout(R.layout.admin_delete_item)
-                .negative(R.string.cancel) { this.dismiss() }
-                .positive(R.string.delete) { di -> onDeleteClicked() }
-                .noAutoDismiss()
-                .build()
+        return dialog(context) {
+            layout(R.layout.admin_delete_item)
+            negative(R.string.cancel) { dismiss() }
+            positive(R.string.delete) { onDeleteClicked() }
+            noAutoDismiss()
+        }
     }
 
     override fun onDialogViewCreated() {

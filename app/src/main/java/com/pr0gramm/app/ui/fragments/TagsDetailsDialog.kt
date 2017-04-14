@@ -12,10 +12,11 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
 import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
@@ -46,12 +47,12 @@ class TagsDetailsDialog : BaseDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DialogBuilder.start(context)
-                .layout(R.layout.admin_tags_details)
-                .negative(R.string.cancel) { this.dismiss() }
-                .positive(R.string.delete) { di -> onDeleteClicked() }
-                .noAutoDismiss()
-                .build()
+        return dialog(context) {
+            layout(R.layout.admin_tags_details)
+            negative(R.string.cancel) { dismiss() }
+            positive(R.string.delete) { onDeleteClicked() }
+            noAutoDismiss()
+        }
     }
 
     override fun onDialogViewCreated() {

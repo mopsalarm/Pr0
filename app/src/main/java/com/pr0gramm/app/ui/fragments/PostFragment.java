@@ -387,7 +387,7 @@ public class PostFragment extends BaseFragment implements
         super.onActivityResult(requestCode, resultCode, data);
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
 
-        if (requestCode == RequestCodes.WRITE_COMMENT && resultCode == Activity.RESULT_OK) {
+        if (requestCode == RequestCodes.INSTANCE.getWRITE_COMMENT() && resultCode == Activity.RESULT_OK) {
             onNewComments(WriteMessageActivity.getNewComment(data));
         }
     }
@@ -1099,7 +1099,7 @@ public class PostFragment extends BaseFragment implements
         doIfAuthorizedHelper.run(() -> {
             startActivityForResult(
                     WriteMessageActivity.answerToComment(getActivity(), feedItem, comment),
-                    RequestCodes.WRITE_COMMENT);
+                    RequestCodes.INSTANCE.getWRITE_COMMENT());
 
         }, retry);
     }
@@ -1133,9 +1133,9 @@ public class PostFragment extends BaseFragment implements
                 .subscribe(Actions.empty(), defaultOnError());
 
         if (singleShotService.isFirstTime("kfav-userscript-hint")) {
-            DialogBuilder.start(getContext())
+            DialogBuilder.Companion.start(getContext())
                     .content(R.string.hint_kfav_userscript)
-                    .positive(R.string.open_website, di -> {
+                    .positive(R.string.open_website, () -> {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"));
                         getContext().startActivity(intent);
                     })

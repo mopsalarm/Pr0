@@ -25,7 +25,7 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.proxy.ProxyService
-import com.pr0gramm.app.ui.DialogBuilder
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.ui.views.viewer.video.AndroidVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.ExoVideoPlayer
@@ -264,11 +264,11 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         hideBusyIndicator()
 
         if (!errorShown) {
-            DialogBuilder.start(context)
-                    .dontShowAgainKey("video." + Hashing.md5().hashUnencodedChars(message).toString())
-                    .content(R.string.media_exo_error, message)
-                    .positive()
-                    .show()
+            showDialog(context) {
+                dontShowAgainKey("video." + Hashing.md5().hashUnencodedChars(message).toString())
+                content(R.string.media_exo_error, message)
+                positive()
+            }
 
             errorShown = true
         }
@@ -281,11 +281,11 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     override fun onDroppedFrames(count: Int) {
         if (!droppedFramesShown) {
-            DialogBuilder.start(context)
-                    .dontShowAgainKey("VideoMediaView.dropped-frames")
-                    .content(R.string.media_dropped_frames_hint)
-                    .positive()
-                    .show()
+            showDialog(context) {
+                dontShowAgainKey("VideoMediaView.dropped-frames")
+                content(R.string.media_dropped_frames_hint)
+                positive()
+            }
 
             droppedFramesShown = true
         }

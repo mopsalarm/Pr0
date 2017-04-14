@@ -8,9 +8,9 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.UserSuggestionService
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
@@ -30,12 +30,12 @@ class SearchUserDialog : BaseDialogFragment() {
     internal lateinit var suggestionService: UserSuggestionService
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DialogBuilder.start(context)
-                .layout(R.layout.search_user_dialog)
-                .positive(R.string.action_search_simple, Runnable { onSearchClicked() })
-                .negative(DialogBuilder.OnClickListener(Dialog::dismiss))
-                .noAutoDismiss()
-                .build()
+        return dialog(context) {
+            layout(R.layout.search_user_dialog)
+            positive(R.string.action_search_simple) { onSearchClicked() }
+            negative { dismiss() }
+            noAutoDismiss()
+        }
     }
 
     override fun onDialogViewCreated() {

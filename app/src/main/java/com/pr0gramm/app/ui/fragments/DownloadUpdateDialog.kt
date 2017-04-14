@@ -4,9 +4,11 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.ProgressBar
 import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.R
 import com.pr0gramm.app.services.DownloadService
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.trello.rxlifecycle.android.FragmentEvent
@@ -29,12 +31,15 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = DialogBuilder.start(activity)
-                .layout(R.layout.progress_update)
-                .show()
+        val dialog = showDialog(activity) {
+            layout(R.layout.progress_update)
+        }
 
-        dialog.setCancelable(false)
-        dialog.setCanceledOnTouchOutside(false)
+        if (!BuildConfig.DEBUG) {
+            dialog.setCancelable(false)
+            dialog.setCanceledOnTouchOutside(false)
+        }
+
         return dialog
     }
 

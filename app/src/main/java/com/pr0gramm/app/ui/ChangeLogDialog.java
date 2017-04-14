@@ -55,7 +55,7 @@ public class ChangeLogDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return DialogBuilder.start(getContext())
+        return DialogBuilder.Companion.start(getContext())
                 .layout(R.layout.changelog)
                 .positive()
                 .build();

@@ -202,7 +202,7 @@ public class MainActivity extends BaseAppCompatActivity implements
         }
 
         if (shouldShowOnboardingActivity()) {
-            startActivityForResult(new Intent(this, IntroActivity.class), RequestCodes.INTRO_ACTIVITY);
+            startActivityForResult(new Intent(this, IntroActivity.class), RequestCodes.INSTANCE.getINTRO_ACTIVITY());
             return;
         }
 
@@ -308,7 +308,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RequestCodes.INTRO_ACTIVITY) {
+        if (requestCode == RequestCodes.INSTANCE.getINTRO_ACTIVITY()) {
             AndroidUtility.recreateActivity(this);
         }
     }
@@ -524,7 +524,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
     private void showInfoMessage(InfoMessageService.Message message) {
         if (message.endOfLife() >= AndroidUtility.buildVersionCode()) {
-            DialogBuilder.start(this)
+            DialogBuilder.Companion.start(this)
                     .contentWithLinks("Support für deine Version ist eingestellt. Um die pr0gramm-App weiter benutzen zu können, lade eine aktuelle Version von https://app.pr0gramm.com herunter.")
                     .positive(R.string.okay, () -> {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://app.pr0gramm.com")));
@@ -537,7 +537,7 @@ public class MainActivity extends BaseAppCompatActivity implements
 
         String text = message.message();
         if (!Strings.isNullOrEmpty(text)) {
-            DialogBuilder.start(this)
+            DialogBuilder.Companion.start(this)
                     .contentWithLinks(text)
                     .positive()
                     .show();

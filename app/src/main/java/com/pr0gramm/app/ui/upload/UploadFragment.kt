@@ -34,7 +34,6 @@ import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.Truss
@@ -42,6 +41,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.BusyDialogFragment.busyDialog
+import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
@@ -113,11 +113,10 @@ class UploadFragment : BaseFragment() {
     private fun onUploadClicked() {
         val file = file
         if (file == null) {
-            DialogBuilder.start(activity)
-                    .content(R.string.hint_upload_something_happen_try_again)
-                    .positive(R.string.okay, Runnable { activity.finish() })
-                    .show()
-
+            showDialog(activity) {
+                content(R.string.hint_upload_something_happen_try_again)
+                positive(R.string.okay, { activity.finish() })
+            }
             return
         }
 
@@ -261,11 +260,11 @@ class UploadFragment : BaseFragment() {
             return
         }
 
-        DialogBuilder.start(activity)
-                .positive(android.R.string.ok, Runnable { activity.finish() })
-                .onCancel { activity.finish() }
-                .content(R.string.error_check_file_permission)
-                .show()
+        showDialog(activity) {
+            content(R.string.error_check_file_permission)
+            positive(android.R.string.ok, { activity.finish() })
+            onCancel { activity.finish() }
+        }
     }
 
     private fun onUploadError(throwable: Throwable) {
@@ -274,10 +273,10 @@ class UploadFragment : BaseFragment() {
 
         if (throwable is UploadService.UploadFailedException) {
             val causeText = getUploadFailureText(activity, throwable)
-            DialogBuilder.start(activity)
-                    .content(causeText)
-                    .positive()
-                    .show()
+            showDialog(activity) {
+                content(causeText)
+                positive()
+            }
 
         } else {
             logger.error("Got an upload error", throwable)
@@ -312,16 +311,16 @@ class UploadFragment : BaseFragment() {
     private fun handleSizeNotOkay() {
         checkMainThread()
         if (fileMediaType == MediaUri.MediaType.IMAGE) {
-            DialogBuilder.start(activity)
-                    .content(R.string.hint_image_too_large)
-                    .positive(R.string.down_size, Runnable { shrinkImage() })
-                    .negative(android.R.string.no)
-                    .show()
+            showDialog(activity) {
+                content(R.string.hint_image_too_large)
+                positive(R.string.down_size, { shrinkImage() })
+                negative(android.R.string.no)
+            }
         } else {
-            DialogBuilder.start(activity)
-                    .content(R.string.upload_hint_too_large)
-                    .positive()
-                    .show()
+            showDialog(activity) {
+                content(R.string.upload_hint_too_large)
+                positive()
+            }
         }
     }
 
@@ -343,11 +342,10 @@ class UploadFragment : BaseFragment() {
     }
 
     private fun showCanNotHandleTypeDialog() {
-        checkMainThread()
-        DialogBuilder.start(activity)
-                .content(R.string.upload_error_invalid_type)
-                .positive(R.string.okay, Runnable { activity.finish() })
-                .show()
+        showDialog(activity) {
+            content(R.string.upload_error_invalid_type)
+            positive(R.string.okay, { activity.finish() })
+        }
     }
 
     private val selectedContentType: ContentType

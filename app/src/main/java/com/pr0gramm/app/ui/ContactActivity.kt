@@ -134,11 +134,11 @@ class ContactActivity : BaseAppCompatActivity() {
     }
 
     private fun onSubmitSuccess() {
-        DialogBuilder.start(this)
-                .content(R.string.feedback_sent)
-                .positive(R.string.okay, { di -> finish() })
-                .onCancel({ finish() })
-                .show()
+        showDialog(this) {
+            content(R.string.feedback_sent)
+            positive(R.string.okay) { finish() }
+            onCancel { finish() }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

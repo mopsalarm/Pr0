@@ -6,9 +6,9 @@ import android.widget.MultiAutoCompleteTextView
 import com.google.common.base.Splitter
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
-import com.pr0gramm.app.ui.DialogBuilder
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
 import kotterknife.bindView
 
@@ -18,11 +18,11 @@ class NewTagDialogFragment : BaseDialogFragment() {
     private val tagInput: MultiAutoCompleteTextView by bindView(R.id.tag)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DialogBuilder.start(activity)
-                .layout(R.layout.dialog_add_tags)
-                .negative(R.string.cancel) { AndroidUtility.hideSoftKeyboard(tagInput) }
-                .positive(R.string.dialog_action_add, Runnable { this.onOkayClicked() })
-                .build()
+        return dialog(activity) {
+            layout(R.layout.dialog_add_tags)
+            negative(R.string.cancel) { AndroidUtility.hideSoftKeyboard(tagInput) }
+            positive(R.string.dialog_action_add) { onOkayClicked() }
+        }
     }
 
     override fun onDialogViewCreated() {
