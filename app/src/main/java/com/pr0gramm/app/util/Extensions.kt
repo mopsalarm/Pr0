@@ -5,7 +5,9 @@ import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
+import android.os.Bundle
 import android.os.PowerManager
+import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -201,4 +203,20 @@ fun Canvas.save(block: () -> Unit) {
 
 fun CharSequence?.matches(pattern: Pattern): Boolean {
     return this != null && pattern.matcher(this).matches()
+}
+
+inline fun bundle(builder: Bundle.() -> Unit): Bundle {
+    val b = Bundle()
+    b.builder()
+    return b
+}
+
+inline fun <F : Fragment> F.arguments(builder: Bundle.() -> Unit): F {
+    if (arguments != null) {
+        arguments.builder()
+    } else {
+        arguments = bundle { builder() }
+    }
+
+    return this
 }

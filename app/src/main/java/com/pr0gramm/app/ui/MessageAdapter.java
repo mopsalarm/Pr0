@@ -99,7 +99,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.pointsVisibility = pointsVisibility;
     }
 
-    protected static class MessageViewHolder extends RecyclerView.ViewHolder {
+    public static class MessageViewHolder extends RecyclerView.ViewHolder {
         final MessageView view;
 
         public MessageViewHolder(View itemView) {

@@ -113,6 +113,7 @@ import rx.subjects.PublishSubject;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
@@ -563,7 +564,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
     private Optional<MergeRecyclerAdapter> getMainAdapter() {
         if (recyclerView != null) {
             RecyclerView.Adapter adapter = recyclerView.getAdapter();
-            return Optional.fromNullable((MergeRecyclerAdapter) adapter);
+            return fromNullable((MergeRecyclerAdapter) adapter);
         }
 
         return Optional.absent();
@@ -1408,7 +1409,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         if (autoOpenOnLoad != null) {
             ifPresent(feed.indexOf(autoOpenOnLoad.getItemId()), idx -> {
-                onItemClicked(idx, autoOpenOnLoad.getCommentId(), absent());
+                onItemClicked(idx, fromNullable(autoOpenOnLoad.getCommentId()), absent());
             });
         }
 
@@ -1433,7 +1434,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         if (recyclerView == null)
             return absent();
 
-        return Optional.fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
+        return fromNullable((GridLayoutManager) recyclerView.getLayoutManager());
     }
 
     private boolean isSelfInfo(Api.Info info) {

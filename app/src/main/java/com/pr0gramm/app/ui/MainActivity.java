@@ -601,7 +601,7 @@ public class MainActivity extends BaseAppCompatActivity implements
     @Override
     public void onNavigateToFavorites(String username) {
         // move to new fragment
-        FavoritesFragment fragment = FavoritesFragment.newInstance(username);
+        FavoritesFragment fragment = FavoritesFragment.Companion.newInstance(username);
         moveToFragment(fragment, true);
 
         drawerLayout.closeDrawers();

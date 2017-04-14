@@ -6,6 +6,8 @@ import android.os.Bundle
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.f2prateek.dart.Dart
+import com.github.salomonbrys.kodein.KodeinInjector
+import com.github.salomonbrys.kodein.android.SupportFragmentInjector
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
@@ -15,8 +17,15 @@ import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment : RxAppCompatDialogFragment() {
+abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragmentInjector {
+    final override val injector = KodeinInjector()
+    final override val kodeinComponent = super.kodeinComponent
+    final override val kodeinScope = super.kodeinScope
+
     private var unbinder: Unbinder? = null
+
+    final override fun initializeInjector() = super.initializeInjector()
+    final override fun destroyInjector() = super.destroyInjector()
 
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
@@ -24,8 +33,15 @@ abstract class BaseDialogFragment : RxAppCompatDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         injectComponent(Dagger.activityComponent(activity))
+        initializeInjector()
+
         arguments?.let { Dart.inject(this, it) }
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        destroyInjector()
     }
 
     protected abstract fun injectComponent(activityComponent: ActivityComponent)

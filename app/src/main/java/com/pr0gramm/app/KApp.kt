@@ -54,6 +54,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<UserSuggestionService>() with instance(UserSuggestionService)
         bind<UploadService>() with instance(UploadService)
 
+        bind<AdminService>() with singleton { AdminService(instance()) }
         bind<ContactService>() with singleton { ContactService(instance()) }
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }

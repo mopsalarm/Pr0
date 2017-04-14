@@ -490,13 +490,13 @@ public class PostFragment extends BaseFragment implements
             startActivity(intent);
 
         } else {
-            ViewerFullscreenParameters params = ViewerFullscreenParameters.forViewer(getActivity(), viewer);
+            ViewerFullscreenParameters params = ViewerFullscreenParameters.Companion.forViewer(getActivity(), viewer);
 
             fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(viewer,
-                    ofFloat(View.ROTATION, params.rotation),
-                    ofFloat(View.TRANSLATION_Y, params.trY),
-                    ofFloat(View.SCALE_X, params.scale),
-                    ofFloat(View.SCALE_Y, params.scale));
+                    ofFloat(View.ROTATION, params.getRotation()),
+                    ofFloat(View.TRANSLATION_Y, params.getTrY()),
+                    ofFloat(View.SCALE_X, params.getScale()),
+                    ofFloat(View.SCALE_Y, params.getScale()));
 
             fullscreenAnimator
                     .setDuration(500)
@@ -535,10 +535,10 @@ public class PostFragment extends BaseFragment implements
     }
 
     private void realignFullScreen() {
-        ViewerFullscreenParameters params = ViewerFullscreenParameters.forViewer(getActivity(), viewer);
-        viewer.setTranslationY(params.trY);
-        viewer.setScaleX(params.scale);
-        viewer.setScaleY(params.scale);
+        ViewerFullscreenParameters params = ViewerFullscreenParameters.Companion.forViewer(getActivity(), viewer);
+        viewer.setTranslationY(params.getTrY());
+        viewer.setScaleX(params.getScale());
+        viewer.setScaleY(params.getScale());
     }
 
     public void exitFullscreen() {
@@ -747,13 +747,13 @@ public class PostFragment extends BaseFragment implements
 
     @OnOptionsItemSelected(R.id.action_delete_item)
     public void showDeleteItemDialog() {
-        ItemAdminDialog dialog = ItemAdminDialog.newInstance(feedItem);
+        ItemAdminDialog dialog = ItemAdminDialog.Companion.newInstance(feedItem);
         dialog.show(getFragmentManager(), null);
     }
 
     @OnOptionsItemSelected(R.id.action_tags_details)
     public void showTagsDetailsDialog() {
-        TagsDetailsDialog dialog = TagsDetailsDialog.newInstance(feedItem.id());
+        TagsDetailsDialog dialog = TagsDetailsDialog.Companion.newInstance(feedItem.id());
         dialog.show(getFragmentManager(), null);
     }
 
