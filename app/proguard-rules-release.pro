@@ -41,3 +41,11 @@
 -keep public class com.evernote.android.job.v14.PlatformAlarmReceiver
 -keep public class com.evernote.android.job.JobBootReceiver
 -keep public class com.evernote.android.job.JobRescheduleService
+
+# keep enums!
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+    **[] $VALUES;
+    public *;
+}
