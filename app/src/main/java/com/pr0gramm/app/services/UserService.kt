@@ -30,7 +30,6 @@ import javax.inject.Singleton
 /**
  */
 @Singleton
-@org.immutables.gson.Gson.TypeAdapters
 class UserService @Inject constructor(private val api: Api,
                                       private val voteService: VoteService,
                                       private val seenService: SeenService,

@@ -12,7 +12,6 @@ buildscript {
         VersionKotlin = "1.1.1"
         VersionSupportLibrary = "25.3.1"
         VersionRxBinding = "1.0.1"
-        VersionImmutables = "2.4.6"
         VersionRetrofit = "2.2.0"
         VersionGoogleServices = "10.2.1"
     }
@@ -247,10 +246,6 @@ dependencies {
 
     compile "pl.brightinventions:slf4android:0.1.2"
     compile "com.crashlytics.sdk.android:crashlytics:2.6.7"
-
-    apt "org.immutables:value:$VersionImmutables"
-    provided "org.immutables:value:$VersionImmutables"
-    provided "org.immutables:gson:$VersionImmutables"
 
     // dependency injection using kotlin.
     compile 'com.github.salomonbrys.kodein:kodein:3.3.0'
