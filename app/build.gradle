@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'io.fabric'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
 
 apply from: 'version.gradle'
 
@@ -25,8 +23,6 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
         classpath 'io.fabric.tools:gradle:1.22.1'
-        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -141,10 +137,6 @@ android.applicationVariants.all { variant ->
     }
 }
 
-retrolambda {
-    incremental true
-}
-
 
 repositories {
     maven { url "https://jitpack.io" }
@@ -214,16 +206,16 @@ dependencies {
 
     debugCompile "com.facebook.stetho:stetho:1.4.2"
     debugCompile "com.facebook.stetho:stetho-okhttp3:1.4.2"
-    apt "com.facebook.stetho:stetho:1.4.2"
-    apt "com.facebook.stetho:stetho-okhttp3:1.4.2"
+    annotationProcessor "com.facebook.stetho:stetho:1.4.2"
+    annotationProcessor "com.facebook.stetho:stetho-okhttp3:1.4.2"
 
     compile "com.jakewharton:butterknife:8.5.1"
     compile "com.jakewharton:butterknife-annotations:8.5.1"
     compile 'com.github.JakeWharton:kotterknife:6cc0fe3fee'
-    apt "com.jakewharton:butterknife-compiler:8.5.1"
+    annotationProcessor "com.jakewharton:butterknife-compiler:8.5.1"
 
     compile "com.f2prateek.dart:dart:2.0.2"
-    apt "com.f2prateek.dart:dart-processor:2.0.2"
+    annotationProcessor "com.f2prateek.dart:dart-processor:2.0.2"
 
     // rx java
     compile "io.reactivex:rxjava:1.2.9"
@@ -252,10 +244,7 @@ dependencies {
     compile 'com.github.salomonbrys.kodein:kodein-android:3.3.0'
 
     compile "com.google.dagger:dagger:2.10"
-    apt "com.google.dagger:dagger-compiler:2.10"
-
-    // use a newer version of retrolambda
-    retrolambdaConfig "net.orfjackal.retrolambda:retrolambda:2.5.1"
+    annotationProcessor "com.google.dagger:dagger-compiler:2.10"
 
     androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.2"
     androidTestCompile "com.android.support.test:runner:0.5"
