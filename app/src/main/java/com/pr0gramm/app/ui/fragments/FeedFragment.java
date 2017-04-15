@@ -411,7 +411,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         view.setUserActionListener(new UserInfoCell.UserActionListener() {
             @Override
             public void onWriteMessageClicked(int userId, String name) {
-                startActivity(WriteMessageActivity.intent(getActivity(), userId, name));
+                startActivity(WriteMessageActivity.Companion.intent(getActivity(), userId, name));
             }
 
             @Override

@@ -391,7 +391,7 @@ public class PostFragment extends BaseFragment implements
         doIfAuthorizedHelper.onActivityResult(requestCode, resultCode);
 
         if (requestCode == RequestCodes.INSTANCE.getWRITE_COMMENT() && resultCode == Activity.RESULT_OK) {
-            onNewComments(WriteMessageActivity.getNewComment(data));
+            onNewComments(WriteMessageActivity.Companion.getNewComment(data));
         }
     }
 
@@ -488,8 +488,7 @@ public class PostFragment extends BaseFragment implements
             return;
 
         if (isStaticImage(feedItem)) {
-            boolean hq = settings.getLoadHqInZoomView();
-            Intent intent = ZoomViewActivity.newIntent(activity, feedItem, hq);
+            Intent intent = ZoomViewActivity.Companion.newIntent(activity, feedItem);
             startActivity(intent);
 
         } else {
@@ -1101,7 +1100,7 @@ public class PostFragment extends BaseFragment implements
 
         doIfAuthorizedHelper.run(() -> {
             startActivityForResult(
-                    WriteMessageActivity.answerToComment(getActivity(), feedItem, comment),
+                    WriteMessageActivity.Companion.answerToComment(getActivity(), feedItem, comment),
                     RequestCodes.INSTANCE.getWRITE_COMMENT());
 
         }, retry);

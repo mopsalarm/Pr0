@@ -193,17 +193,17 @@ public abstract class InboxFragment<T> extends BaseFragment {
     protected final MessageActionListener actionListener = new MessageActionListener() {
         @Override
         public void onAnswerToPrivateMessage(Api.Message message) {
-            startActivity(WriteMessageActivity.intent(getActivity(), message));
+            startActivity(WriteMessageActivity.Companion.intent(getActivity(), message));
         }
 
         @Override
         public void onAnswerToCommentClicked(Api.Message message) {
-            startActivity(WriteMessageActivity.answerToComment(getActivity(), message));
+            startActivity(WriteMessageActivity.Companion.answerToComment(getActivity(), message));
         }
 
         @Override
         public void onNewPrivateMessage(long userId, String name) {
-            startActivity(WriteMessageActivity.intent(getActivity(), userId, name));
+            startActivity(WriteMessageActivity.Companion.intent(getActivity(), userId, name));
         }
 
         @Override
