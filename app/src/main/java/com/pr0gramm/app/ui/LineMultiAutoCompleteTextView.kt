@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui
 
 import android.content.Context
+import android.support.v7.appcompat.R
 import android.support.v7.widget.AppCompatMultiAutoCompleteTextView
 import android.text.Layout
 import android.util.AttributeSet
@@ -13,7 +14,7 @@ import com.pr0gramm.app.util.AndroidUtility
 /**
  */
 class LineMultiAutoCompleteTextView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = R.attr.autoCompleteTextViewStyle
 ) : AppCompatMultiAutoCompleteTextView(context, attrs, defStyleAttr) {
 
     private var anchorView: View? = null

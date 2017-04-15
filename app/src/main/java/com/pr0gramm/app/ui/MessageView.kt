@@ -88,7 +88,8 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // show the points
-        val visible = name != null && Ascii.equalsIgnoreCase(message.name(), name) || message.creationTime().isBefore(scoreVisibleThreshold)
+        val visible = name != null && Ascii.equalsIgnoreCase(message.name(), name)
+                || message.creationTime().isBefore(scoreVisibleThreshold)
 
         // sender info
         sender.setSenderName(message.name(), message.mark())
