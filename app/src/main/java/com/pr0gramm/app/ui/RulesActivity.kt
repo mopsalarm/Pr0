@@ -6,7 +6,7 @@ import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RulesService
-import com.pr0gramm.app.services.ThemeHelper.theme
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import kotterknife.bindView
 
@@ -20,7 +20,7 @@ class RulesActivity : BaseAppCompatActivity() {
     override fun injectComponent(appComponent: ActivityComponent) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(theme().basic)
+        setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_rules)

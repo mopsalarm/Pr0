@@ -40,7 +40,7 @@ public class PasswordRecoveryActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(ThemeHelper.theme().getBasic());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getBasic());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password_recovery);

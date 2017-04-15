@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.provider.Settings
 import com.google.gson.Gson
+import com.pr0gramm.app.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory

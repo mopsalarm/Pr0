@@ -13,7 +13,7 @@ import com.google.common.base.Throwables
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.InviteService
-import com.pr0gramm.app.services.ThemeHelper.theme
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
@@ -38,7 +38,7 @@ class InviteActivity : BaseAppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(theme().basic)
+        setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_invite)

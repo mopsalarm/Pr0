@@ -108,7 +108,7 @@ public class ApplicationClass extends Application implements KodeinAware {
         }
 
         // get the correct theme for the app!
-        ThemeHelper.updateTheme(this);
+        ThemeHelper.INSTANCE.updateTheme();
 
         // disable verbose logging
         java.util.logging.Logger log = LogManager.getLogManager().getLogger("");

@@ -157,7 +157,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             val preloadHint = TextView(context)
             preloadHint.text = "preloaded"
             preloadHint.layoutParams = DEFAULT_PARAMS
-            preloadHint.setTextColor(ContextCompat.getColor(context, ThemeHelper.accentColor()))
+            preloadHint.setTextColor(ContextCompat.getColor(context, ThemeHelper.accentColor))
             addView(preloadHint)
         }
     }

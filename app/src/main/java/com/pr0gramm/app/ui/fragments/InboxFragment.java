@@ -16,6 +16,7 @@ import com.pr0gramm.app.R;
 import com.pr0gramm.app.api.pr0gramm.Api;
 import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.ui.InboxType;
 import com.pr0gramm.app.ui.MainActivity;
@@ -34,7 +35,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 
-import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static org.joda.time.Duration.standardMinutes;
 
@@ -93,7 +93,7 @@ public abstract class InboxFragment<T> extends BaseFragment {
         messagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         swipeRefreshLayout.setOnRefreshListener(this::reloadInboxContent);
-        swipeRefreshLayout.setColorSchemeResources(accentColor());
+        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.INSTANCE.getAccentColor());
 
         showBusyIndicator();
 

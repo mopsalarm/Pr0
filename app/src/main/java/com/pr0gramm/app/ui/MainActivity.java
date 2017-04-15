@@ -41,6 +41,7 @@ import com.pr0gramm.app.feed.FeedType;
 import com.pr0gramm.app.services.BookmarkService;
 import com.pr0gramm.app.services.InfoMessageService;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.config.Config;
@@ -73,7 +74,6 @@ import rx.functions.Actions;
 import rx.subjects.BehaviorSubject;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.util.Noop.noop;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
@@ -146,7 +146,7 @@ public class MainActivity extends BaseAppCompatActivity implements
             supportRequestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         }
 
-        setTheme(theme().getTranslucentStatus());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getTranslucentStatus());
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);

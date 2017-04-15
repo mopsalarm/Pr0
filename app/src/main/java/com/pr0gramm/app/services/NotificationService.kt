@@ -101,7 +101,7 @@ class NotificationService @Inject constructor(private val context: Application,
                 .setAutoCancel(true)
                 .setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
                 .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(ContextCompat.getColor(context, accentColor()), 500, 500)
+                .setLights(ContextCompat.getColor(context, accentColor), 500, 500)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val replyToUserId = instantReplyToUserId(messages)

@@ -57,6 +57,7 @@ import com.pr0gramm.app.services.RecentSearchesServices;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.StalkService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UriHelper;
 import com.pr0gramm.app.services.UserService;
@@ -118,7 +119,6 @@ import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.pr0gramm.app.R.id.empty;
 import static com.pr0gramm.app.feed.ContentType.SFW;
-import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.util.AndroidUtility.checkMainThread;
 import static com.pr0gramm.app.util.AndroidUtility.endAction;
@@ -296,7 +296,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             swipeRefreshLayout.setProgressViewOffset(false, offset, (int) (offset + 1.5 * (abHeight - offset)));
         }
 
-        swipeRefreshLayout.setColorSchemeResources(accentColor());
+        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.INSTANCE.getAccentColor());
 
         resetToolbar();
 

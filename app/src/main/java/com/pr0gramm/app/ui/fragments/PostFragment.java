@@ -52,6 +52,7 @@ import com.pr0gramm.app.services.InMemoryCacheService;
 import com.pr0gramm.app.services.SeenService;
 import com.pr0gramm.app.services.ShareHelper;
 import com.pr0gramm.app.services.SingleShotService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.VoteService;
@@ -108,7 +109,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.toMap;
 import static com.pr0gramm.app.R.id.player_container;
-import static com.pr0gramm.app.services.ThemeHelper.accentColor;
 import static com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.showErrorString;
@@ -303,7 +303,7 @@ public class PostFragment extends BaseFragment implements
 
         content.addOnScrollListener(scrollHandler);
 
-        swipeRefreshLayout.setColorSchemeResources(accentColor());
+        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.INSTANCE.getAccentColor());
         swipeRefreshLayout.setOnRefreshListener(() -> {
             if (!isVideoFullScreen()) {
                 rewindOnLoad = true;

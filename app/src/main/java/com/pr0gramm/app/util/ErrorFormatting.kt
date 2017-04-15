@@ -3,6 +3,7 @@ package com.pr0gramm.app.util
 import android.content.Context
 import android.util.MalformedJsonException
 import com.google.gson.JsonSyntaxException
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper

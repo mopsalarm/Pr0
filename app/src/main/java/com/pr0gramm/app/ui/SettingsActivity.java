@@ -42,7 +42,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.util.async.Async;
 
 import static com.google.common.base.Strings.emptyToNull;
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static org.joda.time.Instant.now;
 
 /**
@@ -50,7 +49,7 @@ import static org.joda.time.Instant.now;
 public class SettingsActivity extends BaseAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().getBasic());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getBasic());
         super.onCreate(savedInstanceState);
 
         String category = null;
@@ -290,7 +289,7 @@ public class SettingsActivity extends BaseAppCompatActivity {
 
             if ("pref_theme".equals(key)) {
                 // get the correct theme for the app!
-                ThemeHelper.updateTheme(getActivity());
+                ThemeHelper.INSTANCE.updateTheme();
                 AndroidUtility.recreateActivity(getActivity());
             }
         }

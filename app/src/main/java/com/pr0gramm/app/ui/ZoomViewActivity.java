@@ -35,7 +35,6 @@ import butterknife.BindView;
 import rx.Emitter;
 import rx.Observable;
 
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.util.AndroidUtility.getTintentDrawable;
 
 public class ZoomViewActivity extends BaseAppCompatActivity {
@@ -70,7 +69,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().getFullscreen());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getFullscreen());
         super.onCreate(savedInstanceState);
 
         // normal content view
@@ -160,7 +159,7 @@ public class ZoomViewActivity extends BaseAppCompatActivity {
 
     private void loadHqImage() {
         hq.setOnClickListener(null);
-        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.accentColor()));
+        hq.setImageDrawable(getColoredHqIcon(ThemeHelper.INSTANCE.getAccentColor()));
         hq.animate().alpha(1).start();
 
         Uri url = UriHelper.Companion.of(this).media(item, true);

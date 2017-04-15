@@ -17,7 +17,7 @@ class ThemeActionItemsSlide : ActionItemsSlide() {
 
     override val singleChoice: Boolean = true
 
-    override val introBackgroundResource: Int = ThemeHelper.theme().accentColor
+    override val introBackgroundResource: Int = ThemeHelper.theme.accentColor
 
     private inner class ThemeActionItem(val theme: Themes) : ActionItem(theme.title(context)) {
         private val settings = Settings.get()
@@ -27,7 +27,7 @@ class ThemeActionItemsSlide : ActionItemsSlide() {
         }
 
         override fun activate() {
-            ThemeHelper.updateTheme(context, theme)
+            ThemeHelper.updateTheme(theme)
             view?.setBackgroundResource(theme.primaryColor)
         }
 

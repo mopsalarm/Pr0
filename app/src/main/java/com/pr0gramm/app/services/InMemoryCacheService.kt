@@ -99,7 +99,7 @@ constructor() {
      */
     fun cacheTags(itemId: Long, tags: List<String>) {
         enhanceTags(itemId, tags.map { tag ->
-            ImmutableApi.Tag.builder()
+            com.pr0gramm.app.api.pr0gramm.ImmutableApi.Tag.builder()
                     .tag(tag).id(0).confidence(0.5f)
                     .build()
         })

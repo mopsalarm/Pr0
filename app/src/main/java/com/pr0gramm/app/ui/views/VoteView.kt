@@ -37,7 +37,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         var spacing = 0
         var textSize = 24
 
-        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, accentColor()))
+        markedColor = ColorStateList.valueOf(ContextCompat.getColor(context, accentColor))
         markedColorDown = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
         defaultColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
 

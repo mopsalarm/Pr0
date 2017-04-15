@@ -81,7 +81,7 @@ class ChangeLogDialog : BaseDialogFragment() {
             if (item is Version) {
                 val version = item
                 holder.setVersion(version.formatted)
-                holder.setTextColorId(accentColor(), if (version.current) 1f else 0.5f)
+                holder.setTextColorId(accentColor, if (version.current) 1f else 0.5f)
             }
         }
 

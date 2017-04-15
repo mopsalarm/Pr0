@@ -15,7 +15,7 @@ class BusyIndicator @JvmOverloads constructor(context: Context, attrs: Attribute
         ProgressWheel(context, attrs) {
 
     init {
-        barColor = ContextCompat.getColor(context, accentColor())
+        barColor = ContextCompat.getColor(context, accentColor)
         spin()
     }
 }

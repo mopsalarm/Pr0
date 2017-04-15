@@ -13,6 +13,7 @@ import com.pr0gramm.app.ActivityComponent;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.services.InboxService;
 import com.pr0gramm.app.services.NotificationService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 
 /**
  * The activity that displays the inbox.
@@ -53,7 +53,7 @@ public class InboxActivity extends BaseAppCompatActivity implements ViewPager.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().getNoActionBar());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getNoActionBar());
         super.onCreate(savedInstanceState);
 
         if (!userService.isAuthorized()) {

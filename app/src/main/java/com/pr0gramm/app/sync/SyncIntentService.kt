@@ -4,6 +4,7 @@ import android.app.IntentService
 import android.content.Intent
 import com.evernote.android.job.Job
 import com.google.common.base.Stopwatch.createStarted
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.*

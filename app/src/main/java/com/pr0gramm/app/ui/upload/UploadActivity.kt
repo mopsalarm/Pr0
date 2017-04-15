@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
-import com.pr0gramm.app.services.ThemeHelper.theme
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import javax.inject.Inject
@@ -24,7 +24,7 @@ class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener
     internal lateinit var uploadService: UploadService
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(theme().basic)
+        setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_upload)

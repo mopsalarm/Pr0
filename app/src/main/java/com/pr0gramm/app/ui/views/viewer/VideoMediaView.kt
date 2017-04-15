@@ -205,7 +205,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             storeUnmuteTime(System.currentTimeMillis())
 
             icon = AndroidUtility.getTintentDrawable(context,
-                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor())
+                    R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor)
         }
 
         muteButtonView.setImageDrawable(icon)

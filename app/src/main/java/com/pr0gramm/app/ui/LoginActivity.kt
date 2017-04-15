@@ -24,8 +24,8 @@ import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.ThemeHelper.primaryColorDark
-import com.pr0gramm.app.services.ThemeHelper.theme
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.sync.SyncJob
@@ -58,7 +58,7 @@ class LoginActivity : BaseAppCompatActivity() {
     private val submitView: Button by bindView(R.id.login)
 
     public override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(theme().whiteAccent)
+        setTheme(ThemeHelper.theme.whiteAccent)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_login)
@@ -96,7 +96,7 @@ class LoginActivity : BaseAppCompatActivity() {
         if (drawableId == 0)
             return
 
-        val fallbackColor = ContextCompat.getColor(this, primaryColorDark())
+        val fallbackColor = ContextCompat.getColor(this, primaryColorDark)
         val background = createBackgroundDrawable(drawableId, fallbackColor)
         AndroidUtility.setViewBackground(findViewById(R.id.content), background)
     }

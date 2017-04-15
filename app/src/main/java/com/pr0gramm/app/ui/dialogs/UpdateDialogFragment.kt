@@ -5,7 +5,9 @@ import android.app.DownloadManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
+import com.pr0gramm.app.R
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity

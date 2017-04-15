@@ -142,7 +142,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
                 val isFavorite = favedComments.contains(comment.id)
 
                 if (isFavorite) {
-                    val color = ContextCompat.getColor(context, ThemeHelper.accentColor())
+                    val color = ContextCompat.getColor(context, ThemeHelper.accentColor)
                     kFav.setColorFilter(color)
                     kFav.setImageResource(R.drawable.ic_favorite)
                 } else {

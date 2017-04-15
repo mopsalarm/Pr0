@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.ShareCompat
 import android.widget.Toast
+import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType

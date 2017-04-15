@@ -57,8 +57,8 @@ class CustomTabsHelper(context: Context) {
             val customTabsIntent = CustomTabsIntent.Builder()
                     .enableUrlBarHiding()
                     .addDefaultShareMenuItem()
-                    .setToolbarColor(getColor(context, ThemeHelper.theme().primaryColor))
-                    .setSecondaryToolbarColor(getColor(context, ThemeHelper.theme().primaryColorDark))
+                    .setToolbarColor(getColor(context, ThemeHelper.theme.primaryColor))
+                    .setSecondaryToolbarColor(getColor(context, ThemeHelper.theme.primaryColorDark))
                     .build()
 
             customTabsIntent.intent.`package` = packageName
@@ -85,10 +85,10 @@ class CustomTabsHelper(context: Context) {
         @JvmStatic
         fun newWebviewBuilder(context: Context): FinestWebView.Builder {
             return FinestWebView.Builder(context.applicationContext)
-                    .theme(ThemeHelper.theme().noActionBar)
+                    .theme(ThemeHelper.theme.noActionBar)
                     .iconDefaultColor(Color.WHITE)
-                    .toolbarColorRes(ThemeHelper.theme().primaryColor)
-                    .progressBarColorRes(ThemeHelper.theme().primaryColorDark)
+                    .toolbarColorRes(ThemeHelper.theme.primaryColor)
+                    .progressBarColorRes(ThemeHelper.theme.primaryColorDark)
                     .webViewSupportZoom(true)
                     .webViewBuiltInZoomControls(true)
                     .webViewDisplayZoomControls(false)

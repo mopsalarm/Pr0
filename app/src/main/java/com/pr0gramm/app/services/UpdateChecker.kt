@@ -8,6 +8,7 @@ import android.os.Environment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
 import com.google.common.io.ByteStreams
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError

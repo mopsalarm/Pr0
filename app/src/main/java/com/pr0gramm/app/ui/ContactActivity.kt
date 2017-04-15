@@ -18,7 +18,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
 import com.pr0gramm.app.services.FeedbackService
 import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.ThemeHelper.theme
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
@@ -50,14 +49,14 @@ class ContactActivity : BaseAppCompatActivity() {
     private val groupAppNotLoggedIn: List<View> by bindViews(R.id.feedback_name)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(theme().basic)
+        setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_feedback)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val primary = ContextCompat.getColor(this, ThemeHelper.accentColor())
+        val primary = ContextCompat.getColor(this, ThemeHelper.accentColor)
         ViewCompat.setBackgroundTintList(buttonSubmit, ColorStateList.valueOf(primary))
 
         // register all the change listeners

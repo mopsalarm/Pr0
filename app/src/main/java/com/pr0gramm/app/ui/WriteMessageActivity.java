@@ -19,6 +19,7 @@ import com.pr0gramm.app.parcel.MessageParceler;
 import com.pr0gramm.app.parcel.NewCommentParceler;
 import com.pr0gramm.app.parcel.core.Parceler;
 import com.pr0gramm.app.services.InboxService;
+import com.pr0gramm.app.services.ThemeHelper;
 import com.pr0gramm.app.services.Track;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.UserSuggestionService;
@@ -34,7 +35,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import rx.functions.Actions;
 
-import static com.pr0gramm.app.services.ThemeHelper.theme;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
 
 /**
@@ -71,7 +71,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(theme().getBasic());
+        setTheme(ThemeHelper.INSTANCE.getTheme().getBasic());
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.fragment_write_message);

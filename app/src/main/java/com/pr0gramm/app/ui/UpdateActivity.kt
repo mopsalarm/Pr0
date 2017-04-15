@@ -16,7 +16,7 @@ import com.pr0gramm.app.util.CustomTabsHelper
  */
 class UpdateActivity : BaseAppCompatActivity(), DialogDismissListener {
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(ThemeHelper.theme().basic)
+        setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
 
         val update = intent.getParcelableExtra<Update?>(EXTRA_UPDATE)

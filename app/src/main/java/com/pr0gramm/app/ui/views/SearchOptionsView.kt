@@ -18,6 +18,7 @@ import com.google.common.base.Splitter
 import com.google.common.collect.ImmutableList
 import com.jakewharton.rxbinding.widget.changes
 import com.jakewharton.rxbinding.widget.editorActions
+import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
