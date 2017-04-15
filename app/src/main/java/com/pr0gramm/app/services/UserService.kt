@@ -36,7 +36,6 @@ class UserService @Inject constructor(private val api: Api,
                                       private val inboxService: InboxService,
                                       private val cookieHandler: LoginCookieHandler,
                                       private val preferences: SharedPreferences,
-                                      private val settings: Settings,
                                       private val gson: Gson,
                                       private val database: Holder<SQLiteDatabase>) {
 
@@ -197,7 +196,7 @@ class UserService @Inject constructor(private val api: Api,
 
             // and reset the content user, because only signed in users can
             // see the nsfw and nsfl stuff.
-            settings.resetContentTypeSettings()
+            Settings.get().resetContentTypeSettings()
         }
     }
 

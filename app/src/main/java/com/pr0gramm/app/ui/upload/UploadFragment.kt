@@ -49,7 +49,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.Noop
 import com.trello.rxlifecycle.android.FragmentEvent
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
@@ -337,7 +336,7 @@ class UploadFragment : BaseFragment() {
     @MainThread
     private fun imageShrankSuccess() {
         Snackbar.make(checkNotNull<View>(view), R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
-                .setAction(R.string.okay, Noop.noop)
+                .setAction(R.string.okay, {})
                 .show()
     }
 

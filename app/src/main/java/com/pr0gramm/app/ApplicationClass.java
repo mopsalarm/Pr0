@@ -136,7 +136,7 @@ public class ApplicationClass extends Application implements KodeinAware {
         RxAndroidPlugins.getInstance().registerSchedulersHook(new RxAndroidSchedulersHook() {
             @Override
             public Scheduler getMainThreadScheduler() {
-                return LooperScheduler.MAIN;
+                return LooperScheduler.Companion.getMAIN();
             }
         });
     }

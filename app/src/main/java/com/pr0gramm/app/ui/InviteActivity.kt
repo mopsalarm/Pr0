@@ -17,7 +17,6 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.util.Noop.noop
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
@@ -105,7 +104,7 @@ class InviteActivity : BaseAppCompatActivity() {
 
     private fun onInviteSent() {
         Snackbar.make(mailField, R.string.invite_hint_success, Snackbar.LENGTH_SHORT)
-                .setAction(R.string.okay, noop)
+                .setAction(R.string.okay, {})
                 .show()
     }
 

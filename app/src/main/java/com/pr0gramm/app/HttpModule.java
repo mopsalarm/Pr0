@@ -40,14 +40,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.google.common.base.Preconditions.checkState;
-import static com.pr0gramm.app.util.Noop.noop;
-
 /**
  */
 @Module
 public class HttpModule {
-    private static final Logger logger = LoggerFactory.getLogger("HttpModule");
+    static final Logger logger = LoggerFactory.getLogger("HttpModule");
 
     @Provides
     @Singleton
@@ -68,11 +65,11 @@ public class HttpModule {
                 .connectionPool(new ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
 
-                .addNetworkInterceptor(BuildConfig.DEBUG ? new DebugInterceptor() : noop)
+                .addNetworkInterceptor(new DebugInterceptor())
 
                 .addInterceptor(new DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(new UserAgentInterceptor("pr0gramm-app/v" + version))
-                .addNetworkInterceptor(BuildConfig.DEBUG ? StethoWrapper.INSTANCE.networkInterceptor() : noop)
+                .addNetworkInterceptor(StethoWrapper.INSTANCE.networkInterceptor())
 
                 .addNetworkInterceptor(chain -> {
                     Stopwatch watch = Stopwatch.createStarted();
@@ -163,10 +160,13 @@ public class HttpModule {
 
         @Override
         public Response intercept(Chain chain) throws IOException {
-            checkState(BuildConfig.DEBUG, "Must only be used in a debug build");
+            Request request = chain.request();
+            if (BuildConfig.DEBUG) {
+                logger.warn("Delaying request {} for 100ms", request.url());
+                Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+            }
 
-            Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
-            return chain.proceed(chain.request());
+            return chain.proceed(request);
         }
     }
 

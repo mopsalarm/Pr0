@@ -11,7 +11,6 @@ import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SettingsTrackerService;
 import com.pr0gramm.app.services.ShareProvider;
 import com.pr0gramm.app.services.SingleShotService;
-import com.pr0gramm.app.services.TrackingModule;
 import com.pr0gramm.app.services.UserService;
 import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;

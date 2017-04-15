@@ -75,7 +75,6 @@ import rx.subjects.BehaviorSubject;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.defaultOnError;
-import static com.pr0gramm.app.util.Noop.noop;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 
@@ -218,7 +217,8 @@ public class MainActivity extends BaseAppCompatActivity implements
             } else if (shouldShowFeedbackReminder()) {
                 //noinspection ResourceType
                 Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
-                        .setAction(R.string.okay, noop)
+                        .setAction(R.string.okay, v -> {
+                        })
                         .show();
 
                 updateCheckDelay = true;
@@ -572,7 +572,8 @@ public class MainActivity extends BaseAppCompatActivity implements
                 .doOnCompleted(() -> {
                     // show a short information.
                     Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
-                            .setAction(R.string.okay, noop)
+                            .setAction(R.string.okay, v -> {
+                            })
                             .show();
 
                     // reset everything!
