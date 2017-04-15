@@ -122,7 +122,7 @@ public class WriteMessageActivity extends BaseAppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return OptionMenuHelper.INSTANCE.dispatch(this, item);
+        return OptionMenuHelper.dispatch(this, item);
     }
 
     @OnOptionsItemSelected(android.R.id.home)

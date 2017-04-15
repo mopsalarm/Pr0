@@ -53,38 +53,38 @@ public class PrivateMessageAdapter extends RecyclerView.Adapter<PrivateMessageAd
 
     @SuppressWarnings("CodeBlock2Expr")
     @Override
-    public void onBindViewHolder(MessageViewHolder view, int position) {
+    public void onBindViewHolder(MessageViewHolder holder, int position) {
         MessageItem item = messages.get(position);
 
         // header for each "group"
         boolean firstOfGroup = position == 0 || messages.get(position - 1).partner.id != item.partner.id;
-        view.header.setVisibility(firstOfGroup ? View.VISIBLE : View.GONE);
-        view.senderName.setUsername(item.partner.name, item.partner.mark);
+        holder.header.setVisibility(firstOfGroup ? View.VISIBLE : View.GONE);
+        holder.senderName.setUsername(item.partner.name, item.partner.mark);
 
         // grey out our messages
-        view.text.setTextColor(ContextCompat.getColor(context, item.message.isSent()
+        holder.text.setTextColor(ContextCompat.getColor(context, item.message.isSent()
                 ? R.color.message_text_sent : R.color.message_text_received));
 
         // the text of the message
-        AndroidUtility.linkify(view.text, item.message.getMessage());
+        AndroidUtility.linkify(holder.text, item.message.getMessage());
 
         // sender info
-        view.sender.setSingleLine(true);
-        view.sender.setSenderName(item.message.getSenderName(), item.message.getSenderMark());
-        view.sender.hidePointView();
-        view.sender.setDate(item.message.getCreated());
+        holder.sender.setSingleLine(true);
+        holder.sender.setSenderName(item.message.getSenderName(), item.message.getSenderMark());
+        holder.sender.hidePointView();
+        holder.sender.setDate(item.message.getCreated());
 
         if (actionListener != null && !item.message.isSent()) {
-            view.sender.setOnSenderClickedListener(v -> {
+            holder.sender.setOnSenderClickedListener(v -> {
                 actionListener.onUserClicked(item.message.getSenderId(), item.message.getSenderName());
             });
 
-            view.sender.setOnAnswerClickedListener(v -> {
+            holder.sender.setOnAnswerClickedListener(v -> {
                 actionListener.onAnswerToPrivateMessage(MessageConverter.of(item.message));
             });
         } else {
             // reset the answer click listener
-            view.sender.setOnAnswerClickedListener(null);
+            holder.sender.setOnAnswerClickedListener(null);
         }
     }
 

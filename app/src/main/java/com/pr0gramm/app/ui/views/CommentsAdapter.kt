@@ -81,63 +81,63 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(view: CommentView, position: Int) {
+    override fun onBindViewHolder(holder: CommentView, position: Int) {
         val entry = comments[position]
         val comment = entry.comment
-        val context = view.itemView.context
+        val context = holder.itemView.context
 
-        view.setCommentDepth(entry.depth)
-        view.senderInfo.setSenderName(comment.name, comment.mark)
-        view.senderInfo.setOnSenderClickedListener {
+        holder.setCommentDepth(entry.depth)
+        holder.senderInfo.setSenderName(comment.name, comment.mark)
+        holder.senderInfo.setOnSenderClickedListener {
             commentActionListener?.onCommentAuthorClicked(comment)
         }
 
-        AndroidUtility.linkify(view.comment, comment.content)
+        AndroidUtility.linkify(holder.comment, comment.content)
 
         // show the points
         if (admin
                 || equalsIgnoreCase(comment.name, selfName)
                 || comment.created.isBefore(scoreVisibleThreshold)) {
 
-            view.senderInfo.setPoints(getCommentScore(entry))
+            holder.senderInfo.setPoints(getCommentScore(entry))
         } else {
-            view.senderInfo.setPointsUnknown()
+            holder.senderInfo.setPointsUnknown()
         }
 
         // and the date of the post
-        view.senderInfo.setDate(comment.created)
+        holder.senderInfo.setDate(comment.created)
 
         // enable or disable the badge
-        view.senderInfo.setBadgeOpVisible(op == comment.name)
+        holder.senderInfo.setBadgeOpVisible(op == comment.name)
 
         // and register a vote handler
-        view.vote.setVote(entry.vote, true)
-        view.vote.onVote = { vote ->
+        holder.vote.setVote(entry.vote, true)
+        holder.vote.onVote = { vote ->
             val changed = doVote(entry, vote)
             notifyItemChanged(position)
             changed
         }
 
         // set alpha for the sub views. sadly, setting alpha on view.itemView is not working
-        view.comment.alpha = if (entry.vote === Vote.DOWN) 0.5f else 1f
-        view.senderInfo.alpha = if (entry.vote === Vote.DOWN) 0.5f else 1f
+        holder.comment.alpha = if (entry.vote === Vote.DOWN) 0.5f else 1f
+        holder.senderInfo.alpha = if (entry.vote === Vote.DOWN) 0.5f else 1f
 
-        view.reply.setOnClickListener {
+        holder.reply.setOnClickListener {
             commentActionListener?.onAnswerClicked(comment)
         }
 
-        view.copyCommentLink.setOnClickListener {
+        holder.copyCommentLink.setOnClickListener {
             commentActionListener?.onCopyCommentLink(comment)
         }
 
         if (comment.id == selectedCommentId) {
             val color = ContextCompat.getColor(context, R.color.selected_comment_background)
-            view.itemView.setBackgroundColor(color)
+            holder.itemView.setBackgroundColor(color)
         } else {
-            AndroidUtility.setViewBackground(view.itemView, null)
+            AndroidUtility.setViewBackground(holder.itemView, null)
         }
 
-        view.kFav?.let { kFav ->
+        holder.kFav?.let { kFav ->
             if (showFavCommentButton) {
                 val isFavorite = favedComments.contains(comment.id)
 

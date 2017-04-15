@@ -50,8 +50,7 @@ public class MessageInboxFragment extends InboxFragment<Api.Message> {
     }
 
     protected MessageAdapter newMessageAdapter(List<Api.Message> messages) {
-        return new MessageAdapter(
-                getActivity(), messages, actionListener, R.layout.row_inbox_message);
+        return new MessageAdapter(R.layout.row_inbox_message, getActivity(), messages);
     }
 
     /**

@@ -15,11 +15,12 @@ import com.pr0gramm.app.ui.MessageAdapter
  * one of those comments, it will open the post/comment.
  */
 class UserCommentsAdapter(private val activity: Activity) :
-        MessageAdapter(activity, emptyList(), null, R.layout.user_info_comment) {
+        MessageAdapter(R.layout.user_info_comment, activity, emptyList()) {
 
-    override fun onBindViewHolder(view: MessageAdapter.MessageViewHolder, position: Int) {
-        super.onBindViewHolder(view, position)
-        view.itemView.setOnClickListener { v ->
+    override fun onBindViewHolder(holder: MessageAdapter.MessageViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
+
+        holder.itemView.setOnClickListener {
             val message = this.messages[position]
 
             val uriHelper = UriHelper.of(activity)

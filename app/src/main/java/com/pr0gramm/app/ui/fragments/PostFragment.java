@@ -364,8 +364,13 @@ public class PostFragment extends BaseFragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("PostFragment.tags", new TagListParceler(tags));
-        outState.putParcelable("PostFragment.comments", new CommentListParceler(comments));
+        if (tags != null) {
+            outState.putParcelable("PostFragment.tags", new TagListParceler(tags));
+        }
+
+        if (comments != null) {
+            outState.putParcelable("PostFragment.comments", new CommentListParceler(comments));
+        }
     }
 
     private void addWarnOverlayIfNecessary(LayoutInflater inflater, ViewGroup view) {

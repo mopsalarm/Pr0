@@ -22,8 +22,8 @@ abstract class SingleValueAdapter<T, V : View>(private val value: T) :
         return Holder(createView(parent.context, parent))
     }
 
-    override fun onBindViewHolder(view: Holder<V>, position: Int) {
-        bindView(view.view, value)
+    override fun onBindViewHolder(holder: Holder<V>, position: Int) {
+        bindView(holder.view, value)
     }
 
     override fun getItemCount(): Int {

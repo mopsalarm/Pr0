@@ -35,8 +35,7 @@ import javax.inject.Singleton
 class NotificationService @Inject constructor(private val context: Application,
                                               private val inboxService: InboxService,
                                               private val picasso: Picasso,
-                                              private val userService: UserService,
-                                              badgeService: BadgeService) {
+                                              private val userService: UserService) {
 
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)
@@ -46,20 +45,21 @@ class NotificationService @Inject constructor(private val context: Application,
         // update the icon to show the current inbox count.
         this.inboxService.unreadMessagesCount().subscribe {
             unreadCount ->
-            badgeService.update(context, unreadCount)
+            BadgeService().update(context, unreadCount)
         }
     }
 
     fun showUpdateNotification(update: Update) {
-        nm.notify(NOTIFICATION_UPDATE_ID, newNotificationBuilder(context)
-                .setContentIntent(updateActivityIntent(update))
-                .setContentTitle(context.getString(R.string.notification_update_available))
-                .setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
-                .setSmallIcon(R.drawable.ic_notify_new_message)
-                .addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
-                .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
-                .setAutoCancel(true)
-                .build())
+        nm.notify(NOTIFICATION_UPDATE_ID, newNotificationBuilder(context).run {
+            setContentIntent(updateActivityIntent(update))
+            setContentTitle(context.getString(R.string.notification_update_available))
+            setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
+            setSmallIcon(R.drawable.ic_notify_new_message)
+            addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
+            setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+            setAutoCancel(true)
+            build()
+        })
     }
 
     fun showForInbox(sync: Api.Sync) {
@@ -89,19 +89,20 @@ class NotificationService @Inject constructor(private val context: Application,
         val minMessageTimestamp = messages.minBy { it.creationTime() }!!.creationTime()
         val maxMessageTimestamp = messages.maxBy { it.creationTime() }!!.creationTime()
 
-        val builder = newNotificationBuilder(context)
-                .setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
-                .setContentTitle(title)
-                .setContentText(context.getString(R.string.notify_new_message_summary_text))
-                .setStyle(inboxStyle)
-                .setSmallIcon(R.drawable.ic_notify_new_message)
-                .setLargeIcon(thumbnail(messages).orNull())
-                .setWhen(minMessageTimestamp.millis)
-                .setShowWhen(minMessageTimestamp.millis != 0L)
-                .setAutoCancel(true)
-                .setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
-                .setCategory(NotificationCompat.CATEGORY_EMAIL)
-                .setLights(ContextCompat.getColor(context, accentColor), 500, 500)
+        val builder = newNotificationBuilder(context).apply {
+            setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
+            setContentTitle(title)
+            setContentText(context.getString(R.string.notify_new_message_summary_text))
+            setStyle(inboxStyle)
+            setSmallIcon(R.drawable.ic_notify_new_message)
+            setLargeIcon(thumbnail(messages).orNull())
+            setWhen(minMessageTimestamp.millis)
+            setShowWhen(minMessageTimestamp.millis != 0L)
+            setAutoCancel(true)
+            setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
+            setCategory(NotificationCompat.CATEGORY_EMAIL)
+            setLights(ContextCompat.getColor(context, accentColor), 500, 500)
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val replyToUserId = instantReplyToUserId(messages)
@@ -118,20 +119,21 @@ class NotificationService @Inject constructor(private val context: Application,
     private fun formatMessages(messages: List<Api.Message>): NotificationCompat.MessagingStyle {
         val inboxStyle = NotificationCompat.MessagingStyle("Me")
         messages.take(5).forEach { msg ->
-            inboxStyle.addMessage(msg.message(), msg.creationTime().getMillis(), msg.name())
+            inboxStyle.addMessage(msg.message(), msg.creationTime().millis, msg.name())
         }
 
         return inboxStyle
     }
 
     fun showSendSuccessfulNotification(receiver: String) {
-        val builder = newNotificationBuilder(context)
-                .setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE))
-                .setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
-                .setContentText(context.getString(R.string.notify_goto_inbox))
-                .setSmallIcon(R.drawable.ic_notify_new_message)
-                .setAutoCancel(true)
-                .setCategory(NotificationCompat.CATEGORY_EMAIL)
+        val builder = newNotificationBuilder(context).apply {
+            setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE))
+            setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
+            setContentText(context.getString(R.string.notify_goto_inbox))
+            setSmallIcon(R.drawable.ic_notify_new_message)
+            setAutoCancel(true)
+            setCategory(NotificationCompat.CATEGORY_EMAIL)
+        }
 
         nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build())
     }

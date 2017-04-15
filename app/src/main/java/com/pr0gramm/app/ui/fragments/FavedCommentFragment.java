@@ -51,6 +51,7 @@ public class FavedCommentFragment extends MessageInboxFragment {
     protected MessageAdapter newMessageAdapter(List<Api.Message> messages) {
         MessageAdapter adapter = super.newMessageAdapter(messages);
         adapter.setPointsVisibility(MessageView.PointsVisibility.NEVER);
+        adapter.setActionListener(actionListener);
         return adapter;
     }
 

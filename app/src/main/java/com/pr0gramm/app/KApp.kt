@@ -13,6 +13,7 @@ import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.services.gif.MyGifToVideoService
 import com.pr0gramm.app.services.proxy.ProxyService
+import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
@@ -71,11 +72,15 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
 
 
         bind<AdminService>() with singleton { AdminService(instance()) }
+        bind<AdService>() with singleton { AdService(instance(), instance()) }
         bind<ContactService>() with singleton { ContactService(instance()) }
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
         bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
         bind<InviteService>() with singleton { InviteService(instance()) }
+
+        bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
+
         bind<RulesService>() with singleton { RulesService(instance()) }
 
         bind<NavigationProvider>() with scopedSingleton(androidActivityScope) {

@@ -36,11 +36,11 @@ class UsernameAutoCompleteAdapter(
             return results
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, results: Filter.FilterResults) {
             setNotifyOnChange(false)
-            clear()
 
-            @Suppress("UNCHECKED_CAST")
+            clear()
             addAll(results.values as List<String>)
 
             setNotifyOnChange(true)

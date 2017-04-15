@@ -98,17 +98,17 @@ class TagsDetailsDialog : BaseDialogFragment() {
                     .inflate(R.layout.tags_details, parent, false))
         }
 
-        override fun onBindViewHolder(view: TagsViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: TagsViewHolder, position: Int) {
             val item = tags[position]
 
-            view.checkbox.text = item.tag()
-            view.info.text = String.format("%s, +%d, -%d", item.user(), item.up(), item.down())
+            holder.checkbox.text = item.tag()
+            holder.info.text = String.format("%s, +%d, -%d", item.user(), item.up(), item.down())
 
-            view.checkbox.setOnCheckedChangeListener(null)
-            view.checkbox.isChecked = selected.contains(item.id())
+            holder.checkbox.setOnCheckedChangeListener(null)
+            holder.checkbox.isChecked = selected.contains(item.id())
 
             // register a listener to check/uncheck this tag.
-            view.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            holder.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
                 var changed = false
                 if (isChecked) {
                     changed = selected.add(item.id())
@@ -116,8 +116,8 @@ class TagsDetailsDialog : BaseDialogFragment() {
                     changed = selected.remove(item.id())
                 }
 
-                if (changed && view.adapterPosition != -1) {
-                    notifyItemChanged(view.adapterPosition)
+                if (changed && holder.adapterPosition != -1) {
+                    notifyItemChanged(holder.adapterPosition)
                 }
             }
         }

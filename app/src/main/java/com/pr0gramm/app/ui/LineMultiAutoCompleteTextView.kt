@@ -20,8 +20,7 @@ class LineMultiAutoCompleteTextView @JvmOverloads constructor(
 
     init {
         // fix auto complete
-        var inputType = inputType
-        inputType = inputType and EditorInfo.TYPE_TEXT_FLAG_AUTO_COMPLETE.inv()
+        val inputType = inputType and EditorInfo.TYPE_TEXT_FLAG_AUTO_COMPLETE.inv()
         setRawInputType(inputType)
 
         addTextChangedListener(object : SimpleTextWatcher() {
