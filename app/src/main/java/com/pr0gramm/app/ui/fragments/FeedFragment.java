@@ -362,7 +362,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
 
         MergeRecyclerAdapter merged = new MergeRecyclerAdapter();
         if (useToolbarTopMargin()) {
-            merged.addAdapter(SingleViewAdapter.of(FeedFragment::newFeedStartPaddingView));
+            merged.addAdapter(SingleViewAdapter.Companion.of(FeedFragment::newFeedStartPaddingView));
         }
 
         merged.addAdapter(adViewAdapter);
@@ -450,9 +450,9 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         view.setShowCommentsEnabled(!comments.isEmpty());
 
         appendUserInfoAdapters(
-                SingleViewAdapter.ofView(view),
+                SingleViewAdapter.Companion.ofView(view),
                 messages,
-                SingleViewAdapter.ofLayout(R.layout.user_info_footer));
+                SingleViewAdapter.Companion.ofLayout(R.layout.user_info_footer));
 
         // we are showing a user.
         activeUsername = info.getInfo().getUser().getName();
@@ -471,7 +471,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             ((MainActionHandler) getActivity()).onFeedFilterSelected(newFilter);
         });
 
-        appendUserInfoAdapters(SingleViewAdapter.ofView(view));
+        appendUserInfoAdapters(SingleViewAdapter.Companion.ofView(view));
     }
 
     private void appendUserInfoAdapters(RecyclerView.Adapter... adapters) {

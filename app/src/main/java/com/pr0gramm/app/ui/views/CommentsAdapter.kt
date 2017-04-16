@@ -225,17 +225,17 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         return Math.min(8, depth)
     }
 
-    class CommentView internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val comment: TextView by bindView(R.id.comment)
+    class CommentView(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val vote: VoteView by bindView(R.id.voting)
-        val senderInfo: SenderInfoView by bindView(R.id.sender_info)
         val reply: ImageView by bindView(R.id.reply)
+        val comment: TextView by bindView(R.id.comment)
+        val senderInfo: SenderInfoView by bindView(R.id.sender_info)
         val copyCommentLink: View by bindView(R.id.copy_comment_link)
 
         val kFav: ImageView? by bindOptionalView(R.id.kfav)
 
-        internal fun setCommentDepth(depth: Int) {
-            (itemView as CommentSpacerView).setDepth(depth)
+        fun setCommentDepth(depth: Int) {
+            (itemView as CommentSpacerView).depth = depth
         }
     }
 

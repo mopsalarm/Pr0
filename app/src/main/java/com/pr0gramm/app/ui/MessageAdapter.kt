@@ -51,9 +51,9 @@ open class MessageAdapter(private val itemLayout: Int, context: Context,
         view.update(message, userName, pointsVisibility)
 
         if (actionListener != null) {
-            view.setOnSenderClickedListener(View.OnClickListener {
+            view.setOnSenderClickedListener {
                 actionListener?.onUserClicked(message.senderId(), message.name())
-            })
+            }
 
             val isComment = message.itemId() != 0L
             if (isComment) {

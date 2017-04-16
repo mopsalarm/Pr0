@@ -64,9 +64,9 @@ class PrivateMessageAdapter(
                 actionListener.onUserClicked(item.message.senderId, item.message.senderName)
             }
 
-            holder.sender.setOnAnswerClickedListener {
+            holder.sender.setOnAnswerClickedListener(View.OnClickListener {
                 actionListener.onAnswerToPrivateMessage(MessageConverter.of(item.message))
-            }
+            })
         } else {
             // reset the answer click listener
             holder.sender.setOnAnswerClickedListener(null)

@@ -402,7 +402,7 @@ public class PostFragment extends BaseFragment implements
 
         CommentPostLine line = new CommentPostLine(getActivity());
         line.setLayoutParams(layoutParams);
-        adapter.addAdapter(SingleViewAdapter.ofView(line));
+        adapter.addAdapter(SingleViewAdapter.Companion.ofView(line));
 
         line.setCommentDraft(getArguments().getString(ARG_COMMENT_DRAFT, ""));
         line.textChanges().subscribe(text -> getArguments().putString(ARG_COMMENT_DRAFT, text));
@@ -699,7 +699,7 @@ public class PostFragment extends BaseFragment implements
         infoLineView = ButterKnife.findById(getView(), R.id.infoview);
         if (infoLineView == null) {
             infoLineView = new InfoLineView(getActivity());
-            adapter.addAdapter(SingleViewAdapter.ofView(infoLineView));
+            adapter.addAdapter(SingleViewAdapter.Companion.ofView(infoLineView));
         }
 
         boolean isSelfPost = userService.getName()
@@ -853,7 +853,7 @@ public class PostFragment extends BaseFragment implements
             // we add a placeholder to the first element of the recycler view.
             // this placeholder will mirror the size of the viewer.
             PlaceholderView placeholder = new PlaceholderView();
-            adapter.addAdapter(SingleViewAdapter.ofView(placeholder));
+            adapter.addAdapter(SingleViewAdapter.Companion.ofView(placeholder));
 
             RxView.layoutChanges(viewer).subscribe(event -> {
                 int newHeight = viewer.getMeasuredHeight();
