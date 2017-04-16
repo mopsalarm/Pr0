@@ -3,27 +3,19 @@ package com.pr0gramm.app;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.analytics.Tracker;
-import com.pr0gramm.app.io.Cache;
-import com.pr0gramm.app.services.DownloadService;
 import com.pr0gramm.app.services.InboxNotificationCanceledReceiver;
 import com.pr0gramm.app.services.MessageReplyReceiver;
-import com.pr0gramm.app.services.NotificationService;
 import com.pr0gramm.app.services.SettingsTrackerService;
 import com.pr0gramm.app.services.ShareProvider;
-import com.pr0gramm.app.services.SingleShotService;
 import com.pr0gramm.app.services.UserService;
-import com.pr0gramm.app.services.preloading.PreloadManager;
 import com.pr0gramm.app.services.preloading.PreloadService;
 import com.pr0gramm.app.sync.SyncIntentService;
-import com.pr0gramm.app.ui.AdService;
 import com.pr0gramm.app.ui.SettingsActivity;
 import com.pr0gramm.app.ui.views.CommentPostLine;
-import com.squareup.picasso.Picasso;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
-import okhttp3.OkHttpClient;
 
 /**
  */
@@ -38,31 +30,15 @@ import okhttp3.OkHttpClient;
 public interface AppComponent {
     ActivityComponent activiyComponent(ActivityModule activityModule);
 
-    PreloadManager preloadManager();
-
     UserService userService();
 
     SharedPreferences sharedPreferences();
-
-    Picasso picasso();
-
-    NotificationService notificationService();
-
-    SingleShotService singleShotService();
-
-    OkHttpClient okHttpClient();
-
-    DownloadService downloadService();
 
     Tracker googleAnalytics();
 
     Tracker googleAnalyticsTracker();
 
-    Cache cache();
-
     SettingsTrackerService settingsTracker();
-
-    AdService adService();
 
     void inject(SyncIntentService service);
 

@@ -10,27 +10,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.pr0gramm.app.Dagger
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.UriHelper
+import com.squareup.picasso.Picasso
 
 /**
  */
-class SimilarImageView : RecyclerView {
-    constructor(context: Context) : super(context) {
-        init()
-    }
+class SimilarImageView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : RecyclerView(context, attrs, defStyleAttr) {
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        init()
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {
-        init()
-    }
-
-    private fun init() {
+    init {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
     }
 
@@ -39,7 +32,7 @@ class SimilarImageView : RecyclerView {
     }
 
     private inner class ThumbnailAdapter(val thumbnails: List<HasThumbnail>) : RecyclerView.Adapter<ThumbnailViewHolder>() {
-        private val picasso = Dagger.appComponent(context).picasso()
+        val picasso: Picasso = appKodein().instance()
 
         override fun onBindViewHolder(holder: ThumbnailViewHolder, position: Int) {
             val thumb = thumbnails[position]

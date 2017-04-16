@@ -230,7 +230,7 @@ class DrawerFragment : BaseFragment() {
         benisDeltaView.text = String.format("%s%d", if (delta < 0) "↓" else "↑", delta)
     }
 
-    fun updateCurrentFilters(current: FeedFilter) {
+    fun updateCurrentFilters(current: FeedFilter?) {
         navigationAdapter.setCurrentFilter(current)
     }
 
@@ -317,7 +317,7 @@ class DrawerFragment : BaseFragment() {
             merge()
         }
 
-        fun setCurrentFilter(current: FeedFilter) {
+        fun setCurrentFilter(current: FeedFilter?) {
             currentFilter = current
             merge()
         }

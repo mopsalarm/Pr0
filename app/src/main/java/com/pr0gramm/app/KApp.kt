@@ -12,6 +12,7 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.services.gif.MyGifToVideoService
+import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
@@ -37,21 +38,24 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var LoginCookieHandler: LoginCookieHandler
     @Inject lateinit var InboxService: InboxService
     @Inject lateinit var VoteService: VoteService
+    @Inject lateinit var Picasso: Picasso
+    @Inject lateinit var SingleShotService: SingleShotService
+    @Inject lateinit var SharedPreferences: SharedPreferences
+    @Inject lateinit var PreloadManager: PreloadManager
 
-    init {
-        app.appComponent.get().inject(this)
-    }
 
     override val kodein: Kodein by Kodein.lazy {
+        app.appComponent.get().inject(this@KApp)
+
         import(autoAndroidModule(app))
 
-        bind<SharedPreferences>(overrides = true) with instance(app.appComponent.get().sharedPreferences())
+        bind<SharedPreferences>(overrides = true) with instance(SharedPreferences)
 
         bind<Settings>() with instance(Settings.get())
         bind<OkHttpClient>() with instance(OkHttpClient)
         bind<Api>() with instance(Api)
 
-        bind<Picasso>() with instance(app.appComponent.get().picasso())
+        bind<Picasso>() with instance(Picasso)
         bind<InMemoryCacheService>() with instance(inMemoryCacheService)
         bind<FancyExifThumbnailGenerator>() with instance(fancyExifThumbnailGenerator)
 
@@ -69,7 +73,8 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<UserService>() with instance(UserService)
         bind<UploadService>() with instance(UploadService)
         bind<VoteService>() with instance(VoteService)
-
+        bind<SingleShotService>() with instance(SingleShotService)
+        bind<PreloadManager>() with instance(PreloadManager)
 
         bind<AdminService>() with singleton { AdminService(instance()) }
         bind<AdService>() with singleton { AdService(instance(), instance()) }
@@ -77,6 +82,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
         bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
+        bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
         bind<InviteService>() with singleton { InviteService(instance()) }
 
         bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }

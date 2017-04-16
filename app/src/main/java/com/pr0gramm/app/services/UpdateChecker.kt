@@ -7,9 +7,10 @@ import android.os.Build
 import android.os.Environment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
@@ -106,8 +107,9 @@ class UpdateChecker {
 
 
         fun download(activity: FragmentActivity, update: Update) {
-            val appComponent = Dagger.appComponent(activity)
-            val progress = appComponent.downloadService()
+            val injector = activity.appKodein()
+
+            val progress = injector.instance<DownloadService>()
                     .downloadToFile(update.apk)
                     .subscribeOn(BackgroundScheduler.instance())
                     .unsubscribeOn(BackgroundScheduler.instance())
@@ -133,7 +135,7 @@ class UpdateChecker {
             dialog.show(activity.supportFragmentManager, null)
 
             // remove pending upload notification
-            appComponent.notificationService().cancelForUpdate()
+            injector.instance<NotificationService>().cancelForUpdate()
         }
 
         private fun install(context: Context, apk: File) {

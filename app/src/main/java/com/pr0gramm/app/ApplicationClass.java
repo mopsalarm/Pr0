@@ -52,6 +52,7 @@ public class ApplicationClass extends Application implements KodeinAware {
             .build());
 
     private static ApplicationClass INSTANCE;
+    private final KApp kApp = new KApp(this);
 
     public ApplicationClass() {
         INSTANCE = this;
@@ -144,6 +145,6 @@ public class ApplicationClass extends Application implements KodeinAware {
     @NotNull
     @Override
     public Kodein getKodein() {
-        return new KApp(this).getKodein();
+        return kApp.getKodein();
     }
 }

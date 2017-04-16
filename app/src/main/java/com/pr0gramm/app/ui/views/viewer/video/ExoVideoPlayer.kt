@@ -23,6 +23,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
 import com.google.android.exoplayer2.decoder.DecoderCounters
@@ -43,9 +45,9 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer
 import com.google.android.exoplayer2.video.VideoRendererEventListener
 import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses
@@ -347,9 +349,8 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     private class DataSourceFactory(private val context: Context, private val uri: Uri) : DataSource.Factory {
-
         override fun createDataSource(): DataSource {
-            val cache = Dagger.appComponent(context).cache()
+            val cache = context.appKodein().instance<Cache>()
             return InputStreamCacheDataSource(uri, cache)
         }
     }

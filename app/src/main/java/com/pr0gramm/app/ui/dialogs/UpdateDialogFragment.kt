@@ -1,8 +1,6 @@
 package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
-import android.app.DownloadManager
-import android.content.SharedPreferences
 import android.os.Bundle
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.BuildConfig
@@ -20,17 +18,10 @@ import org.joda.time.Duration.standardHours
 import org.joda.time.Instant
 import org.joda.time.Instant.now
 import rx.Observable
-import javax.inject.Inject
 
 /**
  */
 class UpdateDialogFragment : BaseDialogFragment() {
-    @Inject
-    internal lateinit var downloadManager: DownloadManager
-
-    @Inject
-    internal lateinit var sharedPreferences: SharedPreferences
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val update = arguments.getParcelable<Update?>("update")
         return update?.let { updateAvailableDialog(it) } ?: noNewUpdateDialog()
@@ -52,7 +43,6 @@ class UpdateDialogFragment : BaseDialogFragment() {
     }
 
     override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
     }
 
     companion object {

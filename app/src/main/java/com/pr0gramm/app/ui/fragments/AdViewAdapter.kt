@@ -5,9 +5,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.pr0gramm.app.ApplicationClass.appComponent
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.util.observeChange
@@ -18,8 +19,6 @@ import org.slf4j.LoggerFactory
  * A simple adapter that shows one or zero views.
  */
 internal class AdViewAdapter : RecyclerView.Adapter<AdViewAdapter.AdViewHolder>() {
-    private val adService = appComponent().adService()
-
     private var viewInstance: AdView? = null
 
     // destroy previous view if needed
@@ -35,6 +34,8 @@ internal class AdViewAdapter : RecyclerView.Adapter<AdViewAdapter.AdViewHolder>(
     }
 
     private fun newAdView(context: Context, parent: ViewGroup): AdView {
+        val adService = context.appKodein().instance<AdService>()
+
         val view = adService.newAdView(context)
         view.adSize = AdSize(AdSize.FULL_WIDTH, 70)
 

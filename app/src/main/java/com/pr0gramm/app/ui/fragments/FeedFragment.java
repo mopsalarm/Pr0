@@ -1259,7 +1259,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
         refreshRepostsCache(feedService, inMemoryCacheService, query)
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
-                .subscribe(ids -> feedAdapter.notifyDataSetChanged());
+                .subscribe(ids -> feedAdapter.notifyDataSetChanged(), Actions.empty());
     }
 
     private static Observable<List<Long>> refreshRepostsCache(

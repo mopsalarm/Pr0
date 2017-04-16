@@ -64,14 +64,14 @@ class UploadFragment : BaseFragment() {
     private val uploadService: UploadService by instance()
     private val rulesService: RulesService by instance()
 
-    private val busyIndicator by bindView<BusyIndicator>(R.id.busy_indicator)
-    private val contentTypeGroup by bindView<RadioGroup>(R.id.content_type_group)
-    private val preview by bindView<FrameLayout>(R.id.preview)
-    private val scrollView by bindView<ScrollView>(R.id.scrollView)
-    private val similarHintView by bindView<View>(R.id.similar_hint)
-    private val similarImages by bindView<SimilarImageView>(R.id.similar_list)
-    private val tags by bindView<MultiAutoCompleteTextView>(R.id.tags)
-    private val upload by bindView<Button>(R.id.upload)
+    private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
+    private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
+    private val preview: FrameLayout by bindView(R.id.preview)
+    private val scrollView: ScrollView by bindView(R.id.scrollView)
+    private val similarHintView: View by bindView(R.id.similar_hint)
+    private val similarImages: SimilarImageView by bindView(R.id.similar_list)
+    private val tags: MultiAutoCompleteTextView by bindView(R.id.tags)
+    private val upload: Button by bindView(R.id.upload)
 
     private var file: File? = null
     private var fileMediaType: MediaUri.MediaType? = null
@@ -82,7 +82,6 @@ class UploadFragment : BaseFragment() {
     }
 
     override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

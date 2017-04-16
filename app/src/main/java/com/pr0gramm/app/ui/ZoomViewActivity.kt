@@ -75,7 +75,6 @@ class ZoomViewActivity : BaseAppCompatActivity() {
     }
 
     override fun injectComponent(appComponent: ActivityComponent) {
-        appComponent.inject(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

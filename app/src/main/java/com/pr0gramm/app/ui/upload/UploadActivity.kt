@@ -10,18 +10,17 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import javax.inject.Inject
 
 /**
  */
 class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener {
-    @Inject
-    internal lateinit var uploadService: UploadService
+    private val uploadService: UploadService by instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
@@ -63,7 +62,6 @@ class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener
     }
 
     override fun injectComponent(appComponent: ActivityComponent) {
-        appComponent.inject(this)
     }
 
     private fun showChooseMediaTypeFragment() {
