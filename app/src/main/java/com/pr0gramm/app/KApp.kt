@@ -26,7 +26,6 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var fancyExifThumbnailGenerator: FancyExifThumbnailGenerator
     @Inject lateinit var proxyService: ProxyService
     @Inject lateinit var downloader: Downloader
-    @Inject lateinit var UserSuggestionService: UserSuggestionService
     @Inject lateinit var Api: Api
     @Inject lateinit var OkHttpClient: OkHttpClient
     @Inject lateinit var Cache: Cache
@@ -37,6 +36,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var BookmarkService: BookmarkService
     @Inject lateinit var LoginCookieHandler: LoginCookieHandler
     @Inject lateinit var InboxService: InboxService
+    @Inject lateinit var VoteService: VoteService
 
     init {
         app.appComponent.get().inject(this)
@@ -67,8 +67,8 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<InboxService>() with instance(InboxService)
 
         bind<UserService>() with instance(UserService)
-        bind<UserSuggestionService>() with instance(UserSuggestionService)
         bind<UploadService>() with instance(UploadService)
+        bind<VoteService>() with instance(VoteService)
 
 
         bind<AdminService>() with singleton { AdminService(instance()) }
@@ -82,6 +82,8 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
 
         bind<RulesService>() with singleton { RulesService(instance()) }
+
+        bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
 
         bind<NavigationProvider>() with scopedSingleton(androidActivityScope) {
             NavigationProvider(instance(), instance(), instance(), instance(), instance(), instance())

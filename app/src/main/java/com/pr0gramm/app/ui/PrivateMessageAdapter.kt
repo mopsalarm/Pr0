@@ -14,6 +14,7 @@ import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.findOptional
 import com.pr0gramm.app.util.visible
 
 /**
@@ -78,11 +79,12 @@ class PrivateMessageAdapter(
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text: TextView = find(R.id.message_text)
-        val type: TextView = find(R.id.message_type)
         val sender: SenderInfoView = find(R.id.sender_info)
         val senderName: UsernameView = find(R.id.sender_name)
         val header: View = find(R.id.header)
         val divider: View = find(R.id.divider)
+
+        val type: TextView? = findOptional(R.id.message_type)
     }
 
     private class MessageItem(val message: Api.PrivateMessage, val partner: PartnerKey)

@@ -101,7 +101,6 @@ class SeenService @Inject constructor(context: Context) {
 
      * @param file The file to map into memory
      */
-    @Throws(IOException::class)
     private fun mapByteBuffer(file: File): ByteBuffer {
         // space for up to four million posts
         val size = (4000000 / 8).toLong()

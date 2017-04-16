@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.os.PowerManager
 import android.support.v4.app.Fragment
+import android.support.v4.util.LruCache
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -186,6 +187,10 @@ inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
     return itemView.findViewById(id) as T
 }
 
+inline fun <reified T : View> RecyclerView.ViewHolder.findOptional(id: Int): T? {
+    return itemView.findViewById(id) as T?
+}
+
 var View.visible: Boolean
     get() = visibility == View.VISIBLE
     set(v) {
@@ -219,4 +224,18 @@ inline fun <F : Fragment> F.arguments(builder: Bundle.() -> Unit): F {
     }
 
     return this
+}
+
+inline fun <K, V> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V): V {
+    return get(key) ?: run {
+        val value = creator(key)
+        put(key, value)
+        value
+    }
+}
+
+inline fun <K, V> lruCache(maxSize: Int, crossinline creator: (K) -> V?): LruCache<K, V> {
+    return object : LruCache<K, V>(maxSize) {
+        override fun create(key: K): V? = creator(key)
+    }
 }

@@ -10,7 +10,7 @@ import java.util.regex.Pattern
 /**
  */
 class UsernameAutoCompleteAdapter(
-        internal val suggestionService: UserSuggestionService,
+        private val suggestionService: UserSuggestionService,
         context: Context, resource: Int, val prefix: String = "@") : ArrayAdapter<String>(context, resource) {
 
     private val filter = UsernameFilter()

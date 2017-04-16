@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.AutoCompleteTextView
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -14,20 +15,16 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
-import javax.inject.Inject
 
 /**
  */
 class SearchUserDialog : BaseDialogFragment() {
     private val logger = LoggerFactory.getLogger("SearchUserDialog")
 
-    private val inputView by bindView<AutoCompleteTextView>(R.id.username)
+    private val userService: UserService by instance()
+    private val suggestionService: UserSuggestionService by instance()
 
-    @Inject
-    internal lateinit var userService: UserService
-
-    @Inject
-    internal lateinit var suggestionService: UserSuggestionService
+    private val inputView: AutoCompleteTextView by bindView(R.id.username)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(context) {
@@ -65,7 +62,6 @@ class SearchUserDialog : BaseDialogFragment() {
     }
 
     override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
     }
 
     interface Listener {

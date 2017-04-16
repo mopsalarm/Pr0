@@ -9,6 +9,7 @@ import android.media.AudioManager.AUDIOFOCUS_LOSS
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
 import android.os.Build
 import android.support.v4.content.ContextCompat
+import android.support.v4.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -16,7 +17,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Optional
-import com.google.common.cache.CacheBuilder
 import com.google.common.hash.Hashing
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
@@ -97,10 +97,10 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     private fun restorePreviousSeek() {
         // restore seek position if known
-        val seekTo = seekToCache.getIfPresent(config.mediaUri.id)
-        if (seekTo != null) {
+        val seekTo = seekToCache.get(config.mediaUri.id)
+        if (seekTo != null && seekTo.valid) {
             logger.info("Restoring playback position {}", seekTo)
-            videoPlayer.seekTo(seekTo)
+            videoPlayer.seekTo(seekTo.time)
         }
     }
 
@@ -251,7 +251,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
     fun storePlaybackPosition() {
         val currentPosition = videoPlayer.currentPosition
-        seekToCache.put(config.mediaUri.id, currentPosition)
+        seekToCache.put(config.mediaUri.id, ExpiringTimestamp(currentPosition))
         logger.info("Stored current position {}", currentPosition)
     }
 
@@ -306,12 +306,18 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         }
     }
 
+    /**
+     * This timestamp value is only valid for 60 seconds.
+     */
+    private class ExpiringTimestamp(val time: Int) {
+        val created: Long = System.currentTimeMillis()
+        val valid: Boolean get() = (System.currentTimeMillis() - created) < 60 * 1000
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger("VideoMediaView")
 
-        private val seekToCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(5, TimeUnit.SECONDS)
-                .build<Long, Int>()
+        private val seekToCache = LruCache<Long, ExpiringTimestamp>(16)
 
         private val KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo"
     }

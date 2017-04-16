@@ -2,7 +2,7 @@ package com.pr0gramm.app.util
 
 import android.graphics.Bitmap
 import android.support.v4.graphics.BitmapCompat
-import com.google.common.cache.CacheBuilder
+import android.support.v4.util.LruCache
 import com.squareup.picasso.Cache
 import org.slf4j.LoggerFactory
 
@@ -14,11 +14,10 @@ import org.slf4j.LoggerFactory
  *
  * This should prevent further out of memory errors.
  */
-class GuavaPicassoCache private constructor(private val maxSize: Int) : Cache {
-    private val cache = CacheBuilder.newBuilder()
-            .weigher { _: String, bitmap: Bitmap -> bitmapByteCount(bitmap) }
-            .maximumWeight(maxSize.toLong())
-            .build<String, Bitmap>()
+class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
+    private val cache = object : LruCache<String, Bitmap>(maxSize) {
+        override fun sizeOf(key: String, value: Bitmap): Int = bitmapByteCount(value)
+    }
 
     init {
         logger.info("Initializing cache with about " + maxSize / (1024 * 1024) + "mb")
@@ -29,7 +28,7 @@ class GuavaPicassoCache private constructor(private val maxSize: Int) : Cache {
     }
 
     override fun get(key: String): Bitmap? {
-        return cache.getIfPresent(key)
+        return cache.get(key)
     }
 
     override fun set(key: String, bitmap: Bitmap) {
@@ -39,21 +38,19 @@ class GuavaPicassoCache private constructor(private val maxSize: Int) : Cache {
     }
 
     override fun size(): Int {
-        return cache.asMap().values.sumBy { bitmapByteCount(it) }
+        return cache.size()
     }
 
     override fun maxSize(): Int {
-        return maxSize
+        return cache.maxSize()
     }
 
     override fun clear() {
-        cache.invalidateAll()
-        cache.cleanUp()
+        cache.evictAll()
     }
 
     override fun clearKeyUri(keyPrefix: String) {
-        val keys = cache.asMap().keys.map { it.startsWith(keyPrefix) }
-        cache.invalidateAll(keys)
+        cache.snapshot().keys.filter { it.startsWith(keyPrefix) }.forEach { cache.remove(it) }
     }
 
     companion object {

@@ -1,14 +1,12 @@
 package com.pr0gramm.app.services
 
+import android.support.v4.util.LruCache
 import com.google.common.base.Optional
-import com.google.common.cache.CacheBuilder
-import com.google.common.collect.ImmutableList
 import com.google.common.primitives.Longs
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,15 +16,9 @@ import javax.inject.Singleton
  * deltas might arise because of cha0s own caching.
  */
 @Singleton
-class InMemoryCacheService @Inject
-constructor() {
-    private val tagsCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(5, TimeUnit.MINUTES)
-            .build<Long, ImmutableList<Api.Tag>>()
-
-    private val userInfoCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(2, TimeUnit.MINUTES)
-            .build<String, EnhancedUserInfo>()
+class InMemoryCacheService @Inject constructor() {
+    private val tagsCache = LruCache<Long, List<Api.Tag>>(256)
+    private val userInfoCache = LruCache<String, EnhancedUserInfo>(24)
 
     private val repostCache = AtomicReference(LongArray(0))
 
@@ -37,16 +29,14 @@ constructor() {
      * *
      * @return A list containing all previously seen tags for this item.
      */
-    fun enhanceTags(itemId: Long, tags: List<Api.Tag>): ImmutableList<Api.Tag> {
-        val result = tagsCache.getIfPresent(itemId)?.let { cached ->
+    fun enhanceTags(itemId: Long, tags: List<Api.Tag>): List<Api.Tag> {
+        val result = tagsCache.get(itemId)?.let { cached ->
             if (tags.isNotEmpty()) {
-                val merged = HashSet(cached)
-                merged.addAll(tags)
-                ImmutableList.copyOf(merged)
+                (HashSet(cached) + tags).toList()
             } else {
                 cached
             }
-        } ?: ImmutableList.copyOf(tags)
+        } ?: tags.toList()
 
         tagsCache.put(itemId, result)
         return result
@@ -91,7 +81,7 @@ constructor() {
      */
     fun getUserInfo(contentTypes: Set<ContentType>, name: String): Optional<EnhancedUserInfo> {
         val key = name.trim().toLowerCase() + ContentType.combine(contentTypes)
-        return Optional.fromNullable(userInfoCache.getIfPresent(key))
+        return Optional.fromNullable(userInfoCache.get(key))
     }
 
     /**

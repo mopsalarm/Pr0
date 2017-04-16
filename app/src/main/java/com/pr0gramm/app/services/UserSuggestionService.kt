@@ -1,32 +1,25 @@
 package com.pr0gramm.app.services
 
-import com.google.common.base.Function
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
+import android.support.v4.util.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.util.getOrPut
 import org.slf4j.LoggerFactory
 import java.util.Collections.emptyList
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class UserSuggestionService @Inject constructor(private val api: Api) {
-    private val suggestionCache = CacheBuilder.newBuilder()
-            .maximumSize(100)
-            .build(CacheLoader.from(Function<String, List<String>> {
-                internalSuggestUsers(it!!)
-            }))
-
+class UserSuggestionService(private val api: Api) {
     fun suggestUsers(prefix: String): List<String> {
-        return suggestionCache.getUnchecked(prefix.toLowerCase())
+        return suggestionCache.getOrPut(prefix.toLowerCase()) {
+            internalSuggestUsers(it)
+        }
     }
 
     private fun internalSuggestUsers(prefix: String): List<String> {
         if (prefix.length <= 1)
             return emptyList()
 
+        logger.info("Looking for users starting with prefix {}", prefix)
         try {
             val response = api.suggestUsers(prefix).execute()
             if (!response.isSuccessful)
@@ -41,5 +34,6 @@ class UserSuggestionService @Inject constructor(private val api: Api) {
 
     companion object {
         private val logger = LoggerFactory.getLogger("UserSuggestionService")
+        private val suggestionCache = LruCache<String, List<String>>(128)
     }
 }

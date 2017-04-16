@@ -29,6 +29,7 @@ import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.util.LruCache;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,8 +44,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Throwables;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.pr0gramm.app.BuildConfig;
 import com.pr0gramm.app.R;
 import com.pr0gramm.app.Settings;
@@ -60,10 +59,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
+import kotlin.Unit;
 import rx.Completable;
 import rx.Observable;
 import rx.functions.Action0;
@@ -87,11 +86,7 @@ public class AndroidUtility {
     private static final Pattern RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
     private static final Pattern RE_GENERIC_SHORT_LINK = Pattern.compile("/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])");
 
-    private static final Cache<String, Boolean> previousExceptions =
-            CacheBuilder.<String, Boolean>newBuilder()
-                    .expireAfterWrite(1, TimeUnit.MINUTES)
-                    .maximumSize(32)
-                    .build();
+    private static final LruCache<String, Unit> cache = new LruCache<>(6);
 
     private AndroidUtility() {
     }
@@ -162,10 +157,10 @@ public class AndroidUtility {
         try {
             // try to rate limit exceptions.
             String key = String.valueOf(error.toString());
-            if (Boolean.TRUE.equals(previousExceptions.getIfPresent(key))) {
+            if (cache.get(key) != null) {
                 return;
             } else {
-                previousExceptions.put(key, true);
+                cache.put(key, Unit.INSTANCE);
             }
 
             // log to crashlytics for fast error reporting.
