@@ -50,14 +50,10 @@ class SeenService @Inject constructor(context: Context) {
         return (UnsignedBytes.toInt(buffer.get(idx)) and mask) != 0
     }
 
-    fun markAsSeen(item: FeedItem) {
-        markAsSeen(item.id().toInt())
-    }
-
-    fun markAsSeen(id: Int) {
+    fun markAsSeen(id: Long) {
         val buffer = buffer.get() ?: return
 
-        val idx = id / 8
+        val idx = id.toInt() / 8
         if (idx < 0 || idx >= buffer.limit()) {
             logger.warn("Id is too large")
             return
@@ -66,7 +62,7 @@ class SeenService @Inject constructor(context: Context) {
         // only one thread can write the buffer at a time.
         synchronized(lock) {
             var value = UnsignedBytes.toInt(buffer.get(idx))
-            value = value or (1 shl (7 - id % 8))
+            value = value or (1 shl (7 - id.toInt() % 8))
             buffer.put(idx, UnsignedBytes.saturatedCast(value.toLong()))
         }
     }

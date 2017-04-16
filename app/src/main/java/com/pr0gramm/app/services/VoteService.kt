@@ -137,7 +137,7 @@ class VoteService @Inject constructor(private val api: Api,
 
                     storeVoteValue(action.type, id, action.vote)
                     if (action.type == ITEM) {
-                        seenService.markAsSeen(id.toInt())
+                        seenService.markAsSeen(id)
                     }
                 }
             }

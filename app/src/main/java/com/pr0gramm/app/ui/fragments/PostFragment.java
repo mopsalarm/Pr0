@@ -811,7 +811,7 @@ public class PostFragment extends BaseFragment implements
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe(event -> {
             //  mark this item seen. We do that in a background thread
-            seenService.markAsSeen(feedItem);
+            seenService.markAsSeen(feedItem.id());
         });
 
         // inform viewer over fragment lifecycle events!
