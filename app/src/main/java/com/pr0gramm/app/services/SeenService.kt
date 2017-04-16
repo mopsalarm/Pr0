@@ -2,8 +2,6 @@ package com.pr0gramm.app.services
 
 import android.content.Context
 import com.google.common.primitives.UnsignedBytes
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.SettableFuture
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import org.slf4j.LoggerFactory
@@ -12,6 +10,7 @@ import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,7 +20,7 @@ import javax.inject.Singleton
 @Singleton
 class SeenService @Inject constructor(context: Context) {
     private val lock = Any()
-    private val buffer = SettableFuture.create<ByteBuffer>()
+    private val buffer = AtomicReference<ByteBuffer>()
 
     init {
         doInBackground {
@@ -39,12 +38,9 @@ class SeenService @Inject constructor(context: Context) {
     }
 
     fun isSeen(id: Long): Boolean {
-        if (!this.buffer.isDone)
-            return false
+        val buffer = this.buffer.get() ?: return false
 
         val idx = id.toInt() / 8
-
-        val buffer = Futures.getUnchecked(this.buffer)
         if (idx < 0 || idx >= buffer.limit()) {
             logger.warn("Id is too large")
             return false
@@ -59,12 +55,9 @@ class SeenService @Inject constructor(context: Context) {
     }
 
     fun markAsSeen(id: Int) {
-        if (!this.buffer.isDone)
-            return
+        val buffer = buffer.get() ?: return
 
         val idx = id / 8
-
-        val buffer = Futures.getUnchecked(this.buffer)
         if (idx < 0 || idx >= buffer.limit()) {
             logger.warn("Id is too large")
             return
@@ -82,10 +75,7 @@ class SeenService @Inject constructor(context: Context) {
      * Removes the "marked as seen" status from all items.
      */
     fun clear() {
-        if (!this.buffer.isDone)
-            return
-
-        val buffer = Futures.getUnchecked(this.buffer)
+        val buffer = this.buffer.get() ?: return
 
         synchronized(lock) {
             logger.info("Removing all the items")
