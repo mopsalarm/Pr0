@@ -9,5 +9,5 @@ interface PreviewInfoSource {
     /**
      * Returns the preview info for the given feed item.
      */
-    fun previewInfo(item: FeedItem): PreviewInfo?
+    fun previewInfoFor(item: FeedItem): PreviewInfo?
 }

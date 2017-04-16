@@ -41,7 +41,7 @@ constructor(private val api: Api, private val preferences: SharedPreferences) {
      * Gets the list of inbox messages
      */
     val inbox: Observable<List<Api.Message>>
-        get() = api.inboxAll().map<List<Api.Message>> { it.messages }
+        get() = api.inboxAll().map { it.messages }
 
     /**
      * Gets the list of private messages.

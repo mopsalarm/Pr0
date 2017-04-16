@@ -40,7 +40,7 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>(), SearchU
     }
 
     override fun newLoaderHelper(): LoaderHelper<List<Api.PrivateMessage>> {
-        return LoaderHelper.of { getInboxService().privateMessages }
+        return LoaderHelper.of { inboxService.privateMessages }
     }
 
     override fun displayMessages(recyclerView: RecyclerView, messages: List<Api.PrivateMessage>) {

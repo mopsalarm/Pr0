@@ -1,6 +1,5 @@
 package com.pr0gramm.app.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -22,9 +21,10 @@ import android.view.View
 import android.view.Window
 import com.flipboard.bottomsheet.BottomSheetLayout
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Joiner
-import com.google.common.base.MoreObjects.firstNonNull
-import com.pr0gramm.app.*
+import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.R
+import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*
@@ -39,13 +39,15 @@ import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.edit
+import com.pr0gramm.app.util.onErrorResumeEmpty
+import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.android.schedulers.AndroidSchedulers.mainThread
-import rx.functions.Action1
+import rx.functions.Action0
 import rx.subjects.BehaviorSubject
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
@@ -68,9 +70,10 @@ class MainActivity : BaseAppCompatActivity(),
 
     private val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
     private val toolbar: Toolbar by bindView(R.id.toolbar)
-    private val toolbarContainer: View by bindView(R.id.toolbar_container)
     private val contentContainer: View by bindView(R.id.content)
     private val bottomSheet: BottomSheetLayout by bindView(R.id.bottomsheet)
+
+    private val toolbarContainer: View? by bindOptionalView(R.id.toolbar_container)
 
     private val userService: UserService by instance()
     private val bookmarkService: BookmarkService by instance()
@@ -94,8 +97,7 @@ class MainActivity : BaseAppCompatActivity(),
         setSupportActionBar(toolbar)
 
         // and hide it away on scrolling
-        scrollHideToolbarListener = ScrollHideToolbarListener(
-                firstNonNull(toolbarContainer, toolbar))
+        scrollHideToolbarListener = ScrollHideToolbarListener(toolbarContainer ?: toolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -110,17 +112,17 @@ class MainActivity : BaseAppCompatActivity(),
 
         val coldStart = savedInstanceState == null
         if (coldStart) {
-            val intent = intent
-            val startedFromLauncher = intent == null || Intent.ACTION_MAIN == intent.action
+            val intent: Intent? = intent
+            val startedFromLauncher = intent == null || intent.action == Intent.ACTION_MAIN
 
             // reset to sfw only.
             if (settings.feedStartAtSfw && startedFromLauncher) {
                 logger.info("Force-switch to sfw only.")
-                settings.edit()
-                        .putBoolean("pref_feed_type_sfw", true)
-                        .putBoolean("pref_feed_type_nsfw", false)
-                        .putBoolean("pref_feed_type_nsfl", false)
-                        .apply()
+                settings.raw().edit {
+                    putBoolean("pref_feed_type_sfw", true)
+                    putBoolean("pref_feed_type_nsfw", false)
+                    putBoolean("pref_feed_type_nsfl", false)
+                }
             }
 
             createDrawerFragment()
@@ -134,11 +136,11 @@ class MainActivity : BaseAppCompatActivity(),
 
             } else {
                 startedWithIntent = true
-                onNewIntent(intent)
+                onNewIntent(intent!!)
             }
         }
 
-        if (shouldShowOnboardingActivity()) {
+        if (singleShotService.isFirstTime("onboarding-activity:1")) {
             startActivityForResult(Intent(this, IntroActivity::class.java), RequestCodes.INTRO_ACTIVITY)
             return
         }
@@ -171,13 +173,6 @@ class MainActivity : BaseAppCompatActivity(),
                         .subscribe { UpdateDialogFragment.checkForUpdates(this, false) }
             }
         }
-
-        // migrate the surface view option.
-        if (singleShotService.isFirstTime("migrate.SurfaceView")) {
-            settings.edit()
-                    .putBoolean("pref_use_texture_view_new", true)
-                    .apply()
-        }
     }
 
     private fun preparePremiumHint() {
@@ -205,24 +200,20 @@ class MainActivity : BaseAppCompatActivity(),
         doNotShowAds.onNext(!show)
     }
 
-    private fun shouldShowOnboardingActivity(): Boolean {
-        return singleShotService.isFirstTime("onboarding-activity:1")
-    }
-
     override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     private fun checkForInfoMessage() {
         infoMessageService.fetch()
-                .onErrorResumeNext(Observable.empty())
+                .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
-                .subscribe { this.showInfoMessage(it) }
+                .subscribe { showInfoMessage(it) }
     }
 
     private fun shouldShowFeedbackReminder(): Boolean {
-        // By design it is | and not ||. We want both conditions to
-        // be evaluated for the sideeffects
-        return settings.useBetaChannel && singleShotService.firstTimeInVersion("hint_feedback_reminder") or singleShotService.firstTimeToday("hint_feedback_reminder")
+        val firstTimeToday = singleShotService.firstTimeToday("hint_feedback_reminder")
+        val firstInVersion = singleShotService.firstTimeInVersion("hint_feedback_reminder")
+        return settings.useBetaChannel && (firstInVersion || firstTimeToday)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -249,7 +240,6 @@ class MainActivity : BaseAppCompatActivity(),
             super.onDestroy()
         } catch (ignored: RuntimeException) {
         }
-
     }
 
     override fun onBackStackChanged() {
@@ -257,25 +247,20 @@ class MainActivity : BaseAppCompatActivity(),
         updateActionbarTitle()
 
         drawerFragment?.updateCurrentFilters(currentFeedFilter)
-
-        if (BuildConfig.DEBUG) {
-            printFragmentStack()
-        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         val navigationType = settings.volumeNavigation
+
         val fragment = currentFragment
         if (fragment is PostPagerNavigation) {
-            val pager = fragment
-
             // volume keys navigation (only if enabled)
             if (navigationType !== Settings.VolumeNavigationType.DISABLED) {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     if (navigationType === Settings.VolumeNavigationType.UP) {
-                        pager.moveToNext()
+                        fragment.moveToNext()
                     } else {
-                        pager.moveToPrev()
+                        fragment.moveToPrev()
                     }
 
                     return true
@@ -283,9 +268,9 @@ class MainActivity : BaseAppCompatActivity(),
 
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     if (navigationType === Settings.VolumeNavigationType.UP) {
-                        pager.moveToPrev()
+                        fragment.moveToPrev()
                     } else {
-                        pager.moveToNext()
+                        fragment.moveToNext()
                     }
 
                     return true
@@ -294,33 +279,16 @@ class MainActivity : BaseAppCompatActivity(),
 
             // keyboard or d-pad navigation (always possible)
             when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> pager.moveToNext()
-                KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT -> pager.moveToPrev()
-                else -> {
-                }
-            }// no-op
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> fragment.moveToNext()
+                KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT -> fragment.moveToPrev()
+            }
         }
 
         return super.onKeyDown(keyCode, event)
     }
 
-    /**
-     * Prints the current fragmetn stack. This should only be invoked in debug builds.
-     */
-    private fun printFragmentStack() {
-        val names = ArrayList<String>()
-        names.add("root")
-        for (idx in 0..supportFragmentManager.backStackEntryCount - 1) {
-            val entry = supportFragmentManager.getBackStackEntryAt(idx)
-            names.add(entry.name.toString())
-        }
-
-        logger.info("stack: {}", Joiner.on(" -> ").join(names))
-    }
-
     private fun updateActionbarTitle() {
-        val bar = supportActionBar
-        if (bar != null) {
+        supportActionBar?.let { bar ->
             val filter = currentFeedFilter
             if (filter == null) {
                 bar.setTitle(R.string.pr0gramm)
@@ -333,39 +301,30 @@ class MainActivity : BaseAppCompatActivity(),
         }
     }
 
+    private val drawerFragment: DrawerFragment?
+        get() = supportFragmentManager.findFragmentById(R.id.left_drawer) as? DrawerFragment
+
     /**
      * Returns the current feed filter. Might be null, if no filter could be detected.
      */
-    private // get the filter of the visible fragment.
-    val currentFeedFilter: FeedFilter?
-        get() {
-            var currentFilter: FeedFilter? = null
-            val fragment = currentFragment
-            if (fragment is FilterFragment) {
-                currentFilter = fragment.currentFilter
-            }
-
-            return currentFilter
-        }
+    private val currentFeedFilter: FeedFilter?
+        get() = (currentFragment as? FilterFragment)?.currentFilter
 
     private val currentFragment: Fragment
         get() = supportFragmentManager.findFragmentById(R.id.content)
 
-    private fun shouldClearOnIntent(): Boolean {
-        return currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
-    }
+    private val shouldClearOnIntent: Boolean
+        get() = currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
 
     private fun updateToolbarBackButton() {
-        drawerToggle.isDrawerIndicatorEnabled = shouldClearOnIntent()
+        drawerToggle.isDrawerIndicatorEnabled = shouldClearOnIntent
         drawerToggle.syncState()
     }
 
     private fun createDrawerFragment() {
-        val fragment = DrawerFragment()
-
         supportFragmentManager.beginTransaction()
                 .setAllowOptimization(false)
-                .replace(R.id.left_drawer, fragment)
+                .replace(R.id.left_drawer, DrawerFragment())
                 .commit()
     }
 
@@ -393,7 +352,6 @@ class MainActivity : BaseAppCompatActivity(),
     }
 
     private fun dispatchFakeHomeEvent(item: MenuItem): Boolean {
-
         return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
                 this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title))
     }
@@ -424,7 +382,6 @@ class MainActivity : BaseAppCompatActivity(),
             // workaround for:
             // this is sometimes called after onSaveInstanceState
         }
-
     }
 
     private fun isDefaultFilter(filter: FeedFilter): Boolean {
@@ -447,7 +404,8 @@ class MainActivity : BaseAppCompatActivity(),
             return
         }
 
-        message.message?.takeIf(String::isNotBlank)?.let { text ->
+        val text = message.message?.takeIf(String::isNotBlank)
+        if (text != null) {
             showDialog(this) {
                 contentWithLinks(text)
                 positive()
@@ -475,9 +433,8 @@ class MainActivity : BaseAppCompatActivity(),
 
         val logout_successful_hint = R.string.logout_successful_hint
         userService.logout()
-                .toObservable<Any>()
-                .compose(bindToLifecycleAsync<Any>())
-                .lift(BusyDialog.busyDialog<Any>(this))
+                .compose(bindToLifecycleAsync<Any>().forCompletable())
+                .lift(BusyDialog.busyDialog<Any>(this).forCompletable())
                 .doOnCompleted {
                     // show a short information.
                     Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
@@ -487,7 +444,7 @@ class MainActivity : BaseAppCompatActivity(),
                     // reset everything!
                     gotoFeedFragment(defaultFeedFilter(), true)
                 }
-                .subscribe(Action1 {}, defaultOnError())
+                .subscribe(Action0 {}, defaultOnError())
     }
 
     private fun defaultFeedFilter(): FeedFilter {
@@ -513,9 +470,9 @@ class MainActivity : BaseAppCompatActivity(),
     }
 
     override fun onUsernameClicked() {
-        val name = userService.name
-        if (name.isPresent) {
-            val filter = FeedFilter().withFeedType(FeedType.NEW).withUser(name.get())
+        val name = userService.name.orNull()
+        if (name != null) {
+            val filter = FeedFilter().withFeedType(FeedType.NEW).withUser(name)
             gotoFeedFragment(filter, false)
         }
 
@@ -557,7 +514,6 @@ class MainActivity : BaseAppCompatActivity(),
         }
 
         // and show the fragment
-        @SuppressLint("CommitTransaction")
         val transaction = supportFragmentManager
                 .beginTransaction()
                 .setAllowOptimization(false)
@@ -574,12 +530,8 @@ class MainActivity : BaseAppCompatActivity(),
         }
 
         // trigger a back-stack changed after adding the fragment.
-        handler.post { this.onBackStackChanged() }
+        handler.post { onBackStackChanged() }
     }
-
-    private val drawerFragment: DrawerFragment?
-        get() = supportFragmentManager
-                .findFragmentById(R.id.left_drawer) as DrawerFragment
 
     private fun clearBackStack() {
         try {
@@ -588,7 +540,6 @@ class MainActivity : BaseAppCompatActivity(),
             AndroidUtility.logToCrashlytics(RuntimeException(
                     "Ignoring exception from popBackStackImmediate:", err))
         }
-
     }
 
     /**
@@ -606,12 +557,10 @@ class MainActivity : BaseAppCompatActivity(),
 
         val result = FeedFilterWithStart.fromUri(uri)
         if (result.isPresent) {
-            val clear = shouldClearOnIntent()
-
             val filter = result.get().filter
             val start = result.get().start
 
-            gotoFeedFragment(filter, clear, start)
+            gotoFeedFragment(filter, shouldClearOnIntent, start)
 
         } else {
             gotoFeedFragment(defaultFeedFilter(), true)

@@ -995,7 +995,7 @@ public class FeedFragment extends BaseFragment implements FilterFragment, BackAw
             return;
 
         try {
-            PostPagerFragment fragment = PostPagerFragment.newInstance(feed, idx, commentId);
+            PostPagerFragment fragment = PostPagerFragment.Companion.newInstance(feed, idx, commentId);
 
             if (preview.isPresent()) {
                 // pass pixels info to target fragment.

@@ -16,7 +16,7 @@ class WrittenCommentFragment : MessageInboxFragment() {
         return LoaderHelper.of<List<Api.Message>> {
             val name = userService.name.orNull() ?: return@of Observable.empty()
 
-            getInboxService()
+            inboxService
                     .getUserComments(name, ContentType.AllSet)
                     .map { userComments ->
                         userComments.comments.map {

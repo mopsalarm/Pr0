@@ -7,6 +7,7 @@ import com.github.salomonbrys.kodein.android.autoAndroidModule
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
@@ -42,6 +43,7 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
     @Inject lateinit var SingleShotService: SingleShotService
     @Inject lateinit var SharedPreferences: SharedPreferences
     @Inject lateinit var PreloadManager: PreloadManager
+    @Inject lateinit var FavedCommentService: FavedCommentService
 
 
     override val kodein: Kodein by Kodein.lazy {
@@ -75,11 +77,13 @@ internal class KApp(private val app: ApplicationClass) : KodeinAware {
         bind<VoteService>() with instance(VoteService)
         bind<SingleShotService>() with instance(SingleShotService)
         bind<PreloadManager>() with instance(PreloadManager)
+        bind<FavedCommentService>() with instance(FavedCommentService)
 
         bind<AdminService>() with singleton { AdminService(instance()) }
         bind<AdService>() with singleton { AdService(instance(), instance()) }
         bind<ContactService>() with singleton { ContactService(instance()) }
         bind<FeedbackService>() with singleton { FeedbackService(instance()) }
+        bind<FeedService>() with singleton { FeedService(instance(), instance(), instance()) }
         bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
         bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
         bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }

@@ -920,7 +920,7 @@ public class PostFragment extends BaseFragment implements
         PreviewInfo result = null;
         Fragment parent = getParentFragment();
         if (parent instanceof PreviewInfoSource) {
-            result = ((PreviewInfoSource) parent).previewInfo(feedItem);
+            result = ((PreviewInfoSource) parent).previewInfoFor(feedItem);
         }
 
         if (result == null) {
