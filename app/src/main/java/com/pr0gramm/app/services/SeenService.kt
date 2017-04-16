@@ -92,8 +92,8 @@ class SeenService @Inject constructor(context: Context) {
      * @param file The file to map into memory
      */
     private fun mapByteBuffer(file: File): ByteBuffer {
-        // space for up to four million posts
-        val size = (4000000 / 8).toLong()
+        // space for up to a few million posts
+        val size = (6000000 / 8).toLong()
 
         logger.info("Mapping cache: " + file)
         RandomAccessFile(file, "rw").use { raf ->
