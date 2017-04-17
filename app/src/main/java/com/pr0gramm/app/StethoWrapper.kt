@@ -20,7 +20,6 @@ object StethoWrapper {
         } catch (err: Exception) {
             logger.warn("Could not initialize stetho: " + err)
         }
-
     }
 
     fun networkInterceptor(): Interceptor {

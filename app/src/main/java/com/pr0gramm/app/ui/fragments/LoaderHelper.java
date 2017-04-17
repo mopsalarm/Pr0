@@ -114,11 +114,6 @@ public abstract class LoaderHelper<T> {
         };
     }
 
-    public static <T> LoaderHelper<T> of(Observable<T> staticObservable) {
-        Observable<T> cached = staticObservable.cache();
-        return of(() -> cached);
-    }
-
     private static <T> Action1<T> doFinally(Action1<T> firstAction, Action0 finallyAction) {
         return value -> {
             try {

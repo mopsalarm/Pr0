@@ -84,7 +84,7 @@ class ApplicationClass : Application(), KodeinAware {
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
 
-        Dagger.initEagerSingletons(kodein)
+        EagerBootstrap.initEagerSingletons(kodein)
 
         if (BuildConfig.DEBUG) {
             StethoWrapper.init(this)
