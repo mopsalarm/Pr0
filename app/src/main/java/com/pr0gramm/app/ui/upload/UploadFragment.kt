@@ -15,12 +15,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions.checkNotNull
 import com.google.common.base.Splitter
 import com.google.common.base.Throwables
-import com.google.common.collect.ImmutableMap
 import com.google.common.io.ByteStreams
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.HasThumbnail
@@ -344,12 +342,11 @@ class UploadFragment : BaseFragment() {
 
     private val selectedContentType: ContentType
         get() {
-            val types = ImmutableMap.builder<Int, ContentType>()
-                    .put(R.id.upload_type_sfw, ContentType.SFW)
-                    .put(R.id.upload_type_nsfw, ContentType.NSFW)
-                    .put(R.id.upload_type_nsfl, ContentType.NSFL)
-                    .put(R.id.upload_type_nsfp, ContentType.NSFP)
-                    .build()
+            val types = mapOf(
+                    R.id.upload_type_sfw to ContentType.SFW,
+                    R.id.upload_type_nsfw to ContentType.NSFW,
+                    R.id.upload_type_nsfl to ContentType.NSFL,
+                    R.id.upload_type_nsfp to ContentType.NSFP)
 
             val view = view
             if (view != null) {
@@ -416,26 +413,28 @@ class UploadFragment : BaseFragment() {
 
         private fun getUploadFailureText(context: Context, exception: UploadService.UploadFailedException): CharSequence {
             val reason = exception.errorCode
-            val textId = ImmutableMap.builder<String, Int>()
-                    .put("blacklisted", R.string.upload_error_blacklisted)
-                    .put("internal", R.string.upload_error_internal)
-                    .put("invalid", R.string.upload_error_invalid)
-                    .put("download", R.string.upload_error_download_failed)
-                    .put("exists", R.string.upload_error_exists)
-                    .build()[reason]
+            val textId = when (reason) {
+                "blacklisted" -> R.string.upload_error_blacklisted
+                "internal" -> R.string.upload_error_internal
+                "invalid" -> R.string.upload_error_invalid
+                "download" -> R.string.upload_error_download_failed
+                "exists" -> R.string.upload_error_exists
+                else -> R.string.upload_error_unknown
+            }
 
-            val text = Truss().append(context.getString(firstNonNull(textId, R.string.upload_error_unknown)))
+            val text = Truss().append(context.getString(textId))
 
             val report = exception.report
             if (report.isPresent) {
-                val videoErrorId = ImmutableMap.builder<String, Int>()
-                        .put("dimensionsTooSmall", R.string.upload_error_video_too_small)
-                        .put("dimensionsTooLarge", R.string.upload_error_video_too_large)
-                        .put("durationTooLong", R.string.upload_error_video_too_long)
-                        .put("invalidCodec", R.string.upload_error_video_codec)
-                        .put("invalidStreams", R.string.upload_error_video_streams)
-                        .put("invalidContainer", R.string.upload_error_video_container)
-                        .build()[report.get().error()]
+                val videoErrorId = when (report.get().error()) {
+                    "dimensionsTooSmall" -> R.string.upload_error_video_too_small
+                    "dimensionsTooLarge" -> R.string.upload_error_video_too_large
+                    "durationTooLong" -> R.string.upload_error_video_too_long
+                    "invalidCodec" -> R.string.upload_error_video_codec
+                    "invalidStreams" -> R.string.upload_error_video_streams
+                    "invalidContainer" -> R.string.upload_error_video_container
+                    else -> null
+                }
 
                 if (videoErrorId != null) {
                     text.append("\n\n")

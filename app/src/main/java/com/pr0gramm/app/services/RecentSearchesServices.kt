@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
-import com.google.common.collect.ImmutableList
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.pr0gramm.app.util.edit
@@ -32,9 +31,9 @@ class RecentSearchesServices(
         }
     }
 
-    fun searches(): ImmutableList<String> {
+    fun searches(): List<String> {
         synchronized(searches) {
-            return ImmutableList.copyOf(searches)
+            return searches.toList()
         }
     }
 

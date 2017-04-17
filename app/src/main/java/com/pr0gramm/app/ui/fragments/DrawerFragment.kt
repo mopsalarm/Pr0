@@ -15,8 +15,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.with
-import com.google.common.base.Joiner
-import com.google.common.collect.ImmutableList
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
@@ -358,7 +356,7 @@ class DrawerFragment : BaseFragment() {
         val cookieValue = cookieHandler.loginCookieValue.orNull()
 
         // check if the cookie is set. If not, set it.
-        var javaScript = Joiner.on("").join(ImmutableList.of<String>(
+        var javaScript = listOf(
                 "if (!/pr0app=UNIQUE/.test(document.cookie)) {",
                 "  document.cookie = 'me=" + cookieValue + "';",
                 "  document.cookie = 'pr0app=UNIQUE';",
@@ -366,7 +364,7 @@ class DrawerFragment : BaseFragment() {
                 "} else {",
                 "  setInterval(function() {$('.snowflake').remove();}, 250);",
                 "  setInterval(function() {$('.pane.secret-santa').css('padding-bottom', '96px')}, 1000);",
-                "}"))
+                "}").joinToString("\n")
 
         // use a unique cookie value each time. not sure if this is needed.
         javaScript = javaScript.replace("UNIQUE", (System.currentTimeMillis()).toString())

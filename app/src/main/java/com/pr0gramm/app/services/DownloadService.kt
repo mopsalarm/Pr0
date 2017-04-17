@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.DownloadManager
 import android.net.Uri
 import android.os.Environment
-import com.google.common.base.Joiner
 import com.google.common.base.Optional
 import com.google.common.io.CountingInputStream
 import com.google.common.io.PatternFilenameFilter
@@ -58,10 +57,10 @@ class DownloadService(
 
         val format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss")
         val fileType = feedItem.image.toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
-        val prefix = Joiner.on("-").join(
+        val prefix = listOf(
                 feedItem.created.toString(format),
                 feedItem.user,
-                "id" + feedItem.id())
+                "id" + feedItem.id()).joinToString("-")
 
         val name = prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType
 

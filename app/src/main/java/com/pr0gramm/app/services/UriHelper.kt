@@ -5,7 +5,6 @@ import android.net.Uri
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
-import com.google.common.collect.ImmutableMap
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
@@ -118,10 +117,9 @@ class UriHelper private constructor(context: Context) {
             return UriHelper(context)
         }
 
-        private val FEED_TYPES = ImmutableMap.builder<FeedType, String>()
-                .put(FeedType.NEW, "new")
-                .put(FeedType.PROMOTED, "top")
-                .put(FeedType.PREMIUM, "stalk")
-                .build()
+        private val FEED_TYPES = mapOf(
+                FeedType.NEW to "new",
+                FeedType.PROMOTED to "top",
+                FeedType.PREMIUM to "stalk")
     }
 }

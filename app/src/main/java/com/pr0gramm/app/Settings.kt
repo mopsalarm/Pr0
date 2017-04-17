@@ -145,7 +145,7 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
     val bestOfBenisThreshold: Int
         get() {
             val value = preferences.getString("pref_bestof_threshold", "2000")
-            return firstNonNull(Ints.tryParse(value!!), 0)
+            return Ints.tryParse(value) ?: 0
         }
 
     val useIncognitoBrowser: Boolean

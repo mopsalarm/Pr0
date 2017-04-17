@@ -14,7 +14,6 @@ import android.widget.*
 import com.google.common.base.CharMatcher.javaLetterOrDigit
 import com.google.common.base.CharMatcher.whitespace
 import com.google.common.base.Splitter
-import com.google.common.collect.ImmutableList
 import com.jakewharton.rxbinding.widget.changes
 import com.jakewharton.rxbinding.widget.editorActions
 import com.pr0gramm.app.R
@@ -240,8 +239,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
         val params = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         params.rightMargin = AndroidUtility.dp(context, 8)
 
-        val tags = ImmutableList.of("f:sound", "webm", "f:repost", "m:ftb")
-        val names = ImmutableList.of("sound", "webm", "repost", "ftb")
+        val tags = listOf("f:sound", "webm", "f:repost", "m:ftb")
+        val names = listOf("sound", "webm", "repost", "ftb")
 
         for (idx in tags.indices) {
             val tagValue = tags[idx]

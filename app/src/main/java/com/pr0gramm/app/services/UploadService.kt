@@ -3,7 +3,6 @@ package com.pr0gramm.app.services
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import com.google.common.base.Optional
-import com.google.common.collect.ImmutableSet
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
@@ -239,7 +238,7 @@ class UploadService(private val api: Api,
     companion object {
         private val logger = LoggerFactory.getLogger("UploadService")
 
-        private val INVALID_TAGS = ImmutableSet.of<Any>(
+        private val INVALID_TAGS = setOf(
                 "sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
     }
 }

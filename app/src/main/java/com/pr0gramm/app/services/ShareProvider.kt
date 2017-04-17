@@ -12,7 +12,6 @@ import android.provider.OpenableColumns
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Charsets
-import com.google.common.collect.ImmutableMap
 import com.google.common.io.BaseEncoding
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
@@ -169,13 +168,12 @@ class ShareProvider : ContentProvider() {
             return EXT_MIMETYPE_MAP[extension] ?: "application/binary"
         }
 
-        private val EXT_MIMETYPE_MAP = ImmutableMap.builder<String, String>()
-                .put(".png", "image/png")
-                .put(".jpg", "image/jpg")
-                .put("jpeg", "image/jpeg")
-                .put("webm", "video/webm")
-                .put(".mp4", "video/mp4")
-                .put(".gif", "image/gif")
-                .build()
+        private val EXT_MIMETYPE_MAP = mapOf(
+                ".png" to "image/png",
+                ".jpg" to "image/jpg",
+                "jpeg" to "image/jpeg",
+                "webm" to "video/webm",
+                ".mp4" to "video/mp4",
+                ".gif" to "image/gif")
     }
 }

@@ -10,7 +10,6 @@ import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
 import com.github.salomonbrys.kodein.android.KodeinIntentService
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Joiner
 import com.google.common.base.Throwables
 import com.google.common.collect.Lists.newArrayList
 import com.google.common.io.ByteStreams
@@ -187,7 +186,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
         noBuilder
                 .setContentTitle(getString(R.string.preload_finished))
-                .setContentText(Joiner.on(", ").join(contentText))
+                .setContentText(contentText.joinToString(", "))
     }
 
     /**

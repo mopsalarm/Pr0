@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions.checkArgument
 import com.google.common.base.Stopwatch
 import com.google.common.base.Stopwatch.createStarted
 import com.google.common.base.Throwables
-import com.google.common.collect.ImmutableMap
 import com.google.common.io.BaseEncoding
 import com.google.common.io.LittleEndianDataInputStream
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -228,17 +227,16 @@ class VoteService(private val api: Api,
 
         private val logger = LoggerFactory.getLogger("VoteService")
 
-        private val VOTE_ACTIONS = ImmutableMap.Builder<Int, VoteAction>()
-                .put(1, VoteAction(CachedVote.Type.ITEM, Vote.DOWN))
-                .put(2, VoteAction(CachedVote.Type.ITEM, Vote.NEUTRAL))
-                .put(3, VoteAction(CachedVote.Type.ITEM, Vote.UP))
-                .put(4, VoteAction(CachedVote.Type.COMMENT, Vote.DOWN))
-                .put(5, VoteAction(CachedVote.Type.COMMENT, Vote.NEUTRAL))
-                .put(6, VoteAction(CachedVote.Type.COMMENT, Vote.UP))
-                .put(7, VoteAction(CachedVote.Type.TAG, Vote.DOWN))
-                .put(8, VoteAction(CachedVote.Type.TAG, Vote.NEUTRAL))
-                .put(9, VoteAction(CachedVote.Type.TAG, Vote.UP))
-                .put(10, VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE))
-                .build()
+        private val VOTE_ACTIONS = mapOf(
+                1 to VoteAction(CachedVote.Type.ITEM, Vote.DOWN),
+                2 to VoteAction(CachedVote.Type.ITEM, Vote.NEUTRAL),
+                3 to VoteAction(CachedVote.Type.ITEM, Vote.UP),
+                4 to VoteAction(CachedVote.Type.COMMENT, Vote.DOWN),
+                5 to VoteAction(CachedVote.Type.COMMENT, Vote.NEUTRAL),
+                6 to VoteAction(CachedVote.Type.COMMENT, Vote.UP),
+                7 to VoteAction(CachedVote.Type.TAG, Vote.DOWN),
+                8 to VoteAction(CachedVote.Type.TAG, Vote.NEUTRAL),
+                9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
+                10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE))
     }
 }
