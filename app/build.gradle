@@ -180,7 +180,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     compile "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     compile "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
-    compile "com.squareup.okhttp3:okhttp:3.6.0"
+    compile "com.squareup.okhttp3:okhttp:3.7.0"
     compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
     compile "pl.droidsonroids.gif:android-gif-drawable:1.2.6"
@@ -193,12 +193,12 @@ dependencies {
     compile "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
     compile "org.nanohttpd:nanohttpd:2.3.1"
     compile "com.indeed:java-dogstatsd-client:2.0.16"
-    compile "me.leolin:ShortcutBadger:1.1.14@aar"
+    compile "me.leolin:ShortcutBadger:1.1.16@aar"
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
-    // compile 'com.evernote:android-job:1.1.8'
-    compile "com.github.evernote:android-job:cdb9d51ba25260fd4294154e70da0657bffd448d"
+    compile 'com.evernote:android-job:1.1.9'
+    // compile "com.github.evernote:android-job:cdb9d51ba25260fd4294154e70da0657bffd448d"
 
     // a little bit more recent then 4.1.0
     compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
@@ -208,8 +208,8 @@ dependencies {
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
 
-    debugCompile "com.facebook.stetho:stetho:1.4.2"
-    debugCompile "com.facebook.stetho:stetho-okhttp3:1.4.2"
+    debugCompile "com.facebook.stetho:stetho:1.5.0"
+    debugCompile "com.facebook.stetho:stetho-okhttp3:1.5.0"
 
     // rx java
     compile "io.reactivex:rxjava:1.2.9"

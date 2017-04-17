@@ -312,8 +312,8 @@ class MainActivity : BaseAppCompatActivity(),
     private val currentFeedFilter: FeedFilter?
         get() = (currentFragment as? FilterFragment)?.currentFilter
 
-    private val currentFragment: Fragment
-        get() = supportFragmentManager.findFragmentById(R.id.content)
+    private val currentFragment: Fragment?
+        get() = supportFragmentManager?.findFragmentById(R.id.content)
 
     private val shouldClearOnIntent: Boolean
         get() = currentFragment !is FavoritesFragment && supportFragmentManager.backStackEntryCount == 0
