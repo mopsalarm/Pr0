@@ -13,18 +13,15 @@ import rx.Observable
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Simple config service to do remove configuration with local fallback
  */
-@Singleton
-class ConfigService @Inject constructor(
-        context: Context,
-        private val okHttpClient: OkHttpClient,
-        private val gson: Gson,
-        private val preferences: SharedPreferences) {
+class ConfigService(context: Context,
+                    private val okHttpClient: OkHttpClient,
+                    private val gson: Gson,
+                    private val preferences: SharedPreferences) {
 
     private val settings = com.pr0gramm.app.Settings.get()
 

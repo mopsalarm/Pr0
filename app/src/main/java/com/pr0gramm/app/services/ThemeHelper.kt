@@ -31,9 +31,9 @@ object ThemeHelper {
      * Sets the current theme to the given value and stores it in the settings.
      */
     fun updateTheme(theme: Themes) {
-        Settings.get().edit()
-                .putString("pref_theme", theme.name)
-                .apply()
+        Settings.get().edit {
+            putString("pref_theme", theme.name)
+        }
 
         updateTheme()
     }

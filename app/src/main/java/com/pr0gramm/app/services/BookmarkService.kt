@@ -12,13 +12,11 @@ import rx.Completable
 import rx.Observable
 import rx.Single
 import rx.subjects.BehaviorSubject
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class BookmarkService @Inject constructor(private val database: Holder<SQLiteDatabase>) {
+class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
     private val onChange = BehaviorSubject.create<Void>(null as Void?).toSerialized()
 

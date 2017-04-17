@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -17,7 +16,6 @@ import com.pr0gramm.app.ui.TabsAdapter
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
-import kotterknife.bindView
 
 /**
  */
@@ -26,9 +24,6 @@ class FavoritesFragment : BaseFragment(), FilterFragment {
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
     private lateinit var feedFilter: FeedFilter
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -9,7 +9,7 @@ import me.leolin.shortcutbadger.ShortcutBadger
  * Service to wrap the badger class and allow only single threaded
  * access because of threading issues with the api :/
  */
-class BadgeService() {
+class BadgeService {
     private val executor = AsyncTask.SERIAL_EXECUTOR
 
     fun update(context: Context, badgeCount: Int) {

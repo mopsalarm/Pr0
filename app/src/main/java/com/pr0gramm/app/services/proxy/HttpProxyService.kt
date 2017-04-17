@@ -15,21 +15,14 @@ import java.io.File
 import java.io.FileInputStream
 import java.lang.System.currentTimeMillis
 import java.util.regex.Pattern
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class HttpProxyService private constructor(
+class HttpProxyService(
         private val cache: Cache,
-        private val port: Int = HttpProxyService.makeRandomPort()) : NanoHTTPD("127.0.0.1", port), ProxyService {
+        private val port: Int) : NanoHTTPD("127.0.0.1", port), ProxyService {
 
     private val nonce: String = Hashing.md5().hashLong(currentTimeMillis()).toString()
-
-    @Inject
-    constructor(cache: Cache) : this(cache, makeRandomPort()) {
-    }
 
     override fun proxy(url: Uri): Uri {
         // do not proxy twice!
@@ -172,7 +165,7 @@ class HttpProxyService private constructor(
 
          * @return A random free port number
          */
-        private fun makeRandomPort(): Int = (10000 + Math.random() * 20000).toInt()
+        fun randomPort(): Int = (10000 + Math.random() * 20000).toInt()
 
         /**
          * Guess a content type from the URL.

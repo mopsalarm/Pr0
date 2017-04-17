@@ -4,13 +4,11 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.MultiAutoCompleteTextView
 import com.google.common.base.Splitter
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
-import kotterknife.bindView
 
 /**
  */
@@ -43,9 +41,6 @@ class NewTagDialogFragment : BaseDialogFragment() {
         (parentFragment as OnAddNewTagsListener).onAddNewTags(tags)
 
         AndroidUtility.hideSoftKeyboard(tagInput)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     /**

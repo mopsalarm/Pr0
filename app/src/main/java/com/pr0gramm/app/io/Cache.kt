@@ -14,14 +14,12 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * A cache we can use for linear caching of http requests.
  */
-@Singleton
-class Cache @Inject constructor(context: Context, private val httpClient: OkHttpClient) {
+class Cache(context: Context, private val httpClient: OkHttpClient) {
     private val MEGA = (1024 * 1024).toLong()
 
     private val logger = LoggerFactory.getLogger("Cache")

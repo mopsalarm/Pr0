@@ -1,14 +1,8 @@
 package com.pr0gramm.app.ui.base
 
 import android.os.Bundle
-import butterknife.ButterKnife
-import butterknife.Unbinder
-import com.f2prateek.dart.Dart
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
-import com.pr0gramm.app.ActivityComponent
-import com.pr0gramm.app.Dagger
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
@@ -27,13 +21,6 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), AppCompatActivityI
     final override val kodeinComponent = super.kodeinComponent
     final override val kodeinScope = super.kodeinScope
 
-    private var unbinder: Unbinder? = null
-
-    val activityComponent: ActivityComponent by lazy {
-        checkMainThread()
-        Dagger.newActivityComponent(this)
-    }
-
     fun <T> bindUntilEventAsync(event: ActivityEvent): Observable.Transformer<T, T> {
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
     }
@@ -43,27 +30,17 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), AppCompatActivityI
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        injectComponent(activityComponent)
         initializeInjector()
-
-        Dart.inject(this)
         super.onCreate(savedInstanceState)
     }
-
-    protected abstract fun injectComponent(appComponent: ActivityComponent)
-
 
     override fun onDestroy() {
         super.onDestroy()
         destroyInjector()
-
-        unbinder?.unbind()
-        unbinder = null
     }
 
     override fun onContentChanged() {
         super.onContentChanged()
-        unbinder = ButterKnife.bind(this)
     }
 
     final override fun initializeInjector() = super.initializeInjector()

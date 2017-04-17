@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services.preloading
 
-import android.app.IntentService
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -9,11 +8,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
+import com.github.salomonbrys.kodein.android.KodeinIntentService
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Joiner
 import com.google.common.base.Throwables
 import com.google.common.collect.Lists.newArrayList
 import com.google.common.io.ByteStreams
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.DownloadService
@@ -31,23 +31,16 @@ import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+
 
 /**
  * This service handles preloading and resolving of preloaded images.
  */
-class PreloadService : IntentService("PreloadService") {
-    @Inject
-    internal lateinit var httpClient: OkHttpClient
-
-    @Inject
-    internal lateinit var notificationManager: NotificationManager
-
-    @Inject
-    internal lateinit var preloadManager: PreloadManager
-
-    @Inject
-    internal lateinit var powerManager: PowerManager
+class PreloadService : KodeinIntentService("PreloadService") {
+    private val httpClient: OkHttpClient by instance()
+    private val notificationManager: NotificationManager by instance()
+    private val preloadManager: PreloadManager by instance()
+    private val powerManager: PowerManager by instance()
 
     @Volatile
     private var canceled: Boolean = false
@@ -59,7 +52,6 @@ class PreloadService : IntentService("PreloadService") {
 
     override fun onCreate() {
         super.onCreate()
-        Dagger.appComponent(this).inject(this)
 
         preloadCache = File(cacheDir, "preload").apply {
             if (mkdirs()) {

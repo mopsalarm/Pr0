@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.MainActionHandler
 import com.pr0gramm.app.ui.base.BaseDialogFragment
@@ -23,6 +23,4 @@ class LogoutDialogFragment : BaseDialogFragment() {
         (activity as? MainActionHandler)?.onLogoutClicked()
     }
 
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
 }

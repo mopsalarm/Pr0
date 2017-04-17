@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui
 import android.os.Bundle
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.ThemeHelper
@@ -16,8 +16,6 @@ import kotterknife.bindView
 class RulesActivity : BaseAppCompatActivity() {
     private val rulesView: TextView by bindView(R.id.small_print)
     private val rulesService: RulesService by instance()
-
-    override fun injectComponent(appComponent: ActivityComponent) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)

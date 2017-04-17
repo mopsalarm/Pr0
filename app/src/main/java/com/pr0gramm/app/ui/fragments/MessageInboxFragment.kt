@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui.fragments
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.NotificationService
@@ -41,9 +41,6 @@ open class MessageInboxFragment : InboxFragment<Api.Message>() {
 
     protected open fun newMessageAdapter(messages: List<Api.Message>): MessageAdapter {
         return MessageAdapter(R.layout.row_inbox_message, activity, messages)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     companion object {

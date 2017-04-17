@@ -26,13 +26,12 @@ import com.squareup.picasso.Picasso
 import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class NotificationService @Inject constructor(private val context: Application,
+
+class NotificationService(private val context: Application,
                                               private val inboxService: InboxService,
                                               private val picasso: Picasso,
                                               private val userService: UserService) {

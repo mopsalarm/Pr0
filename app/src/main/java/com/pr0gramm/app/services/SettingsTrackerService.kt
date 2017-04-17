@@ -12,12 +12,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SettingsTrackerService @Inject constructor(
-        private val settings: Settings, httpClient: OkHttpClient, gson: Gson) {
+
+class SettingsTrackerService(httpClient: OkHttpClient, gson: Gson) {
+    private val settings: Settings = Settings.get()
 
     private val httpInterface: HttpInterface = Retrofit.Builder()
             .baseUrl("https://pr0.wibbly-wobbly.de/")

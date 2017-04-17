@@ -10,7 +10,6 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.primitives.Floats
 import com.jakewharton.rxbinding.widget.itemClicks
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.services.AdminService
@@ -18,7 +17,6 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.arguments
-import kotterknife.bindView
 import rx.Completable
 import rx.functions.Action0
 
@@ -34,9 +32,6 @@ class ItemAdminDialog : BaseDialogFragment() {
     private val notifyUser: CheckBox by bindView(R.id.notify_user)
 
     private val item by lazy { arguments.getParcelable<FeedItem>(KEY_FEED_ITEM) }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(context) {

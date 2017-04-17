@@ -108,8 +108,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
-        exclude 'META-INF/maven/com.google.dagger/dagger/pom.xml'
-        exclude 'META-INF/maven/com.google.dagger/dagger/pom.properties'
     }
 }
 
@@ -217,14 +215,6 @@ dependencies {
     apt "com.facebook.stetho:stetho:1.4.2"
     apt "com.facebook.stetho:stetho-okhttp3:1.4.2"
 
-    compile "com.jakewharton:butterknife:8.5.1"
-    compile "com.jakewharton:butterknife-annotations:8.5.1"
-    compile 'com.github.JakeWharton:kotterknife:6cc0fe3fee'
-    apt "com.jakewharton:butterknife-compiler:8.5.1"
-
-    compile "com.f2prateek.dart:dart:2.0.2"
-    apt "com.f2prateek.dart:dart-processor:2.0.2"
-
     // rx java
     compile "io.reactivex:rxjava:1.2.9"
     compile "io.reactivex:rxandroid:1.2.1"
@@ -250,9 +240,6 @@ dependencies {
     // dependency injection using kotlin.
     compile 'com.github.salomonbrys.kodein:kodein:3.3.0'
     compile 'com.github.salomonbrys.kodein:kodein-android:3.3.0'
-
-    compile "com.google.dagger:dagger:2.10"
-    apt "com.google.dagger:dagger-compiler:2.10"
 
     // use a newer version of retrolambda
     retrolambdaConfig "net.orfjackal.retrolambda:retrolambda:2.5.1"

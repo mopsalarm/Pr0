@@ -7,13 +7,12 @@ import com.pr0gramm.app.util.edit
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class SingleShotService @Inject constructor(internal val preferences: SharedPreferences) {
+
+class SingleShotService(internal val preferences: SharedPreferences) {
     private val lock = Any()
     private val gson = Gson()
     private var timeStringMap: MutableMap<String, String> = loadTimeStringMap()

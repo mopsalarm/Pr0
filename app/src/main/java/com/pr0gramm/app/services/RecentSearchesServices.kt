@@ -7,14 +7,13 @@ import com.google.gson.Gson
 import com.pr0gramm.app.util.edit
 import org.slf4j.LoggerFactory
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Helps with recent searches
  */
-@Singleton
-class RecentSearchesServices @Inject constructor(
+
+class RecentSearchesServices(
         private val sharedPreferences: SharedPreferences,
         private val gson: Gson) {
 

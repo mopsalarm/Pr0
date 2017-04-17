@@ -1,7 +1,7 @@
 package com.pr0gramm.app.services
 
+import android.app.Application
 import android.app.DownloadManager
-import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import com.google.common.base.Joiner
@@ -21,17 +21,14 @@ import rx.Emitter
 import rx.Observable
 import java.io.File
 import java.io.FileOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class DownloadService @Inject
-constructor(private val downloadManager: DownloadManager,
-            private val proxyService: ProxyService,
-            private val context: Context,
-            private val okHttpClient: OkHttpClient) {
+class DownloadService(
+        private val context: Application,
+        private val downloadManager: DownloadManager,
+        private val proxyService: ProxyService,
+        private val okHttpClient: OkHttpClient) {
 
     private val settings: Settings = Settings.get()
 

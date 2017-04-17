@@ -21,7 +21,7 @@ import android.view.View
 import android.view.Window
 import com.flipboard.bottomsheet.BottomSheetLayout
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.Settings
@@ -39,7 +39,6 @@ import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
-import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -118,7 +117,7 @@ class MainActivity : BaseAppCompatActivity(),
             // reset to sfw only.
             if (settings.feedStartAtSfw && startedFromLauncher) {
                 logger.info("Force-switch to sfw only.")
-                settings.raw().edit {
+                settings.edit {
                     putBoolean("pref_feed_type_sfw", true)
                     putBoolean("pref_feed_type_nsfw", false)
                     putBoolean("pref_feed_type_nsfl", false)
@@ -182,7 +181,7 @@ class MainActivity : BaseAppCompatActivity(),
             showAnyAds.takeFirst { v -> v }
                     .observeOn(AndroidSchedulers.mainThread())
                     .compose(bindToLifecycle())
-                    .onErrorResumeNext(Observable.empty<Boolean>())
+                    .onErrorResumeEmpty()
                     .filter { !userService.isPremiumUser }
                     .subscribe { adsAreShown ->
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 20000)
@@ -198,9 +197,6 @@ class MainActivity : BaseAppCompatActivity(),
 
     override fun showAds(show: Boolean) {
         doNotShowAds.onNext(!show)
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     private fun checkForInfoMessage() {
@@ -247,6 +243,12 @@ class MainActivity : BaseAppCompatActivity(),
         updateActionbarTitle()
 
         drawerFragment?.updateCurrentFilters(currentFeedFilter)
+
+        if (BuildConfig.DEBUG) {
+            logger.info("Stack: {}", (0 until supportFragmentManager.backStackEntryCount)
+                    .map { supportFragmentManager.getBackStackEntryAt(it).name }
+                    .joinToString(" -> "))
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -378,9 +380,10 @@ class MainActivity : BaseAppCompatActivity(),
 
         try {
             super.onBackPressed()
-        } catch (ignored: IllegalStateException) {
+        } catch (err: IllegalStateException) {
             // workaround for:
             // this is sometimes called after onSaveInstanceState
+            logger.warn("Error in onBackPressed:", err)
         }
     }
 
@@ -480,17 +483,15 @@ class MainActivity : BaseAppCompatActivity(),
     }
 
     override fun onFeedFilterSelected(filter: FeedFilter) {
-        onFeedFilterSelected(filter, null)
+        gotoFeedFragment(filter)
     }
 
     override fun onFeedFilterSelected(filter: FeedFilter, searchQueryState: Bundle?) {
-        gotoFeedFragment(filter, false, null, searchQueryState)
+        gotoFeedFragment(filter, queryState = searchQueryState)
     }
 
-    override fun onFeedFilterSelected(filter: FeedFilter, searchQueryState: Bundle?,
-                                      startAt: ItemWithComment?) {
-
-        gotoFeedFragment(filter, false, startAt, searchQueryState)
+    override fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?, startAt: ItemWithComment?) {
+        gotoFeedFragment(filter, false, startAt, queryState)
     }
 
     override fun pinFeedFilter(filter: FeedFilter, title: String) {
@@ -498,11 +499,11 @@ class MainActivity : BaseAppCompatActivity(),
         drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean,
+    private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,
                                  start: ItemWithComment? = null,
-                                 searchQueryState: Bundle? = null) {
+                                 queryState: Bundle? = null) {
 
-        moveToFragment(FeedFragment.newInstance(newFilter, start, searchQueryState), clear)
+        moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)
     }
 
     private fun moveToFragment(fragment: Fragment, clear: Boolean) {
@@ -526,7 +527,8 @@ class MainActivity : BaseAppCompatActivity(),
 
         try {
             transaction.commit()
-        } catch (ignored: IllegalStateException) {
+        } catch (err: IllegalStateException) {
+            logger.warn("Error in commit: ", err)
         }
 
         // trigger a back-stack changed after adding the fragment.

@@ -13,15 +13,10 @@ import rx.Observable.just
 import rx.subjects.BehaviorSubject
 import rx.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class ExtraCategories @Inject constructor(
-        private val configService: ConfigService,
-        httpClient: OkHttpClient, gson: Gson) {
+class ExtraCategories(private val configService: ConfigService, httpClient: OkHttpClient, gson: Gson) {
 
     val api: ExtraCategoryApi = Retrofit.Builder()
             .client(httpClient)

@@ -15,7 +15,7 @@ class UserInfoFoundView(context: Context, userInfo: Api.Info) : FrameLayout(cont
     private val uploads: View by bindView(R.id.uploads)
     private val username: UsernameView by bindView(R.id.username)
 
-    var uploadsClickedListener: OnUserClickedListener? = null
+    var uploadsClickedListener: (user: Int, name: String) -> Unit = { user, name -> }
 
     init {
         View.inflate(context, R.layout.user_uploads_link, this)
@@ -28,7 +28,7 @@ class UserInfoFoundView(context: Context, userInfo: Api.Info) : FrameLayout(cont
         username.setUsername(user.name, user.mark)
 
         uploads.setOnClickListener {
-            uploadsClickedListener?.onClicked(user.id, user.name)
+            uploadsClickedListener(user.id, user.name)
         }
     }
 

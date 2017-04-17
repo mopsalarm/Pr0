@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.fragments
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.ProgressBar
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.DownloadService
@@ -12,7 +11,6 @@ import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.trello.rxlifecycle.android.FragmentEvent
-import kotterknife.bindView
 import org.slf4j.LoggerFactory
 import rx.Observable
 
@@ -25,9 +23,6 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
     init {
         logger.info("New instance of DownloadUpdateDialog")
         retainInstance = true
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

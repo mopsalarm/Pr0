@@ -8,10 +8,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
-import butterknife.ButterKnife
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.findOptional
 
 /**
  */
@@ -25,15 +26,15 @@ abstract class ActionItemsSlide : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val titleView = ButterKnife.findById<TextView>(view, R.id.title)
+        val titleView = view.findOptional<TextView>(R.id.title)
         titleView?.text = introTitle
 
-        val descriptionView = ButterKnife.findById<TextView>(view, R.id.description)
+        val descriptionView = view.findOptional<TextView>(R.id.description)
         descriptionView?.text = introDescription
 
         val actionItems = introActionItems
 
-        val listView = ButterKnife.findById<ListView>(view, R.id.list)
+        val listView = view.find<ListView>(R.id.list)
         listView.choiceMode = if (singleChoice) ListView.CHOICE_MODE_SINGLE else ListView.CHOICE_MODE_MULTIPLE
         listView.adapter = ArrayAdapter(activity,
                 android.R.layout.simple_list_item_multiple_choice, android.R.id.text1,
@@ -56,8 +57,6 @@ abstract class ActionItemsSlide : BaseFragment() {
 
         introBackgroundResource?.let { res -> view.setBackgroundResource(res) }
     }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {}
 
     open val singleChoice: Boolean = false
 

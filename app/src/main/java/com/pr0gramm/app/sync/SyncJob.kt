@@ -6,11 +6,12 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
+import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.SimpleJobCreator
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
-class SyncJob private constructor() : Job() {
+class SyncJob : Job() {
     override fun onRunJob(params: Job.Params): Job.Result {
         logger.info("Sync job started.")
 
@@ -56,13 +57,15 @@ class SyncJob private constructor() : Job() {
             val extras = PersistableBundleCompat()
             extras.putLong("delay", delayInMilliseconds)
 
-            JobManager.instance().schedule(JobRequest.Builder("sync")
-                    .setUpdateCurrent(true)
-                    .setPersisted(true)
-                    .setExact(delayInMilliseconds)
-                    .setExtras(extras)
-                    .setRequiredNetworkType(JobRequest.NetworkType.ANY)
-                    .build())
+            doInBackground {
+                JobManager.instance().schedule(JobRequest.Builder("sync")
+                        .setUpdateCurrent(true)
+                        .setPersisted(true)
+                        .setExact(delayInMilliseconds)
+                        .setExtras(extras)
+                        .setRequiredNetworkType(JobRequest.NetworkType.ANY)
+                        .build())
+            }
         }
     }
 }

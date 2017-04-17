@@ -1,10 +1,11 @@
 package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
+import android.content.SharedPreferences
 import android.os.Bundle
-import com.pr0gramm.app.ActivityComponent
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
@@ -42,9 +43,6 @@ class UpdateDialogFragment : BaseDialogFragment() {
         }
     }
 
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
-
     companion object {
         private fun newInstance(update: Update): UpdateDialogFragment {
             return UpdateDialogFragment().arguments {
@@ -59,7 +57,7 @@ class UpdateDialogFragment : BaseDialogFragment() {
          * @param activity The activity that starts this update check.
          */
         fun checkForUpdates(activity: BaseAppCompatActivity, interactive: Boolean) {
-            val shared = Dagger.appComponent(activity).sharedPreferences()
+            val shared = activity.appKodein().instance<SharedPreferences>()
 
             if (!interactive && !BuildConfig.DEBUG) {
                 val last = Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0))

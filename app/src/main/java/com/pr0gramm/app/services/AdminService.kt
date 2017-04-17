@@ -6,13 +6,12 @@ import com.pr0gramm.app.feed.FeedItem
 import gnu.trove.set.TLongSet
 import rx.Completable
 import rx.Observable
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class AdminService @Inject constructor(private val api: Api) {
+
+class AdminService(private val api: Api) {
     fun tagsDetails(itemId: Long): Observable<Api.TagDetails> {
         return api.tagDetails(itemId)
     }

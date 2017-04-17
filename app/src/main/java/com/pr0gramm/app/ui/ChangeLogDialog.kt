@@ -18,12 +18,10 @@ import android.widget.TextView
 import com.google.common.base.Charsets
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.util.AndroidUtility
-import kotterknife.bindView
 import proguard.annotation.Keep
 import proguard.annotation.KeepClassMembers
 import java.io.IOException
@@ -46,9 +44,6 @@ class ChangeLogDialog : BaseDialogFragment() {
         val changes = loadChangelog(context)
         recyclerView.adapter = ChangeAdapter(changes)
         recyclerView.layoutManager = LinearLayoutManager(context)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     private class ChangeAdapter(changeGroups: List<ChangeGroup>) : RecyclerView.Adapter<ChangeViewHolder>() {

@@ -11,7 +11,6 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.AdminService
@@ -23,7 +22,6 @@ import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.find
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
-import kotterknife.bindView
 import rx.functions.Action0
 import rx.functions.Action1
 import java.util.*
@@ -42,9 +40,6 @@ class TagsDetailsDialog : BaseDialogFragment() {
 
     private val tags: ArrayList<Api.TagDetails.TagInfo> = ArrayList()
     private val selected: TLongSet = TLongHashSet()
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(context) {

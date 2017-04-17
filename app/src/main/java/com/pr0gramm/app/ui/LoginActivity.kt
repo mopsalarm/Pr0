@@ -16,11 +16,10 @@ import android.support.v4.content.res.ResourcesCompat
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
 import com.jakewharton.rxbinding.widget.textChanges
-import com.pr0gramm.app.ActivityComponent
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -82,9 +81,6 @@ class LoginActivity : BaseAppCompatActivity() {
                 { username, password -> username * password })
                 .subscribe { value -> submitView.isEnabled = value > 0 }
 
-    }
-
-    override fun injectComponent(component: ActivityComponent) {
     }
 
     private fun updateActivityBackground() {
@@ -227,7 +223,7 @@ class LoginActivity : BaseAppCompatActivity() {
         @JvmOverloads fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
             val context = context ?: return false
 
-            val userService = Dagger.appComponent(context).userService()
+            val userService = context.appKodein().instance<UserService>()
             if (userService.isAuthorized) {
                 runnable.run()
                 return true

@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
@@ -29,10 +29,6 @@ class UpdateActivity : BaseAppCompatActivity(), DialogDismissListener {
             CustomTabsHelper(this).openCustomTab(uri)
             finish()
         }
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
-        // nothing to do here
     }
 
     override fun onDialogDismissed(dialog: DialogFragment) {

@@ -20,13 +20,12 @@ import retrofit2.HttpException
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.io.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class UploadService @Inject constructor(private val api: Api,
+
+class UploadService(private val api: Api,
                                         private val userService: UserService,
                                         private val picasso: Picasso,
                                         private val configService: ConfigService,

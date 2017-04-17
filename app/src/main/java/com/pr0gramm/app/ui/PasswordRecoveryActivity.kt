@@ -6,7 +6,7 @@ import android.widget.EditText
 import com.github.salomonbrys.kodein.instance
 import com.google.code.regexp.Pattern
 import com.jakewharton.rxbinding.widget.RxTextView
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -24,9 +24,6 @@ class PasswordRecoveryActivity : BaseAppCompatActivity() {
 
     private val submit: Button by bindView(R.id.submit)
     private val password: EditText by bindView(R.id.password)
-
-    override fun injectComponent(appComponent: ActivityComponent) {
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)

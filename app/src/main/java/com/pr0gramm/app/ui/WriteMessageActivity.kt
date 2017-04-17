@@ -8,7 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
@@ -85,9 +85,6 @@ class WriteMessageActivity : BaseAppCompatActivity() {
         if (cached != null) {
             messageText.setText(cached)
         }
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

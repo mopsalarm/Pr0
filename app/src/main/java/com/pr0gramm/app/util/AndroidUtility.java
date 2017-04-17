@@ -2,7 +2,6 @@ package com.pr0gramm.app.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -61,18 +60,15 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import butterknife.ButterKnife;
 import kotlin.Unit;
 import rx.Completable;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Action2;
-import rx.functions.Func1;
 import rx.util.async.Async;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static rx.Observable.empty;
 import static rx.Observable.just;
 
@@ -356,17 +352,6 @@ public class AndroidUtility {
         view.setMovementMethod(new NonCrashingLinkMovementMethod());
     }
 
-    /**
-     * Find one view. Raise a {@link NullPointerException} if the view can not be found.
-     *
-     * @param view The view to search in
-     * @param id   The id of the view to search
-     */
-    public static <T extends View> T findView(View view, int id) {
-        //noinspection unchecked
-        return checkNotNull(ButterKnife.findById(view, id));
-    }
-
     public static int buildVersionCode() {
         if (BuildConfig.DEBUG) {
             return 100;
@@ -382,10 +367,6 @@ public class AndroidUtility {
                 action.run();
             }
         };
-    }
-
-    public static <T> Func1<T, Boolean> isNotNull() {
-        return val -> val != null;
     }
 
     public static void hideSoftKeyboard(View view) {
@@ -453,7 +434,6 @@ public class AndroidUtility {
                 .startActivities();
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static void applyWindowFullscreen(Activity activity, boolean fullscreen) {
         int flags = 0;
         if (fullscreen) {

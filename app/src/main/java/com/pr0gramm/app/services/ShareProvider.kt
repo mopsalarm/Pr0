@@ -9,12 +9,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Charsets
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.BaseEncoding
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.BackgroundScheduler
@@ -23,17 +24,13 @@ import rx.Single
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import javax.inject.Inject
 
 /**
  */
 class ShareProvider : ContentProvider() {
-
-    @Inject
-    internal lateinit var cache: Cache
+    private val cache by lazy { context.appKodein().instance<Cache>() }
 
     override fun onCreate(): Boolean {
-        Dagger.appComponent(context).inject(this)
         return true
     }
 

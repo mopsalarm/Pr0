@@ -3,13 +3,8 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import butterknife.ButterKnife
-import butterknife.Unbinder
-import com.f2prateek.dart.Dart
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
-import com.pr0gramm.app.ActivityComponent
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
@@ -17,25 +12,22 @@ import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragmentInjector {
+abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragmentInjector, HasViewCache {
     final override val injector = KodeinInjector()
     final override val kodeinComponent = super.kodeinComponent
     final override val kodeinScope = super.kodeinScope
 
-    private var unbinder: Unbinder? = null
-
     final override fun initializeInjector() = super.initializeInjector()
     final override fun destroyInjector() = super.destroyInjector()
+
+    override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        injectComponent(Dagger.activityComponent(activity))
         initializeInjector()
-
-        arguments?.let { Dart.inject(this, it) }
         super.onCreate(savedInstanceState)
     }
 
@@ -44,14 +36,11 @@ abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragment
         destroyInjector()
     }
 
-    protected abstract fun injectComponent(activityComponent: ActivityComponent)
-
     override fun onStart() {
         super.onStart()
 
         // bind dialog. It is only created in on start.
         dialog?.let {
-            unbinder = ButterKnife.bind(this, it)
             onDialogViewCreated()
         }
     }
@@ -63,9 +52,7 @@ abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragment
             dialog.setDismissMessage(null)
 
         super.onDestroyView()
-
-        unbinder?.unbind()
-        unbinder = null
+        viewCache.reset()
     }
 
     override fun onDismiss(dialog: DialogInterface?) {

@@ -9,15 +9,11 @@ import com.pr0gramm.app.R
 import com.squareup.picasso.Downloader
 import it.sephiroth.android.library.exif2.ExifInterface
 import java.io.ByteArrayInputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 
 /**
  */
-@Singleton
-class FancyExifThumbnailGenerator @Inject
-constructor(context: Context, private val downloader: Downloader) {
+class FancyExifThumbnailGenerator(context: Context, private val downloader: Downloader) {
     private val maskV: Bitmap
     private val maskH: Bitmap
 

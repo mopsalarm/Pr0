@@ -1,7 +1,7 @@
 package com.pr0gramm.app.ui.intro.slides
 
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -11,9 +11,6 @@ import com.pr0gramm.app.services.BookmarkService
  */
 class BookmarksActionItemsSlide : ActionItemsSlide() {
     private val bookmarkService: BookmarkService by instance()
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
 
     override val introBackgroundResource: Int = R.color.blue_primary
 

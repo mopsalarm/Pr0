@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
@@ -104,9 +104,6 @@ class ContactActivity : BaseAppCompatActivity() {
         }
 
         buttonSubmit.isEnabled = enabled
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     private fun submitClicked() {

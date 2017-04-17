@@ -1,22 +1,19 @@
 package com.pr0gramm.app.services
 
 import android.support.v4.util.LruCache
-import com.google.common.base.Optional
 import com.google.common.primitives.Longs
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * This service helps to locally cache deltas to the pr0gramm. Those
  * deltas might arise because of cha0s own caching.
  */
-@Singleton
-class InMemoryCacheService @Inject constructor() {
+class InMemoryCacheService {
     private val tagsCache = LruCache<Long, List<Api.Tag>>(256)
     private val userInfoCache = LruCache<String, EnhancedUserInfo>(24)
 
@@ -79,9 +76,9 @@ class InMemoryCacheService @Inject constructor() {
     /**
      * Gets a cached instance, if there is one.
      */
-    fun getUserInfo(contentTypes: Set<ContentType>, name: String): Optional<EnhancedUserInfo> {
+    fun getUserInfo(contentTypes: Set<ContentType>, name: String): EnhancedUserInfo? {
         val key = name.trim().toLowerCase() + ContentType.combine(contentTypes)
-        return Optional.fromNullable(userInfoCache.get(key))
+        return userInfoCache[key]
     }
 
     /**

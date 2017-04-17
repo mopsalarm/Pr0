@@ -1,8 +1,6 @@
 package com.pr0gramm.app.services
 
-import android.annotation.TargetApi
 import android.database.sqlite.SQLiteDatabase
-import android.os.Build
 import com.google.common.base.Preconditions.checkArgument
 import com.google.common.base.Stopwatch
 import com.google.common.base.Stopwatch.createStarted
@@ -28,13 +26,12 @@ import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import java.io.ByteArrayInputStream
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class VoteService @Inject constructor(private val api: Api,
+
+class VoteService(private val api: Api,
                                       private val seenService: SeenService,
                                       private val database: Holder<SQLiteDatabase>) {
 
@@ -74,7 +71,6 @@ class VoteService @Inject constructor(private val api: Api,
 
      * @param item The item to get the vote for.
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     fun getVote(item: FeedItem): Observable<Vote> {
         return Observable
                 .fromCallable { CachedVote.find(database.value(), ITEM, item.id()) }

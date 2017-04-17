@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.InviteService
 import com.pr0gramm.app.services.ThemeHelper
@@ -48,9 +48,6 @@ class InviteActivity : BaseAppCompatActivity() {
         requeryInvites()
 
         find<View>(R.id.send_invite).setOnClickListener { onInviteClicked() }
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     fun onInviteClicked() {

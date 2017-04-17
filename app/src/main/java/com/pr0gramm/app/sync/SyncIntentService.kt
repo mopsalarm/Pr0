@@ -1,39 +1,26 @@
 package com.pr0gramm.app.sync
 
-import android.app.IntentService
 import android.content.Intent
 import com.evernote.android.job.Job
+import com.github.salomonbrys.kodein.android.KodeinIntentService
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch.createStarted
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Dagger
-import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.util.AndroidUtility.toOptional
 import com.pr0gramm.app.util.ifPresent
 import org.slf4j.LoggerFactory
-import javax.inject.Inject
+
 
 /**
  */
-class SyncIntentService : IntentService(SyncIntentService::class.java.simpleName) {
-    @Inject
-    internal lateinit var userService: UserService
-
-    @Inject
-    internal lateinit var notificationService: NotificationService
-
-    @Inject
-    internal lateinit var singleShotService: SingleShotService
-
-    @Inject
-    internal lateinit var favedCommentService: FavedCommentService
-
-    @Inject
-    internal lateinit var settings: Settings
+class SyncIntentService : KodeinIntentService("SyncIntentService") {
+    private val userService: UserService by instance()
+    private val notificationService: NotificationService by instance()
+    private val singleShotService: SingleShotService by instance()
+    private val favedCommentService: FavedCommentService by instance()
 
     override fun onHandleIntent(intent: Intent?) {
-        Dagger.appComponent(this).inject(this)
-
         logger.info("Doing some statistics related trackings")
         if (singleShotService.firstTimeToday("track-settings:5"))
             Track.statistics()

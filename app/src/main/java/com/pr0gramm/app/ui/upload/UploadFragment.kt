@@ -14,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import butterknife.ButterKnife
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.base.Optional
@@ -24,7 +23,6 @@ import com.google.common.base.Throwables
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.ByteStreams
 import com.jakewharton.rxbinding.view.RxView
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -49,8 +47,9 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.ErrorFormatting
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.findOptional
 import com.trello.rxlifecycle.android.FragmentEvent
-import kotterknife.bindView
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.functions.Action1
@@ -81,9 +80,6 @@ class UploadFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_upload, container, false)
     }
 
-    override fun injectComponent(activityComponent: ActivityComponent) {
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -103,7 +99,7 @@ class UploadFragment : BaseFragment() {
         TagInputView.setup(tags)
 
         // add the small print to the view
-        val smallPrintView = ButterKnife.findById<TextView>(view, R.id.small_print)
+        val smallPrintView = view.find<TextView>(R.id.small_print)
         rulesService.displayInto(smallPrintView)
         upload.setOnClickListener { v -> onUploadClicked() }
     }
@@ -358,7 +354,7 @@ class UploadFragment : BaseFragment() {
             val view = view
             if (view != null) {
                 for ((key, value) in types) {
-                    val button = ButterKnife.findById<RadioButton>(view, key)
+                    val button = view.findOptional<RadioButton>(key)
                     if (button?.isChecked ?: false)
                         return value
                 }

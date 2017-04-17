@@ -10,7 +10,6 @@ import com.google.common.primitives.Ints
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.ui.Themes
 import com.pr0gramm.app.ui.fragments.IndicatorStyle
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import rx.Observable
 import rx.subjects.PublishSubject
@@ -212,8 +211,8 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
         return preferences
     }
 
-    fun edit(): SharedPreferences.Editor {
-        return preferences.edit()
+    fun edit(edits: SharedPreferences.Editor.() -> Unit) {
+        return preferences.edit { edits() }
     }
 
     /**
@@ -225,7 +224,6 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        AndroidUtility.checkMainThread()
         preferenceChanged.onNext(key)
     }
 

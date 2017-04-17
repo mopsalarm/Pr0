@@ -23,23 +23,14 @@ import rx.Observable
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 /**
  */
-@Singleton
-class ApiProvider @Inject constructor(context: Context, client: OkHttpClient,
-                                      cookieHandler: LoginCookieHandler,
-                                      gson: Gson,
-                                      private val singleShotService: SingleShotService) : Provider<Api> {
+class ApiProvider(context: Context, client: OkHttpClient,
+                  cookieHandler: LoginCookieHandler, gson: Gson,
+                  private val singleShotService: SingleShotService) {
 
-    private val apiInstance = newProxyWrapper(newRestAdapter(context, client, gson), cookieHandler)
-
-    override fun get(): Api {
-        return apiInstance
-    }
+    val api = newProxyWrapper(newRestAdapter(context, client, gson), cookieHandler)
 
     private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
         // proxy to add the nonce if not provided

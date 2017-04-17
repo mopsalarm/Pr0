@@ -11,7 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UploadService
@@ -59,9 +59,6 @@ class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener
             mediaType != null -> showUploadFragment(mediaType, addToBackstack = false)
             else -> showChooseMediaTypeFragment()
         }
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     private fun showChooseMediaTypeFragment() {

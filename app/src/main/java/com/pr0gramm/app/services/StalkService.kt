@@ -5,14 +5,13 @@ import rx.Completable
 import rx.Observable
 import rx.subjects.PublishSubject
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Service to handle stalking.
  */
-@Singleton
-class StalkService @Inject constructor(private val api: Api) {
+
+class StalkService(private val api: Api) {
     private val following = Collections.synchronizedSet(HashSet<String>())
     private val changes = PublishSubject.create<String>()
 

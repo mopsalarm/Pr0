@@ -8,12 +8,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import com.pr0gramm.app.Dagger.appComponent
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.MergeRecyclerAdapter
 import com.pr0gramm.app.ui.SingleViewAdapter
@@ -41,7 +43,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
     val voteView: VoteView by bindView(R.id.voting)
 
     private val settings: Settings? = if (isInEditMode) null else Settings.get()
-    private val admin: Boolean = !isInEditMode && appComponent(context).userService().userIsAdmin
+    private val admin: Boolean = !isInEditMode && context.appKodein().instance<UserService>().userIsAdmin
 
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false

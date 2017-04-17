@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions.checkNotNull
 import gnu.trove.map.TIntIntMap
 import gnu.trove.map.hash.TIntIntHashMap
@@ -127,17 +126,17 @@ class MergeRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
      * @param query The adapter to get the offset for.
      */
-    fun getOffset(query: RecyclerView.Adapter<*>): Optional<Int> {
+    fun getOffset(query: RecyclerView.Adapter<*>): Int? {
         var offset = 0
         for (idx in adapters.indices) {
             val adapter = adapters[idx].adapter
             if (adapter === query)
-                return Optional.of(offset)
+                return offset
 
             offset += adapter.itemCount
         }
 
-        return Optional.absent<Int>()
+        return null
     }
 
     fun clear() {

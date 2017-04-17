@@ -53,12 +53,11 @@ object MediaViews {
 
     @JvmStatic
     fun adaptFragmentLifecycle(lifecycle: Observable<FragmentEvent>, view: MediaView) {
-        lifecycle.compose(bindView<FragmentEvent>(view)).subscribe { event ->
-            if (event == FragmentEvent.RESUME)
-                view.onResume()
-
-            if (event == FragmentEvent.PAUSE)
-                view.onPause()
+        lifecycle.compose(bindView(view)).subscribe { event ->
+            when (event) {
+                FragmentEvent.RESUME -> view.onResume()
+                FragmentEvent.PAUSE -> view.onPause()
+            }
         }
     }
 }

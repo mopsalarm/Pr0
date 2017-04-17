@@ -8,8 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Optional
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -21,7 +19,6 @@ import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.util.AndroidUtility
-import kotterknife.bindView
 import org.slf4j.LoggerFactory
 import rx.functions.Action1
 
@@ -40,10 +37,6 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_post_pager, container, false)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -170,7 +163,10 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        saveStateToBundle(outState)
+
+        if (view != null) {
+            saveStateToBundle(outState)
+        }
     }
 
     /**
@@ -234,7 +230,10 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
             super.setPrimaryItem(container, position, `object`)
             updateActiveItem(`object` as PostFragment)
-            saveStateToBundle(arguments)
+
+            if (view != null) {
+                saveStateToBundle(arguments)
+            }
         }
 
         override fun getItem(position: Int): Fragment {
@@ -261,7 +260,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         }
 
         override fun getItemPosition(`object`: Any?): Int {
-            val item = (`object` as PostFragment).getFeedItem()
+            val item = (`object` as PostFragment).feedItem
             return proxy.indexOf(item).or(PagerAdapter.POSITION_NONE)
         }
 
@@ -290,11 +289,11 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         private val ARG_START_ITEM = "PostPagerFragment.startItem"
         private val ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment"
 
-        fun newInstance(feed: Feed, idx: Int, commentId: Optional<Long>): PostPagerFragment {
+        fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
             val arguments = Bundle()
             arguments.putBundle(ARG_FEED_PROXY, feed.persist(idx))
             arguments.putParcelable(ARG_START_ITEM, feed.at(idx))
-            arguments.putLong(ARG_START_ITEM_COMMENT, commentId.or(-1L))
+            arguments.putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
 
             val fragment = PostPagerFragment()
             fragment.arguments = arguments

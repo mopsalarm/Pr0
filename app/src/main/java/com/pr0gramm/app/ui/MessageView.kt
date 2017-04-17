@@ -9,9 +9,9 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Ascii
-import com.pr0gramm.app.Dagger
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.views.SenderInfoView
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.SenderDrawableProvider
@@ -45,9 +45,10 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         View.inflate(context, layoutId, this)
 
         if (!isInEditMode) {
-            val appComponent = Dagger.appComponent(context)
-            admin = appComponent.userService().userIsAdmin
             picasso = context.appKodein().instance()
+
+            val userService = context.appKodein().instance<UserService>()
+            admin = userService.userIsAdmin
         } else {
             admin = false
             picasso = null

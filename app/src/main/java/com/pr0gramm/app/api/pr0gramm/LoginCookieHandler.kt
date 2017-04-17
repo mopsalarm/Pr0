@@ -18,15 +18,12 @@ import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Type
 import java.util.Arrays.asList
-import javax.inject.Inject
-import javax.inject.Singleton
 
 typealias OnCookieChangedListener = () -> Unit
 
 /**
  */
-@Singleton
-class LoginCookieHandler @Inject constructor(private val preferences: SharedPreferences) : CookieJar {
+class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar {
 
     private val lock = Any()
 

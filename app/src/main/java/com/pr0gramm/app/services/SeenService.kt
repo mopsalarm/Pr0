@@ -11,14 +11,13 @@ import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Very simple service to check if an item was already visited or not.
  */
-@Singleton
-class SeenService @Inject constructor(context: Context) {
+
+class SeenService(context: Context) {
     private val lock = Any()
     private val buffer = AtomicReference<ByteBuffer>()
 

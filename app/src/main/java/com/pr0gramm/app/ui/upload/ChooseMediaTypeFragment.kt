@@ -1,16 +1,15 @@
 package com.pr0gramm.app.ui.upload
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.pr0gramm.app.R
-import kotterknife.bindView
+import com.pr0gramm.app.ui.base.BaseFragment
 
 /**
  */
-class ChooseMediaTypeFragment : Fragment() {
+class ChooseMediaTypeFragment : BaseFragment() {
     private val btnImage: View by bindView(R.id.media_type_image)
     private val btnVideo: View by bindView(R.id.media_type_video)
 

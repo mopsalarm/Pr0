@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.pr0gramm.app.api.InstantTypeAdapter
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import gnu.trove.TCollections
@@ -16,17 +17,17 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import rx.subjects.PublishSubject
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class FavedCommentService @Inject constructor(userService: UserService, okHttpClient: OkHttpClient) {
+
+class FavedCommentService(userService: UserService, okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/comments/v1/")
@@ -75,7 +76,7 @@ class FavedCommentService @Inject constructor(userService: UserService, okHttpCl
         }
     }
 
-    fun save(comment: FavedComment): Observable<Void> {
+    fun save(comment: FavedComment): Completable {
         logger.info("save comment-fav with id {}", comment.id)
 
         Track.commentFaved()
@@ -87,7 +88,22 @@ class FavedCommentService @Inject constructor(userService: UserService, okHttpCl
 
         return userHash.takeFirst { isUserHashAvailable(it) }
                 .flatMap { hash -> api.save(hash, comment.id, comment) }
-                .ignoreElements()
+                .toCompletable()
+    }
+
+    fun save(item: FeedItem, comment: Api.Comment): Completable {
+        return save(com.pr0gramm.app.services.ImmutableFavedComment.builder()
+                .id(comment.id)
+                .name(comment.name)
+                .content(comment.content)
+                .created(comment.created)
+                .up(comment.up)
+                .down(comment.down)
+                .mark(comment.mark)
+                .thumb(item.thumbnail)
+                .itemId(item.id)
+                .flags(item.flags)
+                .build())
     }
 
     fun list(contentType: EnumSet<ContentType>): Observable<List<FavedComment>> {
@@ -102,7 +118,7 @@ class FavedCommentService @Inject constructor(userService: UserService, okHttpCl
                 .flatMap { hash -> api.list(hash, flags) }
     }
 
-    fun delete(commentId: Long): Observable<Void> {
+    fun delete(commentId: Long): Completable {
         logger.info("delete comment-fav with id {}", commentId)
 
         synchronized(favCommentIds) {
@@ -113,7 +129,7 @@ class FavedCommentService @Inject constructor(userService: UserService, okHttpCl
 
         return userHash.takeFirst { isUserHashAvailable(it) }
                 .flatMap { hash -> api.delete(hash, commentId) }
-                .ignoreElements()
+                .toCompletable()
     }
 
     private fun updateAfterChange() {

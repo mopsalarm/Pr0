@@ -8,15 +8,14 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import rx.Observable
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Gets a short info message. This might be used to inform about
  * server failures.
  */
-@Singleton
-class InfoMessageService @Inject constructor(okHttpClient: OkHttpClient) {
+
+class InfoMessageService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/")

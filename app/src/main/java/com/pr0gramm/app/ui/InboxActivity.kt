@@ -7,7 +7,7 @@ import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
@@ -78,9 +78,6 @@ class InboxActivity : BaseAppCompatActivity(), ViewPager.OnPageChangeListener {
         }
 
         inboxService.markAsRead(intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0))
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

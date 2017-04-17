@@ -20,13 +20,12 @@ import rx.Observable
 import java.io.File
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class DatabasePreloadManager @Inject constructor(private val database: BriteDatabase) : PreloadManager {
+
+class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManager {
     private val preloadCache = AtomicReference(
             TLongObjectHashMap<PreloadItem>() as TLongObjectMap<PreloadItem>)
 

@@ -14,7 +14,7 @@ interface MainActionHandler {
 
     fun onFeedFilterSelected(filter: FeedFilter, searchQueryState: Bundle?)
 
-    fun onFeedFilterSelected(filter: FeedFilter, searchQueryState: Bundle?,
+    fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?,
                              startAt: ItemWithComment?)
 
     fun pinFeedFilter(filter: FeedFilter, title: String)

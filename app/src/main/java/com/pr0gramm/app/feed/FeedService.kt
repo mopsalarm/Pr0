@@ -9,17 +9,13 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
 import org.slf4j.LoggerFactory
 import rx.Observable
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Performs the actual request to get the items for a feed.
  */
-@Singleton
-class FeedService @Inject
-constructor(private val api: Api,
-            private val extraCategories: ExtraCategories,
-            private val configService: ConfigService) {
+class FeedService(private val api: Api,
+                  private val extraCategories: ExtraCategories,
+                  private val configService: ConfigService) {
 
     fun getFeedItems(query: FeedQuery): Observable<Api.Feed> {
         val feedFilter = query.filter

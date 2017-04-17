@@ -17,7 +17,6 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.with
 import com.google.common.base.Joiner
 import com.google.common.collect.ImmutableList
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
@@ -34,7 +33,6 @@ import com.pr0gramm.app.util.CustomTabsHelper
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.pr0gramm.app.util.use
 import com.pr0gramm.app.util.visible
-import kotterknife.bindView
 import rx.functions.Action1
 import java.util.*
 
@@ -72,9 +70,6 @@ class DrawerFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.left_drawer, container, false)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

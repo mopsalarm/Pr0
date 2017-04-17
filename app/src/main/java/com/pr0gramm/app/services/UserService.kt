@@ -24,13 +24,12 @@ import rx.subjects.PublishSubject
 import java.lang.reflect.Type
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  */
-@Singleton
-class UserService @Inject constructor(private val api: Api,
+
+class UserService(private val api: Api,
                                       private val voteService: VoteService,
                                       private val seenService: SeenService,
                                       private val inboxService: InboxService,

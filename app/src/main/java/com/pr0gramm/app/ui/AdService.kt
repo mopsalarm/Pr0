@@ -14,14 +14,13 @@ import com.pr0gramm.app.util.AndroidUtility
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.ReplaySubject
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Utility methods for ads.
  */
-@Singleton
-class AdService @Inject constructor(private val configService: ConfigService, private val userService: UserService) {
+
+class AdService(private val configService: ConfigService, private val userService: UserService) {
 
     init {
         // track that we use ads.

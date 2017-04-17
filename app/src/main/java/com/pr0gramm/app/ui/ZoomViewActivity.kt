@@ -13,7 +13,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -72,9 +72,6 @@ class ZoomViewActivity : BaseAppCompatActivity() {
         } else {
             loadImage()
         }
-    }
-
-    override fun injectComponent(appComponent: ActivityComponent) {
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

@@ -15,7 +15,6 @@ import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
-import butterknife.ButterKnife
 import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.view.attachEvents
@@ -28,10 +27,7 @@ import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.views.AspectImageView
 import com.pr0gramm.app.ui.views.KodeinViewMixin
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.RxPicasso
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import org.slf4j.LoggerFactory
@@ -100,10 +96,9 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         layoutParams = DEFAULT_PARAMS
         if (layoutId != null) {
             LayoutInflater.from(config.activity).inflate(layoutId, this)
-            ButterKnife.bind(this)
 
-            previewView = ButterKnife.findById<AspectImageView>(this, R.id.preview)
-            busyIndicator = ButterKnife.findById<View>(this, R.id.busy_indicator)
+            previewView = findOptional<AspectImageView>(R.id.preview)
+            busyIndicator = findOptional<View>(R.id.busy_indicator)
         }
 
         // register the detector to handle double taps

@@ -2,12 +2,11 @@ package com.pr0gramm.app.ui
 
 import android.view.MotionEvent
 import android.view.View
-import rx.functions.Action0
 
 /**
  * Detects single taps.
  */
-class DetectTapTouchListener private constructor(private val consumer: Action0) : View.OnTouchListener {
+class DetectTapTouchListener private constructor(private val consumer: () -> Unit) : View.OnTouchListener {
     private var moveOccurred: Boolean = false
     private var firstX: Float = 0.toFloat()
     private var firstY: Float = 0.toFloat()
@@ -28,7 +27,7 @@ class DetectTapTouchListener private constructor(private val consumer: Action0) 
 
             if (event.action == MotionEvent.ACTION_UP) {
                 if (!moveOccurred) {
-                    consumer.call()
+                    consumer()
                     return true
                 }
             }
@@ -39,7 +38,7 @@ class DetectTapTouchListener private constructor(private val consumer: Action0) 
 
     companion object {
         @JvmStatic
-        fun withConsumer(consumer: Action0): DetectTapTouchListener {
+        fun withConsumer(consumer: () -> Unit): DetectTapTouchListener {
             return DetectTapTouchListener(consumer)
         }
     }

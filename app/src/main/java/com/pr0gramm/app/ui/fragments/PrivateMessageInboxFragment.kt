@@ -5,7 +5,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
+
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -56,7 +56,4 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>(), SearchU
         }
     }
 
-    override fun injectComponent(activityComponent: ActivityComponent) {
-        activityComponent.inject(this)
-    }
 }

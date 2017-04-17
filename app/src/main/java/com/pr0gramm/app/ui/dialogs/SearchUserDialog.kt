@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.AutoCompleteTextView
 import com.github.salomonbrys.kodein.instance
-import com.pr0gramm.app.ActivityComponent
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -13,7 +12,6 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
-import kotterknife.bindView
 import org.slf4j.LoggerFactory
 
 /**
@@ -59,9 +57,6 @@ class SearchUserDialog : BaseDialogFragment() {
 
     private fun onSearchFailure() {
         inputView.error = getString(R.string.user_not_found)
-    }
-
-    override fun injectComponent(activityComponent: ActivityComponent) {
     }
 
     interface Listener {

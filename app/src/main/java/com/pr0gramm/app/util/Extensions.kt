@@ -183,6 +183,10 @@ inline fun <reified T : View> View.find(id: Int): T {
     return findViewById(id) as T
 }
 
+inline fun <reified T : View> View.findOptional(id: Int): T? {
+    return findViewById(id) as T?
+}
+
 inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
     return itemView.findViewById(id) as T
 }
@@ -237,5 +241,13 @@ inline fun <K, V> LruCache<K, V>.getOrPut(key: K, creator: (K) -> V): V {
 inline fun <K, V> lruCache(maxSize: Int, crossinline creator: (K) -> V?): LruCache<K, V> {
     return object : LruCache<K, V>(maxSize) {
         override fun create(key: K): V? = creator(key)
+    }
+}
+
+inline fun <T> T?.or(supplier: () -> T): T {
+    if (this != null) {
+        return this
+    } else {
+        return supplier()
     }
 }

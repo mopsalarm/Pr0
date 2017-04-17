@@ -1,25 +1,18 @@
 package com.pr0gramm.app.services
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-
-import com.pr0gramm.app.Dagger
-
+import com.github.salomonbrys.kodein.android.KodeinBroadcastReceiver
+import com.github.salomonbrys.kodein.instance
 import org.joda.time.Instant
 
-import javax.inject.Inject
 
 /**
  */
-class InboxNotificationCanceledReceiver : BroadcastReceiver() {
+class InboxNotificationCanceledReceiver : KodeinBroadcastReceiver() {
+    private val inboxService: InboxService by instance()
 
-    @Inject
-    internal lateinit var inboxService: InboxService
-
-    override fun onReceive(context: Context, intent: Intent) {
-        Dagger.appComponent(context).inject(this)
-
+    override fun onBroadcastReceived(context: Context, intent: Intent) {
         val timestamp = intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0)
         if (timestamp > 0) {
             inboxService.markAsRead(timestamp)

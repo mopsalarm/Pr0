@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import butterknife.ButterKnife
 import com.google.common.base.CharMatcher.javaLetterOrDigit
 import com.google.common.base.CharMatcher.whitespace
 import com.google.common.base.Splitter
@@ -234,7 +233,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private fun updateTagsCheckboxes() {
-        val container = ButterKnife.findById<ViewGroup>(this, R.id.without_checks)
+        val container = find<ViewGroup>(R.id.without_checks)
 
         container.removeAllViews()
 

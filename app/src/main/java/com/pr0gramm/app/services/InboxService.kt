@@ -10,16 +10,13 @@ import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * Service for receiving and sending private messages
  * as well as the combined inbox (comments and private messages)
  */
-@Singleton
-class InboxService @Inject
-constructor(private val api: Api, private val preferences: SharedPreferences) {
+class InboxService(private val api: Api, private val preferences: SharedPreferences) {
 
     private val unreadMessagesCount = BehaviorSubject.create(0).toSerialized()
 
