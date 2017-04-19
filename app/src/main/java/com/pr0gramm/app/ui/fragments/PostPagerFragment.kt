@@ -18,9 +18,8 @@ import com.pr0gramm.app.ui.MainActionHandler
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.observeChange
 import org.slf4j.LoggerFactory
-import rx.functions.Action1
 
 /**
  */
@@ -29,7 +28,6 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
 
     private val viewPager: ViewPager by bindView(R.id.pager)
 
-    private lateinit var feed: Feed
     private lateinit var adapter: PostAdapter
 
     private var activePostFragment: PostFragment? = null
@@ -43,13 +41,16 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         super.onViewCreated(view, savedInstanceState)
 
         // get the feed to show and setup a loader to load more data
-        feed = getArgumentFeed(savedInstanceState)
-        val loader = FeedLoader(
-                FeedLoader.bindTo(bindToLifecycleAsync<Any>(), Action1 { AndroidUtility.logToCrashlytics(it) }),
-                feedService, feed)
+        val previousFeed = getArgumentFeed(savedInstanceState)
+        val manager = FeedManager(feedService, previousFeed)
 
         // create the adapter on the view
-        adapter = PostAdapter(feed, loader)
+        adapter = PostAdapter(previousFeed, manager)
+
+        manager.updates
+                .compose(bindToLifecycleAsync())
+                .ofType(FeedManager.Update.NewFeed::class.java)
+                .subscribe { adapter.feed = it.feed }
 
         if (activity is ToolbarActivity) {
             val activity = activity as ToolbarActivity
@@ -100,7 +101,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     }
 
     private fun makeItemCurrent(item: FeedItem) {
-        val index = feed.indexOf(item).or(0)
+        val index = adapter.feed.indexOf(item).or(0)
 
         logger.info("Moving to index: " + index)
         viewPager.setCurrentItem(index, false)
@@ -172,14 +173,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     /**
      * Returns the feed filter for this fragment.
      */
-    override // prevent errors here
-    val currentFilter: FeedFilter
-        get() {
-            if (feed == null)
-                return FeedFilter()
-
-            return feed.feedFilter
-        }
+    override val currentFilter: FeedFilter get() = adapter.feed.filter
 
     fun onTagClicked(tag: Api.Tag) {
         (activity as MainActionHandler).onFeedFilterSelected(
@@ -196,10 +190,11 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     }
 
     internal fun saveStateToBundle(outState: Bundle) {
-        val position = viewPager.currentItem
-        val item = feed.at(position)
+        val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
+
+        val item = adapter.feed[position]
         outState.putParcelable(ARG_START_ITEM, item)
-        outState.putParcelable(ARG_FEED_PROXY, feed.persist(position))
+        outState.putParcelable(ARG_FEED_PROXY, adapter.feed.persist(position))
     }
 
     /**
@@ -221,10 +216,9 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
             viewPager.currentItem = newIndex
     }
 
-    private inner class PostAdapter(private val proxy: Feed, private val loader: FeedLoader) : IdFragmentStatePagerAdapter(childFragmentManager), Feed.FeedListener {
-
-        init {
-            proxy.setFeedListener(this)
+    private inner class PostAdapter(feed: Feed, val manager: FeedManager) : IdFragmentStatePagerAdapter(childFragmentManager) {
+        var feed: Feed by observeChange(feed) {
+            notifyDataSetChanged()
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
@@ -237,48 +231,34 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         }
 
         override fun getItem(position: Int): Fragment {
-            var position = position
-            if (!loader.isLoading) {
-                if (position > proxy.size() - 12) {
-                    logger.info("requested pos=$position, load next page")
-                    loader.next()
+            if (!manager.isLoading) {
+                if (position > feed.size - 12) {
+                    logger.info("Requested pos=$position, load next page")
+                    manager.next()
                 }
 
                 if (position < 12) {
-                    logger.info("requested pos=$position, load prev page")
-                    loader.previous()
+                    logger.info("Requested pos=$position, load prev page")
+                    manager.previous()
                 }
             }
 
-            // check that we dont exceed the range.
-            position = Math.min(proxy.size() - 1, Math.max(0, position))
-            return PostFragment.newInstance(proxy.at(position))
+            // build a new fragment from the given item.
+            val capped = position.coerceIn(0, feed.size - 1)
+            return PostFragment.newInstance(feed[capped])
         }
 
         override fun getCount(): Int {
-            return proxy.size()
+            return feed.size
         }
 
         override fun getItemPosition(`object`: Any?): Int {
             val item = (`object` as PostFragment).feedItem
-            return proxy.indexOf(item).or(PagerAdapter.POSITION_NONE)
+            return feed.indexOf(item).or(PagerAdapter.POSITION_NONE)
         }
 
         override fun getItemId(position: Int): Long {
-            return proxy.at(position).id()
-        }
-
-        override fun onNewItems(newItems: List<FeedItem>) {
-            notifyDataSetChanged()
-        }
-
-        override fun onRemoveItems() {
-            // should not happen
-            throw UnsupportedOperationException()
-        }
-
-        override fun onWrongContentType() {
-            // ignore
+            return feed[position].id
         }
     }
 
@@ -292,7 +272,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
         fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
             val arguments = Bundle()
             arguments.putBundle(ARG_FEED_PROXY, feed.persist(idx))
-            arguments.putParcelable(ARG_START_ITEM, feed.at(idx))
+            arguments.putParcelable(ARG_START_ITEM, feed[idx])
             arguments.putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
 
             val fragment = PostPagerFragment()

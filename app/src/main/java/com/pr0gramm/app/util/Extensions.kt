@@ -159,19 +159,22 @@ interface CachedValue<T> {
     fun invalidate(): Unit
 }
 
+object EmptyCache
+
 inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : CachedValue<T> {
-    private var _value: T? = null
+    private var _value: Any? = EmptyCache
 
     override val value: T get() {
-        if (_value == null) {
+        if (_value === EmptyCache) {
             _value = fn()
         }
 
-        return _value!!
+        @Suppress("UNCHECKED_CAST")
+        return _value as T
     }
 
     override fun invalidate(): Unit {
-        _value = null
+        _value = EmptyCache
     }
 }
 

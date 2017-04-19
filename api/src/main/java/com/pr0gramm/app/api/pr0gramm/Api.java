@@ -90,9 +90,6 @@ public interface Api {
     @GET("/api/profile/info")
     Observable<Info> info(@Query("name") String name, @Query("flags") Integer flags);
 
-    @GET("/api/user/score")
-    Observable<UserScore> score();
-
     @GET("/api/inbox/all")
     Observable<MessageFeed> inboxAll();
 

@@ -17,6 +17,7 @@ import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.GuavaPicassoCache
 import com.pr0gramm.app.util.SmallBufferSocketFactory
 import com.squareup.picasso.Downloader
@@ -124,10 +125,12 @@ fun httpModule(app: Application) = Kodein.Module {
 }
 
 
-private class DebugInterceptor() : Interceptor {
+private class DebugInterceptor : Interceptor {
     private val logger = LoggerFactory.getLogger("DebugInterceptor")
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        checkNotMainThread()
+
         val request = chain.request()
         if (BuildConfig.DEBUG) {
             logger.warn("Delaying request {} for 100ms", request.url())
@@ -138,7 +141,7 @@ private class DebugInterceptor() : Interceptor {
     }
 }
 
-private class UserAgentInterceptor(private val userAgent: String) : Interceptor {
+private class UserAgentInterceptor(val userAgent: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
                 .header(HttpHeaders.USER_AGENT, userAgent)

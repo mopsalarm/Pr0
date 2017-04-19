@@ -86,7 +86,7 @@ class FeedItem : Parcelable, HasThumbnail {
 
      * @param type The type of feed.
      */
-    fun getId(type: FeedType): Long {
+    fun id(type: FeedType): Long {
         return (if (type === FeedType.PROMOTED) promotedId else id)
     }
 

@@ -27,6 +27,7 @@ data class Update(val version: Int, val apk: String, val changelog: String) : Pa
     }
 
     companion object {
+        @JvmField
         val CREATOR = creator {
             Update(it.readInt(), it.readString(), it.readString())
         }

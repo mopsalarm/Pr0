@@ -22,6 +22,7 @@ class ItemWithComment(val itemId: Long, val commentId: Long?) : Parcelable {
     }
 
     companion object {
+        @JvmField
         val CREATOR = creator(::ItemWithComment)
     }
 }
