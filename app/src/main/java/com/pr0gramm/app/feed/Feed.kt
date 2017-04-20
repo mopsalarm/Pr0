@@ -18,23 +18,17 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
                 val contentType: Set<ContentType> = setOf(ContentType.SFW),
                 val items: List<FeedItem> = listOf(),
                 val isAtEnd: Boolean = false,
-                val isAtStart: Boolean = false) {
+                val isAtStart: Boolean = false) : List<FeedItem> by items {
 
 
     private val itemComparator = compareByDescending(this::feedTypeId)
 
     val feedType: FeedType get() = filter.feedType
 
-    val size: Int get() = items.size
     val indices: IntRange get() = items.indices
 
     val oldest: FeedItem? get() = items.maxWith(itemComparator)
     val newest: FeedItem? get() = items.minWith(itemComparator)
-
-
-    operator fun get(idx: Int): FeedItem {
-        return items[idx]
-    }
 
     /**
      * Merges this feed with the provided low level feed representation

@@ -27,7 +27,7 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
      */
     fun reset(feed: Feed = this.feed.copy(items = listOf(), isAtStart = false, isAtEnd = false)) {
         stop()
-        publish(feed)
+        publish(feed, remote = false)
     }
 
     /**
@@ -76,8 +76,13 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
                     subject.onNext(Update.LoadingStopped())
                     subscription = null
                 }
-                .subscribe({ publish(feed.mergeWith(it)) }, { publishError(it) })
+                .subscribe({ handleFeedUpdate(it) }, { publishError(it) })
 
+    }
+
+    private fun handleFeedUpdate(it: Api.Feed) {
+        val merged = feed.mergeWith(it)
+        publish(merged, remote = true)
     }
 
     private fun publishError(err: Throwable) {
@@ -87,9 +92,9 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
     /**
      * Update and publish a new feed.
      */
-    private fun publish(newFeed: Feed) {
+    private fun publish(newFeed: Feed, remote: Boolean) {
         feed = newFeed
-        subject.onNext(Update.NewFeed(newFeed))
+        subject.onNext(Update.NewFeed(newFeed, remote))
     }
 
     private fun feedQuery(): FeedService.FeedQuery {
@@ -100,6 +105,6 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
         class LoadingStarted : Update()
         class LoadingStopped : Update()
         class Error(val err: Throwable) : Update()
-        class NewFeed(val feed: Feed) : Update()
+        class NewFeed(val feed: Feed, val remote: Boolean = false) : Update()
     }
 }

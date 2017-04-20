@@ -206,7 +206,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
             when (update) {
                 is FeedManager.Update.NewFeed -> {
                     feedAdapter.feed = update.feed
-                    updateNoResultsTextView(update.feed)
+                    updateNoResultsTextView(update.remote && update.feed.isEmpty())
                 }
 
                 is FeedManager.Update.Error ->
@@ -226,7 +226,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
 
         if (view != null) {
             outState.putBundle("feed", loader.feed.persist(0))
-            outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem(ContentType.AllSet)?.id ?: -1L)
+            outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem()?.id ?: -1L)
             outState.putBoolean("searchContainerVisible", searchContainerIsVisible())
         }
     }
@@ -517,8 +517,8 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
 
      * @param contentType The target-content type.
      */
-    private fun findLastVisibleFeedItem(contentType: Set<ContentType>): FeedItem? {
-        val items = feedAdapter.feed.items
+    private fun findLastVisibleFeedItem(contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
+        val items = feedAdapter.feed
 
         recyclerViewLayoutManager?.let { layoutManager ->
             val adapter = recyclerView.adapter as MergeRecyclerAdapter
@@ -701,7 +701,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
             return
         }
 
-        val intent = PreloadService.newIntent(activity, feedAdapter.feed.items)
+        val intent = PreloadService.newIntent(activity, feedAdapter.feed)
         activity.startService(intent)
 
         Track.preloadCurrentFeed(feedAdapter.feed.size)
@@ -868,8 +868,8 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
         var feed: Feed by observeChangeEx(Feed()) { old, new ->
             userFavorites.invalidate()
 
-            val oldIds = old.items.map { new.feedTypeId(it) }
-            val newIds = new.items.map { new.feedTypeId(it) }
+            val oldIds = old.map { new.feedTypeId(it) }
+            val newIds = new.map { new.feedTypeId(it) }
 
             if (oldIds == newIds) {
                 logger.info("No change in feed items.")
@@ -991,8 +991,8 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
         }
     }
 
-    private fun updateNoResultsTextView(feed: Feed) {
-        noResultsView.visible = feed.size == 0
+    private fun updateNoResultsTextView(feedIsEmpty: Boolean) {
+        noResultsView.visible = feedIsEmpty
     }
 
 
@@ -1095,8 +1095,11 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
     private fun findItemIndexById(id: Long): Int? {
         val offset = (recyclerView.adapter as MergeRecyclerAdapter).getOffset(feedAdapter) ?: 0
 
-        val item = feedAdapter.feed.items.firstOrNull { it.id == id } ?: return null
-        return feedAdapter.feed.indexOf(item).map { it + offset }.orNull()
+        val index = feedAdapter.feed.indexOfFirst { it.id == id }
+        if (index == -1)
+            return null
+
+        return index + offset
     }
 
     private val recyclerViewLayoutManager: GridLayoutManager?
