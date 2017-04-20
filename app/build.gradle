@@ -208,8 +208,8 @@ dependencies {
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
 
-    debugCompile "com.facebook.stetho:stetho:1.5.0"
-    debugCompile "com.facebook.stetho:stetho-okhttp3:1.5.0"
+    compile "com.facebook.stetho:stetho:1.5.0"
+    compile "com.facebook.stetho:stetho-okhttp3:1.5.0"
 
     // rx java
     compile "io.reactivex:rxjava:1.2.9"

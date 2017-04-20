@@ -16,7 +16,6 @@ import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.GuavaPicassoCache
 import com.pr0gramm.app.util.SmallBufferSocketFactory
@@ -52,7 +51,7 @@ fun httpModule(app: Application) = Kodein.Module {
                 .addNetworkInterceptor(DebugInterceptor())
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
-                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + AndroidUtility.buildVersionCode()))
+                .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
                 .addNetworkInterceptor(StethoWrapper.networkInterceptor())
                 .addNetworkInterceptor(LoggingInterceptor())
                 .build()
@@ -61,7 +60,7 @@ fun httpModule(app: Application) = Kodein.Module {
     bind<Downloader>() with singleton {
         object : Downloader {
             val logger = LoggerFactory.getLogger("Picasso.Downloader")
-            val fallback = OkHttp3Downloader(app)
+            val fallback = OkHttp3Downloader(instance<OkHttpClient>())
             val cache = instance<com.pr0gramm.app.io.Cache>()
 
             override fun load(uri: Uri, networkPolicy: Int): Downloader.Response {

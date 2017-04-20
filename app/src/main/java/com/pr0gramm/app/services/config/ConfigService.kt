@@ -127,7 +127,7 @@ class ConfigService(context: Context,
 
         private fun makeUniqueIdentifier(context: Context, preferences: SharedPreferences): String {
             // get a cached version
-            var cached: String = preferences.getString(PREF_ID_KEY, null)
+            var cached: String = preferences.getString(PREF_ID_KEY, null) ?: ""
 
             if (invalidUniqueIdentifier(cached)) {
                 // try the device id.

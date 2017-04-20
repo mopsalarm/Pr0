@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui.base
 
 import android.content.Context
-import android.os.Bundle
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
 import com.trello.rxlifecycle.android.FragmentEvent
@@ -31,10 +30,6 @@ abstract class BaseFragment : RxFragment(), HasViewCache, SupportFragmentInjecto
     override fun onAttach(context: Context?) {
         initializeInjector()
         super.onAttach(context)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
     override fun onDestroy() {

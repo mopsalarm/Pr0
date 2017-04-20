@@ -1,6 +1,7 @@
 package com.pr0gramm.app
 
 import android.content.Context
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import okhttp3.Interceptor
 import org.slf4j.LoggerFactory
 
@@ -11,22 +12,23 @@ object StethoWrapper {
     private val logger = LoggerFactory.getLogger("StethoWrapper")
 
     fun init(applicationClass: ApplicationClass) {
-        try {
-            // invoke Stetho.init(applicationClass)
-            val stethoClass = Class.forName("com.facebook.stetho.Stetho")
-            val init = stethoClass.getMethod("initializeWithDefaults", Context::class.java)
-            init.invoke(null, applicationClass)
+        if (BuildConfig.DEBUG) {
+            try {
+                // invoke Stetho.init(applicationClass)
+                val stethoClass = Class.forName("com.facebook.stetho.Stetho")
+                val init = stethoClass.getMethod("initializeWithDefaults", Context::class.java)
+                init.invoke(null, applicationClass)
 
-        } catch (err: Exception) {
-            logger.warn("Could not initialize stetho: " + err)
+            } catch (err: Exception) {
+                logger.warn("Could not initialize stetho: " + err)
+            }
         }
     }
 
     fun networkInterceptor(): Interceptor {
         try {
-            if (!BuildConfig.DEBUG) {
-                val interceptorClass = Class.forName("com.facebook.stetho.okhttp3.StethoInterceptor") as Class<Interceptor>
-                return interceptorClass.newInstance()
+            if (BuildConfig.DEBUG) {
+                return StethoInterceptor()
             }
 
         } catch (err: Exception) {
