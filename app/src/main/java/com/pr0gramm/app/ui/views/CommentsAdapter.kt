@@ -257,7 +257,5 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
     companion object {
         private val NO_VOTES = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())
-
-        private val COMMENT_BY_CONFIDENCE = compareByDescending<Api.Comment> { it.confidence }
     }
 }

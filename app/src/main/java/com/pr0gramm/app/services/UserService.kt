@@ -12,7 +12,6 @@ import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import org.joda.time.Duration.standardDays
 import org.joda.time.Instant
 import org.slf4j.LoggerFactory
@@ -430,11 +429,7 @@ class UserService(private val api: Api,
     }
 
 
-    class LoginProgress internal constructor(private val login: Api.Login?) {
-        fun getLogin(): Optional<Api.Login> {
-            return Optional.fromNullable(login)
-        }
-    }
+    class LoginProgress(val login: Api.Login?)
 
     companion object {
         private val logger = LoggerFactory.getLogger("UserService")

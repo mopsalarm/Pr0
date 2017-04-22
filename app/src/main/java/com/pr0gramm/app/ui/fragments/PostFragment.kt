@@ -643,8 +643,8 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
 
             start()
 
-            addListener(AndroidUtility.endAction {
-                this@PostFragment.voteAnimationIndicator.visible = false
+            addListener(endAction {
+                voteAnimationIndicator.visible = false
             })
         }
     }

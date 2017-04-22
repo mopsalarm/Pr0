@@ -15,9 +15,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.common.base.Optional
+import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import com.pr0gramm.app.BuildConfig
+import org.slf4j.Logger
 import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -259,4 +262,26 @@ inline fun <T> T?.or(supplier: () -> T): T {
 fun View?.removeFromParent() {
     val parent = this?.parent as? ViewGroup
     parent?.removeView(this)
+}
+
+fun <T> T?.justObservable(): Observable<T> {
+    if (this != null) {
+        return Observable.just(this)
+    } else {
+        return Observable.empty()
+    }
+}
+
+
+fun <T> Logger.time(name: String, supplier: () -> T): T {
+    if (BuildConfig.DEBUG) {
+        val watch = Stopwatch.createStarted()
+        try {
+            return supplier()
+        } finally {
+            this.info("{} took {}", name, watch)
+        }
+    } else {
+        return supplier()
+    }
 }

@@ -11,7 +11,7 @@ import com.pr0gramm.app.services.GifDrawableLoader
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.AndroidUtility.endAction
+import com.pr0gramm.app.util.endAction
 import kotterknife.bindView
 import pl.droidsonroids.gif.GifDrawable
 import rx.functions.Action1

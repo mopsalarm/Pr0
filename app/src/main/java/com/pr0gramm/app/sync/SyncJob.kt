@@ -6,8 +6,8 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.SimpleJobCreator
+import com.pr0gramm.app.util.doInBackground
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 

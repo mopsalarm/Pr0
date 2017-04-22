@@ -4,9 +4,9 @@ import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Holder
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ifAbsent
 import rx.Completable
 import rx.Observable

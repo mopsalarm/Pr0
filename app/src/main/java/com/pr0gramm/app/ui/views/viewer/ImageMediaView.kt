@@ -9,10 +9,10 @@ import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
+import com.pr0gramm.app.util.endAction
 import com.pr0gramm.app.util.removeFromParent
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
@@ -113,7 +113,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         if (imageView.alpha == 0f) {
             imageView.animate().alpha(1f)
                     .setDuration(MediaView.ANIMATION_DURATION.toLong())
-                    .setListener(AndroidUtility.endAction { super.onMediaShown() })
+                    .setListener(endAction { super.onMediaShown() })
                     .start()
         } else {
             super.onMediaShown()

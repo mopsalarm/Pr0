@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -49,8 +50,8 @@ public class MenuSheetView extends FrameLayout {
     }
 
     private Menu menu;
-    ArrayList<SheetMenuItem> items = new ArrayList<>();
-    private Adapter adapter;
+    ArrayList<SheetMenuItem> items = new ArrayList<SheetMenuItem>();
+    Adapter adapter;
     private AbsListView absListView;
     private final TextView titleView;
     protected final int originalListPaddingTop;
@@ -79,8 +80,12 @@ public class MenuSheetView extends FrameLayout {
         inflate(context, R.layout.list_sheet_view, this);
         absListView = (AbsListView) findViewById(R.id.list);
         if (listener != null) {
-            absListView.setOnItemClickListener((parent, view, position, id) ->
-                    listener.onMenuItemClick(adapter.getItem(position).getMenuItem()));
+            absListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    listener.onMenuItemClick(adapter.getItem(position).getMenuItem());
+                }
+            });
         }
 
         // Set up the title
@@ -88,7 +93,7 @@ public class MenuSheetView extends FrameLayout {
         originalListPaddingTop = absListView.getPaddingTop();
         setTitle(title);
 
-        ViewCompat.setElevation(this, AndroidUtility.dp(getContext(), 16));
+        ViewCompat.setElevation(this, AndroidUtility.INSTANCE.dp(getContext(), 16));
     }
 
     /**
@@ -228,7 +233,7 @@ public class MenuSheetView extends FrameLayout {
 
             // Add some padding to the top to account for the missing title
             absListView.setPadding(absListView.getPaddingLeft(),
-                    originalListPaddingTop + AndroidUtility.dp(getContext(), 8),
+                    originalListPaddingTop + AndroidUtility.INSTANCE.dp(getContext(), 8),
                     absListView.getPaddingRight(), absListView.getPaddingBottom());
         }
     }
@@ -339,7 +344,7 @@ public class MenuSheetView extends FrameLayout {
             }
 
             public void bindView(SheetMenuItem item) {
-                int iconColor = AndroidUtility.resolveColorAttribute(icon.getContext(),
+                int iconColor = AndroidUtility.INSTANCE.resolveColorAttribute(icon.getContext(),
                         android.R.attr.textColorSecondary);
 
                 Drawable icon = item.getMenuItem().getIcon();

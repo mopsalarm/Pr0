@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import android.content.SharedPreferences
-import com.google.common.base.Charsets
 import com.google.common.base.Optional
 import com.google.common.base.Strings
 import com.google.common.primitives.Doubles
@@ -17,6 +16,7 @@ import okhttp3.HttpUrl
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Type
+import java.net.URLDecoder
 import java.util.Arrays.asList
 
 typealias OnCookieChangedListener = () -> Unit
@@ -152,7 +152,7 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
             return Optional.absent<Cookie>()
 
         try {
-            val value = AndroidUtility.urlDecode(cookie.value(), Charsets.UTF_8)
+            val value = URLDecoder.decode(cookie.value(), "UTF-8")
             return Optional.fromNullable(gson.fromJson(value, Cookie::class.java))
 
         } catch (err: Exception) {

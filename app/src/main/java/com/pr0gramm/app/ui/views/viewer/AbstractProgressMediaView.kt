@@ -11,7 +11,7 @@ import android.widget.SeekBar
 import com.google.common.base.Optional
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.endAction
+import com.pr0gramm.app.util.endAction
 import org.slf4j.LoggerFactory
 
 /**

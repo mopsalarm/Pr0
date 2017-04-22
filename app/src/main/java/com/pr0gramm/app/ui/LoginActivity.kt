@@ -32,11 +32,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.fragments.withBusyDialog
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.toObservable
-import com.pr0gramm.app.util.CustomTabsHelper
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.use
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotterknife.bindView
 import net.danlew.android.joda.DateUtils
@@ -135,7 +131,7 @@ class LoginActivity : BaseAppCompatActivity() {
         userService.login(username, password)
                 .compose(bindUntilEventAsync(ActivityEvent.DESTROY))
                 .withBusyDialog(this, R.string.login_please_wait)
-                .flatMap { progress -> toObservable(progress.getLogin()) }
+                .flatMap { progress -> progress.login.justObservable() }
                 .interceptLoginFailures()
                 .doOnSubscribe { enableView(false) }
                 .doOnError { enableView(true) }

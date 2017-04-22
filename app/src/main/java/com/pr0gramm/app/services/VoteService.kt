@@ -13,9 +13,9 @@ import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.Holder
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.map
 import com.pr0gramm.app.util.subscribeOnBackground
 import gnu.trove.TCollections

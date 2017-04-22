@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewPropertyAnimator
 import com.google.common.base.Optional
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.endAction
 import com.pr0gramm.app.util.visible
 
 /**
@@ -41,7 +41,7 @@ class ScrollHideToolbarListener(private val toolbar: View) {
             animation = toolbar.animate()
                     .translationY(y.toFloat())
                     .setDuration(250)
-                    .setListener(AndroidUtility.endAction {
+                    .setListener(endAction {
                         if (!targetVisible) {
                             toolbar.visible = false
                         }

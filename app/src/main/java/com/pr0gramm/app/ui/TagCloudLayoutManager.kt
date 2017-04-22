@@ -3,7 +3,7 @@ package com.pr0gramm.app.ui
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.time
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -53,7 +53,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
     override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State?, widthSpec: Int, heightSpec: Int) {
         val parentWidth = View.MeasureSpec.getSize(widthSpec)
 
-        this.config = AndroidUtility.time<Config>(logger, "measure tag sizes") {
+        this.config = logger.time("measure tag sizes") {
             val sizes = measureElements(recycler)
 
             // estimate the needed with using brute force!

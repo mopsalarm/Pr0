@@ -4,7 +4,7 @@ import android.net.Uri
 import com.google.common.base.MoreObjects
 import com.google.common.io.Closeables
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient

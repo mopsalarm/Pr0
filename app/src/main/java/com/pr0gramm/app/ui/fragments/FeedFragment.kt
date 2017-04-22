@@ -41,7 +41,6 @@ import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoCell
 import com.pr0gramm.app.ui.views.UserInfoFoundView
 import com.pr0gramm.app.util.*
-import com.pr0gramm.app.util.AndroidUtility.*
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
 import rx.Observable
@@ -158,7 +157,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
         if (useToolbarTopMargin()) {
             // use height of the toolbar to configure swipe refresh layout.
             val abHeight = AndroidUtility.getActionBarContentOffset(activity)
-            val offset = getStatusBarHeight(activity)
+            val offset = AndroidUtility.getStatusBarHeight(activity)
             swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
         }
 
@@ -1056,7 +1055,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
             return
 
         searchContainer.animate()
-                .setListener(hideViewOnAnimationEnd(searchContainer))
+                .setListener(endAction { searchContainer.visible = false })
                 .alpha(0f)
 
         val height = view?.height ?: 0

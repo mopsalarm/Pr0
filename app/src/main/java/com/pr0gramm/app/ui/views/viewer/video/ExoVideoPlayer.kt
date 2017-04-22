@@ -50,7 +50,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.getMessageWithCauses
+import com.pr0gramm.app.util.getMessageWithCauses
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -261,7 +261,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     override fun onPlayerError(error: ExoPlaybackException) {
         val rootCause = Throwables.getRootCause(error)
 
-        val messageChain = getMessageWithCauses(error)
+        val messageChain = error.getMessageWithCauses()
         if (error.type == ExoPlaybackException.TYPE_SOURCE) {
             val message = context.getString(R.string.media_exo_error_io, rootCause.message)
             callbacks.onVideoError(message, VideoPlayer.ErrorKind.NETWORK)

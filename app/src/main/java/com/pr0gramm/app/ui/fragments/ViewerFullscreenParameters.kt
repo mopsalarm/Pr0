@@ -2,7 +2,7 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Activity
 import android.view.View
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.AndroidUtility.screenSize
 
 /**
  * Fullscreen parameters for a viewer. This is used with [PostFragment]
@@ -11,7 +11,7 @@ class ViewerFullscreenParameters private constructor(val scale: Float, val trY: 
     companion object {
         @JvmStatic
         fun forViewer(activity: Activity, viewer: View): ViewerFullscreenParameters {
-            val screenSize = AndroidUtility.screenSize(activity)
+            val screenSize = screenSize(activity)
 
             val windowWidth = screenSize.x
             val windowHeight = screenSize.y.toFloat()

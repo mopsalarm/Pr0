@@ -7,9 +7,9 @@ import com.google.common.base.Optional
 import com.pr0gramm.app.services.preloading.PreloadManager.PreloadItem
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Databases.withTransaction
+import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.map.TLongObjectMap

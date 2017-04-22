@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility.endAction
+import com.pr0gramm.app.util.endAction
 import com.pr0gramm.app.util.removeFromParent
 import java.util.concurrent.atomic.AtomicBoolean
 

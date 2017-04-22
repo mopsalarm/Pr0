@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference;
 /**
  */
 public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHandler, Application.ActivityLifecycleCallbacks {
-    private static final WeakReference<FragmentActivity> NULL = new WeakReference<>(null);
+    private static final WeakReference<FragmentActivity> NULL = new WeakReference<FragmentActivity>(null);
 
     private WeakReference<FragmentActivity> current = NULL;
 
@@ -50,7 +50,7 @@ public class ActivityErrorHandler implements ErrorDialogFragment.OnErrorDialogHa
     @Override
     public void onActivityResumed(Activity activity) {
         if (activity instanceof FragmentActivity) {
-            current = new WeakReference<>((FragmentActivity) activity);
+            current = new WeakReference<FragmentActivity>((FragmentActivity) activity);
 
             if (pendingError != null && pendingFormatter != null) {
                 showErrorDialog(pendingError, pendingFormatter);

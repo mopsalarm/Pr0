@@ -7,7 +7,7 @@ import com.pr0gramm.app.services.VoteService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
+import com.pr0gramm.app.util.doInBackground
 
 /**
  * Bootstraps a few instances in some other thread.

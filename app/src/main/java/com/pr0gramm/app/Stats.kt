@@ -2,7 +2,7 @@ package com.pr0gramm.app
 
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.SettableFuture
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
+import com.pr0gramm.app.util.doInBackground
 import com.timgroup.statsd.NoOpStatsDClient
 import com.timgroup.statsd.NonBlockingStatsDClient
 import com.timgroup.statsd.StatsDClient

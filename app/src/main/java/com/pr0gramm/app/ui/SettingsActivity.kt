@@ -15,7 +15,6 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Strings.emptyToNull
-
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -27,9 +26,9 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.bundle
+import com.pr0gramm.app.util.doInBackground
 import com.trello.rxlifecycle.components.RxPreferenceFragment
 import org.joda.time.Instant.now
 import rx.android.schedulers.AndroidSchedulers

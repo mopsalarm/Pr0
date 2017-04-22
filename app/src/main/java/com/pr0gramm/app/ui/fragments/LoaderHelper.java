@@ -75,7 +75,17 @@ public abstract class LoaderHelper<T> {
                 .subscribeOn(BackgroundScheduler.instance())
                 .unsubscribeOn(BackgroundScheduler.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onNext, this::onError);
+                .subscribe(new Action1<T>() {
+                    @Override
+                    public void call(T value) {
+                        LoaderHelper.this.onNext(value);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable error) {
+                        LoaderHelper.this.onError(error);
+                    }
+                });
     }
 
     public void detach() {
@@ -105,7 +115,7 @@ public abstract class LoaderHelper<T> {
         }
     }
 
-    public static <T> LoaderHelper<T> of(Supplier<Observable<T>> supplier) {
+    public static <T> LoaderHelper<T> of(final Supplier<Observable<T>> supplier) {
         return new LoaderHelper<T>() {
             @Override
             protected Observable<T> newObservable() {
@@ -114,12 +124,15 @@ public abstract class LoaderHelper<T> {
         };
     }
 
-    private static <T> Action1<T> doFinally(Action1<T> firstAction, Action0 finallyAction) {
-        return value -> {
-            try {
-                firstAction.call(value);
-            } finally {
-                finallyAction.call();
+    private static <T> Action1<T> doFinally(final Action1<T> firstAction, final Action0 finallyAction) {
+        return new Action1<T>() {
+            @Override
+            public void call(T value) {
+                try {
+                    firstAction.call(value);
+                } finally {
+                    finallyAction.call();
+                }
             }
         };
     }

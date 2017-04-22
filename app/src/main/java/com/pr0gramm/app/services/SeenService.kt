@@ -3,7 +3,7 @@ package com.pr0gramm.app.services
 import android.content.Context
 import com.google.common.primitives.UnsignedBytes
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.util.AndroidUtility.doInBackground
+import com.pr0gramm.app.util.doInBackground
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
