@@ -19,6 +19,7 @@ import com.pr0gramm.app.util.LooperScheduler
 import com.thefinestartist.Base
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
+import okhttp3.Interceptor
 import org.slf4j.LoggerFactory
 import pl.brightinventions.slf4android.LogLevel
 import pl.brightinventions.slf4android.LoggerConfiguration
@@ -32,7 +33,7 @@ import java.util.logging.LogManager
 /**
  * Global application class for pr0gramm app.
  */
-class ApplicationClass : Application(), KodeinAware {
+open class ApplicationClass : Application(), KodeinAware {
     private val kApp = Modules(this)
 
     init {
@@ -86,10 +87,6 @@ class ApplicationClass : Application(), KodeinAware {
 
         EagerBootstrap.initEagerSingletons(kodein)
 
-        if (BuildConfig.DEBUG) {
-            StethoWrapper.init(this)
-        }
-
         // get the correct theme for the app!
         ThemeHelper.updateTheme()
 
@@ -105,6 +102,13 @@ class ApplicationClass : Application(), KodeinAware {
         MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
         MobileAds.setAppVolume(0f)
         MobileAds.setAppMuted(true)
+    }
+
+    /**
+     * Overridden in debug application to provide the stetho interceptor.
+     */
+    open fun debugNetworkInterceptor(): Interceptor {
+        return Interceptor { it.proceed(it.request()) }
     }
 
     override val kodein: Kodein

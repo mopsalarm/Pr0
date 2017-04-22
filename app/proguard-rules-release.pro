@@ -9,12 +9,12 @@
 -dontskipnonpubliclibraryclassmembers
 
 -optimizationpasses 20
--optimizations !method/removal/parameter,field/marking/private,code/simplification/*,class/merging/vertical,!class/merging/horizontal
+-optimizations !method/removal/parameter,method/marking/static,method/inlining/*,field/marking/private,code/simplification/*,class/merging/vertical,!class/merging/horizontal
 
 -dontwarn **
 -ignorewarnings
 
--keepattributes *Annotation*,Signature,SourceFile,LineNumberTable
+-keepattributes *Annotation*,SourceFile,LineNumberTable
 
 # keep exception names
 -keepnames class * extends java.lang.Throwable

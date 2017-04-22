@@ -11,7 +11,6 @@ import android.support.v4.app.NotificationCompat
 import com.github.salomonbrys.kodein.android.KodeinIntentService
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
-import com.google.common.collect.Lists.newArrayList
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -308,7 +307,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
         fun newIntent(context: Context, items: Iterable<FeedItem>): Intent {
             val intent = Intent(context, PreloadService::class.java)
-            intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, newArrayList(items))
+            intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, items.toCollection(ArrayList()))
             return intent
         }
     }

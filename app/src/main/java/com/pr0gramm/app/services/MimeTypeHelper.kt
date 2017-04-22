@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import com.google.common.base.Optional
-import com.google.common.collect.Iterables
 import com.google.common.io.ByteStreams
 import com.google.common.primitives.Bytes
 import java.io.File
@@ -23,10 +22,10 @@ object MimeTypeHelper {
         if (Bytes.indexOf(bytes, MAGIC_PNG) == 0)
             return Optional.of("image/png")
 
-        if (Iterables.any(MAGIC_MP4) { q -> Bytes.indexOf(bytes, q) != -1 })
+        if (MAGIC_MP4.any { q -> Bytes.indexOf(bytes, q) != -1 })
             return Optional.of("video/mp4")
 
-        if (Iterables.any(MAGIC_WEBM) { q -> Bytes.indexOf(bytes, q) != -1 })
+        if (MAGIC_WEBM.any { q -> Bytes.indexOf(bytes, q) != -1 })
             return Optional.of("video/webm")
 
         return Optional.absent<String>()

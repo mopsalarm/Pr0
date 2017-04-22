@@ -2,8 +2,6 @@ package com.pr0gramm.app.feed
 
 import android.os.Bundle
 import com.google.common.base.Optional
-import com.google.common.collect.Iterators
-import com.google.common.collect.Ordering
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.filter
@@ -39,13 +37,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         val isAtStart = isAtStart or feed.isAtStart
 
         val newItems = mergeItems(feed.items)
-
-        if (BuildConfig.DEBUG) {
-            if (!Ordering.from(itemComparator).isStrictlyOrdered(items)) {
-                logger.warn("Feed is not in order after merging!")
-            }
-        }
-
         return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
     }
 
@@ -65,7 +56,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
         // merge based on ids.
         val items = items.toMutableList()
-        val source = Iterators.peekingIterator(newItems.iterator())
+        val source = PeekingIterator(newItems.iterator())
         val target = items.listIterator()
 
         while (source.hasNext()) {
@@ -101,18 +92,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return item.id(feedType)
     }
 
-
-    /**
-     * Returns the index of the given feed item in this feed. If the iem
-     * is not part of this feed, an empty optional will be returned.
-     */
-    fun indexOf(item: FeedItem?): Optional<Int> {
-        if (item == null)
-            return Optional.absent<Int>()
-
-        return indexOf(item.id())
-    }
-
     fun indexOf(itemId: Long): Optional<Int> {
         return Optional.of(items.indexOfFirst { it.id() == itemId }).filter { it >= 0 }
     }
@@ -133,6 +112,38 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         bundle.putBoolean(FEED_FIELD_AT_START, start == 0)
 
         return bundle
+    }
+
+
+    /**
+     * Implementation of PeekingIterator that avoids peeking unless necessary.
+     */
+    private class PeekingIterator<out E>(private val iterator: Iterator<E>) : Iterator<E> {
+        private var hasPeeked: Boolean = false
+        private var peekedElement: E? = null
+
+        override fun hasNext(): Boolean {
+            return hasPeeked || iterator.hasNext()
+        }
+
+        override fun next(): E {
+            if (!hasPeeked) {
+                return iterator.next()
+            }
+            val result = peekedElement!!
+            hasPeeked = false
+            peekedElement = null
+            return result
+        }
+
+        fun peek(): E? {
+            if (!hasPeeked) {
+                peekedElement = iterator.next()
+                hasPeeked = true
+            }
+
+            return peekedElement
+        }
     }
 
     companion object {

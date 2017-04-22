@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import com.google.common.collect.Range
 
 /**
  * A simple graph of double values.
@@ -8,7 +7,7 @@ import com.google.common.collect.Range
 class Graph(start: Double, end: Double,
             val points: List<Graph.Point>) {
 
-    val range = Range.closed(start, end)
+    val range = start.rangeTo(end)
 
     val first
         get() = points[0]

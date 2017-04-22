@@ -2,7 +2,6 @@ package com.pr0gramm.app.ui
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import com.google.common.collect.Iterables
 import com.pr0gramm.app.services.Graph
 import com.pr0gramm.app.util.save
 
@@ -55,17 +54,16 @@ class GraphDrawable(private val graph: Graph) : Drawable() {
         val padding = 0.1 * (graph.maxValue - graph.minValue)
         val minY = graph.minValue - padding
         val maxY = graph.maxValue + padding
-        val minX = graph.range.lowerEndpoint()
-        val maxX = graph.range.upperEndpoint()
+        val minX = graph.range.start
+        val maxX = graph.range.endInclusive
 
         val scaleX = (maxX - minX) / bounds.width()
         val scaleY = (maxY - minY) / bounds.height()
 
+
         // add a point the the start and end of the graph
-        val points = Iterables.concat(
-                setOf(Graph.Point(minX, graph.first.y)),
-                graph.points,
-                setOf(Graph.Point(maxX, graph.last.y)))
+        val points = listOf(Graph.Point(minX, graph.first.y)) +
+                graph.points + Graph.Point(maxX, graph.last.y)
 
         val path = Path()
 

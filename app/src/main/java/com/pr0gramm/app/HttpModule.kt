@@ -1,6 +1,5 @@
 package com.pr0gramm.app
 
-import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import com.github.salomonbrys.kodein.Kodein
@@ -29,7 +28,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-fun httpModule(app: Application) = Kodein.Module {
+fun httpModule(app: ApplicationClass) = Kodein.Module {
     bind<LoginCookieHandler>() with singleton { LoginCookieHandler(instance()) }
 
     bind<OkHttpClient>() with singleton {
@@ -52,7 +51,7 @@ fun httpModule(app: Application) = Kodein.Module {
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))
-                .addNetworkInterceptor(StethoWrapper.networkInterceptor())
+                .addNetworkInterceptor(app.debugNetworkInterceptor())
                 .addNetworkInterceptor(LoggingInterceptor())
                 .build()
     }

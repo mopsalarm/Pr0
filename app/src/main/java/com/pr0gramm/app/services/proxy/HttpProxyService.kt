@@ -3,7 +3,6 @@ package com.pr0gramm.app.services.proxy
 import android.net.Uri
 import com.google.common.base.Charsets
 import com.google.common.base.MoreObjects.firstNonNull
-import com.google.common.collect.Iterables
 import com.google.common.hash.Hashing
 import com.google.common.io.BaseEncoding
 import com.google.common.io.ByteStreams
@@ -47,7 +46,7 @@ class HttpProxyService(
         logger.info("New request for {}", session.uri)
 
         val uri = Uri.parse(session.uri)
-        if (nonce != Iterables.getFirst(uri.pathSegments, null)) {
+        if (nonce != uri.pathSegments.firstOrNull()) {
             logger.info("Got request with invalid nonce: {}", uri)
             return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.FORBIDDEN, "text/plain", "")
         }
