@@ -236,7 +236,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      * This will not remove the view until the transition ended.
      */
     fun removePreviewImage() {
-        AndroidUtility.removeView(previewView)
+        previewView.removeFromParent()
         previewView = null
 
         onPreviewRemoved()
@@ -302,7 +302,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
      * Hides the busy indicator that was shown in [.showBusyIndicator].
      */
     protected fun hideBusyIndicator() {
-        AndroidUtility.removeView(busyIndicator)
+        busyIndicator.removeFromParent()
     }
 
     open fun onPause() {

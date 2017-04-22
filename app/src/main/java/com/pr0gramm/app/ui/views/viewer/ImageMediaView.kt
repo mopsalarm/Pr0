@@ -13,6 +13,7 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
+import com.pr0gramm.app.util.removeFromParent
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
 
@@ -63,7 +64,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
             picasso.cancelTag(tag)
             imageView.recycle()
             imageView.setOnImageEventListener(null)
-            AndroidUtility.removeView(imageView)
+            imageView.removeFromParent()
         }
 
         // start loading

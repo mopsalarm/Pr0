@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.endAction
+import com.pr0gramm.app.util.removeFromParent
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -45,7 +45,7 @@ class DelayedMediaView(config: MediaView.Config) : ProxyMediaView(config) {
 
         overlay.animate()
                 .alpha(0f).scaleX(0.8f).scaleY(0.8f)
-                .setListener(endAction { AndroidUtility.removeView(overlay) })
+                .setListener(endAction { overlay.removeFromParent() })
                 .start()
 
         return true

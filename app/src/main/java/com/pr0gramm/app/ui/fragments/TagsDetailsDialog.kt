@@ -17,9 +17,9 @@ import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
 import rx.functions.Action0
@@ -68,7 +68,7 @@ class TagsDetailsDialog : BaseDialogFragment() {
 
         tagsView.adapter.notifyDataSetChanged()
 
-        AndroidUtility.removeView(busyView)
+        busyView.removeFromParent()
     }
 
     private fun onDeleteClicked() {

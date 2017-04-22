@@ -31,8 +31,6 @@ import android.text.util.Linkify;
 import android.util.LruCache;
 import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -273,15 +271,6 @@ public class AndroidUtility {
             }
         } else {
             return supplier.get();
-        }
-    }
-
-    public static void removeView(View view) {
-        if (view != null) {
-            ViewParent parent = view.getParent();
-            if (parent instanceof ViewGroup) {
-                ((ViewGroup) parent).removeView(view);
-            }
         }
     }
 

@@ -266,7 +266,7 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
 
             // link the hide button
             val button = overlay.findViewById(R.id.hide_warning_button)
-            button.setOnClickListener { AndroidUtility.removeView(overlay) }
+            button.setOnClickListener { overlay.removeFromParent() }
         }
     }
 
@@ -394,7 +394,7 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
             // move to fullscreen!?
             AndroidUtility.applyWindowFullscreen(activity, true)
 
-            AndroidUtility.removeView(mediaControlsContainer)
+            mediaControlsContainer.removeFromParent()
             viewer.addView(mediaControlsContainer)
 
             if (activity is AdControl) {
@@ -450,7 +450,7 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
         Screen.unlockOrientation(activity)
 
         // move views back
-        AndroidUtility.removeView(mediaControlsContainer)
+        mediaControlsContainer.removeFromParent()
 
         val targetView = if ((tabletLayoutView != null)) playerContainer else playerPlaceholder
         targetView?.addView(mediaControlsContainer)

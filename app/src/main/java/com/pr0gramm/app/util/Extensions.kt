@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import com.google.common.base.Optional
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
@@ -253,4 +254,9 @@ inline fun <T> T?.or(supplier: () -> T): T {
     } else {
         return supplier()
     }
+}
+
+fun View?.removeFromParent() {
+    val parent = this?.parent as? ViewGroup
+    parent?.removeView(this)
 }
