@@ -55,7 +55,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    fun setAnswerClickedListener(listener: OnClickListener) {
+    fun setAnswerClickedListener(listener: OnClickListener?) {
         sender.setOnAnswerClickedListener(listener)
     }
 

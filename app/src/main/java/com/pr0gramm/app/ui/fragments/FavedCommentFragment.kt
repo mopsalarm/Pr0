@@ -35,7 +35,6 @@ class FavedCommentFragment : MessageInboxFragment() {
     override fun newMessageAdapter(messages: List<Api.Message>): MessageAdapter {
         val adapter = super.newMessageAdapter(messages)
         adapter.pointsVisibility = MessageView.PointsVisibility.NEVER
-        adapter.actionListener = actionListener
         return adapter
     }
 
