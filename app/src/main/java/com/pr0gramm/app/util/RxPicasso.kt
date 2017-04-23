@@ -2,6 +2,7 @@ package com.pr0gramm.app.util
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
 import com.squareup.picasso.Target
@@ -14,6 +15,8 @@ object RxPicasso {
         return createObservable { emitter ->
             val target = object : Target {
                 override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+                    checkMainThread()
+
                     try {
                         emitter.onNext(bitmap)
                     } finally {

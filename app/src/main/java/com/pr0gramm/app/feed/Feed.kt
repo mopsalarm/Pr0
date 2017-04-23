@@ -1,10 +1,8 @@
 package com.pr0gramm.app.feed
 
 import android.os.Bundle
-import com.google.common.base.Optional
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.util.filter
 import org.slf4j.LoggerFactory
 import java.lang.Math.max
 import java.util.*
@@ -92,8 +90,9 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return item.id(feedType)
     }
 
-    fun indexOf(itemId: Long): Optional<Int> {
-        return Optional.of(items.indexOfFirst { it.id() == itemId }).filter { it >= 0 }
+    fun indexOf(itemId: Long): Int? {
+        val index = items.indexOfFirst { it.id == itemId }
+        return if (index >= 0) index else null
     }
 
     fun persist(pivot: Int): Bundle {

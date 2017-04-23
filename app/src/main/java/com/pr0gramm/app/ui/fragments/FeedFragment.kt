@@ -1054,8 +1054,9 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
         if (!searchContainerIsVisible())
             return
 
-        searchContainer.animate()
-                .setListener(endAction { searchContainer.visible = false })
+        val container = searchContainer
+        container.animate()
+                .setListener(endAction { container.visible = false })
                 .alpha(0f)
 
         val height = view?.height ?: 0
@@ -1080,7 +1081,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
 
         val autoLoad = autoOpenOnLoad
         if (autoLoad != null) {
-            feed.indexOf(autoLoad.itemId).ifPresent { idx ->
+            feed.indexOf(autoLoad.itemId)?.let { idx ->
                 onItemClicked(idx, autoLoad.commentId)
             }
         }

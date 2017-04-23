@@ -273,7 +273,7 @@ fun <T> T?.justObservable(): Observable<T> {
 }
 
 
-fun <T> Logger.time(name: String, supplier: () -> T): T {
+inline fun <T> Logger.time(name: String, supplier: () -> T): T {
     if (BuildConfig.DEBUG) {
         val watch = Stopwatch.createStarted()
         try {

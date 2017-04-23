@@ -133,7 +133,8 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
             }
         }
 
-        activeState().compose<Boolean>(bindToLifecycle<Boolean>()).subscribe { active ->
+        activeState().compose(bindToLifecycle()).subscribe { active ->
+            logger.info("Switching viewer state to {}", active)
             viewer.let {
                 if (active) {
                     it.playMedia()

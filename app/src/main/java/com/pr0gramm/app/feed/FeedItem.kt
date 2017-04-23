@@ -90,6 +90,13 @@ class FeedItem : Parcelable, HasThumbnail {
         return (if (type === FeedType.PROMOTED) promotedId else id)
     }
 
+    override fun hashCode(): Int {
+        return _id
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is FeedItem && other._id == _id
+    }
 
     override fun describeContents(): Int {
         return 0

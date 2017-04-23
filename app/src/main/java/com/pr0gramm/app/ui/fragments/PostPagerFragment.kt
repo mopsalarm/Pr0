@@ -101,7 +101,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     }
 
     private fun makeItemCurrent(item: FeedItem) {
-        val index = adapter.feed.indexOf(item).or(0)
+        val index = adapter.feed.indexOf(item.id) ?: 0
 
         logger.info("Moving to index: " + index)
         viewPager.setCurrentItem(index, false)
@@ -254,7 +254,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
 
         override fun getItemPosition(`object`: Any?): Int {
             val item = (`object` as PostFragment).feedItem
-            return feed.indexOf(item).or(PagerAdapter.POSITION_NONE)
+            return feed.indexOf(item.id) ?: PagerAdapter.POSITION_NONE
         }
 
         override fun getItemId(position: Int): Long {

@@ -16,6 +16,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
+import com.google.common.base.Stopwatch
 import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.view.attachEvents
 import com.pr0gramm.app.BuildConfig
@@ -44,14 +45,20 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     private val previewTarget = PreviewTarget(this)
     private val onViewListener = BehaviorSubject.create<Void>()
     private val thumbnail = BehaviorSubject.create<Bitmap>()
+    private val controllerView = ReplaySubject.create<View>()
     private val gestureDetector: GestureDetector
+
+    private var mediaShown: Boolean = false
+    private var compatClipBounds: Rect? = null
+
+    protected val picasso: Picasso = instance()
+    private val inMemoryCacheService: InMemoryCacheService = instance()
+    private val fancyThumbnailGenerator: FancyExifThumbnailGenerator = instance()
 
     /**
      * Returns the url that this view should display.
      */
     protected val mediaUri: MediaUri
-
-    private var mediaShown: Boolean = false
 
     var tapListener: TapListener? = null
 
@@ -61,9 +68,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     var isPlaying: Boolean = false
         private set
 
-    private val controllerView = ReplaySubject.create<View>()
+    var busyIndicator: View? = null
+        private set
 
-    private var compatClipBounds: Rect? = null
+    var previewView: AspectImageView? = null
+        private set
 
     /**
      * Sets the aspect ratio of this view. Will be ignored, if not positive and size
@@ -79,16 +88,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                 requestLayout()
             }
         }
-
-    var busyIndicator: View? = null
-        private set
-
-    var previewView: AspectImageView? = null
-        internal set
-
-    protected val picasso: Picasso = instance()
-    private val inMemoryCacheService: InMemoryCacheService = instance()
-    private val fancyThumbnailGenerator: FancyExifThumbnailGenerator = instance()
 
     init {
         this.mediaUri = config.mediaUri
@@ -115,20 +114,19 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
             // no more views will come now.
             controllerView.onCompleted()
-            onViewListener!!.onCompleted()
+            onViewListener.onCompleted()
             thumbnail.onCompleted()
         }
 
         if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
             attachEvents().limit(1).subscribe {
 
-                // test if we need to load the thumby preview.
+                // test if we need to request the thumby preview.
                 if (hasPreviewView()) {
                     val uri = ThumbyService.thumbUri(mediaUri)
 
                     RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
                             .onErrorResumeEmpty()
-                            .observeOn(AndroidSchedulers.mainThread())
                             .compose(RxLifecycleAndroid.bindView(this))
                             .subscribe(previewTarget)
                 }
@@ -429,8 +427,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
     private class PreviewTarget(mediaView: MediaView) : Action1<Bitmap> {
         private val mediaView = WeakReference(mediaView)
+        private val watch = Stopwatch.createStarted()
 
         override fun call(bitmap: Bitmap) {
+            logger.info("Got a preview image after {}", watch)
+
             this.mediaView.get()?.let { mediaView ->
                 if (mediaView.previewView != null) {
                     val nextImage = BitmapDrawable(mediaView.resources, bitmap)
