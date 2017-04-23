@@ -17,7 +17,7 @@ import com.pr0gramm.app.util.map
 
 /**
  */
-class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>(), SearchUserDialog.Listener {
+class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMessageInboxFragment"), SearchUserDialog.Listener {
     private val userService: UserService by instance()
 
     init {

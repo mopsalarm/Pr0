@@ -35,7 +35,7 @@ import rx.android.schedulers.AndroidSchedulers
 
 /**
  */
-class SettingsActivity : BaseAppCompatActivity() {
+class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)

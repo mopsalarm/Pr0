@@ -9,7 +9,7 @@ import rx.Observable
 
 /**
  */
-class WrittenCommentFragment : MessageInboxFragment() {
+class WrittenCommentFragment : MessageInboxFragment("WrittenCommentFragment") {
     private val userService: UserService by instance()
 
     override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {

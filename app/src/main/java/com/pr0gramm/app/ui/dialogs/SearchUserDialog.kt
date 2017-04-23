@@ -12,13 +12,10 @@ import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.withBusyDialog
-import org.slf4j.LoggerFactory
 
 /**
  */
-class SearchUserDialog : BaseDialogFragment() {
-    private val logger = LoggerFactory.getLogger("SearchUserDialog")
-
+class SearchUserDialog : BaseDialogFragment("SearchUserDialog") {
     private val userService: UserService by instance()
     private val suggestionService: UserSuggestionService by instance()
 

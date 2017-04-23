@@ -12,7 +12,7 @@ import com.pr0gramm.app.ui.MessageAdapter
 
 /**
  */
-open class MessageInboxFragment : InboxFragment<Api.Message>() {
+open class MessageInboxFragment(name: String = "MessageInboxFragment") : InboxFragment<Api.Message>(name) {
     private val notificationService: NotificationService by instance()
 
     override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {

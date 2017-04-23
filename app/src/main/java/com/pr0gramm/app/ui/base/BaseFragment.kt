@@ -3,16 +3,21 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
+import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseFragment : RxFragment(), HasViewCache, SupportFragmentInjector {
+abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, SupportFragmentInjector {
+    protected val logger: Logger = LoggerFactory.getLogger(name)
+
     final override val injector = KodeinInjector()
-    final override val kodeinComponent = super.kodeinComponent
     final override val kodeinScope = super.kodeinScope
+    final override val kodeinComponent = super.kodeinComponent
 
     final override fun initializeInjector() = super.initializeInjector()
     final override fun destroyInjector() = super.destroyInjector()
@@ -28,7 +33,7 @@ abstract class BaseFragment : RxFragment(), HasViewCache, SupportFragmentInjecto
     }
 
     override fun onAttach(context: Context?) {
-        initializeInjector()
+        logger.time("Injecting services") { initializeInjector() }
         super.onAttach(context)
     }
 

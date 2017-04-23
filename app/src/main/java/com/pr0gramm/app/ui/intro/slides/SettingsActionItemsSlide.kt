@@ -5,7 +5,7 @@ import com.pr0gramm.app.Settings
 
 /**
  */
-class SettingsActionItemsSlide : ActionItemsSlide() {
+class SettingsActionItemsSlide : ActionItemsSlide("SettingsActionItemsSlide") {
     override val introBackgroundResource: Int = R.color.green_primary
 
     override val introTitle: String = "Einstellungen"

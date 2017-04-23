@@ -9,7 +9,7 @@ import com.pr0gramm.app.services.BookmarkService
 
 /**
  */
-class BookmarksActionItemsSlide : ActionItemsSlide() {
+class BookmarksActionItemsSlide : ActionItemsSlide("BookmarksActionItemsSlide") {
     private val bookmarkService: BookmarkService by instance()
 
     override val introBackgroundResource: Int = R.color.blue_primary

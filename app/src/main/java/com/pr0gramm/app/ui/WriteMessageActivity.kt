@@ -28,7 +28,7 @@ import java.util.*
 
 /**
  */
-class WriteMessageActivity : BaseAppCompatActivity() {
+class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     private val inboxService: InboxService by instance()
     private val userService: UserService by instance()
     private val voteService: VoteService by instance()

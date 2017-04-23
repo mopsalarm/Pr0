@@ -5,7 +5,7 @@ import com.pr0gramm.app.Settings
 
 /**
  */
-class CategoriesActionItemsSlide : ActionItemsSlide() {
+class CategoriesActionItemsSlide : ActionItemsSlide("CategoriesActionItemsSlide") {
     override val introBackgroundResource: Int = R.color.pink_primary
 
     override val introTitle: String = "Kategorien"

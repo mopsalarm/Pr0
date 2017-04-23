@@ -13,7 +13,7 @@ import kotterknife.bindView
 /**
  * A new activity that just shows the rules
  */
-class RulesActivity : BaseAppCompatActivity() {
+class RulesActivity : BaseAppCompatActivity("RulesActivity") {
     private val rulesView: TextView by bindView(R.id.small_print)
     private val rulesService: RulesService by instance()
 

@@ -22,7 +22,7 @@ import rx.functions.Action0
 
 /**
  */
-class ItemAdminDialog : BaseDialogFragment() {
+class ItemAdminDialog : BaseDialogFragment("ItemAdminDialog") {
     private val adminService: AdminService by instance()
 
     private val reasonListView: ListView by bindView(R.id.reason)

@@ -22,7 +22,7 @@ import rx.Observable
 
 /**
  */
-class UpdateDialogFragment : BaseDialogFragment() {
+class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val update = arguments.getParcelable<Update?>("update")
         return update?.let { updateAvailableDialog(it) } ?: noNewUpdateDialog()

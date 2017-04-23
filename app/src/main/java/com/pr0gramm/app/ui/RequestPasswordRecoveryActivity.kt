@@ -15,7 +15,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import kotterknife.bindView
 import rx.functions.Action0
 
-class RequestPasswordRecoveryActivity : BaseAppCompatActivity() {
+class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRecoveryActivity") {
     private val email: EditText by bindView(R.id.email)
     private val submit: Button by bindView(R.id.submit)
 

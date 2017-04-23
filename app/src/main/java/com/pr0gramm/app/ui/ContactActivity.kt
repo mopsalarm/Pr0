@@ -29,7 +29,7 @@ import rx.functions.Action0
 
 /**
  */
-class ContactActivity : BaseAppCompatActivity() {
+class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     private val contactService: ContactService by instance()
     private val feedbackService: FeedbackService by instance()
     private val userService: UserService by instance()

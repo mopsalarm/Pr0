@@ -19,7 +19,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 
 /**
  */
-class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener {
+class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeFragment.Listener {
     private val uploadService: UploadService by instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,11 +133,8 @@ class UploadActivity : BaseAppCompatActivity(), ChooseMediaTypeFragment.Listener
     }
 
     companion object {
-        @JvmStatic
-        val MediaTypeImage = "image/*"
-
-        @JvmStatic
-        val MediaTypeVideo = "video/*"
+        const val MEDIA_TYPE_IMAGE = "image/*"
+        const val MEDIA_TYPE_VIDEO = "video/*"
 
         @JvmStatic
         fun openForType(context: Context, mediaType: String) {

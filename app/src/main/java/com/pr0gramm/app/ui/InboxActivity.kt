@@ -20,7 +20,7 @@ import kotterknife.bindView
 /**
  * The activity that displays the inbox.
  */
-class InboxActivity : BaseAppCompatActivity(), ViewPager.OnPageChangeListener {
+class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageChangeListener {
     private val userService: UserService by instance()
     private val inboxService: InboxService by instance()
     private val notificationService: NotificationService by instance()

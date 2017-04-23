@@ -54,7 +54,7 @@ import kotlin.properties.Delegates
 /**
  * This is the main class of our pr0gramm app.
  */
-class MainActivity : BaseAppCompatActivity(),
+class MainActivity : BaseAppCompatActivity("MainActivity"),
         DrawerFragment.OnFeedFilterSelected,
         FragmentManager.OnBackStackChangedListener,
         ScrollHideToolbarListener.ToolbarActivity,
@@ -584,11 +584,11 @@ class MainActivity : BaseAppCompatActivity(),
             bottomSheet.dismissSheet()
 
             if (item.itemId == R.id.action_upload_image) {
-                UploadActivity.openForType(this, UploadActivity.MediaTypeImage)
+                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_IMAGE)
             }
 
             if (item.itemId == R.id.action_upload_video) {
-                UploadActivity.openForType(this, UploadActivity.MediaTypeVideo)
+                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_VIDEO)
             }
 
             true

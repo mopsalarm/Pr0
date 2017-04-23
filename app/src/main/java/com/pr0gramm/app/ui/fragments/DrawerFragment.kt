@@ -36,7 +36,7 @@ import java.util.*
 
 /**
  */
-class DrawerFragment : BaseFragment() {
+class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
     private val cookieHandler: LoginCookieHandler by instance()
     private val bookmarkService: BookmarkService by instance()

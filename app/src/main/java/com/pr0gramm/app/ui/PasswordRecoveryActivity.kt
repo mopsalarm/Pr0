@@ -16,7 +16,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import kotterknife.bindView
 import rx.functions.Action1
 
-class PasswordRecoveryActivity : BaseAppCompatActivity() {
+class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity") {
     private lateinit var user: String
     private lateinit var token: String
 

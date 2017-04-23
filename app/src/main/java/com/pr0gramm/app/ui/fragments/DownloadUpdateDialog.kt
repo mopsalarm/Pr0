@@ -11,13 +11,12 @@ import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.slf4j.LoggerFactory
 import rx.Observable
 
 /**
  * This dialog shows the progress while downloading something.
  */
-class DownloadUpdateDialog(private val progress: Observable<DownloadService.Status> = Observable.empty()) : BaseDialogFragment() {
+class DownloadUpdateDialog(private val progress: Observable<DownloadService.Status> = Observable.empty()) : BaseDialogFragment("DownloadUpdateDialog") {
     private val progressBar: ProgressBar by bindView(R.id.progress)
 
     init {
@@ -52,9 +51,5 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
 
         progressBar.isIndeterminate = status.progress < 0
         progressBar.progress = (1000 * status.progress).toInt()
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger("DownloadDialog")
     }
 }

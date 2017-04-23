@@ -16,7 +16,7 @@ import com.pr0gramm.app.util.findOptional
 
 /**
  */
-abstract class ActionItemsSlide : BaseFragment() {
+abstract class ActionItemsSlide(name: String) : BaseFragment(name) {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
 

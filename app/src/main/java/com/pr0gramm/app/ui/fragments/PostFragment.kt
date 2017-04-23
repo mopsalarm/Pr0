@@ -22,7 +22,6 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Preconditions.checkNotNull
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.player_container
@@ -55,7 +54,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.screenIsLandscape
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import rx.Observable.combineLatest
@@ -68,7 +66,7 @@ import rx.subjects.BehaviorSubject
 /**
  * This fragment shows the content of one post.
  */
-class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, BackAwareFragment, CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
+class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, BackAwareFragment, CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
@@ -1084,45 +1082,37 @@ class PostFragment : BaseFragment(), NewTagDialogFragment.OnAddNewTagsListener, 
         }
     }
 
+    /**
+     * Returns true, if the given tag looks like some "loop" tag.
+     */
+    private fun isLoopTag(tag: String): Boolean {
+        val lower = tag.toLowerCase()
+        return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
+    }
+
+    /**
+     * Returns true, if the given url links to a static image.
+     * This does only a check on the filename and not on the data.
+
+     * @param image The url of the image to check
+     */
+    private fun isStaticImage(image: FeedItem): Boolean {
+        return image.image.toLowerCase().matches((".*\\.(jpg|jpeg|png)").toRegex())
+    }
+
     companion object {
-
-        private val logger = LoggerFactory.getLogger("PostFragment")
-
-        private val ARG_FEED_ITEM = "PostFragment.post"
-        private val ARG_COMMENT_DRAFT = "PostFragment.comment-draft"
-        private val ARG_AUTOSCROLL_COMMENT_ID = "PostFragment.first-comment"
+        const val ARG_FEED_ITEM = "PostFragment.post"
+        const val ARG_COMMENT_DRAFT = "PostFragment.comment-draft"
+        const val ARG_AUTOSCROLL_COMMENT_ID = "PostFragment.first-comment"
 
         /**
          * Creates a new instance of a [PostFragment] displaying the
          * given [FeedItem].
          */
         fun newInstance(item: FeedItem): PostFragment {
-            checkNotNull<FeedItem>(item, "Item must not be null")
-
-            val arguments = Bundle()
-            arguments.putParcelable(ARG_FEED_ITEM, item)
-
-            val fragment = PostFragment()
-            fragment.arguments = arguments
-            return fragment
-        }
-
-        /**
-         * Returns true, if the given tag looks like some "loop" tag.
-         */
-        private fun isLoopTag(tag: String): Boolean {
-            val lower = tag.toLowerCase()
-            return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
-        }
-
-        /**
-         * Returns true, if the given url links to a static image.
-         * This does only a check on the filename and not on the data.
-
-         * @param image The url of the image to check
-         */
-        internal fun isStaticImage(image: FeedItem): Boolean {
-            return image.image.toLowerCase().matches((".*\\.(jpg|jpeg|png)").toRegex())
+            return PostFragment().arguments {
+                putParcelable(ARG_FEED_ITEM, item)
+            }
         }
     }
 }

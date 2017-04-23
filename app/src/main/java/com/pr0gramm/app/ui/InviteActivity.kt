@@ -25,7 +25,7 @@ import rx.functions.Action1
 
 /**
  */
-class InviteActivity : BaseAppCompatActivity() {
+class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     private val inviteService: InviteService by instance()
 
     private val mailField: EditText by bindView(R.id.mail)

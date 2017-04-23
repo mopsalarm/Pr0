@@ -21,8 +21,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     val feedType: FeedType get() = filter.feedType
 
-    val indices: IntRange get() = items.indices
-
     val oldest: FeedItem? get() = items.maxWith(itemComparator)
     val newest: FeedItem? get() = items.minWith(itemComparator)
 
@@ -90,7 +88,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return item.id(feedType)
     }
 
-    fun indexOf(itemId: Long): Int? {
+    fun indexById(itemId: Long): Int? {
         val index = items.indexOfFirst { it.id == itemId }
         return if (index >= 0) index else null
     }

@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.base
 import android.os.Bundle
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
+import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
 import com.trello.rxlifecycle.components.support.RxAppCompatActivity
@@ -13,9 +14,9 @@ import rx.Observable
 /**
  * A [android.support.v7.app.AppCompatActivity] with dagger injection and stuff.
  */
-abstract class BaseAppCompatActivity : RxAppCompatActivity(), AppCompatActivityInjector {
+abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), AppCompatActivityInjector {
     @JvmField
-    protected val logger: Logger = LoggerFactory.getLogger(javaClass)
+    protected val logger: Logger = LoggerFactory.getLogger(name)
 
     final override val injector = KodeinInjector()
     final override val kodeinComponent = super.kodeinComponent
@@ -30,7 +31,7 @@ abstract class BaseAppCompatActivity : RxAppCompatActivity(), AppCompatActivityI
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        initializeInjector()
+        logger.time("Injecting services") { initializeInjector() }
         super.onCreate(savedInstanceState)
     }
 

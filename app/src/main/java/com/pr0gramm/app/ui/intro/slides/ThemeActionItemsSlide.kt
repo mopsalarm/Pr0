@@ -6,7 +6,7 @@ import com.pr0gramm.app.ui.Themes
 
 /**
  */
-class ThemeActionItemsSlide : ActionItemsSlide() {
+class ThemeActionItemsSlide : ActionItemsSlide("ThemeActionItemsSlide") {
     override val introTitle: String = "Farbe"
 
     override val introDescription: String =

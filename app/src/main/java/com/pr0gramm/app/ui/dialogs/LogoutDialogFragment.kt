@@ -11,7 +11,7 @@ import com.pr0gramm.app.ui.dialog
 
 /**
  */
-class LogoutDialogFragment : BaseDialogFragment() {
+class LogoutDialogFragment : BaseDialogFragment("LogoutDialogFragment") {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(activity) {
             content(R.string.are_you_sure_to_logout)
@@ -22,5 +22,4 @@ class LogoutDialogFragment : BaseDialogFragment() {
     private fun logout() {
         (activity as? MainActionHandler)?.onLogoutClicked()
     }
-
 }

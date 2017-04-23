@@ -44,7 +44,7 @@ import rx.functions.Action1
 
 /**
  */
-class LoginActivity : BaseAppCompatActivity() {
+class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private val userService: UserService by instance()
     private val prefs: SharedPreferences by instance()
 

@@ -14,7 +14,7 @@ import com.pr0gramm.app.util.CustomTabsHelper
 /**
  * This activity is just there to host the update dialog fragment.
  */
-class UpdateActivity : BaseAppCompatActivity(), DialogDismissListener {
+class UpdateActivity : BaseAppCompatActivity("UpdateActivity"), DialogDismissListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.basic)
         super.onCreate(savedInstanceState)
@@ -36,6 +36,6 @@ class UpdateActivity : BaseAppCompatActivity(), DialogDismissListener {
     }
 
     companion object {
-        val EXTRA_UPDATE = "UpdateActivity__EXTRA_UPDATE"
+        const val EXTRA_UPDATE = "UpdateActivity__EXTRA_UPDATE"
     }
 }

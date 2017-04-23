@@ -48,7 +48,6 @@ import com.pr0gramm.app.util.ErrorFormatting
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.findOptional
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.functions.Action1
 import java.io.File
@@ -57,7 +56,7 @@ import java.io.FileOutputStream
 /**
  * This activity performs the actual upload.
  */
-class UploadFragment : BaseFragment() {
+class UploadFragment : BaseFragment("UploadFragment") {
     private val uploadService: UploadService by instance()
     private val rulesService: RulesService by instance()
 
@@ -99,7 +98,7 @@ class UploadFragment : BaseFragment() {
         // add the small print to the view
         val smallPrintView = view.find<TextView>(R.id.small_print)
         rulesService.displayInto(smallPrintView)
-        upload.setOnClickListener { v -> onUploadClicked() }
+        upload.setOnClickListener { onUploadClicked() }
     }
 
     private fun onUploadClicked() {
@@ -367,99 +366,99 @@ class UploadFragment : BaseFragment() {
             return Optional.fromNullable(arguments.getParcelable<Uri>(EXTRA_LOCAL_URI))
         }
 
-    private class MediaNotSupported internal constructor() : RuntimeException("Media type not supported")
+
+    @SuppressLint("NewApi")
+    private fun copy(context: Context, source: Uri): Observable<File> {
+        return Observable.fromCallable<File> {
+            context.contentResolver.openInputStream(source).use { input ->
+                checkNotNull(input, "Could not open input stream")
+
+                // read the "header"
+                val bytes = ByteArray(512)
+                val count = ByteStreams.read(input, bytes, 0, bytes.size)
+
+                // and guess the type
+                var ext = MimeTypeHelper.guess(bytes)
+                if (ext.isPresent)
+                    ext = MimeTypeHelper.extension(ext.get())
+
+                // fail if we couldnt get the type
+                if (!ext.isPresent)
+                    throw MediaNotSupported()
+
+                val target = getTempFileUri(context, ext.get())
+
+                FileOutputStream(target).use { output ->
+                    output.write(bytes, 0, count)
+
+                    val copied = ByteStreams.copy(input, output)
+                    logger.info("Copied {}kb", copied / 1024)
+                }
+
+                target
+            }
+        }
+    }
+
+    private fun getTempFileUri(context: Context, ext: String): File {
+        return File(context.cacheDir, "upload." + ext)
+    }
+
+    private fun getUploadFailureText(context: Context, exception: UploadService.UploadFailedException): CharSequence {
+        val reason = exception.errorCode
+        val textId = when (reason) {
+            "blacklisted" -> R.string.upload_error_blacklisted
+            "internal" -> R.string.upload_error_internal
+            "invalid" -> R.string.upload_error_invalid
+            "download" -> R.string.upload_error_download_failed
+            "exists" -> R.string.upload_error_exists
+            else -> R.string.upload_error_unknown
+        }
+
+        val text = Truss().append(context.getString(textId))
+
+        val report = exception.report
+        if (report.isPresent) {
+            val videoErrorId = when (report.get().error()) {
+                "dimensionsTooSmall" -> R.string.upload_error_video_too_small
+                "dimensionsTooLarge" -> R.string.upload_error_video_too_large
+                "durationTooLong" -> R.string.upload_error_video_too_long
+                "invalidCodec" -> R.string.upload_error_video_codec
+                "invalidStreams" -> R.string.upload_error_video_streams
+                "invalidContainer" -> R.string.upload_error_video_container
+                else -> null
+            }
+
+            if (videoErrorId != null) {
+                text.append("\n\n")
+                        .append(context.getString(R.string.upload_error_video), Truss.bold)
+                        .append(" ")
+                        .append(context.getString(videoErrorId))
+            }
+
+            text.append("\n\n")
+                    .append("Info:\n", Truss.bold)
+                    .append(context.getString(R.string.report_video_summary,
+                            report.get().width(), report.get().height(),
+                            report.get().format(), report.get().duration()))
+                    .append("\n")
+
+            val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
+            for (stream in report.get().streams()) {
+                val streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec())
+                text.append(streamInfo,
+                        BulletSpan(offset / 3),
+                        LeadingMarginSpan.Standard(offset)).append("\n")
+            }
+        }
+
+        return text.build()
+    }
+
+    private class MediaNotSupported() : RuntimeException("Media type not supported")
 
     companion object {
-        private val logger = LoggerFactory.getLogger("UploadFragment")
-        val EXTRA_LOCAL_URI = "UploadFragment.localUri"
-        val EXTRA_MEDIA_TYPE = "UploadFragment.mediaType"
-
-        @SuppressLint("NewApi")
-        private fun copy(context: Context, source: Uri): Observable<File> {
-            return Observable.fromCallable<File> {
-                context.contentResolver.openInputStream(source).use { input ->
-                    checkNotNull(input, "Could not open input stream")
-
-                    // read the "header"
-                    val bytes = ByteArray(512)
-                    val count = ByteStreams.read(input, bytes, 0, bytes.size)
-
-                    // and guess the type
-                    var ext = MimeTypeHelper.guess(bytes)
-                    if (ext.isPresent)
-                        ext = MimeTypeHelper.extension(ext.get())
-
-                    // fail if we couldnt get the type
-                    if (!ext.isPresent)
-                        throw MediaNotSupported()
-
-                    val target = getTempFileUri(context, ext.get())
-
-                    FileOutputStream(target).use { output ->
-                        output.write(bytes, 0, count)
-
-                        val copied = ByteStreams.copy(input, output)
-                        logger.info("Copied {}kb", copied / 1024)
-                    }
-
-                    target
-                }
-            }
-        }
-
-        private fun getTempFileUri(context: Context, ext: String): File {
-            return File(context.cacheDir, "upload." + ext)
-        }
-
-        private fun getUploadFailureText(context: Context, exception: UploadService.UploadFailedException): CharSequence {
-            val reason = exception.errorCode
-            val textId = when (reason) {
-                "blacklisted" -> R.string.upload_error_blacklisted
-                "internal" -> R.string.upload_error_internal
-                "invalid" -> R.string.upload_error_invalid
-                "download" -> R.string.upload_error_download_failed
-                "exists" -> R.string.upload_error_exists
-                else -> R.string.upload_error_unknown
-            }
-
-            val text = Truss().append(context.getString(textId))
-
-            val report = exception.report
-            if (report.isPresent) {
-                val videoErrorId = when (report.get().error()) {
-                    "dimensionsTooSmall" -> R.string.upload_error_video_too_small
-                    "dimensionsTooLarge" -> R.string.upload_error_video_too_large
-                    "durationTooLong" -> R.string.upload_error_video_too_long
-                    "invalidCodec" -> R.string.upload_error_video_codec
-                    "invalidStreams" -> R.string.upload_error_video_streams
-                    "invalidContainer" -> R.string.upload_error_video_container
-                    else -> null
-                }
-
-                if (videoErrorId != null) {
-                    text.append("\n\n")
-                            .append(context.getString(R.string.upload_error_video), Truss.bold)
-                            .append(" ")
-                            .append(context.getString(videoErrorId))
-                }
-
-                text.append("\n\n")
-                        .append("Info:\n", Truss.bold)
-                        .append(context.getString(R.string.report_video_summary,
-                                report.get().width(), report.get().height(),
-                                report.get().format(), report.get().duration()))
-                        .append("\n")
-
-                val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
-                for (stream in report.get().streams()) {
-                    val streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec())
-                    text.append(streamInfo,
-                            BulletSpan(offset / 3),
-                            LeadingMarginSpan.Standard(offset)).append("\n")
-                }
-            }
-
-            return text.build()
-        }
+        const val EXTRA_LOCAL_URI = "UploadFragment.localUri"
+        const val EXTRA_MEDIA_TYPE = "UploadFragment.mediaType"
     }
 }

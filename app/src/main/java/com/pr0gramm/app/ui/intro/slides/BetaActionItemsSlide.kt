@@ -5,7 +5,7 @@ import com.pr0gramm.app.Settings
 
 /**
  */
-class BetaActionItemsSlide : ActionItemsSlide() {
+class BetaActionItemsSlide : ActionItemsSlide("BetaActionItemsSlide") {
     override val introBackgroundResource = R.color.feed_background
 
     override val introTitle = "Updates"

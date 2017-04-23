@@ -19,7 +19,7 @@ import com.pr0gramm.app.util.arguments
 
 /**
  */
-class FavoritesFragment : BaseFragment(), FilterFragment {
+class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
     private val pager: ViewPager by bindView(R.id.favorites_pager)
     private val tabLayout: TabLayout by bindView(R.id.tabs)
 
@@ -76,7 +76,7 @@ class FavoritesFragment : BaseFragment(), FilterFragment {
     override val currentFilter: FeedFilter get() = feedFilter
 
     companion object {
-        private const val ARG_USERNAME = "FavoritesFragment.username"
+        const val ARG_USERNAME = "FavoritesFragment.username"
 
         @JvmStatic
         fun newInstance(username: String): FavoritesFragment {

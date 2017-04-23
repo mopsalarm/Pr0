@@ -51,7 +51,7 @@ import java.util.*
 
 /**
  */
-class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
+class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFragment {
     private val settings = Settings.get()
 
     private val feedService: FeedService by instance()
@@ -1081,7 +1081,7 @@ class FeedFragment : BaseFragment(), FilterFragment, BackAwareFragment {
 
         val autoLoad = autoOpenOnLoad
         if (autoLoad != null) {
-            feed.indexOf(autoLoad.itemId)?.let { idx ->
+            feed.indexById(autoLoad.itemId)?.let { idx ->
                 onItemClicked(idx, autoLoad.commentId)
             }
         }

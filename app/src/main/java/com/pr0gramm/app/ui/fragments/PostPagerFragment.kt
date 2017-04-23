@@ -19,11 +19,10 @@ import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.util.observeChange
-import org.slf4j.LoggerFactory
 
 /**
  */
-class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, PreviewInfoSource {
+class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPagerNavigation, PreviewInfoSource {
     private val feedService: FeedService by instance()
 
     private val viewPager: ViewPager by bindView(R.id.pager)
@@ -101,7 +100,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     }
 
     private fun makeItemCurrent(item: FeedItem) {
-        val index = adapter.feed.indexOf(item.id) ?: 0
+        val index = adapter.feed.indexById(item.id) ?: 0
 
         logger.info("Moving to index: " + index)
         viewPager.setCurrentItem(index, false)
@@ -254,7 +253,7 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
 
         override fun getItemPosition(`object`: Any?): Int {
             val item = (`object` as PostFragment).feedItem
-            return feed.indexOf(item.id) ?: PagerAdapter.POSITION_NONE
+            return feed.indexById(item.id) ?: PagerAdapter.POSITION_NONE
         }
 
         override fun getItemId(position: Int): Long {
@@ -263,11 +262,9 @@ class PostPagerFragment : BaseFragment(), FilterFragment, PostPagerNavigation, P
     }
 
     companion object {
-        internal val logger = LoggerFactory.getLogger("PostPagerFragment")
-
-        private val ARG_FEED_PROXY = "PostPagerFragment.feedProxy"
-        private val ARG_START_ITEM = "PostPagerFragment.startItem"
-        private val ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment"
+        const val ARG_FEED_PROXY = "PostPagerFragment.feedProxy"
+        const val ARG_START_ITEM = "PostPagerFragment.startItem"
+        const val ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment"
 
         fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
             val arguments = Bundle()

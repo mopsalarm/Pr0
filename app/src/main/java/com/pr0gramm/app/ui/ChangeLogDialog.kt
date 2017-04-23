@@ -30,7 +30,7 @@ import java.io.InputStreamReader
 
 /**
  */
-class ChangeLogDialog : BaseDialogFragment() {
+class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
     private val recyclerView: RecyclerView by bindView(R.id.changelog)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

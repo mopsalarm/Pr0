@@ -25,18 +25,14 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
-import kotterknife.bindView
 import org.joda.time.Duration.standardMinutes
 import org.joda.time.Instant
-import org.slf4j.LoggerFactory
 import rx.functions.Action0
 import rx.functions.Action1
 
 /**
  */
-abstract class InboxFragment<T> : BaseFragment() {
-    protected val logger = LoggerFactory.getLogger(javaClass)
-
+abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
     protected val inboxService: InboxService by instance()
     private val picasso: Picasso by instance()
 
@@ -187,7 +183,6 @@ abstract class InboxFragment<T> : BaseFragment() {
     }
 
     companion object {
-        @JvmStatic
-        protected val ARG_INBOX_TYPE = "InboxFragment.inboxType"
+        const val ARG_INBOX_TYPE = "InboxFragment.inboxType"
     }
 }

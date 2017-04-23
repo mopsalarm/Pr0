@@ -28,7 +28,7 @@ import java.util.*
 
 /**
  */
-class TagsDetailsDialog : BaseDialogFragment() {
+class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     private val adminService: AdminService by instance()
 
     private val itemId: Long by lazy { arguments.getLong(KEY_FEED_ITEM_ID) }

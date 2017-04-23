@@ -32,7 +32,7 @@ import kotterknife.bindView
 import rx.Emitter
 import rx.Observable
 
-class ZoomViewActivity : BaseAppCompatActivity() {
+class ZoomViewActivity : BaseAppCompatActivity("ZoomViewActivity") {
     private val tag = "ZoomViewActivity" + System.currentTimeMillis()
 
     internal val item: FeedItem by lazy { intent.getParcelableExtra<FeedItem>("ZoomViewActivity__item") }
@@ -140,7 +140,6 @@ class ZoomViewActivity : BaseAppCompatActivity() {
     }
 
     companion object {
-
         fun newIntent(context: Context, item: FeedItem): Intent {
             val intent = Intent(context, ZoomViewActivity::class.java)
             intent.putExtra("ZoomViewActivity__item", item)

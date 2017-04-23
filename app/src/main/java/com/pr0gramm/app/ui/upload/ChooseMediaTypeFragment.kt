@@ -9,7 +9,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 
 /**
  */
-class ChooseMediaTypeFragment : BaseFragment() {
+class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment") {
     private val btnImage: View by bindView(R.id.media_type_image)
     private val btnVideo: View by bindView(R.id.media_type_video)
 

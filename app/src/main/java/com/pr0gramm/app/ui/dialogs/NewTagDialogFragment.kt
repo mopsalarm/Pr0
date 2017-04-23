@@ -12,7 +12,7 @@ import com.pr0gramm.app.util.AndroidUtility
 
 /**
  */
-class NewTagDialogFragment : BaseDialogFragment() {
+class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val tagInput: MultiAutoCompleteTextView by bindView(R.id.tag)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

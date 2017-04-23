@@ -6,13 +6,19 @@ import android.os.Bundle
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
+import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.components.support.RxAppCompatDialogFragment
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * A robo fragment that provides lifecycle events as an observable.
  */
-abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragmentInjector, HasViewCache {
+abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), SupportFragmentInjector, HasViewCache {
+    @JvmField
+    protected val logger: Logger = LoggerFactory.getLogger(name)
+
     final override val injector = KodeinInjector()
     final override val kodeinComponent = super.kodeinComponent
     final override val kodeinScope = super.kodeinScope
@@ -27,7 +33,7 @@ abstract class BaseDialogFragment : RxAppCompatDialogFragment(), SupportFragment
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        initializeInjector()
+        logger.time("Injecting services") { initializeInjector() }
         super.onCreate(savedInstanceState)
     }
 

@@ -16,7 +16,7 @@ import com.pr0gramm.app.ui.showDialog
 
 /**
  */
-class FavedCommentFragment : MessageInboxFragment() {
+class FavedCommentFragment : MessageInboxFragment("FavedCommentFragment") {
     private val settings = Settings.get()
     private val favedCommentService: FavedCommentService by instance()
 
