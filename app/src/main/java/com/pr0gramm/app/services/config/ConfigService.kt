@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services.config
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Simple config service to do remove configuration with local fallback
  */
-class ConfigService(context: Context,
+class ConfigService(context: Application,
                     private val okHttpClient: OkHttpClient,
                     private val gson: Gson,
                     private val preferences: SharedPreferences) {

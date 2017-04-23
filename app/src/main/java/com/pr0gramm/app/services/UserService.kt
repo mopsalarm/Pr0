@@ -29,13 +29,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 
 class UserService(private val api: Api,
-                                      private val voteService: VoteService,
-                                      private val seenService: SeenService,
-                                      private val inboxService: InboxService,
-                                      private val cookieHandler: LoginCookieHandler,
-                                      private val preferences: SharedPreferences,
-                                      private val gson: Gson,
-                                      private val database: Holder<SQLiteDatabase>) {
+                  private val voteService: VoteService,
+                  private val seenService: SeenService,
+                  private val inboxService: InboxService,
+                  private val cookieHandler: LoginCookieHandler,
+                  private val preferences: SharedPreferences,
+                  private val gson: Gson,
+                  private val database: Holder<SQLiteDatabase>) {
 
     private val lock = Any()
 

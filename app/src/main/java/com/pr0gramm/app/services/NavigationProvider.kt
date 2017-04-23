@@ -1,7 +1,6 @@
 package com.pr0gramm.app.services
 
 import android.app.Activity
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
@@ -20,14 +19,12 @@ import java.util.*
 /**
  */
 class NavigationProvider(
-        activity: Activity,
+        private val context: Activity,
         private val userService: UserService,
         private val inboxService: InboxService,
         private val bookmarkService: BookmarkService,
         private val configService: ConfigService,
         private val extraCategories: ExtraCategories) {
-
-    private val context: Context = activity.applicationContext
 
     private val iconBookmark = drawable(R.drawable.ic_black_action_bookmark)
     private val iconFavorites = drawable(R.drawable.ic_black_action_favorite)

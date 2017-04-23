@@ -1,5 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
+import android.app.Application
 import android.content.Context
 import com.google.common.base.Stopwatch
 import com.google.common.reflect.Reflection
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-class ApiProvider(context: Context, client: OkHttpClient,
+class ApiProvider(context: Application, client: OkHttpClient,
                   cookieHandler: LoginCookieHandler, gson: Gson,
                   private val singleShotService: SingleShotService) {
 

@@ -32,9 +32,9 @@ import java.io.IOException
  */
 
 class NotificationService(private val context: Application,
-                                              private val inboxService: InboxService,
-                                              private val picasso: Picasso,
-                                              private val userService: UserService) {
+                          private val inboxService: InboxService,
+                          private val picasso: Picasso,
+                          private val userService: UserService) {
 
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)

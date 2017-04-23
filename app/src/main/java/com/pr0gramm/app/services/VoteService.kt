@@ -31,8 +31,8 @@ import java.io.ByteArrayInputStream
  */
 
 class VoteService(private val api: Api,
-                                      private val seenService: SeenService,
-                                      private val database: Holder<SQLiteDatabase>) {
+                  private val seenService: SeenService,
+                  private val database: Holder<SQLiteDatabase>) {
 
     /**
      * Votes a post. This sends a request to the server, so you need to be signed in

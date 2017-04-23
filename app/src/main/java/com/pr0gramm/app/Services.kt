@@ -40,7 +40,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance(), instance()) }
     bind<FeedbackService>() with singleton { FeedbackService(instance()) }
     bind<FeedService>() with singleton { FeedService(instance(), instance(), instance()) }
-    bind<GifDrawableLoader>() with singleton { GifDrawableLoader(app, instance()) }
+    bind<GifDrawableLoader>() with singleton { GifDrawableLoader(instance("cache"), instance()) }
     bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
@@ -55,7 +55,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<UploadService>() with singleton { UploadService(instance(), instance(), instance(), instance(), instance()) }
     bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
 
-    bind<NavigationProvider>() with scopedSingleton(androidActivityScope) {
-        NavigationProvider(instance(), instance(), instance(), instance(), instance(), instance())
+    bind<NavigationProvider>() with scopedSingleton(androidActivityScope) { activity ->
+        NavigationProvider(activity, instance(), instance(), instance(), instance(), instance())
     }
 }

@@ -35,8 +35,8 @@ fun appModule(app: Application) = Kodein.Module {
     bind<BriteDatabase>() with singleton {
         val logger = LoggerFactory.getLogger("SqlBrite")
         SqlBrite.Builder()
-                .logger { logger.info(it) }
+                .logger { logger.info("{}", it) }
                 .build()
-                .wrapDatabaseHelper(instance(), BackgroundScheduler.instance())
+                .wrapDatabaseHelper(instance<SQLiteOpenHelper>(), BackgroundScheduler.instance())
     }
 }

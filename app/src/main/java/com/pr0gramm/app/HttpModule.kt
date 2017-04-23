@@ -13,14 +13,17 @@ import com.jakewharton.picasso.OkHttp3Downloader
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
-import com.pr0gramm.app.util.GuavaPicassoCache
 import com.pr0gramm.app.util.SmallBufferSocketFactory
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
-import okhttp3.*
+import okhttp3.ConnectionPool
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -37,7 +40,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
         val cacheDir = File(app.cacheDir, "imgCache")
 
         OkHttpClient.Builder()
-                .cache(Cache(cacheDir, (64 * 1024 * 1024).toLong()))
+                .cache(okhttp3.Cache(cacheDir, (64 * 1024 * 1024).toLong()))
                 .socketFactory(SmallBufferSocketFactory())
 
                 .cookieJar(cookieHandler)
@@ -60,7 +63,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
         object : Downloader {
             val logger = LoggerFactory.getLogger("Picasso.Downloader")
             val fallback = OkHttp3Downloader(instance<OkHttpClient>())
-            val cache = instance<com.pr0gramm.app.io.Cache>()
+            val cache = instance<Cache>()
 
             override fun load(uri: Uri, networkPolicy: Int): Downloader.Response {
                 // load thumbnails normally
@@ -86,7 +89,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
         repeat(10) {
             val port = HttpProxyService.randomPort()
             try {
-                val proxy = HttpProxyService(instance(), port)
+                val proxy = HttpProxyService(instance<Cache>(), port)
                 proxy.start()
 
                 // return the proxy
@@ -105,14 +108,14 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
         }
     }
 
-    bind<com.pr0gramm.app.io.Cache>() with singleton {
-        com.pr0gramm.app.io.Cache(app, instance<OkHttpClient>())
+    bind<Cache>() with singleton {
+        Cache(app, instance<OkHttpClient>())
     }
 
     bind<Picasso>() with singleton {
         Picasso.Builder(app)
                 .defaultBitmapConfig(Bitmap.Config.RGB_565)
-                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
+                .memoryCache(com.pr0gramm.app.util.GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(instance<Downloader>())
                 .build()
     }

@@ -7,6 +7,7 @@ import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.KodeinAware
+import com.github.salomonbrys.kodein.android.withContext
 import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -85,7 +86,7 @@ open class ApplicationClass : Application(), KodeinAware {
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)
 
-        EagerBootstrap.initEagerSingletons(kodein)
+        EagerBootstrap.initEagerSingletons(withContext(this).kodein())
 
         // get the correct theme for the app!
         ThemeHelper.updateTheme()

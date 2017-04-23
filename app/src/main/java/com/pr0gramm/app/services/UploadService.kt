@@ -23,12 +23,11 @@ import java.io.*
 
 /**
  */
-
 class UploadService(private val api: Api,
-                                        private val userService: UserService,
-                                        private val picasso: Picasso,
-                                        private val configService: ConfigService,
-                                        private val cacheService: InMemoryCacheService) {
+                    private val userService: UserService,
+                    private val picasso: Picasso,
+                    private val configService: ConfigService,
+                    private val cacheService: InMemoryCacheService) {
 
     private val maxSize: Observable<Long> get() {
         return userService.loginState().take(1).map { state ->

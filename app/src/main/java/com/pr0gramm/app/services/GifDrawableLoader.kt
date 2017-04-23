@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.content.Context
 import android.net.Uri
 import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.util.AndroidUtility.toFile
@@ -17,9 +16,7 @@ import java.lang.System.identityHashCode
 
 /**
  */
-class GifDrawableLoader(context: Context, private val cache: Cache) {
-    private val fileCache: File = context.cacheDir
-
+class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
     fun load(uri: Uri): Observable<DownloadStatus> {
         return createObservable(Emitter.BackpressureMode.LATEST) { emitter ->
             try {
