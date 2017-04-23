@@ -52,7 +52,7 @@ class AdService(private val configService: ConfigService, private val userServic
 
         view.loadAd(AdRequest.Builder()
                 .setIsDesignedForFamilies(false)
-                // .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
+                .addTestDevice("5436541A8134C1A32DACFD10442A32A1") // pixel
                 .build())
 
         return listener.loadedSubject

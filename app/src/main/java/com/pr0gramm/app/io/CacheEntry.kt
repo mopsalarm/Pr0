@@ -3,6 +3,7 @@ package com.pr0gramm.app.io
 import android.net.Uri
 import com.google.common.base.MoreObjects
 import com.google.common.io.Closeables
+import com.google.common.util.concurrent.SettableFuture
 import com.pr0gramm.app.util.AndroidUtility.logToCrashlytics
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.readStream
@@ -12,6 +13,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.slf4j.LoggerFactory
 import java.io.*
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
@@ -20,7 +22,7 @@ import kotlin.concurrent.withLock
 /**
  * A entry that is hold by the [Cache].
  */
-internal class CacheEntry(private val httpClient: OkHttpClient, private val file: File, private val uri: Uri) : Cache.Entry {
+internal class CacheEntry(private val httpClient: OkHttpClient, override val file: File, private val uri: Uri) : Cache.Entry {
     private val logger = LoggerFactory.getLogger("CacheEntry")
 
     private val lock = ReentrantLock()
@@ -31,7 +33,9 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
     @Volatile private var fp: RandomAccessFile? = null
     @Volatile private var totalSize: Int = 0
     @Volatile private var written: Int = 0
-    @Volatile private var caching: Boolean = false
+
+    @Volatile
+    private var cacheWriter: CacheWriter? = null
 
     fun read(pos: Int, data: ByteArray, offset: Int, amount: Int): Int {
         // Always succeed when reading 0 bytes.
@@ -92,7 +96,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
     /**
      * Waits until at least the given amount of data is written.
      */
-    @Throws(IOException::class)
     private fun expectCached(requiredCount: Int) {
         try {
             while (written < requiredCount) {
@@ -102,7 +105,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
         } catch (err: InterruptedException) {
             throw InterruptedIOException("Waiting for bytes was interrupted.")
         }
-
     }
 
     private fun seek(fp: RandomAccessFile, pos: Int) {
@@ -123,44 +125,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
     }
 
     /**
-     * Ensure that the entry is caching data. Caching is needed, if it is not fully
-     * cached yet and currently not caching.
-     */
-    @Throws(IOException::class)
-    private fun ensureCaching() {
-        if (!caching && !fullyCached()) {
-            logger.debug("Caching will start on entry {}", this)
-            resumeCaching(written)
-        }
-    }
-
-    private fun cachingStarted() {
-        logger.debug("Caching starts now.")
-
-        lock.withLock {
-            incrementRefCount()
-            caching = true
-        }
-    }
-
-    /**
-     * This method is called from the caching thread once caching stops.
-     */
-    private fun cachingStopped() {
-        logger.debug("Caching stopped on entry {}", this)
-        lock.withLock {
-            if (caching) {
-                caching = false
-                close()
-            }
-
-            // If there are any readers, we need to notify them, so caching will be
-            // re-started if needed
-            writtenUpdated.signalAll()
-        }
-    }
-
-    /**
      * Returns true, if the entry is fully cached.
      * You need to hold the lock to call this method.
      */
@@ -168,12 +132,10 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
         return written >= totalSize
     }
 
-
     /**
      * Will be called if we need to initialize the file. If this is called, we can expect
      * the entry to hold its own lock.
      */
-    @Throws(IOException::class)
     private fun initialize(): RandomAccessFile {
         // ensure that the parent directory exists.
         val parentFile = file.parentFile
@@ -216,14 +178,16 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
 
             } else {
                 logger.debug("Entry is new, no data is previously cached.")
+
+                // write header at the beginning of the file
+                fp.setLength(0)
+
                 // we can not have written anything yet.
                 written = 0
 
                 // start caching now.
                 totalSize = resumeCaching(0)
 
-                // write header at the beginning of the file
-                fp.channel.truncate(0)
                 fp.writeInt(expectedChecksum)
                 fp.writeInt(totalSize)
             }
@@ -231,7 +195,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
             logger.debug("Initialized entry {}", this)
             return fp
 
-        } catch (err: IOException) {
+        } catch (err: Exception) {
             // resetting fp on error.
             Closeables.close(fp, true)
 
@@ -243,63 +207,127 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
     }
 
     private fun reset() {
+        logger.debug("Resetting entry {}", this)
         this.fp = null
         this.written = 0
         this.totalSize = 0
-        this.caching = false
+
+        this.cacheWriter = null
     }
 
-    private fun writeResponseToEntry(response: Response) {
-        try {
-            response.body().byteStream().use { stream ->
-                readStream(stream) { buffer, byteCount ->
-                    write(buffer, 0, byteCount)
-                }
-            }
-        } catch (error: Exception) {
-            logger.error("Could not buffer the complete response.", error)
-
-        } finally {
-            cachingStopped()
+    /**
+     * Ensure that the entry is caching data. Caching is needed, if it is not fully
+     * cached yet and currently not caching.
+     */
+    private fun ensureCaching() {
+        if (cacheWriter == null && !fullyCached()) {
+            logger.debug("Caching will start on entry {}", this)
+            resumeCaching(written)
         }
     }
 
     private fun resumeCaching(offset: Int): Int {
-        cachingStarted()
-
-        try {
-            val request = Request.Builder()
-                    .url(uri.toString())
-                    .cacheControl(CacheControl.FORCE_NETWORK)
-                    .header("Range", String.format("bytes=%d-", offset))
-                    .build()
-
-            logger.debug("Resume caching for {}", this)
-            val response = httpClient.newCall(request).execute()
-            val contentLength = try {
-                when {
-                    response.code() == 200 -> written = 0
-                    response.code() == 403 -> throw IOException("Not allowed to read file, are you on a public wifi?")
-                    response.code() == 404 -> throw FileNotFoundException("File not found at " + response.request().url())
-                    response.body().contentLength() < 0L -> throw IOException("Content length not defined.")
-                    response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
+        lock.withLock {
+            var writer = cacheWriter
+            if (writer == null) {
+                writer = CacheWriter().also { writer ->
+                    this.cacheWriter = writer
+                    doInBackground { writer.resumeCaching(offset) }
                 }
-
-                response.body().contentLength().toInt()
-
-            } catch (err: Exception) {
-                response.close()
-                throw err
             }
 
-            // read the response in some other thread.
-            doInBackground { writeResponseToEntry(response) }
+            return try {
+                writer.size.get()
+            } catch(err: ExecutionException) {
+                // throw the real error, not the wrapped one.
+                throw err.cause ?: err
+            }
+        }
+    }
 
-            return contentLength
+    private inner class CacheWriter {
+        val canceled get() = cacheWriter !== this
 
-        } catch (err: Exception) {
-            cachingStopped()
-            throw err
+        val size: SettableFuture<Int> = SettableFuture.create()
+
+        /**
+         * This method is called from the caching thread once caching stops.
+         */
+        private fun cachingStopped() {
+            logger.debug("Caching stopped on entry {}", this)
+            lock.withLock {
+                if (!canceled) {
+                    close()
+                    cacheWriter = null
+                }
+
+                // If there are any readers, we need to notify them, so caching will be
+                // re-started if needed
+                writtenUpdated.signalAll()
+            }
+        }
+
+        fun resumeCaching(offset: Int) {
+            incrementRefCount()
+            try {
+                val request = Request.Builder()
+                        .url(uri.toString())
+                        .cacheControl(CacheControl.FORCE_NETWORK)
+                        .header("Range", String.format("bytes=%d-", offset))
+                        .build()
+
+                logger.debug("Resume caching for {} starting at {}", this, offset)
+                val response = httpClient.newCall(request).execute()
+                try {
+                    when {
+                        response.code() == 200 -> written = 0
+                        response.code() == 403 -> throw IOException("Not allowed to read file, are you on a public wifi?")
+                        response.code() == 404 -> throw FileNotFoundException("File not found at " + response.request().url())
+                        response.body().contentLength() < 0L -> throw IOException("Content length not defined.")
+                        response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
+                    }
+
+                    size.set(response.body().contentLength().toInt())
+
+                } catch (err: Exception) {
+                    response.close()
+                    throw err
+                }
+
+                // read the response
+                writeResponseToEntry(response)
+
+            } catch (err: Exception) {
+                logger.error("Error in caching thread")
+                size.setException(err)
+
+            } finally {
+                cachingStopped()
+            }
+        }
+
+        /**
+         * Writes the response to the file. If [fp] disappears, we log a warning
+         * and then we just return.
+         */
+        private fun writeResponseToEntry(response: Response) {
+            response.body().byteStream().use { stream ->
+                readStream(stream) { buffer, byteCount ->
+                    lock.withLock {
+                        if (canceled) {
+                            logger.info("Caching canceled, stopping now.")
+                            return
+                        }
+
+                        if (fp == null) {
+                            logger.warn("Error during caching, the file-handle went away: {}", this)
+                            return
+                        }
+
+                        write(buffer, 0, byteCount)
+                    }
+                }
+            }
         }
     }
 
@@ -309,25 +337,6 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
     fun incrementRefCount(): CacheEntry {
         refCount.incrementAndGet()
         return this
-    }
-
-    /**
-     * Deletes the file if it is currently closed.
-     */
-    fun deleteIfClosed(): Boolean {
-        lock.withLock {
-            if (fp != null) {
-                return false
-            }
-
-            if (!file.delete()) {
-                logger.warn("Could not delete file {}", file)
-                return false
-            }
-
-            // deletion went good!
-            return true
-        }
     }
 
     /**
@@ -351,7 +360,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
                 } catch (ignored: IOException) {
                 }
 
-                this.reset()
+                reset()
             }
         }
     }
@@ -388,7 +397,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, private val file
             return MoreObjects.toStringHelper(this)
                     .add("written", written)
                     .add("totalSize", totalSize)
-                    .add("caching", caching)
+                    .add("caching", cacheWriter != null)
                     .add("refCount", refCount.get())
                     .add("fullyCached", fullyCached())
                     .add("uri", uri)

@@ -12,7 +12,7 @@ import rx.android.schedulers.AndroidSchedulers
 
 /**
  */
-class AsyncLifecycleTransformer<T> internal constructor(
+class AsyncLifecycleTransformer<T>(
         private val transformer: LifecycleTransformer<T>) : LifecycleTransformer<T> {
 
     override fun <U> forSingle(): Single.Transformer<U, U> {

@@ -17,17 +17,20 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
+import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.SmallBufferSocketFactory
 import com.squareup.picasso.Downloader
 import com.squareup.picasso.Picasso
-import okhttp3.ConnectionPool
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
+import okhttp3.*
 import org.slf4j.LoggerFactory
+import rx.Observable
+import rx.Scheduler
+import rx.lang.kotlin.toObservable
+import rx.util.async.Async
 import java.io.File
 import java.io.IOException
-import java.util.concurrent.TimeUnit
+import java.lang.UnsupportedOperationException
+import java.util.concurrent.*
 
 /**
  */
@@ -35,7 +38,8 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
     bind<LoginCookieHandler>() with singleton { LoginCookieHandler(instance()) }
 
     bind<OkHttpClient>() with singleton {
-        val cookieHandler = instance<LoginCookieHandler>()
+        val executor: ExecutorService = instance()
+        val cookieHandler: LoginCookieHandler = instance()
 
         val cacheDir = File(app.cacheDir, "imgCache")
 
@@ -49,6 +53,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
+                .dispatcher(Dispatcher(executor))
 
                 .addNetworkInterceptor(DebugInterceptor())
 
@@ -117,8 +122,11 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
                 .defaultBitmapConfig(Bitmap.Config.RGB_565)
                 .memoryCache(com.pr0gramm.app.util.GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(instance<Downloader>())
+                .executor(instance<ExecutorService>())
                 .build()
     }
+
+    bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler.instance()))
 
     bind<Api>() with singleton {
         ApiProvider(instance(), instance(), instance(), instance(), instance()).api
@@ -156,7 +164,6 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
     private val logger = LoggerFactory.getLogger("DoNotCacheInterceptor")
     private val domains: Set<String> = domains.toSet()
 
-    @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val response = chain.proceed(request)
@@ -187,5 +194,67 @@ private class LoggingInterceptor : Interceptor {
             okLogger.warn("{} produced error: {}", request.url(), error)
             throw error
         }
+    }
+}
+
+private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorService {
+    override fun shutdown() {
+        // will never shutdown.
+    }
+
+    override fun <T : Any?> submit(task: Callable<T>): Future<T> {
+        return Async.fromCallable(task, scheduler).toBlocking().toFuture()
+    }
+
+    override fun <T : Any?> submit(task: Runnable, result: T): Future<T> {
+        return Async.fromRunnable(task, result, scheduler).toBlocking().toFuture()
+    }
+
+    override fun submit(task: Runnable): Future<*> {
+        return submit(task, null)
+    }
+
+    override fun shutdownNow(): MutableList<Runnable> {
+        // nope
+        return mutableListOf()
+    }
+
+    override fun isShutdown(): Boolean {
+        return false
+    }
+
+    override fun awaitTermination(timeout: Long, unit: TimeUnit?): Boolean {
+        while (true) {
+            Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS)
+        }
+    }
+
+    override fun <T : Any?> invokeAny(tasks: MutableCollection<out Callable<T>>): T {
+        return invokeAny(tasks, 0L, null)
+    }
+
+    override fun <T : Any?> invokeAny(tasks: MutableCollection<out Callable<T>>, timeout: Long, unit: TimeUnit?): T {
+        return tasks.toObservable()
+                .flatMap { Async.fromCallable(it, scheduler) }
+                .switchIfEmpty(Observable.error(object : ExecutionException("No one finished") {}))
+                .apply { if (unit != null) timeout(timeout, unit) }
+                .toBlocking()
+                .first()
+    }
+
+    override fun isTerminated(): Boolean {
+        return false
+    }
+
+    override fun <T : Any?> invokeAll(tasks: MutableCollection<out Callable<T>>): MutableList<Future<T>> {
+        return tasks.map { submit(it) }.toMutableList()
+    }
+
+    override fun <T : Any?> invokeAll(tasks: MutableCollection<out Callable<T>>, timeout: Long, unit: TimeUnit?): MutableList<Future<T>> {
+        throw UnsupportedOperationException()
+    }
+
+    override fun execute(command: Runnable?) {
+        Async.fromRunnable(command, null, scheduler)
     }
 }

@@ -52,7 +52,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
     }
 
     private fun printCache() {
-        synchronized(cache) {
+        synchronized(lock) {
             logger.debug("Cache:")
             for (entry in cache.values) {
                 logger.debug("  * {}", entry)
@@ -110,7 +110,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
             return
         }
 
-        val files = root.listFiles().sortedBy(File::lastModified).asReversed()
+        val files = root.listFiles().sortedByDescending(File::lastModified)
         logger.debug("Doing cache cleanup, found {} files", files.size)
 
         var totalSize: Long = 0
@@ -126,7 +126,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
     }
 
     /**
-     * Removes the cached entyr with the given filename.
+     * Removes the cached entry with the given filename.
      */
     private fun forgetEntryForFile(file: File) {
         logger.debug("Remove old cache file {}", file)
@@ -136,7 +136,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
 
         synchronized(lock) {
             for ((key, entry) in cache) {
-                if (entry is CacheEntry && entry.deleteIfClosed()) {
+                if (isSameFile(entry.file, file)) {
                     // remove the entry from our cache
                     cache.remove(key)
                     break
@@ -145,11 +145,21 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         }
     }
 
+    private fun isSameFile(lhs: File, rhs: File): Boolean {
+        try {
+            return lhs.canonicalPath == rhs.canonicalPath
+        } catch(err: IOException) {
+            logger.warn(
+                    "Could not check if files are the same: {}, {}, err: {}",
+                    lhs, rhs, err.toString())
+
+            return false
+        }
+    }
+
     interface Entry : Closeable {
-        @Throws(IOException::class)
         fun totalSize(): Int
 
-        @Throws(IOException::class)
         fun inputStreamAt(offset: Int): InputStream
 
         /**
@@ -157,6 +167,8 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
          * entry is actually cached. Returns -1 if no estimate is currently available.
          */
         val fractionCached: Float
+
+        val file: File
 
         override fun close()
     }

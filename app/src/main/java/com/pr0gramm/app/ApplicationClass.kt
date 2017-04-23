@@ -1,13 +1,14 @@
 package com.pr0gramm.app
 
 import android.app.Application
-import android.content.Context
 import android.os.StrictMode
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.KodeinAware
+import com.github.salomonbrys.kodein.android.autoAndroidModule
 import com.github.salomonbrys.kodein.android.withContext
+import com.github.salomonbrys.kodein.lazy
 import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -35,7 +36,7 @@ import java.util.logging.LogManager
  * Global application class for pr0gramm app.
  */
 open class ApplicationClass : Application(), KodeinAware {
-    private val kApp = Modules(this)
+    private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
     init {
         RxAndroidPlugins.getInstance().registerSchedulersHook(object : RxAndroidSchedulersHook() {
@@ -43,8 +44,6 @@ open class ApplicationClass : Application(), KodeinAware {
                 return LooperScheduler.MAIN
             }
         })
-
-        INSTANCE = this
     }
 
     override fun onCreate() {
@@ -59,7 +58,7 @@ open class ApplicationClass : Application(), KodeinAware {
 
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
-        jobManager.config.isVerbose = true
+        jobManager.config.isVerbose = BuildConfig.DEBUG
         jobManager.addJobCreator(SyncJob.CREATOR)
 
         // schedule first sync 30seconds after bootup.
@@ -91,10 +90,10 @@ open class ApplicationClass : Application(), KodeinAware {
         // get the correct theme for the app!
         ThemeHelper.updateTheme()
 
-        // disable verbose logging
-        val log = LogManager.getLogManager().getLogger("")
-        if (log != null) {
-            for (h in log.handlers) {
+        if (!BuildConfig.DEBUG) {
+            // disable verbose logging
+            val log = LogManager.getLogManager().getLogger("")
+            for (h in log?.handlers ?: arrayOf()) {
                 h.level = Level.INFO
             }
         }
@@ -112,17 +111,13 @@ open class ApplicationClass : Application(), KodeinAware {
         return Interceptor { it.proceed(it.request()) }
     }
 
-    override val kodein: Kodein
-        get() = kApp.kodein
-
-    companion object {
-        private val logger = LoggerFactory.getLogger("Pr0grammApplication")
-
-        private lateinit var INSTANCE: ApplicationClass
-
-        @JvmStatic
-        fun get(context: Context): ApplicationClass {
-            return context.applicationContext as ApplicationClass
-        }
+    override val kodein: Kodein by Kodein.lazy {
+        val app = this@ApplicationClass
+        import(autoAndroidModule(app))
+        import(appModule(app), allowOverride = true)
+        import(httpModule(app))
+        import(trackingModule(app))
+        import(servicesModule(app))
     }
 }
+
