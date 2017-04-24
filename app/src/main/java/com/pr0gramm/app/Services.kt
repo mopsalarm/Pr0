@@ -6,6 +6,7 @@ import com.github.salomonbrys.kodein.android.androidActivityScope
 import com.google.gson.Gson
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedService
+import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.gif.GifToVideoService
@@ -39,7 +40,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance(), instance()) }
     bind<FeedbackService>() with singleton { FeedbackService(instance()) }
-    bind<FeedService>() with singleton { FeedService(instance(), instance(), instance()) }
+    bind<FeedService>() with singleton { FeedServiceImpl(instance(), instance(), instance()) }
     bind<GifDrawableLoader>() with singleton { GifDrawableLoader(instance("cache"), instance()) }
     bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }

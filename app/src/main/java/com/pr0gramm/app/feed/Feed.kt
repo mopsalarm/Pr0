@@ -3,8 +3,6 @@ package com.pr0gramm.app.feed
 import android.os.Bundle
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
-import org.slf4j.LoggerFactory
-import java.lang.Math.max
 import java.util.*
 
 /**
@@ -48,40 +46,26 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             return newItems
         }
 
-        newItems.sortByDescending { feedTypeId(it) }
+        // get two sorted iterators.
+        val old = PeekingIterator(items.sortedWith(itemComparator).iterator())
+        val new = PeekingIterator(newItems.sortedWith(itemComparator).iterator())
 
-        // merge based on ids.
-        val items = items.toMutableList()
-        val source = PeekingIterator(newItems.iterator())
-        val target = items.listIterator()
-
-        while (source.hasNext()) {
-            if (target.hasNext()) {
-                val nextTarget = this.items[target.nextIndex()]
-
-                val cmp = itemComparator.compare(source.peek(), nextTarget)
-                if (cmp < 0) {
-                    // next target should belong behind this source item, so
-                    // put source item here.
-                    target.add(source.next())
-
-                } else if (cmp == 0) {
-                    // replace target with new source
-                    target.next()
-                    target.set(source.next())
-
-                } else {
-                    // don't insert here, try next target
-                    target.next()
-                }
-
+        // merge them in the correct order.
+        val target = ArrayList<FeedItem>(items.size + newItems.size)
+        while (new.hasNext() && old.hasNext()) {
+            val cmp = itemComparator.compare(new.peek(), old.peek())
+            if (cmp > 0) {
+                target.add(old.next())
             } else {
-                // we have no more target elements, so just add source here.
-                target.add(source.next())
+                target.add(new.next())
             }
         }
 
-        return items
+        // just add the rest
+        new.forEach { target.add(it) }
+        old.forEach { target.add(it) }
+
+        return target
     }
 
     fun feedTypeId(item: FeedItem): Long {
@@ -102,8 +86,8 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         val itemCount = if (BuildConfig.DEBUG) 16 else 64
 
         // add a subset of the items
-        val start = Math.min(items.size, max(0, pivot - itemCount))
-        val stop = Math.min(items.size, max(0, pivot + itemCount))
+        val start = (pivot - itemCount).coerceIn(0, items.size)
+        val stop = (pivot + itemCount).coerceIn(0, items.size)
         val items = ArrayList(this.items.subList(start, stop))
         bundle.putParcelableArrayList(FEED_FIELD_ITEMS, items)
         bundle.putBoolean(FEED_FIELD_AT_START, start == 0)
@@ -144,8 +128,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("Feed")
-
         const val FEED_FIELD_FILTER = "filter"
         const val FEED_FIELD_ITEMS = "items"
         const val FEED_FIELD_CONTENT_TYPE = "contentType"

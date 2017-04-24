@@ -230,9 +230,17 @@ dependencies {
     compile 'com.github.salomonbrys.kodein:kodein:3.3.0'
     compile 'com.github.salomonbrys.kodein:kodein-android:3.3.0'
 
-    androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.2"
-    androidTestCompile "com.android.support.test:runner:0.5"
-    androidTestCompile "com.google.code.findbugs:jsr305:3.0.2"
-    androidTestCompile "com.android.support:support-annotations:$VersionSupportLibrary"
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.natpryce:hamkrest:1.4.0.0'
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
+    testCompile "com.nhaarman:mockito-kotlin:1.4.0"
+
+//    androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.2"
+//    androidTestCompile "com.android.support.test:runner:0.5"
+//    androidTestCompile 'com.android.support.test:rules:0.5'
+//    androidTestCompile "com.google.code.findbugs:jsr305:3.0.2"
+//    androidTestCompile "com.android.support:support-annotations:$VersionSupportLibrary"
 }
 

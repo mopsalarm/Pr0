@@ -10,7 +10,6 @@ import android.support.v4.util.LongSparseArray
 import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.view.ViewGroup
-import com.google.common.base.Optional
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -49,9 +48,9 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
 
      * @param position The position of the fragment to get
      */
-    fun getFragment(position: Int): Optional<Fragment> {
+    fun getFragment(position: Int): Fragment? {
         val itemId = getItemId(position)
-        return Optional.fromNullable(mFragments.get(itemId))
+        return mFragments.get(itemId)
     }
 
     @SuppressLint("CommitTransaction")
@@ -163,11 +162,14 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
         for (idx in 0..mFragments.size() - 1) {
             val f = mFragments.valueAt(idx)
             if (f != null) {
-                if (state == null) {
-                    state = Bundle()
-                }
+                state = state ?: Bundle()
                 val key = "f" + mFragments.keyAt(idx)
-                mFragmentManager.putFragment(state, key, f)
+
+                try {
+                    mFragmentManager.putFragment(state, key, f)
+                } catch(err: IllegalStateException) {
+                    logger.info("Could not put fragment into the bundle. Skipping.", err)
+                }
             }
         }
         return state

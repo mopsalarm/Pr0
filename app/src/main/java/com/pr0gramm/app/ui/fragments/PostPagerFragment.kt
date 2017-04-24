@@ -68,8 +68,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                     if (position >= 0 && position + 1 < adapter.count) {
-                        val prev = adapter.getFragment(position).orNull()
-                        val next = adapter.getFragment(position + 1).orNull()
+                        val prev = adapter.getFragment(position)
+                        val next = adapter.getFragment(position + 1)
                         if (prev is PostFragment && next is PostFragment) {
                             val offset = positionOffsetPixels / 2
                             prev.mediaHorizontalOffset(offset)

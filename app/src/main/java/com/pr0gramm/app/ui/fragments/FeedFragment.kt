@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -25,7 +26,6 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.SFW
-import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -867,11 +867,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         var feed: Feed by observeChangeEx(Feed()) { old, new ->
             userFavorites.invalidate()
 
-            val oldIds = old.map { new.feedTypeId(it) }
-            val newIds = new.map { new.feedTypeId(it) }
-
-            if (oldIds == newIds) {
+            if (old.items == new.items) {
                 logger.info("No change in feed items.")
+                if (new.isNotEmpty()) {
+                    performAutoOpen()
+                }
+
                 return@observeChangeEx
             }
 
@@ -881,14 +882,19 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             logger.info("Feed after update: {} items, oldest={}, newest={}",
                     new.size, new.oldest?.id, new.newest?.id)
 
-            notifyDataSetChanged()
-
-            // load meta data for the items.
-            (newIds - oldIds).min()?.let { newestItemId ->
-                refreshRepostInfos(newestItemId, new.filter)
+            logger.time("Applying feed delta to recycler-view") {
+                val diff = DiffUtil.calculateDiff(FeedItemsDiffUtilCallback(old, new), false)
+                diff.dispatchUpdatesTo(this)
             }
 
-            performAutoOpen()
+            (new - old).minBy { new.feedTypeId(it) }?.let { newestItem ->
+                // load repost info for the new items.
+                refreshRepostInfos(newestItem.id, new.filter)
+            }
+
+            if (new.isNotEmpty()) {
+                performAutoOpen()
+            }
         }
 
         @SuppressLint("InflateParams")
@@ -1067,11 +1073,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         AndroidUtility.hideSoftKeyboard(searchView)
     }
 
-    internal fun performAutoOpen() {
-        val feed = feedAdapter.feed
-
+    private fun performAutoOpen() {
         val autoScroll = autoScrollOnLoad
         if (autoScroll != null) {
+            logger.info("Trying to do auto scroll to {}", autoScroll)
+
             findItemIndexById(autoScroll)?.let { idx ->
                 // over scroll a bit
                 val scrollTo = Math.max(idx + thumbnailColumns, 0)
@@ -1081,6 +1087,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val autoLoad = autoOpenOnLoad
         if (autoLoad != null) {
+            logger.info("Trying to do auto load of {}", autoLoad)
+
+            val feed = loader.feed
             feed.indexById(autoLoad.itemId)?.let { idx ->
                 onItemClicked(idx, autoLoad.commentId)
             }
@@ -1095,10 +1104,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun findItemIndexById(id: Long): Int? {
         val offset = (recyclerView.adapter as MergeRecyclerAdapter).getOffset(feedAdapter) ?: 0
 
-        val index = feedAdapter.feed.indexOfFirst { it.id == id }
-        if (index == -1)
-            return null
-
+        val index = feedAdapter.feed.indexById(id) ?: return null
         return index + offset
     }
 
@@ -1120,21 +1126,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 if (loader.isLoading)
                     return@let
 
-                val feed = feedAdapter.feed
                 val totalItemCount = layoutManager.itemCount
 
-                if (dy > 0 && !feed.isAtEnd) {
+                if (dy > 0 && !loader.feed.isAtEnd) {
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
-                        logger.info("Request next page now")
+                        logger.info("Request next page now (last visible is {} of {}", lastVisibleItem, totalItemCount)
                         loader.next()
                     }
                 }
 
-                if (dy < 0 && !feed.isAtStart) {
+                if (dy < 0 && !loader.feed.isAtStart) {
                     val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
-                        logger.info("Request previous page now")
+                        logger.info("Request previous page now (first visible is {} of {})", firstVisibleItem, totalItemCount)
                         loader.previous()
                     }
                 }
@@ -1151,6 +1156,19 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
         }
+    }
+
+    private class FeedItemsDiffUtilCallback(val old: List<FeedItem>, val new: List<FeedItem>) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return areContentsTheSame(oldItemPosition, newItemPosition)
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return old[oldItemPosition].id == new[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = old.size
+        override fun getNewListSize(): Int = new.size
     }
 
     companion object {
@@ -1202,7 +1220,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             // refresh happens completely in background to let the query run even if the
             // fragments lifecycle is already destroyed.
-            feedService.getFeedItems(query)
+            feedService.load(query)
                     .subscribeOn(BackgroundScheduler.instance())
                     .doAfterTerminate { subject.onCompleted() }
                     .subscribe({ items ->

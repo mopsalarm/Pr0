@@ -1,22 +1,30 @@
-apply plugin: 'java'
+apply plugin: 'com.android.library'
 
 ext {
     VersionImmutables = "2.4.6"
+}
+
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
 
-    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-    compileOnly "org.immutables:value:$VersionImmutables"
-    compileOnly "org.immutables:gson:$VersionImmutables"
+    compile "com.google.code.findbugs:jsr305:3.0.2"
+    compile "org.immutables:value:$VersionImmutables"
+    compile "org.immutables:gson:$VersionImmutables"
 
-    compileOnly 'joda-time:joda-time:2.9.9'
-    compileOnly 'com.squareup.retrofit2:retrofit:2.2.0'
-    compileOnly 'io.reactivex:rxjava:1.2.9'
+    annotationProcessor "org.immutables:value:$VersionImmutables"
 
-    compileOnly("com.google.guava:guava:20.0") {
+    compile "net.danlew:android.joda:2.9.9"
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'io.reactivex:rxjava:1.2.9'
+
+    compile("com.google.guava:guava:20.0") {
         force = true
     }
 }

@@ -547,9 +547,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * tags and the comments.
      */
     private fun loadPostDetails() {
-        feedService.loadPostDetails(feedItem.id())
+        feedService.post(feedItem.id())
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .subscribe(Action1 { this.onPostReceived(it) }, defaultOnError())
+                .subscribe(Action1 { onPostReceived(it) }, defaultOnError())
     }
 
     private fun initializeInfoLine() {

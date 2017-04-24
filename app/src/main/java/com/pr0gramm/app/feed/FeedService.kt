@@ -13,11 +13,24 @@ import rx.Observable
 /**
  * Performs the actual request to get the items for a feed.
  */
-class FeedService(private val api: Api,
-                  private val extraCategories: ExtraCategories,
-                  private val configService: ConfigService) {
 
-    fun getFeedItems(query: FeedQuery): Observable<Api.Feed> {
+interface FeedService {
+    fun load(query: FeedQuery): Observable<Api.Feed>
+
+    fun post(id: Long): Observable<Api.Post>
+
+    data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
+                         val newer: Long? = null, val older: Long? = null, val around: Long? = null)
+
+}
+
+class FeedServiceImpl(private val api: Api,
+                      private val extraCategories: ExtraCategories,
+                      private val configService: ConfigService) : FeedService {
+
+    private val logger = LoggerFactory.getLogger("FeedService")
+
+    override fun load(query: FeedService.FeedQuery): Observable<Api.Feed> {
         val feedFilter = query.filter
 
         // filter by feed-type
@@ -78,12 +91,9 @@ class FeedService(private val api: Api,
         }
     }
 
-    fun loadPostDetails(id: Long): Observable<Api.Post> {
+    override fun post(id: Long): Observable<Api.Post> {
         return api.info(id)
     }
-
-    data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
-                         val newer: Long? = null, val older: Long? = null, val around: Long? = null)
 
     private class SearchQuery internal constructor(tags: String?) {
         val advanced: Boolean
@@ -98,9 +108,5 @@ class FeedService(private val api: Api,
                 this.tags = tags.replaceFirst("\\s*\\?\\s*".toRegex(), "")
             }
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger("FeedService")
     }
 }
