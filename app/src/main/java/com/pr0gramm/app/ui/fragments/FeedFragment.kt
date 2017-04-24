@@ -199,7 +199,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun subscribeToFeedUpdates() {
-        loader.updates.compose(bindToLifecycleAsync()).subscribe { update ->
+        loader.updates.compose(bindToLifecycle()).subscribe { update ->
             logger.info("Got update {}", update)
 
             when (update) {

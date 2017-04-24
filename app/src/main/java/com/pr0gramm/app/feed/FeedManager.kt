@@ -5,6 +5,7 @@ import com.pr0gramm.app.util.BackgroundScheduler
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscription
+import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 import rx.subscriptions.Subscriptions
@@ -25,7 +26,9 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
 
     val feedType: FeedType get() = feed.feedType
 
-    val updates: Observable<Update> get() = subject.startWith(Update.NewFeed(feed))
+    val updates: Observable<Update> get() = subject
+            .observeOn(AndroidSchedulers.mainThread())
+            .startWith(Update.NewFeed(feed))
 
     /**
      * Stops all loading operations and resets the feed to the given value.
