@@ -17,9 +17,7 @@ import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.io.Cache
-import com.pr0gramm.app.util.BackgroundScheduler
 import org.slf4j.LoggerFactory
-import rx.Single
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -38,13 +36,7 @@ class ShareProvider : ContentProvider() {
 
         val projection = projection_ ?: arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
-        // we get the file size on some background thread to make android happy.
-        val fileSize = Single
-                .fromCallable { getSizeForUri(uri) }
-                .subscribeOn(BackgroundScheduler.instance())
-                .onErrorResumeNext { null }
-                .toBlocking()
-                .value()
+        val fileSize = getSizeForUri(uri)
 
         // adapted from FileProvider.query
         val cols = arrayOfNulls<String>(projection.size)

@@ -17,7 +17,6 @@ import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
-import rx.Single
 import rx.subjects.BehaviorSubject
 import rx.subjects.PublishSubject
 import java.lang.reflect.Type
@@ -378,11 +377,10 @@ class UserService(private val api: Api,
         return api.requestPasswordRecovery(email).toCompletable()
     }
 
-    fun resetPassword(name: String, token: String, password: String): Single<Boolean> {
+    fun resetPassword(name: String, token: String, password: String): Observable<Boolean> {
         return api.resetPassword(name, token, password)
                 .doOnNext { value -> logger.info("Response is {}", value) }
                 .map { response -> response.error() == null }
-                .toSingle()
     }
 
     data class LoginState(
@@ -400,14 +398,14 @@ class UserService(private val api: Api,
         override fun deserialize(value: JsonElement, type: Type?, ctx: JsonDeserializationContext?): LoginState {
             if (value is JsonObject) {
                 return LoginState(
-                        id = value.getIfPrimitive("id")!!.asInt,
+                        id = value.getPrimitive("id").asInt,
                         name = value.getIfPrimitive("name")?.asString,
-                        mark = value.getIfPrimitive("mark")!!.asInt,
-                        score = value.getIfPrimitive("score")!!.asInt,
+                        mark = value.getPrimitive("mark").asInt,
+                        score = value.getPrimitive("score").asInt,
                         uniqueToken = value.getIfPrimitive("uniqueToken")?.asString,
-                        admin = value.getIfPrimitive("admin")!!.asBoolean,
-                        premium = value.getIfPrimitive("premium")!!.asBoolean,
-                        authorized = value.getIfPrimitive("authorized")!!.asBoolean)
+                        admin = value.getPrimitive("admin").asBoolean,
+                        premium = value.getPrimitive("premium").asBoolean,
+                        authorized = value.getPrimitive("authorized").asBoolean)
 
             } else {
                 return NOT_AUTHORIZED

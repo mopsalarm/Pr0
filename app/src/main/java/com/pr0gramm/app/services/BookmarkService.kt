@@ -10,7 +10,6 @@ import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.ifAbsent
 import rx.Completable
 import rx.Observable
-import rx.Single
 import rx.subjects.BehaviorSubject
 
 
@@ -42,15 +41,15 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
 
      * @param filter The filter that the user wants to bookmark.
      */
-    fun isBookmarkable(filter: FeedFilter): Single<Boolean> {
+    fun isBookmarkable(filter: FeedFilter): Observable<Boolean> {
         if (filter.isBasic)
-            return Single.just(false)
+            return Observable.just(false)
 
         if (filter.likes.isPresent)
-            return Single.just(false)
+            return Observable.just(false)
 
         // check if already in database
-        return database.asSingle().map { db -> !Bookmark.byFilter(db, filter).isPresent }
+        return database.asObservable().map { db -> !Bookmark.byFilter(db, filter).isPresent }
     }
 
     private fun triggerChange() {

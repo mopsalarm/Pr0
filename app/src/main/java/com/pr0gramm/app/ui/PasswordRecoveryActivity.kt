@@ -49,8 +49,8 @@ class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity
     fun submitButtonClicked() {
         val password = this.password.text.toString().trim()
         userService.resetPassword(user, token, password)
-                .compose(bindToLifecycleAsync<Boolean>().forSingle<Boolean>())
-                .subscribe(Action1<Boolean> { this.requestCompleted(it) }, defaultOnError())
+                .compose(bindToLifecycleAsync())
+                .subscribe(Action1 { this.requestCompleted(it) }, defaultOnError())
     }
 
     private fun requestCompleted(success: Boolean) {

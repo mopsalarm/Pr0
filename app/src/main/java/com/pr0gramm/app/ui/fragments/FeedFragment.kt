@@ -475,7 +475,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
             bookmarkService.isBookmarkable(currentFilter)
-                    .toObservable()
                     .compose(bindToLifecycleAsync<Boolean>())
                     .subscribe({ onBookmarkableStateChanged(it) }, {})
         }

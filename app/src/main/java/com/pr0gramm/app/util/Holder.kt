@@ -1,9 +1,7 @@
 package com.pr0gramm.app.util
 
-import com.google.common.base.Optional
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.SettableFuture
-
 import rx.Observable
 import rx.Single
 import rx.subjects.BehaviorSubject
@@ -28,16 +26,8 @@ class Holder<T> private constructor(single: Single<T>) {
                 })
     }
 
-    fun asSingle(): Single<T> {
-        return subject.take(1).toSingle()
-    }
-
     fun asObservable(): Observable<T> {
         return subject.take(1)
-    }
-
-    fun asOptional(): Optional<T> {
-        return if (future.isDone) Optional.of(value()) else Optional.absent<T>()
     }
 
     fun value(): T {
