@@ -1,5 +1,14 @@
 [
   {
+    "version": 124,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Caching verbessert."
+      }
+    ]
+  },
+  {
     "version": 123,
     "changes": [
       {
