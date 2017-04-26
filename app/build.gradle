@@ -190,7 +190,8 @@ dependencies {
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
-    compile 'com.evernote:android-job:1.1.9'
+    // compile 'com.evernote:android-job:1.1.9'
+    compile 'com.github.evernote:android-job:32aa2263422cd1cf7c2413213d53bbdb458223de'
 
     // a little bit more recent then 4.1.0
     compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"

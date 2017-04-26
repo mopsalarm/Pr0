@@ -46,7 +46,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
     }
 
     companion object {
-        private fun newInstance(update: Update): UpdateDialogFragment {
+        private fun newInstance(update: Update?): UpdateDialogFragment {
             return UpdateDialogFragment().arguments {
                 putParcelable("update", update)
             }
@@ -75,14 +75,14 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
             }
 
             // show a busy-dialog or not?
-            val busyOperator = if (interactive) busyDialog<Update>(activity) else null
+            val busyOperator = if (interactive) busyDialog<Update?>(activity) else null
 
             // do the check
             UpdateChecker().check()
                     .onErrorResumeNext(Observable.empty())
                     .defaultIfEmpty(null)
                     .doAfterTerminate(storeCheckTime)
-                    .compose(activity.bindUntilEventAsync(ActivityEvent.STOP))
+                    .compose(activity.bindUntilEventAsync<Update?>(ActivityEvent.STOP))
                     .run { busyOperator?.let { lift(it) } ?: this }
                     .subscribe(Action1 { update ->
                         if (interactive || update != null) {
