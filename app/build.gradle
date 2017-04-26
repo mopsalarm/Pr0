@@ -196,7 +196,7 @@ dependencies {
     // a little bit more recent then 4.1.0
     compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
 
-    compile "com.google.android.exoplayer:exoplayer:r2.3.1"
+    compile 'com.google.android.exoplayer:exoplayer:r2.3.1'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
@@ -205,11 +205,11 @@ dependencies {
     debugCompile "com.facebook.stetho:stetho-okhttp3:1.5.0"
 
     // rx java
-    compile "io.reactivex:rxjava:1.2.9"
+    compile "io.reactivex:rxjava:1.2.10"
     compile "io.reactivex:rxandroid:1.2.1"
     compile "io.reactivex:rxjava-async-util:0.21.0"
     compile 'io.reactivex:rxkotlin:1.0.0'
-    compile "com.artemzin.rxjava:proguard-rules:1.2.9.0"
+    compile "com.artemzin.rxjava:proguard-rules:1.2.10.0"
     compile "com.trello:rxlifecycle:1.0"
     compile "com.trello:rxlifecycle-android:1.0"
     compile "com.trello:rxlifecycle-components:1.0"
