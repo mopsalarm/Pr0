@@ -2,13 +2,7 @@
 
 set -eu -o pipefail
 
-if [ $# -eq 0 ] ; then
-  VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
-
-else
-  echo "usage: $(basename "$0")"
-  exit 1
-fi
+VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
 
 VERSION_NEXT=$(( VERSION + 1 ))
 VERSION_PREVIOUS=$(curl -s https://app.pr0gramm.com/beta/open/update.json | jq .version)
@@ -47,7 +41,7 @@ function deploy_upload_apk() {
 }
 
 # compile code and create apks
-./gradlew clean assembleRelease generateDebugSources
+./gradlew clean assembleRelease generateDebugSources "$@"
 
 deploy_upload_apk
 
