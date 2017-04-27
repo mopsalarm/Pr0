@@ -49,3 +49,9 @@
     **[] $VALUES;
     public *;
 }
+
+# remove all not so important logging
+-assumenosideeffects class * implements org.slf4j.Logger {
+      public *** trace(...);
+      public *** debug(...);
+}
