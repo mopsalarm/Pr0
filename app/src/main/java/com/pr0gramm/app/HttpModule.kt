@@ -2,6 +2,7 @@ package com.pr0gramm.app
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.support.v4.util.LruCache
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.instance
@@ -18,8 +19,12 @@ import com.pr0gramm.app.services.proxy.HttpProxyService
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.GuavaPicassoCache
 import com.pr0gramm.app.util.SmallBufferSocketFactory
+import com.pr0gramm.app.util.debug
 import com.squareup.picasso.Downloader
+import com.squareup.picasso.NetworkPolicy.shouldReadFromDiskCache
+import com.squareup.picasso.NetworkPolicy.shouldWriteToDiskCache
 import com.squareup.picasso.Picasso
 import okhttp3.*
 import org.slf4j.LoggerFactory
@@ -31,6 +36,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.UnsupportedOperationException
 import java.util.concurrent.*
+import kotlin.concurrent.timer
 
 /**
  */
@@ -65,28 +71,9 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
     }
 
     bind<Downloader>() with singleton {
-        object : Downloader {
-            val logger = LoggerFactory.getLogger("Picasso.Downloader")
-            val fallback = OkHttp3Downloader(instance<OkHttpClient>())
-            val cache = instance<Cache>()
-
-            override fun load(uri: Uri, networkPolicy: Int): Downloader.Response {
-                // load thumbnails normally
-                if (uri.host.contains("thumb.pr0gramm.com") || uri.path.contains("/thumb.jpg")) {
-                    return fallback.load(uri, networkPolicy)
-                } else {
-                    logger.debug("Using cache to download image {}", uri)
-                    cache.get(uri).use { entry ->
-                        val fullyCached = entry.fractionCached == 1f
-                        return Downloader.Response(entry.inputStreamAt(0), fullyCached, entry.totalSize().toLong())
-                    }
-                }
-            }
-
-            override fun shutdown() {
-                fallback.shutdown()
-            }
-        }
+        val fallback = OkHttp3Downloader(instance<OkHttpClient>())
+        val cache = instance<Cache>()
+        PicassoDownloader(cache, fallback)
     }
 
     bind<ProxyService>() with singleton {
@@ -120,9 +107,8 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
     bind<Picasso>() with singleton {
         Picasso.Builder(app)
                 .defaultBitmapConfig(Bitmap.Config.RGB_565)
-                .memoryCache(com.pr0gramm.app.util.GuavaPicassoCache.defaultSizedGuavaCache())
+                .memoryCache(GuavaPicassoCache.defaultSizedGuavaCache())
                 .downloader(instance<Downloader>())
-                .executor(instance<ExecutorService>())
                 .build()
     }
 
@@ -134,6 +120,61 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
 }
 
 
+private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloader) : Downloader {
+    val logger = LoggerFactory.getLogger("Picasso.Downloader")
+
+    private val memoryCache = object : LruCache<String, ByteArray>(1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray): Int = value.size
+    }
+
+    init {
+        debug {
+            timer(period = 10000) {
+                logger.info("Cache stats: {}", memoryCache.toString())
+            }
+        }
+    }
+
+    override fun load(uri: Uri, networkPolicy: Int): Downloader.Response {
+        // load thumbnails normally
+        if (uri.host.contains("thumb.pr0gramm.com") || uri.path.contains("/thumb.jpg")) {
+            // try memory cache first.
+            if (shouldReadFromDiskCache(networkPolicy)) {
+                memoryCache.get(uri.toString())?.let {
+                    return Downloader.Response(it.inputStream(), true, it.size.toLong())
+                }
+            }
+
+            // do request using fallback - network or disk.
+            val response = fallback.load(uri, networkPolicy)
+
+            // check if we want to cache the response in memory
+            if (shouldWriteToDiskCache(networkPolicy) && response.contentLength in (1 until 20 * 1024)) {
+                // directly read the response and buffer it in-memory
+                val bytes = response.inputStream.use {
+                    it.readBytes(estimatedSize = response.contentLength.toInt().coerceAtLeast(1024))
+                }
+
+                memoryCache.put(uri.toString(), bytes)
+                return Downloader.Response(bytes.inputStream(), true, bytes.size.toLong())
+            } else {
+                return response
+            }
+        } else {
+            logger.debug("Using cache to download image {}", uri)
+            cache.get(uri).use { entry ->
+                val fullyCached = entry.fractionCached == 1f
+                return Downloader.Response(entry.inputStreamAt(0), fullyCached, entry.totalSize().toLong())
+            }
+        }
+    }
+
+    override fun shutdown() {
+        fallback.shutdown()
+    }
+}
+
+
 private class DebugInterceptor : Interceptor {
     private val logger = LoggerFactory.getLogger("DebugInterceptor")
 
@@ -141,9 +182,9 @@ private class DebugInterceptor : Interceptor {
         checkNotMainThread()
 
         val request = chain.request()
-        if (BuildConfig.DEBUG) {
-            logger.warn("Delaying request {} for 100ms", request.url())
-            Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS)
+        debug {
+            logger.warn("Delaying request {} for a short time", request.url())
+            TimeUnit.MILLISECONDS.sleep(750)
         }
 
         return chain.proceed(request)
@@ -169,7 +210,7 @@ private class DoNotCacheInterceptor(vararg domains: String) : Interceptor {
         val response = chain.proceed(request)
 
         if (domains.contains(request.url().host())) {
-            logger.info("Disable caching for {}", request.url())
+            logger.debug("Disable caching for {}", request.url())
             response.header("Cache-Control", "no-store")
         }
 

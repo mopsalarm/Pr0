@@ -5,6 +5,7 @@ import android.support.v4.graphics.BitmapCompat
 import android.support.v4.util.LruCache
 import com.squareup.picasso.Cache
 import org.slf4j.LoggerFactory
+import kotlin.concurrent.timer
 
 /**
  * This is a better cache for [com.squareup.picasso.Picasso].
@@ -19,6 +20,12 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
 
     init {
         logger.info("Initializing cache with about " + maxSize / (1024 * 1024) + "mb")
+
+        debug {
+            timer(period = 10000) {
+                logger.info("Cache stats: {}", cache.toString())
+            }
+        }
     }
 
     private fun bitmapByteCount(bitmap: Bitmap): Int {
@@ -57,7 +64,9 @@ class GuavaPicassoCache private constructor(maxSize: Int) : Cache {
 
         @JvmStatic
         fun defaultSizedGuavaCache(): GuavaPicassoCache {
-            val maxMemory = Math.max(2 * 1024 * 1024, (Runtime.getRuntime().maxMemory() / 20L).toInt())
+            val maxMemory = (Runtime.getRuntime().maxMemory() / 20L).toInt()
+                    .coerceIn(minimumValue = 2 * 1024 * 1024, maximumValue = 6 * 1024 * 1024)
+
             return GuavaPicassoCache(maxMemory)
         }
     }
