@@ -93,3 +93,4 @@ crashlytics-build.properties
 droid.js
 
 upload_auth
+mount.sh
