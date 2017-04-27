@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "Caching verbessert."
+      },
+      {
+        "type": "Fix",
+        "change": "Verschiedene Fixes im Bezug auf Performance and Usability."
       }
     ]
   },
