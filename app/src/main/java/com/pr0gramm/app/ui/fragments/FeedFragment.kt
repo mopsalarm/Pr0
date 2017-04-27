@@ -139,7 +139,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         recyclerView.itemAnimator = null
 
         initializeMergeAdapter()
-        subscribeToFeedUpdates()
 
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.canSwipeUpPredicate = {
@@ -147,6 +146,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         swipeRefreshLayout.setOnRefreshListener {
+            logger.debug("onRefresh called for swipe view.")
             if (feedAdapter.feed.isAtStart) {
                 refreshFeed()
             } else {
@@ -189,6 +189,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // close search on click into the darkened area.
         searchContainer.setOnTouchListener(DetectTapTouchListener.withConsumer { hideSearchContainer() })
 
+        // lets start receiving feed updates
+        subscribeToFeedUpdates()
+
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
                 .observeOn(mainThread())
@@ -201,7 +204,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun subscribeToFeedUpdates() {
         loader.updates.compose(bindToLifecycle()).subscribe { update ->
-            logger.info("Got update {}", update)
+            logger.debug("Got update {}", update)
 
             when (update) {
                 is FeedManager.Update.NewFeed -> {
@@ -878,10 +881,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 return@observeChangeEx
             }
 
-            logger.info("Feed before update: {} items, oldest={}, newest={}",
+            logger.debug("Feed before update: {} items, oldest={}, newest={}",
                     old.size, old.oldest?.id, old.newest?.id)
 
-            logger.info("Feed after update: {} items, oldest={}, newest={}",
+            logger.debug("Feed after update: {} items, oldest={}, newest={}",
                     new.size, new.oldest?.id, new.newest?.id)
 
             logger.time("Applying feed delta to recycler-view") {
