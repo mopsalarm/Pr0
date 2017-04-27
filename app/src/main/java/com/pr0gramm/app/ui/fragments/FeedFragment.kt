@@ -16,7 +16,6 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.ads.MobileAds
 import com.google.common.base.CharMatcher
-import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.google.gson.JsonSyntaxException
@@ -102,22 +101,31 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // initialize auto opening
-        val start = arguments.getParcelable<ItemWithComment>(ARG_FEED_START)
-        if (start != null) {
-            autoScrollOnLoad = start.itemId
-            autoOpenOnLoad = start
+        // initialize auto opening (only on first start)
+        if (savedInstanceState == null) {
+            val start = arguments?.getParcelable<ItemWithComment?>(ARG_FEED_START)
+            if (start != null) {
+                logger.debug("Requested to open item {} on load", start)
+                autoScrollOnLoad = start.itemId
+                autoOpenOnLoad = start
+            }
+        }
+
+        // initialize auto scroll if we got restored
+        savedInstanceState?.getLong(ARG_FEED_SCROLL, 0).takeIf { it != 0L }?.let { id ->
+            logger.debug("Requested to scroll to item {} on load", id)
+            autoScrollOnLoad = id
         }
 
         this.scrollToolbar = useToolbarTopMargin()
 
-        val bundle = savedInstanceState?.getBundle("feed")
+        val bundle = savedInstanceState?.getBundle(ARG_FEED)
         val previousFeed = bundle?.let { Feed.restore(it) }
 
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
         if (previousFeed == null) {
-            loader.restart(around = autoOpenOnLoad?.itemId)
+            loader.restart(around = autoScrollOnLoad)
         }
     }
 
@@ -133,8 +141,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         seenIndicatorStyle = settings.seenIndicatorStyle
 
         // prepare the list of items
-        val columnCount = thumbnailColumns
-        val layoutManager = GridLayoutManager(activity, columnCount)
+        val layoutManager = GridLayoutManager(activity, thumbnailColumns)
         recyclerView.layoutManager = layoutManager
         recyclerView.itemAnimator = null
 
@@ -228,8 +235,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         super.onSaveInstanceState(outState)
 
         if (view != null) {
-            outState.putBundle("feed", loader.feed.persist(0))
-            outState.putLong("autoScrollOnLoad", findLastVisibleFeedItem()?.id ?: -1L)
+            val feed = loader.feed
+
+            val lastVisibleItem = findLastVisibleFeedItem()
+            val lastVisibleIndex = lastVisibleItem?.let { feed.indexById(it.id) }
+
+            if (lastVisibleItem != null && lastVisibleIndex != null) {
+                logger.debug("Store feed around item {} ({})", lastVisibleItem.id, feed)
+                outState.putBundle(ARG_FEED, feed.persist(lastVisibleIndex))
+                outState.putLong(ARG_FEED_SCROLL, lastVisibleItem.id)
+            }
+
             outState.putBoolean("searchContainerVisible", searchContainerIsVisible())
         }
     }
@@ -504,9 +520,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val feedFilter = loader.feed.filter
         val newContentType = selectedContentType
         if (loader.feed.contentType != newContentType) {
-            autoScrollOnLoad = autoOpenOnLoad?.itemId ?: findLastVisibleFeedItem(newContentType)?.id
+            autoScrollOnLoad = autoOpenOnLoad?.itemId
+                    ?: findLastVisibleFeedItem(newContentType)?.id
 
             // set a new adapter if we have a new content type
+            // this clears the current feed immediately
             loader.reset(Feed(feedFilter, newContentType))
             loader.restart(around = autoScrollOnLoad)
 
@@ -515,25 +533,28 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     /**
-     * Finds the first item in the proxy, that is visible and of one of the given content type.
+     * Finds the last item in the feed that is visible and of one of the given content types
 
      * @param contentType The target-content type.
      */
-    private fun findLastVisibleFeedItem(contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
+    private fun findLastVisibleFeedItem(
+            contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
+
         val items = feedAdapter.feed
 
         recyclerViewLayoutManager?.let { layoutManager ->
             val adapter = recyclerView.adapter as MergeRecyclerAdapter
-            val offset = firstNonNull(adapter.getOffset(feedAdapter), 0)
+            val offset = adapter.getOffset(feedAdapter) ?: 0
 
             // if the first row is visible, skip this stuff.
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0)
+            val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
+            if (firstCompletelyVisible == 0 || firstCompletelyVisible == RecyclerView.NO_POSITION)
                 return null
 
-            val idx = layoutManager.findLastCompletelyVisibleItemPosition() - offset
-            if (idx != RecyclerView.NO_POSITION && idx > 0 && idx < items.size) {
-                return items.subList(0, idx).asReversed()
-                        .firstOrNull { contentType.contains(it.contentType) }
+            val lastCompletelyVisible = layoutManager.findLastCompletelyVisibleItemPosition() - offset
+            if (lastCompletelyVisible != RecyclerView.NO_POSITION) {
+                val idx = (lastCompletelyVisible - offset).coerceIn(items.indices)
+                return items.take(idx).lastOrNull { contentType.contains(it.contentType) }
             }
         }
 
@@ -902,7 +923,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        @SuppressLint("InflateParams")
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedItemViewHolder {
             val inflater = LayoutInflater.from(activity)
             val view = inflater.inflate(R.layout.feed_item_view, null)
@@ -1079,28 +1099,34 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun performAutoOpen() {
-        val autoScroll = autoScrollOnLoad
-        if (autoScroll != null) {
-            logger.info("Trying to do auto scroll to {}", autoScroll)
-
-            findItemIndexById(autoScroll)?.let { idx ->
-                // over scroll a bit
-                val scrollTo = Math.max(idx + thumbnailColumns, 0)
-                recyclerView.scrollToPosition(scrollTo)
-            }
-        }
-
-        val autoLoad = autoOpenOnLoad
-        if (autoLoad != null) {
+        autoOpenOnLoad?.let { autoLoad ->
             logger.info("Trying to do auto load of {}", autoLoad)
 
             val feed = loader.feed
             feed.indexById(autoLoad.itemId)?.let { idx ->
+                logger.debug("Found item at idx={}", idx)
+
+                // scroll to item now and click
+                // scrollToItem(autoLoad.itemId)
                 onItemClicked(idx, autoLoad.commentId)
             }
         }
 
+        autoScrollOnLoad?.let { autoScroll ->
+            logger.info("Trying to do auto scroll to {}", autoScroll)
+            scrollToItem(autoScroll)
+        }
+
         autoScrollOnLoad = null
+    }
+
+    private fun scrollToItem(itemId: Long) {
+        findItemIndexById(itemId)?.let { idx ->
+            logger.debug("Found item at idx={}", idx)
+
+            // over scroll a bit
+            recyclerView.scrollToPosition(idx + thumbnailColumns)
+        }
     }
 
     /**
@@ -1179,8 +1205,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     companion object {
         internal val logger = LoggerFactory.getLogger("FeedFragment")
 
+        private const val ARG_FEED = "FeedFragment.feed"
         private const val ARG_FEED_FILTER = "FeedFragment.filter"
-        private const val ARG_FEED_START = "FeedFragment.start.id"
+        private const val ARG_FEED_START = "FeedFragment.start"
+        private const val ARG_FEED_SCROLL = "FeedFragment.scroll"
         private const val ARG_NORMAL_MODE = "FeedFragment.simpleMode"
         private const val ARG_SEARCH_QUERY_STATE = "FeedFragment.searchQueryState"
 
@@ -1206,12 +1234,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                          start: ItemWithComment?,
                          searchQueryState: Bundle?): Bundle {
 
-            val arguments = Bundle()
-            arguments.putParcelable(ARG_FEED_FILTER, feedFilter)
-            arguments.putParcelable(ARG_FEED_START, start)
-            arguments.putBoolean(ARG_NORMAL_MODE, normalMode)
-            arguments.putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
-            return arguments
+            return bundle {
+                putParcelable(ARG_FEED_FILTER, feedFilter)
+                putParcelable(ARG_FEED_START, start)
+                putBoolean(ARG_NORMAL_MODE, normalMode)
+                putBundle(ARG_SEARCH_QUERY_STATE, searchQueryState)
+            }
         }
 
         private fun extractFeedItemHolder(view: View): FeedItemViewHolder? {

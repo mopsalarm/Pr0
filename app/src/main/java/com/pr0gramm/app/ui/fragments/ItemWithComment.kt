@@ -6,19 +6,19 @@ import com.pr0gramm.app.parcel.core.creator
 
 /**
  */
-class ItemWithComment(val itemId: Long, val commentId: Long?) : Parcelable {
+class ItemWithComment(val itemId: Long, val commentId: Long? = null) : Parcelable {
     override fun describeContents(): Int {
         return 0
     }
 
     override fun writeToParcel(dest: Parcel, f: Int) {
         dest.writeLong(this.itemId)
-        dest.writeValue(this.commentId)
+        dest.writeLong(this.commentId ?: -1L)
     }
 
     internal constructor(parcel: Parcel) : this(
             itemId = parcel.readLong(),
-            commentId = parcel.readValue(Long::class.java.classLoader) as Long) {
+            commentId = parcel.readLong().let { if (it == -1L) null else it }) {
     }
 
     companion object {

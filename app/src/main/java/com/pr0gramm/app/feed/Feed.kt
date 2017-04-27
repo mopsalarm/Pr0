@@ -90,11 +90,14 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         val stop = (pivot + itemCount).coerceIn(0, items.size)
         val items = ArrayList(this.items.subList(start, stop))
         bundle.putParcelableArrayList(FEED_FIELD_ITEMS, items)
-        bundle.putBoolean(FEED_FIELD_AT_START, start == 0)
+        bundle.putBoolean(FEED_FIELD_AT_START, isAtStart && start == 0)
 
         return bundle
     }
 
+    override fun toString(): String {
+        return "Feed[newest=${newest?.id}, oldest=${oldest?.id}, size=$size]"
+    }
 
     /**
      * Implementation of PeekingIterator that avoids peeking unless necessary.

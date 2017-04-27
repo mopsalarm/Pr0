@@ -315,3 +315,11 @@ inline fun debug(block: () -> Unit) {
         block()
     }
 }
+
+inline fun <T> T?.dropIf(predicate: (T) -> Boolean): T? {
+    if (this != null && predicate(this)) {
+        return null
+    } else {
+        return this
+    }
+}
