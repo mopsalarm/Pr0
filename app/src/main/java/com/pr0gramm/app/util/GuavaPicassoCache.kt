@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * This is a better cache for [com.squareup.picasso.Picasso].
- * Firstly, it uses [java.lang.ref.WeakReference]s for the values and secondly,
- * it only caches small images (for the feed).
- *
+ * It caches only small images (for the feed).
  *
  * This should prevent further out of memory errors.
  */

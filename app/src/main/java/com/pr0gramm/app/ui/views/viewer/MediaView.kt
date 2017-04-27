@@ -31,18 +31,24 @@ import com.pr0gramm.app.ui.views.KodeinViewMixin
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 import rx.subjects.ReplaySubject
-import java.lang.ref.WeakReference
 
 /**
  */
 abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layoutId: Int?) : FrameLayout(config.activity), KodeinViewMixin {
-    private val previewTarget = PreviewTarget(this)
+    private val logger = if (BuildConfig.DEBUG) {
+        LoggerFactory.getLogger("MediaView[${config.mediaUri.id}]")
+    } else {
+        LoggerFactory.getLogger("MediaView")
+    }
+
+    private val previewTarget = PreviewTarget(logger, this)
     private val onViewListener = BehaviorSubject.create<Void>()
     private val thumbnail = BehaviorSubject.create<Bitmap>()
     private val controllerView = ReplaySubject.create<View>()
@@ -120,11 +126,11 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
 
         if (hasPreviewView() && ThumbyService.isEligibleForPreview(mediaUri)) {
             attachEvents().limit(1).subscribe {
-
                 // test if we need to request the thumby preview.
                 if (hasPreviewView()) {
                     val uri = ThumbyService.thumbUri(mediaUri)
 
+                    logger.debug("Requesting thumby preview image.")
                     RxPicasso.load(picasso, picasso.load(uri).noPlaceholder())
                             .onErrorResumeEmpty()
                             .compose(RxLifecycleAndroid.bindView(this))
@@ -155,6 +161,10 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         }
     }
 
+    protected fun <T> bindView(): Observable.Transformer<T, T> {
+        return RxLifecycleAndroid.bindView<T>(this)
+    }
+
     protected fun <T> backgroundBindView(): Observable.Transformer<T, T> {
         return Observable.Transformer {
             it.subscribeOn(BackgroundScheduler.instance())
@@ -173,11 +183,19 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             return
 
         if (info.width > 0 && info.height > 0) {
-            val aspect = info.width.toFloat() / info.height.toFloat()
-            viewAspect = aspect
+            viewAspect = info.aspect
+        }
+
+        info.fancy?.valueOrNull?.let { preview ->
+            logger.debug("Using provided fancy preview image.")
+            val drawable = BitmapDrawable(resources, preview)
+            setPreviewDrawable(drawable)
+            thumbnail.onNext(preview)
+            return
         }
 
         info.preview?.let { preview ->
+            logger.debug("Using provided preview image.")
             setPreviewDrawable(preview)
 
             if (preview is BitmapDrawable) {
@@ -186,12 +204,18 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
             }
         }
 
-        // we always have a thumbnail we can try to load.
-        val aspect = info.width / info.height.toFloat()
-        Observable.fromCallable<Bitmap> { fancyThumbnailGenerator.fancyThumbnail(info.previewUri, aspect) }
-                .doOnError { err -> logger.warn("Could not generate fancy thumbnail", err) }
-                .onErrorResumeNext(Observable.empty<Bitmap>())
-                .compose(backgroundBindView<Bitmap>())
+        val rxFancyPreviewImage = info.fancy?.asObservable() ?: Observable.fromCallable {
+            logger.debug("Requesting fancy thumbnail on background thread now.")
+            fancyThumbnailGenerator.fancyThumbnail(info.previewUri, info.aspect)
+        }.subscribeOn(BackgroundScheduler.instance())
+
+        rxFancyPreviewImage
+                .onErrorResumeNext { err ->
+                    logger.warn("Could not generate fancy thumbnail", err)
+                    Observable.empty()
+                }
+                .observeOnMain()
+                .compose(backgroundBindView())
                 .subscribe(previewTarget)
     }
 
@@ -425,14 +449,14 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         fun onDoubleTap(): Boolean
     }
 
-    private class PreviewTarget(mediaView: MediaView) : Action1<Bitmap> {
-        private val mediaView = WeakReference(mediaView)
+    private class PreviewTarget(private val logger: Logger, mediaView: MediaView) : Action1<Bitmap> {
+        private val mediaView by weakref(mediaView)
         private val watch = Stopwatch.createStarted()
 
         override fun call(bitmap: Bitmap) {
-            logger.info("Got a preview image after {}", watch)
+            logger.debug("Got a preview image after {}", watch)
 
-            this.mediaView.get()?.let { mediaView ->
+            this.mediaView?.let { mediaView ->
                 if (mediaView.previewView != null) {
                     val nextImage = BitmapDrawable(mediaView.resources, bitmap)
                     mediaView.setPreviewDrawable(nextImage)
@@ -446,10 +470,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     data class Config(val activity: Activity, val mediaUri: MediaUri,
                       val previewInfo: PreviewInfo? = null,
                       val audio: Boolean = false) {
-
-        fun withPreviewInfo(p: PreviewInfo) = copy(previewInfo = p)
-
-        fun withAudio(a: Boolean) = copy(audio = a)
 
         companion object {
             @JvmStatic
@@ -468,8 +488,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger("MediaView")
-
         private val MIN_PREVIEW_ASPECT = 1 / 30.0f
 
         const internal val ANIMATION_DURATION = 500

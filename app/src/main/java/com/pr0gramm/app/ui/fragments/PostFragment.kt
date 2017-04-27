@@ -665,8 +665,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         viewer = MediaViews.newInstance(MediaView.Config.of(activity, uri)
-                .withPreviewInfo(previewInfo())
-                .withAudio(feedItem.audio))
+                .copy(audio = feedItem.audio, previewInfo = previewInfo()))
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
             //  mark this item seen. We do that in a background thread

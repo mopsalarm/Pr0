@@ -26,10 +26,12 @@ import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import java.io.InputStream
+import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 inline fun <T> Optional<T>.ifAbsent(fn: () -> Unit): Unit {
@@ -295,3 +297,15 @@ inline fun <T> Logger.time(name: String, supplier: () -> T): T {
         return supplier()
     }
 }
+
+fun <T> weakref(value: T?): ReadWriteProperty<Any?, T?> = object : ReadWriteProperty<Any?, T?> {
+    private var ref: WeakReference<T?> = WeakReference(value)
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T? = ref.get()
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
+        ref.clear()
+        ref = WeakReference(value)
+    }
+}
+

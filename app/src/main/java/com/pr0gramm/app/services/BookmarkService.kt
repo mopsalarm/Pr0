@@ -27,9 +27,9 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     fun create(filter: FeedFilter, title: String): Completable {
         return doInBackground {
             // check if here is an existing item
-            Bookmark.byFilter(database.value(), filter).ifAbsent {
+            Bookmark.byFilter(database.value, filter).ifAbsent {
                 // create new entry
-                Bookmark.save(database.value(), Bookmark.of(filter, title))
+                Bookmark.save(database.value, Bookmark.of(filter, title))
                 triggerChange()
             }
         }
@@ -67,7 +67,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
      */
     private fun list(): List<Bookmark> {
         checkNotMainThread()
-        return Bookmark.all(database.value())
+        return Bookmark.all(database.value)
     }
 
     /**
@@ -77,7 +77,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
      */
     fun delete(bookmark: Bookmark): Completable {
         return doInBackground {
-            Bookmark.delete(database.value(), bookmark)
+            Bookmark.delete(database.value, bookmark)
             triggerChange()
         }
     }

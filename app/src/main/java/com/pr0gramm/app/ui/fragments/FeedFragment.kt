@@ -12,6 +12,7 @@ import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ScrollView
+import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.ads.MobileAds
 import com.google.common.base.CharMatcher
@@ -777,8 +778,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
-                val item = feed[idx]
-                fragment.setPreviewInfo(PreviewInfo.of(context, item, image))
+
+                val info = PreviewInfo.of(context, feed[idx], image)
+                info.preloadFancyPreviewImage(appKodein().instance())
+                fragment.setPreviewInfo(info)
             }
 
             activity.supportFragmentManager.beginTransaction()

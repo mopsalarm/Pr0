@@ -72,7 +72,7 @@ class VoteService(private val api: Api,
      */
     fun getVote(item: FeedItem): Observable<Vote> {
         return Observable
-                .fromCallable { CachedVote.find(database.value(), ITEM, item.id()) }
+                .fromCallable { CachedVote.find(database.value, ITEM, item.id()) }
                 .map<Vote> { vote -> vote.map({ it.vote }).or(Vote.NEUTRAL) }
                 .subscribeOnBackground()
     }
@@ -86,7 +86,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValueInTx(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        withTransaction(database.value()) {
+        withTransaction(database.value) {
             storeVoteValue(type, itemId, vote)
         }
     }
@@ -104,7 +104,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValue(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        CachedVote.quickSave(database.value(), type, itemId, vote)
+        CachedVote.quickSave(database.value, type, itemId, vote)
     }
 
     /**
@@ -124,7 +124,7 @@ class VoteService(private val api: Api,
 
         try {
             val watch = Stopwatch.createStarted()
-            withTransaction(database.value()) {
+            withTransaction(database.value) {
                 logger.info("Applying {} vote actions", actionCount)
                 for (idx in 0..actionCount - 1) {
                     val id = actionStream.readInt().toLong()
@@ -151,7 +151,7 @@ class VoteService(private val api: Api,
     fun tag(feedItem: FeedItem, tags: List<String>): Observable<List<Api.Tag>> {
         val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
         return api.addTags(null, feedItem.id(), tagString).map { response ->
-            withTransaction(database.value()) {
+            withTransaction(database.value) {
                 // auto-apply up-vote to newly created tags
                 for (tagId in response.tagIds) {
                     storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
@@ -183,7 +183,7 @@ class VoteService(private val api: Api,
      */
     fun clear() {
         logger.info("Removing all items from vote cache")
-        CachedVote.clear(database.value())
+        CachedVote.clear(database.value)
     }
 
     /**
@@ -209,7 +209,7 @@ class VoteService(private val api: Api,
 
         return Observable.fromCallable {
             val watch = createStarted()
-            val cachedVotes = CachedVote.find(database.value(), type, ids)
+            val cachedVotes = CachedVote.find(database.value, type, ids)
 
             val result = TLongObjectHashMap<Vote>()
             for (cachedVote in cachedVotes)

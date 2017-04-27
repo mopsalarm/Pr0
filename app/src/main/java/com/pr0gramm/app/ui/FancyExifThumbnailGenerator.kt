@@ -21,7 +21,7 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
     private val maskV = BitmapFactory.decodeResource(context.resources, R.raw.mask_v)
     private val maskH = BitmapFactory.decodeResource(context.resources, R.raw.mask_h)
 
-    fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap? = logger.time("Building fancy thumbnail") {
+    fun fancyThumbnail(uri: Uri, aspect: Float): Bitmap = logger.time("Building fancy thumbnail") {
         val bytes = fetch(uri)
 
         // almost square? fall back on non fancy normal image

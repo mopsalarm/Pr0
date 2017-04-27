@@ -1,6 +1,5 @@
 package com.pr0gramm.app.util
 
-import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.SettableFuture
 import rx.Observable
 import rx.Single
@@ -30,8 +29,25 @@ class Holder<T> private constructor(single: Single<T>) {
         return subject.take(1)
     }
 
-    fun value(): T {
-        return Futures.getUnchecked(future)
+    /**
+     * Gets the value of this holder. This will block, if the value
+     * is not yet present.
+     */
+    val value: T get() = future.get()
+
+    /**
+     * Returns the current value or returns null, if the value is
+     * not yet available.
+     */
+    val valueOrNull: T? get() {
+        if (future.isDone) {
+            try {
+                return future.get()
+            } catch(ignored: Exception) {
+            }
+        }
+
+        return null
     }
 
     companion object {

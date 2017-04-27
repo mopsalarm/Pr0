@@ -51,6 +51,7 @@ import com.pr0gramm.app.io.Cache
 import com.pr0gramm.app.ui.views.AspectLayout
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.getMessageWithCauses
+import com.pr0gramm.app.util.weakref
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -230,7 +231,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
-
+        logger.info("onLoadingChanged: {}", isLoading)
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -250,12 +251,12 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         }
     }
 
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
-
+    override fun onTimelineChanged(timeline: Timeline, manifest: Any?) {
+        logger.info("Timeline has changed")
     }
 
-    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-        // dont care!
+    override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
+        logger.info("Tracks have changed, {} tracks available", trackGroups.length)
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
@@ -281,13 +282,20 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         pause()
     }
 
-    override fun onPositionDiscontinuity() {}
+    override fun onPositionDiscontinuity() {
+        logger.info("A position discontinuity occurred.")
+    }
+
+    override fun onPlaybackParametersChanged(params: PlaybackParameters?) {
+        logger.info("Playback parameters are now: {}", params)
+    }
 
     private class VideoListener(callbacks: VideoPlayer.Callbacks, parentView: AspectLayout) : VideoRendererEventListener {
-        private val callbacks = WeakReference(callbacks)
-        private val parentView = WeakReference(parentView)
+        private val callbacks by weakref(callbacks)
+        private val parentView by weakref(parentView)
 
         override fun onVideoEnabled(counters: DecoderCounters) {}
+        override fun onVideoDisabled(counters: DecoderCounters) {}
 
         override fun onVideoDecoderInitialized(decoderName: String, initializedTimestampMs: Long, initializationDurationMs: Long) {
             logger.info("Initialized decoder {} after {}ms", decoderName, initializationDurationMs)
@@ -299,7 +307,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
         override fun onDroppedFrames(count: Int, elapsed: Long) {
             if (count >= MAX_DROPPED_FRAMES) {
-                this.callbacks.get()?.onDroppedFrames(count)
+                this.callbacks?.onDroppedFrames(count)
             }
         }
 
@@ -309,16 +317,14 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
                 logger.info("Got video track with size {}x{}", scaledWidth, height)
 
-                this.parentView.get()?.aspect = scaledWidth.toFloat() / height
-                this.callbacks.get()?.onVideoSizeChanged(scaledWidth, height)
+                this.parentView?.aspect = scaledWidth.toFloat() / height
+                this.callbacks?.onVideoSizeChanged(scaledWidth, height)
             }
         }
 
         override fun onRenderedFirstFrame(surface: Surface) {
-            this.callbacks.get()?.onVideoRenderingStarts()
+            this.callbacks?.onVideoRenderingStarts()
         }
-
-        override fun onVideoDisabled(counters: DecoderCounters) {}
     }
 
     private class MediaSourceListener internal constructor(callbacks: VideoPlayer.Callbacks) : ExtractorMediaSource.EventListener {

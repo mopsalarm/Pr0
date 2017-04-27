@@ -224,7 +224,7 @@ class UserService(private val api: Api,
             val userId = loginState.id
             if (userId > 0) {
                 // save the current benis value
-                BenisRecord.storeValue(database.value(), userId, response.score())
+                BenisRecord.storeValue(database.value, userId, response.score())
 
                 // and load the current benis history
                 val scoreGraph = loadBenisHistory(userId)
@@ -344,7 +344,7 @@ class UserService(private val api: Api,
         val start = now.minus(historyLength)
 
         // get the values and transform them
-        val points = BenisRecord.findValuesLaterThan(database.value(), userId, start).map { record ->
+        val points = BenisRecord.findValuesLaterThan(database.value, userId, start).map { record ->
             val x = record.time.toDouble()
             Graph.Point(x, record.benis.toDouble())
         }
