@@ -13,11 +13,8 @@ import com.pr0gramm.app.feed.Feed
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedManager
 import com.pr0gramm.app.feed.FeedService
-import com.pr0gramm.app.util.justObservable
 import org.junit.Before
 import org.junit.Test
-import org.mockito.stubbing.OngoingStubbing
-import rx.Observable
 import rx.observers.TestSubscriber
 import rx.plugins.RxJavaHooks
 import rx.schedulers.Schedulers
@@ -93,8 +90,4 @@ class FeedManagerTest {
         verifyZeroInteractions(service)
     }
 
-}
-
-infix fun <R> OngoingStubbing<Observable<R>>.doReturnObservable(value: R): OngoingStubbing<Observable<R>> {
-    return this.thenReturn(value.justObservable())
 }

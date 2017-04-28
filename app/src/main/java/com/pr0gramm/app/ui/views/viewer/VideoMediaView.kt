@@ -33,7 +33,7 @@ import com.pr0gramm.app.ui.views.viewer.video.RxVideoPlayer
 import com.pr0gramm.app.ui.views.viewer.video.VideoPlayer
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
-import com.pr0gramm.app.util.endAction
+import com.pr0gramm.app.util.hideViewEndAction
 import com.trello.rxlifecycle.android.RxLifecycleAndroid
 import kotterknife.bindView
 import org.slf4j.LoggerFactory
@@ -146,7 +146,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
             muteButtonView.animate()
                     .alpha(0f)
                     .translationY(muteButtonView.height.toFloat())
-                    .setListener(endAction { muteButtonView.visibility = View.GONE })
+                    .setListener(hideViewEndAction(muteButtonView))
                     .setInterpolator(AccelerateInterpolator())
                     .start()
         } else {

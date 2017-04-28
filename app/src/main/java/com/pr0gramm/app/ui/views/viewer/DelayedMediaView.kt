@@ -45,7 +45,7 @@ class DelayedMediaView(config: MediaView.Config) : ProxyMediaView(config) {
 
         overlay.animate()
                 .alpha(0f).scaleX(0.8f).scaleY(0.8f)
-                .setListener(endAction { overlay.removeFromParent() })
+                .setListener(endAction(overlay) { it.removeFromParent() })
                 .start()
 
         return true

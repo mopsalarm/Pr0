@@ -61,7 +61,7 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
 
                 if (isPlaying) {
                     imageView.animate().alpha(1f)
-                            .setListener(endAction { this.onMediaShown() })
+                            .setListener(endAction { onMediaShown() })
                             .setDuration(MediaView.ANIMATION_DURATION.toLong())
                             .start()
                 } else {

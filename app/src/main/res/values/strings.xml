@@ -414,5 +414,6 @@
     <string name="pref_always_show_ads_summary">Show ads even with a paid pr0mium account.</string>
     <string name="hint_dont_like_ads">Sorry,\nyou don\'t like ads?</string>
     <string name="error_check_file_permission">The app could not read selected image file. Please check the app\'s filesystem permissions.</string>
+    <string name="error_generic">An error occurred.</string>
 </resources>
 

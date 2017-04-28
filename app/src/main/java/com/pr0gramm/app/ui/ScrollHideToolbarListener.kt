@@ -41,9 +41,9 @@ class ScrollHideToolbarListener(private val toolbar: View) {
             animation = toolbar.animate()
                     .translationY(y.toFloat())
                     .setDuration(250)
-                    .setListener(endAction {
+                    .setListener(endAction(toolbar) {
                         if (!targetVisible) {
-                            toolbar.visible = false
+                            it.visible = false
                         }
                     })
                     .apply {

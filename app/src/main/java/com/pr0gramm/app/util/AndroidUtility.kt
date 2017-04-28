@@ -390,7 +390,6 @@ fun Throwable.getMessageWithCauses(): String {
     }
 }
 
-
 fun endAction(action: () -> Unit): Animator.AnimatorListener {
     return object : AnimatorListenerAdapter() {
         override fun onAnimationEnd(animation: Animator) {
@@ -399,3 +398,18 @@ fun endAction(action: () -> Unit): Animator.AnimatorListener {
     }
 }
 
+inline fun <T : View> endAction(view: T, crossinline action: (T) -> Unit): Animator.AnimatorListener {
+    return object : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            action(view)
+        }
+    }
+}
+
+fun hideViewEndAction(view: View): Animator.AnimatorListener {
+    return object : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            view.visible = false
+        }
+    }
+}

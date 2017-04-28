@@ -42,11 +42,8 @@ import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.ErrorFormatting
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.findOptional
 import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Observable
 import rx.functions.Action1
@@ -140,12 +137,11 @@ class UploadFragment : BaseFragment("UploadFragment") {
         val uploadInfo = uploadInfo
 
         // start the upload
+        busyIndicator.visible = true
         val upload = if (uploadInfo == null) {
-            busyIndicator.visibility = View.VISIBLE
             busyIndicator.progress = 0f
             uploadService.upload(file, type, tags)
         } else {
-            busyIndicator.visibility = View.VISIBLE
             busyIndicator.spin()
             uploadService.post(uploadInfo, type, tags, false)
         }

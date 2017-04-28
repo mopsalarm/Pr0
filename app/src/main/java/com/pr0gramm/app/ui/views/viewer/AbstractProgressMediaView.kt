@@ -11,7 +11,7 @@ import android.widget.SeekBar
 import com.google.common.base.Optional
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.endAction
+import com.pr0gramm.app.util.hideViewEndAction
 import org.slf4j.LoggerFactory
 
 /**
@@ -90,7 +90,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             viewToHide.animate()
                     .alpha(0f)
                     .translationY(deltaY.toFloat())
-                    .setListener(endAction { viewToHide.visibility = View.GONE })
+                    .setListener(hideViewEndAction(viewToHide))
                     .setInterpolator(AccelerateInterpolator())
                     .start()
 

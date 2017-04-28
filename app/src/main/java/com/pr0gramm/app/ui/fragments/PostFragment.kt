@@ -642,9 +642,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             start()
 
-            addListener(endAction {
-                voteAnimationIndicator.visible = false
-            })
+            addListener(hideViewEndAction(voteAnimationIndicator))
         }
     }
 
