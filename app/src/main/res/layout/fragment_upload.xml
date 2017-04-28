@@ -26,6 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clickable="true"
+                android:focusable="true"
                 tools:ignore="UselessLeaf"/>
 
             <com.pr0gramm.app.ui.views.BusyIndicator

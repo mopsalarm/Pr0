@@ -136,8 +136,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val uploadInfo = uploadInfo
 
-        // start the upload
+
         busyIndicator.visible = true
+
+        // start the upload
         val upload = if (uploadInfo == null) {
             busyIndicator.progress = 0f
             uploadService.upload(file, type, tags)
@@ -148,7 +150,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         logger.info("Start upload of type {} with tags {}", type, tags)
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .doAfterTerminate { busyIndicator.visibility = View.GONE }
+                .doAfterTerminate { busyIndicator.visible = false }
                 .subscribe({ status ->
                     when {
                         status.finished -> {
@@ -187,10 +189,11 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun showSimilarPosts(similar: List<HasThumbnail>) {
-        similarHintView.visibility = View.VISIBLE
-        similarImages.visibility = View.VISIBLE
+        similarHintView.visible = true
+        similarImages.visible = true
         similarImages.setThumbnails(similar)
-        scrollView.requestChildFocus(view, view)
+
+        similarHintView.requestFocus()
     }
 
     private fun setFormEnabled(enabled: Boolean) {
@@ -233,7 +236,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun handleImageUri(image: Uri) {
         checkMainThread()
 
-        busyIndicator.visibility = View.VISIBLE
+        busyIndicator.visible = true
 
         logger.info("copy image to private memory")
         copy(activity, image)
@@ -256,7 +259,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
     private fun onUploadError(throwable: Throwable) {
         setFormEnabled(true)
-        busyIndicator.visibility = View.GONE
+        busyIndicator.visible = false
 
         if (throwable is UploadService.UploadFailedException) {
             val causeText = getUploadFailureText(activity, throwable)
@@ -292,7 +295,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         preview.removeAllViews()
         preview.addView(viewer)
 
-        busyIndicator.visibility = View.GONE
+        busyIndicator.visible = false
     }
 
     private fun handleSizeNotOkay() {

@@ -141,11 +141,9 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
      * @param savedState An optional saved state.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val encoded: Bundle = when {
-            savedState != null -> savedState.getBundle(ARG_FEED_PROXY)
-            arguments != null -> arguments.getBundle(ARG_FEED_PROXY)
-            else -> throw IllegalStateException("No feed-proxy found.")
-        }
+        val encoded: Bundle = savedState?.getBundle(ARG_FEED)
+                ?: arguments?.getBundle(ARG_FEED)
+                ?: throw IllegalStateException("No feed found.")
 
         return Feed.restore(encoded)
     }
@@ -154,11 +152,9 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
      * @see .getArgumentFeed
      */
     private fun getArgumentStartItem(savedState: Bundle?): FeedItem {
-        return when {
-            savedState != null -> savedState.getParcelable(ARG_START_ITEM)
-            arguments != null -> arguments.getParcelable(ARG_START_ITEM)
-            else -> throw IllegalStateException("No feed-proxy found.")
-        }
+        return savedState?.getParcelable<FeedItem?>(ARG_START_ITEM)
+                ?: arguments?.getParcelable<FeedItem?>(ARG_START_ITEM)
+                ?: throw IllegalStateException("No initial item found.")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -193,7 +189,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         val item = adapter.feed[position]
         outState.putParcelable(ARG_START_ITEM, item)
-        outState.putParcelable(ARG_FEED_PROXY, adapter.feed.persist(position))
+        outState.putParcelable(ARG_FEED, adapter.feed.persist(position))
     }
 
     /**
@@ -262,13 +258,13 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     }
 
     companion object {
-        const val ARG_FEED_PROXY = "PostPagerFragment.feedProxy"
+        const val ARG_FEED = "PostPagerFragment.feed"
         const val ARG_START_ITEM = "PostPagerFragment.startItem"
         const val ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment"
 
         fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
             val arguments = Bundle()
-            arguments.putBundle(ARG_FEED_PROXY, feed.persist(idx))
+            arguments.putBundle(ARG_FEED, feed.persist(idx))
             arguments.putParcelable(ARG_START_ITEM, feed[idx])
             arguments.putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
 
