@@ -395,4 +395,5 @@
     <string name="pref_always_show_ads_title">Werbung immer anzeigen</string>
     <string name="hint_dont_like_ads">Wie bitte?\nWerbung ist doof?</string>
     <string name="error_check_file_permission">Die ausgewählte Datei konnte nicht gelesen werden. Prüfe bitte die Dateisystemberechtigungen der App.</string>
+    <string name="error_generic">Es ist ein Fehler aufgetreten.</string>
 </resources>
