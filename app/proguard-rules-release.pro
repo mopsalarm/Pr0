@@ -14,7 +14,7 @@
 -dontwarn **
 -ignorewarnings
 
--keepattributes *Annotation*,SourceFile,LineNumberTable
+-keepattributes SourceFile
 
 # keep exception names
 -keepnames class * extends java.lang.Throwable
@@ -54,4 +54,12 @@
 -assumenosideeffects class * implements org.slf4j.Logger {
       public *** trace(...);
       public *** debug(...);
+}
+
+#-assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+#    static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
+#}
+
+-keepclassmembers class **$WhenMappings {
+    <fields>;
 }
