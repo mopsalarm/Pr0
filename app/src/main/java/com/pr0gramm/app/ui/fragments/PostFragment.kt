@@ -756,17 +756,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun updatePlayerContainerBackground(thumbnail: Bitmap) {
-        Palette.Builder(thumbnail).apply {
-            clearTargets()
-            addTarget(DARK_MUTED)
-            generate { palette ->
-                val color = palette.getDarkMutedColor(0)
-                playerContainer.setBackgroundColor(AndroidUtility.darken(color, 0.5f))
+        val palette = Observable.fromCallable {
+            Palette.Builder(thumbnail).run {
+                clearTargets()
+                addTarget(DARK_MUTED)
+                generate()
             }
+        }
+
+        palette.compose(bindToLifecycleAsync()).subscribe {
+            val color = it.getDarkMutedColor(0)
+            playerContainer.setBackgroundColor(AndroidUtility.darken(color, 0.5f))
         }
     }
 
-    // TODO Remove after kotlin migration.
     private fun previewInfo(): PreviewInfo {
         val parent = parentFragment
         if (parent is PreviewInfoSource) {
@@ -857,7 +860,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun hideProgressIfLoop(tags: List<Api.Tag>) {
         val actualView = viewer.actualMediaView
         if (actualView is AbstractProgressMediaView) {
-            if (tags.any { isLoopTag(it.tag) }) {
+            if (tags.any { it.isLoopTag() }) {
                 actualView.hideVideoProgress()
             }
         }
@@ -872,7 +875,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.comments = comments.toList()
 
         // show now
-        commentsAdapter.set(comments, VoteService.NO_VOTES, feedItem.user)
+        commentsAdapter.set(this.comments, VoteService.NO_VOTES, feedItem.user)
 
         val commentId = arguments.getLong(ARG_AUTOSCROLL_COMMENT_ID, 0)
         if (commentId > 0) {
@@ -880,11 +883,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         // load the votes for the comments and update, when we found any
-        voteService.getCommentVotes(comments)
+        voteService.getCommentVotes(this.comments)
                 .filter { votes -> !votes.isEmpty }
                 .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
-                .subscribe { votes -> commentsAdapter.set(comments, votes, feedItem.user) }
+                .subscribe { votes -> commentsAdapter.set(this.comments, votes, feedItem.user) }
     }
 
     /**
@@ -1082,7 +1085,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * Returns true, if the given tag looks like some "loop" tag.
      */
-    private fun isLoopTag(tag: String): Boolean {
+    private fun Api.Tag.isLoopTag(): Boolean {
         val lower = tag.toLowerCase()
         return "loop" in lower && !("verschenkt" in lower || "verkackt" in lower)
     }
