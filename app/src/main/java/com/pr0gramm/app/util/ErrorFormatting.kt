@@ -103,8 +103,8 @@ object ErrorFormatting {
             val actual = Builder(T::class.java).apply(configure).build()
 
             formatters.add(Formatter(
-                    errorCheck = { hasCause<T>(it) && actual.handles(getCause<T>(it)!!) },
-                    message = { err, ctx -> actual.getMessage(ctx, getCause<T>(err)!!) },
+                    errorCheck = { it.hasCauseOfType<T>() && actual.handles(it.getCauseOfType<T>()!!) },
+                    message = { err, ctx -> actual.getMessage(ctx, err.getCauseOfType<T>()!!) },
                     report = actual.shouldSendToCrashlytics()
             ))
         }
@@ -207,8 +207,7 @@ object ErrorFormatting {
 
         formatters.addCaused<ConnectException> {
             silence()
-            format {
-                val err = getCause<ConnectException>(it)!!
+            format { err ->
                 if (":443" in err.toString()) {
                     getString(R.string.error_connect_exception_https, err.localizedMessage)
                 } else {
@@ -273,8 +272,8 @@ object ErrorFormatting {
         return formatters.formatters
     }
 
-    inline private fun <reified T : Throwable> getCause(thr: Throwable?): T? {
-        var current: Throwable? = thr
+    inline fun <reified T : Throwable> Throwable.getCauseOfType(): T? {
+        var current: Throwable? = this
         while (current != null) {
             if (current is T) {
                 return current
@@ -289,8 +288,8 @@ object ErrorFormatting {
     /**
      * Checks if the given throwable or any of it's causes is of the given type.
      */
-    inline private fun <reified T : Throwable> hasCause(thr: Throwable): Boolean {
-        return getCause<T>(thr) != null
+    inline fun <reified T : Throwable> Throwable.hasCauseOfType(): Boolean {
+        return getCauseOfType<T>() != null
     }
 
     private val formatters = makeErrorFormatters()

@@ -15,6 +15,11 @@ import com.pr0gramm.app.feed.FeedManager
 import com.pr0gramm.app.feed.FeedService
 import org.junit.Before
 import org.junit.Test
+import org.slf4j.LoggerFactory
+import rx.Observable
+import rx.Scheduler
+import rx.android.plugins.RxAndroidPlugins
+import rx.android.plugins.RxAndroidSchedulersHook
 import rx.observers.TestSubscriber
 import rx.plugins.RxJavaHooks
 import rx.schedulers.Schedulers
@@ -24,18 +29,31 @@ class FeedManagerTest {
     fun resetRxScheduler() {
         RxJavaHooks.setOnIOScheduler { Schedulers.immediate() }
         RxJavaHooks.setOnComputationScheduler { Schedulers.immediate() }
+        RxAndroidPlugins.getInstance().let { plugins ->
+            plugins.reset()
+            plugins.registerSchedulersHook(object : RxAndroidSchedulersHook() {
+                override fun getMainThreadScheduler(): Scheduler {
+                    return Schedulers.immediate()
+                }
+            })
+        }
+    }
+
+    @Before
+    fun initializeLogging() {
+        try {
+            LoggerFactory.getLogger("Test")
+        } catch(err: Exception) {
+        }
     }
 
     @Test
     fun reload(): Unit {
-        val service = mock<FeedService>() {
-            on { load(any()) } doReturnObservable apiFeed {
-                addItems(apiItem(9), apiItem(8), apiItem(3))
-            }
-
-            on { load(any()) } doReturnObservable apiFeed {
-                addItems(apiItem(5), apiItem(3), apiItem(1))
-            }
+        val service = mock<FeedService> {
+            on { load(any()) }.thenReturn(
+                    Observable.just(apiFeed { addItems(apiItem(9), apiItem(8), apiItem(7)) }),
+                    Observable.just(apiFeed { addItems(apiItem(5), apiItem(3), apiItem(1)) })
+            )
         }
 
         val testSubscriber = TestSubscriber<FeedManager.Update>()
