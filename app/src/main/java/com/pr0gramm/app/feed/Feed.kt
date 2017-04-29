@@ -27,7 +27,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
      */
     fun mergeWith(feed: Api.Feed): Feed {
         val isAtEnd = isAtEnd or feed.isAtEnd
-        val isAtStart = isAtStart or feed.isAtStart
+        val isAtStart = isAtStart or feed.isAtStart or !feedType.sortable
 
         val newItems = mergeItems(feed.items)
         return copy(items = newItems, isAtStart = isAtStart, isAtEnd = isAtEnd)
