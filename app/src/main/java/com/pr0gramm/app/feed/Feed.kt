@@ -3,7 +3,6 @@ package com.pr0gramm.app.feed
 import android.os.Bundle
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
-import java.util.*
 
 /**
  * Represents a feed.
@@ -41,31 +40,33 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
     private fun mergeItems(feedItems: List<Api.Feed.Item>): List<FeedItem> {
         val newItems = feedItems.mapTo(mutableListOf(), ::FeedItem)
 
-        // we can not merge some feeds based on their ids
-        if (!feedType.sortable) {
-            return newItems
-        }
-
-        // get two sorted iterators.
-        val old = PeekingIterator(items.sortedWith(itemComparator).iterator())
-        val new = PeekingIterator(newItems.sortedWith(itemComparator).iterator())
-
         // merge them in the correct order.
         val target = ArrayList<FeedItem>(items.size + newItems.size)
-        while (new.hasNext() && old.hasNext()) {
-            val cmp = itemComparator.compare(new.peek(), old.peek())
-            if (cmp > 0) {
-                target.add(old.next())
-            } else {
-                target.add(new.next())
+
+        if (feedType.sortable) {
+            // get two sorted iterators.
+            val old = PeekingIterator(items.sortedWith(itemComparator).iterator())
+            val new = PeekingIterator(newItems.sortedWith(itemComparator).iterator())
+
+            while (new.hasNext() && old.hasNext()) {
+                val cmp = itemComparator.compare(new.peek(), old.peek())
+                if (cmp > 0) {
+                    target.add(old.next())
+                } else {
+                    target.add(new.next())
+                }
             }
+
+            // just add the rest
+            new.forEach { target.add(it) }
+            old.forEach { target.add(it) }
+        } else {
+            target += this
+            target += newItems
         }
 
-        // just add the rest
-        new.forEach { target.add(it) }
-        old.forEach { target.add(it) }
-
-        return target
+        // verify that we did not at an item twice
+        return target.distinctBy { it.id }
     }
 
     fun feedTypeId(item: FeedItem): Long {

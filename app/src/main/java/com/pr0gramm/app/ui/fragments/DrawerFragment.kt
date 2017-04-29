@@ -156,7 +156,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         navigationProvider.navigationItems()
                 .distinctUntilChanged()
-                .compose<List<NavigationItem>>(bindToLifecycleAsync())
+                .compose(bindToLifecycleAsync())
                 .subscribe(
                         Action1 { navigationAdapter.setNavigationItems(it) },
                         ErrorDialogFragment.defaultOnError())
