@@ -89,22 +89,21 @@ abstract class IdFragmentStatePagerAdapter(private val mFragmentManager: Fragmen
     @SuppressLint("CommitTransaction")
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         val fragment = `object` as Fragment
-        val id = getItemId(position)
 
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction()
         }
 
-        mSavedState.remove(id)
-
         try {
+            val id = getItemId(position)
+            mFragments.remove(id)
+
+            mSavedState.remove(id)
             mSavedState.put(id, mFragmentManager.saveFragmentInstanceState(fragment))
-        } catch (ignored: IllegalStateException) {
+        } catch (ignored: Exception) {
             // looks like this sometimes happen during save if the fragment is not in the
             // fragment manager. We will ignore it.
         }
-
-        mFragments.remove(id)
 
         mCurTransaction?.remove(fragment)
     }
