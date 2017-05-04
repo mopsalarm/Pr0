@@ -47,7 +47,8 @@ function deploy_upload_apk() {
 }
 
 # compile code and create apks
-# ./gradlew clean assembleRelease generateDebugSources "$@"
+rm -rf -- api/build/* app/build/*
+./gradlew assembleRelease generateDebugSources "$@"
 
 deploy_upload_apk
 
