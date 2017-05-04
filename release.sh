@@ -46,22 +46,20 @@ function deploy_upload_apk() {
     filename="${APK_ALIGNED}"
 }
 
-if ${BUILD:-true} ; then
-    # compile code and create apks
-    rm -rf -- api/build/* app/build/*
-    ./gradlew assembleRelease generateDebugSources "$@"
+# compile code and create apks
+rm -rf -- api/build/* app/build/*
+./gradlew assembleRelease generateDebugSources "$@"
 
-    # create tag for this version
-    git tag -a "$(format_version ${VERSION})" \
-            -m "Released version $(format_version ${VERSION})"
+# create tag for this version
+git tag -a "$(format_version ${VERSION})" \
+        -m "Released version $(format_version ${VERSION})"
 
-    # increase app version for further development
-    echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
-    git add app/version.gradle
-    git commit -m "Increase version to $VERSION_NEXT after release"
-    git push
-    git push --tags
-fi
+# increase app version for further development
+echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
+git add app/version.gradle
+git commit -m "Increase version to $VERSION_NEXT after release"
+git push
+git push --tags
 
 deploy_upload_apk
 
