@@ -39,7 +39,7 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
         userService.requestPasswordRecovery(email)
                 .detachSubscription()
                 .compose(bindToLifecycleAsync<Any>())
-                .subscribeWithErrorHandling { requestCompleted() }
+                .subscribeWithErrorHandling(onComplete = { requestCompleted() })
     }
 
     private fun requestCompleted() {

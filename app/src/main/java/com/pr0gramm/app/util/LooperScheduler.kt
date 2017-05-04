@@ -47,10 +47,10 @@ class LooperScheduler private constructor(looper: Looper) : Scheduler() {
             action = hook.onSchedule(action)
 
             // short cut and run now.
-            if (delayTime == 0L && isTargetThread) {
-                action.call()
-                return Subscriptions.unsubscribed()
-            }
+//            if (delayTime == 0L && isTargetThread) {
+//                action.call()
+//                return Subscriptions.unsubscribed()
+//            }
 
             val scheduledAction = ScheduledAction(action, handler)
 

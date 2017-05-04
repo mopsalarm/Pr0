@@ -317,16 +317,8 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
-inline fun <T> T?.dropIf(predicate: (T) -> Boolean): T? {
-    if (this != null && predicate(this)) {
-        return null
-    } else {
-        return this
-    }
-}
-
 fun <T> Observable<T>.detachSubscription(): Observable<T> {
-    return publish().autoConnect(0)
+    return replay(1).autoConnect()
 }
 
 fun Completable.detachSubscription(): Observable<Unit> {

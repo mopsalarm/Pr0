@@ -21,6 +21,7 @@ import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import kotterknife.bindViews
+import rx.lang.kotlin.subscribeBy
 
 /**
  */
@@ -63,7 +64,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
                 .detachSubscription()
                 .compose(bindToLifecycleAsync<Any>())
                 .doAfterTerminate { this.requeryInvites() }
-                .subscribe({ this.onInviteSent() }, { this.onInviteError(it) })
+                .subscribeBy(onCompleted = { this.onInviteSent() }, onError = { this.onInviteError(it) })
 
         Track.inviteSent()
     }

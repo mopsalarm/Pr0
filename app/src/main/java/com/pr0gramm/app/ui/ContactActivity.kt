@@ -121,7 +121,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         response.detachSubscription()
                 .compose(bindToLifecycleAsync<Any>())
                 .withBusyDialog(this)
-                .subscribeWithErrorHandling { onSubmitSuccess() }
+                .subscribeWithErrorHandling(onComplete = { onSubmitSuccess() })
 
         // hide keyboard if still open
         AndroidUtility.hideSoftKeyboard(vText)

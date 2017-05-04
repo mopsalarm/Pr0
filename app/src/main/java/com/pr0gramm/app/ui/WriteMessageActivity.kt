@@ -144,7 +144,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
                     .detachSubscription()
                     .compose(bindToLifecycleAsync<Any>())
                     .lift(BusyDialog.busyDialog<Any>(this))
-                    .doOnCompleted({ this.finishAfterSending() })
+                    .doOnCompleted { finishAfterSending() }
                     .subscribeWithErrorHandling()
 
             Track.writeMessage()
