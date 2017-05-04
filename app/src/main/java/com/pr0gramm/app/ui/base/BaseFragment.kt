@@ -3,14 +3,19 @@ package com.pr0gramm.app.ui.base
 import android.content.Context
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
+import com.pr0gramm.app.ui.dialogs.OnComplete
+import com.pr0gramm.app.ui.dialogs.OnNext
+import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.android.FragmentEvent
 import com.trello.rxlifecycle.components.support.RxFragment
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import rx.Observable
+import rx.Subscription
 
 /**
- * A robo fragment that provides lifecycle events as an observable.
+ * A fragment that provides lifecycle events as an observable.
  */
 abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, SupportFragmentInjector {
     protected val logger: Logger = LoggerFactory.getLogger(name)
@@ -45,5 +50,11 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, SupportF
     override fun onDestroyView() {
         super.onDestroyView()
         this.viewCache.reset()
+    }
+
+    fun <T> Observable<T>.subscribeWithErrorHandling(
+            onComplete: OnComplete = {}, onNext: OnNext<T> = {}): Subscription {
+
+        return subscribeWithErrorHandling(childFragmentManager, onComplete, onNext)
     }
 }

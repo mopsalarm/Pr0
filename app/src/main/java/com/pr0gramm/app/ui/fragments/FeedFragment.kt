@@ -541,8 +541,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
 
         val items = feedAdapter.feed
+        if (items.isEmpty()) {
+            return null
+        }
 
-        recyclerViewLayoutManager?.let { layoutManager ->
+        return recyclerViewLayoutManager?.let { layoutManager ->
             val adapter = recyclerView.adapter as MergeRecyclerAdapter
             val offset = adapter.getOffset(feedAdapter) ?: 0
 
@@ -552,13 +555,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 return null
 
             val lastCompletelyVisible = layoutManager.findLastCompletelyVisibleItemPosition() - offset
-            if (lastCompletelyVisible != RecyclerView.NO_POSITION) {
-                val idx = (lastCompletelyVisible - offset).coerceIn(items.indices)
-                return items.take(idx).lastOrNull { contentType.contains(it.contentType) }
-            }
-        }
+            if (lastCompletelyVisible == RecyclerView.NO_POSITION)
+                return null
 
-        return null
+            val idx = (lastCompletelyVisible - offset).coerceIn(items.indices)
+            return items.take(idx).lastOrNull { contentType.contains(it.contentType) }
+        }
     }
 
     /**

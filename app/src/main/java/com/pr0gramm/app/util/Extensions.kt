@@ -22,6 +22,7 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonPrimitive
 import com.pr0gramm.app.BuildConfig
 import org.slf4j.Logger
+import rx.Completable
 import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -323,3 +324,13 @@ inline fun <T> T?.dropIf(predicate: (T) -> Boolean): T? {
         return this
     }
 }
+
+fun <T> Observable<T>.detachSubscription(): Observable<T> {
+    return publish().autoConnect(0)
+}
+
+fun Completable.detachSubscription(): Observable<Unit> {
+    return toObservable<Unit>().detachSubscription()
+}
+
+

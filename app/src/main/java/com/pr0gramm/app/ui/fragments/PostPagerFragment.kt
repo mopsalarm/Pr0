@@ -185,11 +185,13 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     }
 
     internal fun saveStateToBundle(outState: Bundle) {
-        val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
+        if (adapter.feed.isNotEmpty()) {
+            val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
 
-        val item = adapter.feed[position]
-        outState.putParcelable(ARG_START_ITEM, item)
-        outState.putParcelable(ARG_FEED, adapter.feed.persist(position))
+            val item = adapter.feed[position]
+            outState.putParcelable(ARG_START_ITEM, item)
+            outState.putParcelable(ARG_FEED, adapter.feed.persist(position))
+        }
     }
 
     /**

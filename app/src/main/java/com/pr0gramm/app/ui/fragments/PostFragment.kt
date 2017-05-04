@@ -40,7 +40,6 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
 import com.pr0gramm.app.ui.views.CommentPostLine
@@ -59,8 +58,6 @@ import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
 import rx.android.schedulers.AndroidSchedulers.mainThread
-import rx.functions.Action0
-import rx.functions.Action1
 import rx.subjects.BehaviorSubject
 
 /**
@@ -300,7 +297,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         voteService.postComment(feedItem, 0, text)
                 .compose(bindToLifecycleAsync())
                 .lift(BusyDialog.busyDialog(activity))
-                .subscribe(Action1 { this.onNewComments(it) }, defaultOnError())
+                .subscribeWithErrorHandling { onNewComments(it) }
 
         AndroidUtility.hideSoftKeyboard(view)
     }
@@ -515,7 +512,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         (activity as PermissionHelperActivity)
                 .requirePermission(WRITE_EXTERNAL_STORAGE)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY))
-                .subscribe(Action1 { downloadPostWithPermissionGranted() }, defaultOnError())
+                .subscribeWithErrorHandling { downloadPostWithPermissionGranted() }
     }
 
     private fun downloadPostWithPermissionGranted() {
@@ -549,7 +546,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun loadPostDetails() {
         feedService.post(feedItem.id())
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .subscribe(Action1 { onPostReceived(it) }, defaultOnError())
+                .subscribeWithErrorHandling { onPostReceived(it) }
     }
 
     private fun initializeInfoLine() {
@@ -579,8 +576,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                             showPostVoteAnimation(vote)
 
                             voteService.vote(feedItem, vote)
-                                    .compose(bindToLifecycleAsync<Any>().forCompletable())
-                                    .subscribe(Action0 {}, defaultOnError())
+                                    .detachSubscription()
+                                    .compose(bindToLifecycleAsync<Any>())
+                                    .subscribeWithErrorHandling()
                         }
 
                         val retry = Runnable { infoView.voteView.vote = vote }
@@ -591,9 +589,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     infoView.tagVoteListener = { tag, vote ->
                         val action = Runnable {
                             voteService.vote(tag, vote)
-                                    .compose(bindToLifecycleAsync<Any>().forCompletable())
+                                    .detachSubscription()
+                                    .compose(bindToLifecycleAsync<Any>())
                                     .doAfterTerminate({ infoView.addVote(tag, vote) })
-                                    .subscribe(Action0 {}, defaultOnError())
+                                    .subscribeWithErrorHandling()
                         }
 
                         doIfAuthorizedHelper.run(action, action)
@@ -904,14 +903,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         voteService.tag(feedItem, tags)
                 .compose(bindToLifecycleAsync())
                 .lift(BusyDialog.busyDialog(activity))
-                .subscribe(Action1 { displayTags(it) }, defaultOnError())
+                .subscribeWithErrorHandling { displayTags(it) }
     }
 
     override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
         return doIfAuthorizedHelper.run(Runnable {
             voteService.vote(comment, vote)
-                    .compose(bindToLifecycleAsync<Any>().forCompletable())
-                    .subscribe(Action0 {}, defaultOnError())
+                    .detachSubscription()
+                    .compose(bindToLifecycleAsync<Any>())
+                    .subscribeWithErrorHandling()
         })
     }
 
@@ -931,15 +931,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onCommentMarkAsFavoriteClicked(comment: Api.Comment, markAsFavorite: Boolean) {
-        val result: Completable
+        val operationCompletable: Completable
         if (markAsFavorite) {
-            result = favedCommentService.save(feedItem, comment)
+            operationCompletable = favedCommentService.save(feedItem, comment)
         } else {
-            result = favedCommentService.delete(comment.id)
+            operationCompletable = favedCommentService.delete(comment.id)
         }
 
-        result.compose(bindUntilEventAsync<Void>(FragmentEvent.DESTROY_VIEW).forCompletable())
-                .subscribe(Action0 {}, defaultOnError())
+        operationCompletable
+                .detachSubscription()
+                .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
+                .subscribeWithErrorHandling()
 
         if (singleShotService.isFirstTime("kfav-userscript-hint")) {
             showDialog(context) {

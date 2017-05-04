@@ -11,6 +11,7 @@ import com.pr0gramm.app.util.ErrorFormatting
 import org.slf4j.LoggerFactory
 import rx.functions.Action1
 import java.lang.ref.WeakReference
+import java.util.concurrent.CancellationException
 
 /**
  * This dialog fragment shows and error to the user.
@@ -53,6 +54,11 @@ class ErrorDialogFragment : DialogFragment() {
 
         private fun processError(error: Throwable, handler: OnErrorDialogHandler?) {
             logger.error("An error occurred", error)
+
+            if (error is CancellationException) {
+                logger.warn("Ignoring cancellation exception.")
+                return
+            }
 
             try {
                 // do some checking so we don't log this exception twice

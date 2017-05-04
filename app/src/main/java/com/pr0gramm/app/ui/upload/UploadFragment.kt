@@ -35,7 +35,6 @@ import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.Truss
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
@@ -46,9 +45,9 @@ import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Observable
-import rx.functions.Action1
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 /**
  * This activity performs the actual upload.
@@ -318,10 +317,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
         uploadService.downsize(file!!)
                 .compose(bindToLifecycleAsync<File>())
                 .withBusyDialog(this)
-                .subscribe(Action1 { newFile ->
+                .subscribeWithErrorHandling { newFile ->
                     handleImageUri(Uri.fromFile(newFile))
                     imageShrankSuccess()
-                }, defaultOnError())
+                }
     }
 
     @MainThread
@@ -390,8 +389,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 FileOutputStream(target).use { output ->
                     output.write(bytes, 0, count)
 
-                    val copied = ByteStreams.copy(input, output)
+                    val maxSize = 1024L * 1024 * 24
+                    val copied = ByteStreams.copy(ByteStreams.limit(input, maxSize), output)
                     logger.info("Copied {}kb", copied / 1024)
+
+                    if (copied == maxSize) {
+                        throw IOException("File too large.")
+                    }
                 }
 
                 target

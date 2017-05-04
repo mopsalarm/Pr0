@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import com.github.salomonbrys.kodein.instance
-
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
@@ -18,12 +17,10 @@ import com.pr0gramm.app.parcel.NewCommentParceler
 import com.pr0gramm.app.parcel.core.Parceler
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.BusyDialog
+import com.pr0gramm.app.util.detachSubscription
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
-import rx.functions.Action0
-import rx.functions.Action1
 import java.util.*
 
 /**
@@ -129,24 +126,26 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val itemId = itemId
 
             voteService.postComment(itemId, parentComment, message)
+                    .detachSubscription()
                     .compose(bindToLifecycleAsync())
                     .lift(BusyDialog.busyDialog(this))
                     .doOnCompleted { this.finishAfterSending() }
-                    .subscribe(Action1 { newComments ->
+                    .subscribeWithErrorHandling { newComments ->
                         val result = Intent()
                         result.putExtra(RESULT_EXTRA_NEW_COMMENT, NewCommentParceler(newComments))
                         setResult(Activity.RESULT_OK, result)
-                    }, defaultOnError())
+                    }
 
             Track.writeComment()
 
         } else {
             // now send message
             inboxService.send(receiverId, message)
-                    .compose(bindToLifecycleAsync<Any>().forCompletable())
-                    .lift(BusyDialog.busyDialog<Any>(this).forCompletable())
+                    .detachSubscription()
+                    .compose(bindToLifecycleAsync<Any>())
+                    .lift(BusyDialog.busyDialog<Any>(this))
                     .doOnCompleted({ this.finishAfterSending() })
-                    .subscribe(Action0 {}, defaultOnError())
+                    .subscribeWithErrorHandling()
 
             Track.writeMessage()
         }

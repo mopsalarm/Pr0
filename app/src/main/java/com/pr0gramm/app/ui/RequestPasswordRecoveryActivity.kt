@@ -6,14 +6,12 @@ import android.widget.Button
 import android.widget.EditText
 import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.widget.textChanges
-
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.util.detachSubscription
 import kotterknife.bindView
-import rx.functions.Action0
 
 class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRecoveryActivity") {
     private val email: EditText by bindView(R.id.email)
@@ -39,8 +37,9 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
     fun submitButtonClicked() {
         val email = this.email.text.toString().trim()
         userService.requestPasswordRecovery(email)
-                .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .subscribe(Action0 { this.requestCompleted() }, defaultOnError())
+                .detachSubscription()
+                .compose(bindToLifecycleAsync<Any>())
+                .subscribeWithErrorHandling { requestCompleted() }
     }
 
     private fun requestCompleted() {

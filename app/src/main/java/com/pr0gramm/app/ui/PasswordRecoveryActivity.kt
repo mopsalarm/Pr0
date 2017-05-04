@@ -6,15 +6,13 @@ import android.widget.EditText
 import com.github.salomonbrys.kodein.instance
 import com.google.code.regexp.Pattern
 import com.jakewharton.rxbinding.widget.RxTextView
-
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.util.detachSubscription
 import kotterknife.bindView
-import rx.functions.Action1
 
 class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity") {
     private lateinit var user: String
@@ -49,8 +47,9 @@ class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity
     fun submitButtonClicked() {
         val password = this.password.text.toString().trim()
         userService.resetPassword(user, token, password)
+                .detachSubscription()
                 .compose(bindToLifecycleAsync())
-                .subscribe(Action1 { this.requestCompleted(it) }, defaultOnError())
+                .subscribeWithErrorHandling { requestCompleted(it) }
     }
 
     private fun requestCompleted(success: Boolean) {

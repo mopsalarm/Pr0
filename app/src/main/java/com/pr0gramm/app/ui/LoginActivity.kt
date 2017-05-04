@@ -29,7 +29,6 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
@@ -40,7 +39,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.Weeks
 import retrofit2.HttpException
 import rx.Observable
-import rx.functions.Action1
 
 /**
  */
@@ -135,7 +133,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
                 .interceptLoginFailures()
                 .doOnSubscribe { enableView(false) }
                 .doOnError { enableView(true) }
-                .subscribe(Action1 { this.handleLoginResult(it) }, defaultOnError())
+                .subscribeWithErrorHandling { handleLoginResult(it) }
     }
 
     private fun Observable<Api.Login>.interceptLoginFailures(): Observable<LoginResult> {

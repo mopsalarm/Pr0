@@ -24,15 +24,14 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.pr0gramm.app.util.CustomTabsHelper
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.pr0gramm.app.util.use
 import com.pr0gramm.app.util.visible
-import rx.functions.Action1
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -157,9 +156,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         navigationProvider.navigationItems()
                 .distinctUntilChanged()
                 .compose(bindToLifecycleAsync())
-                .subscribe(
-                        Action1 { navigationAdapter.setNavigationItems(it) },
-                        ErrorDialogFragment.defaultOnError())
+                .retryWhen { err -> err.delay(5, TimeUnit.SECONDS) }
+                .subscribe { navigationAdapter.setNavigationItems(it) }
     }
 
     private fun onLoginStateChanged(state: UserService.LoginState) {

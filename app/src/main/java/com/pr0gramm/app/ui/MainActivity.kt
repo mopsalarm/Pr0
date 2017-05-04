@@ -32,20 +32,19 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.detachSubscription
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.android.schedulers.AndroidSchedulers.mainThread
-import rx.functions.Action0
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -436,8 +435,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         val logout_successful_hint = R.string.logout_successful_hint
         userService.logout()
-                .compose(bindToLifecycleAsync<Any>().forCompletable())
-                .lift(BusyDialog.busyDialog<Any>(this).forCompletable())
+                .detachSubscription()
+                .compose(bindToLifecycleAsync<Any>())
+                .lift(BusyDialog.busyDialog<Any>(this))
                 .doOnCompleted {
                     // show a short information.
                     Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
@@ -447,7 +447,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     // reset everything!
                     gotoFeedFragment(defaultFeedFilter(), true)
                 }
-                .subscribe(Action0 {}, defaultOnError())
+                .subscribeWithErrorHandling()
     }
 
     private fun defaultFeedFilter(): FeedFilter {

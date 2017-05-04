@@ -274,8 +274,13 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         } else {
             callbacks.onVideoError(messageChain, VideoPlayer.ErrorKind.UNKNOWN)
 
-            // send to crashlytics, i want to have a look.
-            AndroidUtility.logToCrashlytics(rootCause)
+            val errString = rootCause.toString()
+
+            val blacklisted = listOf("dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_").any { it in errString }
+            if (!blacklisted) {
+                // send to crashlytics, i want to have a look.
+                AndroidUtility.logToCrashlytics(rootCause)
+            }
         }
 
         // try to reset the player

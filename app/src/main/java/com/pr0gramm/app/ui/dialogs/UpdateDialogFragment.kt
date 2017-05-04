@@ -12,7 +12,6 @@ import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
-import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
 import com.pr0gramm.app.util.arguments
 import com.trello.rxlifecycle.android.ActivityEvent
@@ -20,7 +19,6 @@ import org.joda.time.Duration.standardHours
 import org.joda.time.Instant
 import org.joda.time.Instant.now
 import rx.Observable
-import rx.functions.Action1
 
 /**
  */
@@ -84,11 +82,11 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
                     .doAfterTerminate(storeCheckTime)
                     .compose(activity.bindUntilEventAsync<Update?>(ActivityEvent.STOP))
                     .run { busyOperator?.let { lift(it) } ?: this }
-                    .subscribe(Action1 { update ->
+                    .subscribeWithErrorHandling(activity.supportFragmentManager) { update ->
                         if (interactive || update != null) {
                             newInstance(update).show(activity.supportFragmentManager, null)
                         }
-                    }, defaultOnError())
+                    }
         }
 
         private val KEY_LAST_UPDATE_CHECK = "UpdateDialogFragment.lastUpdateCheck"
