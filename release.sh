@@ -46,22 +46,24 @@ function deploy_upload_apk() {
     filename="${APK_ALIGNED}"
 }
 
-# compile code and create apks
-rm -rf -- api/build/* app/build/*
-./gradlew assembleRelease generateDebugSources "$@"
+if ${BUILD:-true} ; then
+    # compile code and create apks
+    rm -rf -- api/build/* app/build/*
+    ./gradlew assembleRelease generateDebugSources "$@"
+
+    # create tag for this version
+    git tag -a "$(format_version ${VERSION})" \
+            -m "Released version $(format_version ${VERSION})"
+
+    # increase app version for further development
+    echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
+    git add app/version.gradle
+    git commit -m "Increase version to $VERSION_NEXT after release"
+    git push
+    git push --tags
+fi
 
 deploy_upload_apk
-
-# create tag for this version
-git tag -a "$(format_version ${VERSION})" \
-        -m "Released version $(format_version ${VERSION})"
-
-# increase app version for further development
-echo "ext { appVersion = $VERSION_NEXT }" > app/version.gradle
-git add app/version.gradle
-git commit -m "Increase version to $VERSION_NEXT after release"
-git push
-git push --tags
 
 # link to the release manager
 echo "Go to the release manager at https://$UPLOAD_AUTH@app.pr0gramm.com/update-manager/"
