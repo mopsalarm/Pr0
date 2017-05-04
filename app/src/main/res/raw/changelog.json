@@ -1,5 +1,26 @@
 [
   {
+    "version": 125,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Tags werden wieder bei Uploads korrekt gesetzt."
+      },
+      {
+        "type": "Fix",
+        "change": "CancellationException behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Caching der Benutzerinformationen gefixt."
+      },
+      {
+        "type": "Fix",
+        "change": "Weitere Bugfixes."
+      }
+    ]
+  },
+  {
     "version": 124,
     "changes": [
       {

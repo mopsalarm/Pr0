@@ -6,6 +6,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -14,8 +15,8 @@ import java.util.concurrent.atomic.AtomicReference
  * deltas might arise because of cha0s own caching.
  */
 class InMemoryCacheService {
-    private val tagsCache = LruCache<Long, List<Api.Tag>>(256)
-    private val userInfoCache = LruCache<String, EnhancedUserInfo>(24)
+    private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
+    private val userInfoCache = LruCache<String, ExpiringValue<EnhancedUserInfo>>(24)
 
     private val repostCache = AtomicReference(LongArray(0))
 
@@ -27,7 +28,7 @@ class InMemoryCacheService {
      * @return A list containing all previously seen tags for this item.
      */
     fun enhanceTags(itemId: Long, tags: List<Api.Tag>): List<Api.Tag> {
-        val result = tagsCache.get(itemId)?.let { cached ->
+        val result = tagsCache.get(itemId)?.value?.let { cached ->
             if (tags.isNotEmpty()) {
                 (HashSet(cached) + tags).toList()
             } else {
@@ -35,7 +36,7 @@ class InMemoryCacheService {
             }
         } ?: tags.toList()
 
-        tagsCache.put(itemId, result)
+        tagsCache.put(itemId, ExpiringValue(result, 5, TimeUnit.MINUTES))
         return result
     }
 
@@ -70,7 +71,7 @@ class InMemoryCacheService {
     fun cacheUserInfo(contentTypes: Set<ContentType>, info: EnhancedUserInfo) {
         val name = info.info.user.name.trim().toLowerCase()
         val key = name + ContentType.combine(contentTypes)
-        userInfoCache.put(key, info)
+        userInfoCache.put(key, ExpiringValue(info, 1, TimeUnit.MINUTES))
     }
 
     /**
@@ -78,7 +79,7 @@ class InMemoryCacheService {
      */
     fun getUserInfo(contentTypes: Set<ContentType>, name: String): EnhancedUserInfo? {
         val key = name.trim().toLowerCase() + ContentType.combine(contentTypes)
-        return userInfoCache[key]
+        return userInfoCache[key]?.value
     }
 
     /**
@@ -90,5 +91,14 @@ class InMemoryCacheService {
                     .tag(tag).id(0).confidence(0.5f)
                     .build()
         })
+    }
+
+    private class ExpiringValue<out T : Any>(value: T, expireTime: Long, timeUnit: TimeUnit) {
+        private val deadline: Long = System.currentTimeMillis() + timeUnit.toMillis(expireTime)
+
+        val expired: Boolean get() = System.currentTimeMillis() > deadline
+
+        val value: T? = value
+            get() = field.takeIf { !expired }
     }
 }
