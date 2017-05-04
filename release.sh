@@ -6,7 +6,8 @@ VERSION=$(egrep -o '[0-9]+' <app/version.gradle)
 
 VERSION_NEXT=$(( VERSION + 1 ))
 VERSION_PREVIOUS=$(curl -s https://app.pr0gramm.com/beta/open/update.json | jq .version)
-UPLOAD_AUTH=$(<upload_auth)
+
+source upload_auth
 
 # check if we are clear to go
 if [ -n "$(git status --porcelain)" ] ; then
@@ -17,7 +18,7 @@ fi
 
 echo "Release steps:"
 echo " * Start release of version $VERSION (current beta is $VERSION_PREVIOUS)"
-echo " * Upload apk to the update manager using auth '$UPLOAD_AUTH'"
+echo " * Upload apk to the update manager using auth $CREDENTIALS_UPDATE'"
 echo " * Create tag for version v$VERSION"
 echo " * Increase version to $VERSION_NEXT"
 echo ""
@@ -36,12 +37,17 @@ function deploy_upload_apk() {
   local APK_UNALIGNED=app/build/outputs/apk/app-release-unaligned.apk
 
   echo "Upload apk file now..."
-  curl -u "$UPLOAD_AUTH" -F apk=@"${APK_ALIGNED}" \
+  curl -u "$CREDENTIALS_UPDATE" -F apk=@"${APK_ALIGNED}" \
     https://app.pr0gramm.com/update-manager/upload
+
+  echo "Upload apk file to github"
+  ./upload.sh github_api_token="${CREDENTIALS_GITHUB}" \
+    owner="mopsalarm" repo="pr0" tag="$(format_version ${VERSION})" \
+    filename="${APK_ALIGNED}"
 }
 
 # compile code and create apks
-./gradlew clean assembleRelease generateDebugSources "$@"
+# ./gradlew clean assembleRelease generateDebugSources "$@"
 
 deploy_upload_apk
 
