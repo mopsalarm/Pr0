@@ -218,7 +218,7 @@ class UploadService(private val api: Api,
     }
 
     private fun isValidTag(tag: String): Boolean {
-        return tag in INVALID_TAGS || tag.length < 2 || tag.length > 32
+        return !(tag in INVALID_TAGS || tag.length < 2 || tag.length > 32)
     }
 
     class UploadInfo(val key: String? = null,
