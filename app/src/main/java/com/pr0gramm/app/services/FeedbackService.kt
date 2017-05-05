@@ -82,7 +82,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             // convert result to a string
             return result.toString()
 
-        } catch (err: Exception) {
+        } catch (err: Throwable) {
             return "Could not generate logcat: " + err
         }
     }
@@ -94,7 +94,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
                 result.append("codec: ").append(info.name).append("\n")
             }
 
-        } catch (ignored: MediaCodecUtil.DecoderQueryException) {
+        } catch (ignored: Throwable) {
             result.append("codec: could not query codecs.\n")
         }
 

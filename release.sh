@@ -64,4 +64,4 @@ git push --tags
 deploy_upload_apk
 
 # link to the release manager
-echo "Go to the release manager at https://$UPLOAD_AUTH@app.pr0gramm.com/update-manager/"
+echo "Go to the release manager at https://$CREDENTIALS_UPDATE@app.pr0gramm.com/update-manager/"
