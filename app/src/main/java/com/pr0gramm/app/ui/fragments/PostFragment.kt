@@ -143,12 +143,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
+        adminMode = userService.userIsAdmin
+
         // check if we are admin or not
-        userService.loginState()
-                .filter { it.admin }
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe({ adminMode = true })
+        userService.loginState().observeOn(mainThread()).compose(bindToLifecycle()).subscribe {
+            adminMode = it.admin
+            activity?.supportInvalidateOptionsMenu()
+        }
     }
 
     private fun activeState(): Observable<Boolean> {
