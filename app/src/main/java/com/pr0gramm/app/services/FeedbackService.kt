@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Base64
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Charsets
+import com.google.common.base.Throwables
 import com.google.common.io.CharStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Nothing
@@ -62,46 +63,39 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     }
 
     private fun payload(): String {
-        try {
-            val result = StringBuilder()
+        val result = StringBuilder()
 
-            appendDeviceInfo(result)
+        fun add(name: String, block: (StringBuilder) -> Unit) {
+            try {
+                block(result)
+            } catch(thr: Throwable) {
+                result.append("Error while adding $name:")
+                result.append(Throwables.getStackTraceAsString(thr))
+            }
             result.append("\n\n")
-
-            appendMemoryInfo(result)
-            result.append("\n\n")
-
-            appendCodecInfo(result)
-            result.append("\n\n")
-
-            appendPreferences(result)
-            result.append("\n\n")
-
-            appendLogcat(result)
-
-            // convert result to a string
-            return result.toString()
-
-        } catch (err: Throwable) {
-            return "Could not generate logcat: " + err
         }
+
+        add("device info", this::appendDeviceInfo)
+        add("memory info", this::appendMemoryInfo)
+        add("codec info", this::appendCodecInfo)
+        add("preferences", this::appendPreferences)
+        add("logcat", this::appendLogcat)
+
+        // convert result to a string
+        return result.toString()
     }
 
     private fun appendCodecInfo(result: StringBuilder) {
-        try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             val decoderInfos = MediaCodecUtil.getDecoderInfos("video/avc", false)
             for (info in decoderInfos) {
                 result.append("codec: ").append(info.name).append("\n")
             }
-
-        } catch (ignored: Throwable) {
-            result.append("codec: could not query codecs.\n")
         }
-
     }
 
     private fun appendPreferences(result: StringBuilder) {
-        Settings.get().raw().all.forEach { name, value ->
+        Settings.get().raw().all.forEach { (name, value) ->
             if (name.startsWith("pref_")) {
                 result.append(name).append(": ").append(value).append("\n")
             }
