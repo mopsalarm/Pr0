@@ -269,7 +269,7 @@
     <string name="rules_title">The rules</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
-    <string name="hint_block_user_for">Block user for (days)</string>
+    <string name="hint_block_user_for">Ban user for (days)</string>
     <string name="notify_user">Notify user</string>
     <string name="reason">Reason</string>
     <string name="delete">Delete</string>
@@ -415,5 +415,7 @@
     <string name="hint_dont_like_ads">Sorry,\nyou don\'t like ads?</string>
     <string name="error_check_file_permission">The app could not read selected image file. Please check the app\'s filesystem permissions.</string>
     <string name="error_generic">An error occurred.</string>
+    <string name="hint_block_treeup">Ban TreeUp (inviters)</string>
+    <string name="block_user">Ban user</string>
 </resources>
 

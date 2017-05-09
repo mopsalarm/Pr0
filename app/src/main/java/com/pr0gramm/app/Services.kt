@@ -35,7 +35,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance(), instance()) }
 
-    bind<AdminService>() with singleton { AdminService(instance()) }
+    bind<AdminService>() with singleton { AdminService(instance(), instance()) }
     bind<AdService>() with singleton { AdService(instance(), instance()) }
     bind<ContactService>() with singleton { ContactService(instance()) }
     bind<DownloadService>() with singleton { DownloadService(instance(), instance(), instance(), instance()) }

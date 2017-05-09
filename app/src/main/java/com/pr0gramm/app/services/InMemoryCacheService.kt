@@ -17,8 +17,17 @@ import java.util.concurrent.atomic.AtomicReference
 class InMemoryCacheService {
     private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
     private val userInfoCache = LruCache<String, ExpiringValue<EnhancedUserInfo>>(24)
-
     private val repostCache = AtomicReference(LongArray(0))
+
+    /**
+     * Invalidates all caches
+     */
+    @Synchronized
+    fun invalidate() {
+        tagsCache.evictAll()
+        userInfoCache.evictAll()
+        repostCache.set(LongArray(0))
+    }
 
     /**
      * Caches (or enhanced) a list of tags for the given itemId.

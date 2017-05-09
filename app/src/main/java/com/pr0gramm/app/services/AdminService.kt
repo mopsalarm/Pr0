@@ -11,12 +11,11 @@ import rx.Observable
 /**
  */
 
-class AdminService(private val api: Api) {
+class AdminService(private val api: Api, private val cacheService: InMemoryCacheService) {
     fun tagsDetails(itemId: Long): Observable<Api.TagDetails> {
         return api.tagDetails(itemId)
     }
 
-    @JvmOverloads
     fun deleteItem(item: FeedItem, reason: String, notifyUser: Boolean, blockDays: Float? = null): Completable {
         val pNotifyUser = if (notifyUser) "on" else null
         val blockUser = if (blockDays != null && blockDays >= 0) "on" else null
@@ -27,9 +26,20 @@ class AdminService(private val api: Api) {
     }
 
     fun deleteTags(itemId: Long, tagIds: TLongSet, blockDays: Float?): Completable {
+        cacheService.invalidate()
+
         val pBlockUser = if (blockDays != null) "on" else null
         return api
                 .deleteTag(null, itemId, pBlockUser, blockDays, Longs.asList(*tagIds.toArray()))
+                .toCompletable()
+    }
+
+    fun banUser(name: String, reason: String, blockDays: Float, treeup: Boolean): Completable {
+        cacheService.invalidate()
+
+        val mode: Int? = if (treeup) null else 1
+        return api
+                .userBan(null, name, "custom", reason, blockDays, mode)
                 .toCompletable()
     }
 

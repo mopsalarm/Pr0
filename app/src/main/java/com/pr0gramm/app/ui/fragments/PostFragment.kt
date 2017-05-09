@@ -610,7 +610,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     @OnOptionsItemSelected(R.id.action_delete_item)
     fun showDeleteItemDialog() {
-        val dialog = ItemAdminDialog.newInstance(feedItem)
+        val dialog = ItemUserAdminDialog.forItem(feedItem)
         dialog.show(fragmentManager, null)
     }
 

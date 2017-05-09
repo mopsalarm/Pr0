@@ -142,6 +142,16 @@ public interface Api {
             @Field("banUser") String banUser,
             @Field("days") Float days);
 
+    @FormUrlEncoded
+    @POST("api/user/ban")
+    Observable<Nothing> userBan(
+            @Field("_nonce") Nonce none,
+            @Field("name") String name,
+            @Field("reason") String reason,
+            @Field("customReason") String customReason,
+            @Field("days") float days,
+            @Field("mode") Integer mode);
+
     @GET("api/tags/details")
     Observable<TagDetails> tagDetails(@Query("itemId") long itemId);
 

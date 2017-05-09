@@ -14,12 +14,10 @@ import android.widget.ImageView
 import android.widget.ScrollView
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
-import com.google.android.gms.ads.MobileAds
 import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.google.gson.JsonSyntaxException
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.empty
 import com.pr0gramm.app.Settings
@@ -601,8 +599,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         menu.findItem(R.id.action_preload)
                 ?.isVisible = feedType.preloadable && !AndroidUtility.isOnMobile(activity)
 
-        menu.findItem(R.id.action_ad_info)
-                ?.isVisible = BuildConfig.DEBUG
+        menu.findItem(R.id.action_block_user)
+                ?.isVisible = userService.userIsAdmin && activeUsername != null
 
         menu.findItem(R.id.action_feedtype)?.let { item ->
             item.isVisible = !filter.isBasic && EnumSet.of(FeedType.PROMOTED, FeedType.NEW, FeedType.PREMIUM).contains(feedType)
@@ -757,9 +755,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    @OnOptionsItemSelected(R.id.action_ad_info)
-    fun onOpenAdInfoClicked() {
-        MobileAds.openDebugMenu(context, getString(R.string.banner_ad_unit_id))
+    @OnOptionsItemSelected(R.id.action_block_user)
+    fun onBlockUserClicked() {
+        activeUsername?.let { name ->
+            val dialog = ItemUserAdminDialog.forUser(name)
+            dialog.show(fragmentManager, "BlockUserDialog")
+        }
     }
 
     fun performSearch(query: SearchOptionsView.SearchQuery) {

@@ -21,14 +21,6 @@
         android:layout_marginRight="8dp"
         android:hint="@string/reason"/>
 
-    <CheckBox
-        android:id="@+id/notify_user"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:checked="true"
-        android:text="@string/notify_user"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -49,7 +41,6 @@
             android:text="1"
             tools:ignore="HardcodedText"/>
     </LinearLayout>
-
 
     <CheckBox
         android:id="@+id/block_treeup"
