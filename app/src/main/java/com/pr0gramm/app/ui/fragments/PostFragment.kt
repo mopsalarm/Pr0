@@ -949,7 +949,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 content(R.string.hint_kfav_userscript)
                 positive(R.string.open_website) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"))
-                    context.startActivity(intent)
+                    context?.startActivity(intent)
                 }
 
                 negative(R.string.ignore)
