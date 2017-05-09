@@ -46,9 +46,12 @@ class AdminService(private val api: Api) {
                 "Regel #6 - Infos zu Privatpersonen",
                 "Regel #7 - Bildqualität",
                 "Regel #8 - Ähnliche Bilder in Reihe",
+                "Regel #11 - Multiaccount",
                 "Regel #12 - Warez/Logins zu Pay Sites",
                 "Regel #14 - Screamer/Sound-getrolle",
                 "Regel #15 - reiner Musikupload",
+                "DCMA Anfrage",
+                "Müllpost",
                 "Trollscheiße.")
     }
 
