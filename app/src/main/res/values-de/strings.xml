@@ -398,4 +398,5 @@
     <string name="error_generic">Es ist ein Fehler aufgetreten.</string>
     <string name="block_user">Benutzer sperren</string>
     <string name="hint_block_treeup">TreeUp sperren (Einlader)</string>
+    <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
 </resources>

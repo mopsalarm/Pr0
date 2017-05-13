@@ -166,13 +166,21 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             }
 
             is LoginResult.Banned -> {
-                val date = DateUtils.getRelativeDateTimeString(this,
-                        response.ban.till().toDateTime(DateTimeZone.getDefault()),
-                        Weeks.ONE,
-                        DateUtils.FORMAT_SHOW_DATE)
+                val date = response.ban.endTime()?.let { date ->
+                    DateUtils.getRelativeDateTimeString(this,
+                            date.toDateTime(DateTimeZone.getDefault()),
+                            Weeks.ONE,
+                            DateUtils.FORMAT_SHOW_DATE)
+                }
 
                 val reason = response.ban.reason()
-                showErrorString(supportFragmentManager, getString(R.string.banned, date, reason))
+                val message = if (date == null) {
+                    getString(R.string.banned_forever, reason)
+                } else {
+                    getString(R.string.banned, date, reason)
+                }
+
+                showErrorString(supportFragmentManager, message)
             }
 
             is LoginResult.Failure -> {

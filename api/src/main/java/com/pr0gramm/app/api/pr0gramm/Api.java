@@ -374,7 +374,9 @@ public interface Api {
         interface BanInfo {
             boolean banned();
 
-            Instant till();
+            @Nullable
+            @SerializedName("till")
+            Instant endTime();
 
             String reason();
         }
