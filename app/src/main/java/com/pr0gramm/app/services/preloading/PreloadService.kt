@@ -259,16 +259,18 @@ class PreloadService : KodeinIntentService("PreloadService") {
         val request = Request.Builder().get().url(uri.toString()).build()
         val response = httpClient.newCall(request).execute()
 
-        val contentLength = response.body().contentLength()
+        response.body()?.let { body ->
+            val contentLength = body.contentLength()
 
-        response.body().byteStream().use { inputStream ->
-            FileOutputStream(targetFile).use { outputStream ->
-                if (contentLength < 0) {
-                    progress(0.0f)
-                    ByteStreams.copy(inputStream, outputStream)
-                    progress(1.0f)
-                } else {
-                    copyWithProgress(progress, contentLength, inputStream, outputStream)
+            body.byteStream().use { inputStream ->
+                FileOutputStream(targetFile).use { outputStream ->
+                    if (contentLength < 0) {
+                        progress(0.0f)
+                        ByteStreams.copy(inputStream, outputStream)
+                        progress(1.0f)
+                    } else {
+                        copyWithProgress(progress, contentLength, inputStream, outputStream)
+                    }
                 }
             }
         }

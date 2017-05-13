@@ -60,8 +60,9 @@ class ConfigService(context: Application,
 
             okHttpClient.newCall(request).execute().use { response ->
                 if (response.isSuccessful) {
-                    val body = response.body().string()
-                    updateConfigState(body)
+                    response.body()?.string()?.let { body ->
+                        updateConfigState(body)
+                    }
 
                 } else {
                     logger.warn("Could not update app-config, response code {}", response.code())

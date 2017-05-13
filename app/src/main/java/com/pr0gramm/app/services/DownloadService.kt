@@ -105,13 +105,16 @@ class DownloadService(
 
                     val response = call.execute()
                     val interval = Interval(250)
-                    CountingInputStream(response.body().byteStream()).use { input ->
-                        readStream(input) { buffer, count ->
-                            output.write(buffer, 0, count)
 
-                            interval.doIfTime {
-                                val progress = input.count / response.body().contentLength().toFloat()
-                                subscriber.onNext(Status(progress, null))
+                    response.body()?.let { body ->
+                        CountingInputStream(body.byteStream()).use { input ->
+                            readStream(input) { buffer, count ->
+                                output.write(buffer, 0, count)
+
+                                interval.doIfTime {
+                                    val progress = input.count / body.contentLength().toFloat()
+                                    subscriber.onNext(Status(progress, null))
+                                }
                             }
                         }
                     }

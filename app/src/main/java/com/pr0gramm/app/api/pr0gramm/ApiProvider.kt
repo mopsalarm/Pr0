@@ -110,9 +110,9 @@ class ApiProvider(context: Application, client: OkHttpClient,
         val baseUrl: HttpUrl
         if (BuildConfig.DEBUG && settings.mockApi) {
             // activate this to use a mock
-            baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888")
+            baseUrl = HttpUrl.parse("http://" + Debug.MOCK_API_HOST + ":8888")!!
         } else {
-            baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString())
+            baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString())!!
         }
 
         return Retrofit.Builder()

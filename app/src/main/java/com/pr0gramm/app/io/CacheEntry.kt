@@ -279,15 +279,16 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 logger.debug("Resume caching for {} starting at {}", this, offset)
                 val response = httpClient.newCall(request).execute()
                 try {
+                    val body = response.body()!!
                     when {
                         response.code() == 200 -> written = 0
                         response.code() == 403 -> throw IOException("Not allowed to read file, are you on a public wifi?")
                         response.code() == 404 -> throw FileNotFoundException("File not found at " + response.request().url())
-                        response.body().contentLength() < 0L -> throw IOException("Content length not defined.")
+                        body.contentLength() < 0L -> throw IOException("Content length not defined.")
                         response.code() != 206 -> throw IOException("Expected status code 2xx, got " + response.code())
                     }
 
-                    size.set(response.body().contentLength().toInt())
+                    size.set(body.contentLength().toInt())
 
                 } catch (err: Exception) {
                     response.close()
@@ -311,7 +312,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
          * and then we just return.
          */
         private fun writeResponseToEntry(response: Response) {
-            response.body().byteStream().use { stream ->
+            response.body()?.byteStream()?.use { stream ->
                 readStream(stream) { buffer, byteCount ->
                     lock.withLock {
                         if (canceled) {

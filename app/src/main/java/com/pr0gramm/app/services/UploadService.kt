@@ -90,13 +90,13 @@ class UploadService(private val api: Api,
 
         val output = object : RequestBody() {
             override fun contentType(): MediaType {
+                val fallback = MediaType.parse("image/jpeg")!!
                 try {
                     val type = MimeTypeHelper.guess(file).or("image/jpeg")
-                    return MediaType.parse(type)
+                    return MediaType.parse(type) ?: fallback
                 } catch (ignored: IOException) {
-                    return MediaType.parse("image/jpeg")
+                    return fallback
                 }
-
             }
 
             @Throws(IOException::class)
