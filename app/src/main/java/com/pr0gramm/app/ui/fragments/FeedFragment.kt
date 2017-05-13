@@ -19,7 +19,6 @@ import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.google.gson.JsonSyntaxException
 import com.pr0gramm.app.R
-import com.pr0gramm.app.R.id.empty
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
@@ -67,7 +66,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val recyclerView: RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
-    private val noResultsView: View by bindView(empty)
+    private val noResultsView: View by bindView(R.id.empty)
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
@@ -214,7 +213,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             when (update) {
                 is FeedManager.Update.NewFeed -> {
                     feedAdapter.feed = update.feed
-                    updateNoResultsTextView(update.remote && update.feed.isEmpty())
+                    showNoResultsTextView(update.remote && update.feed.isEmpty())
                 }
 
                 is FeedManager.Update.Error ->
@@ -776,8 +775,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         var startAt: ItemWithComment? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
             filter = filter.withTags("")
-            startAt = ItemWithComment(java.lang.Long.parseLong(
-                    CharMatcher.digit().retainFrom(query.combined)), null)
+            startAt = ItemWithComment(CharMatcher.digit().retainFrom(query.combined).toLong(), null)
         }
 
         val searchQueryState = searchView.currentState()
@@ -1024,8 +1022,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private fun updateNoResultsTextView(feedIsEmpty: Boolean) {
-        noResultsView.visible = feedIsEmpty
+    private fun showNoResultsTextView(visible: Boolean) {
+        logger.info("Empty hint visible: {}", visible)
+        noResultsView.visible = visible
     }
 
 

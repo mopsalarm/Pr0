@@ -7,6 +7,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch.createStarted
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.services.*
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.slf4j.LoggerFactory
 
 
@@ -24,7 +25,7 @@ class SyncIntentService : KodeinIntentService("SyncIntentService") {
             Track.statistics()
 
         if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
-            UpdateChecker().check().toBlocking().subscribe {
+            UpdateChecker().check().ignoreError().toBlocking().subscribe {
                 notificationService.showUpdateNotification(it)
             }
         }
@@ -46,7 +47,7 @@ class SyncIntentService : KodeinIntentService("SyncIntentService") {
             }
 
             logger.info("performing sync")
-            userService.sync().toBlocking().subscribe { sync ->
+            userService.sync().ignoreError().toBlocking().subscribe { sync ->
                 // print info!
                 logger.info("finished without error after " + watch)
 
