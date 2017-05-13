@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
+import com.jakewharton.rxbinding.widget.checkedChanges
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ContactService
@@ -23,6 +24,7 @@ import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import kotterknife.bindView
 import kotterknife.bindViews
+import rx.Observable
 
 /**
  */
@@ -68,8 +70,11 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
         userService.name.ifPresent { vName.setText(it) }
 
         find<View>(R.id.submit).setOnClickListener { submitClicked() }
-        find<View>(R.id.action_feedback_app).setOnClickListener { applyViewVisibility() }
-        find<View>(R.id.action_feedback_general).setOnClickListener { applyViewVisibility() }
+
+        Observable.merge(
+                find<RadioButton>(R.id.action_feedback_app).checkedChanges(),
+                find<RadioButton>(R.id.action_feedback_general).checkedChanges())
+                .subscribe { applyViewVisibility() }
 
         applyViewVisibility()
     }
