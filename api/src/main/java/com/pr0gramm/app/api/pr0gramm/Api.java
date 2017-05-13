@@ -393,7 +393,10 @@ public interface Api {
         @Gson.Named("created")
         public abstract Instant creationTime();
 
-        public abstract long itemId();
+        @Value.Default
+        public long itemId() {
+            return 0;
+        }
 
         public abstract int mark();
 

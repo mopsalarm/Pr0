@@ -151,7 +151,8 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     fun updateTags(tags: Map<Api.Tag, Vote>) {
-        val sorted = tags.keys.sortedByDescending { it.confidence }
+        val sorted = tags.keys.sortedWith(
+                compareByDescending<Api.Tag> { it.confidence }.thenBy { it.id })
 
         val addTagView = layoutInflater.inflate(R.layout.tags_add, null)
         addTagView.setOnClickListener { onAddTagClickedListener() }
