@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.ListView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
+import com.jakewharton.rxbinding.widget.checkedChanges
 import com.jakewharton.rxbinding.widget.itemClicks
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
@@ -28,11 +29,12 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val customReasonText: EditText by bindView(R.id.custom_reason)
     private val blockUser: CheckBox by bindView(R.id.block_user)
     private val blockUserForDays: EditText by bindView(R.id.block_user_days)
+    private val blockTreeup: CheckBox by bindView(R.id.block_treeup)
     private val notifyUser: CheckBox? by bindOptionalView(R.id.notify_user)
-    private val blockTreeup: CheckBox? by bindOptionalView(R.id.block_treeup)
 
-    private val item: FeedItem? by lazy { arguments.getParcelable<FeedItem?>(KEY_FEED_ITEM) }
+    // one of those must be set.
     private val user: String? by lazy { arguments.getString(KEY_USER) }
+    private val item: FeedItem? by lazy { arguments.getParcelable<FeedItem?>(KEY_FEED_ITEM) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layout = if (user != null) R.layout.admin_ban_user else R.layout.admin_delete_item
@@ -47,15 +49,19 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
 
     override fun onDialogViewCreated() {
         reasonListView.adapter = ArrayAdapter(dialog.context,
-                android.R.layout.simple_list_item_1, AdminService.REASONS)
+                android.R.layout.simple_list_item_1, REASONS)
 
         if (user != null) {
             blockUser.isChecked = true
             blockUser.isEnabled = false
         }
 
+        blockUser.checkedChanges().subscribe { checked ->
+            blockTreeup.isEnabled = checked
+        }
+
         reasonListView.itemClicks().subscribe { index ->
-            customReasonText.setText(AdminService.REASONS[index])
+            customReasonText.setText(REASONS[index])
         }
     }
 
@@ -85,7 +91,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     }
 
     private fun blockUser(user: String, reason: String): Completable {
-        val treeup = blockTreeup?.isChecked ?: true
+        val treeup = blockTreeup.isChecked
         val banUserDays = Floats.tryParse(blockUserForDays.text.toString()) ?: 0f
         return adminService.banUser(user, reason, banUserDays, treeup)
     }
@@ -93,6 +99,26 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     companion object {
         private const val KEY_USER = "userId"
         private const val KEY_FEED_ITEM = "feedItem"
+
+        val REASONS = listOf(
+                "Repost",
+                "Auf Anfrage",
+                "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+                "Regel #1 - Falsche/Sinnlose Nutzung des NSFP Filters",
+                "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
+                "Regel #3 - Tierporn",
+                "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
+                "Regel #5 - Werbung/Spam",
+                "Regel #6 - Infos zu Privatpersonen",
+                "Regel #7 - Bildqualität",
+                "Regel #8 - Ähnliche Bilder in Reihe",
+                "Regel #11 - Multiaccount",
+                "Regel #12 - Warez/Logins zu Pay Sites",
+                "Regel #14 - Screamer/Sound-getrolle",
+                "Regel #15 - Reiner Musikupload",
+                "DMCA Anfrage (Copyright)",
+                "Müllpost",
+                "Trollscheiße.")
 
         fun forItem(item: FeedItem) = ItemUserAdminDialog().arguments {
             putParcelable(KEY_FEED_ITEM, item)

@@ -42,27 +42,4 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
                 .userBan(null, name, "custom", reason, blockDays, mode)
                 .toCompletable()
     }
-
-    companion object {
-        val REASONS = listOf(
-                "Repost",
-                "Auf Anfrage",
-                "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
-                "Regel #1 - Falsche/Sinnlose Nutzung des NSFP Filters",
-                "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
-                "Regel #3 - Tierporn",
-                "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
-                "Regel #5 - Werbung/Spam",
-                "Regel #6 - Infos zu Privatpersonen",
-                "Regel #7 - Bildqualität",
-                "Regel #8 - Ähnliche Bilder in Reihe",
-                "Regel #11 - Multiaccount",
-                "Regel #12 - Warez/Logins zu Pay Sites",
-                "Regel #14 - Screamer/Sound-getrolle",
-                "Regel #15 - reiner Musikupload",
-                "DCMA Anfrage",
-                "Müllpost",
-                "Trollscheiße.")
-    }
-
 }
