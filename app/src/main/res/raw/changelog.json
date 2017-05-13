@@ -1,5 +1,26 @@
 [
   {
+    "version": 126,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Kontaktformular verliert sein Eingaben beim Drehen des Telefons nicht mehr."
+      },
+      {
+        "type": "Fix",
+        "change": "Unstabile Sortierung der Tags korrigiert."
+      },
+      {
+        "type": "Fix",
+        "change": "Wenn du für immer gesperrt bist ist die App beim Einloggen abgestürzt."
+      },
+      {
+        "type": "Fix",
+        "change": "Weitere Bugfixes."
+      }
+    ]
+  },
+  {
     "version": 125,
     "changes": [
       {
