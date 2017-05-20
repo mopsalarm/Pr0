@@ -130,7 +130,7 @@ class ApiProvider(context: Application, client: OkHttpClient,
             val httpErr = err
             if (!httpErr.response().isSuccessful) {
                 try {
-                    val body = httpErr.response().errorBody().string()
+                    val body = httpErr.response().errorBody()?.string() ?: ""
                     return HttpErrorException(httpErr, body)
                 } catch (ignored: Exception) {
                 }

@@ -17,7 +17,6 @@ import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.CrashlyticsLogHandler
-import com.pr0gramm.app.util.LooperScheduler
 import com.thefinestartist.Base
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
@@ -25,9 +24,6 @@ import okhttp3.Interceptor
 import org.slf4j.LoggerFactory
 import pl.brightinventions.slf4android.LogLevel
 import pl.brightinventions.slf4android.LoggerConfiguration
-import rx.Scheduler
-import rx.android.plugins.RxAndroidPlugins
-import rx.android.plugins.RxAndroidSchedulersHook
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -37,14 +33,6 @@ import java.util.logging.LogManager
  */
 open class ApplicationClass : Application(), KodeinAware {
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
-
-    init {
-        RxAndroidPlugins.getInstance().registerSchedulersHook(object : RxAndroidSchedulersHook() {
-            override fun getMainThreadScheduler(): Scheduler {
-                return LooperScheduler.MAIN
-            }
-        })
-    }
 
     override fun onCreate() {
         super.onCreate()

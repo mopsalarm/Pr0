@@ -25,7 +25,7 @@ class UserSuggestionService(private val api: Api) {
             if (!response.isSuccessful)
                 return emptyList()
 
-            return response.body().users().orEmpty()
+            return response.body()?.users().orEmpty()
         } catch (error: Exception) {
             logger.warn("Could not fetch username suggestions for prefix={}: {}", prefix, error)
             return emptyList()

@@ -15,7 +15,7 @@ class HttpErrorException(override val cause: HttpException, val errorBody: Strin
         fun from(cause: HttpException): HttpErrorException {
             var body = "error body not available"
             try {
-                body = cause.response().errorBody().string()
+                body = cause.response().errorBody()?.string() ?: ""
             } catch (ignored: Exception) {
             }
 

@@ -7,10 +7,10 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.2-3"
+        VersionKotlin = "1.1.2-4"
         VersionSupportLibrary = "25.3.1"
         VersionRxBinding = "1.0.1"
-        VersionRetrofit = "2.2.0"
+        VersionRetrofit = "2.3.0"
         VersionGoogleServices = "10.2.4"
     }
 
@@ -137,6 +137,7 @@ android.applicationVariants.all { variant ->
 
 repositories {
     maven { url "https://jitpack.io" }
+    maven { url "https://maven.google.com" }
     maven { url "https://maven.fabric.io/public" }
     maven { url "http://bright.github.io/maven-repo/" }
     maven { url "http://dl.bintray.com/amulyakhare/maven" }
