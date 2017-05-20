@@ -1,7 +1,8 @@
 package com.pr0gramm.app.ui.dialogs
 
 import android.support.v4.app.FragmentManager
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.debug
+import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Subscriber
 import rx.Subscription
@@ -31,7 +32,10 @@ fun <T> Observable<T>.subscribeWithErrorHandling(
 
 fun <T> Observable<T>.ignoreError(): Observable<T> {
     return onErrorResumeNext { err ->
-        AndroidUtility.logToCrashlytics(RuntimeException("Ignoring error", err))
+        debug {
+            LoggerFactory.getLogger("Error").warn("Ignoring error", err)
+        }
+
         Observable.empty()
     }
 }
