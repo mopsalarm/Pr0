@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -58,6 +59,7 @@ import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
 import rx.android.schedulers.AndroidSchedulers.mainThread
+import rx.lang.kotlin.subscribeBy
 import rx.subjects.BehaviorSubject
 
 /**
@@ -517,9 +519,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun downloadPostWithPermissionGranted() {
-        val error = downloadService.download(feedItem)
-        if (error.isPresent)
-            showErrorString(fragmentManager, error.get())
+        val preview = previewInfo.preview?.let { it as? BitmapDrawable }?.bitmap
+                ?: previewInfo.fancy?.valueOrNull
+
+        downloadService
+                .downloadWithNotification(feedItem, preview)
+                .detachSubscription()
+                .compose(bindToLifecycleAsync())
+                .subscribeBy(onError = { err ->
+                    if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
+                        showErrorString(fragmentManager, getString(R.string.error_could_not_create_download_directory))
+                    }
+                })
     }
 
     override fun onStart() {
@@ -663,7 +674,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         viewer = MediaViews.newInstance(MediaView.Config.of(activity, uri)
-                .copy(audio = feedItem.audio, previewInfo = previewInfo()))
+                .copy(audio = feedItem.audio, previewInfo = previewInfo))
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
             //  mark this item seen. We do that in a background thread
@@ -770,13 +781,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    private fun previewInfo(): PreviewInfo {
+    private val previewInfo: PreviewInfo by lazy {
         val parent = parentFragment
         if (parent is PreviewInfoSource) {
-            parent.previewInfoFor(feedItem)?.let { return it }
+            parent.previewInfoFor(feedItem)?.let { return@lazy it }
         }
 
-        return PreviewInfo.of(context, feedItem)
+        return@lazy PreviewInfo.of(context, feedItem)
     }
 
     private fun simulateScroll() {

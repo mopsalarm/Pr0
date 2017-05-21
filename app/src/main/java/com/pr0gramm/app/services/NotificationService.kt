@@ -11,8 +11,10 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.FileProvider
 import com.google.common.base.Optional
 import com.google.common.base.Strings.isNullOrEmpty
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -21,11 +23,14 @@ import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
 import com.pr0gramm.app.util.SenderDrawableProvider
+import com.pr0gramm.app.util.lruCache
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.picasso.Picasso
 import org.joda.time.Instant
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
@@ -40,16 +45,23 @@ class NotificationService(private val context: Application,
     private val uriHelper: UriHelper = UriHelper.of(context)
     private val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
+    private val downloadNotificationNextId = AtomicInteger(NOTIFICATION_DOWNLOAD_BASE_ID)
+    private val downloadNotificationIdCache = lruCache<File, Int>(128) { downloadNotificationNextId.incrementAndGet() }
+
     init {
         // update the icon to show the current inbox count.
-        this.inboxService.unreadMessagesCount().subscribe {
-            unreadCount ->
+        this.inboxService.unreadMessagesCount().subscribe { unreadCount ->
             BadgeService().update(context, unreadCount)
         }
     }
 
+    private fun notify(id: Int, tag: String? = null, configure: NotificationCompat.Builder.() -> Unit) {
+        val n = newNotificationBuilder(context).apply(configure).build()
+        nm.notify(tag, id, n)
+    }
+
     fun showUpdateNotification(update: Update) {
-        nm.notify(NOTIFICATION_UPDATE_ID, newNotificationBuilder(context).run {
+        notify(NOTIFICATION_UPDATE_ID) {
             setContentIntent(updateActivityIntent(update))
             setContentTitle(context.getString(R.string.notification_update_available))
             setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
@@ -57,8 +69,34 @@ class NotificationService(private val context: Application,
             addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
             setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
             setAutoCancel(true)
-            build()
-        })
+        }
+    }
+
+    fun showDownloadNotification(file: File, progress: Float, preview: Bitmap? = null) {
+        val id = downloadNotificationIdCache[file]
+        notify(id) {
+            setContentTitle(file.nameWithoutExtension)
+            setSmallIcon(R.drawable.ic_notify_new_message)
+            setCategory(NotificationCompat.CATEGORY_PROGRESS)
+
+            if (preview != null) {
+                setLargeIcon(preview)
+            }
+
+            if (progress < 1) {
+                // only show progress if download is still in progress.
+                setProgress(1000, (1000f * progress.coerceIn(0f, 1f)).toInt(), progress <= 0)
+                setSmallIcon(android.R.drawable.stat_sys_download)
+                setAutoCancel(false)
+            } else {
+                setContentText(context.getString(R.string.download_complete))
+                setSmallIcon(android.R.drawable.stat_sys_download_done)
+
+                // make it clickable
+                setAutoCancel(true)
+                setContentIntent(viewFileIntent(file))
+            }
+        }
     }
 
     fun showForInbox(sync: Api.Sync) {
@@ -88,7 +126,7 @@ class NotificationService(private val context: Application,
         val minMessageTimestamp = messages.minBy { it.creationTime() }!!.creationTime()
         val maxMessageTimestamp = messages.maxBy { it.creationTime() }!!.creationTime()
 
-        val builder = newNotificationBuilder(context).apply {
+        notify(NOTIFICATION_NEW_MESSAGE_ID) {
             setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
             setContentTitle(title)
             setContentText(context.getString(R.string.notify_new_message_summary_text))
@@ -101,17 +139,16 @@ class NotificationService(private val context: Application,
             setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
             setCategory(NotificationCompat.CATEGORY_EMAIL)
             setLights(ContextCompat.getColor(context, accentColor), 500, 500)
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val replyToUserId = instantReplyToUserId(messages)
-            if (replyToUserId != 0) {
-                val action = buildReplyAction(messages[0])
-                builder.addAction(action)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val replyToUserId = instantReplyToUserId(messages)
+                if (replyToUserId != 0) {
+                    val action = buildReplyAction(messages[0])
+                    addAction(action)
+                }
             }
         }
 
-        nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build())
         Track.notificationShown()
     }
 
@@ -125,7 +162,7 @@ class NotificationService(private val context: Application,
     }
 
     fun showSendSuccessfulNotification(receiver: String) {
-        val builder = newNotificationBuilder(context).apply {
+        notify(NOTIFICATION_NEW_MESSAGE_ID) {
             setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
@@ -133,8 +170,6 @@ class NotificationService(private val context: Application,
             setAutoCancel(true)
             setCategory(NotificationCompat.CATEGORY_EMAIL)
         }
-
-        nm.notify(NOTIFICATION_NEW_MESSAGE_ID, builder.build())
     }
 
     /**
@@ -221,6 +256,15 @@ class NotificationService(private val context: Application,
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
+    private fun viewFileIntent(file: File): PendingIntent {
+        val provider = BuildConfig.APPLICATION_ID + ".FileProvider"
+        val uri = FileProvider.getUriForFile(context, provider, file)
+
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(uri, MimeTypeHelper.guessFromFileExtension(file))
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     fun cancelForInbox() {
         nm.cancel(NOTIFICATION_NEW_MESSAGE_ID)
@@ -249,8 +293,9 @@ class NotificationService(private val context: Application,
     companion object {
         private val logger = LoggerFactory.getLogger("NotificationService")
 
-        val NOTIFICATION_NEW_MESSAGE_ID = 5001
-        val NOTIFICATION_PRELOAD_ID = 5002
-        val NOTIFICATION_UPDATE_ID = 5003
+        const val NOTIFICATION_NEW_MESSAGE_ID = 5001
+        const val NOTIFICATION_PRELOAD_ID = 5002
+        const val NOTIFICATION_UPDATE_ID = 5003
+        const val NOTIFICATION_DOWNLOAD_BASE_ID = 6000;
     }
 }

@@ -3,4 +3,9 @@
     <cache-path
         name="updates"
         path="updates/"/>
+
+    <external-path
+        name="external_storage_root"
+        path="."/>
+
 </paths>

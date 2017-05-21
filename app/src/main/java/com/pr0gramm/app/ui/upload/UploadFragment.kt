@@ -376,15 +376,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 val count = ByteStreams.read(input, bytes, 0, bytes.size)
 
                 // and guess the type
-                var ext = MimeTypeHelper.guess(bytes)
-                if (ext.isPresent)
-                    ext = MimeTypeHelper.extension(ext.get())
+                val ext = MimeTypeHelper.guess(bytes)?.let { MimeTypeHelper.extension(it) }
 
-                // fail if we couldnt get the type
-                if (!ext.isPresent)
+                // fail if we couldn't get an extension (and thereby a type)
+                if (ext == null)
                     throw MediaNotSupported()
 
-                val target = getTempFileUri(context, ext.get())
+                val target = makeTempUploadFile(context, ext)
 
                 FileOutputStream(target).use { output ->
                     output.write(bytes, 0, count)
@@ -403,7 +401,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
     }
 
-    private fun getTempFileUri(context: Context, ext: String): File {
+    private fun makeTempUploadFile(context: Context, ext: String): File {
         return File(context.cacheDir, "upload." + ext)
     }
 

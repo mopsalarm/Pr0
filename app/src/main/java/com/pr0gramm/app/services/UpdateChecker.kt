@@ -110,7 +110,7 @@ class UpdateChecker {
             val injector = activity.appKodein()
 
             val progress = injector.instance<DownloadService>()
-                    .downloadToFile(update.apk)
+                    .downloadUpdateFile(update.apk)
                     .subscribeOn(BackgroundScheduler.instance())
                     .unsubscribeOn(BackgroundScheduler.instance())
                     .observeOn(AndroidSchedulers.mainThread())
