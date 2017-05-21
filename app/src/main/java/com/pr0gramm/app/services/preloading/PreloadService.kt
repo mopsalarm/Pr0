@@ -162,7 +162,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
             noBuilder.mActions.clear()
 
             show(noBuilder
-                    .setSmallIcon(R.drawable.ic_notify_preload_finished)
+                    .setSmallIcon(android.R.drawable.stat_sys_download_done)
                     .setSubText(null)
                     .setProgress(0, 0, false)
                     .setOngoing(false)
