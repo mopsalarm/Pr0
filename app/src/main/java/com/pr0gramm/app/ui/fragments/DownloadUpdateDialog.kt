@@ -42,8 +42,8 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
         progressBar.max = 1000
         progress.compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
                 .onErrorResumeEmpty()
-                .doAfterTerminate({ this.dismiss() })
-                .subscribe({ this.updateStatus(it) })
+                .doAfterTerminate { this.dismiss() }
+                .subscribe { this.updateStatus(it) }
     }
 
     private fun updateStatus(status: DownloadService.Status) {
