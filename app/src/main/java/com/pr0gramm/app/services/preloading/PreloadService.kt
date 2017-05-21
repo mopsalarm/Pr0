@@ -81,11 +81,12 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
         val noBuilder = NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.preload_ongoing))
-                .setSmallIcon(R.drawable.ic_notify_new_message)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setProgress(100 * items.size, 0, false)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), cancelIntent)
                 .setContentIntent(cancelIntent)
+                .setTicker("")
 
         val creation = Instant.now()
         val uriHelper = UriHelper.of(this)
