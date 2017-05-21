@@ -16,7 +16,6 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Optional
 import com.google.common.hash.Hashing
 import com.jakewharton.rxbinding.view.detaches
 import com.pr0gramm.app.R
@@ -211,14 +210,13 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         muteButtonView.setImageDrawable(icon)
     }
 
-    override val videoProgress: Optional<AbstractProgressMediaView.ProgressInfo>
-        get() {
-            if (videoViewInitialized && isPlaying) {
-                return Optional.of(AbstractProgressMediaView.ProgressInfo(videoPlayer.progress, videoPlayer.buffered))
-            }
-
-            return Optional.absent<AbstractProgressMediaView.ProgressInfo>()
+    override val videoProgress: AbstractProgressMediaView.ProgressInfo? get() {
+        if (videoViewInitialized && isPlaying) {
+            return AbstractProgressMediaView.ProgressInfo(videoPlayer.progress, videoPlayer.buffered)
         }
+
+        return null
+    }
 
     override fun onVideoBufferingStarts() {}
 

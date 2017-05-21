@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Optional
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.GifDrawableLoader
@@ -89,17 +88,17 @@ class GifMediaView(config: MediaView.Config) : AbstractProgressMediaView(config,
         }
     }
 
-    override val videoProgress: Optional<AbstractProgressMediaView.ProgressInfo> get() {
+    override val videoProgress: AbstractProgressMediaView.ProgressInfo? get() {
         gif?.takeIf { isPlaying }?.let { gif ->
             val position = gif.currentFrameIndex
             val duration = gif.numberOfFrames
 
             if (position >= 0 && duration > 0) {
-                return Optional.of(AbstractProgressMediaView.ProgressInfo(position / duration.toFloat(), 1f))
+                return AbstractProgressMediaView.ProgressInfo(position / duration.toFloat(), 1f)
             }
         }
 
-        return Optional.absent<AbstractProgressMediaView.ProgressInfo>()
+        return null
     }
 
     override fun onPause() {

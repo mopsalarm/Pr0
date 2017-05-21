@@ -1177,7 +1177,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 if (activity is ToolbarActivity) {
-                    val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE)
+                    val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
 
                     val activity = activity as ToolbarActivity
                     activity.scrollHideToolbarListener.onScrollFinished(y)

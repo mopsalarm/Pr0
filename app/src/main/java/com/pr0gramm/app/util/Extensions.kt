@@ -15,7 +15,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.common.base.Optional
 import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
@@ -39,23 +38,6 @@ import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-
-inline fun <T, R> Optional<T>.map(fn: (T) -> R?): Optional<R> {
-    if (isPresent) {
-        return Optional.fromNullable(fn(get()))
-    } else {
-        return Optional.absent()
-    }
-}
-
-inline fun <T> Optional<T>.filter(fn: (T) -> Boolean): Optional<T> {
-    if (isPresent && fn(get())) {
-        return this
-    } else {
-        return Optional.absent()
-    }
-}
-
 inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.BackpressureMode.NONE,
                                 crossinline block: (emitter: Emitter<T>) -> Unit): Observable<T> {
 
@@ -77,14 +59,14 @@ inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (Byt
             break
         }
 
-        fn(buffer, read);
+        fn(buffer, read)
     }
 }
 
 inline fun SharedPreferences.edit(fn: SharedPreferences.Editor.() -> Unit): Unit {
     val editor = edit()
     editor.fn()
-    editor.apply();
+    editor.apply()
 }
 
 inline fun <R> PowerManager.WakeLock.use(timeValue: Long, timeUnit: TimeUnit, fn: () -> R): R {
@@ -129,11 +111,7 @@ inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
 }
 
 fun arrayOfStrings(vararg args: Any): Array<String> {
-    return Array<String>(args.size) { args[it].toString() }
-}
-
-fun <T> T?.toOptional(): Optional<T> {
-    return Optional.fromNullable(this)
+    return Array(args.size) { args[it].toString() }
 }
 
 fun JsonObject.getIfPrimitive(key: String): JsonPrimitive? {
@@ -150,7 +128,7 @@ fun JsonObject.getPrimitive(key: String): JsonPrimitive {
 }
 
 inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<R, T> {
-    return Delegates.observable(def) { _, old, new ->
+    return Delegates.observable(def) { _, _, _ ->
         onChange()
     }
 }
@@ -163,7 +141,7 @@ inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit):
 
 val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
 
-interface CachedValue<T> {
+interface CachedValue<out T> {
     val value: T
 
     fun invalidate(): Unit

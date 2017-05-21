@@ -8,7 +8,6 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
-import com.google.common.base.Optional
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.hideViewEndAction
@@ -30,7 +29,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
     private val progressView: ProgressBar = LayoutInflater.from(context)
             .inflate(R.layout.player_video_progress, this, false) as ProgressBar
 
-    protected abstract val videoProgress: Optional<ProgressInfo>
+    protected abstract val videoProgress: ProgressInfo?
 
     init {
         publishControllerView(progressView)
@@ -126,7 +125,7 @@ abstract class AbstractProgressMediaView(config: MediaView.Config, @LayoutRes la
             return
 
         if (!progressTouched) {
-            val info = videoProgress.orNull()
+            val info = videoProgress
             if (info != null && shouldShowView(info)) {
                 if (firstTimeProgressValue && progressEnabled) {
                     firstTimeProgressValue = false

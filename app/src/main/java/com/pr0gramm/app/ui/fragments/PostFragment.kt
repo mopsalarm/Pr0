@@ -1028,9 +1028,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             // get our facts straight
             val recyclerHeight = recyclerView.height
             val scrollEstimate = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
-            var viewerVisible = scrollEstimate.isPresent
+            var viewerVisible = scrollEstimate != null
 
-            val scrollY = scrollEstimate.or(viewer.height)
+            val scrollY = scrollEstimate ?: viewer.height
             val viewerHeight = viewer.height
             val doFancyScroll = viewerHeight < recyclerHeight
 
@@ -1070,7 +1070,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (!isVideoFullScreen && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView).or(Integer.MAX_VALUE)
+                val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
                 (activity as ToolbarActivity).scrollHideToolbarListener.onScrollFinished(y)
             }
         }

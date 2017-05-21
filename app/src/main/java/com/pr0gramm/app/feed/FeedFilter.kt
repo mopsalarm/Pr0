@@ -3,7 +3,6 @@ package com.pr0gramm.app.feed
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.common.base.Objects
-import com.google.common.base.Optional
 import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.parcel.core.creator
 
@@ -55,7 +54,7 @@ class FeedFilter() : Parcelable {
      */
     fun withTags(tags: String): FeedFilter {
         val copy = basic()
-        copy.tags = fromString(tags)
+        copy.tags = normalizeString(tags)
         return normalize(copy)
     }
 
@@ -64,7 +63,7 @@ class FeedFilter() : Parcelable {
      */
     fun withUser(username: String): FeedFilter {
         val copy = basic()
-        copy.username = fromString(username)
+        copy.username = normalizeString(username)
         return normalize(copy)
     }
 
@@ -73,21 +72,20 @@ class FeedFilter() : Parcelable {
      */
     fun withLikes(username: String): FeedFilter {
         val copy = basic()
-        copy.likes = fromString(username)
+        copy.likes = normalizeString(username)
         return normalize(copy)
     }
 
     fun withTagsNoReset(tags: String): FeedFilter {
         val copy = withLikes(likes ?: "")
-        copy.tags = fromString(tags)
+        copy.tags = normalizeString(tags)
         return normalize(copy)
     }
 
     /**
-     * Creates an []Optional] from a string - trims the input and creates an empty
-     * [Optional] from empty strings.
+     * Normalizes the given string by trimming it and setting empty strings to null.
      */
-    private fun fromString(value: String): String? = emptyToNull(value.trim())
+    private fun normalizeString(value: String): String? = emptyToNull(value.trim())
 
     private fun copy(fn: FeedFilter.() -> Unit): FeedFilter {
         val copy = FeedFilter()
