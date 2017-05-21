@@ -1,5 +1,18 @@
 [
   {
+    "version": 127,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Download von Medien überarbeitet. Auf einigen Androidgeräten wurden heruntergeladene Medien nach einiger Zeit gelöscht."
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfixes und verbesserte Performance."
+      }
+    ]
+  },
+  {
     "version": 126,
     "changes": [
       {
