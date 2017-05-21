@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui.fragments
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -49,6 +50,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val benisContainer: View by bindView(R.id.benis_container)
     private val benisGraph: ImageView by bindView(R.id.benis_graph)
     private val actionRules: TextView by bindView(R.id.action_rules)
+    private val actionPremium: TextView by bindView(R.id.action_premium)
     private val loginView: TextView by bindView(R.id.action_login)
     private val logoutView: TextView by bindView(R.id.action_logout)
     private val feedbackView: TextView by bindView(R.id.action_contact)
@@ -106,6 +108,12 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             startActivity(intent)
         })
 
+        actionPremium.setOnClickListener {
+            Track.registerLinkClicked()
+            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
+            CustomTabsHelper(context).openCustomTab(uri)
+        }
+
         loginView.setOnClickListener({
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
@@ -125,7 +133,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         // colorize all the secondary icons.
-        val views = listOf(loginView, logoutView, feedbackView, settingsView, inviteView, actionRules)
+        val views = listOf(loginView, logoutView, feedbackView, settingsView, inviteView, actionRules, actionPremium)
         for (v in views) {
             val secondary = ColorStateList.valueOf(0x80808080.toInt())
             changeCompoundDrawableColor(v, secondary)
@@ -189,6 +197,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             logoutView.visible = true
             actionRules.visible = true
             inviteView.visible = true
+            actionPremium.visible = !state.premium
+
         } else {
             usernameView.setText(R.string.pr0gramm)
             usernameView.setOnClickListener(null)
@@ -203,6 +213,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             logoutView.visible = false
             actionRules.visible = false
             inviteView.visible = false
+            actionPremium.visible = false
         }
     }
 

@@ -147,6 +147,12 @@
             android:text="@string/action_rules"/>
 
         <TextView
+            android:id="@+id/action_premium"
+            style="@style/DrawerItem"
+            android:drawableLeft="@drawable/ic_menu_premium"
+            android:text="@string/action_premium"/>
+
+        <TextView
             android:id="@+id/action_logout"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_black_action_exit"

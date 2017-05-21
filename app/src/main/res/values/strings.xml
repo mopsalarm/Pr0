@@ -420,5 +420,6 @@
     <string name="block_user">Ban user</string>
     <string name="error_could_not_write_download_file">Could not download file.</string>
     <string name="download_complete">Download complete</string>
+    <string name="action_premium">PR0MIUM</string>
 </resources>
 
