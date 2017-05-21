@@ -22,13 +22,16 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonPrimitive
 import com.pr0gramm.app.BuildConfig
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
+import rx.subjects.BehaviorSubject
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
@@ -318,11 +321,35 @@ inline fun debug(block: () -> Unit) {
 }
 
 fun <T> Observable<T>.detachSubscription(): Observable<T> {
-    return replay(1).autoConnect()
+    val subscribed = AtomicBoolean()
+
+    val subject = BehaviorSubject.create<T>()
+    return subject
+            .doOnSubscribe {
+                if (subscribed.compareAndSet(false, true)) {
+                    debug("inner").subscribe(subject)
+                }
+            }
+            .debug("outer")
 }
 
 fun Completable.detachSubscription(): Observable<Unit> {
     return toObservable<Unit>().detachSubscription()
 }
 
+fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {
+    debug {
+        val log = logger ?: LoggerFactory.getLogger("Rx")
+        return this
+                .doOnSubscribe { log.info("$key: onSubscribe") }
+                .doOnUnsubscribe { log.info("$key: onUnsubscribe") }
+                .doOnCompleted { log.info("$key: onCompleted") }
+                .doOnError { log.info("$key: onError({})", it) }
+                .doOnNext { log.info("$key: onNext({})", it) }
+                .doOnTerminate { log.info("$key: onTerminate") }
+                .doAfterTerminate { log.info("$key: onAfterTerminate") }
+    }
 
+    // do nothing if not in debug build.
+    return this
+}
