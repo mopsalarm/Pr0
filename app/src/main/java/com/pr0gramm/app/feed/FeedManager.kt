@@ -86,8 +86,14 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
 
     }
 
-    private fun handleFeedUpdate(it: Api.Feed) {
-        val merged = feed.mergeWith(it)
+    private fun handleFeedUpdate(update: Api.Feed) {
+        // check for invalid content type.
+        if (update.error != null) {
+            publishError(InvalidContentTypeException())
+            return
+        }
+
+        val merged = feed.mergeWith(update)
         publish(merged, remote = true)
     }
 
@@ -106,6 +112,8 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
     private fun feedQuery(): FeedService.FeedQuery {
         return FeedService.FeedQuery(feed.filter, feed.contentType)
     }
+
+    class InvalidContentTypeException : RuntimeException()
 
     sealed class Update {
         class LoadingStarted : Update()

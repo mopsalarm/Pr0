@@ -31,7 +31,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions.checkArgument
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
@@ -321,14 +320,14 @@ object AndroidUtility {
      * Tries to get a basic activity from the given context. Returns an empty observable,
      * if no activity could be found.
      */
-    fun activityFromContext(context: Context): Optional<Activity> {
+    fun activityFromContext(context: Context): Activity? {
         if (context is Activity)
-            return Optional.of(context)
+            return context
 
         if (context is ContextWrapper)
             return activityFromContext(context.baseContext)
 
-        return Optional.absent<Activity>()
+        return null
     }
 
     @ColorInt

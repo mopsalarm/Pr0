@@ -38,11 +38,10 @@ class FeedServiceImpl(private val api: Api,
         val following = if (feedFilter.feedType === FeedType.PREMIUM) 1 else null
 
         val flags = ContentType.combine(query.contentTypes)
-        val tags = feedFilter.tags.orNull()
-        val user = feedFilter.username.orNull()
+        val user = feedFilter.username
 
         // FIXME this is quite hacky right now.
-        val likes = feedFilter.likes.orNull()
+        val likes = feedFilter.likes
         val self = if (Strings.isNullOrEmpty(likes)) null else true
 
         val feedType = feedFilter.feedType
@@ -51,7 +50,7 @@ class FeedServiceImpl(private val api: Api,
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
 
         // get extended tag query
-        val q = SearchQuery(tags)
+        val q = SearchQuery(feedFilter.tags)
 
         when (feedType) {
             FeedType.RANDOM -> return extraCategories.api.random(q.tags, flags)

@@ -16,7 +16,6 @@ import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.map
 import com.pr0gramm.app.util.subscribeOnBackground
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
@@ -73,7 +72,7 @@ class VoteService(private val api: Api,
     fun getVote(item: FeedItem): Observable<Vote> {
         return Observable
                 .fromCallable { CachedVote.find(database.value, ITEM, item.id()) }
-                .map<Vote> { vote -> vote.map({ it.vote }).or(Vote.NEUTRAL) }
+                .map<Vote> { vote -> vote?.vote ?: Vote.NEUTRAL }
                 .subscribeOnBackground()
     }
 

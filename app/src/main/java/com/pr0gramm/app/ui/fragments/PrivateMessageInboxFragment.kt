@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import com.github.salomonbrys.kodein.instance
-
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -13,7 +12,6 @@ import com.pr0gramm.app.ui.OnOptionsItemSelected
 import com.pr0gramm.app.ui.OptionMenuHelper
 import com.pr0gramm.app.ui.PrivateMessageAdapter
 import com.pr0gramm.app.ui.dialogs.SearchUserDialog
-import com.pr0gramm.app.util.map
 
 /**
  */
@@ -49,7 +47,7 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
 
     override fun onUserInfo(info: Api.Info) {
         val user = info.user
-        val isSelfInfo = userService.name.map { user.name.equals(it, ignoreCase = true) }.or(false)
+        val isSelfInfo = userService.name.equals(user.name, ignoreCase = true)
         if (!isSelfInfo) {
             // only allow sending to other people
             actionListener.onNewPrivateMessage(user.id.toLong(), user.name)

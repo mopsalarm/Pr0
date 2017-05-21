@@ -38,13 +38,11 @@ class InviteAdapter(private val invites: List<Api.AccountInfo.Invite>) : Recycle
             val context = itemView.context
 
             val date = getRelativeTimeSpanString(context, invite.created())
-            val oName = invite.name()
-            if (oName.isPresent) {
-                val name = oName.get()
-
+            val name = invite.name()
+            if (name != null) {
                 email.visibility = View.GONE
                 username.visibility = View.VISIBLE
-                username.setUsername(name, invite.mark().or(0))
+                username.setUsername(name, invite.mark() ?: 0)
 
                 info.text = context.getString(R.string.invite_redeemed, invite.email(), date)
                 itemView.setOnClickListener { openUsersProfile(name) }

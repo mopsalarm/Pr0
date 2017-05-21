@@ -4,7 +4,6 @@ import android.content.Context
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.util.ifPresent
 
 object FeedFilterFormatter {
 
@@ -23,17 +22,17 @@ object FeedFilterFormatter {
             return FeedTitle("", "", "")
 
         if (!filter.isBasic) {
-            filter.tags.ifPresent {
+            filter.tags?.let {
                 return FeedTitle(it, " in ", feedTypeToString(context, filter))
             }
 
-            filter.username.ifPresent {
+            filter.username?.let {
                 return FeedTitle(
                         context.getString(R.string.filter_format_tag_by) + " " + it,
                         " in ", feedTypeToString(context, filter))
             }
 
-            filter.likes.ifPresent {
+            filter.likes?.let {
                 return FeedTitle(
                         context.getString(R.string.filter_format_fav_of) + " " + it,
                         " in ", feedTypeToString(context, filter))
@@ -45,9 +44,8 @@ object FeedFilterFormatter {
 
     @JvmStatic
     fun feedTypeToString(context: Context, filter: FeedFilter): String {
-        val likes = filter.likes
-        if (likes.isPresent) {
-            return context.getString(R.string.favorites_of, likes.get())
+        if (filter.likes != null) {
+            return context.getString(R.string.favorites_of, filter.likes)
         }
 
         when (filter.feedType) {

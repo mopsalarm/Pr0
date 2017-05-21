@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import android.content.SharedPreferences
-import com.google.common.base.Optional
 import com.google.common.base.Strings
 import com.google.common.primitives.Doubles
 import com.google.gson.*
@@ -10,7 +9,6 @@ import com.pr0gramm.app.Debug
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.getIfPrimitive
-import com.pr0gramm.app.util.map
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import org.joda.time.DateTime
@@ -38,22 +36,19 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
     /**
      * Gets the value of the login cookie, if any.
      */
-    val loginCookieValue: Optional<String>
-        get() {
-            return Optional.fromNullable(httpCookie?.value())
-        }
+    val loginCookieValue: String? get() = httpCookie?.value()
 
-    var cookie: Optional<Cookie> = Optional.absent<Cookie>()
+    var cookie: Cookie? = null
         private set
 
     /**
      * Returns true, if the user has pr0mium status.
      */
     val isPaid: Boolean
-        get() = cookie.map { it.paid }.or(false)
+        get() = cookie?.paid ?: false
 
     fun hasCookie(): Boolean {
-        return httpCookie != null && cookie.map { it.id != null }.or(false)
+        return httpCookie != null && cookie?.id != null
     }
 
     init {
@@ -113,7 +108,7 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
 
             val parsedCookie = parseCookie(cookie)
 
-            val valid = parsedCookie.map { it.id != null && it.name != null }.or(false)
+            val valid = parsedCookie?.id != null && parsedCookie.name != null
             if (valid) {
                 this.httpCookie = cookie
                 this.cookie = parsedCookie
@@ -134,8 +129,8 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
 
     fun clearLoginCookie(informListener: Boolean) {
         synchronized(lock) {
+            cookie = null
             httpCookie = null
-            cookie = Optional.absent<Cookie>()
             preferences.edit { remove(PREF_LOGIN_COOKIE) }
         }
 
@@ -147,19 +142,19 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
     /**
      * Tries to parse the cookie into a [LoginCookieHandler.Cookie] instance.
      */
-    private fun parseCookie(cookie: okhttp3.Cookie?): Optional<Cookie> {
+    private fun parseCookie(cookie: okhttp3.Cookie?): Cookie? {
         if (cookie == null || cookie.value() == null)
-            return Optional.absent<Cookie>()
+            return null
 
         try {
             val value = URLDecoder.decode(cookie.value(), "UTF-8")
-            return Optional.fromNullable(gson.fromJson(value, Cookie::class.java))
+            return gson.fromJson(value, Cookie::class.java)
 
         } catch (err: Exception) {
             logger.warn("Could not parse login cookie!", err)
 
             AndroidUtility.logToCrashlytics(err)
-            return Optional.absent<Cookie>()
+            return null
         }
     }
 
@@ -172,15 +167,14 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
         @Throws(LoginRequiredException::class)
         get() {
             val cookie = cookie
-
-            if (cookie.map { it.id == null }.or(true)) {
-                if (cookie.isPresent)
+            if (cookie == null || cookie.id == null) {
+                if (cookie != null)
                     clearLoginCookie(true)
 
                 throw LoginRequiredException()
             }
 
-            return cookie.map { Api.Nonce(it.id) }.get()
+            return cookie.let { Api.Nonce(it.id) }
         }
 
     data class Cookie(val name: String?, val id: String?, val paid: Boolean, val admin: Boolean)

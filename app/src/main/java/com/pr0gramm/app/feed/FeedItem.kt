@@ -39,9 +39,9 @@ class FeedItem : Parcelable, HasThumbnail {
         _mark = item.mark.toByte()
         created = item.created
         _flags = item.flags.toByte()
-        width = item.width().or(0)
-        height = item.height().or(0)
-        audio = item.audio().or(false)
+        width = item.width ?: 0
+        height = item.height ?: 0
+        audio = item.audio ?: false
     }
 
     val up: Int

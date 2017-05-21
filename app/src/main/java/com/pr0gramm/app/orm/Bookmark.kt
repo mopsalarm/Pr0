@@ -3,11 +3,9 @@ package com.pr0gramm.app.orm
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Objects.equal
-import com.google.common.base.Optional
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.util.mapToList
-import com.pr0gramm.app.util.toOptional
 import org.slf4j.LoggerFactory
 
 /**
@@ -29,16 +27,15 @@ data class Bookmark(val title: String, private val filterTags: String?, private 
         private val logger = LoggerFactory.getLogger("Bookmark")
 
         fun of(filter: FeedFilter, title: String): Bookmark {
-            val filterTags = filter.tags.orNull()
-            val filterUsername = filter.username.orNull()
+            val filterTags = filter.tags
+            val filterUsername = filter.username
             val filterFeedType = filter.feedType.toString()
             return Bookmark(title, filterTags, filterUsername, filterFeedType)
         }
 
-        fun byFilter(database: SQLiteDatabase, filter: FeedFilter): Optional<Bookmark> {
+        fun byFilter(database: SQLiteDatabase, filter: FeedFilter): Bookmark? {
             return Bookmark.all(database)
                     .firstOrNull { bookmark -> equal(filter, bookmark.asFeedFilter()) }
-                    .toOptional()
         }
 
         fun save(db: SQLiteDatabase, bookmark: Bookmark) {

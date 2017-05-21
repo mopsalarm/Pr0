@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions.checkNotNull
 import com.google.common.base.Splitter
 import com.google.common.base.Throwables
@@ -77,8 +76,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
         super.onViewCreated(view, savedInstanceState)
 
         val uri = urlArgument
-        if (uri.isPresent) {
-            handleImageUri(uri.get())
+        if (uri != null) {
+            handleImageUri(uri)
 
         } else if (savedInstanceState == null) {
             val type = arguments?.getString(EXTRA_MEDIA_TYPE) ?: "image/*"
@@ -357,11 +356,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
             return ContentType.NSFL
         }
 
-    private val urlArgument: Optional<Uri>
+    private val urlArgument: Uri?
         get() {
-            val arguments = arguments ?: return Optional.absent<Uri>()
-
-            return Optional.fromNullable(arguments.getParcelable<Uri>(EXTRA_LOCAL_URI))
+            val arguments = arguments ?: return null
+            return arguments.getParcelable<Uri?>(EXTRA_LOCAL_URI)
         }
 
 
@@ -418,9 +416,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val text = Truss().append(context.getString(textId))
 
-        val report = exception.report
-        if (report.isPresent) {
-            val videoErrorId = when (report.get().error()) {
+        exception.report?.let { report ->
+            val videoErrorId = when (report.error) {
                 "dimensionsTooSmall" -> R.string.upload_error_video_too_small
                 "dimensionsTooLarge" -> R.string.upload_error_video_too_large
                 "durationTooLong" -> R.string.upload_error_video_too_long
@@ -440,12 +437,12 @@ class UploadFragment : BaseFragment("UploadFragment") {
             text.append("\n\n")
                     .append("Info:\n", Truss.bold)
                     .append(context.getString(R.string.report_video_summary,
-                            report.get().width(), report.get().height(),
-                            report.get().format(), report.get().duration()))
+                            report.width, report.height,
+                            report.format, report.duration))
                     .append("\n")
 
             val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
-            for (stream in report.get().streams()) {
+            for (stream in report.streams) {
                 val streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec())
                 text.append(streamInfo,
                         BulletSpan(offset / 3),
@@ -456,7 +453,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         return text.build()
     }
 
-    private class MediaNotSupported() : RuntimeException("Media type not supported")
+    private class MediaNotSupported : RuntimeException("Media type not supported")
 
     companion object {
         const val EXTRA_LOCAL_URI = "UploadFragment.localUri"

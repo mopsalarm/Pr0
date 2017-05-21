@@ -2,7 +2,6 @@ package com.pr0gramm.app.orm
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.google.common.base.Optional
 import com.pr0gramm.app.util.mapToList
 import com.pr0gramm.app.util.use
 import org.slf4j.LoggerFactory
@@ -22,13 +21,13 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
             return itemId * 10 + type.ordinal
         }
 
-        fun find(db: SQLiteDatabase, type: Type, itemId: Long): Optional<CachedVote> {
+        fun find(db: SQLiteDatabase, type: Type, itemId: Long): CachedVote? {
             val query = "SELECT item_id, type, vote FROM cached_vote WHERE id=?"
             db.rawQuery(query, arrayOf(voteId(type, itemId).toString())).use { cursor ->
                 return if (cursor.moveToNext()) {
-                    Optional.of(ofCursor(cursor))
+                    ofCursor(cursor)
                 } else {
-                    Optional.absent<CachedVote>()
+                    null
                 }
             }
         }

@@ -3,7 +3,6 @@ package com.pr0gramm.app.services.preloading
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.google.common.base.Optional
 import com.pr0gramm.app.services.preloading.PreloadManager.PreloadItem
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
@@ -111,8 +110,8 @@ class DatabasePreloadManager(private val database: BriteDatabase) : PreloadManag
     /**
      * Returns the [PreloadItem] with a given id.
      */
-    override operator fun get(itemId: Long): Optional<PreloadItem> {
-        return Optional.fromNullable(preloadCache.get().get(itemId))
+    override operator fun get(itemId: Long): PreloadItem? {
+        return preloadCache.get().get(itemId)
     }
 
     override fun deleteBefore(threshold: Instant) {

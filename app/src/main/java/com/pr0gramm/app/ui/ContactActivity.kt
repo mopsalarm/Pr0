@@ -67,7 +67,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
             })
         }
 
-        userService.name.ifPresent { vName.setText(it) }
+        userService.name?.let { vName.setText(it) }
 
         find<View>(R.id.submit).setOnClickListener { submitClicked() }
 
@@ -119,7 +119,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
 
             contactService.post(email, subject, feedback)
         } else {
-            val name = userService.name.or(vName.text.toString().trim())
+            val name = userService.name ?: vName.text.toString().trim()
             feedbackService.post(name, feedback)
         }
 

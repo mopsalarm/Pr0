@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.support.v4.app.Fragment
@@ -28,6 +29,7 @@ import rx.Emitter
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.BehaviorSubject
+import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
@@ -37,18 +39,6 @@ import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-
-inline fun <T> Optional<T>.ifAbsent(fn: () -> Unit): Unit {
-    if (!this.isPresent) {
-        fn()
-    }
-}
-
-inline fun <T> Optional<T>.ifPresent(fn: (T) -> Unit): Unit {
-    if (this.isPresent) {
-        fn(get())
-    }
-}
 
 inline fun <T, R> Optional<T>.map(fn: (T) -> R?): Optional<R> {
     if (isPresent) {
@@ -353,3 +343,7 @@ fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> 
     // do nothing if not in debug build.
     return this
 }
+
+fun File.toUri(): Uri = Uri.fromFile(this)
+
+

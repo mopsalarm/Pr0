@@ -17,7 +17,7 @@ import java.util.*
 
 class CustomTabsHelper(context: Context) {
 
-    private val context = AndroidUtility.activityFromContext(context).orNull() ?: context
+    private val context = AndroidUtility.activityFromContext(context) ?: context
 
     private val packageName: String? get() {
         if (sPackageNameToUse != null) {

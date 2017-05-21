@@ -1,6 +1,5 @@
 package com.pr0gramm.app.api.pr0gramm;
 
-import com.google.common.base.Optional;
 import com.google.gson.annotations.SerializedName;
 import com.pr0gramm.app.HasThumbnail;
 import com.pr0gramm.app.Nothing;
@@ -234,9 +233,11 @@ public interface Api {
 
             Instant created();
 
-            Optional<String> name();
+            @Nullable
+            String name();
 
-            Optional<Integer> mark();
+            @Nullable
+            Integer mark();
         }
     }
 
@@ -275,7 +276,8 @@ public interface Api {
 
         List<Item> getItems();
 
-        Optional<String> getError();
+        @Nullable
+        String getError();
 
         @Value.Immutable
         interface Item {
@@ -299,11 +301,14 @@ public interface Api {
 
             int getFlags();
 
-            Optional<Integer> width();
+            @Nullable
+            Integer getWidth();
 
-            Optional<Integer> height();
+            @Nullable
+            Integer getHeight();
 
-            Optional<Boolean> audio();
+            @Nullable
+            Boolean getAudio();
 
             Instant getCreated();
         }
@@ -363,12 +368,14 @@ public interface Api {
      */
     @Value.Immutable
     interface Login {
-        boolean success();
+        boolean isSuccess();
 
-        Optional<String> identifier();
+        @Nullable
+        String getIdentifier();
 
+        @Nullable
         @SerializedName("ban")
-        Optional<BanInfo> banInfo();
+        BanInfo getBanInfo();
 
         @Value.Immutable
         interface BanInfo {
@@ -479,7 +486,8 @@ public interface Api {
 
         public abstract List<SimilarItem> getSimilar();
 
-        public abstract Optional<VideoReport> getReport();
+        @Nullable
+        public abstract VideoReport getReport();
 
         @Value.Immutable
         public interface PostedItem {
@@ -496,25 +504,28 @@ public interface Api {
 
         @Value.Immutable
         public static abstract class VideoReport {
-            public float duration() {
+            @Value.Default
+            public float getDuration() {
                 return 0;
             }
 
-            public int height() {
+            @Value.Default
+            public int getHeight() {
                 return 0;
             }
 
-            public int width() {
+            @Value.Default
+            public int getWidth() {
                 return 0;
             }
 
             @Nullable
-            public abstract String format();
+            public abstract String getFormat();
 
             @Nullable
-            public abstract String error();
+            public abstract String getError();
 
-            public abstract List<MediaStream> streams();
+            public abstract List<MediaStream> getStreams();
         }
 
         @Value.Immutable

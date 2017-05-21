@@ -163,7 +163,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
 
         val message = Parceler.get(MessageParceler::class.java, extras, ARGUMENT_MESSAGE)
         if (message != null) {
-            messageView.update(message, userService.name.orNull())
+            messageView.update(message, userService.name)
             messageView.visible = true
         }
     }

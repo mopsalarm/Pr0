@@ -250,8 +250,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun initialSearchViewState(): Bundle? {
         var state = arguments.getBundle(ARG_SEARCH_QUERY_STATE)
         if (state == null) {
-            val tags = currentFilter.tags.orNull()
-            if (tags != null) {
+            currentFilter.tags?.let { tags ->
                 state = SearchOptionsView.ofQueryTerm(tags)
             }
         }
@@ -293,7 +292,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun presentUserInfo(value: EnhancedUserInfo) {
-        if (currentFilter.tags.isPresent) {
+        if (currentFilter.tags != null) {
             presentUserUploadsHint(value.info)
         } else {
             presentUserInfoCell(value)
@@ -401,7 +400,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun queryUserInfo(): Observable<EnhancedUserInfo> {
         val filter = filterArgument
 
-        val queryString = filter.username.or(filter.tags).or(filter.likes).orNull()
+        val queryString = filter.username ?: filter.tags ?: filter.likes
 
         if (queryString != null && queryString.matches("[A-Za-z0-9]{2,}".toRegex())) {
             val contentTypes = selectedContentType
@@ -421,7 +420,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     .map { it.comments }
                     .onErrorReturn { listOf() }
 
-            return Observable.zip(first, second, ::EnhancedUserInfo)
+            return Observable
+                    .zip(first, second, ::EnhancedUserInfo)
                     .doOnNext { info -> inMemoryCacheService.cacheUserInfo(contentTypes, info) }
 
         } else {
@@ -880,9 +880,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private inner class FeedAdapter : RecyclerView.Adapter<FeedItemViewHolder>() {
         val isUsersFavorites = cached<Boolean> {
-            feed.filter.likes
-                    .map { name -> name.equals(userService.name.orNull(), ignoreCase = true) }
-                    .or(false)
+            feed.filter.likes.equals(userService.name, ignoreCase = true)
         }
 
         init {
@@ -982,13 +980,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
 
         // check if it is possible to get repost info.
-        val queryTooLong = filter.tags.or("").split("\\s+".toRegex())
+        val queryTooLong = (filter.tags ?: "").split("\\s+".toRegex())
                 .dropLastWhile(String::isEmpty).size >= 5
 
         if (queryTooLong)
             return
 
-        val queryTerm = filter.tags.map { tags -> tags + " repost" }.or("repost")
+        val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
         val query = FeedService.FeedQuery(
                 filter.withTags(queryTerm),
                 selectedContentType, null, id, null)
@@ -1002,7 +1000,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     internal fun onFeedError(error: Throwable) {
         logger.error("Error loading the feed", error)
 
-        if (autoOpenOnLoad != null) {
+        if (autoOpenOnLoad != null || error is FeedManager.InvalidContentTypeException) {
             ErrorDialogFragment.showErrorString(fragmentManager,
                     getString(R.string.could_not_load_feed_nsfw))
 
@@ -1142,7 +1140,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         get() = recyclerView.layoutManager as? GridLayoutManager
 
     private fun isSelfInfo(info: Api.Info): Boolean {
-        return info.user.name.equals(userService.name.orNull(), ignoreCase = true)
+        return info.user.name.equals(userService.name, ignoreCase = true)
     }
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {

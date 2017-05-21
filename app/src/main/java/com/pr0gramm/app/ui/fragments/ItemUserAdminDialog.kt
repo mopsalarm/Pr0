@@ -116,6 +116,7 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
                 "Regel #12 - Warez/Logins zu Pay Sites",
                 "Regel #14 - Screamer/Sound-getrolle",
                 "Regel #15 - Reiner Musikupload",
+                "Regel #16 - Unnötiges Markieren von Mods",
                 "DMCA Anfrage (Copyright)",
                 "Müllpost",
                 "Trollscheiße.")

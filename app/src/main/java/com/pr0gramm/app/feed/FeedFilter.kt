@@ -4,8 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.common.base.Objects
 import com.google.common.base.Optional
-import com.google.common.base.Optional.absent
-import com.google.common.base.Optional.fromNullable
 import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.parcel.core.creator
 
@@ -15,13 +13,13 @@ class FeedFilter() : Parcelable {
     var feedType: FeedType = FeedType.PROMOTED
         private set
 
-    var tags: Optional<String> = absent<String>()
+    var tags: String? = null
         private set
 
-    var likes: Optional<String> = absent<String>()
+    var likes: String? = null
         private set
 
-    var username: Optional<String> = absent<String>()
+    var username: String? = null
         private set
 
     /**
@@ -37,9 +35,9 @@ class FeedFilter() : Parcelable {
      */
     fun basic(): FeedFilter {
         return copy {
-            tags = Optional.absent<String>()
-            likes = Optional.absent<String>()
-            username = Optional.absent<String>()
+            tags = null
+            likes = null
+            username = null
         }
     }
 
@@ -80,7 +78,7 @@ class FeedFilter() : Parcelable {
     }
 
     fun withTagsNoReset(tags: String): FeedFilter {
-        val copy = withLikes(likes.or(""))
+        val copy = withLikes(likes ?: "")
         copy.tags = fromString(tags)
         return normalize(copy)
     }
@@ -89,7 +87,7 @@ class FeedFilter() : Parcelable {
      * Creates an []Optional] from a string - trims the input and creates an empty
      * [Optional] from empty strings.
      */
-    private fun fromString(value: String) = fromNullable(emptyToNull(value.trim()))
+    private fun fromString(value: String): String? = emptyToNull(value.trim())
 
     private fun copy(fn: FeedFilter.() -> Unit): FeedFilter {
         val copy = FeedFilter()
@@ -128,17 +126,17 @@ class FeedFilter() : Parcelable {
 
     override fun writeToParcel(dest: Parcel, f: Int) {
         dest.writeInt(feedType.ordinal)
-        dest.writeString(tags.orNull())
-        dest.writeString(likes.orNull())
-        dest.writeString(username.orNull())
+        dest.writeString(tags)
+        dest.writeString(likes)
+        dest.writeString(username)
     }
 
     internal constructor(p: Parcel) : this() {
         val feedType = p.readInt()
         this.feedType = FeedType.values()[feedType]
-        this.tags = fromNullable(p.readString())
-        this.likes = fromNullable(p.readString())
-        this.username = fromNullable(p.readString())
+        this.tags = p.readString()
+        this.likes = p.readString()
+        this.username = p.readString()
     }
 
     companion object {

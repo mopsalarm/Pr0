@@ -14,7 +14,7 @@ class WrittenCommentFragment : MessageInboxFragment("WrittenCommentFragment") {
 
     override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {
         return LoaderHelper.of<List<Api.Message>> {
-            val name = userService.name.orNull() ?: return@of Observable.empty()
+            val name = userService.name ?: return@of Observable.empty()
 
             inboxService
                     .getUserComments(name, ContentType.AllSet)

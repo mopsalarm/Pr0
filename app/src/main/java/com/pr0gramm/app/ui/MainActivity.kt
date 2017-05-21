@@ -473,7 +473,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onUsernameClicked() {
-        val name = userService.name.orNull()
+        val name = userService.name
         if (name != null) {
             val filter = FeedFilter().withFeedType(FeedType.NEW).withUser(name)
             gotoFeedFragment(filter, false)
@@ -558,9 +558,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
 
         val result = FeedFilterWithStart.fromUri(uri)
-        if (result.isPresent) {
-            val filter = result.get().filter
-            val start = result.get().start
+        if (result != null) {
+            val filter = result.filter
+            val start = result.start
 
             gotoFeedFragment(filter, shouldClearOnIntent, start)
 

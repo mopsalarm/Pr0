@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.net.Uri
 import com.google.code.regexp.Pattern
 import com.google.common.base.MoreObjects.firstNonNull
-import com.google.common.base.Optional
 import com.google.common.primitives.Longs
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
@@ -18,7 +17,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
 
 
         @JvmStatic
-        fun fromUri(uri: Uri): Optional<FeedFilterWithStart> {
+        fun fromUri(uri: Uri): FeedFilterWithStart? {
             val commentId = extractCommentId(uri.path)
 
             // get the path without optional comment link
@@ -57,10 +56,10 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
                     filter = filter.withTags(tag)
 
                 val itemId = Longs.tryParse(firstNonNull(groups["id"], ""))
-                return Optional.of(FeedFilterWithStart(filter, itemId, commentId))
+                return FeedFilterWithStart(filter, itemId, commentId)
             }
 
-            return Optional.absent<FeedFilterWithStart>()
+            return null
         }
 
         /**

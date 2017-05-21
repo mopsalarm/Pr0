@@ -12,7 +12,6 @@ import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
-import com.google.common.base.Optional
 import com.google.common.base.Strings.isNullOrEmpty
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
@@ -132,7 +131,7 @@ class NotificationService(private val context: Application,
             setContentText(context.getString(R.string.notify_new_message_summary_text))
             setStyle(inboxStyle)
             setSmallIcon(R.drawable.ic_notify_new_message)
-            setLargeIcon(thumbnail(messages).orNull())
+            setLargeIcon(thumbnail(messages))
             setWhen(minMessageTimestamp.millis)
             setShowWhen(minMessageTimestamp.millis != 0L)
             setAutoCancel(true)
@@ -195,7 +194,7 @@ class NotificationService(private val context: Application,
     /**
      * Gets an optional "big" thumbnail for the given set of messages.
      */
-    private fun thumbnail(messages: List<Api.Message>): Optional<Bitmap> {
+    private fun thumbnail(messages: List<Api.Message>): Bitmap? {
         val message = messages[0]
 
         val allForTheSamePost = messages.all { message.itemId() == it.itemId() }
@@ -211,19 +210,19 @@ class NotificationService(private val context: Application,
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
 
             val provider = SenderDrawableProvider(context)
-            return Optional.of(provider.makeSenderBitmap(message, width, height))
+            return provider.makeSenderBitmap(message, width, height)
         }
 
-        return Optional.absent<Bitmap>()
+        return null
     }
 
-    private fun loadThumbnail(message: Api.Message): Optional<Bitmap> {
+    private fun loadThumbnail(message: Api.Message): Bitmap? {
         val uri = uriHelper.thumbnail(message)
         try {
-            return Optional.of(picasso.load(uri).get())
+            return picasso.load(uri).get()
         } catch (ignored: IOException) {
             logger.warn("Could not load thumbnail for url: {}", uri)
-            return Optional.absent<Bitmap>()
+            return null
         }
 
     }

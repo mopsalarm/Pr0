@@ -22,7 +22,6 @@ import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
 import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.map
 import kotterknife.bindView
 import rx.Observable
 import rx.functions.Func1
@@ -273,8 +272,8 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
     fun requestSearchFocus() {
         post {
             val landscape = AndroidUtility.activityFromContext(context)
-                    .map { AndroidUtility.screenIsLandscape(it) }
-                    .or(false)
+                    ?.let { AndroidUtility.screenIsLandscape(it) }
+                    ?: false
 
             if (landscape) {
                 searchTermView.requestFocus()

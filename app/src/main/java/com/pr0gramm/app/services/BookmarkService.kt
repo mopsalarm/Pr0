@@ -7,7 +7,6 @@ import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.ifAbsent
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
@@ -27,7 +26,7 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
     fun create(filter: FeedFilter, title: String): Completable {
         return doInBackground {
             // check if here is an existing item
-            Bookmark.byFilter(database.value, filter).ifAbsent {
+            Bookmark.byFilter(database.value, filter) ?: run {
                 // create new entry
                 Bookmark.save(database.value, Bookmark.of(filter, title))
                 triggerChange()
@@ -45,11 +44,11 @@ class BookmarkService(private val database: Holder<SQLiteDatabase>) {
         if (filter.isBasic)
             return Observable.just(false)
 
-        if (filter.likes.isPresent)
+        if (filter.likes != null)
             return Observable.just(false)
 
         // check if already in database
-        return database.asObservable().map { db -> !Bookmark.byFilter(db, filter).isPresent }
+        return database.asObservable().map { db -> Bookmark.byFilter(db, filter) == null }
     }
 
     private fun triggerChange() {

@@ -140,8 +140,8 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         return this.
                 map { response ->
                     when {
-                        response.success() -> LoginResult.Success()
-                        response.banInfo().isPresent -> LoginResult.Banned(response.banInfo().get())
+                        response.isSuccess -> LoginResult.Success()
+                        response.banInfo != null -> LoginResult.Banned(response.banInfo!!)
                         else -> LoginResult.Failure()
                     }
                 }

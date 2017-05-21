@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import com.google.common.base.Optional
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
@@ -229,7 +228,7 @@ class UploadService(private val api: Api,
         val hasSimilar = similar.isNotEmpty()
     }
 
-    class UploadFailedException(message: String, val report: Optional<Api.Posted.VideoReport>) : Exception(message) {
+    class UploadFailedException(message: String, val report: Api.Posted.VideoReport?) : Exception(message) {
         val errorCode: String get() = message!!
     }
 

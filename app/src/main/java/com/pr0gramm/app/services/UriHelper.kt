@@ -10,7 +10,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.preloading.PreloadManager
-import com.pr0gramm.app.util.map
+import com.pr0gramm.app.util.toUri
 
 
 /**
@@ -39,9 +39,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     fun thumbnail(item: HasThumbnail): Uri {
-        return preloadManager.get(item.id())
-                .map { pi -> Uri.fromFile(pi.thumbnail) }
-                .or { noPreload.thumbnail(item) }
+        return preloadManager.get(item.id())?.thumbnail?.toUri() ?: noPreload.thumbnail(item)
     }
 
     @JvmOverloads
@@ -49,9 +47,7 @@ class UriHelper private constructor(context: Context) {
         if (hq && !Strings.isNullOrEmpty(item.fullsize))
             return noPreload.media(item, true)
 
-        return preloadManager.get(item.id())
-                .map { pi -> Uri.fromFile(pi.media) }
-                .or { noPreload.media(item, false) }
+        return preloadManager.get(item.id())?.media?.toUri() ?: noPreload.media(item, false)
     }
 
     fun base(): Uri {
@@ -87,7 +83,7 @@ class UriHelper private constructor(context: Context) {
             return media(item, false)
         }
 
-        internal fun media(item: FeedItem, highQuality: Boolean): Uri {
+        fun media(item: FeedItem, highQuality: Boolean): Uri {
             return if (highQuality && !item.isVideo)
                 join(start("full"), item.fullsize)
             else

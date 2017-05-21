@@ -16,7 +16,7 @@ import com.pr0gramm.app.services.UserService
 open class MessageAdapter(private val itemLayout: Int, context: Context,
                           messages: List<Api.Message>) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
-    private val userName: String? = context.appKodein().instance<UserService>().name.orNull()
+    private val userName: String? = context.appKodein().instance<UserService>().name
     protected val messages = messages.toMutableList()
 
     var pointsVisibility: MessageView.PointsVisibility = MessageView.PointsVisibility.CONDITIONAL

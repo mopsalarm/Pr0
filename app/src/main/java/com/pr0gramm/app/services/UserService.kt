@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
-import com.google.common.base.Optional
 import com.google.common.base.Stopwatch
 import com.google.gson.*
 import com.pr0gramm.app.Settings
@@ -126,8 +125,7 @@ class UserService(private val api: Api,
     }
 
     private fun onCookieChanged() {
-        val cookie = cookieHandler.loginCookieValue
-        if (!cookie.isPresent) {
+        if (cookieHandler.loginCookieValue == null) {
             logout()
         }
     }
@@ -136,9 +134,9 @@ class UserService(private val api: Api,
         return api.login(username, password).flatMap { login ->
             val observables = ArrayList<Observable<*>>()
 
-            if (login.success()) {
+            if (login.isSuccess) {
                 observables.add(updateCachedUserInfo()
-                        .doOnTerminate { updateUniqueToken(login.identifier().orNull()) }
+                        .doOnTerminate { updateUniqueToken(login.getIdentifier()) }
                         .toObservable<Any>())
 
                 // perform initial sync in background.
@@ -271,7 +269,7 @@ class UserService(private val api: Api,
      * @return The info, if the user is currently signed in.
      */
     fun info(): Observable<Api.Info> {
-        return Observable.from(name.asSet()).flatMap { info(it) }
+        return name.justObservable().flatMap { info(it) }
     }
 
     /**
@@ -333,7 +331,7 @@ class UserService(private val api: Api,
     }
 
     val userIsAdmin: Boolean
-        get() = cookieHandler.cookie.map { it.admin }.or(false)
+        get() = cookieHandler.cookie?.admin ?: false
 
 
     private fun loadBenisHistory(userId: Int): Graph {
@@ -359,8 +357,8 @@ class UserService(private val api: Api,
 
      * @return The name of the currently signed in user.
      */
-    val name: Optional<String>
-        get() = cookieHandler.cookie.map { cookie -> cookie.name }
+    val name: String?
+        get() = cookieHandler.cookie?.name
 
 
     /**

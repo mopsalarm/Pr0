@@ -213,7 +213,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeInfoLine()
         initializeCommentPostLine()
 
-        commentsAdapter = CommentsAdapter(adminMode, userService.name.or(""))
+        commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "")
         commentsAdapter.commentActionListener = this
         adapter.addAdapter(commentsAdapter)
 
@@ -573,9 +573,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     fallback
                 }
                 .also { infoView ->
-                    val isSelfPost = userService.name
-                            .map { name -> name.equals(feedItem.user, ignoreCase = true) }
-                            .or(false)
+                    val isSelfPost = userService.name.equals(feedItem.user, ignoreCase = true)
 
                     // display the feed item in the view
                     infoView.setFeedItem(feedItem, isSelfPost, cachedVote)

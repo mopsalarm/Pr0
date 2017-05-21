@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services.preloading
 
-import com.google.common.base.Optional
 import org.joda.time.Instant
 import rx.Observable
 import java.io.File
@@ -12,7 +11,7 @@ interface PreloadManager {
 
     fun exists(itemId: Long): Boolean
 
-    fun get(itemId: Long): Optional<PreloadItem>
+    fun get(itemId: Long): PreloadItem?
 
     fun deleteBefore(threshold: Instant)
 

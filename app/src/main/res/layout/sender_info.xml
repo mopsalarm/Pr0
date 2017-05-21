@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:textColor="?colorPrimary"
+            android:textColor="?colorAccent"
             android:singleLine="true"
             android:text="@string/action_answer"/>
 
