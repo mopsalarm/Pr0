@@ -398,4 +398,7 @@
     <string name="block_user">Benutzer sperren</string>
     <string name="hint_block_treeup">TreeUp sperren (Einlader)</string>
     <string name="banned_forever">Dein Account ist gesperrt. Die Sperrung ist permanent. Grund: %s</string>
+    <string name="error_could_not_write_download_file">Die Datei konnte nicht heruntergeladen werden.</string>
+    <string name="download_complete">Download abgeschlossen</string>
+    <string name="action_premium">PR0MIUM</string>
 </resources>

@@ -15,7 +15,6 @@
     <string name="download">Download</string>
     <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
     <string name="dummy_post_date">3 hours ago</string>
-    <string name="dummy_tag">Kreiselficker</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Could not connect to host: %s</string>
     <string name="error_connect_exception_https">Could not connect to host via https: %s</string>

@@ -58,7 +58,7 @@
                 style="@style/TextAppearance.AppCompat.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dummy_post_date"/>
+                tools:text="@string/dummy_post_date"/>
 
             <com.pr0gramm.app.ui.views.UsernameView
                 android:id="@+id/username"
