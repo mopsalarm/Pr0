@@ -163,7 +163,7 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    compile("com.google.guava:guava:20.0") {
+    compile("com.google.guava:guava:22.0-android") {
         force = true
     }
 
@@ -197,7 +197,7 @@ dependencies {
     // a little bit more recent then 4.1.0
     compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
 
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.0'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.1'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
