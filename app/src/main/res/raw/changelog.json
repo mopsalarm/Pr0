@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "'Passwort zurücksetzen' funktioniert nun wieder."
+      },
+      {
+        "type": "Fix",
         "change": "Bugfixes und verbesserte Performance."
       }
     ]

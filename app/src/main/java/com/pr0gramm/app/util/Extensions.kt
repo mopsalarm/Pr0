@@ -26,13 +26,15 @@ import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Emitter
 import rx.Observable
+import rx.Scheduler
 import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
+import rx.subjects.ReplaySubject
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
@@ -288,21 +290,14 @@ inline fun debug(block: () -> Unit) {
     }
 }
 
-fun <T> Observable<T>.detachSubscription(): Observable<T> {
-    val subscribed = AtomicBoolean()
-
-    val subject = BehaviorSubject.create<T>()
+fun <T> Observable<T>.decoupleSubscribe(replay: Boolean = false, scheduler: Scheduler = Schedulers.io()): Observable<T> {
+    val subject = if (replay) ReplaySubject.create<T>() else BehaviorSubject.create<T>()
+    this.subscribeOn(scheduler).subscribe(subject)
     return subject
-            .doOnSubscribe {
-                if (subscribed.compareAndSet(false, true)) {
-                    debug("inner").subscribe(subject)
-                }
-            }
-            .debug("outer")
 }
 
-fun Completable.detachSubscription(): Observable<Unit> {
-    return toObservable<Unit>().detachSubscription()
+fun Completable.decoupleSubscribe(): Observable<Unit> {
+    return toObservable<Unit>().decoupleSubscribe()
 }
 
 fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> {

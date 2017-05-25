@@ -139,7 +139,6 @@ repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://maven.google.com" }
     maven { url "https://maven.fabric.io/public" }
-    maven { url "http://bright.github.io/maven-repo/" }
     maven { url "http://dl.bintray.com/amulyakhare/maven" }
     maven { url "http://dl.bintray.com/skoumal/maven" }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -225,7 +224,7 @@ dependencies {
     // bottomsheets
     compile "com.flipboard:bottomsheet-core:1.5.3"
 
-    compile "pl.brightinventions:slf4android:0.1.2"
+    compile "com.github.bright:slf4android:0.1.3"
     compile "com.crashlytics.sdk.android:crashlytics:2.6.8"
 
     // dependency injection using kotlin.

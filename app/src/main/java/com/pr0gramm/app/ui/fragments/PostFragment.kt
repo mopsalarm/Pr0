@@ -524,7 +524,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         downloadService
                 .downloadWithNotification(feedItem, preview)
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindToLifecycleAsync())
                 .subscribeBy(onError = { err ->
                     if (err is DownloadService.CouldNotCreateDownloadDirectoryException) {
@@ -586,7 +586,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                             showPostVoteAnimation(vote)
 
                             voteService.vote(feedItem, vote)
-                                    .detachSubscription()
+                                    .decoupleSubscribe()
                                     .compose(bindToLifecycleAsync<Any>())
                                     .subscribeWithErrorHandling()
                         }
@@ -599,7 +599,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     infoView.tagVoteListener = { tag, vote ->
                         val action = Runnable {
                             voteService.vote(tag, vote)
-                                    .detachSubscription()
+                                    .decoupleSubscribe()
                                     .compose(bindToLifecycleAsync<Any>())
                                     .doAfterTerminate({ infoView.addVote(tag, vote) })
                                     .subscribeWithErrorHandling()
@@ -919,7 +919,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
         return doIfAuthorizedHelper.run(Runnable {
             voteService.vote(comment, vote)
-                    .detachSubscription()
+                    .decoupleSubscribe()
                     .compose(bindToLifecycleAsync<Any>())
                     .subscribeWithErrorHandling()
         })
@@ -949,7 +949,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         operationCompletable
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribeWithErrorHandling()
 

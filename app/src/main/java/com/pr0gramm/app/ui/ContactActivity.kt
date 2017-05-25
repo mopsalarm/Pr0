@@ -123,7 +123,7 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
             feedbackService.post(name, feedback)
         }
 
-        response.detachSubscription()
+        response.decoupleSubscribe()
                 .compose(bindToLifecycleAsync<Any>())
                 .withBusyDialog(this)
                 .subscribeWithErrorHandling(onComplete = { onSubmitSuccess() })

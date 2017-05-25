@@ -16,7 +16,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.util.detachSubscription
+import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
@@ -61,7 +61,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         disableInputViews()
 
         inviteService.send(email)
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindToLifecycleAsync<Any>())
                 .doAfterTerminate { this.requeryInvites() }
                 .subscribeBy(onCompleted = { this.onInviteSent() }, onError = { this.onInviteError(it) })

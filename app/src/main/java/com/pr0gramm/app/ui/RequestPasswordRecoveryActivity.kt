@@ -10,7 +10,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.util.detachSubscription
+import com.pr0gramm.app.util.decoupleSubscribe
 import kotterknife.bindView
 
 class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRecoveryActivity") {
@@ -26,7 +26,7 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
         setContentView(R.layout.activity_request_password_recovery)
 
         email.textChanges()
-                .map { PatternsCompat.EMAIL_ADDRESS.matcher(toString().trim()).matches() }
+                .map { PatternsCompat.EMAIL_ADDRESS.matcher(it.trim()).matches() }
                 .subscribe { submit.isEnabled = it }
 
         submit.setOnClickListener {
@@ -37,7 +37,7 @@ class RequestPasswordRecoveryActivity : BaseAppCompatActivity("RequestPasswordRe
     fun submitButtonClicked() {
         val email = this.email.text.toString().trim()
         userService.requestPasswordRecovery(email)
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindToLifecycleAsync<Any>())
                 .subscribeWithErrorHandling(onComplete = { requestCompleted() })
     }

@@ -18,7 +18,7 @@ import com.pr0gramm.app.parcel.core.Parceler
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.BusyDialog
-import com.pr0gramm.app.util.detachSubscription
+import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import java.util.*
@@ -126,7 +126,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
             val itemId = itemId
 
             voteService.postComment(itemId, parentComment, message)
-                    .detachSubscription()
+                    .decoupleSubscribe()
                     .compose(bindToLifecycleAsync())
                     .lift(BusyDialog.busyDialog(this))
                     .doOnCompleted { this.finishAfterSending() }
@@ -141,7 +141,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         } else {
             // now send message
             inboxService.send(receiverId, message)
-                    .detachSubscription()
+                    .decoupleSubscribe()
                     .compose(bindToLifecycleAsync<Any>())
                     .lift(BusyDialog.busyDialog<Any>(this))
                     .doOnCompleted { finishAfterSending() }

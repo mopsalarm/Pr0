@@ -5,13 +5,15 @@ import android.widget.Button
 import android.widget.EditText
 import com.github.salomonbrys.kodein.instance
 import com.google.code.regexp.Pattern
+import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
-import com.pr0gramm.app.util.detachSubscription
+import com.pr0gramm.app.ui.fragments.withBusyDialog
+import com.pr0gramm.app.util.decoupleSubscribe
 import kotterknife.bindView
 
 class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity") {
@@ -42,13 +44,16 @@ class PasswordRecoveryActivity : BaseAppCompatActivity("PasswordRecoveryActivity
                 .compose(bindToLifecycle<CharSequence>())
                 .map { it.toString().trim().length > 6 }
                 .subscribe { submit.isEnabled = it }
+
+        submit.clicks().subscribe { submitButtonClicked() }
     }
 
     fun submitButtonClicked() {
         val password = this.password.text.toString().trim()
         userService.resetPassword(user, token, password)
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindToLifecycleAsync())
+                .withBusyDialog(this)
                 .subscribeWithErrorHandling { requestCompleted(it) }
     }
 

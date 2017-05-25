@@ -38,7 +38,7 @@ import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.CustomTabsHelper
-import com.pr0gramm.app.util.detachSubscription
+import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -435,7 +435,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         val logout_successful_hint = R.string.logout_successful_hint
         userService.logout()
-                .detachSubscription()
+                .decoupleSubscribe()
                 .compose(bindToLifecycleAsync<Any>())
                 .lift(BusyDialog.busyDialog<Any>(this))
                 .doOnCompleted {

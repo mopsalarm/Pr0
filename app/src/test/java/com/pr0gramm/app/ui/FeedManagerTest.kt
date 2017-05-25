@@ -15,7 +15,7 @@ import com.pr0gramm.app.feed.FeedManager
 import com.pr0gramm.app.feed.FeedService
 import org.junit.Before
 import org.junit.Test
-import org.slf4j.LoggerFactory
+import pl.brightinventions.slf4android.LoggerConfiguration
 import rx.Observable
 import rx.Scheduler
 import rx.android.plugins.RxAndroidPlugins
@@ -23,6 +23,7 @@ import rx.android.plugins.RxAndroidSchedulersHook
 import rx.observers.TestSubscriber
 import rx.plugins.RxJavaHooks
 import rx.schedulers.Schedulers
+import java.util.logging.ConsoleHandler
 
 class FeedManagerTest {
     @Before
@@ -41,10 +42,9 @@ class FeedManagerTest {
 
     @Before
     fun initializeLogging() {
-        try {
-            LoggerFactory.getLogger("Test")
-        } catch(err: Exception) {
-        }
+        LoggerConfiguration.configuration()
+                .removeRootLogcatHandler()
+                .addHandlerToRootLogger(ConsoleHandler())
     }
 
     @Test
