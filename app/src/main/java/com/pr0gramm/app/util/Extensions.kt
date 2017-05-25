@@ -21,6 +21,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import com.google.gson.JsonPrimitive
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Completable
@@ -46,7 +47,7 @@ inline fun <T> createObservable(mode: Emitter.BackpressureMode = Emitter.Backpre
     return Observable.create({ block(it) }, mode)
 }
 
-fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = onErrorResumeNext(Observable.empty())
+fun <T> Observable<T>.onErrorResumeEmpty(): Observable<T> = ignoreError()
 
 fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(BackgroundScheduler.instance())
 

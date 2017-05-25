@@ -85,17 +85,17 @@ class UriHelper private constructor(context: Context) {
 
         fun media(item: FeedItem, highQuality: Boolean): Uri {
             return if (highQuality && !item.isVideo)
-                join(start("full"), item.fullsize)
+                absoluteJoin(start("full"), item.fullsize)
             else
-                join(start(if (item.isVideo) "vid" else "img"), item.image)
+                absoluteJoin(start(if (item.isVideo) "vid" else "img"), item.image)
         }
 
         fun thumbnail(item: HasThumbnail): Uri {
-            return join(start("thumb"), item.thumbnail() ?: "")
+            return absoluteJoin(start("thumb"), item.thumbnail() ?: "")
         }
     }
 
-    internal fun join(builder: Uri.Builder, path: String): Uri {
+    private fun absoluteJoin(builder: Uri.Builder, path: String): Uri {
         if (path.startsWith("http://") || path.startsWith("https://")) {
             return Uri.parse(path)
         }
@@ -108,6 +108,22 @@ class UriHelper private constructor(context: Context) {
         return builder.path(normalized).build()
     }
 
+    private fun join(builder: Uri.Builder, path: String): Uri {
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return Uri.parse(path)
+        }
+
+        if (path.startsWith("//")) {
+            return Uri.parse(scheme() + ":" + path)
+        }
+
+        if (path.startsWith("/")) {
+            return builder.path(path).build()
+        } else {
+            return builder.appendEncodedPath(path).build()
+        }
+    }
+
     companion object {
         fun of(context: Context): UriHelper {
             return UriHelper(context)
@@ -117,5 +133,10 @@ class UriHelper private constructor(context: Context) {
                 FeedType.NEW to "new",
                 FeedType.PROMOTED to "top",
                 FeedType.PREMIUM to "stalk")
+    }
+
+    fun badgeImageUrl(image: String): Uri {
+        val builder = Uri.parse("http://pr0gramm.com/media/badges/").buildUpon()
+        return join(builder, image)
     }
 }

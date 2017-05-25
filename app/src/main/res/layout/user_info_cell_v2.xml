@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/grey_800"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
 
     <LinearLayout
@@ -50,31 +51,32 @@
 
     <LinearLayout
         android:id="@+id/actions_container"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="16dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:id="@+id/user_extra_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            tools:text="Seit: 3 Jahre"/>
+        android:layout_gravity="left"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="10dp">
 
         <ImageView
             android:id="@+id/action_new_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:padding="8dp"
+            android:layout_marginRight="4dp"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_action_email"
-            android:tint="@color/white"
-            />
+            android:tint="@color/white"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/user_extra_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        tools:text="Seit: 3 Jahre"/>
 
     <LinearLayout
         android:layout_width="match_parent"

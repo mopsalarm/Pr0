@@ -279,7 +279,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (isNormalMode) {
             queryUserInfo().take(1)
                     .compose(bindToLifecycleAsync())
-                    .subscribe({ presentUserInfo(it) }, {})
+                    .subscribe({ presentUserInfo(it) }, { err -> logger.warn("Error in user cell", err) })
         }
     }
 

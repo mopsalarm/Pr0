@@ -253,7 +253,7 @@
 
     <string name="user_banned">Banned for %s</string>
     <string name="user_banned_forever">Banned forever</string>
-    <string name="user_registered">Registered %s</string>
+    <string name="user_registered">Registered %1$s (%2$s)</string>
     <string name="update">Update</string>
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version %s is available.</string>
@@ -420,5 +420,7 @@
     <string name="error_could_not_write_download_file">Could not download file.</string>
     <string name="download_complete">Download complete</string>
     <string name="action_premium">PR0MIUM</string>
+    <string name="badge_comments">More than %sk comments</string>
+    <string name="badge_time">More than %s years on pr0gramm</string>
 </resources>
 

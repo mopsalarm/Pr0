@@ -320,6 +320,8 @@ public interface Api {
     interface Info {
         User getUser();
 
+        List<Badge> getBadges();
+
         int getLikeCount();
 
         int getUploadCount();
@@ -333,6 +335,18 @@ public interface Api {
         boolean following();
 
         List<UserComments.UserComment> getComments();
+
+        @Value.Immutable
+        interface Badge {
+            Instant getCreated();
+
+            String getLink();
+
+            String getImage();
+
+            @Nullable
+            String getDescription();
+        }
 
         @Value.Immutable
         abstract class User {
