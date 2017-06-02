@@ -10,6 +10,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.views.UsernameView
+import com.pr0gramm.app.util.TimeMode
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.formatTimeTo
 
@@ -37,7 +38,7 @@ class InviteAdapter(private val invites: List<Api.AccountInfo.Invite>) : Recycle
         fun update(invite: Api.AccountInfo.Invite) {
             val context = itemView.context
 
-            val date = formatTimeTo(context, invite.created())
+            val date = formatTimeTo(context, invite.created(), TimeMode.SINCE)
             val name = invite.name()
             if (name != null) {
                 email.visibility = View.GONE

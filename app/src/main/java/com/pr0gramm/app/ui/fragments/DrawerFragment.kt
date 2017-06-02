@@ -175,9 +175,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             userTypeView.visible = true
             userTypeView.setTextColor(ContextCompat.getColor(context,
-                    UserClasses.MarkColors.get(state.mark)))
+                    UserClasses.MarkColors[state.mark]))
 
-            userTypeView.text = getString(UserClasses.MarkStrings.get(state.mark)).toUpperCase()
+            userTypeView.text = getString(UserClasses.MarkStrings[state.mark]).toUpperCase()
             userTypeView.setOnClickListener { callback.onUsernameClicked() }
 
 
@@ -278,11 +278,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return allItems.get(position).layout
+            return allItems[position].layout
         }
 
         override fun onBindViewHolder(holder: NavigationItemViewHolder, position: Int) {
-            val item = allItems.get(position)
+            val item = allItems[position]
             holder.text.text = item.title
 
             // set the icon of the image

@@ -13,13 +13,13 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.longClicks
 import com.pr0gramm.app.R
+import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.Api.Info
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.LoginActivity
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
-import net.danlew.android.joda.DateUtils
 import org.joda.time.Instant
 import org.joda.time.Years
 
@@ -38,6 +38,7 @@ class UserInfoCell(context: Context, userInfo: Info,
     private val extraInfo: TextView by bindView(R.id.user_extra_info)
     private val writeNewMessage: View by bindView(R.id.action_new_message)
     private val actionsContainer: ViewGroup by bindView(R.id.actions_container)
+    private val userTypeName: TextView by bindView(R.id.user_type_name)
 
     private val showComments: View
 
@@ -59,6 +60,9 @@ class UserInfoCell(context: Context, userInfo: Info,
         tags.text = info.tagCount.toString()
         uploads.text = info.uploadCount.toString()
         comments.text = info.commentCount.toString()
+
+        userTypeName.setTextColor(context.getColorCompat(UserClasses.MarkColors[user.mark]))
+        userTypeName.text = context.getString(UserClasses.MarkStrings[user.mark]).toUpperCase()
 
         // open message dialog for user
         writeNewMessage.setOnClickListener {
@@ -115,14 +119,12 @@ class UserInfoCell(context: Context, userInfo: Info,
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)
             } else {
-                val durationStr = formatTimeTo(context, bannedUntil)
+                val durationStr = formatTimeTo(context, bannedUntil, TimeMode.SINCE)
                 extraInfo.text = context.getString(R.string.user_banned, durationStr)
             }
         } else {
-            val dateStr = DateUtils.formatDateTime(context, user.registered, 0)
-            val relativeStr = formatTimeTo(context, user.registered, short = true)
-
-            extraInfo.text = context.getString(R.string.user_registered, dateStr, relativeStr)
+            val relativeStr = formatTimeTo(context, user.registered, TimeMode.SINCE)
+            extraInfo.text = context.getString(R.string.user_registered, relativeStr)
         }
     }
 

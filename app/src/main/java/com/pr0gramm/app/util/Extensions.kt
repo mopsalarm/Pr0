@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.app.Activity
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
@@ -8,7 +9,10 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
+import android.support.annotation.ColorInt
+import android.support.annotation.ColorRes
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.util.LruCache
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -321,3 +325,7 @@ fun <T> Observable<T>.debug(key: String, logger: Logger? = null): Observable<T> 
 fun File.toUri(): Uri = Uri.fromFile(this)
 
 
+@ColorInt
+fun Context.getColorCompat(@ColorRes id: Int): Int {
+    return ContextCompat.getColor(this, id)
+}
