@@ -9,7 +9,7 @@
     <string name="action_search_simple">Suchen</string>
     <string name="action_upload">HOCHLADEN</string>
     <string name="app_name">pr0gramm</string>
-    <string name="banned">Du bist bis %1$s gebannt. Grund: %2$s</string>
+    <string name="banned">Du bist bis in %1$s gebannt. Grund: %2$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="download">Download</string>
     <string name="dummy_post_date">3 hours ago</string>
@@ -296,7 +296,7 @@
     <string name="invite_send">Invite verschicken</string>
     <string name="invites_title">Invites</string>
     <string name="invite_remaining">Invites vorhanden: %d</string>
-    <string name="invite_unredeemed">nicht eingelöst, %s</string>
+    <string name="invite_unredeemed">nicht eingelöst, vor %s</string>
     <string name="invites_sent">Versendete Invites</string>
     <string name="action_follow">Stelzen</string>
     <string name="action_unfollow">Unstelzen</string>
@@ -401,4 +401,34 @@
     <string name="error_could_not_write_download_file">Die Datei konnte nicht heruntergeladen werden.</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="action_premium">PR0MIUM</string>
+
+
+    <string name="dt_few_second">ein paar Sekunden</string>
+    <string name="dt_n_seconds">$d Sekunden</string>
+    <string name="dt_one_minute">1 Minute</string>
+    <string name="dt_n_minutes">$d Minuten</string>
+    <string name="dt_one_hour">1 Stunde</string>
+    <string name="dt_one_hour_n_minutes">1 Stunde und $r Minuten</string>
+    <string name="dt_n_hours">$d Stunden</string>
+    <string name="dt_one_day">1 Tag</string>
+    <string name="dt_one_day_n_hours">1 Tag und $r Stunden</string>
+    <string name="dt_n_days">$d Tagen</string>
+    <string name="dt_one_week">1 Woche</string>
+    <string name="dt_one_week_n_days">1 Woche und $r Tage</string>
+    <string name="dt_n_weeks">$d Wochen</string>
+    <string name="dt_one_month">1 Monat</string>
+    <string name="dt_one_month_n_weeks">1 Monat und $r Wochen</string>
+    <string name="dt_n_month">$d Monate</string>
+    <string name="dt_one_year">1 Jahr</string>
+    <string name="dt_one_year_n_month">1 Jahr und $r Monate</string>
+    <string name="dt_two_years">2 Jahre</string>
+    <string name="dt_two_years_n_month">2 Jahre and $r Monate</string>
+    <string name="dt_n_years">$d Jahre</string>
+    <string name="dt_long_white">einige Ewigkeit</string>
+    <string name="dt_now">jetzt</string>
+    <string name="dt_label_past">vor %s</string>
+    <string name="dt_label_future">in %s</string>
+    <string name="invite_redeemed">%1$s, vor %2$s</string>
+    <string name="badge_comments">Mehr als %sk Kommentare</string>
+    <string name="badge_time">Mehr als %s Jahre auf dem pr0gramm</string>
 </resources>

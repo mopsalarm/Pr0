@@ -34,9 +34,6 @@ import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.android.ActivityEvent
 import kotterknife.bindView
-import net.danlew.android.joda.DateUtils
-import org.joda.time.DateTimeZone
-import org.joda.time.Weeks
 import retrofit2.HttpException
 import rx.Observable
 
@@ -167,10 +164,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
             is LoginResult.Banned -> {
                 val date = response.ban.endTime()?.let { date ->
-                    DateUtils.getRelativeDateTimeString(this,
-                            date.toDateTime(DateTimeZone.getDefault()),
-                            Weeks.ONE,
-                            DateUtils.FORMAT_SHOW_DATE)
+                    formatTimeTo(this, date)
                 }
 
                 val reason = response.ban.reason()

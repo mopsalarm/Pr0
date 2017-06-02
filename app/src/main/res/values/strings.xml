@@ -9,7 +9,7 @@
     <string name="action_upload">UPLOAD</string>
     <string name="action_kfav">K-FAV</string>
     <string name="app_name">pr0gramm</string>
-    <string name="banned">Your account is banned until %1$s. Reason: %2$s</string>
+    <string name="banned">Your account is banned until %1$s from now. Reason: %2$s</string>
     <string name="banned_forever">Your account is banned forever. Reason: %s</string>
     <string name="cancel">Cancel</string>
     <string name="download">Download</string>
@@ -251,7 +251,7 @@
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
     <string name="open_website">Open website</string>
 
-    <string name="user_banned">Banned for %s</string>
+    <string name="user_banned">Banned until %s</string>
     <string name="user_banned_forever">Banned forever</string>
     <string name="user_registered">Registered %1$s (%2$s)</string>
     <string name="update">Update</string>
@@ -315,8 +315,8 @@
     <string name="invite_no_more_invites">You have no more invites this month. Sorry.</string>
     <string name="invite_email_in_use">A user with this address was already invited.</string>
     <string name="invites_sent">Sent invites</string>
-    <string name="invite_redeemed" translatable="false">%1$s, %2$s</string>
-    <string name="invite_unredeemed">not redeemed, %s</string>
+    <string name="invite_redeemed">%1$s, %2$s ago</string>
+    <string name="invite_unredeemed">not redeemed, %s ago</string>
     <string name="invite_remaining">Remaining invites: %d</string>
     <string name="action_follow">Follow</string>
     <string name="action_unfollow">Unfollow</string>
@@ -422,5 +422,31 @@
     <string name="action_premium">PR0MIUM</string>
     <string name="badge_comments">More than %sk comments</string>
     <string name="badge_time">More than %s years on pr0gramm</string>
+
+    <string name="dt_few_second">a few seconds</string>
+    <string name="dt_n_seconds">$d seconds</string>
+    <string name="dt_one_minute">1 minute</string>
+    <string name="dt_n_minutes">$d minutes</string>
+    <string name="dt_one_hour">1 hour</string>
+    <string name="dt_one_hour_n_minutes">1 hour and $r minutes</string>
+    <string name="dt_n_hours">$d hours</string>
+    <string name="dt_one_day">1 day</string>
+    <string name="dt_one_day_n_hours">1 day and $r hours</string>
+    <string name="dt_n_days">$d days</string>
+    <string name="dt_one_week">1 week</string>
+    <string name="dt_one_week_n_days">1 week and $r days</string>
+    <string name="dt_n_weeks">$d weeks</string>
+    <string name="dt_one_month">1 month</string>
+    <string name="dt_one_month_n_weeks">1 month and $r weeks</string>
+    <string name="dt_n_month">$d months</string>
+    <string name="dt_one_year">1 year</string>
+    <string name="dt_one_year_n_month">1 year and $r months</string>
+    <string name="dt_two_years">2 years</string>
+    <string name="dt_two_years_n_month">2 years and $r months</string>
+    <string name="dt_n_years">$d years</string>
+    <string name="dt_long_white">a long while</string>
+    <string name="dt_now">now</string>
+    <string name="dt_label_past">%s ago</string>
+    <string name="dt_label_future">%s from now</string>
 </resources>
 

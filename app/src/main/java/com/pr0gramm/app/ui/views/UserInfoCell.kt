@@ -16,14 +16,10 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api.Info
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.LoginActivity
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.removeFromParent
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import kotterknife.bindView
 import net.danlew.android.joda.DateUtils
-import org.joda.time.Duration
 import org.joda.time.Instant
 import org.joda.time.Years
 
@@ -119,14 +115,12 @@ class UserInfoCell(context: Context, userInfo: Info,
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)
             } else {
-                val duration = Duration(Instant.now(), bannedUntil)
-                val durationStr = DateUtils.formatDuration(context, duration)
+                val durationStr = formatTimeTo(context, bannedUntil)
                 extraInfo.text = context.getString(R.string.user_banned, durationStr)
             }
         } else {
             val dateStr = DateUtils.formatDateTime(context, user.registered, 0)
-            val relativeStr = android.text.format.DateUtils.getRelativeDateTimeString(context,
-                    user.registered.millis, 0, android.text.format.DateUtils.YEAR_IN_MILLIS * 100L, 0)
+            val relativeStr = formatTimeTo(context, user.registered, short = true)
 
             extraInfo.text = context.getString(R.string.user_registered, dateStr, relativeStr)
         }
