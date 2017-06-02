@@ -9,7 +9,6 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.observeChange
 
 /**
  */
@@ -18,13 +17,16 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     private val lineWidth: Float
     private val linePaint: Paint
 
-    var depth: Int by observeChange(0) {
-        val paddingLeft = (lineMargin * depth).toInt()
+    var depth: Int = 0; set(value) {
+        field = value.coerceAtMost(10)
+        val paddingLeft = spaceAtDepth(field).toInt()
         setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
 
         invalidate()
         requestLayout()
     }
+
+    private fun spaceAtDepth(depth: Int): Float = lineMargin * depth
 
     init {
         setWillNotDraw(false)
@@ -45,7 +47,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             color = lineColor
             style = Paint.Style.STROKE
             strokeWidth = lineWidth
-            pathEffect = DashPathEffect(floatArrayOf(5f, 5f), 0f)
+            pathEffect = DASH_PATH_EFFECT
         }
     }
 
@@ -53,12 +55,16 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     override fun onDraw(canvas: Canvas) {
         val path = Path()
         for (i in 1..depth - 1) {
-            val x = i * lineMargin - lineWidth
+            val x = spaceAtDepth(i) - lineWidth
 
             path.moveTo(x, 0f)
             path.lineTo(x, height.toFloat())
         }
 
         canvas.drawPath(path, linePaint)
+    }
+
+    companion object {
+        private val DASH_PATH_EFFECT = DashPathEffect(floatArrayOf(5f, 5f), 0f)
     }
 }

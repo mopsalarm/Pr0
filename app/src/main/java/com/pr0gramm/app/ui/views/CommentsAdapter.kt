@@ -15,6 +15,7 @@ import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
+import com.pr0gramm.app.util.visible
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
@@ -86,7 +87,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         val comment = entry.comment
         val context = holder.itemView.context
 
-        holder.setCommentDepth(entry.depth)
+        holder.updateCommentDepth(entry.depth)
         holder.senderInfo.setSenderName(comment.name, comment.mark)
         holder.senderInfo.setOnSenderClickedListener {
             commentActionListener?.onCommentAuthorClicked(comment)
@@ -222,7 +223,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
             current = byId[current.parent] ?: break
         }
 
-        return Math.min(8, depth)
+        return depth
     }
 
     class CommentView(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -233,9 +234,11 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         val copyCommentLink: View by bindView(R.id.copy_comment_link)
 
         val kFav: ImageView? by bindOptionalView(R.id.kfav)
+        val commentSpacerView = itemView as CommentSpacerView
 
-        fun setCommentDepth(depth: Int) {
-            (itemView as CommentSpacerView).depth = depth
+        fun updateCommentDepth(depth: Int) {
+            commentSpacerView.depth = depth
+            reply.visible = depth < MAX_COMMENT_DEPTH
         }
     }
 
@@ -257,5 +260,6 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
     companion object {
         private val NO_VOTES = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())
+        private val MAX_COMMENT_DEPTH = 15
     }
 }
