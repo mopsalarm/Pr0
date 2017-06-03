@@ -52,7 +52,7 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
 
     private fun limitCheckPassed() {
         val action: String? = intent?.action
-        val mediaType: String? = intent?.getStringExtra(UploadFragment.EXTRA_MEDIA_TYPE)
+        val mediaType: String? = intent?.getStringExtra(EXTRA_MEDIA_TYPE)
 
         when {
             action == Intent.ACTION_SEND -> showUploadFragment(null, addToBackstack = false)
@@ -76,15 +76,13 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
     internal fun showUploadFragment(type: String?, addToBackstack: Boolean) {
         val arguments = Bundle()
 
-        if (intent?.action == Intent.ACTION_SEND) {
+        val fragment = if (intent?.action == Intent.ACTION_SEND) {
             val url = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-            arguments.putParcelable(UploadFragment.EXTRA_LOCAL_URI, url)
+            UploadFragment.forLocalUri(url)
         } else {
-            arguments.putString(UploadFragment.EXTRA_MEDIA_TYPE, type)
+            UploadFragment.forMediaType(type)
         }
 
-        val fragment = UploadFragment()
-        fragment.arguments = arguments
         show(fragment, addToBackstack)
     }
 
@@ -136,12 +134,13 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
         const val MEDIA_TYPE_IMAGE = "image/*"
         const val MEDIA_TYPE_VIDEO = "video/*"
 
+        const val EXTRA_MEDIA_TYPE = "UploadActivity.mediaType"
+
         @JvmStatic
         fun openForType(context: Context, mediaType: String) {
             val intent = Intent(context, UploadActivity::class.java)
-            intent.putExtra(UploadFragment.EXTRA_MEDIA_TYPE, mediaType)
+            intent.putExtra(EXTRA_MEDIA_TYPE, mediaType)
             context.startActivity(intent)
         }
-
     }
 }

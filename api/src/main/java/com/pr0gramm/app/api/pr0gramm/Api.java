@@ -544,9 +544,10 @@ public interface Api {
 
         @Value.Immutable
         public interface MediaStream {
-            String codec();
+            @Nullable
+            String getCodec();
 
-            String type();
+            String getType();
         }
     }
 

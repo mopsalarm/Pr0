@@ -68,6 +68,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private var fileMediaType: MediaUri.MediaType? = null
     private var uploadInfo: UploadService.UploadInfo? = null
 
+    private var urlArgument: Uri? by optionalFragmentArgument()
+    private var mediaTypeArgument: String? by optionalFragmentArgument(default = "image/*")
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_upload, container, false)
     }
@@ -80,10 +83,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
             handleImageUri(uri)
 
         } else if (savedInstanceState == null) {
-            val type = arguments?.getString(EXTRA_MEDIA_TYPE) ?: "image/*"
-
             val intent = Intent(Intent.ACTION_PICK)
-            intent.type = type
+            intent.type = mediaTypeArgument
             startActivityForResult(intent, RequestCodes.SELECT_MEDIA)
         }
 
@@ -355,13 +356,6 @@ class UploadFragment : BaseFragment("UploadFragment") {
             return ContentType.NSFL
         }
 
-    private val urlArgument: Uri?
-        get() {
-            val arguments = arguments ?: return null
-            return arguments.getParcelable<Uri?>(EXTRA_LOCAL_URI)
-        }
-
-
     @SuppressLint("NewApi")
     private fun copy(context: Context, source: Uri): Observable<File> {
         return Observable.fromCallable<File> {
@@ -442,7 +436,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
             val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
             for (stream in report.streams) {
-                val streamInfo = context.getString(R.string.report_video_stream, stream.type(), stream.codec())
+                val streamInfo = context.getString(R.string.report_video_stream,
+                        stream.type, stream.codec ?: "null")
+
                 text.append(streamInfo,
                         BulletSpan(offset / 3),
                         LeadingMarginSpan.Standard(offset)).append("\n")
@@ -455,7 +451,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private class MediaNotSupported : RuntimeException("Media type not supported")
 
     companion object {
-        const val EXTRA_LOCAL_URI = "UploadFragment.localUri"
-        const val EXTRA_MEDIA_TYPE = "UploadFragment.mediaType"
+        fun forLocalUri(url: Uri?) = UploadFragment().apply { urlArgument = url }
+
+        fun forMediaType(type: String?) = UploadFragment().apply { mediaTypeArgument = type }
     }
 }
