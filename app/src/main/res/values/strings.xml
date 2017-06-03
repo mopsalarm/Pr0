@@ -474,5 +474,6 @@
     <string name="dt_since_label_past">%s ago</string>
     <string name="dt_since_label_future">%s from now</string>
     <string name="add_tags_opinion_hint">Please be aware that tags are not a place to voice your opinion but rather to describe the image.</string>
+    <string name="message">MESSAGE</string>
 </resources>
 

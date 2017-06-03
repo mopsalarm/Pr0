@@ -16,6 +16,10 @@
       },
       {
         "type": "Neu",
+        "change": "Auszeichnungen/Badges von Benutzern werden nun angezeigt."
+      },
+      {
+        "type": "Neu",
         "change": "Warnung beim Hinzufügen von Tags für die du vermutlich gebannt wirst."
       }
     ]

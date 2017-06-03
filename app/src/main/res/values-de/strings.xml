@@ -458,4 +458,5 @@
     <string name="badge_comments">Mehr als %sk Kommentare</string>
     <string name="badge_time">Mehr als %s Jahre auf dem pr0gramm</string>
     <string name="add_tags_opinion_hint">Bedenke: Tags sind nicht als Ort für deine Meinung, sondern zur Beschreibung des Bildes gedacht.</string>
+    <string name="message">NACHRICHT</string>
 </resources>

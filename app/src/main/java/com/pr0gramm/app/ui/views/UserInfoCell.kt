@@ -38,7 +38,7 @@ class UserInfoCell(context: Context, userInfo: Info,
     private val extraInfo: TextView by bindView(R.id.user_extra_info)
     private val writeNewMessage: View by bindView(R.id.action_new_message)
     private val writeNewMessageContainer: View by bindView(R.id.action_new_message_container)
-    private val actionsContainer: ViewGroup by bindView(R.id.actions_container)
+    private val badgesContainer: ViewGroup by bindView(R.id.badges_container)
     private val userTypeName: TextView by bindView(R.id.user_type_name)
 
     private val showCommentsContainer: View
@@ -137,7 +137,7 @@ class UserInfoCell(context: Context, userInfo: Info,
                                 text: String? = null,
                                 textColor: Int? = null) {
 
-        val view = layoutInflater.inflate(R.layout.badge, actionsContainer, false)
+        val view = layoutInflater.inflate(R.layout.badge, badgesContainer, false)
 
         view.longClicks().subscribe {
             Toast.makeText(context, description, Toast.LENGTH_SHORT).show()
@@ -165,7 +165,7 @@ class UserInfoCell(context: Context, userInfo: Info,
         }
 
         // add the view to parent
-        actionsContainer.addView(view)
+        badgesContainer.addView(view)
     }
 
     var showWriteMessage: Boolean
