@@ -33,7 +33,7 @@ private class FragmentArgumentDelegate<T : Any>(default: T? = null) : ReadWriteP
         }
 
         val args = thisRef.arguments
-        setArgumentValue(property, args, value)
+        setArgumentValue(args, property.name, value)
     }
 }
 
@@ -51,13 +51,11 @@ private class OptionalFragmentArgumentDelegate<T : Any>(default: T? = null) : Re
         }
 
         val args = thisRef.arguments
-        setArgumentValue(property, args, value)
+        setArgumentValue(args, property.name, value)
     }
 }
 
-private fun setArgumentValue(property: KProperty<*>, args: Bundle, value: Any?) {
-    val key = property.name
-
+private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
     if (value == null) {
         args.remove(key)
         return
@@ -77,7 +75,7 @@ private fun setArgumentValue(property: KProperty<*>, args: Bundle, value: Any?) 
         is Double -> args.putDouble(key, value)
         is Bundle -> args.putBundle(key, value)
         is Parcelable -> args.putParcelable(key, value)
-        else -> throw IllegalStateException("Type ${value.javaClass.canonicalName} of property ${property.name} is not supported")
+        else -> throw IllegalStateException("Type ${value.javaClass.canonicalName} of property ${key} is not supported")
     }
 }
 
