@@ -2,18 +2,26 @@ package com.pr0gramm.app.ui.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
+import android.view.View
 import android.widget.MultiAutoCompleteTextView
+import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Splitter
+import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.visible
 
 /**
  */
 class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val tagInput: MultiAutoCompleteTextView by bindView(R.id.tag)
+    private val opinionHint: View by bindView(R.id.opinion_hint)
+
+    private val config: Config by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(activity) {
@@ -25,6 +33,11 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
 
     override fun onDialogViewCreated() {
         TagInputView.setup(tagInput)
+
+        tagInput.textChanges().subscribe { text ->
+            val lower = text.toString().toLowerCase()
+            opinionHint.visible = config.questionableTags.any { lower.contains(it) }
+        }
     }
 
     private fun onOkayClicked() {

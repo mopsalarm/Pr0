@@ -8,6 +8,7 @@ import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.services.gif.MyGifToVideoService
@@ -55,6 +56,8 @@ fun servicesModule(app: Application) = Kodein.Module {
 
     bind<UploadService>() with singleton { UploadService(instance(), instance(), instance(), instance(), instance()) }
     bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
+
+    bind<Config>() with provider { instance<ConfigService>().config() }
 
     bind<NavigationProvider>() with scopedSingleton(androidActivityScope) { activity ->
         NavigationProvider(activity, instance(), instance(), instance(), instance(), instance())

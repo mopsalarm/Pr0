@@ -4,6 +4,9 @@ package com.pr0gramm.app.services.config;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  */
 @Value.Immutable
@@ -42,6 +45,14 @@ public abstract class Config {
     @Value.Default
     public boolean getTrackItemView() {
         return false;
+    }
+
+    @Value.Default
+    public List<String> getQuestionableTags() {
+        return Arrays.asList(
+                "0815", "kann weg", "heil hitler", "ban pls", "deshalb",
+                "ab ins gas", "und weiter", "alles ist", "hure", "da drückste",
+                "pr0paganda", "pr0gida");
     }
 
     public enum AdType {

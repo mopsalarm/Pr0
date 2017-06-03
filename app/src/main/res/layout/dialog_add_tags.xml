@@ -4,6 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:animateLayoutChanges="true"
     app:mwfl_maxWidth="400dp">
 
     <LinearLayout
@@ -17,6 +19,17 @@
             android:layout_height="wrap_content"
             android:text="@string/add_new_tag_summary"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+        <TextView
+            android:id="@+id/opinion_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_tags_opinion_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorAccent"
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <MultiAutoCompleteTextView
             android:id="@+id/tag"
