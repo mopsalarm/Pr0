@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Bugfixes und verbesserte Performance."
+      },
+      {
+        "type": "Neu",
+        "change": "Warnung beim Hinzufügen von Tags für die du vermutlich gebannt wirst."
       }
     ]
   },
