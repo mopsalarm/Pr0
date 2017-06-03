@@ -37,16 +37,17 @@ class UserInfoCell(context: Context, userInfo: Info,
     private val uploads: TextView by bindView(R.id.kpi_uploads)
     private val extraInfo: TextView by bindView(R.id.user_extra_info)
     private val writeNewMessage: View by bindView(R.id.action_new_message)
+    private val writeNewMessageContainer: View by bindView(R.id.action_new_message_container)
     private val actionsContainer: ViewGroup by bindView(R.id.actions_container)
     private val userTypeName: TextView by bindView(R.id.user_type_name)
 
-    private val showComments: View
+    private val showCommentsContainer: View
 
     var userActionListener: UserActionListener? = null
 
     init {
         View.inflate(context, R.layout.user_info_cell_v2, this)
-        showComments = find<View>(R.id.kpi_comments).parent as View
+        showCommentsContainer = find<View>(R.id.kpi_comments).parent as View
         updateUserInfo(userInfo)
     }
 
@@ -94,7 +95,7 @@ class UserInfoCell(context: Context, userInfo: Info,
 
         // add badge for "x comments"
         (info.commentCount / 1000).takeIf { it > 0 }?.let {
-            makeBadgeView(
+            appendBadgeView(
                     "comments.png",
                     context.getString(R.string.badge_comments, it.toString()),
                     text = "${it}k",
@@ -103,14 +104,14 @@ class UserInfoCell(context: Context, userInfo: Info,
 
         // add badge for "x years on pr0gramm"
         Years.yearsBetween(info.user.registered, Instant.now()).years.takeIf { it > 0 }?.let {
-            makeBadgeView(
+            appendBadgeView(
                     "years.png",
                     context.getString(R.string.badge_time, it.toString()),
                     text = it.toString())
         }
 
         info.badges.forEach { badge ->
-            makeBadgeView(badge.image, badge.description ?: "")
+            appendBadgeView(badge.image, badge.description ?: "")
         }
 
         // info about banned/register date
@@ -132,9 +133,9 @@ class UserInfoCell(context: Context, userInfo: Info,
      * Deflates and composes a badge view and adds that view to the
      * actionsContainer.
      */
-    private fun makeBadgeView(image: String, description: String,
-                              text: String? = null,
-                              textColor: Int? = null) {
+    private fun appendBadgeView(image: String, description: String,
+                                text: String? = null,
+                                textColor: Int? = null) {
 
         val view = layoutInflater.inflate(R.layout.badge, actionsContainer, false)
 
@@ -167,16 +168,17 @@ class UserInfoCell(context: Context, userInfo: Info,
         actionsContainer.addView(view)
     }
 
-    var writeMessageEnabled: Boolean
+    var showWriteMessage: Boolean
         get() = writeNewMessage.visibility == View.VISIBLE
         set(enabled) {
             writeNewMessage.visible = enabled
+            writeNewMessageContainer.visible = enabled
         }
 
-    var showCommentsEnabled: Boolean
-        get() = showComments.visibility == View.VISIBLE
+    var showComments: Boolean
+        get() = showCommentsContainer.visibility == View.VISIBLE
         set(enabled) {
-            showComments.visible = enabled
+            showCommentsContainer.visible = enabled
         }
 
     interface UserActionListener {

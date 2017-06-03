@@ -343,8 +343,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
         }
 
-        view.writeMessageEnabled = !isSelfInfo(info.info)
-        view.showCommentsEnabled = !comments.isEmpty()
+        view.showWriteMessage = !isSelfInfo(info.info)
+        view.showComments = !comments.isEmpty()
 
         appendUserInfoAdapters(
                 SingleViewAdapter.ofView(view),
