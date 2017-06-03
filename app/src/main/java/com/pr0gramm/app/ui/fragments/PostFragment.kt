@@ -52,6 +52,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility.dp
 import com.pr0gramm.app.util.AndroidUtility.screenIsLandscape
 import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Completable
@@ -1005,6 +1006,17 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private inner class PlaceholderView : FrameLayout(this@PostFragment.context) {
         var fixedHeight = AndroidUtility.dp(activity, 150)
+
+        init {
+            val v = View(context)
+            v.setBackgroundResource(R.drawable.dropshadow_reverse)
+
+            val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(context, 8))
+            lp.gravity = Gravity.BOTTOM
+            v.layoutParams = lp
+
+            addView(v)
+        }
 
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
             val width = MeasureSpec.getSize(widthMeasureSpec)
