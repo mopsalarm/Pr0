@@ -53,13 +53,6 @@
                 android:text="@string/type_sfw"/>
 
             <RadioButton
-                android:id="@+id/upload_type_nsfp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:text="@string/type_nsfp"/>
-
-            <RadioButton
                 android:id="@+id/upload_type_nsfw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

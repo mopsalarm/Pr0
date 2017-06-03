@@ -341,8 +341,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             val types = mapOf(
                     R.id.upload_type_sfw to ContentType.SFW,
                     R.id.upload_type_nsfw to ContentType.NSFW,
-                    R.id.upload_type_nsfl to ContentType.NSFL,
-                    R.id.upload_type_nsfp to ContentType.NSFP)
+                    R.id.upload_type_nsfl to ContentType.NSFL)
 
             val view = view
             if (view != null) {
