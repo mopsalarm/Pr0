@@ -1098,11 +1098,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             viewer.visibility = View.VISIBLE
 
             // position the repost badge, if it is visible
-            if (repostHint.visibility == View.VISIBLE) {
+            if (inMemoryCacheService.isRepost(feedItem)) {
+                repostHint.visible = true
                 repostHint.translationY = viewer.paddingTop.toFloat() - repostHint.pivotY - offset
             }
         } else {
-            viewer.visibility = View.INVISIBLE
+            viewer.visible = false
+            repostHint.visible = false
         }
     }
 

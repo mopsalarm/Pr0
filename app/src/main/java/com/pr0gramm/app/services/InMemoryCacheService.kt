@@ -1,10 +1,10 @@
 package com.pr0gramm.app.services
 
 import android.support.v4.util.LruCache
-import com.google.common.primitives.Longs
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
+import gnu.trove.set.hash.TLongHashSet
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
 class InMemoryCacheService {
     private val tagsCache = LruCache<Long, ExpiringValue<List<Api.Tag>>>(256)
     private val userInfoCache = LruCache<String, ExpiringValue<EnhancedUserInfo>>(24)
-    private val repostCache = AtomicReference(LongArray(0))
+    private val repostCache = AtomicReference(TLongHashSet())
 
     /**
      * Invalidates all caches
@@ -26,13 +26,12 @@ class InMemoryCacheService {
     fun invalidate() {
         tagsCache.evictAll()
         userInfoCache.evictAll()
-        repostCache.set(LongArray(0))
     }
 
     /**
      * Caches (or enhanced) a list of tags for the given itemId.
 
-     * @param tags_ The list with the tags you know about
+     * @param tags The list with the tags you know about
      * *
      * @return A list containing all previously seen tags for this item.
      */
@@ -54,11 +53,10 @@ class InMemoryCacheService {
      */
     @Synchronized
     fun cacheReposts(newRepostIds: List<Long>) {
-        val reposts = TreeSet<Long>()
-        reposts.addAll(repostCache.get().asList())
+        val reposts = TLongHashSet()
+        reposts.addAll(repostCache.get())
         reposts.addAll(newRepostIds)
-
-        repostCache.set(Longs.toArray(reposts))
+        repostCache.set(reposts)
     }
 
     /**
@@ -67,7 +65,7 @@ class InMemoryCacheService {
      * @param itemId The item to check
      */
     fun isRepost(itemId: Long): Boolean {
-        return Arrays.binarySearch(repostCache.get(), itemId) >= 0
+        return repostCache.get().contains(itemId)
     }
 
     fun isRepost(item: FeedItem): Boolean {
