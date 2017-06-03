@@ -7,8 +7,6 @@ import java.util.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-private object NotSet
-
 /**
  * Eases the Fragment.newInstance ceremony by marking the fragment's args with this delegate
  * Just write the property in newInstance and read it like any other property after the fragment has been created
