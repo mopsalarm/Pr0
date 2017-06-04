@@ -18,6 +18,8 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
         AppCompatTextView(context, attrs, defStyleAttr) {
 
     init {
+        compoundDrawablePadding = dp(context, 2)
+
         if (isInEditMode) {
             setUsername("Mopsalarm", 2)
         }
@@ -26,10 +28,13 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
     var mark: Int = 4
         set(v) {
             val mark = v.takeUnless { it < 0 || it >= UserClasses.MarkDrawables.size } ?: 4
+            field = mark
 
             val circle = ContextCompat.getDrawable(context, UserClasses.MarkDrawables[mark])
-            setCompoundDrawablesWithIntrinsicBounds(null, null, BaselineCompoundDrawable(circle), null)
-            compoundDrawablePadding = dp(context, 2)
+
+            val wrapped = BaselineCompoundDrawable(circle)
+            wrapped.setBounds(0, 0, circle.intrinsicWidth, height)
+            setCompoundDrawables(null, null, wrapped, null)
         }
 
     @SuppressLint("SetTextI18n")
