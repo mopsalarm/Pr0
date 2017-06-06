@@ -120,7 +120,7 @@ class UserInfoCell(context: Context, userInfo: Info,
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)
             } else {
-                val durationStr = formatTimeTo(context, bannedUntil, TimeMode.SINCE)
+                val durationStr = formatTimeTo(context, bannedUntil, TimeMode.DURATION)
                 extraInfo.text = context.getString(R.string.user_banned, durationStr)
             }
         } else {

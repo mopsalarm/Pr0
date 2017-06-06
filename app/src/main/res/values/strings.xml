@@ -251,7 +251,7 @@
     <string name="error_permission_not_granted">The permission \'%s\' is required but was not granted.</string>
     <string name="open_website">Open website</string>
 
-    <string name="user_banned">Banned until %s</string>
+    <string name="user_banned">Banned for %s</string>
     <string name="user_banned_forever">Banned forever</string>
     <string name="user_registered">Registered %s ago</string>
     <string name="update">Update</string>

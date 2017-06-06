@@ -15,6 +15,10 @@
         "change": "Bugfixes und verbesserte Performance."
       },
       {
+        "type": "Fix",
+        "change": "Anzahl ungelesener Nachrichten am App-Icon nur noch dann, wenn Benachrichtigungen eingeschaltet sind."
+      },
+      {
         "type": "Neu",
         "change": "Auszeichnungen/Badges von Benutzern werden nun angezeigt."
       },

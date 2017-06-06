@@ -72,7 +72,7 @@ enum class TimeMode {
 }
 
 fun formatTimeSpan(ctx: Context, time: Long, timeUnit: TimeUnit, mode: TimeMode, short: Boolean = false): String {
-    val diff = Math.abs(timeUnit.toSeconds(time)).toDouble()
+    val diff = timeUnit.toSeconds(Math.abs(time)).toDouble()
     val magnitude = Magnitudes.first { it.threshold >= diff && (!short || it.short) }
     val format = ctx.getString(mode.select(magnitude))
 

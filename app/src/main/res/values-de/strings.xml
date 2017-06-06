@@ -405,22 +405,22 @@
 
     <string name="dt_for_few_second">ein paar Sekunden</string>
     <string name="dt_for_n_seconds">$d Sekunden</string>
-    <string name="dt_for_one_minute">1 Minute</string>
+    <string name="dt_for_one_minute">eine Minute</string>
     <string name="dt_for_n_minutes">$d Minuten</string>
-    <string name="dt_for_one_hour">1 Stunde</string>
-    <string name="dt_for_one_hour_n_minutes">1 Stunde und $r Minuten</string>
+    <string name="dt_for_one_hour">eine Stunde</string>
+    <string name="dt_for_one_hour_n_minutes">eine Stunde und $r Minuten</string>
     <string name="dt_for_n_hours">$d Stunden</string>
-    <string name="dt_for_one_day">1 Tag</string>
-    <string name="dt_for_one_day_n_hours">1 Tag und $r Stunden</string>
+    <string name="dt_for_one_day">einen Tag</string>
+    <string name="dt_for_one_day_n_hours">einen Tag und $r Stunden</string>
     <string name="dt_for_n_days">$d Tagen</string>
-    <string name="dt_for_one_week">1 Woche</string>
-    <string name="dt_for_one_week_n_days">1 Woche und $r Tage</string>
+    <string name="dt_for_one_week">eine Woche</string>
+    <string name="dt_for_one_week_n_days">eine Woche und $r Tage</string>
     <string name="dt_for_n_weeks">$d Wochen</string>
-    <string name="dt_for_one_month">1 Monat</string>
-    <string name="dt_for_one_month_n_weeks">1 Monat und $r Wochen</string>
+    <string name="dt_for_one_month">einen Monat</string>
+    <string name="dt_for_one_month_n_weeks">einen Monat und $r Wochen</string>
     <string name="dt_for_n_month">$d Monate</string>
-    <string name="dt_for_one_year">1 Jahr</string>
-    <string name="dt_for_one_year_n_month">1 Jahr und $r Monate</string>
+    <string name="dt_for_one_year">ein Jahr</string>
+    <string name="dt_for_one_year_n_month">ein Jahr und $r Monate</string>
     <string name="dt_for_two_years">2 Jahre</string>
     <string name="dt_for_two_years_n_month">2 Jahre und $r Monate</string>
     <string name="dt_for_n_years">$d Jahre</string>
@@ -429,7 +429,7 @@
 
     <string name="dt_since_few_second">ein paar Sekunden</string>
     <string name="dt_since_n_seconds">$d Sekunden</string>
-    <string name="dt_since_one_minute">eienr Minute</string>
+    <string name="dt_since_one_minute">einer Minute</string>
     <string name="dt_since_n_minutes">$d Minuten</string>
     <string name="dt_since_one_hour">einer Stunde</string>
     <string name="dt_since_one_hour_n_minutes">einer Stunde und $r Minuten</string>
