@@ -11,7 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
-import com.jakewharton.rxbinding.view.longClicks
+import com.jakewharton.rxbinding.view.clicks
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.Api.Info
@@ -139,7 +139,7 @@ class UserInfoCell(context: Context, userInfo: Info,
 
         val view = layoutInflater.inflate(R.layout.badge, badgesContainer, false)
 
-        view.longClicks().subscribe {
+        view.clicks().subscribe {
             Toast.makeText(context, description, Toast.LENGTH_SHORT).show()
         }
 
