@@ -8,10 +8,10 @@ apply from: 'version.gradle'
 buildscript {
     ext {
         VersionKotlin = "1.1.2-4"
-        VersionSupportLibrary = "25.3.1"
+        VersionSupportLibrary = "25.4.0"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "10.2.6"
+        VersionGoogleServices = "11.0.0"
     }
 
     repositories {
@@ -104,6 +104,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+        exclude 'META-INF/rxjava.properties'
     }
 }
 
@@ -190,11 +191,9 @@ dependencies {
     compile "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
-    // compile 'com.github.evernote:android-job:1.1.10'
-    compile 'com.github.evernote:android-job:6501808cbd5bdebf1d25c9d28c5f15aff59e6272'
+    compile 'com.github.evernote:android-job:v1.1.11'
 
-    // a little bit more recent then 4.1.0
-    compile "com.github.paolorotolo:appintro:7cffb7c40744b0027729aa86995accd839a80a02"
+    compile "com.github.apl-devs:appintro:v4.2.0"
 
     compile 'com.google.android.exoplayer:exoplayer-core:r2.4.1'
 
@@ -228,13 +227,13 @@ dependencies {
     compile "com.crashlytics.sdk.android:crashlytics:2.6.8"
 
     // dependency injection using kotlin.
-    compile 'com.github.salomonbrys.kodein:kodein:3.3.0'
-    compile 'com.github.salomonbrys.kodein:kodein-android:3.3.0'
+    compile 'com.github.salomonbrys.kodein:kodein:4.0.0'
+    compile 'com.github.salomonbrys.kodein:kodein-android:4.0.0'
 
     testCompile 'junit:junit:4.12'
     testCompile 'com.natpryce:hamkrest:1.4.0.0'
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
-    testCompile "com.nhaarman:mockito-kotlin:1.4.0"
+    testCompile "com.nhaarman:mockito-kotlin:1.5.0"
 }
