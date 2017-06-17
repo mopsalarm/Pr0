@@ -67,6 +67,20 @@
                 android:text="@string/type_nsfl"/>
         </RadioGroup>
 
+        <TextView
+            android:id="@+id/opinion_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_tags_opinion_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorAccent"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
         <MultiAutoCompleteTextView
             android:id="@+id/tags"
             android:layout_width="match_parent"

@@ -20,6 +20,7 @@ import com.google.common.base.Splitter
 import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
 import com.jakewharton.rxbinding.view.RxView
+import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -29,6 +30,7 @@ import com.pr0gramm.app.services.MimeTypeHelper
 import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.MainActivity
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.Truss
@@ -54,6 +56,7 @@ import java.io.IOException
 class UploadFragment : BaseFragment("UploadFragment") {
     private val uploadService: UploadService by instance()
     private val rulesService: RulesService by instance()
+    private val config: Config by instance()
 
     private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
     private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
@@ -63,6 +66,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private val similarImages: SimilarImageView by bindView(R.id.similar_list)
     private val tags: MultiAutoCompleteTextView by bindView(R.id.tags)
     private val upload: Button by bindView(R.id.upload)
+    private val tagOpinionHint: View by bindView(R.id.opinion_hint)
 
     private var file: File? = null
     private var fileMediaType: MediaUri.MediaType? = null
@@ -95,6 +99,12 @@ class UploadFragment : BaseFragment("UploadFragment") {
         val smallPrintView = view.find<TextView>(R.id.small_print)
         rulesService.displayInto(smallPrintView)
         upload.setOnClickListener { onUploadClicked() }
+
+        // react on change in the tag input window
+        tags.textChanges().subscribe { text ->
+            val lower = text.toString().toLowerCase()
+            tagOpinionHint.visible = config.questionableTags.any { lower.contains(it) }
+        }
     }
 
     private fun onUploadClicked() {
