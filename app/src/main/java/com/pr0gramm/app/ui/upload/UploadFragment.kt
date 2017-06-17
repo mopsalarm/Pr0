@@ -61,7 +61,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
     private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
     private val preview: FrameLayout by bindView(R.id.preview)
-    private val scrollView: ScrollView by bindView(R.id.scrollView)
+    private val scrollView: ScrollView by bindView(R.id.scroll_view)
     private val similarHintView: View by bindView(R.id.similar_hint)
     private val similarImages: SimilarImageView by bindView(R.id.similar_list)
     private val tags: MultiAutoCompleteTextView by bindView(R.id.tags)
