@@ -34,11 +34,11 @@ private val Magnitudes = listOf(
         Magnitude(Hour, R.string.dt_since_n_minutes, R.string.dt_for_n_minutes, Minute),
 
         Magnitude(Hour + Minute, R.string.dt_since_one_hour, R.string.dt_for_one_hour, 1),
-        Magnitude(2 * Hour, R.string.dt_since_one_hour_n_minutes, R.string.dt_for_one_hour_n_minutes, Hour, rest = Second),
+        Magnitude(2 * Hour, R.string.dt_since_one_hour_n_minutes, R.string.dt_for_one_hour_n_minutes, Hour, rest = Minute),
         Magnitude(Day, R.string.dt_since_n_hours, R.string.dt_for_n_hours, Hour),
 
         Magnitude(Day + Hour, R.string.dt_since_one_day, R.string.dt_for_one_day, 1),
-        Magnitude(2 * Day, R.string.dt_since_one_day_n_hours, R.string.dt_for_one_day_n_hours, Day, rest = Minute),
+        Magnitude(2 * Day, R.string.dt_since_one_day_n_hours, R.string.dt_for_one_day_n_hours, Day, rest = Hour),
         Magnitude(Week, R.string.dt_since_n_days, R.string.dt_for_n_days, Day),
 
         Magnitude(Week + Day, R.string.dt_since_one_week, R.string.dt_for_one_week, 1),
