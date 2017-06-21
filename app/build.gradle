@@ -174,7 +174,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     compile "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     compile "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
-    compile "com.squareup.okhttp3:okhttp:3.8.0"
+    compile "com.squareup.okhttp3:okhttp:3.8.1"
     compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
     compile "pl.droidsonroids.gif:android-gif-drawable:1.2.7"
@@ -195,7 +195,7 @@ dependencies {
 
     compile "com.github.apl-devs:appintro:v4.2.0"
 
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.1'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.2'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
