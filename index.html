@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  <title>pr0gramm App</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Die App für die besten Bilder und Videos aus dem Netz"/>
+	<meta name="theme-color" content="#ee4d2e">
+
+	<link rel="icon" href="https://pr0gramm.com/media/pr0gramm-favicon.png"/>
+	<link rel="apple-touch-icon" href="https://pr0gramm.com/media/pr0gramm-touch-icon.png" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      background: url(feed.jpg);
+      background-color: #161618;
+      background-size: cover;
+
+      color: white;
+      font-family: sans-serif, Arial;
+
+      line-height: 1.35em;
+    }
+
+    a {
+      color: white;
+    }
+
+    .phone {
+      position: relative;
+    }
+
+    .phone__image {
+      position: relative;
+      background: url(phone.png);
+      background-size: contain;
+      padding-top: 159%;
+    }
+
+    .phone__video {
+      position: absolute;
+      display: block;
+      left: 17%;
+      width: 64.25%;
+      top: 11.2%;
+    }
+
+    .container {
+      text-align: center;
+      margin: 2em;
+    }
+
+    .download-link {
+      display: block;
+
+      padding: 1em;
+      background: #ee4d2e;
+      border-radius: 0.25em;
+      margin-top: 1.66em;
+      margin-bottom: 1.66em;
+
+      color: white;
+      text-decoration: none;
+
+      box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.5);
+    }
+
+    .download-link:hover {
+      color: #ccc;
+    }
+
+    .hint {
+      opacity: 0.75;
+      font-size: 0.75em;
+    }
+
+    .outer {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 512px) {
+      .phone, .container {
+        float: left;
+        width: 49%;
+        margin: 0;
+      }
+
+      .container {
+        margin-top: 5em;
+        padding-left: 10%;
+        padding-right: 2.5%;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="outer">
+    <div class="container">
+      <p>
+          Die offizielle pr0gramm App,
+          <br>
+          jetzt und NUR für Android!
+      </p>
+      <a class="download-link" href="/pr0gramm-latest.apk">Herunterladen</a>
+      <p class="hint">
+        Beachte, dass Du die Installation von <a href="https://www.computerbild.de/fotos/cb-News-Handy-APK-installieren-Android-11083471.html" target="_blank">Apps aus nicht vertrauenswürdigen Quellen zulassen</a> musst,
+        damit Du die App am PlayStore vorbei installieren kannst.
+
+        Weitere Informationen auch auf der <a href="/details/">alten Website</a>.
+      </p>
+
+    </div>
+
+    <div class="phone">
+      <div class="phone__image"></div>
+      <video class="phone__video" muted autoplay loop src="video.mp4" poster="poster.jpg" ></video>
+    </div>
+  </div>
+
+
+  <script defer>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-61398904-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+
+</html>
