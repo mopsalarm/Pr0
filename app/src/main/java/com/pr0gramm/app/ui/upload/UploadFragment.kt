@@ -32,7 +32,6 @@ import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.MainActivity
-import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.Truss
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
@@ -91,9 +90,6 @@ class UploadFragment : BaseFragment("UploadFragment") {
             intent.type = mediaTypeArgument
             startActivityForResult(intent, RequestCodes.SELECT_MEDIA)
         }
-
-        // enable auto-complete
-        TagInputView.setup(tags)
 
         // add the small print to the view
         val smallPrintView = view.find<TextView>(R.id.small_print)
