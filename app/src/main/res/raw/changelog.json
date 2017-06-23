@@ -1,5 +1,18 @@
 [
   {
+    "version": 128,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Datum-/Zeitformatierung korrigiert."
+      },
+      {
+        "type": "Entfernt",
+        "change": "Tagvorschläge: Waren nie wirklich hilfreich"
+      }
+    ]
+  },
+  {
     "version": 127,
     "changes": [
       {
