@@ -412,7 +412,7 @@
     <string name="dt_for_n_hours">$d Stunden</string>
     <string name="dt_for_one_day">einen Tag</string>
     <string name="dt_for_one_day_n_hours">einen Tag und $r Stunden</string>
-    <string name="dt_for_n_days">$d Tagen</string>
+    <string name="dt_for_n_days">$d Tage</string>
     <string name="dt_for_one_week">eine Woche</string>
     <string name="dt_for_one_week_n_days">eine Woche und $r Tage</string>
     <string name="dt_for_n_weeks">$d Wochen</string>
@@ -424,7 +424,7 @@
     <string name="dt_for_two_years">2 Jahre</string>
     <string name="dt_for_two_years_n_month">2 Jahre und $r Monate</string>
     <string name="dt_for_n_years">$d Jahre</string>
-    <string name="dt_for_long_white">einer Ewigkeit</string>
+    <string name="dt_for_long_white">eine Ewigkeit</string>
     <string name="dt_for_now">jetzt</string>
 
     <string name="dt_since_few_second">ein paar Sekunden</string>

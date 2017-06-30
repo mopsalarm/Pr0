@@ -27,7 +27,7 @@ class SeenService(context: Context) {
                 val file = File(context.filesDir, "seen-posts.bits")
                 buffer.set(mapByteBuffer(file))
             } catch (error: IOException) {
-                logger.warn("Could not load the seen-Cache")
+                logger.warn("Could not load the seen-Cache", error)
             }
         }
     }

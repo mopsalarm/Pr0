@@ -9,7 +9,6 @@ import com.google.common.base.Splitter
 import com.jakewharton.rxbinding.widget.textChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.config.Config
-import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.util.AndroidUtility
@@ -32,8 +31,6 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     }
 
     override fun onDialogViewCreated() {
-        TagInputView.setup(tagInput)
-
         tagInput.textChanges().subscribe { text ->
             val lower = text.toString().toLowerCase()
             opinionHint.visible = config.questionableTags.any { lower.contains(it) }

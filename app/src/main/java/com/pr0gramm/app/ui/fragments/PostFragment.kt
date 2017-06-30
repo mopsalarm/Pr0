@@ -503,7 +503,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     @OnOptionsItemSelected(R.id.action_refresh)
     fun refreshWithIndicator() {
-        if (swipeRefreshLayout.isRefreshing)
+        if (swipeRefreshLayout.isRefreshing || isDetached)
             return
 
         rewindOnLoad = true

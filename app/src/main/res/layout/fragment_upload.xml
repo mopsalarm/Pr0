@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView"
+    android:id="@+id/scroll_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -66,6 +66,20 @@
                 android:layout_marginLeft="8dp"
                 android:text="@string/type_nsfl"/>
         </RadioGroup>
+
+        <TextView
+            android:id="@+id/opinion_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_tags_opinion_hint"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorAccent"
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <MultiAutoCompleteTextView
             android:id="@+id/tags"

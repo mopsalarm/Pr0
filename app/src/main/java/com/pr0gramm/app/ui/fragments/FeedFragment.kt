@@ -880,7 +880,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private inner class FeedAdapter : RecyclerView.Adapter<FeedItemViewHolder>() {
         val isUsersFavorites = cached<Boolean> {
-            feed.filter.likes.equals(userService.name, ignoreCase = true)
+            val name = userService.name
+            name != null && name.equals(feed.filter.likes, ignoreCase = true)
         }
 
         init {
