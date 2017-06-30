@@ -475,5 +475,7 @@
     <string name="dt_since_label_future">%s from now</string>
     <string name="add_tags_opinion_hint">Please be aware that tags are not a place to voice your opinion but rather to describe the image.</string>
     <string name="message">MESSAGE</string>
+    <string name="progress_dialog_title">Loading</string>
+    <string name="progress_dialog_message">\"Please wait...\"</string>
 </resources>
 

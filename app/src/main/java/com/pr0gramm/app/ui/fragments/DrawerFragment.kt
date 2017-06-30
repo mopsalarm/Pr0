@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.app.Fragment
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
@@ -129,7 +130,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         })
 
         benisGraph.setOnClickListener {
-            this.onBenisGraphClicked()
+            val fragment = BenisGraphFragment()
+            var transaction = fragmentManager.beginTransaction()
+            transaction.replace(R.id.content, fragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
         }
 
         // colorize all the secondary icons.

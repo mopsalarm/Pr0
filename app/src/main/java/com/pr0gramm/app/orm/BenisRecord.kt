@@ -18,6 +18,12 @@ data class BenisRecord(val time: Long, val benis: Int) {
                     .mapToList { BenisRecord(getLong(0), getInt(1)) }
         }
 
+        fun findValues(db:SQLiteDatabase, ownerId: Int):List<BenisRecord>{
+            return db
+                    .query("benis_record", arrayOf("time", "benis"), "(owner_id=? or owner_id=0)", arrayOfStrings(ownerId), null, null, "time ASC")
+                    .mapToList { BenisRecord(getLong(0), getInt(1)) }
+        }
+
         fun storeValue(db: SQLiteDatabase, ownerId: Int, benis: Int) {
             db.execSQL("INSERT INTO benis_record (owner_id, time, benis) VALUES (?, ?, ?)",
                     arrayOfStrings(ownerId, System.currentTimeMillis(), benis))
