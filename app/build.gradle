@@ -230,6 +230,8 @@ dependencies {
     compile 'com.github.salomonbrys.kodein:kodein:4.0.0'
     compile 'com.github.salomonbrys.kodein:kodein-android:4.0.0'
 
+    compile "com.androidplot:androidplot-core:1.4.3"
+
     testCompile 'junit:junit:4.12'
     testCompile 'com.natpryce:hamkrest:1.4.0.0'
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
