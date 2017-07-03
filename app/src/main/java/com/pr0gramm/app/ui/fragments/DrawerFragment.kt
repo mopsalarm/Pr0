@@ -130,11 +130,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         })
 
         benisGraph.setOnClickListener {
-            val fragment = BenisGraphFragment()
-            var transaction = fragmentManager.beginTransaction()
-            transaction.replace(R.id.content, fragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            this.onBenisGraphClicked()
         }
 
         // colorize all the secondary icons.
@@ -151,11 +147,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun onBenisGraphClicked() {
-        DialogBuilder.start(activity)
-                .cancelable()
-                .content(R.string.benis_graph_explanation)
-                .positive()
-                .show()
+        val fragment = BenisGraphFragment()
+        var transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.content, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     override fun onResume() {
