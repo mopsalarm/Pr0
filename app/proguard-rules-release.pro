@@ -63,7 +63,3 @@
 -keepclassmembers class **$WhenMappings {
     <fields>;
 }
-
-
-# keep androidplot
--keep class com.androidplot.** { *; }
