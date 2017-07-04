@@ -477,5 +477,8 @@
     <string name="message">MESSAGE</string>
     <string name="progress_dialog_title">Loading</string>
     <string name="progress_dialog_message">\"Please wait...\"</string>
+    <string name="benis_graph_title">Benis history</string>
+    <string name="benis_y_title">Benis</string>
+    <string name="benis_x_title">Date</string>
 </resources>
 
