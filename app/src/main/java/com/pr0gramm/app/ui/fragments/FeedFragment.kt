@@ -879,9 +879,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private inner class FeedAdapter : RecyclerView.Adapter<FeedItemViewHolder>() {
-        val isUsersFavorites = cached<Boolean> {
+        val isUsersFeedOrFavorites = cached<Boolean> {
             val name = userService.name
-            name != null && name.equals(feed.filter.likes, ignoreCase = true)
+            name != null && name.equals(feed.filter.likes ?: feed.filter.username, ignoreCase = true)
         }
 
         init {
@@ -889,7 +889,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         var feed: Feed by observeChangeEx(Feed()) { old, new ->
-            isUsersFavorites.invalidate()
+            isUsersFeedOrFavorites.invalidate()
 
             if (old.items == new.items) {
                 logger.info("No change in feed items.")
@@ -949,7 +949,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             if (inMemoryCacheService.isRepost(item.id())) {
                 holder.setIsRepost()
 
-            } else if (seenIndicatorStyle === IndicatorStyle.ICON && !isUsersFavorites.value && isSeen(item)) {
+            } else if (seenIndicatorStyle === IndicatorStyle.ICON && !isUsersFeedOrFavorites.value && isSeen(item)) {
                 holder.setIsSeen()
 
             } else {

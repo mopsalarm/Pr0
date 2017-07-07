@@ -77,6 +77,14 @@ public interface Api {
             @Field("parentId") long parentId,
             @Field("comment") String comment);
 
+    @FormUrlEncoded
+    @POST("/api/comments/delete")
+    Observable<Nothing> hardDeleteComment(@Field("_nonce") Nonce nonce, @Field("id") long commentId, @Field("reason") String reason);
+
+    @FormUrlEncoded
+    @POST("/api/comments/softDelete")
+    Observable<Nothing> softDeleteComment(@Field("_nonce") Nonce nonce, @Field("id") long commentId, @Field("reason") String reason);
+
     @GET("/api/items/info")
     Observable<Post> info(@Query("itemId") long itemId);
 
