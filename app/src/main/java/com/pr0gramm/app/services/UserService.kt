@@ -351,11 +351,9 @@ class UserService(private val api: Api,
         return Graph(start.millis.toDouble(), now.millis.toDouble(), points)
     }
 
-    fun loadBenis(userId:Int = loginState.id):Observable<BenisRecord>{
+    fun loadBenis(userId:Int = loginState.id):List<BenisRecord>{
         val date = Instant(0)
-        var records = BenisRecord.findValuesLaterThan(database.value, userId, date)
-
-        return Observable.from(records)
+        return BenisRecord.findValuesLaterThan(database.value, userId, date)
     }
 
     /**

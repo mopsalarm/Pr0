@@ -6,20 +6,21 @@ package com.pr0gramm.app.ui.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import android.provider.CalendarContract
+import android.support.annotation.MainThread
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.androidplot.Plot
-import com.androidplot.util.Redrawer
 import com.androidplot.xy.*
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.util.BackgroundScheduler
 import java.text.*
 import java.util.*
+import rx.Observable
 
 class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
 
@@ -92,34 +93,37 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         private var maxY: Int = 0
 
         init {
-            userService.loadBenis().subscribe{
-                data.add(it)
-                minX = if(minX > it.time) it.time else minX
-                maxX = if(maxX < it.time) it.time else maxX
-                minY = if(minY > it.benis) it.benis else minY
-                maxY = if(maxY < it.benis) it.benis else maxY
-                var date = dateFormat.format(Date(it.time))
-                firstOfDays[date] = Math.min(it.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE))
+            Observable.fromCallable{ userService.loadBenis()}
+                    .subscribeOn(BackgroundScheduler.instance())
+                    .subscribe{
+                for (br in it){
+                    data.add(br)
+                    if(minX > br.time) minX = br.time
+                    if(maxX < br.time) maxX = br.time
+                    if(minY > br.benis) minY = br.benis
+                    if(maxY < br.benis) maxY = br.benis
+                    var date = dateFormat.format(Date(br.time))
+                    firstOfDays[date] = Math.min(br.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE))
 
-                val deltaX = (maxX - minX)*0.05
+                    plot.outerLimits.set(
+                            minX,
+                            maxX,
+                            minY,
+                            maxY*1.2
+                    )
+                    plot.setRangeBoundaries(
+                            minY,
+                            maxY*1.2,
+                            BoundaryMode.FIXED
+                    )
+                    plot.setDomainBoundaries(
+                            minX,
+                            maxX,
+                            BoundaryMode.FIXED
+                    )
+                    plot.redraw()
 
-                plot.outerLimits.set(
-                        minX,
-                        maxX,
-                        minY,
-                        maxY*1.2
-                )
-                plot.setRangeBoundaries(
-                        minY,
-                        maxY*1.2,
-                        BoundaryMode.FIXED
-                )
-                plot.setDomainBoundaries(
-                        minX,
-                        maxX,
-                        BoundaryMode.FIXED
-                )
-                plot.redraw()
+                }
 
             }
         }
