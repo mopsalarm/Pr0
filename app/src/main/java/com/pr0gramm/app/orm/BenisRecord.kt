@@ -5,7 +5,6 @@ import com.pr0gramm.app.util.arrayOfStrings
 import com.pr0gramm.app.util.mapToList
 import org.joda.time.ReadableInstant
 import org.slf4j.LoggerFactory
-import rx.Observable
 
 /**
  */
@@ -14,7 +13,6 @@ data class BenisRecord(val time: Long, val benis: Int) {
         private val logger = LoggerFactory.getLogger("BenisRecord")
 
         fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: ReadableInstant): List<BenisRecord> {
-            Thread.sleep(5000);
             return db
                     .query("benis_record", arrayOf("time", "benis"), "time >= ? and (owner_id=? or owner_id=0)", arrayOfStrings(time.millis, ownerId), null, null, "time ASC")
                     .mapToList { BenisRecord(getLong(0), getInt(1)) }
