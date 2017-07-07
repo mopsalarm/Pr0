@@ -20,30 +20,14 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseFragment
 import java.text.*
 import java.util.*
-import kotlin.collections.HashMap
 
 class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
 
-    private inner class MyPlotUpdater(internal var plot: XYPlot):Observer{
-
-        override fun update(o: Observable?, arg: Any?) {
-            // TODO ("Check dataTypes of arg")
-            if (arg is Array<*>){
-                plot.outerLimits.set(arg[0] as Long ,arg[1] as Long,arg[2] as Int,arg[3] as Int)
-                plot.setRangeBoundaries(arg[2] as Int, arg[3] as Int,BoundaryMode.FIXED)
-            }
-            plot.redraw()
-        }
-    }
-
     private val plot: XYPlot by bindView(R.id.benis_plot)
     private val userService: UserService by instance()
-    private val dateFormat = SimpleDateFormat("dd.MM.yy")
-    private val timeFormat = SimpleDateFormat("HH:mm")
-    private var plotUpdater: MyPlotUpdater? = null
     internal lateinit var data: BenisGraphDataSource
-    private var  myThread: Thread? = null
     internal var firstOfDays: MutableMap<String, Long> = mutableMapOf()
+    private val dateFormat = SimpleDateFormat("dd.MM.yy")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,15 +41,11 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        plotUpdater = MyPlotUpdater(plot)
         data = BenisGraphDataSource()
         val serie = BenisSeries(data,getString(R.string.benis_graph_title))
         val formatter = LineAndPointFormatter(this.context,R.xml.benis_plot_line_point_formatter)
         formatter.pointLabeler = PointLabeler<XYSeries> { p0, p1 -> if (p1 % 5 == 0) p0.getY(p1).toString() else "" }
         plot.addSeries(serie, formatter)
-
-        data.addObserver(plotUpdater!!)
 
         PanZoom.attach(plot,PanZoom.Pan.HORIZONTAL,PanZoom.Zoom.STRETCH_HORIZONTAL)
 
@@ -75,15 +55,19 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         plot.graph.backgroundPaint.color = Color.TRANSPARENT
         plot.graph.gridBackgroundPaint.color = Color.TRANSPARENT
 
-        plot.linesPerDomainLabel = 3
-        plot.linesPerRangeLabel = 1
+        plot.graph.domainSubGridLinePaint.color = Color.TRANSPARENT
+        plot.graph.linesPerDomainLabel
+        plot.linesPerDomainLabel = 2
+        plot.linesPerRangeLabel = 2
         plot.legend.isVisible = false
+        plot.setBorderStyle(Plot.BorderStyle.NONE, null, null)
         plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT)
                 .format = DecimalFormat("0")
 
         plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM)
                 .format = object : Format() {
 
+            private val timeFormat = SimpleDateFormat("HH:mm")
             override fun format(obj: Any, toAppendTo: StringBuffer, pos: FieldPosition): StringBuffer {
                 val ts = Math.round((obj as Number).toDouble())
                 val date = Date(ts)
@@ -99,66 +83,45 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         }
     }
 
-    override fun onResume() {
-        myThread = Thread(data)
-        myThread!!.start()
-        super.onResume()
-    }
+    internal inner class BenisGraphDataSource {
 
-    override fun onPause() {
-        data.stopThread()
-        super.onPause()
-    }
-
-    internal inner class BenisGraphDataSource : Runnable {
-        internal inner class MyObservable : Observable() {
-            override fun notifyObservers() {
-                setChanged()
-                super.notifyObservers(0)
-            }
-            override fun notifyObservers(args: Any?) {
-                setChanged()
-                super.notifyObservers(args)
-            }
-        }
-
-        private var notifier: MyObservable? = null
-        private var data: MutableList<BenisRecord>
+        private var data: MutableList<BenisRecord> = mutableListOf()
         private var minX: Long = Long.MAX_VALUE
         private var maxX: Long = Long.MIN_VALUE
         private var minY: Int = 0
         private var maxY: Int = 0
 
         init {
-            notifier = MyObservable()
-            data = mutableListOf()
-        }
+            userService.loadBenis().subscribe{
+                data.add(it)
+                minX = if(minX > it.time) it.time else minX
+                maxX = if(maxX < it.time) it.time else maxX
+                minY = if(minY > it.benis) it.benis else minY
+                maxY = if(maxY < it.benis) it.benis else maxY
+                var date = dateFormat.format(Date(it.time))
+                firstOfDays[date] = Math.min(it.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE))
 
-        fun stopThread() {
-        }
+                val deltaX = (maxX - minX)*0.05
 
-        override fun run() {
-            try {
-                userService.loadBenis().subscribe{
-                    data.add(it)
-                    minX = if(minX > it.time) it.time -1000 else minX
-                    maxX = if(maxX < it.time) it.time +1000 else maxX
-                    minY = if(minY > it.benis) it.benis else minY
-                    maxY = if(maxY < it.benis) it.benis else maxY
-                    var date = dateFormat.format(Date(it.time))
-                    firstOfDays.set(date, Math.min(it.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE)))
+                plot.outerLimits.set(
+                        minX,
+                        maxX,
+                        minY,
+                        maxY*1.2
+                )
+                plot.setRangeBoundaries(
+                        minY,
+                        maxY*1.2,
+                        BoundaryMode.FIXED
+                )
+                plot.setDomainBoundaries(
+                        minX,
+                        maxX,
+                        BoundaryMode.FIXED
+                )
+                plot.redraw()
 
-
-                    notifier!!.notifyObservers(arrayOf(minX,maxX,Math.floor(minY * 1.1).toInt(),Math.ceil(maxY * 1.1).toInt()))
-                }
-                notifier!!.notifyObservers()
-            } catch(e: InterruptedException){
-                e.printStackTrace()
             }
-        }
-
-        fun addObserver(observer: Observer){
-            notifier!!.addObserver(observer)
         }
 
         fun  getItemCount(): Int {
