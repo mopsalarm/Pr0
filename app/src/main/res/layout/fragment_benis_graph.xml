@@ -19,14 +19,17 @@
         ap:gridInsetLeft="30dp"
         ap:gridInsetBottom="30dp"
         ap:gridInsetRight="30dp"
-        ap:gridInsetTop="30dp"
+        ap:gridInsetTop="60dp"
 
         ap:lineLabelInsetLeft="25dp"
         ap:lineLabelInsetBottom="15dp"
         ap:lineLabelRotationBottom="0"
 
-        ap:domainOriginLineThickness="2dp"
-        ap:rangeOriginLineThickness="2dp"
+        ap.lineExtensionBottom="3dp"
+        ap.lineExtensionLeft="5dp"
+
+        ap:domainOriginLineThickness="1dp"
+        ap:rangeOriginLineThickness="1dp"
 
         ap:lineLabelAlignBottom="center"
         ap:lineLabelAlignLeft="right"
