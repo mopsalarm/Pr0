@@ -9,33 +9,34 @@
 
     <com.androidplot.xy.XYPlot
         android:id="@+id/benis_plot"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
         ap:lineLabels="left|bottom"
-        ap:domainTitle="@string/benis_x_title"
-        ap:rangeTitle="@string/benis_y_title"
         ap:renderMode="use_background_thread"
 
-        ap:gridInsetLeft="30dp"
-        ap:gridInsetBottom="30dp"
-        ap:gridInsetRight="30dp"
-        ap:gridInsetTop="60dp"
+        ap:domainTitleTextSize="16dp"
+        ap:gridInsetBottom="48dp"
+        ap:gridInsetLeft="48dp"
+        ap:gridInsetRight="16dp"
 
-        ap:lineLabelInsetLeft="25dp"
-        ap:lineLabelInsetBottom="15dp"
-        ap:lineLabelRotationBottom="0"
+        ap:gridInsetTop="16dp"
+        ap:lineExtensionBottom="8dp"
+        ap:lineExtensionLeft="8dp"
 
-        ap.lineExtensionBottom="3dp"
-        ap.lineExtensionLeft="5dp"
+        ap:lineExtensionRight="8dp"
+        ap:lineExtensionTop="8dp"
+        ap:lineLabelAlignBottom="left"
+        ap:lineLabelAlignLeft="left"
 
         ap:domainOriginLineThickness="1dp"
         ap:rangeOriginLineThickness="1dp"
 
-        ap:lineLabelAlignBottom="center"
-        ap:lineLabelAlignLeft="right"
+        ap:lineLabelInsetBottom="8dp"
+        ap:lineLabelInsetLeft="8dp"
 
-        ap:rangeTitleTextSize="20dp"
-        ap:domainTitleTextSize="20dp"
+        ap:lineLabelRotationBottom="-45"
+        ap:rangeTitleTextSize="16dp"
         />
 
 </FrameLayout>

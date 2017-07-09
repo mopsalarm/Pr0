@@ -12,6 +12,8 @@ import android.os.PowerManager
 import android.support.annotation.ColorInt
 import android.support.annotation.ColorRes
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v4.util.LruCache
 import android.support.v7.widget.RecyclerView
@@ -328,4 +330,15 @@ fun File.toUri(): Uri = Uri.fromFile(this)
 @ColorInt
 fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
+}
+
+inline fun FragmentManager.transaction(now: Boolean = false, block: FragmentTransaction.() -> Unit) {
+    val tr = beginTransaction()
+    tr.block()
+
+    if (now) {
+        tr.commitNow()
+    } else {
+        tr.commit()
+    }
 }
