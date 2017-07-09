@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
+import android.app.Fragment
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
@@ -146,11 +147,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun onBenisGraphClicked() {
-        DialogBuilder.start(activity)
-                .cancelable()
-                .content(R.string.benis_graph_explanation)
-                .positive()
-                .show()
+        val fragment = BenisGraphFragment()
+        var transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.content, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     override fun onResume() {

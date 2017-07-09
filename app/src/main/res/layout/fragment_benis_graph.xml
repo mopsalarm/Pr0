@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:ap="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.MainActivity">
+
+    <com.androidplot.xy.XYPlot
+        android:id="@+id/benis_plot"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        ap:lineLabels="left|bottom"
+        ap:domainTitle="@string/benis_x_title"
+        ap:rangeTitle="@string/benis_y_title"
+        ap:renderMode="use_background_thread"
+
+        ap:gridInsetLeft="30dp"
+        ap:gridInsetBottom="30dp"
+        ap:gridInsetRight="30dp"
+        ap:gridInsetTop="60dp"
+
+        ap:lineLabelInsetLeft="25dp"
+        ap:lineLabelInsetBottom="15dp"
+        ap:lineLabelRotationBottom="0"
+
+        ap.lineExtensionBottom="3dp"
+        ap.lineExtensionLeft="5dp"
+
+        ap:domainOriginLineThickness="1dp"
+        ap:rangeOriginLineThickness="1dp"
+
+        ap:lineLabelAlignBottom="center"
+        ap:lineLabelAlignLeft="right"
+
+        ap:rangeTitleTextSize="20dp"
+        ap:domainTitleTextSize="20dp"
+        />
+
+</FrameLayout>

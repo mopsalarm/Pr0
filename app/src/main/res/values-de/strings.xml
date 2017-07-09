@@ -460,4 +460,7 @@
     <string name="add_tags_opinion_hint">Bedenke: Tags sind nicht als Ort für deine Meinung, sondern zur Beschreibung des Bildes gedacht.</string>
     <string name="message">NACHRICHT</string>
     <string name="delete_comment_soft">Durch <i>[gelöscht]</i> ersetzen</string>
+    <string name="benis_graph_title">Benisverlauf</string>
+    <string name="benis_y_title">Benis</string>
+    <string name="benis_x_title">Datum</string>
 </resources>

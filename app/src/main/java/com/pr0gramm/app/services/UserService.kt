@@ -351,6 +351,11 @@ class UserService(private val api: Api,
         return Graph(start.millis.toDouble(), now.millis.toDouble(), points)
     }
 
+    fun loadBenis(userId:Int = loginState.id):List<BenisRecord>{
+        val date = Instant(0)
+        return BenisRecord.findValuesLaterThan(database.value, userId, date)
+    }
+
     /**
      * Gets the name of the current user from the cookie. This will only
      * work, if the user is authorized.
