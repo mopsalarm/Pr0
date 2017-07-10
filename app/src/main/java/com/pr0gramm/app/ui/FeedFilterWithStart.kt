@@ -29,7 +29,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
                 if (!matcher.matches())
                     continue
 
-                val groups = matcher.namedGroups()
+                val groups = matcher.namedGroups().firstOrNull() ?: continue
 
                 var filter = FeedFilter().withFeedType(FeedType.NEW)
 

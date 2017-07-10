@@ -30,9 +30,3 @@ Die aktuelle Version der offiziellen pr0gramm-App gibt es unter: https://app.pr0
 * Vorladen von Bildern und Videos
 * Sound
 * mehr
-
-## Benötigt
-* Hilfe beim Testen, Bugs, etc
-* Tipps fürs Layout (auch für Tablet)
-
-Die alte Website findest du unter https://mopsalarm.github.io/

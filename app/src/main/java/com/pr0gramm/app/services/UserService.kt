@@ -52,17 +52,7 @@ class UserService(private val api: Api,
 
         this.cookieHandler.onCookieChanged = { this.onCookieChanged() }
 
-        loginStateObservable.subscribe { this.persistLatestLoginState(it) }
-
-        // this is not nice, and will get removed in one or two versions!
-        // TODO REMOVE THIS ASAP.
-        loginStateObservable
-                .filter { state -> state.authorized && state.uniqueToken == null }
-                .switchMap { api.identifier().subscribeOnBackground() }
-                .map { it.identifier() }
-                .onErrorResumeEmpty()
-                .subscribe { this.updateUniqueToken(it) }
-
+        loginStateObservable.subscribe { state -> persistLatestLoginState(state) }
         loginStateObservable.subscribe { state -> Track.updateUserState(state) }
     }
 
@@ -113,7 +103,7 @@ class UserService(private val api: Api,
                     .flatMap { state ->
                         Observable.just(state)
                                 .concatWith(Observable
-                                        .fromCallable { state.copy(benisHistory = loadBenisHistory(state.id)) }
+                                        .fromCallable { state.copy(benisHistory = loadBenisHistoryAsGraph(state.id)) }
                                         .subscribeOnBackground())
                     }
 
@@ -136,7 +126,7 @@ class UserService(private val api: Api,
 
             if (login.isSuccess) {
                 observables.add(updateCachedUserInfo()
-                        .doOnTerminate { updateUniqueToken(login.getIdentifier()) }
+                        .doOnTerminate { updateUniqueToken(login.identifier) }
                         .toObservable<Any>())
 
                 // perform initial sync in background.
@@ -225,7 +215,7 @@ class UserService(private val api: Api,
                 BenisRecord.storeValue(database.value, userId, response.score())
 
                 // and load the current benis history
-                val scoreGraph = loadBenisHistory(userId)
+                val scoreGraph = loadBenisHistoryAsGraph(userId)
 
                 updateLoginStateIfAuthorized { loginState ->
                     loginState.copy(score = response.score(), benisHistory = scoreGraph)
@@ -326,7 +316,7 @@ class UserService(private val api: Api,
                 authorized = true,
                 premium = isPremiumUser,
                 admin = userIsAdmin,
-                benisHistory = loadBenisHistory(user.id),
+                benisHistory = loadBenisHistoryAsGraph(user.id),
                 uniqueToken = null)
     }
 
@@ -334,7 +324,7 @@ class UserService(private val api: Api,
         get() = cookieHandler.cookie?.admin ?: false
 
 
-    private fun loadBenisHistory(userId: Int): Graph {
+    private fun loadBenisHistoryAsGraph(userId: Int): Graph {
         val watch = Stopwatch.createStarted()
 
         val historyLength = standardDays(7)
@@ -351,9 +341,16 @@ class UserService(private val api: Api,
         return Graph(start.millis.toDouble(), now.millis.toDouble(), points)
     }
 
-    fun loadBenis(userId:Int = loginState.id):List<BenisRecord>{
+    /**
+     * Loads all benis records for the current user.
+     */
+    fun loadBenisRecords(): Observable<List<BenisRecord>> {
         val date = Instant(0)
-        return BenisRecord.findValuesLaterThan(database.value, userId, date)
+        val userId = loginState.id
+
+        return database.asObservable().map {
+            BenisRecord.findValuesLaterThan(it, userId, date)
+        }
     }
 
     /**

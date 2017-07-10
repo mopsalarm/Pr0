@@ -131,6 +131,10 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
             commentActionListener?.onCopyCommentLink(comment)
         }
 
+        holder.copyCommentLink.setOnLongClickListener {
+            commentActionListener?.onDeleteCommentClicked(comment) ?: false
+        }
+
         if (comment.id == selectedCommentId) {
             val color = ContextCompat.getColor(context, R.color.selected_comment_background)
             holder.itemView.setBackgroundColor(color)
@@ -256,6 +260,8 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         fun onCommentMarkAsFavoriteClicked(comment: Api.Comment, markAsFavorite: Boolean)
 
         fun onCopyCommentLink(comment: Api.Comment)
+
+        fun onDeleteCommentClicked(comment: Api.Comment): Boolean
     }
 
     companion object {

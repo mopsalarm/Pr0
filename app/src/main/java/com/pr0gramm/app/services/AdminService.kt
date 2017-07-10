@@ -42,4 +42,9 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
                 .userBan(null, name, "custom", reason, blockDays, mode)
                 .toCompletable()
     }
+
+    fun deleteComment(hard: Boolean, id: Long, reason: String): Completable {
+        val func = if (hard) api::hardDeleteComment else api::softDeleteComment
+        return func(null, id, reason).toCompletable()
+    }
 }

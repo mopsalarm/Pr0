@@ -13,8 +13,8 @@ import kotlin.reflect.KProperty
  *
  * Inspired by Jake Wharton, he mentioned it during his IO/17 talk about Kotlin
  */
-private class FragmentArgumentDelegate<T : Any>(default: T? = null) : ReadWriteProperty<Fragment, T> {
-    var value: T? = default
+private class FragmentArgumentDelegate<T : Any>() : ReadWriteProperty<Fragment, T> {
+    var value: T? = null
 
     override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         if (value == null) {
@@ -30,17 +30,17 @@ private class FragmentArgumentDelegate<T : Any>(default: T? = null) : ReadWriteP
             thisRef.arguments = Bundle()
         }
 
+        this.value = value
+
         val args = thisRef.arguments
         setArgumentValue(args, property.name, value)
     }
 }
 
-private class OptionalFragmentArgumentDelegate<T : Any>(default: T? = null) : ReadWriteProperty<Fragment, T?> {
-    var value: T? = default
-
+private class OptionalFragmentArgumentDelegate<T : Any>(val default: T? = null) : ReadWriteProperty<Fragment, T?> {
     override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T? {
         @Suppress("UNCHECKED_CAST")
-        return thisRef.arguments?.get(property.name) as T?
+        return (thisRef.arguments?.get(property.name) as T?) ?: default
     }
 
     override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T?) {
@@ -77,16 +77,16 @@ private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
     }
 }
 
-fun <T : Any> fragmentArgument(default: T? = null): ReadWriteProperty<Fragment, T> {
-    return FragmentArgumentDelegate<T>(default)
+fun <T : Any> fragmentArgument(): ReadWriteProperty<Fragment, T> {
+    return FragmentArgumentDelegate()
 }
 
 fun <T : Any> optionalFragmentArgument(default: T? = null): ReadWriteProperty<Fragment, T?> {
     return OptionalFragmentArgumentDelegate<T>(default)
 }
 
-inline fun <reified T : Enum<T>> enumFragmentArgument(default: T? = null): ReadWriteProperty<Fragment, T> {
-    val delegate = fragmentArgument<Int>(default?.ordinal)
+inline fun <reified T : Enum<T>> enumFragmentArgument(): ReadWriteProperty<Fragment, T> {
+    val delegate = fragmentArgument<Int>()
     val values = EnumSet.allOf(T::class.java).sortedBy { it.ordinal }.toTypedArray()
 
     return object : ReadWriteProperty<Fragment, T> {

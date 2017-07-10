@@ -7,7 +7,7 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.3"
+        VersionKotlin = "1.1.3-2"
         VersionSupportLibrary = "25.4.0"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
-        classpath 'io.fabric.tools:gradle:1.22.2'
+        classpath 'io.fabric.tools:gradle:1.23.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -178,10 +178,10 @@ dependencies {
     compile "com.squareup.picasso:picasso:2.5.2"
     compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
     compile "pl.droidsonroids.gif:android-gif-drawable:1.2.7"
-    compile "com.github.tony19:named-regexp:0.2.4"
+    compile "com.github.tony19:named-regexp:0.2.5"
     compile "com.pnikosis:materialish-progress:1.7"
     compile "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
-    compile "com.squareup.sqlbrite:sqlbrite:1.1.1"
+    compile "com.squareup.sqlbrite:sqlbrite:1.1.2"
     compile "com.infstory:proguard-annotations:1.0.2"
     compile "net.sf.trove4j:trove4j:3.0.3"
     compile "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
@@ -195,7 +195,7 @@ dependencies {
 
     compile "com.github.apl-devs:appintro:v4.2.0"
 
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.2'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.3'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
@@ -233,7 +233,7 @@ dependencies {
     compile "com.androidplot:androidplot-core:1.4.3"
 
     testCompile 'junit:junit:4.12'
-    testCompile 'com.natpryce:hamkrest:1.4.0.0'
+    testCompile 'com.natpryce:hamkrest:1.4.1.0'
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"

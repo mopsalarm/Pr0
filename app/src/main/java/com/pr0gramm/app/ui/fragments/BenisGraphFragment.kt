@@ -1,12 +1,6 @@
 package com.pr0gramm.app.ui.fragments
 
-/**
- * Created by chr0sey on 29.06.2017.
- */
-
-import android.graphics.Color
 import android.os.Bundle
-import android.support.annotation.MainThread
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,24 +11,16 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseFragment
-import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.AndroidUtility
+import rx.Observable
 import java.text.*
 import java.util.*
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
 
 class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
 
     private val plot: XYPlot by bindView(R.id.benis_plot)
+
     private val userService: UserService by instance()
-    internal lateinit var data: BenisGraphDataSource
-    internal var firstOfDays: MutableMap<String, Long> = mutableMapOf()
-    private val dateFormat = SimpleDateFormat("dd.MM.yy")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_benis_graph, container, false)
@@ -43,40 +29,44 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        data = BenisGraphDataSource()
-        val serie = BenisSeries(data,getString(R.string.benis_graph_title))
-        val formatter = LineAndPointFormatter(this.context,R.xml.benis_plot_line_point_formatter)
-        formatter.pointLabeler = PointLabeler<XYSeries> { p0, p1 -> if (p1 % 5 == 0) p0.getY(p1).toString() else "" }
-        plot.addSeries(serie, formatter)
+        val series = BenisGraphDataSource(
+                userService.loadBenisRecords(),
+                getString(R.string.benis_graph_title))
 
-        PanZoom.attach(plot,PanZoom.Pan.HORIZONTAL,PanZoom.Zoom.STRETCH_HORIZONTAL)
+        val formatter = LineAndPointFormatter(this.context, R.xml.benis_plot_line_point_formatter)
+        formatter.pointLabeler = PointLabeler<XYSeries> { s, idx -> "" }
 
-        plot.rangeStepModel = StepModel(StepMode.INCREMENT_BY_FIT, 1.0)
-        plot.backgroundPaint.color = Color.TRANSPARENT
-        plot.setBackgroundColor(Color.TRANSPARENT)
-        plot.graph.backgroundPaint.color = Color.TRANSPARENT
-        plot.graph.gridBackgroundPaint.color = Color.TRANSPARENT
+        plot.addSeries(series, formatter)
 
-        plot.graph.domainSubGridLinePaint.color = Color.TRANSPARENT
-        plot.graph.linesPerDomainLabel
+        PanZoom.attach(plot, PanZoom.Pan.HORIZONTAL, PanZoom.Zoom.STRETCH_HORIZONTAL)
+
+        // add padding to the top because of the action- and statusbar.
+        plot.plotPaddingTop = AndroidUtility.getActionBarContentOffset(context).toFloat()
+
+        plot.rangeStepModel = StepModel(StepMode.SUBDIVIDE, 8.0)
+        plot.domainStepModel = StepModel(StepMode.SUBDIVIDE, 8.0)
+
+        // default colors match the apps design pretty good.
+//        plot.backgroundPaint.color = Color.TRANSPARENT
+//        plot.setBackgroundColor(Color.TRANSPARENT)
+//        plot.graph.backgroundPaint.color = Color.TRANSPARENT
+//        plot.graph.gridBackgroundPaint.color = Color.TRANSPARENT
+//        plot.graph.domainSubGridLinePaint.color = Color.TRANSPARENT
+
         plot.linesPerDomainLabel = 2
         plot.linesPerRangeLabel = 2
         plot.legend.isVisible = false
+
         plot.setBorderStyle(Plot.BorderStyle.NONE, null, null)
-        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT)
-                .format = DecimalFormat("0")
 
-        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM)
-                .format = object : Format() {
+        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT).format = DecimalFormat("0")
 
-            private val timeFormat = SimpleDateFormat("HH:mm")
+        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).format = object : Format() {
+            val dateFormat = SimpleDateFormat("dd.MM.yy")
+
             override fun format(obj: Any, toAppendTo: StringBuffer, pos: FieldPosition): StringBuffer {
-                val ts = Math.round((obj as Number).toDouble())
-                val date = Date(ts)
-                if (firstOfDays.containsValue(ts)){
-                    return dateFormat.format(date,toAppendTo,pos)
-                }
-                return timeFormat.format(date, toAppendTo, pos)
+                val ts = (obj as Number).toLong()
+                return dateFormat.format(Date(ts), toAppendTo, pos)
             }
 
             override fun parseObject(source: String, pos: ParsePosition): Any? {
@@ -85,78 +75,48 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         }
     }
 
-    internal inner class BenisGraphDataSource {
+    internal inner class BenisGraphDataSource(source: Observable<List<BenisRecord>>,
+                                              private val title: String) : XYSeries {
 
-        private var data: MutableList<BenisRecord> = mutableListOf()
-        private var minX: Long = Long.MAX_VALUE
-        private var maxX: Long = Long.MIN_VALUE
-        private var minY: Int = 0
-        private var maxY: Int = 0
+        private var data: List<BenisRecord> = listOf()
 
         init {
-            Observable.fromCallable{ userService.loadBenis()}
-                    .subscribeOn(BackgroundScheduler.instance())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .compose(bindToLifecycle())
-                    .subscribe{
-                for (br in it){
-                    data.add(br)
-                    if(minX > br.time) minX = br.time
-                    if(maxX < br.time) maxX = br.time
-                    if(minY > br.benis) minY = br.benis
-                    if(maxY < br.benis) maxY = br.benis
-                    var date = dateFormat.format(Date(br.time))
-                    firstOfDays[date] = Math.min(br.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE))
-                }
-
-                plot.outerLimits.set(
-                        minX,
-                        maxX,
-                        minY,
-                        maxY*1.2
-                )
-                plot.setRangeBoundaries(
-                        minY,
-                        maxY*1.2,
-                        BoundaryMode.FIXED
-                )
-                plot.setDomainBoundaries(
-                        minX,
-                        maxX,
-                        BoundaryMode.FIXED
-                )
-                plot.redraw()
+            source.compose(bindToLifecycleAsync()).subscribe {
+                handleBenisRecords(it)
             }
         }
 
-        fun  getItemCount(): Int {
-            return data.size
+        private fun handleBenisRecords(data: List<BenisRecord>) {
+            val dateFormat = SimpleDateFormat("dd.MM.yy")
+
+            this.data = data
+
+            val minX = data.minBy { it.time }?.time ?: 0L
+            val maxX = data.maxBy { it.time }?.time ?: 1L
+
+            val minY = data.minBy { it.benis }?.benis ?: 0
+            val maxY = data.maxBy { it.benis }?.benis ?: 1
+
+            val bufferY = 0.2 * (maxY - minY)
+            plot.setRangeBoundaries(minY, maxY + bufferY, BoundaryMode.FIXED)
+            plot.setDomainBoundaries(minX, maxX, BoundaryMode.FIXED)
+
+            plot.outerLimits.set(minX, maxX, minY - bufferY, maxY + bufferY)
+
+            plot.redraw()
         }
 
-        fun  getX(p0: Int): Number {
-            return data[p0].time
+
+        override fun getTitle(): String = title
+
+        override fun size(): Int = data.size
+
+        override fun getX(idx: Int): Number {
+            return data[idx].time
         }
-        fun getY(p0: Int): Number {
-            return data[p0].benis
+
+        override fun getY(idx: Int): Number {
+            return data[idx].benis
         }
     }
-
-    internal inner class BenisSeries(private val datasource: BenisGraphDataSource, private val title: String) : XYSeries{
-        override fun getTitle(): String {
-            return getString(R.string.benis_graph_title)
-        }
-
-        override fun size(): Int {
-            return datasource.getItemCount()
-        }
-
-        override fun getX(p0: Int): Number {
-            return datasource.getX(p0)
-        }
-
-        override fun getY(p0: Int): Number {
-            return datasource.getY(p0)
-        }
-    }
-
 }
