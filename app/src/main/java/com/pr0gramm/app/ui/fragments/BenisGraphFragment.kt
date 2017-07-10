@@ -21,6 +21,7 @@ import com.pr0gramm.app.util.BackgroundScheduler
 import java.text.*
 import java.util.*
 import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 
 class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
 
@@ -95,6 +96,8 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         init {
             Observable.fromCallable{ userService.loadBenis()}
                     .subscribeOn(BackgroundScheduler.instance())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .compose(bindToLifecycle())
                     .subscribe{
                 for (br in it){
                     data.add(br)
@@ -104,27 +107,25 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
                     if(maxY < br.benis) maxY = br.benis
                     var date = dateFormat.format(Date(br.time))
                     firstOfDays[date] = Math.min(br.time, firstOfDays.getOrDefault(date,Long.MAX_VALUE))
-
-                    plot.outerLimits.set(
-                            minX,
-                            maxX,
-                            minY,
-                            maxY*1.2
-                    )
-                    plot.setRangeBoundaries(
-                            minY,
-                            maxY*1.2,
-                            BoundaryMode.FIXED
-                    )
-                    plot.setDomainBoundaries(
-                            minX,
-                            maxX,
-                            BoundaryMode.FIXED
-                    )
-                    plot.redraw()
-
                 }
 
+                plot.outerLimits.set(
+                        minX,
+                        maxX,
+                        minY,
+                        maxY*1.2
+                )
+                plot.setRangeBoundaries(
+                        minY,
+                        maxY*1.2,
+                        BoundaryMode.FIXED
+                )
+                plot.setDomainBoundaries(
+                        minX,
+                        maxX,
+                        BoundaryMode.FIXED
+                )
+                plot.redraw()
             }
         }
 
