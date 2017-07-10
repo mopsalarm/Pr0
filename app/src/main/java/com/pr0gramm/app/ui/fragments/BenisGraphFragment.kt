@@ -87,15 +87,13 @@ class BenisGraphFragment : BaseFragment("BenisGraphFragment") {
         }
 
         private fun handleBenisRecords(data: List<BenisRecord>) {
-            val dateFormat = SimpleDateFormat("dd.MM.yy")
-
             this.data = data
 
             val minX = data.minBy { it.time }?.time ?: 0L
             val maxX = data.maxBy { it.time }?.time ?: 1L
 
-            val minY = data.minBy { it.benis }?.benis ?: 0
-            val maxY = data.maxBy { it.benis }?.benis ?: 1
+            val minY = Math.min(data.minBy { it.benis }?.benis ?: 0, 0)
+            val maxY = Math.max(data.maxBy { it.benis }?.benis ?: 1, 1)
 
             val bufferY = 0.2 * (maxY - minY)
             plot.setRangeBoundaries(minY, maxY + bufferY, BoundaryMode.FIXED)
