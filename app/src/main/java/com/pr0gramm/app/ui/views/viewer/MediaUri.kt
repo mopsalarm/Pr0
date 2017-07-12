@@ -15,7 +15,7 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
     }
 
     fun withUri(uri: Uri, mediaType: MediaType): MediaUri {
-        return MediaUri(id, uri, mediaType, delay)
+        return copy(baseUri = uri, mediaType = mediaType)
     }
 
     val isLocal: Boolean

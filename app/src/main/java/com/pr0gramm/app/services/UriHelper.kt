@@ -50,6 +50,11 @@ class UriHelper private constructor(context: Context) {
         return preloadManager.get(item.id())?.media?.toUri() ?: noPreload.media(item, false)
     }
 
+    fun media(path: String): Uri {
+        val isVideo = path.endsWith(".mp4") || path.endsWith(".webm")
+        return absoluteJoin(start(if (isVideo) "vid" else "img"), path)
+    }
+
     fun base(): Uri {
         return start().build()
     }

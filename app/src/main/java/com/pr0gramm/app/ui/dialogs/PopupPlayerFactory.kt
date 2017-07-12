@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.view.Window
 import com.pr0gramm.app.feed.FeedItem
-import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 
@@ -14,10 +13,14 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 object PopupPlayerFactory {
     @JvmStatic
     fun newInstance(activity: Activity, item: FeedItem): Dialog {
-        val uri = MediaUri.of(activity, item)
-        val mediaView = MediaViews.newInstance(MediaView.Config.ofFeedItem(activity, item))
+        val config = MediaView.Config.ofFeedItem(activity, item)
+        return newInstance(config)
+    }
 
-        val dialog = Dialog(activity)
+    fun newInstance(config: MediaView.Config): Dialog {
+        val mediaView = MediaViews.newInstance(config)
+
+        val dialog = Dialog(config.activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(mediaView)
 

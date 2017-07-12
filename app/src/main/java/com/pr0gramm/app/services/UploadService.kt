@@ -2,7 +2,6 @@ package com.pr0gramm.app.services
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
@@ -143,7 +142,7 @@ class UploadService(private val api: Api,
         // perform the upload!
         api.upload(body)
                 .doOnEach { Track.upload(size) }
-                .map { response -> UploadInfo(key = response.key, similar = emptyList()) }
+                .map { response -> UploadInfo(response.key, emptyList()) }
                 .subscribeOnBackground()
                 .subscribe(result)
 
@@ -186,10 +185,9 @@ class UploadService(private val api: Api,
 
         return post(status.key!!, contentType, tags, checkSimilar).flatMap { response ->
             val error = response.error
-            val similar = response.similar.size
 
-            if (similar > 0) {
-                Observable.just(UploadInfo(key = status.key, similar = response.similar))
+            if (response.similar.isNotEmpty()) {
+                Observable.just(UploadInfo(status.key, response.similar))
 
             } else if (error != null) {
                 Observable.error(UploadFailedException(error, response.report))
@@ -220,7 +218,7 @@ class UploadService(private val api: Api,
     }
 
     class UploadInfo(val key: String? = null,
-                     val similar: List<HasThumbnail> = emptyList(),
+                     val similar: List<Api.Posted.SimilarItem> = emptyList(),
                      val id: Long = 0,
                      val progress: Float = -1F) {
 

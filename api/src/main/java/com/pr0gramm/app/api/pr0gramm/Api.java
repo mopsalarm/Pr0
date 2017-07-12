@@ -522,6 +522,8 @@ public interface Api {
 
             @Gson.Named("thumb")
             String thumbnail();
+
+            String getImage();
         }
 
         @Value.Immutable

@@ -3,6 +3,19 @@
     "version": 128,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Wenn beim Upload ein möglicher Repost gefunden wurde, lässt sich die Vorschau nun anklicken."
+      },
+      {
+        "type": "Fix",
+        "change": "Bugfixes."
+      }
+    ]
+  },
+  {
+    "version": 128,
+    "changes": [
+      {
         "type": "Fix",
         "change": "Datum-/Zeitformatierung korrigiert."
       },

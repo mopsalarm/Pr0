@@ -21,9 +21,9 @@ import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
 import com.jakewharton.rxbinding.view.RxView
 import com.jakewharton.rxbinding.widget.textChanges
-import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.MimeTypeHelper
@@ -193,10 +193,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
         scrollView.fullScroll(View.FOCUS_UP)
     }
 
-    private fun showSimilarPosts(similar: List<HasThumbnail>) {
+    private fun showSimilarPosts(similar: List<Api.Posted.SimilarItem>) {
         similarHintView.visible = true
         similarImages.visible = true
-        similarImages.setThumbnails(similar)
+        similarImages.items = similar
 
         similarHintView.requestFocus()
     }
