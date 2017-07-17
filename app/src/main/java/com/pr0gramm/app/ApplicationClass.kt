@@ -16,7 +16,7 @@ import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
-import com.pr0gramm.app.util.CrashlyticsLogHandler
+import com.pr0gramm.app.util.LogHandler
 import com.thefinestartist.Base
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
@@ -63,12 +63,12 @@ open class ApplicationClass : Application(), KodeinAware {
 
             logger.info("Initialize fabric")
             Fabric.with(this, Crashlytics())
-
-            LoggerConfiguration.configuration()
-                    .removeRootLogcatHandler()
-                    .setRootLogLevel(LogLevel.INFO)
-                    .addHandlerToRootLogger(CrashlyticsLogHandler())
         }
+
+        LoggerConfiguration.configuration()
+                .removeRootLogcatHandler()
+                .setRootLogLevel(LogLevel.INFO)
+                .addHandlerToRootLogger(LogHandler())
 
         // initialize this to show errors always in the context of the current activity.
         globalErrorDialogHandler = ActivityErrorHandler(this)

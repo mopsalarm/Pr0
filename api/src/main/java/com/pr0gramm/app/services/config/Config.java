@@ -52,7 +52,7 @@ public abstract class Config {
         return Arrays.asList(
                 "0815", "kann weg", "heil hitler", "ban pls", "deshalb",
                 "ab ins gas", "und weiter", "alles ist", "hure", "da drückste",
-                "pr0paganda", "pr0gida", "für mehr");
+                "pr0paganda", "pr0gida", "für mehr", "dein scheiß", "kann ich auch");
     }
 
     public enum AdType {

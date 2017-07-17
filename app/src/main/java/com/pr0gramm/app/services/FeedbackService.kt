@@ -5,11 +5,11 @@ import android.util.Base64
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Charsets
 import com.google.common.base.Throwables
-import com.google.common.io.CharStreams
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Nothing
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.LogHandler
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
@@ -22,7 +22,6 @@ import rx.Completable
 import rx.Observable
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.lang.reflect.Modifier
 import java.util.zip.DeflaterOutputStream
@@ -79,7 +78,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         add("memory info", this::appendMemoryInfo)
         add("codec info", this::appendCodecInfo)
         add("preferences", this::appendPreferences)
-        add("logcat", this::appendLogcat)
+        add("log", this::appendLogMessages)
 
         // convert result to a string
         return result.toString()
@@ -113,18 +112,9 @@ class FeedbackService(okHttpClient: OkHttpClient) {
 
 
     @Throws(IOException::class)
-    private fun appendLogcat(result: StringBuilder) {
-        val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
-        try {
-            CharStreams.asWriter(result).use { writer ->
-                val reader = InputStreamReader(process.inputStream, Charsets.UTF_8)
-                CharStreams.copy(reader, writer)
-            }
-        } finally {
-            try {
-                process.destroy()
-            } catch (ignored: Exception) {
-            }
+    private fun appendLogMessages(result: StringBuilder) {
+        LogHandler.recentMessages().forEach { message ->
+            result.append(message).append('\n')
         }
     }
 
