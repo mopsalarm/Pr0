@@ -251,6 +251,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Intro.TranslucentStatus"/>
 
+        <activity
+            android:name=".ui.BenisGraphActivity"
+            android:parentActivityName=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Black"/>
+
     </application>
 
 </manifest>

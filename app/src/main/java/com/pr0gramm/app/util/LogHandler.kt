@@ -1,6 +1,7 @@
 package com.pr0gramm.app.util
 
 import android.support.v4.util.CircularArray
+import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.pr0gramm.app.BuildConfig
 import pl.brightinventions.slf4android.MessageValueSupplier
@@ -27,7 +28,9 @@ class LogHandler : Handler() {
             val tag = record.loggerName
             val androidLogLevel = logRecord.logLevel.androidLevel
 
-            if (!BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
+                Log.println(androidLogLevel, tag, formatted)
+            } else {
                 crashlytics.log(androidLogLevel, tag, formatted)
             }
 

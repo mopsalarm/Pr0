@@ -176,11 +176,11 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
 }
 
 inline fun <reified T : View> Activity.find(id: Int): T {
-    return findViewById(id) as T
+    return findViewById(id)!! as T
 }
 
 inline fun <reified T : View> View.find(id: Int): T {
-    return findViewById(id) as T
+    return findViewById(id)!! as T
 }
 
 inline fun <reified T : View> View.findOptional(id: Int): T? {

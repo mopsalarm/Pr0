@@ -26,8 +26,11 @@ import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
+import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.use
+import com.pr0gramm.app.util.visible
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -143,12 +146,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun onBenisGraphClicked() {
-        val fragment = BenisGraphFragment()
-
-        fragmentManager.transaction {
-            replace(R.id.content, fragment)
-            addToBackStack(null)
-        }
+        startActivity(Intent(context, BenisGraphActivity::class.java))
 
         // close the drawer
         callback.onOtherNavigationItemClicked()

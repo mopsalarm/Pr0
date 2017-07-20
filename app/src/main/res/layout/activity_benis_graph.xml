@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:ap="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="16dp"
+              tools:context=".ui.MainActivity">
+
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:columnCount="4"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/btn_forever"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="forever"
+            />
+
+        <Button
+            android:id="@+id/btn_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="month"
+            />
+
+        <Button
+            android:id="@+id/btn_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="week"
+            />
+
+        <Button
+            android:id="@+id/btn_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="today"
+            />
+    </GridLayout>
+
+    <com.androidplot.xy.XYPlot
+        android:id="@+id/benis_plot"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+
+
+        ap:domainOriginLineThickness="1dp"
+        ap:gridInsetBottom="48dp"
+
+        ap:gridInsetLeft="48dp"
+        ap:gridInsetRight="8dp"
+        ap:gridInsetTop="16dp"
+
+        ap:lineExtensionBottom="8dp"
+        ap:lineExtensionLeft="8dp"
+        ap:lineExtensionRight="8dp"
+        ap:lineExtensionTop="8dp"
+
+        ap:lineLabelAlignBottom="left"
+        ap:lineLabelAlignLeft="left"
+
+        ap:lineLabelInsetBottom="8dp"
+        ap:lineLabelInsetLeft="8dp"
+
+        ap:lineLabels="left|bottom"
+        ap:rangeOriginLineThickness="1dp"
+
+        ap:rangeTitleTextSize="16dp"
+        ap:renderMode="use_background_thread"
+        />
+
+</LinearLayout>
