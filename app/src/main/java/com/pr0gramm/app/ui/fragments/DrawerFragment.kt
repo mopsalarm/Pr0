@@ -26,11 +26,8 @@ import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
-import com.pr0gramm.app.util.CustomTabsHelper
-import com.pr0gramm.app.util.onErrorResumeEmpty
-import com.pr0gramm.app.util.use
-import com.pr0gramm.app.util.visible
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -146,11 +143,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun onBenisGraphClicked() {
-        DialogBuilder.start(activity)
-                .cancelable()
-                .content(R.string.benis_graph_explanation)
-                .positive()
-                .show()
+        val fragment = BenisGraphFragment()
+
+        fragmentManager.transaction {
+            replace(R.id.content, fragment)
+            addToBackStack(null)
+        }
+
+        // close the drawer
+        callback.onOtherNavigationItemClicked()
     }
 
     override fun onResume() {
@@ -261,10 +262,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         fun onNavigateToFavorites(username: String)
     }
 
-    private val callback: OnFeedFilterSelected
-        get() {
-            return activity as OnFeedFilterSelected
-        }
+    private val callback: OnFeedFilterSelected get() {
+        return activity as OnFeedFilterSelected
+    }
 
     private inner class NavigationAdapter() : RecyclerView.Adapter<NavigationItemViewHolder>() {
         private val allItems = ArrayList<NavigationItem>()
