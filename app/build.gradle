@@ -195,7 +195,7 @@ dependencies {
 
     compile "com.github.apl-devs:appintro:v4.2.0"
 
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.3'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.4'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
