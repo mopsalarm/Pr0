@@ -20,7 +20,7 @@ import kotterknife.bindView
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
     private val tag = "ImageMediaView" + System.identityHashCode(this)
-    private val zoomView = findViewById(R.id.tabletlayout) != null
+    private val zoomView = findViewById<View>(R.id.tabletlayout) != null
 
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)

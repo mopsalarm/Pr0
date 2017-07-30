@@ -266,7 +266,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             view.addView(overlay)
 
             // link the hide button
-            val button = overlay.findViewById(R.id.hide_warning_button)
+            val button = overlay.findViewById<View>(R.id.hide_warning_button)
             button.setOnClickListener { overlay.removeFromParent() }
         }
     }

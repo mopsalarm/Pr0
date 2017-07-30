@@ -102,6 +102,14 @@ inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
     }
 }
 
+inline fun <R> Cursor.forEach(fn: Cursor.() -> R): Unit {
+    return use {
+        while (moveToNext()) {
+            fn()
+        }
+    }
+}
+
 @Suppress("ConvertTryFinallyToUseCall")
 inline fun <R> Cursor.use(fn: (Cursor) -> R): R {
     try {
@@ -176,23 +184,23 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
 }
 
 inline fun <reified T : View> Activity.find(id: Int): T {
-    return findViewById(id)!! as T
+    return findViewById<T>(id)!!
 }
 
 inline fun <reified T : View> View.find(id: Int): T {
-    return findViewById(id)!! as T
+    return findViewById<T>(id)!!
 }
 
 inline fun <reified T : View> View.findOptional(id: Int): T? {
-    return findViewById(id) as T?
+    return findViewById<T>(id)
 }
 
 inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
-    return itemView.findViewById(id) as T
+    return itemView.findViewById<T>(id)!!
 }
 
 inline fun <reified T : View> RecyclerView.ViewHolder.findOptional(id: Int): T? {
-    return itemView.findViewById(id) as T?
+    return itemView.findViewById<T>(id)
 }
 
 var View.visible: Boolean

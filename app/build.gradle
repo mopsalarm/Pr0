@@ -8,7 +8,7 @@ apply from: 'version.gradle'
 buildscript {
     ext {
         VersionKotlin = "1.1.3-2"
-        VersionSupportLibrary = "25.4.0"
+        VersionSupportLibrary = "26.0.0"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
         VersionGoogleServices = "11.0.0"
@@ -28,12 +28,12 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         applicationId "com.pr0gramm.app"
 
         versionCode appVersion
@@ -158,6 +158,7 @@ dependencies {
     compile "com.android.support:customtabs:$VersionSupportLibrary"
     compile "com.android.support:palette-v7:$VersionSupportLibrary"
     compile "com.android.support:support-annotations:$VersionSupportLibrary"
+    compile "com.android.support:cardview-v7:$VersionSupportLibrary"
     compile("com.android.support:appcompat-v7:$VersionSupportLibrary") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
@@ -193,7 +194,7 @@ dependencies {
 
     compile 'com.github.evernote:android-job:v1.1.11'
 
-    compile "com.github.apl-devs:appintro:v4.2.0"
+    compile "com.github.apl-devs:appintro:v4.2.2"
 
     compile 'com.google.android.exoplayer:exoplayer-core:r2.4.4'
 
@@ -227,10 +228,10 @@ dependencies {
     compile "com.crashlytics.sdk.android:crashlytics:2.6.8"
 
     // dependency injection using kotlin.
-    compile 'com.github.salomonbrys.kodein:kodein:4.0.0'
-    compile 'com.github.salomonbrys.kodein:kodein-android:4.0.0'
+    compile 'com.github.salomonbrys.kodein:kodein:4.1.0'
+    compile 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
 
-    compile "com.androidplot:androidplot-core:1.4.3"
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
 
     testCompile 'junit:junit:4.12'
     testCompile 'com.natpryce:hamkrest:1.4.1.0'

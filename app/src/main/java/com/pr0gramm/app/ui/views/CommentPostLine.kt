@@ -29,7 +29,7 @@ class CommentPostLine @JvmOverloads constructor(
         layoutInflater.inflate(R.layout.write_comment_layout, this)
 
         // change the anchorViews id so it is unique in the view hierarchy
-        val anchorView = findViewById(R.id.auto_complete_popup_anchor)
+        val anchorView = findViewById<View>(R.id.auto_complete_popup_anchor)
         anchorView.id = ViewUtility.generateViewId()
 
         commentTextView.setAnchorView(anchorView)

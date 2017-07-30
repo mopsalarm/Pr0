@@ -416,8 +416,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val text = (itemView as? TextView ?: itemView.findViewById(R.id.title)) as TextView
-        val unread = itemView.findViewById(R.id.unread_count) as? TextView
+        val text = (itemView as? TextView ?: itemView.findViewById(R.id.title))
+        val unread = itemView.findViewById<TextView>(R.id.unread_count)
     }
 
     companion object {

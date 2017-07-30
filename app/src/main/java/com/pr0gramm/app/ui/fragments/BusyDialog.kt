@@ -21,7 +21,7 @@ class BusyDialog<T> private constructor(val context: Context, val text: String) 
             cancelable()
 
             onShow {
-                val view = it.findViewById(R.id.text) as? TextView
+                val view = it.findViewById<TextView>(R.id.text)
                 view?.text = text
             }
         }

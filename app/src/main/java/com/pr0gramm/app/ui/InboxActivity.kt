@@ -42,7 +42,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         setContentView(R.layout.activity_inbox)
 
-        setSupportActionBar(findViewById(R.id.toolbar) as Toolbar)
+        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
 
         supportActionBar?.apply {
             setDisplayShowHomeEnabled(true)
