@@ -231,8 +231,6 @@ dependencies {
     compile 'com.github.salomonbrys.kodein:kodein:4.1.0'
     compile 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
 
-    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
-
     testCompile 'junit:junit:4.12'
     testCompile 'com.natpryce:hamkrest:1.4.1.0'
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"

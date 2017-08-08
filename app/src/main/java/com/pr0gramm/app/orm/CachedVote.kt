@@ -2,7 +2,9 @@ package com.pr0gramm.app.orm
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.pr0gramm.app.util.forEach
 import com.pr0gramm.app.util.mapToList
+import com.pr0gramm.app.util.time
 import com.pr0gramm.app.util.use
 import org.slf4j.LoggerFactory
 
@@ -61,6 +63,24 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
         fun prepareDatabase(db: SQLiteDatabase) {
             logger.info("Create cached_vote table if it does not exist.")
             db.execSQL("CREATE TABLE IF NOT EXISTS cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)")
+        }
+
+        fun count(db: SQLiteDatabase): Map<Type, Map<Vote, Int>> {
+            val result = HashMap<Type, HashMap<Vote, Int>>()
+
+            logger.time("Counting number of votes") {
+                val cursor = db.rawQuery("SELECT type, vote, COUNT(*) FROM cached_vote GROUP BY type, vote", emptyArray())
+                cursor.forEach {
+                    val type = Type.valueOf(getString(0))
+                    val vote = Vote.valueOf(getString(1))
+                    val count = getInt(2)
+
+                    val votes = result.getOrPut(type, { HashMap() })
+                    votes[vote] = (votes[vote] ?: 0) + count
+                }
+            }
+
+            return result
         }
     }
 }

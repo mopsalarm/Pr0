@@ -48,6 +48,3 @@
 -keep class com.squareup.leakcanary.** { *; }
 
 -keep class com.facebook.stetho.** {*;}
-
-# keep androidplot
--keep class com.androidplot.** { *; }

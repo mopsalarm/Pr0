@@ -15,6 +15,9 @@ object ThemeHelper {
     val accentColor: Int
         @ColorRes get() = theme.accentColor
 
+    val primaryColor: Int
+        @ColorRes get() = theme.primaryColor
+
     val primaryColorDark: Int
         @ColorRes get() = theme.primaryColorDark
 

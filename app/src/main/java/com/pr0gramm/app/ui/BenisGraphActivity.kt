@@ -1,177 +1,140 @@
 package com.pr0gramm.app.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.Button
-import com.androidplot.Plot
-import com.androidplot.xy.*
+import android.support.v4.view.ViewCompat
+import android.support.v7.widget.Toolbar
+import android.view.View
+import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.orm.BenisRecord
+import com.pr0gramm.app.orm.CachedVote
+import com.pr0gramm.app.services.Graph
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.services.VoteService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
 import kotterknife.bindView
-import java.text.FieldPosition
-import java.text.Format
-import java.text.ParsePosition
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
 
-    private val plot: XYPlot by bindView(R.id.benis_plot)
     private val userService: UserService by instance()
-    private var series: BenisSeries = BenisSeries(emptyList())
+    private val voteService: VoteService by instance()
+
+    private val benisGraph: View by bindView(R.id.benis_graph)
+
+    private val benisChangeDay: TextView by bindView(R.id.stats_change_day)
+    private val benisChangeWeek: TextView by bindView(R.id.stats_change_week)
+    private val benisChangeMonth: TextView by bindView(R.id.stats_change_month)
+
+    private val usernameView: TextView by bindView(R.id.username)
+
+    private val voteCountUp: TextView by bindView(R.id.stats_up)
+    private val voteCountDown: TextView by bindView(R.id.stats_down)
+    private val voteCountFavs: TextView by bindView(R.id.stats_fav)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(ThemeHelper.theme.basic)
-
+        setTheme(ThemeHelper.theme.noActionBar)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_benis_graph)
 
-        setupZoomButtons()
-        loadBenisGraphSeries()
+        // setup toolbar as actionbar
+        val tb = find <Toolbar>(R.id.toolbar)
+        setSupportActionBar(tb)
 
-        PanZoom.attach(plot, PanZoom.Pan.HORIZONTAL, PanZoom.Zoom.STRETCH_HORIZONTAL)
-
-        plot.rangeStepModel = StepModel(StepMode.SUBDIVIDE, 8.0)
-        plot.domainStepModel = StepModel(StepMode.SUBDIVIDE, 4.0)
-
-        // default colors match the apps design pretty good.
-//        plot.backgroundPaint.color = Color.TRANSPARENT
-//        plot.setBackgroundColor(Color.TRANSPARENT)
-//        plot.graph.backgroundPaint.color = Color.TRANSPARENT
-//        plot.graph.gridBackgroundPaint.color = Color.TRANSPARENT
-//        plot.graph.domainSubGridLinePaint.color = Color.TRANSPARENT
-
-        plot.legend.isVisible = false
-
-        plot.setBorderStyle(Plot.BorderStyle.NONE, null, null)
-
-        plot.graph.backgroundPaint.color = Color.TRANSPARENT
-        plot.graph.gridBackgroundPaint.color = Color.TRANSPARENT
-
-        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.LEFT).format = ShortNumberFormat()
-
-        plot.graph.getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).format = object : Format() {
-            val dateFormat = SimpleDateFormat("dd.MM.yy")
-
-            override fun format(obj: Any, toAppendTo: StringBuffer, pos: FieldPosition): StringBuffer {
-                val ts = (obj as Number).toLong()
-                return dateFormat.format(Date(ts), toAppendTo, pos)
-            }
-
-            override fun parseObject(source: String, pos: ParsePosition): Any? {
-                return null
-            }
+        // and show back button
+        supportActionBar?.apply {
+            setDisplayShowHomeEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
         }
+
+        voteService.summary.compose(bindToLifecycleAsync()).subscribe {
+            handleVoteCounts(it)
+        }
+
+        userService.loadBenisRecords()
+                .ignoreError()
+                .compose(bindToLifecycleAsync())
+                .subscribe { handleBenisGraph(it) }
+
+        usernameView.text = (userService.name ?: "xxx").toUpperCase()
     }
 
-    private fun setupZoomButtons() {
-        val buttons = mapOf(
-                R.id.btn_forever to Long.MAX_VALUE,
-                R.id.btn_month to TimeUnit.DAYS.toMillis(30),
-                R.id.btn_week to TimeUnit.DAYS.toMillis(7),
-                R.id.btn_day to TimeUnit.DAYS.toMillis(1))
-
-        buttons.forEach { (id, millis) ->
-            val button: Button = find(id)
-            button.setOnClickListener {
-                val minX = (series.maxX - millis).coerceAtLeast(series.minX)
-                plot.setDomainBoundaries(minX, series.maxX, BoundaryMode.FIXED)
-                plot.redraw()
-            }
-        }
+    @SuppressLint("SetTextI18n")
+    private fun handleVoteCounts(votes: Map<CachedVote.Type, VoteService.Summary>) {
+        voteCountUp.text = "UP " + votes.values.sumBy { it.up }
+        voteCountDown.text = "DOWN " + votes.values.sumBy { it.down }
+        voteCountFavs.text = "FAVS " + votes.values.sumBy { it.fav }
     }
 
-    /**
-     * Loads the benis graph in background.
-     */
-    private fun loadBenisGraphSeries() {
-        userService.loadBenisRecords().compose(bindToLifecycleAsync()).subscribe { data ->
-            logger.info("Loaded {} benis record items.", data.size)
-
-            // strip redundant values
-            val stripped = data.filterIndexed { idx, value ->
-                val benis = value.benis
-                idx == 0 || idx == data.size - 1 || data[idx - 1].benis != benis || benis != data[idx + 1].benis
-            }
-
-            logger.info("Stripped values down to {} items", stripped.size)
-
-            val series = BenisSeries(stripped)
-            this.series = series
-
-            plot.setDomainBoundaries(series.minX, series.maxX, BoundaryMode.FIXED)
-
-            val bufferY = 0.2 * (series.maxY - series.minY)
-            plot.setRangeBoundaries(series.minY - bufferY, series.maxY + bufferY, BoundaryMode.FIXED)
-
-            plot.outerLimits.set(series.minX, series.maxX, series.minY - bufferY, series.maxY + bufferY)
-
-            // add the series
-            val formatter = LineAndPointFormatter(this, R.xml.benis_plot_line_point_formatter)
-            formatter.pointLabelFormatter = null
-            formatter.vertexPaint = null
-            formatter.linePaint.color = getColorCompat(ThemeHelper.accentColor)
-            plot.addSeries(series, formatter)
-
-            plot.redraw()
+    private fun handleBenisGraph(records: List<BenisRecord>) {
+        // strip redundant values
+        val stripped = records.filterIndexed { idx, value ->
+            val benis = value.benis
+            idx == 0 || idx == records.size - 1 || records[idx - 1].benis != benis || benis != records[idx + 1].benis
         }
+
+        // convert to graph
+        val original = Graph(stripped.map { Graph.Point(it.time.toDouble(), it.benis.toDouble()) })
+
+        // sub-sample to only a few points.
+        val sampled = original.sampleEquidistant(steps = 16)
+
+        // build the visual
+        val dr = GraphDrawable(sampled)
+        dr.lineColor = Color.WHITE
+        dr.fillColor = 0xa0ffffffL.toInt()
+        dr.lineWidth = AndroidUtility.dp(this, 4).toFloat()
+        dr.highlightFillColor = getColorCompat(ThemeHelper.primaryColor)
+
+        // add highlight for the a left-ish and a right-ish point.
+        dr.highlights.add(GraphDrawable.Highlight(2, formatScore(sampled[2].y)))
+        dr.highlights.add(GraphDrawable.Highlight(13, formatScore(sampled[13].y)))
+
+        // and show the graph
+        ViewCompat.setBackground(benisGraph, dr)
+
+        // calculate the recent changes of benis
+        formatChange(original, 1, benisChangeDay)
+        formatChange(original, 7, benisChangeWeek)
+        formatChange(original, 30, benisChangeMonth)
     }
 
-    internal inner class BenisSeries(private val data: List<BenisRecord>) : FastXYSeries, OrderedXYSeries {
-        val minX = data.minBy { it.time }?.time ?: 0L
-        val maxX = data.maxBy { it.time }?.time ?: 1L
+    private fun formatChange(graph: Graph, days: Long, view: TextView) {
+        val millis = TimeUnit.DAYS.toMillis(days).toDouble()
 
-        val minY = data.minBy { it.benis }?.benis ?: 0
-        val maxY = data.maxBy { it.benis }?.benis ?: 0
+        val nowValue = graph.last.y
+        val baseValue = graph.valueAt(graph.last.x - millis)
 
-        override fun minMax(): RectRegion = RectRegion(minX, maxX, minY, maxY)
+        val absChange = nowValue - baseValue
+        val relChange = 100 * absChange / baseValue
 
-        override fun getTitle(): String = "benis"
+        val formatted = (when {
+            Math.abs(relChange) < 0.1 -> "%d".format(absChange.toLong())
+            Math.abs(relChange) < 9.5 -> "%1.1f%%".format(relChange)
+            else -> "%d%%".format(relChange.toLong())
+        })
 
-        override fun size(): Int = data.size
-
-        override fun getX(idx: Int): Number {
-            return data[idx].time
-        }
-
-        override fun getY(idx: Int): Number {
-            return data[idx].benis
-        }
-
-        override fun getXOrder(): OrderedXYSeries.XOrder = OrderedXYSeries.XOrder.ASCENDING
+        view.text = formatted
+        view.setTextColor(getColorCompat(if (relChange < 0) R.color.stats_down else R.color.stats_up))
     }
 
-    /**
-     * Formats number using "k" or "m" suffix.
-     *
-     * E.g:
-     *   1000 -> 1.00k
-     *   25800 -> 25.8k
-     *   343000 -> 343k
-     */
-    class ShortNumberFormat : Format() {
-        override fun format(obj: Any, toAppendTo: StringBuffer, pos: FieldPosition): StringBuffer {
-            val value = (obj as Number).toLong()
-            return toAppendTo.append(when {
-                value >= 1000_000 -> "%1.2fm".format(value / 1000000f)
+    private fun formatScore(value: Double): String {
+        return when {
+            value >= 1000_000 -> "%1.2fm".format(value / 1000000f)
 
-                value >= 100_000 -> "%1fk".format(value / 1000f)
-                value >= 10_000 -> "%1.1fk".format(value / 1000f)
-                value >= 1_000 -> "%1.2fk".format(value / 1000f)
-                else -> value.toString()
-            })
-        }
-
-        override fun parseObject(source: String?, pos: ParsePosition?): Any {
-            throw UnsupportedOperationException()
+            value >= 100_000 -> "%1fk".format(value / 1000f)
+            value >= 10_000 -> "%1.1fk".format(value / 1000f)
+            value >= 1_000 -> "%1.2fk".format(value / 1000f)
+            else -> value.toInt().toString()
         }
     }
 }

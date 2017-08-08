@@ -255,7 +255,7 @@
             android:name=".ui.BenisGraphActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Black"/>
+            android:theme="@style/AppTheme.Black.NoActionBar"/>
 
     </application>
 

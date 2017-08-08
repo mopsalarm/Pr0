@@ -344,12 +344,11 @@ class UserService(private val api: Api,
     /**
      * Loads all benis records for the current user.
      */
-    fun loadBenisRecords(): Observable<List<BenisRecord>> {
-        val date = Instant(0)
+    fun loadBenisRecords(after: Instant = Instant(0)): Observable<List<BenisRecord>> {
         val userId = loginState.id
 
         return database.asObservable().map {
-            BenisRecord.findValuesLaterThan(it, userId, date)
+            BenisRecord.findValuesLaterThan(it, userId, after)
         }
     }
 

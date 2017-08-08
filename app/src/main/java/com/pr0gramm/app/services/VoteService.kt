@@ -202,6 +202,16 @@ class VoteService(private val api: Api,
         return findCachedVotes(CachedVote.Type.TAG, ids)
     }
 
+    val summary: Observable<Map<CachedVote.Type, Summary>> = Observable.fromCallable {
+        val counts = CachedVote.count(database.value)
+
+        counts.mapValues { entry ->
+            Summary(up = entry.value[Vote.UP] ?: 0,
+                    down = entry.value[Vote.DOWN] ?: 0,
+                    fav = entry.value[Vote.FAVORITE] ?: 0)
+        }
+    }
+
     private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Observable<TLongObjectMap<Vote>> {
         if (ids.isEmpty())
             return Observable.just(NO_VOTES)
@@ -220,6 +230,8 @@ class VoteService(private val api: Api,
     }
 
     private class VoteAction internal constructor(internal val type: CachedVote.Type, internal val vote: Vote)
+
+    data class Summary(val up: Int, val down: Int, val fav: Int)
 
     companion object {
         val NO_VOTES: TLongObjectMap<Vote> = TCollections.unmodifiableMap(TLongObjectHashMap<Vote>())

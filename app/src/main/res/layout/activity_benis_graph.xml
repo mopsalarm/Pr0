@@ -1,81 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:ap="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
-              android:padding="16dp"
+              android:layout_height="wrap_content"
               tools:context=".ui.MainActivity">
 
-
-    <GridLayout
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:columnCount="4"
-        android:gravity="center_vertical">
+        app:elevation="8dp">
 
-        <Button
-            android:id="@+id/btn_forever"
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="forever"
-            />
+            android:background="?attr/colorPrimary"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:title="Deine Statistik"/>
 
-        <Button
-            android:id="@+id/btn_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="month"
-            />
+        <View
+            android:id="@+id/benis_graph"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"/>
 
-        <Button
-            android:id="@+id/btn_week"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="week"
-            />
+    </android.support.design.widget.AppBarLayout>
 
-        <Button
-            android:id="@+id/btn_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="today"
-            />
-    </GridLayout>
-
-    <com.androidplot.xy.XYPlot
-        android:id="@+id/benis_plot"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <LinearLayout
+            style="@style/Statistics.Change.Block">
+
+            <TextView
+                style="@style/Statistics.Change.Block_Title"
+                android:text="TAG"/>
+
+            <TextView
+                style="@style/Statistics.Change.Block_Value"
+                android:id="@+id/stats_change_day"
+                tools:text="2,5%"
+                tools:textColor="@color/stats_up"/>
+        </LinearLayout>
+
+        <View style="@style/Statistics.Change.Sep"/>
+
+        <LinearLayout
+            style="@style/Statistics.Change.Block">
+
+            <TextView
+                style="@style/Statistics.Change.Block_Title"
+                android:text="WOCHE"/>
+
+            <TextView
+                style="@style/Statistics.Change.Block_Value"
+                android:id="@+id/stats_change_week"
+                tools:text="5,5%"
+                tools:textColor="@color/stats_up"/>
+        </LinearLayout>
+
+        <View style="@style/Statistics.Change.Sep"/>
+
+        <LinearLayout
+            style="@style/Statistics.Change.Block">
+
+            <TextView
+                style="@style/Statistics.Change.Block_Title"
+                android:text="MONAT"/>
+
+            <TextView
+                style="@style/Statistics.Change.Block_Value"
+                android:id="@+id/stats_change_month"
+                tools:text="8,5%"
+                tools:textColor="@color/stats_up"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#2e2e2e"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Voteverhalten von"
+            android:textColor="?colorPrimary"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            tools:text="MOPSALARM"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
+
+            <TextView
+                style="@style/Statistics.VoteCount"
+                android:text="TOTAL:"/>
+
+            <TextView
+                android:id="@+id/stats_up"
+                style="@style/Statistics.VoteCount"
+                android:textColor="@color/stats_up"
+                tools:text="UP 512"/>
+
+            <TextView
+                android:id="@+id/stats_down"
+                style="@style/Statistics.VoteCount"
+                android:textColor="@color/stats_down"
+                tools:text="DOWN 486"/>
+
+            <TextView
+                android:id="@+id/stats_fav"
+                style="@style/Statistics.VoteCount"
+                android:textColor="@color/stats_fav"
+                tools:text="FAVS 64"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="16dp">
+
+            <com.pr0gramm.app.ui.views.AspectLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:aspect="1">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    >
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Value"
+                        tools:text="432"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="BENIS FÜR"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="POSTS"
+                        android:textColor="@color/white"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="VERGEBEN"/>
+
+                </LinearLayout>
+            </com.pr0gramm.app.ui.views.AspectLayout>
 
 
-        ap:domainOriginLineThickness="1dp"
-        ap:gridInsetBottom="48dp"
+            <com.pr0gramm.app.ui.views.AspectLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                app:aspect="1">
 
-        ap:gridInsetLeft="48dp"
-        ap:gridInsetRight="8dp"
-        ap:gridInsetTop="16dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    >
 
-        ap:lineExtensionBottom="8dp"
-        ap:lineExtensionLeft="8dp"
-        ap:lineExtensionRight="8dp"
-        ap:lineExtensionTop="8dp"
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Value"
+                        tools:text="743"/>
 
-        ap:lineLabelAlignBottom="left"
-        ap:lineLabelAlignLeft="left"
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="BENIS FÜR"/>
 
-        ap:lineLabelInsetBottom="8dp"
-        ap:lineLabelInsetLeft="8dp"
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="TAGS"
+                        android:textColor="@color/white"/>
 
-        ap:lineLabels="left|bottom"
-        ap:rangeOriginLineThickness="1dp"
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="VERGEBEN"/>
 
-        ap:rangeTitleTextSize="16dp"
-        ap:renderMode="use_background_thread"
-        />
+                </LinearLayout>
+            </com.pr0gramm.app.ui.views.AspectLayout>
+
+
+            <com.pr0gramm.app.ui.views.AspectLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:aspect="1">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    >
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Value"
+                        tools:text="743"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="BENIS FÜR"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="KOMMENTARE"
+                        android:textColor="@color/white"/>
+
+                    <TextView
+                        style="@style/Statistics.VoteBehaviour.Subtitle"
+                        android:text="VERGEBEN"/>
+
+                </LinearLayout>
+            </com.pr0gramm.app.ui.views.AspectLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

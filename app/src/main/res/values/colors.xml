@@ -69,5 +69,8 @@
     <color name="benis_delta_positive">@color/green_500</color>
     <color name="benis_delta_negative">@color/red_500</color>
     <color name="transparent_black">#8000</color>
+    <color name="stats_up">#50bc80</color>
+    <color name="stats_down">#ff9b84</color>
+    <color name="stats_fav">#d45099</color>
 
 </resources>

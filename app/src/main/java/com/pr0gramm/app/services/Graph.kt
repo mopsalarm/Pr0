@@ -7,13 +7,14 @@ package com.pr0gramm.app.services
 class Graph(start: Double, end: Double,
             val points: List<Graph.Point>) {
 
+    constructor(points: List<Graph.Point>) : this(points.first().x, points.last().x, points) {
+    }
+
     val range = start.rangeTo(end)
 
-    val first
-        get() = points[0]
+    val first get() = points.first()
 
-    val last
-        get() = points[points.size - 1]
+    val last get() = points.last()
 
     val isEmpty: Boolean
         get() = points.isEmpty()
@@ -40,4 +41,38 @@ class Graph(start: Double, end: Double,
 
 
     class Point(val x: Double, val y: Double)
+
+    fun sampleEquidistant(steps: Int): Graph {
+        return Graph((0..steps - 1).map { idx ->
+            // the x position that is at the sampling point
+            val x = range.start + (range.endInclusive - range.start) * idx / (steps - 1)
+            val y = valueAt(x)
+
+            Point(x, y)
+        })
+    }
+
+    fun valueAt(x: Double): Double {
+        // find first point that is right of our query point.
+        val largerIndex = points.indexOfFirst { it.x >= x }
+
+        if (largerIndex == -1) {
+            // we did not found a point that is right of x, so we take the value of the
+            // right most point we know.
+            return last.y
+        }
+
+        if (largerIndex == 0) {
+            // the left-most point is already right of x, so take value of the first point.
+            return first.y
+        }
+
+        // get points a and b.
+        val a = points[largerIndex - 1]
+        val b = points[largerIndex]
+
+        // interpolate the value at x between a.x and b.x using m as the ascend
+        val m = (b.y - a.y) / (b.x - a.x)
+        return a.y + m * (x - a.x)
+    }
 }

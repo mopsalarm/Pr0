@@ -55,5 +55,3 @@ interface HasViewCache {
     fun <T, V : View> bindView(id: Int) = viewCache.bindView<T, V>(id)
     fun <T, V : View> bindOptionalView(id: Int) = viewCache.bindOptionalView<T, V?>(id)
 }
-
-
