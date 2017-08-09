@@ -1,13 +1,12 @@
 package com.pr0gramm.app.ui
 
 import android.graphics.*
-import android.graphics.drawable.Drawable
 import com.pr0gramm.app.services.Graph
 import com.pr0gramm.app.util.save
 
 /**
  */
-class GraphDrawable(private val graph: Graph) : Drawable() {
+class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLUCENT) {
     var lineColor = Color.WHITE
     var lineWidth = 2f
     var fillColor = Color.TRANSPARENT
@@ -15,14 +14,6 @@ class GraphDrawable(private val graph: Graph) : Drawable() {
     var textSize: Float? = null
 
     var highlights = arrayListOf<Highlight>()
-
-    override fun setAlpha(alpha: Int) {}
-
-    override fun setColorFilter(cf: ColorFilter?) {}
-
-    override fun getOpacity(): Int {
-        return PixelFormat.TRANSLUCENT
-    }
 
     override fun draw(canvas: Canvas) {
         val bounds = bounds
@@ -134,9 +125,9 @@ class GraphDrawable(private val graph: Graph) : Drawable() {
             val x = sc.x(current.x).toFloat()
             val y = sc.y(current.y).toFloat()
 
-
             if (previous == null) {
-                path.moveTo(x, y)
+                path.moveTo(x - 10, y)
+                path.lineTo(x, y)
                 previous = x
 
             } else if (x - previous > 1 || Math.abs(y - previousY) > 100) {

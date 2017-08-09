@@ -17,9 +17,12 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.VoteService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.ui.views.CircleChartView
+import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
+import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import java.util.concurrent.TimeUnit
 
@@ -29,6 +32,8 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
     private val voteService: VoteService by instance()
 
     private val benisGraph: View by bindView(R.id.benis_graph)
+    private val benisGraphLoading: View by bindView(R.id.benis_graph_loading)
+    private val benisGraphEmpty: View by bindView(R.id.benis_graph_empty)
 
     private val benisChangeDay: TextView by bindView(R.id.stats_change_day)
     private val benisChangeWeek: TextView by bindView(R.id.stats_change_week)
@@ -39,6 +44,10 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
     private val voteCountUp: TextView by bindView(R.id.stats_up)
     private val voteCountDown: TextView by bindView(R.id.stats_down)
     private val voteCountFavs: TextView by bindView(R.id.stats_fav)
+
+    private val votesByTags: CircleChartView by bindView(R.id.votes_by_tags)
+    private val votesByItems: CircleChartView by bindView(R.id.votes_by_items)
+    private val votesByComments: CircleChartView by bindView(R.id.votes_by_comments)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.noActionBar)
@@ -73,13 +82,29 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         voteCountUp.text = "UP " + votes.values.sumBy { it.up }
         voteCountDown.text = "DOWN " + votes.values.sumBy { it.down }
         voteCountFavs.text = "FAVS " + votes.values.sumBy { it.fav }
+
+        val zero = VoteService.Summary(0, 0, 0)
+        votesByTags.voteSummary = votes[CachedVote.Type.TAG] ?: zero
+        votesByItems.voteSummary = votes[CachedVote.Type.ITEM] ?: zero
+        votesByComments.voteSummary = votes[CachedVote.Type.COMMENT] ?: zero
     }
 
     private fun handleBenisGraph(records: List<BenisRecord>) {
+        benisGraphLoading.visible = false
+
         // strip redundant values
-        val stripped = records.filterIndexed { idx, value ->
+        var stripped = records.filterIndexed { idx, value ->
             val benis = value.benis
             idx == 0 || idx == records.size - 1 || records[idx - 1].benis != benis || benis != records[idx + 1].benis
+        }
+
+        // dont show if not enough data available
+        if (stripped.size < 2 ||
+                stripped.all { it.benis == stripped[0].benis } ||
+                System.currentTimeMillis() - stripped[0].time < 60 * 1000) {
+
+            benisGraphEmpty.visible = true
+            stripped = randomBenisGraph()
         }
 
         // convert to graph
@@ -96,8 +121,8 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         dr.highlightFillColor = getColorCompat(ThemeHelper.primaryColor)
 
         // add highlight for the a left-ish and a right-ish point.
-        dr.highlights.add(GraphDrawable.Highlight(2, formatScore(sampled[2].y)))
-        dr.highlights.add(GraphDrawable.Highlight(13, formatScore(sampled[13].y)))
+        dr.highlights.add(GraphDrawable.Highlight(2, formatScore(sampled[2].y.toInt())))
+        dr.highlights.add(GraphDrawable.Highlight(13, formatScore(sampled[13].y.toInt())))
 
         // and show the graph
         ViewCompat.setBackground(benisGraph, dr)
@@ -106,6 +131,14 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         formatChange(original, 1, benisChangeDay)
         formatChange(original, 7, benisChangeWeek)
         formatChange(original, 30, benisChangeMonth)
+    }
+
+    private fun randomBenisGraph(): List<BenisRecord> {
+        val offset = (Math.random() * 10000).toInt()
+        val timeScale = TimeUnit.DAYS.toMillis(3L)
+
+        val values = listOf(0, 100, 75, 150, 90, 60, 130, 160, 90, 70, 60, 130, 170, 210)
+        return values.mapIndexed { index, value -> BenisRecord(timeScale * index.toLong(), offset + 10 * value) }
     }
 
     private fun formatChange(graph: Graph, days: Long, view: TextView) {
@@ -125,16 +158,5 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
 
         view.text = formatted
         view.setTextColor(getColorCompat(if (relChange < 0) R.color.stats_down else R.color.stats_up))
-    }
-
-    private fun formatScore(value: Double): String {
-        return when {
-            value >= 1000_000 -> "%1.2fm".format(value / 1000000f)
-
-            value >= 100_000 -> "%1fk".format(value / 1000f)
-            value >= 10_000 -> "%1.1fk".format(value / 1000f)
-            value >= 1_000 -> "%1.2fk".format(value / 1000f)
-            else -> value.toInt().toString()
-        }
     }
 }

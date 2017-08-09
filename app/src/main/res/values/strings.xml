@@ -481,5 +481,6 @@
     <string name="benis_graph_title">Benis history</string>
     <string name="benis_y_title">Benis</string>
     <string name="benis_x_title">Date</string>
+    <string name="benisgraph_empty">There is not yet enough data to\ngenerate a real graph.</string>
 </resources>
 

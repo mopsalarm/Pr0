@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
               android:layout_height="wrap_content"
+              android:orientation="vertical"
               tools:context=".ui.MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -22,10 +22,31 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:title="Deine Statistik"/>
 
-        <View
+        <com.pr0gramm.app.ui.views.AspectLayout
             android:id="@+id/benis_graph"
             android:layout_width="match_parent"
-            android:layout_height="150dp"/>
+            android:layout_height="0dp"
+            app:aspect="2">
+
+            <TextView
+                android:id="@+id/benis_graph_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Loading..."/>
+
+            <TextView
+                android:id="@+id/benis_graph_empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="#6000"
+                android:gravity="center"
+                android:text="@string/benisgraph_empty"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+        </com.pr0gramm.app.ui.views.AspectLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -44,8 +65,8 @@
                 android:text="TAG"/>
 
             <TextView
-                style="@style/Statistics.Change.Block_Value"
                 android:id="@+id/stats_change_day"
+                style="@style/Statistics.Change.Block_Value"
                 tools:text="2,5%"
                 tools:textColor="@color/stats_up"/>
         </LinearLayout>
@@ -60,8 +81,8 @@
                 android:text="WOCHE"/>
 
             <TextView
-                style="@style/Statistics.Change.Block_Value"
                 android:id="@+id/stats_change_week"
+                style="@style/Statistics.Change.Block_Value"
                 tools:text="5,5%"
                 tools:textColor="@color/stats_up"/>
         </LinearLayout>
@@ -76,8 +97,8 @@
                 android:text="MONAT"/>
 
             <TextView
-                style="@style/Statistics.Change.Block_Value"
                 android:id="@+id/stats_change_month"
+                style="@style/Statistics.Change.Block_Value"
                 tools:text="8,5%"
                 tools:textColor="@color/stats_up"/>
         </LinearLayout>
@@ -141,114 +162,31 @@
             android:orientation="horizontal"
             android:paddingTop="16dp">
 
-            <com.pr0gramm.app.ui.views.AspectLayout
+            <com.pr0gramm.app.ui.views.CircleChartView
+                android:id="@+id/votes_by_items"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:aspect="1">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    >
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Value"
-                        tools:text="432"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="BENIS FÜR"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="POSTS"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="VERGEBEN"/>
-
-                </LinearLayout>
-            </com.pr0gramm.app.ui.views.AspectLayout>
-
-
-            <com.pr0gramm.app.ui.views.AspectLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_weight="1"
-                app:aspect="1">
+                app:chartType="POSTS"
+                />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    >
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Value"
-                        tools:text="743"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="BENIS FÜR"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="TAGS"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="VERGEBEN"/>
-
-                </LinearLayout>
-            </com.pr0gramm.app.ui.views.AspectLayout>
-
-
-            <com.pr0gramm.app.ui.views.AspectLayout
+            <com.pr0gramm.app.ui.views.CircleChartView
+                android:id="@+id/votes_by_tags"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:aspect="1">
+                app:chartType="TAGS"
+                />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    >
+            <com.pr0gramm.app.ui.views.CircleChartView
+                android:id="@+id/votes_by_comments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="16dp"
+                app:chartType="KOMMENTARE"/>
 
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Value"
-                        tools:text="743"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="BENIS FÜR"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="KOMMENTARE"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/Statistics.VoteBehaviour.Subtitle"
-                        android:text="VERGEBEN"/>
-
-                </LinearLayout>
-            </com.pr0gramm.app.ui.views.AspectLayout>
         </LinearLayout>
 
     </LinearLayout>

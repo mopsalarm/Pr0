@@ -64,4 +64,8 @@
     <declare-styleable name="MaxWidthFrameLayout">
         <attr name="mwfl_maxWidth" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="CircleChartView">
+        <attr name="chartType" format="string"/>
+    </declare-styleable>
 </resources>

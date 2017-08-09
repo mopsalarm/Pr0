@@ -463,4 +463,5 @@
     <string name="benis_graph_title">Benisverlauf</string>
     <string name="benis_y_title">Benis</string>
     <string name="benis_x_title">Datum</string>
+    <string name="benisgraph_empty">Es sind noch nicht genügend Daten verfügbar,\num deinen Graphen anzuzeigen.</string>
 </resources>

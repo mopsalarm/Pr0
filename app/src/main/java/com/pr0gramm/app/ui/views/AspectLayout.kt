@@ -11,7 +11,7 @@ import com.pr0gramm.app.util.use
  * A [FrameLayout] that keeps a aspect ratio and calculates it height
  * from the width.
  */
-class AspectLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
+open class AspectLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     var aspect: Float by observeChange(-1f) { requestLayout() }
 
     init {
