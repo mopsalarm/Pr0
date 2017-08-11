@@ -9,6 +9,11 @@ import android.view.View
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.feed.ContentType
+import com.pr0gramm.app.feed.FeedFilter
+import com.pr0gramm.app.feed.FeedService
+import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.Graph
@@ -30,6 +35,7 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
 
     private val userService: UserService by instance()
     private val voteService: VoteService by instance()
+    private val feedService: FeedService by instance()
 
     private val benisGraph: View by bindView(R.id.benis_graph)
     private val benisGraphLoading: View by bindView(R.id.benis_graph_loading)
@@ -74,7 +80,37 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
                 .compose(bindToLifecycleAsync())
                 .subscribe { handleBenisGraph(it) }
 
-        usernameView.text = (userService.name ?: "xxx").toUpperCase()
+        userService.name?.let { username ->
+            usernameView.text = username
+
+            val favFilter = FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .withLikes(username)
+
+            feedService.loadAll(FeedService.FeedQuery(favFilter, ContentType.AllSet))
+                    .timeout(1, TimeUnit.MINUTES)
+                    .compose(bindToLifecycleAsync())
+                    .subscribe { handleUserFavorites(it) }
+
+
+            val uploadFilter = FeedFilter()
+                    .withFeedType(FeedType.NEW)
+                    .withUser(username)
+
+            feedService.loadAll(FeedService.FeedQuery(uploadFilter, ContentType.AllSet))
+                    .timeout(1, TimeUnit.MINUTES)
+                    .compose(bindToLifecycleAsync())
+                    .subscribe { handleUserFavorites(it) }
+        }
+    }
+
+    private fun handleUserFavorites(favorites: List<Api.Feed.Item>) {
+        val byContentType = favorites
+                .flatMap { ContentType.decompose(it.flags) }
+                .groupBy { it }
+                .mapValues { it.value.size }
+
+        logger.info("By content type: {}", byContentType)
     }
 
     @SuppressLint("SetTextI18n")
@@ -84,9 +120,18 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         voteCountFavs.text = "FAVS " + votes.values.sumBy { it.fav }
 
         val zero = VoteService.Summary(0, 0, 0)
-        votesByTags.voteSummary = votes[CachedVote.Type.TAG] ?: zero
-        votesByItems.voteSummary = votes[CachedVote.Type.ITEM] ?: zero
-        votesByComments.voteSummary = votes[CachedVote.Type.COMMENT] ?: zero
+        votesByTags.chartValues = toChartValues(votes[CachedVote.Type.TAG])
+        votesByItems.chartValues = toChartValues(votes[CachedVote.Type.ITEM])
+        votesByComments.chartValues = toChartValues(votes[CachedVote.Type.COMMENT])
+    }
+
+    private fun toChartValues(summary: VoteService.Summary?): List<CircleChartView.Value> {
+        summary ?: return listOf()
+
+        return listOf(
+                CircleChartView.Value(summary.up, getColorCompat(R.color.stats_up)),
+                CircleChartView.Value(summary.down, getColorCompat(R.color.stats_down)),
+                CircleChartView.Value(summary.fav, getColorCompat(R.color.stats_fav)))
     }
 
     private fun handleBenisGraph(records: List<BenisRecord>) {

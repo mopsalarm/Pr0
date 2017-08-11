@@ -5,6 +5,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.services.Reducer
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
 import org.slf4j.LoggerFactory
@@ -18,6 +19,12 @@ interface FeedService {
     fun load(query: FeedQuery): Observable<Api.Feed>
 
     fun post(id: Long): Observable<Api.Post>
+
+    /**
+     * Loads all values from the given feed query into memory and returns
+     * one list with items. Be careful!
+     */
+    fun loadAll(startQuery: FeedQuery): Observable<List<Api.Feed.Item>>
 
     data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
                          val newer: Long? = null, val older: Long? = null, val around: Long? = null)
@@ -92,6 +99,19 @@ class FeedServiceImpl(private val api: Api,
 
     override fun post(id: Long): Observable<Api.Post> {
         return api.info(id)
+    }
+
+    override fun loadAll(startQuery: FeedService.FeedQuery): Observable<List<Api.Feed.Item>> {
+        return Reducer.unpack(Reducer.reduceToList(startQuery) { query ->
+            return@reduceToList load(query).toSingle().map { feed ->
+                val nextQuery = feed.items
+                        ?.takeUnless { feed.isAtEnd }
+                        ?.lastOrNull()
+                        ?.let { query.copy(older = it.id) }
+
+                Reducer.Step(feed.items, nextQuery)
+            }
+        })
     }
 
     private class SearchQuery internal constructor(tags: String?) {

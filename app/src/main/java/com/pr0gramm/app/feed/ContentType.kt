@@ -29,6 +29,10 @@ enum class ContentType constructor(val flag: Int, val title: Int) : Parcelable {
             return flags.sumBy { it.flag }
         }
 
+        fun combine(vararg flags: ContentType): Int {
+            return flags.sumBy { it.flag }
+        }
+
         /**
          * Gets a all the content types that are encoded in the given
          * flags number. This is the reverse of [.combine].
