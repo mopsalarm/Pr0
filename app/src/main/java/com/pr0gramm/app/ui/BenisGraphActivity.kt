@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedService
@@ -55,6 +54,9 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
     private val votesByItems: CircleChartView by bindView(R.id.votes_by_items)
     private val votesByComments: CircleChartView by bindView(R.id.votes_by_comments)
 
+    private val typesOfUpload: CircleChartView by bindView(R.id.types_uploads)
+    private val typesByFavorites: CircleChartView by bindView(R.id.types_favorites)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.noActionBar)
         super.onCreate(savedInstanceState)
@@ -83,34 +85,43 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         userService.name?.let { username ->
             usernameView.text = username
 
-            val favFilter = FeedFilter()
+            showContentTypesOf(typesByFavorites, FeedFilter()
                     .withFeedType(FeedType.NEW)
-                    .withLikes(username)
+                    .withLikes(username))
 
-            feedService.loadAll(FeedService.FeedQuery(favFilter, ContentType.AllSet))
-                    .timeout(1, TimeUnit.MINUTES)
-                    .compose(bindToLifecycleAsync())
-                    .subscribe { handleUserFavorites(it) }
-
-
-            val uploadFilter = FeedFilter()
+            showContentTypesOf(typesOfUpload, FeedFilter()
                     .withFeedType(FeedType.NEW)
-                    .withUser(username)
-
-            feedService.loadAll(FeedService.FeedQuery(uploadFilter, ContentType.AllSet))
-                    .timeout(1, TimeUnit.MINUTES)
-                    .compose(bindToLifecycleAsync())
-                    .subscribe { handleUserFavorites(it) }
+                    .withUser(username))
         }
     }
 
-    private fun handleUserFavorites(favorites: List<Api.Feed.Item>) {
-        val byContentType = favorites
-                .flatMap { ContentType.decompose(it.flags) }
-                .groupBy { it }
-                .mapValues { it.value.size }
+    private fun showContentTypesOf(view: CircleChartView, filter: FeedFilter) {
+        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet))
+                .timeout(1, TimeUnit.MINUTES)
+                .compose(bindToLifecycleAsync())
+                .scan(mutableMapOf<ContentType, Int>()) { state, feed ->
+                    // count each flag of each item once.
+                    for (type in feed.items.flatMap { ContentType.decompose(it.flags) }) {
+                        state[type] = (state[type] ?: 0) + 1
+                    }
 
-        logger.info("By content type: {}", byContentType)
+                    state
+                }
+                .subscribe { showContentTypes(view, it) }
+    }
+
+    private fun showContentTypes(view: CircleChartView, counts: Map<ContentType, Int>) {
+        val sfw = counts[ContentType.SFW] ?: 0
+        val nsfw = (counts[ContentType.NSFW] ?: 0) + (counts[ContentType.NSFP] ?: 0)
+        val nsfl = counts[ContentType.NSFL] ?: 0
+
+        val values = listOf(
+                CircleChartView.Value(sfw, getColorCompat(R.color.type_sfw)),
+                CircleChartView.Value(nsfw, getColorCompat(R.color.type_nsfw)),
+                CircleChartView.Value(nsfl, getColorCompat(R.color.type_nsfl)))
+
+
+        view.chartValues = values
     }
 
     @SuppressLint("SetTextI18n")
@@ -119,7 +130,6 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
         voteCountDown.text = "DOWN " + votes.values.sumBy { it.down }
         voteCountFavs.text = "FAVS " + votes.values.sumBy { it.fav }
 
-        val zero = VoteService.Summary(0, 0, 0)
         votesByTags.chartValues = toChartValues(votes[CachedVote.Type.TAG])
         votesByItems.chartValues = toChartValues(votes[CachedVote.Type.ITEM])
         votesByComments.chartValues = toChartValues(votes[CachedVote.Type.COMMENT])

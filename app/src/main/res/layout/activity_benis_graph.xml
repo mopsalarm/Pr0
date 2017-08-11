@@ -1,194 +1,242 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              tools:context=".ui.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:elevation="8dp">
+        android:background="?attr/colorPrimary"
+        android:fitsSystemWindows="true"
+        app:title="Deine Statistik"/>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:title="Deine Statistik"/>
+            android:orientation="vertical"
+            tools:context=".ui.MainActivity">
 
-        <com.pr0gramm.app.ui.views.AspectLayout
-            android:id="@+id/benis_graph"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:aspect="2">
-
-            <TextView
-                android:id="@+id/benis_graph_loading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Loading..."/>
-
-            <TextView
-                android:id="@+id/benis_graph_empty"
+            <com.pr0gramm.app.ui.views.AspectLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:background="#6000"
-                android:gravity="center"
-                android:text="@string/benisgraph_empty"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:visibility="gone"
-                tools:visibility="visible"/>
-        </com.pr0gramm.app.ui.views.AspectLayout>
+                android:layout_height="0dp"
+                android:background="?colorPrimary"
+                app:aspect="2">
 
-    </android.support.design.widget.AppBarLayout>
+                <View
+                    android:id="@+id/benis_graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+                <TextView
+                    android:id="@+id/benis_graph_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Loading..."/>
 
-        <LinearLayout
-            style="@style/Statistics.Change.Block">
+                <TextView
+                    android:id="@+id/benis_graph_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="#6000"
+                    android:gravity="center"
+                    android:text="@string/benisgraph_empty"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+            </com.pr0gramm.app.ui.views.AspectLayout>
 
-            <TextView
-                style="@style/Statistics.Change.Block_Title"
-                android:text="TAG"/>
-
-            <TextView
-                android:id="@+id/stats_change_day"
-                style="@style/Statistics.Change.Block_Value"
-                tools:text="2,5%"
-                tools:textColor="@color/stats_up"/>
-        </LinearLayout>
-
-        <View style="@style/Statistics.Change.Sep"/>
-
-        <LinearLayout
-            style="@style/Statistics.Change.Block">
-
-            <TextView
-                style="@style/Statistics.Change.Block_Title"
-                android:text="WOCHE"/>
-
-            <TextView
-                android:id="@+id/stats_change_week"
-                style="@style/Statistics.Change.Block_Value"
-                tools:text="5,5%"
-                tools:textColor="@color/stats_up"/>
-        </LinearLayout>
-
-        <View style="@style/Statistics.Change.Sep"/>
-
-        <LinearLayout
-            style="@style/Statistics.Change.Block">
-
-            <TextView
-                style="@style/Statistics.Change.Block_Title"
-                android:text="MONAT"/>
-
-            <TextView
-                android:id="@+id/stats_change_month"
-                style="@style/Statistics.Change.Block_Value"
-                tools:text="8,5%"
-                tools:textColor="@color/stats_up"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#2e2e2e"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Voteverhalten von"
-            android:textColor="?colorPrimary"/>
-
-        <TextView
-            android:id="@+id/username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            tools:text="MOPSALARM"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <TextView
-                style="@style/Statistics.VoteCount"
-                android:text="TOTAL:"/>
-
-            <TextView
-                android:id="@+id/stats_up"
-                style="@style/Statistics.VoteCount"
-                android:textColor="@color/stats_up"
-                tools:text="UP 512"/>
-
-            <TextView
-                android:id="@+id/stats_down"
-                style="@style/Statistics.VoteCount"
-                android:textColor="@color/stats_down"
-                tools:text="DOWN 486"/>
-
-            <TextView
-                android:id="@+id/stats_fav"
-                style="@style/Statistics.VoteCount"
-                android:textColor="@color/stats_fav"
-                tools:text="FAVS 64"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="16dp">
-
-            <com.pr0gramm.app.ui.views.CircleChartView
-                android:id="@+id/votes_by_items"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginRight="16dp"
-                app:chartType="POSTS"
-                />
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp">
 
-            <com.pr0gramm.app.ui.views.CircleChartView
-                android:id="@+id/votes_by_tags"
-                android:layout_width="0dp"
+                <LinearLayout
+                    style="@style/Statistics.Change.Block">
+
+                    <TextView
+                        style="@style/Statistics.Change.Block_Title"
+                        android:text="TAG"/>
+
+                    <TextView
+                        android:id="@+id/stats_change_day"
+                        style="@style/Statistics.Change.Block_Value"
+                        tools:text="2,5%"
+                        tools:textColor="@color/stats_up"/>
+                </LinearLayout>
+
+                <View style="@style/Statistics.Change.Sep"/>
+
+                <LinearLayout
+                    style="@style/Statistics.Change.Block">
+
+                    <TextView
+                        style="@style/Statistics.Change.Block_Title"
+                        android:text="WOCHE"/>
+
+                    <TextView
+                        android:id="@+id/stats_change_week"
+                        style="@style/Statistics.Change.Block_Value"
+                        tools:text="5,5%"
+                        tools:textColor="@color/stats_up"/>
+                </LinearLayout>
+
+                <View style="@style/Statistics.Change.Sep"/>
+
+                <LinearLayout
+                    style="@style/Statistics.Change.Block">
+
+                    <TextView
+                        style="@style/Statistics.Change.Block_Title"
+                        android:text="MONAT"/>
+
+                    <TextView
+                        android:id="@+id/stats_change_month"
+                        style="@style/Statistics.Change.Block_Value"
+                        tools:text="8,5%"
+                        tools:textColor="@color/stats_up"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:chartType="TAGS"
-                />
+                android:background="#2e2e2e"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <com.pr0gramm.app.ui.views.CircleChartView
-                android:id="@+id/votes_by_comments"
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Voteverhalten von"
+                    android:textColor="?colorPrimary"/>
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    tools:text="MOPSALARM"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp">
+
+                    <TextView
+                        style="@style/Statistics.VoteCount"
+                        android:text="TOTAL:"/>
+
+                    <TextView
+                        android:id="@+id/stats_up"
+                        style="@style/Statistics.VoteCount"
+                        android:textColor="@color/stats_up"
+                        tools:text="UP 512"/>
+
+                    <TextView
+                        android:id="@+id/stats_down"
+                        style="@style/Statistics.VoteCount"
+                        android:textColor="@color/stats_down"
+                        tools:text="DOWN 486"/>
+
+                    <TextView
+                        android:id="@+id/stats_fav"
+                        style="@style/Statistics.VoteCount"
+                        android:textColor="@color/stats_fav"
+                        tools:text="FAVS 64"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="16dp">
+
+                    <com.pr0gramm.app.ui.views.CircleChartView
+                        android:id="@+id/votes_by_items"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="1"
+                        app:chartType="POSTS"
+                        app:lineBottom="VERGEBEN"
+                        app:lineTop="BENIS FÜR"
+                        />
+
+                    <com.pr0gramm.app.ui.views.CircleChartView
+                        android:id="@+id/votes_by_tags"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:chartType="TAGS"
+                        app:lineBottom="VERGEBEN"
+                        app:lineTop="BENIS FÜR"
+                        />
+
+                    <com.pr0gramm.app.ui.views.CircleChartView
+                        android:id="@+id/votes_by_comments"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_weight="1"
+                        app:chartType="KOMMENTARE"
+                        app:lineBottom="VERGEBEN"
+                        app:lineTop="BENIS FÜR"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="16dp"
-                app:chartType="KOMMENTARE"/>
+                android:layout_marginTop="16dp"
+                android:background="#2e2e2e"
+                android:orientation="horizontal"
+                android:padding="16dp">
 
+                <com.pr0gramm.app.ui.views.CircleChartView
+                    android:id="@+id/types_uploads"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="48dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_weight="1"
+                    app:chartType="UPLOADS"
+                    app:lineBottom="N/SFW/L"
+                    app:lineTop="VERTEILUNG"/>
+
+                <com.pr0gramm.app.ui.views.CircleChartView
+                    android:id="@+id/types_favorites"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="48dp"
+                    android:layout_weight="1"
+                    app:chartType="FAVORITEN"
+                    app:lineBottom="N/SFW/L"
+                    app:lineTop="VERTEILUNG"/>
+
+            </LinearLayout>
         </LinearLayout>
-
-    </LinearLayout>
-
+    </ScrollView>
 </LinearLayout>

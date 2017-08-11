@@ -15,10 +15,11 @@ import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
 import kotterknife.bindView
+import kotterknife.bindViews
 
 class CircleChartView : AspectLayout {
     private val viewValue: TextView by bindView(R.id.value)
-    private val viewType: TextView by bindView(R.id.line2)
+    private val viewLines: List<TextView> by bindViews(R.id.line1, R.id.line2, R.id.line3)
 
     private val chart = CircleChartDrawable()
 
@@ -29,7 +30,10 @@ class CircleChartView : AspectLayout {
         aspect = 1f
 
         context.theme.obtainStyledAttributes(attrs, R.styleable.CircleChartView, 0, 0).use {
-            viewType.text = it.getString(R.styleable.CircleChartView_chartType) ?: "POST"
+            viewLines[0].text = it.getString(R.styleable.CircleChartView_lineTop) ?: ""
+            viewLines[2].text = it.getString(R.styleable.CircleChartView_lineBottom) ?: ""
+
+            viewLines[1].text = it.getString(R.styleable.CircleChartView_chartType) ?: "POST"
         }
 
         ViewCompat.setBackground(this, chart)

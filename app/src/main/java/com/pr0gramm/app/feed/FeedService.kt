@@ -21,10 +21,10 @@ interface FeedService {
     fun post(id: Long): Observable<Api.Post>
 
     /**
-     * Loads all values from the given feed query into memory and returns
-     * one list with items. Be careful!
+     * Streams feed items - giving one page after the next until
+     * the end of the stream.
      */
-    fun loadAll(startQuery: FeedQuery): Observable<List<Api.Feed.Item>>
+    fun stream(startQuery: FeedQuery): Observable<Api.Feed>
 
     data class FeedQuery(val filter: FeedFilter, val contentTypes: Set<ContentType>,
                          val newer: Long? = null, val older: Long? = null, val around: Long? = null)
@@ -101,17 +101,17 @@ class FeedServiceImpl(private val api: Api,
         return api.info(id)
     }
 
-    override fun loadAll(startQuery: FeedService.FeedQuery): Observable<List<Api.Feed.Item>> {
-        return Reducer.unpack(Reducer.reduceToList(startQuery) { query ->
-            return@reduceToList load(query).toSingle().map { feed ->
+    override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {
+        return Reducer.iterate(startQuery) { query ->
+            return@iterate load(query).toSingle().map { feed ->
                 val nextQuery = feed.items
                         ?.takeUnless { feed.isAtEnd }
                         ?.lastOrNull()
                         ?.let { query.copy(older = it.id) }
 
-                Reducer.Step(feed.items, nextQuery)
+                Reducer.Step(feed, nextQuery)
             }
-        })
+        }
     }
 
     private class SearchQuery internal constructor(tags: String?) {

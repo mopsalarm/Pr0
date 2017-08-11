@@ -67,5 +67,7 @@
 
     <declare-styleable name="CircleChartView">
         <attr name="chartType" format="string"/>
+        <attr name="lineTop" format="string"/>
+        <attr name="lineBottom" format="string"/>
     </declare-styleable>
 </resources>
