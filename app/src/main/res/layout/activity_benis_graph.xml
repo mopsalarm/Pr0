@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:fitsSystemWindows="true"
+        android:elevation="8dp"
         app:title="Deine Statistik"/>
 
     <ScrollView
@@ -31,7 +32,7 @@
             <com.pr0gramm.app.ui.views.AspectLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:background="?colorPrimary"
+                android:background="?colorPrimaryDark"
                 app:aspect="2">
 
                 <View

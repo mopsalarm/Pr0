@@ -30,15 +30,14 @@ class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLU
         canvas.save {
             canvas.translate(bounds.left.toFloat(), bounds.top.toFloat())
 
-            val paint = Paint()
-            paint.isAntiAlias = true
-
             if (fillColor != Color.TRANSPARENT) {
-                paint.color = fillColor
-                paint.style = Paint.Style.FILL
+                val paint = paint {
+                    color = fillColor
+                    style = Paint.Style.FILL
 
-                paint.shader = LinearGradient(0f, 0f, 0f, sc.bounds.height().toFloat(),
-                        fillColor, Color.TRANSPARENT, Shader.TileMode.CLAMP)
+                    shader = LinearGradient(0f, 0f, 0f, sc.bounds.height().toFloat(),
+                            fillColor, Color.TRANSPARENT, Shader.TileMode.CLAMP)
+                }
 
                 canvas.drawPath(path, paint)
 
@@ -47,69 +46,84 @@ class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLU
             }
 
             if (lineColor != Color.TRANSPARENT) {
-                paint.color = lineColor
-                paint.strokeWidth = lineWidth
-                paint.style = Paint.Style.STROKE
-                canvas.drawPath(path, paint)
+                canvas.drawPath(path, paint {
+                    color = lineColor
+                    strokeWidth = lineWidth
+                    style = Paint.Style.STROKE
+                })
             }
 
-            highlights.forEach { hi ->
-                val point = graph[hi.index]
-                val cX = sc.x(point.x).toFloat()
-                val cY = sc.y(point.y).toFloat()
-
-                paint.strokeWidth = 0f
-                paint.color = highlightFillColor
-                paint.style = Paint.Style.FILL
-                canvas.drawCircle(cX, cY, 1f * lineWidth, paint)
-
-                paint.strokeWidth = lineWidth
-                paint.color = lineColor
-                paint.style = Paint.Style.STROKE
-                canvas.drawCircle(cX, cY, 1.5f * lineWidth, paint)
-
-                val textSize = textSize ?: 3.5f * lineWidth
-
-                // left or right of highlight?
-                var textAlignX: Float
-                if (point.x > (graph.first.x + graph.last.x) / 2) {
-                    textAlignX = -1f
-                } else {
-                    textAlignX = 1f
-                }
-
-                var baseOffsetX = 2 * lineWidth
-
-                // check if the path goes up or down (moving away from the highlighted point)
-                // and decide where to move the point.
-                val goesUp = graph[hi.index + textAlignX.toInt()].y >= point.y
-                var textAlignY = if (goesUp) 1f else -1f
-
-                // if we want to paint the text too near too the top or too
-                // far near to the bottom, we'll flip it to the other side of the line
-                if (Math.min(cY, sc.bounds.height() - cY) < 3 * textSize) {
-                    textAlignX *= -1
-                    textAlignY *= -1
-                    baseOffsetX = 0f
-                }
-
-                paint.style = Paint.Style.FILL
-                paint.color = lineColor
-                paint.textSize = textSize
-
-                val textWidth = paint.measureText(hi.text)
-
-                // move anchor to left or right end of the text
-                var textX = cX + textWidth * textAlignX.coerceAtMost(0f)
-
-                // add a little offset to the point
-                textX += baseOffsetX * textAlignX
-
-                var textY = cY + textSize * textAlignY.coerceAtLeast(-0.2f)
-                textY += 2 * lineWidth * textAlignY
-
-                canvas.drawText(hi.text, textX, textY, paint)
+            if (highlights.isNotEmpty()) {
+                drawHighlights(canvas, sc)
             }
+        }
+    }
+
+    private fun drawHighlights(canvas: Canvas, sc: Scaling) {
+        val textSize = textSize ?: 3.5f * lineWidth
+
+        val paintHighlightFill = paint {
+            strokeWidth = 0f
+            color = highlightFillColor
+            style = Paint.Style.FILL
+        }
+
+        val paintHighlightStroke = paint {
+            strokeWidth = lineWidth
+            color = lineColor
+            style = Paint.Style.STROKE
+        }
+
+        val paintText = paint {
+            style = Paint.Style.FILL
+            color = lineColor
+            this.textSize = textSize
+        }
+
+        highlights.forEach { hi ->
+            val point = graph[hi.index]
+            val cX = sc.x(point.x).toFloat()
+            val cY = sc.y(point.y).toFloat()
+
+            // draw the highlights
+            canvas.drawCircle(cX, cY, 1f * lineWidth, paintHighlightFill)
+            canvas.drawCircle(cX, cY, 1.5f * lineWidth, paintHighlightStroke)
+
+            // left or right of highlight?
+            var textAlignX: Float
+            if (point.x > (graph.first.x + graph.last.x) / 2) {
+                textAlignX = -1f
+            } else {
+                textAlignX = 1f
+            }
+
+            var baseOffsetX = 2 * lineWidth
+
+            // check if the path goes up or down (moving away from the highlighted point)
+            // and decide where to move the point.
+            val goesUp = graph[hi.index + textAlignX.toInt()].y >= point.y
+            var textAlignY = if (goesUp) 1f else -1f
+
+            // if we want to paint the text too near too the top or too
+            // far near to the bottom, we'll flip it to the other side of the line
+            if (Math.min(cY, sc.bounds.height() - cY) < 3 * textSize) {
+                textAlignX *= -1
+                textAlignY *= -1
+                baseOffsetX = 0f
+            }
+
+            val textWidth = paintText.measureText(hi.text)
+
+            // move anchor to left or right end of the text
+            var textX = cX + textWidth * textAlignX.coerceAtMost(0f)
+
+            // add a little offset to the point
+            textX += baseOffsetX * textAlignX
+
+            var textY = cY + textSize * textAlignY.coerceAtLeast(-0.2f)
+            textY += 2 * lineWidth * textAlignY
+
+            canvas.drawText(hi.text, textX, textY, paintText)
         }
     }
 
@@ -143,6 +157,13 @@ class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLU
         path.rLineTo((-sc.bounds.width() - 20).toFloat(), 0f)
         path.close()
         return path
+    }
+
+    inline private fun paint(configure: Paint.() -> Unit): Paint {
+        val p = Paint()
+        p.isAntiAlias = true
+        p.configure()
+        return p
     }
 
     private inner class Scaling(val bounds: Rect) {
