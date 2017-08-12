@@ -56,6 +56,7 @@ class CircleChartView : AspectLayout {
             val paint = Paint().apply {
                 style = Paint.Style.STROKE
                 strokeWidth = lineWidth
+                isAntiAlias = true
             }
 
             val colors = listOf(R.color.stats_up, R.color.stats_down, R.color.stats_fav)
