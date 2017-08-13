@@ -464,4 +464,11 @@
     <string name="benis_y_title">Benis</string>
     <string name="benis_x_title">Datum</string>
     <string name="benisgraph_empty">Es sind noch nicht genügend Daten verfügbar,\num deinen Graphen anzuzeigen.</string>
+    <string name="could_not_load_feed_content_type__change">Möchtest du %s in deinen Filter mit aufnehmen?</string>
+    <string name="could_not_load_feed_content_type__signin">Um Beiträge in %s zu sehen, musst du dich anmelden.</string>
+    <string name="progress_dialog_title">Lade…</string>
+    <string name="progress_dialog_message">Bitte warten…</string>
+    <string name="error_feed_not_public__item">Die Favoriten von %s sind nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
+    <string name="error_feed_not_public__general">Die Favoriten von %s sind nicht öffentlich.</string>
+    <string name="nothing_there_error">Der Feed konnte nicht geladen werden.</string>
 </resources>
