@@ -8,10 +8,10 @@ apply from: 'version.gradle'
 buildscript {
     ext {
         VersionKotlin = "1.1.3-2"
-        VersionSupportLibrary = "26.0.0"
+        VersionSupportLibrary = "26.0.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "11.0.0"
+        VersionGoogleServices = "11.0.4"
     }
 
     repositories {
@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
-        classpath 'io.fabric.tools:gradle:1.23.0'
+        classpath 'io.fabric.tools:gradle:1.24.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -164,7 +164,7 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    compile("com.google.guava:guava:22.0-android") {
+    compile("com.google.guava:guava:23.0-android") {
         force = true
     }
 
@@ -196,7 +196,7 @@ dependencies {
 
     compile "com.github.apl-devs:appintro:v4.2.2"
 
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.4.4'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.5.1'
 
     // forked dependencies.
     compile "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"

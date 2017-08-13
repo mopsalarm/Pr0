@@ -61,7 +61,7 @@ import java.lang.ref.WeakReference
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayout) :
-        RxVideoPlayer(), VideoPlayer, ExoPlayer.EventListener {
+        RxVideoPlayer(), VideoPlayer, Player.EventListener {
 
     private val context = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
@@ -236,9 +236,9 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
-            ExoPlayer.STATE_BUFFERING -> callbacks.onVideoBufferingStarts()
+            Player.STATE_BUFFERING -> callbacks.onVideoBufferingStarts()
 
-            ExoPlayer.STATE_READY -> {
+            Player.STATE_READY -> {
                 // better re-apply volume state
                 applyVolumeState()
 
@@ -257,6 +257,10 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
 
     override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
         logger.info("Tracks have changed, {} tracks available", trackGroups.length)
+    }
+
+    override fun onRepeatModeChanged(p0: Int) {
+        logger.info("Repeat mode has changed to {}", p0)
     }
 
     override fun onPlayerError(error: ExoPlaybackException) {
