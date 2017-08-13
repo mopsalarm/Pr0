@@ -96,7 +96,7 @@ class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
     }
 
     private fun showContentTypesOf(view: CircleChartView, filter: FeedFilter) {
-        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet))
+        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = 0L))
                 .timeout(1, TimeUnit.MINUTES)
                 .compose(bindToLifecycleAsync())
                 .scan(mutableMapOf<ContentType, Int>()) { state, feed ->

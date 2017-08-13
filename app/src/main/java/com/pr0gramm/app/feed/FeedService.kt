@@ -102,12 +102,23 @@ class FeedServiceImpl(private val api: Api,
     }
 
     override fun stream(startQuery: FeedService.FeedQuery): Observable<Api.Feed> {
+        // move from low to higher numbers if newer is set.
+        val upwards = startQuery.newer != null
+
         return Reducer.iterate(startQuery) { query ->
             return@iterate load(query).toSingle().map { feed ->
-                val nextQuery = feed.items
-                        ?.takeUnless { feed.isAtEnd }
-                        ?.lastOrNull()
-                        ?.let { query.copy(older = it.id) }
+                // get the previous (or next) page from the current set of items.
+                val nextQuery = if (upwards) {
+                    feed.items
+                            ?.takeUnless { feed.isAtStart }
+                            ?.firstOrNull()
+                            ?.let { query.copy(newer = it.id) }
+                } else {
+                    feed.items
+                            ?.takeUnless { feed.isAtEnd }
+                            ?.lastOrNull()
+                            ?.let { query.copy(older = it.id) }
+                }
 
                 Reducer.Step(feed, nextQuery)
             }

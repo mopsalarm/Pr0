@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.util.BackgroundScheduler
 import rx.Observable
 import rx.Single
 
@@ -11,8 +12,16 @@ object Reducer {
 
         fun iterate(key: K): Observable<T> {
             return block(key).flatMapObservable { step ->
-                val oValue = Observable.just(step.value)
-                step.next?.let { next -> oValue.concatWith(iterate(next)) } ?: oValue
+                var oValue = Observable.just(step.value)
+
+                if (step.next != null) {
+                    // iterate if needed. We need to use subscribeOn here to avoid a real recursion
+                    // by starting the next call in a another thread.
+                    val nextIteration = iterate(step.next).subscribeOn(BackgroundScheduler.instance())
+                    oValue = oValue.concatWith(nextIteration)
+                }
+
+                oValue
             }
         }
 
