@@ -179,7 +179,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .observeOn(mainThread())
                 .compose(bindToLifecycle<String>())
                 .filter { name -> name.equals(activeUsername, ignoreCase = true) }
-                .subscribe { activity.supportInvalidateOptionsMenu() }
+                .subscribe { activity.invalidateOptionsMenu() }
 
         // execute a search when we get a search term
         searchView.searchQuery().compose(bindToLifecycle()).subscribe { this.performSearch(it) }
@@ -891,7 +891,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private inner class FeedAdapter : RecyclerView.Adapter<FeedItemViewHolder>() {
-        val isUsersFeedOrFavorites = cached<Boolean> {
+        val isUsersFeedOrFavorites = cached {
             val name = userService.name
             name != null && name.equals(feed.filter.likes ?: feed.filter.username, ignoreCase = true)
         }
@@ -978,16 +978,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    internal fun showWrongContentTypeInfo() {
-        val context = activity
-        if (context != null) {
-            showDialog(context) {
-                content(R.string.hint_wrong_content_type)
-                positive()
-            }
-        }
-    }
-
     internal fun refreshRepostInfos(id: Long, filter: FeedFilter) {
         if (filter.feedType !== FeedType.NEW && filter.feedType !== FeedType.PROMOTED)
             return
@@ -1045,7 +1035,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                 positive {
                     val filter = currentFilter.basic()
-                    replaceFeedFilter(filter, selectedContentType, targetItem?.itemId)
+                    replaceFeedFilter(filter, selectedContentType, targetItem.itemId)
                 }
             }
         } else {
