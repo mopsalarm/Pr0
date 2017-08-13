@@ -4,11 +4,19 @@
     "changes": [
       {
         "type": "Neu",
+        "change": "'Deine Statistik', wenn du auf deinen Benisgraphen drückst."
+      },
+      {
+        "type": "Neu",
         "change": "Wenn beim Upload ein möglicher Repost gefunden wurde, lässt sich die Vorschau nun anklicken."
       },
       {
+        "type": "Neu",
+        "change": "Behandlung von Fehlern beim Laden des Feeds verbessert"
+      },
+      {
         "type": "Fix",
-        "change": "Bugfixes."
+        "change": "Viele viele Bugfixes."
       }
     ]
   },
