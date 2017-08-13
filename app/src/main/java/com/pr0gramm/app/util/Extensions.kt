@@ -340,6 +340,11 @@ fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
 }
 
+fun Context.dp2px(dpValue: Float): Float {
+    val density = resources.displayMetrics.density
+    return dpValue * density
+}
+
 inline fun FragmentManager.transaction(now: Boolean = false, block: FragmentTransaction.() -> Unit) {
     val tr = beginTransaction()
     tr.block()

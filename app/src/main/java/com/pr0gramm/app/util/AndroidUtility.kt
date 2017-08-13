@@ -120,8 +120,7 @@ object AndroidUtility {
     }
 
     fun dp(context: Context, dpValue: Int): Int {
-        val density = context.resources.displayMetrics.density
-        return (dpValue * density).toInt()
+        return context.dp2px(dpValue.toFloat()).toInt()
     }
 
     fun isOnMobile(context: Context): Boolean {

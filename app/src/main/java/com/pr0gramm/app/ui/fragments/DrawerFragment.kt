@@ -18,7 +18,6 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.with
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
-import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.*
@@ -38,7 +37,6 @@ import java.util.concurrent.TimeUnit
  */
 class DrawerFragment : BaseFragment("DrawerFragment") {
     private val userService: UserService by instance()
-    private val cookieHandler: LoginCookieHandler by instance()
     private val bookmarkService: BookmarkService by instance()
 
     private val navigationProvider: NavigationProvider by injector.with { activity }.instance()

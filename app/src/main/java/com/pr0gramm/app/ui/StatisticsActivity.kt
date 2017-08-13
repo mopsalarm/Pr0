@@ -17,15 +17,12 @@ import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
-import com.pr0gramm.app.services.Graph
-import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.services.VoteService
+import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CircleChartView
 import com.pr0gramm.app.ui.views.formatScore
-import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.dp2px
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.visible
@@ -46,8 +43,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     private val benisChangeWeek: TextView by bindView(R.id.stats_change_week)
     private val benisChangeMonth: TextView by bindView(R.id.stats_change_month)
 
-    private val usernameView: TextView by bindView(R.id.username)
-
     private val voteCountUp: TextView by bindView(R.id.stats_up)
     private val voteCountDown: TextView by bindView(R.id.stats_down)
     private val voteCountFavs: TextView by bindView(R.id.stats_fav)
@@ -63,7 +58,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         setTheme(ThemeHelper.theme.noActionBar)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_benis_graph)
+        setContentView(R.layout.activity_statistics)
 
         // setup toolbar as actionbar
         val tb = find <Toolbar>(R.id.toolbar)
@@ -85,8 +80,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 .subscribe { handleBenisGraph(it) }
 
         userService.name?.let { username ->
-            usernameView.text = username
-
             showContentTypesOf(typesByFavorites, FavoritesCountCache, FeedFilter()
                     .withFeedType(FeedType.NEW)
                     .withLikes(username))
@@ -163,36 +156,33 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 CircleChartView.Value(summary.fav, getColorCompat(R.color.stats_fav)))
     }
 
-    private fun handleBenisGraph(records: List<BenisRecord>) {
+    private fun handleBenisGraph(rawBenisRecords: List<BenisRecord>) {
         benisGraphLoading.visible = false
 
-        // strip redundant values
-        var stripped = records.filterIndexed { idx, value ->
-            val benis = value.benis
-            idx == 0 || idx == records.size - 1 || records[idx - 1].benis != benis || benis != records[idx + 1].benis
-        }
+        var records = optimizeValuesBy(rawBenisRecords) { it.benis }
 
         // dont show if not enough data available
-        if (stripped.size < 2 ||
-                stripped.all { it.benis == stripped[0].benis } ||
-                System.currentTimeMillis() - stripped[0].time < 60 * 1000) {
+        if (records.size < 2 ||
+                records.all { it.benis == records[0].benis } ||
+                System.currentTimeMillis() - records[0].time < 60 * 1000) {
 
             benisGraphEmpty.visible = true
-            stripped = randomBenisGraph()
+            records = randomBenisGraph()
         }
 
         // convert to graph
-        val original = Graph(stripped.map { Graph.Point(it.time.toDouble(), it.benis.toDouble()) })
+        val original = Graph(records.map { Graph.Point(it.time.toDouble(), it.benis.toDouble()) })
 
         // sub-sample to only a few points.
         val sampled = original.sampleEquidistant(steps = 16)
 
         // build the visual
-        val dr = GraphDrawable(sampled)
-        dr.lineColor = Color.WHITE
-        dr.fillColor = 0xa0ffffffL.toInt()
-        dr.lineWidth = AndroidUtility.dp(this, 4).toFloat()
-        dr.highlightFillColor = getColorCompat(ThemeHelper.primaryColor)
+        val dr = GraphDrawable(sampled).apply {
+            lineColor = Color.WHITE
+            fillColor = 0xa0ffffffL.toInt()
+            lineWidth = dp2px(4f)
+            highlightFillColor = getColorCompat(ThemeHelper.primaryColorDark)
+        }
 
         // add highlight for the a left-ish and a right-ish point.
         dr.highlights.add(GraphDrawable.Highlight(2, formatScore(sampled[2].y.toInt())))

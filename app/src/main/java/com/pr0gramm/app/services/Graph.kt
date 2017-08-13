@@ -76,3 +76,10 @@ class Graph(start: Double, end: Double,
         return a.y + m * (x - a.x)
     }
 }
+
+fun <T> optimizeValuesBy(values: List<T>, get: (T) -> Any): List<T> {
+    return values.filterIndexed { idx, value ->
+        val v = get(value)
+        idx == 0 || idx == values.size - 1 || get(values[idx - 1]) != v || v != get(values[idx + 1])
+    }
+}

@@ -338,7 +338,7 @@ class UserService(private val api: Api,
         }
 
         logger.info("Loading benis graph took " + watch)
-        return Graph(start.millis.toDouble(), now.millis.toDouble(), points)
+        return Graph(start.millis.toDouble(), now.millis.toDouble(), optimizeValuesBy(points) { it.y })
     }
 
     /**
