@@ -159,13 +159,6 @@ class GraphDrawable(private val graph: Graph) : BaseDrawable(PixelFormat.TRANSLU
         return path
     }
 
-    inline private fun paint(configure: Paint.() -> Unit): Paint {
-        val p = Paint()
-        p.isAntiAlias = true
-        p.configure()
-        return p
-    }
-
     private inner class Scaling(val bounds: Rect) {
         val padding = 0.1 * (graph.maxValue - graph.minValue)
         val minY = graph.minValue - padding

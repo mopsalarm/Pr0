@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.paint
 
 /**
  */
@@ -43,7 +44,8 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             a.recycle()
         }
 
-        linePaint = Paint().apply {
+        linePaint = paint {
+            isAntiAlias = false
             color = lineColor
             style = Paint.Style.STROKE
             strokeWidth = lineWidth

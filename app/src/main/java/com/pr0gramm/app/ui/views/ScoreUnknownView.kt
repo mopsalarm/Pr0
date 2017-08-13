@@ -8,19 +8,20 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import com.pr0gramm.app.R
+import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.use
 
 /**
  */
 class ScoreUnknownView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
-    private val linePaint: Paint = Paint()
+    private val linePaint: Paint = paint {
+        style = Paint.Style.FILL
+    }
+
     private val radius: Float
     private val path: Path
 
     init {
-        linePaint.isAntiAlias = true
-        linePaint.style = Paint.Style.FILL
-
         radius = context.theme.obtainStyledAttributes(attrs, R.styleable.ScoreUnknownView, 0, 0).use { a ->
             linePaint.color = a.getColor(R.styleable.ScoreUnknownView_fillColor, 0x808080)
             a.getDimension(R.styleable.ScoreUnknownView_radius, 10f)
@@ -46,6 +47,7 @@ class ScoreUnknownView @JvmOverloads constructor(context: Context, attrs: Attrib
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         canvas.drawPath(path, linePaint)
     }
 }

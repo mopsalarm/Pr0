@@ -11,6 +11,7 @@ import android.util.AttributeSet
 import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.BaseDrawable
+import com.pr0gramm.app.ui.paint
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.pr0gramm.app.util.use
@@ -55,10 +56,9 @@ class CircleChartView : AspectLayout {
 
             val lineWidth = AndroidUtility.dp(context, 4).toFloat()
 
-            val paint = Paint().apply {
+            val paint = paint {
                 style = Paint.Style.STROKE
                 strokeWidth = lineWidth
-                isAntiAlias = true
             }
 
             val offset = 0.75f * paint.strokeWidth

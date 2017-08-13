@@ -1,18 +1,16 @@
 package com.pr0gramm.app.ui
 
 import android.graphics.*
-import android.graphics.drawable.Drawable
 import android.support.annotation.ColorInt
 import com.pr0gramm.app.feed.ContentType
 
 /**
  * A simple triangle drawable
  */
-class TriangleDrawable(contentType: ContentType, private val size: Int) : Drawable() {
-    private val paint: Paint = Paint().apply {
+class TriangleDrawable(contentType: ContentType, private val size: Int) : BaseDrawable(PixelFormat.TRANSPARENT) {
+    private val paint: Paint = paint {
         color = colorForContentType(contentType)
         style = Paint.Style.FILL
-        isAntiAlias = true
     }
 
     override fun draw(canvas: Canvas) {
@@ -33,14 +31,6 @@ class TriangleDrawable(contentType: ContentType, private val size: Int) : Drawab
 
     override fun getIntrinsicHeight(): Int {
         return size
-    }
-
-    override fun setAlpha(alpha: Int) {}
-
-    override fun setColorFilter(colorFilter: ColorFilter?) {}
-
-    override fun getOpacity(): Int {
-        return PixelFormat.TRANSPARENT
     }
 
     companion object {
