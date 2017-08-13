@@ -23,7 +23,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
             // get the path without optional comment link
             val path = uri.path.replaceFirst(":.*$".toRegex(), "")
 
-            val patterns = listOf(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pTag, pTagId)
+            val patterns = listOf(pFeed, pFeedId, pUser, pUserUploads, pUserUploadsId, pUserUploadsWithTagId, pTag, pTagId)
             for (pattern in patterns) {
                 val matcher = pattern.matcher(path)
                 if (!matcher.matches())
@@ -76,6 +76,7 @@ class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Lon
         private val pUser = Pattern.compile("^/user/(?<user>[^/]+)/?$")
         private val pUserUploads = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/?$")
         private val pUserUploadsId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<id>[0-9]+)$")
+        private val pUserUploadsWithTagId = Pattern.compile("^/user/(?<user>[^/]+)/(?<subcategory>uploads|likes)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
         private val pTag = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)$")
         private val pTagId = Pattern.compile("^/(?<type>new|top)/(?<tag>[^/]+)/(?<id>[0-9]+)$")
     }
