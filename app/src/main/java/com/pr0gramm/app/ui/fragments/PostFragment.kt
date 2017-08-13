@@ -912,7 +912,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        voteService.tag(feedItem, tags.filter { tag -> tag.length >= 2 && tag.length <= 32 })
+        voteService.tag(feedItem, tags.filter { tag -> isValidTag(tag) })
                 .compose(bindToLifecycleAsync())
                 .lift(BusyDialog.busyDialog(activity))
                 .subscribeWithErrorHandling { displayTags(it) }

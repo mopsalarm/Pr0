@@ -213,10 +213,6 @@ class UploadService(private val api: Api,
         }
     }
 
-    private fun isValidTag(tag: String): Boolean {
-        return !(tag in INVALID_TAGS || tag.length < 2 || tag.length > 32)
-    }
-
     class UploadInfo(val key: String? = null,
                      val similar: List<Api.Posted.SimilarItem> = emptyList(),
                      val id: Long = 0,
@@ -233,7 +229,11 @@ class UploadService(private val api: Api,
     companion object {
         private val logger = LoggerFactory.getLogger("UploadService")
 
-        private val INVALID_TAGS = setOf(
-                "sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
     }
+}
+
+fun isValidTag(tag: String): Boolean {
+    val validTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
+    val isInvalid = tag in validTags || tag.length < 2 || tag.length > 32
+    return !isInvalid
 }
