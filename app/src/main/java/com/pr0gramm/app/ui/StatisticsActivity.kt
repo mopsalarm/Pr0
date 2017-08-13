@@ -30,7 +30,7 @@ import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import java.util.concurrent.TimeUnit
 
-class BenisGraphActivity : BaseAppCompatActivity("BenisGraphFragment") {
+class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private val userService: UserService by instance()
     private val voteService: VoteService by instance()

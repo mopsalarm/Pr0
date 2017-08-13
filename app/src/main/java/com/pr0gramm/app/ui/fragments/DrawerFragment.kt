@@ -146,7 +146,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun onBenisGraphClicked() {
-        startActivity(Intent(context, BenisGraphActivity::class.java))
+        startActivity(Intent(context, StatisticsActivity::class.java))
 
         // close the drawer
         callback.onOtherNavigationItemClicked()
