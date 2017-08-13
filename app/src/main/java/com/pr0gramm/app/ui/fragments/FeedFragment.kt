@@ -67,6 +67,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val recyclerView: RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
     private val noResultsView: View by bindView(R.id.empty)
+    private val errorLoadingFeedView: View by bindView(R.id.error)
     private val searchContainer: ScrollView by bindView(R.id.search_container)
     private val searchView: SearchOptionsView by bindView(R.id.search_options)
 
@@ -208,19 +209,27 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun subscribeToFeedUpdates() {
         loader.updates.compose(bindToLifecycle()).subscribe { update ->
-            logger.debug("Got update {}", update)
+            logger.info("Got update {}", update)
 
             when (update) {
                 is FeedManager.Update.NewFeed -> {
                     feedAdapter.feed = update.feed
                     showNoResultsTextView(update.remote && update.feed.isEmpty())
+                    showErrorLoadingFeedView(false)
                 }
 
-                is FeedManager.Update.Error ->
+                is FeedManager.Update.Error -> {
                     onFeedError(update.err)
+                    showErrorLoadingFeedView(true)
+                }
 
-                is FeedManager.Update.LoadingStarted ->
+                is FeedManager.Update.LoadingStarted -> {
                     swipeRefreshLayout.isRefreshing = true
+
+                    showNoResultsTextView(false)
+                    showErrorLoadingFeedView(false)
+                }
+
 
                 is FeedManager.Update.LoadingStopped ->
                     swipeRefreshLayout.isRefreshing = false
@@ -1082,10 +1091,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun showNoResultsTextView(visible: Boolean) {
-        logger.info("Empty hint visible: {}", visible)
         noResultsView.visible = visible
     }
 
+    private fun showErrorLoadingFeedView(visible: Boolean) {
+        errorLoadingFeedView.visible = visible
+    }
 
     @OnOptionsItemSelected(R.id.action_search)
     fun resetAndShowSearchContainer() {

@@ -487,5 +487,6 @@
     <string name="benisgraph_empty">There is not yet enough data to\ngenerate a real graph.</string>
     <string name="error_feed_not_public__item">Favorites of %s are not public. Do you want to open the post in /new?</string>
     <string name="error_feed_not_public__general">Favorites of %s are not public.</string>
+    <string name="nothing_there_error">Could not load feed.</string>
 </resources>
 
