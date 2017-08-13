@@ -167,7 +167,10 @@
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
-    <string name="could_not_load_feed_nsfw">Could not load feed. Maybe the item you selected is not visible because of nsfw/nsfl filter?</string>
+    <string name="could_not_load_feed_content_type">Could not load feed. The item was marked as %s.</string>
+    <string name="could_not_load_feed_content_type__change">Do you want to change your filter to include %s?</string>
+    <string name="could_not_load_feed_content_type__signin">Sign in to view %s content.</string>
+
     <string name="action_change_content_type">Change filter</string>
 
     <string name="user_type_admin">admin</string>
@@ -482,5 +485,7 @@
     <string name="benis_y_title">Benis</string>
     <string name="benis_x_title">Date</string>
     <string name="benisgraph_empty">There is not yet enough data to\ngenerate a real graph.</string>
+    <string name="error_feed_not_public__item">Favorites of %s are not public. Do you want to open the post in /new?</string>
+    <string name="error_feed_not_public__general">Favorites of %s are not public.</string>
 </resources>
 

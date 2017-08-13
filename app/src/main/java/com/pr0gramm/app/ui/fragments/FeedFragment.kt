@@ -22,7 +22,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.*
-import com.pr0gramm.app.feed.ContentType.SFW
+import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
@@ -517,16 +517,20 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val feedFilter = loader.feed.filter
         val newContentType = selectedContentType
         if (loader.feed.contentType != newContentType) {
-            autoScrollOnLoad = autoOpenOnLoad?.itemId
-                    ?: findLastVisibleFeedItem(newContentType)?.id
-
-            // set a new adapter if we have a new content type
-            // this clears the current feed immediately
-            loader.reset(Feed(feedFilter, newContentType))
-            loader.restart(around = autoScrollOnLoad)
-
-            activity.supportInvalidateOptionsMenu()
+            replaceFeedFilter(feedFilter, newContentType)
         }
+    }
+
+    private fun replaceFeedFilter(feedFilter: FeedFilter, newContentType: Set<ContentType>, item: Long? = null) {
+        autoScrollOnLoad = item ?: autoOpenOnLoad?.itemId
+                ?: findLastVisibleFeedItem(newContentType)?.id
+
+        // set a new adapter if we have a new content type
+        // this clears the current feed immediately
+        loader.reset(Feed(feedFilter, newContentType))
+        loader.restart(around = autoScrollOnLoad)
+
+        activity.invalidateOptionsMenu()
     }
 
     /**
@@ -689,9 +693,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     @OnOptionsItemSelected(R.id.action_feedtype)
-    fun switchFeedType() {
+    fun switchFeedType(feedType: FeedType? = null) {
         var filter = currentFilter
-        filter = filter.withFeedType(switchFeedTypeTarget(filter))
+        filter = filter.withFeedType(feedType ?: switchFeedTypeTarget(filter))
         (activity as MainActionHandler).onFeedFilterSelected(filter, initialSearchViewState())
     }
 
@@ -810,7 +814,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             }
 
             activity.supportFragmentManager.beginTransaction()
-                    .setAllowOptimization(false)
                     .replace(R.id.content, fragment)
                     .addToBackStack("Post" + idx)
                     .commit()
@@ -998,24 +1001,83 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .subscribe({ feedAdapter.notifyDataSetChanged() }, {})
     }
 
-    internal fun onFeedError(error: Throwable) {
+    private fun onFeedError(error: Throwable) {
         logger.error("Error loading the feed", error)
 
-        if (autoOpenOnLoad != null || error is FeedManager.InvalidContentTypeException) {
-            ErrorDialogFragment.showErrorString(fragmentManager,
-                    getString(R.string.could_not_load_feed_nsfw))
+        when {
+            error is FeedException.InvalidContentTypeException -> showInvalidContentTypeError(error)
 
-        } else if (error is JsonSyntaxException) {
-            // show a special error
-            ErrorDialogFragment.showErrorString(fragmentManager,
-                    getString(R.string.could_not_load_feed_json))
+            error is FeedException.NotPublicException -> showFeedNotPublicError()
 
-        } else if (Throwables.getRootCause(error) is ConnectException && settings.useHttps) {
-            ErrorDialogFragment.showErrorString(fragmentManager,
-                    getString(R.string.could_not_load_feed_https))
+            error is JsonSyntaxException -> {
+                ErrorDialogFragment.showErrorString(fragmentManager,
+                        getString(R.string.could_not_load_feed_json))
+            }
 
+            Throwables.getRootCause(error) is ConnectException && settings.useHttps -> {
+                ErrorDialogFragment.showErrorString(fragmentManager,
+                        getString(R.string.could_not_load_feed_https))
+            }
+
+            else -> ErrorDialogFragment.defaultOnError().call(error)
+        }
+    }
+
+    private fun showFeedNotPublicError() {
+        val username = currentFilter.likes ?: "???"
+
+        val targetItem = autoOpenOnLoad
+
+        if (targetItem != null) {
+            showDialog(context) {
+                content(R.string.error_feed_not_public__item, username)
+
+                negative()
+
+                positive {
+                    val filter = currentFilter.basic()
+                    replaceFeedFilter(filter, selectedContentType, targetItem?.itemId)
+                }
+            }
         } else {
-            ErrorDialogFragment.defaultOnError().call(error)
+            showDialog(context) {
+                content(R.string.error_feed_not_public__general, username)
+                positive()
+            }
+        }
+    }
+
+    private fun showInvalidContentTypeError(error: FeedException.InvalidContentTypeException) {
+        val requiredType = error.requiredType
+
+        val msg = getString(R.string.could_not_load_feed_content_type, requiredType.name)
+
+        if (userService.isAuthorized) {
+            showDialog(context) {
+                content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__change, requiredType.name))
+
+                negative()
+
+                positive {
+                    val key = when (requiredType) {
+                        NSFW -> "pref_feed_type_nsfw"
+                        NSFL -> "pref_feed_type_nsfl"
+                        else -> "pref_feed_type_sfw"
+                    }
+
+                    settings.edit {
+                        putBoolean(key, true)
+                    }
+
+                    val newContentType = selectedContentType + requiredType
+                    replaceFeedFilter(currentFilter, newContentType)
+                }
+            }
+        } else {
+            showDialog(context) {
+                content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__signin, requiredType.name))
+                positive()
+            }
         }
     }
 

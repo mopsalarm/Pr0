@@ -277,18 +277,24 @@ public interface Api {
      * api endpoint <code>/api/items/get</code>.
      */
     @Value.Immutable
-    interface Feed {
-        boolean isAtStart();
+    abstract static class Feed {
+        @Value.Default
+        public boolean isAtStart() {
+            return false;
+        }
 
-        boolean isAtEnd();
+        @Value.Default
+        public boolean isAtEnd() {
+            return false;
+        }
 
-        List<Item> getItems();
+        public abstract List<Item> getItems();
 
         @Nullable
-        String getError();
+        public abstract String getError();
 
         @Value.Immutable
-        interface Item {
+        public interface Item {
             long getId();
 
             long getPromoted();

@@ -153,7 +153,7 @@
     <string name="action_new_message">Neue Nachricht</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
-    <string name="could_not_load_feed_nsfw">Kann den Feed nicht laden. Mit deiner sfw/nsfw Einstellungen ist der Post vielleicht nicht sichtbar?</string>
+    <string name="could_not_load_feed_content_type">Kann den Feed nicht laden. Das Bild wurde als %s markiert.</string>
     <string name="action_change_content_type">Filter ändern</string>
     <string name="user_type_gesperrt">gesperrt</string>
     <string name="user_type_legende">legende</string>

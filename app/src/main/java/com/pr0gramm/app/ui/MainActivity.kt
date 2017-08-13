@@ -324,7 +324,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     private fun createDrawerFragment() {
         supportFragmentManager.beginTransaction()
-                .setAllowOptimization(false)
                 .replace(R.id.left_drawer, DrawerFragment())
                 .commit()
     }
@@ -490,7 +489,13 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         gotoFeedFragment(filter, queryState = searchQueryState)
     }
 
-    override fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?, startAt: ItemWithComment?) {
+    override fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?,
+                                      startAt: ItemWithComment?, popBackstack: Boolean) {
+
+        if (popBackstack) {
+            supportFragmentManager.popBackStackImmediate()
+        }
+
         gotoFeedFragment(filter, false, startAt, queryState)
     }
 
@@ -517,7 +522,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         // and show the fragment
         val transaction = supportFragmentManager
                 .beginTransaction()
-                .setAllowOptimization(false)
                 .replace(R.id.content, fragment)
 
         if (!clear) {

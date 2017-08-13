@@ -88,8 +88,15 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
 
     private fun handleFeedUpdate(update: Api.Feed) {
         // check for invalid content type.
-        if (update.error != null) {
-            publishError(InvalidContentTypeException())
+        update.error?.let { error ->
+            publishError(when (error) {
+                "notPublic" -> FeedException.NotPublicException()
+                "sfwRequired" -> FeedException.InvalidContentTypeException(ContentType.SFW)
+                "nsfwRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFW)
+                "nsflRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFL)
+                else -> FeedException.GeneralFeedException(error)
+            })
+
             return
         }
 
@@ -112,8 +119,6 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
     private fun feedQuery(): FeedService.FeedQuery {
         return FeedService.FeedQuery(feed.filter, feed.contentType)
     }
-
-    class InvalidContentTypeException : RuntimeException()
 
     sealed class Update {
         class LoadingStarted : Update()
