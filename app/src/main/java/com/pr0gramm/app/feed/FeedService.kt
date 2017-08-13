@@ -111,12 +111,12 @@ class FeedServiceImpl(private val api: Api,
                 val nextQuery = if (upwards) {
                     feed.items
                             ?.takeUnless { feed.isAtStart }
-                            ?.firstOrNull()
+                            ?.maxBy { it.id }
                             ?.let { query.copy(newer = it.id) }
                 } else {
                     feed.items
                             ?.takeUnless { feed.isAtEnd }
-                            ?.lastOrNull()
+                            ?.minBy { it.id }
                             ?.let { query.copy(older = it.id) }
                 }
 

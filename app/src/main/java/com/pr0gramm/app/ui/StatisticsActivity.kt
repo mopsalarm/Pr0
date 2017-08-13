@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedFilter
@@ -85,28 +87,45 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         userService.name?.let { username ->
             usernameView.text = username
 
-            showContentTypesOf(typesByFavorites, FeedFilter()
+            showContentTypesOf(typesByFavorites, FavoritesCountCache, FeedFilter()
                     .withFeedType(FeedType.NEW)
                     .withLikes(username))
 
-            showContentTypesOf(typesOfUpload, FeedFilter()
+            showContentTypesOf(typesOfUpload, UploadsCountCache, FeedFilter()
                     .withFeedType(FeedType.NEW)
                     .withUser(username))
         }
     }
 
-    private fun showContentTypesOf(view: CircleChartView, filter: FeedFilter) {
-        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = 0L))
+    private fun showContentTypesOf(view: CircleChartView,
+                                   cache: Cache<Long, Map<ContentType, Int>>,
+                                   filter: FeedFilter) {
+
+        val startAt = cache.asMap().keys.max() ?: 0L
+        val initialState = (cache.getIfPresent(startAt) ?: emptyMap()).toMutableMap()
+
+        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = startAt))
                 .timeout(1, TimeUnit.MINUTES)
                 .compose(bindToLifecycleAsync())
-                .scan(mutableMapOf<ContentType, Int>()) { state, feed ->
+
+                .scan(initialState) { state, feed ->
                     // count each flag of each item once.
                     for (type in feed.items.flatMap { ContentType.decompose(it.flags) }) {
                         state[type] = (state[type] ?: 0) + 1
                     }
 
+                    if (!feed.isAtEnd && !feed.isAtStart) {
+                        // this is a complete page, just cache the state at
+                        // it's most recent item
+                        feed.items.maxBy { it.id }?.let { item ->
+                            cache.put(item.id, state.toMap())
+                        }
+                    }
+
+
                     state
                 }
+
                 .subscribe { showContentTypes(view, it) }
     }
 
@@ -213,5 +232,16 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         view.text = formatted
         view.setTextColor(getColorCompat(if (relChange < 0) R.color.stats_down else R.color.stats_up))
+    }
+
+    companion object {
+        val FavoritesCountCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(60, TimeUnit.MINUTES)
+                .build<Long, Map<ContentType, Int>>()
+
+
+        val UploadsCountCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(60, TimeUnit.MINUTES)
+                .build<Long, Map<ContentType, Int>>()
     }
 }
