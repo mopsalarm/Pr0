@@ -1,5 +1,7 @@
 # Add project specific ProGuard rules here.
 
+-verbose
+
 -flattenpackagehierarchy
 -allowaccessmodification
 -repackageclasses
@@ -8,8 +10,8 @@
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
 
--optimizationpasses 20
--optimizations !method/removal/parameter,method/marking/static,method/inlining/*,field/marking/private,code/simplification/*,class/merging/vertical,!class/merging/horizontal
+-optimizationpasses 10
+-optimizations field/marking/private,!method/removal/parameter,method/marking/static,method/inlining/*,!field/*,code/simplification/*,class/merging/vertical,!class/merging/horizontal
 
 -dontwarn **
 -dontnote **
