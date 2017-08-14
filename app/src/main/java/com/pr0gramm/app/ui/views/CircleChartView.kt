@@ -91,12 +91,13 @@ class CircleChartView : AspectLayout {
 }
 
 fun formatScore(value: Int): String {
+    val abs = Math.abs(value)
     return when {
-        value >= 1000_000 -> "%1.2fm".format(value / 1000000f)
+        abs >= 1000_000 -> "%1.2fm".format(value / 1000000f)
 
-        value >= 100_000 -> "%1.0fk".format(value / 1000f)
-        value >= 10_000 -> "%1.1fk".format(value / 1000f)
-        value >= 1_000 -> "%1.2fk".format(value / 1000f)
+        abs >= 100_000 -> "%1.0fk".format(value / 1000f)
+        abs >= 10_000 -> "%1.1fk".format(value / 1000f)
+        abs >= 1_000 -> "%1.2fk".format(value / 1000f)
         else -> value.toString()
     }
 }

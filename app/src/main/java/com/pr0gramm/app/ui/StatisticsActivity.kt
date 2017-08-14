@@ -214,13 +214,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         val absChange = nowValue - baseValue
         val relChange = 100 * absChange / baseValue
 
-        val formatted = (when {
-            Math.abs(relChange) < 0.1 -> "%d".format(absChange.toLong())
-            Math.abs(relChange) < 9.5 -> "%1.1f%%".format(relChange)
-            else -> "%d%%".format(relChange.toLong())
-        })
-
-        view.text = formatted
+        view.text = formatScore(absChange.toInt())
         view.setTextColor(getColorCompat(if (relChange < 0) R.color.stats_down else R.color.stats_up))
     }
 
