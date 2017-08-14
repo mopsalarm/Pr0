@@ -33,8 +33,7 @@ function format_version() {
 }
 
 function deploy_upload_apk() {
-  local APK_ALIGNED=app/build/outputs/apk/app-release.apk
-  local APK_UNALIGNED=app/build/outputs/apk/app-release-unaligned.apk
+  local APK_ALIGNED=app/build/outputs/apk/release/app-release.apk
 
   echo "Upload apk file now..."
   curl -u "$CREDENTIALS_UPDATE" -F apk=@"${APK_ALIGNED}" \
