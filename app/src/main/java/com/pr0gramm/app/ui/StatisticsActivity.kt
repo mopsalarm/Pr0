@@ -225,13 +225,12 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     companion object {
-        val FavoritesCountCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(60, TimeUnit.MINUTES)
+        private val FavoritesCountCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(24, TimeUnit.HOURS)
                 .build<Long, Map<ContentType, Int>>()
 
 
-        val UploadsCountCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(60, TimeUnit.MINUTES)
+        private val UploadsCountCache = CacheBuilder.newBuilder()
                 .build<Long, Map<ContentType, Int>>()
     }
 }
