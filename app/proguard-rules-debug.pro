@@ -2,6 +2,7 @@
 
 -dontobfuscate
 -dontwarn **
+-dontnote **
 -ignorewarnings
 -dontoptimize
 

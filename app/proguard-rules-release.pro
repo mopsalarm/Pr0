@@ -12,6 +12,7 @@
 -optimizations !method/removal/parameter,method/marking/static,method/inlining/*,field/marking/private,code/simplification/*,class/merging/vertical,!class/merging/horizontal
 
 -dontwarn **
+-dontnote **
 -ignorewarnings
 
 -keepattributes SourceFile
