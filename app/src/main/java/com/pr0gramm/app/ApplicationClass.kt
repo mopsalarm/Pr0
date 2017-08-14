@@ -14,6 +14,7 @@ import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
+import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.LogHandler
@@ -43,6 +44,7 @@ open class ApplicationClass : Application(), KodeinAware {
 
         Settings.initialize(this)
         Track.initialize(this)
+        TagInputView.initialize(this)
 
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
