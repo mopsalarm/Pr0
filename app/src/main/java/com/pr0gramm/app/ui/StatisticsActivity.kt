@@ -8,8 +8,6 @@ import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedFilter
@@ -27,6 +25,7 @@ import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.visible
 import kotterknife.bindView
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
@@ -91,11 +90,11 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     private fun showContentTypesOf(view: CircleChartView,
-                                   cache: Cache<Long, Map<ContentType, Int>>,
+                                   cache: MutableMap<Long, Map<ContentType, Int>>,
                                    filter: FeedFilter) {
 
-        val startAt = cache.asMap().keys.max() ?: 0L
-        val initialState = (cache.getIfPresent(startAt) ?: emptyMap()).toMutableMap()
+        val startAt = cache.keys.max() ?: 0L
+        val initialState = (cache[startAt] ?: emptyMap()).toMutableMap()
 
         feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = startAt))
                 .timeout(1, TimeUnit.MINUTES)
@@ -111,7 +110,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                         // this is a complete page, just cache the state at
                         // it's most recent item
                         feed.items.maxBy { it.id }?.let { item ->
-                            cache.put(item.id, state.toMap())
+                            cache[item.id] = state.toMap()
                         }
                     }
 
@@ -218,12 +217,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     }
 
     companion object {
-        private val FavoritesCountCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(24, TimeUnit.HOURS)
-                .build<Long, Map<ContentType, Int>>()
 
-
-        private val UploadsCountCache = CacheBuilder.newBuilder()
-                .build<Long, Map<ContentType, Int>>()
+        private val UploadsCountCache = ConcurrentHashMap<Long, Map<ContentType, Int>>()
+        private val FavoritesCountCache = ConcurrentHashMap<Long, Map<ContentType, Int>>()
     }
 }
