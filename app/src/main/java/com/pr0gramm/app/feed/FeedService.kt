@@ -1,6 +1,5 @@
 package com.pr0gramm.app.feed
 
-import com.google.common.base.Strings
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -49,7 +48,7 @@ class FeedServiceImpl(private val api: Api,
 
         // FIXME this is quite hacky right now.
         val likes = feedFilter.likes
-        val self = if (Strings.isNullOrEmpty(likes)) null else true
+        val self = if (likes.isNullOrBlank()) null else true
 
         val feedType = feedFilter.feedType
 
