@@ -115,7 +115,6 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                         }
                     }
 
-
                     state
                 }
 

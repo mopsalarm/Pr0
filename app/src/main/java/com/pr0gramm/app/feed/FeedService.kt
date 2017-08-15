@@ -121,7 +121,7 @@ class FeedServiceImpl(private val api: Api,
                 }
 
                 Reducer.Step(feed, nextQuery)
-            }
+            }.toBlocking().value()
         }
     }
 
