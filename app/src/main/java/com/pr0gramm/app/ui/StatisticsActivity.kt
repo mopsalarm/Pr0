@@ -119,7 +119,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                     state
                 }
 
-                .subscribe { showContentTypes(view, it) }
+                .subscribeWithErrorHandling { showContentTypes(view, it) }
     }
 
     private fun showContentTypes(view: CircleChartView, counts: Map<ContentType, Int>) {
