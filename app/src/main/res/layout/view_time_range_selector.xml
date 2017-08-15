@@ -1,0 +1,51 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/view_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:padding="8dp"
+        android:text="@string/time_range_forever"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+
+    <TextView
+        android:id="@+id/view_1y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/time_range_1year"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+
+    <TextView
+        android:id="@+id/view_6m"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/time_range_6month"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+
+    <TextView
+        android:id="@+id/view_1m"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/time_range_1month"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+
+    <TextView
+        android:id="@+id/view_7d"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/time_range_7day"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+
+    <TextView
+        android:id="@+id/view_1d"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/time_range_1day"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"/>
+</merge>

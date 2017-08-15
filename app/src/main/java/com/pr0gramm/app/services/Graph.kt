@@ -42,10 +42,10 @@ class Graph(start: Double, end: Double,
 
     class Point(val x: Double, val y: Double)
 
-    fun sampleEquidistant(steps: Int): Graph {
+    fun sampleEquidistant(steps: Int, start: Double = range.start, end: Double = range.endInclusive): Graph {
         return Graph((0..steps - 1).map { idx ->
             // the x position that is at the sampling point
-            val x = range.start + (range.endInclusive - range.start) * idx / (steps - 1)
+            val x = start + (end - start) * idx / (steps - 1)
             val y = valueAt(x)
 
             Point(x, y)

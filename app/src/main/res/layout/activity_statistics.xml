@@ -24,6 +24,7 @@
         android:layout_weight="1">
 
         <LinearLayout
+            android:animateLayoutChanges="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -32,6 +33,7 @@
             <com.pr0gramm.app.ui.views.AspectLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                tools:layout_height="200dp"
                 android:background="?colorPrimaryDark"
                 app:aspect="2">
 
@@ -59,6 +61,19 @@
                     android:visibility="gone"
                     tools:visibility="visible"/>
             </com.pr0gramm.app.ui.views.AspectLayout>
+
+            <com.pr0gramm.app.ui.views.TimeRangeSelectorView
+                android:id="@+id/graph_time_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?colorPrimaryDark"
+                android:gravity="right"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:visibility="gone"
+                app:trs_defaultColor="#8fff"
+                app:trs_selectedColor="?colorAccent"
+                tools:visibility="visible"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,7 +141,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/stats_title_votes"
-                    android:textColor="?colorPrimary"/>
+                    android:textColor="?colorAccent"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -212,7 +227,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/stats_title_uploads_favs"
-                    android:textColor="?colorPrimary"/>
+                    android:textColor="?colorAccent"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"

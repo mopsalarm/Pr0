@@ -19,11 +19,10 @@ import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CircleChartView
+import com.pr0gramm.app.ui.views.TimeRangeSelectorView
 import com.pr0gramm.app.ui.views.formatScore
-import com.pr0gramm.app.util.dp2px
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.getColorCompat
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
+import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindView
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
@@ -37,6 +36,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
     private val benisGraph: View by bindView(R.id.benis_graph)
     private val benisGraphLoading: View by bindView(R.id.benis_graph_loading)
     private val benisGraphEmpty: View by bindView(R.id.benis_graph_empty)
+    private val benisGraphTimeSelector: TimeRangeSelectorView by bindView(R.id.graph_time_selector)
 
     private val benisChangeDay: TextView by bindView(R.id.stats_change_day)
     private val benisChangeWeek: TextView by bindView(R.id.stats_change_week)
@@ -52,6 +52,13 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private val typesOfUpload: CircleChartView by bindView(R.id.types_uploads)
     private val typesByFavorites: CircleChartView by bindView(R.id.types_favorites)
+
+    private var benisValues: List<BenisRecord> by observeChange(listOf()) {
+        redrawBenisGraph()
+        updateTimeRange()
+    }
+
+    private var benisTimeRangeStart: Long by observeChange(0L) { redrawBenisGraph() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeHelper.theme.noActionBar)
@@ -69,14 +76,17 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        voteService.summary.compose(bindToLifecycleAsync()).subscribe {
+        benisGraphTimeSelector.selectedTimeRange.bindToLifecycle(this).subscribe { millis ->
+            benisTimeRangeStart = System.currentTimeMillis() - millis
+        }
+
+        voteService.summary.ignoreError().compose(bindToLifecycleAsync()).subscribe {
             handleVoteCounts(it)
         }
 
-        userService.loadBenisRecords()
-                .ignoreError()
-                .compose(bindToLifecycleAsync())
-                .subscribe { handleBenisGraph(it) }
+        userService.loadBenisRecords().ignoreError().compose(bindToLifecycleAsync()).subscribe {
+            benisValues = it
+        }
 
         userService.name?.let { username ->
             showContentTypesOf(typesByFavorites, FavoritesCountCache, FeedFilter()
@@ -154,10 +164,20 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 CircleChartView.Value(summary.fav, getColorCompat(R.color.stats_fav)))
     }
 
-    private fun handleBenisGraph(rawBenisRecords: List<BenisRecord>) {
-        benisGraphLoading.visible = false
+    private fun updateTimeRange() {
+        if (benisValues.size > 2) {
+            val min = benisValues.minBy { it.time }!!.time
+            val max = benisValues.maxBy { it.time }!!.time
 
-        var records = optimizeValuesBy(rawBenisRecords) { it.benis }
+            benisGraphTimeSelector.maxRangeInMillis = (max - min)
+        }
+    }
+
+    private fun redrawBenisGraph() {
+        benisGraphLoading.visible = false
+        benisGraphTimeSelector.visible = true
+
+        var records = optimizeValuesBy(benisValues) { it.benis }
 
         // dont show if not enough data available
         if (records.size < 2 ||
@@ -172,7 +192,8 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         val original = Graph(records.map { Graph.Point(it.time.toDouble(), it.benis.toDouble()) })
 
         // sub-sample to only a few points.
-        val sampled = original.sampleEquidistant(steps = 16)
+        val startValue = benisTimeRangeStart.toDouble().coerceAtLeast(original.first.x)
+        val sampled = original.sampleEquidistant(steps = 16, start = startValue)
 
         // build the visual
         val dr = GraphDrawable(sampled).apply {

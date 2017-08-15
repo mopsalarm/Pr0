@@ -496,5 +496,11 @@
     <string name="monat">MONTH</string>
     <string name="stats_week">WEEK</string>
     <string name="stats_day">DAY</string>
+    <string name="time_range_1day">1d</string>
+    <string name="time_range_7day">7d</string>
+    <string name="time_range_1month">1m</string>
+    <string name="time_range_6month">6m</string>
+    <string name="time_range_1year">1y</string>
+    <string name="time_range_forever">ALL</string>
 </resources>
 
