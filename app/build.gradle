@@ -78,8 +78,7 @@ android {
         debug {
             minifyEnabled true
             shrinkResources true
-            proguardFiles 'proguard-rules-debug.pro', getDefaultProguardFile('proguard-android-optimize.txt')
-            // testProguardFiles 'proguard-rules-debug.pro', getDefaultProguardFile('proguard-android.txt')
+            proguardFiles 'proguard-rules-base.pro', 'proguard-rules-debug.pro'
             versionNameSuffix ".dev"
         }
 
@@ -113,14 +112,15 @@ android.applicationVariants.all { variant ->
     variant.mergeResources.doLast {
         def filesToDelete = fileTree(variant.mergeResources.outputDir) {
             // remove timezone data
-            include "raw/joda_*"
-            exclude "raw/joda_etc_utc"
-            exclude "raw/joda_europe_berlin"
-            exclude "raw/joda_europe_zurich"
-            exclude "raw/joda_zoneinfomap"
+            include "raw_joda_*"
+
+            exclude "raw_joda_etc_utc*"
+            exclude "raw_joda_europe_berlin*"
+            exclude "raw_joda_europe_zurich*"
+            exclude "raw_joda_zoneinfomap*"
 
             // remove left-to-right drawables
-            include "drawable-ldrtl-*/*"
+            include "drawable-ldrtl-*_*"
         }
 
         filesToDelete.each { it.delete() }
