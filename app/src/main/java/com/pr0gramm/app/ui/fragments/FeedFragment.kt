@@ -702,9 +702,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     @OnOptionsItemSelected(R.id.action_feedtype)
-    fun switchFeedType(feedType: FeedType? = null) {
+    fun switchFeedType() {
         var filter = currentFilter
-        filter = filter.withFeedType(feedType ?: switchFeedTypeTarget(filter))
+        filter = filter.withFeedType(switchFeedTypeTarget(filter))
         (activity as MainActionHandler).onFeedFilterSelected(filter, initialSearchViewState())
     }
 
