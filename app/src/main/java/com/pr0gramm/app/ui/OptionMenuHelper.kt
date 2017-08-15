@@ -39,6 +39,8 @@ object OptionMenuHelper {
 
     private fun invoke(instance: Any, method: Method, vararg args: Any): Boolean {
         try {
+            method.isAccessible = true
+
             val result = method.invoke(instance, *args)
             return result as? Boolean ?: (result != null || method.returnType == Void.TYPE)
 

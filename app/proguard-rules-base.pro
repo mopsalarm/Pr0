@@ -1,7 +1,42 @@
--dontpreverify
+-verbose
+
+-dontwarn **
+-dontnote **
+-ignorewarnings
+
+# keep exception names
+-keepnames class * extends java.lang.Throwable
+
+# this is for dispatching menu clicks via reflection
+-keepclassmembers class * {
+    @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
+}
+
+# We keep all the names of the api interface.
+-keepnames class com.pr0gramm.app.api.pr0gramm.Api { *; }
+
+# for gifs
+-keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
+-keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
+
+# evernote android job library
+-keep public class com.evernote.android.job.v21.PlatformJobService
+-keep public class com.evernote.android.job.v14.PlatformAlarmService
+-keep public class com.evernote.android.job.v14.PlatformAlarmReceiver
+-keep public class com.evernote.android.job.JobBootReceiver
+-keep public class com.evernote.android.job.JobRescheduleService
+
+# keep enums!
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+    **[] $VALUES;
+    public *;
+}
 
 # Preserve some attributes that may be required for reflection.
--keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+# -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepattributes *Annotation*,SourceFile
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {
@@ -14,17 +49,6 @@
     *** get*();
 }
 
-# We want to keep methods in Activity that could be used in the XML attribute onClick.
--keepclassmembers class * extends android.app.Activity {
-    public void *(android.view.View);
-}
-
-# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
 -keepclassmembers class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
@@ -32,17 +56,6 @@
 -keepclassmembers class **.R$* {
     public static <fields>;
 }
-
-# Preserve annotated Javascript interface methods.
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}
-
-# The support libraries contains references to newer platform versions.
-# Don't warn about those in case this app is linking against an older
-# platform version. We know about them, and they are safe.
--dontnote android.support.**
--dontwarn android.support.**
 
 # Understand the @Keep support annotation.
 -keep class android.support.annotation.Keep
