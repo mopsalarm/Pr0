@@ -72,7 +72,7 @@
 
                     <TextView
                         style="@style/Statistics.Change.Block_Title"
-                        android:text="TAG"/>
+                        android:text="@string/stats_day"/>
 
                     <TextView
                         android:id="@+id/stats_change_day"
@@ -88,7 +88,7 @@
 
                     <TextView
                         style="@style/Statistics.Change.Block_Title"
-                        android:text="WOCHE"/>
+                        android:text="@string/stats_week"/>
 
                     <TextView
                         android:id="@+id/stats_change_week"
@@ -104,7 +104,7 @@
 
                     <TextView
                         style="@style/Statistics.Change.Block_Title"
-                        android:text="MONAT"/>
+                        android:text="@string/monat"/>
 
                     <TextView
                         android:id="@+id/stats_change_month"
@@ -125,7 +125,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Voteverhalten"
+                    android:text="@string/stats_title_votes"
                     android:textColor="?colorPrimary"/>
 
                 <LinearLayout
@@ -211,7 +211,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Uploads und Favoriten"
+                    android:text="@string/stats_title_uploads_favs"
                     android:textColor="?colorPrimary"/>
 
                 <LinearLayout
@@ -242,6 +242,40 @@
                         app:lineTop="VERTEILUNG"/>
 
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/type_sfw_upper"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="@color/type_sfw"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
+                        android:text="@string/type_nsfw_upper"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="@color/type_nsfw"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
+                        android:text="@string/type_nsfl_upper"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="@color/type_nsfl"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

@@ -471,4 +471,9 @@
     <string name="error_feed_not_public__item">Die Favoriten von %s sind nicht öffentlich. Möchtest du den Post in \'neu\' öffnen?</string>
     <string name="error_feed_not_public__general">Die Favoriten von %s sind nicht öffentlich.</string>
     <string name="nothing_there_error">Der Feed konnte nicht geladen werden.</string>
+    <string name="stats_title_uploads_favs">Uploads und Favoriten</string>
+    <string name="stats_title_votes">Voteverhalten</string>
+    <string name="stats_day">TAG</string>
+    <string name="stats_week">WOCHE</string>
+    <string name="monat">MONAT</string>
 </resources>

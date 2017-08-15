@@ -210,10 +210,9 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
         val baseValue = graph.valueAt(graph.last.x - millis)
 
         val absChange = nowValue - baseValue
-        val relChange = 100 * absChange / baseValue
 
         view.text = formatScore(absChange.toInt())
-        view.setTextColor(getColorCompat(if (relChange < 0) R.color.stats_down else R.color.stats_up))
+        view.setTextColor(getColorCompat(if (absChange < 0) R.color.stats_down else R.color.stats_up))
     }
 
     companion object {
