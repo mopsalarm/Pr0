@@ -615,7 +615,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 ?.isVisible = userService.userIsAdmin && activeUsername != null
 
         menu.findItem(R.id.action_feedtype)?.let { item ->
-            item.isVisible = !filter.isBasic && EnumSet.of(FeedType.PROMOTED, FeedType.NEW, FeedType.PREMIUM).contains(feedType)
+            item.isVisible = !filter.isBasic
 
             item.setTitle(if (switchFeedTypeTarget(filter) === FeedType.PROMOTED)
                 R.string.action_switch_to_top else R.string.action_switch_to_new)
