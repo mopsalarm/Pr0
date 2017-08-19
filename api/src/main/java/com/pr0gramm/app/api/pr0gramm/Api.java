@@ -182,6 +182,9 @@ public interface Api {
     @GET("api/profile/suggest")
     Call<Names> suggestUsers(@Query("prefix") String prefix);
 
+    @GET("api/user/identifier")
+    Observable<UserIdentifier> identifier();
+
     @FormUrlEncoded
     @POST("api/contact/send")
     Observable<Nothing> contactSend(
@@ -667,18 +670,13 @@ public interface Api {
 
     @Value.Immutable
     interface UserIdentifier {
-        String identifier();
-    }
-
-    @Value.Immutable
-    interface UserScore {
-        int score();
+        String getIdentifier();
     }
 
     @Value.Immutable
     interface ResetPasswordResponse {
         @Nullable
-        String error();
+        String getError();
     }
 
     @Value.Immutable

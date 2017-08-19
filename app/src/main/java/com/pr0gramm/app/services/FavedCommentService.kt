@@ -5,8 +5,9 @@ import com.pr0gramm.app.api.InstantTypeAdapter
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.subscribeOnBackground
 import gnu.trove.TCollections
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
@@ -58,11 +59,10 @@ class FavedCommentService(userService: UserService, okHttpClient: OkHttpClient) 
                     if (userHash == null)
                         Observable.just(emptyList())
                     else
-                        api.list(userHash, ContentType.combine(ContentType.All))
-                                .onErrorResumeEmpty()
+                        api.list(userHash, ContentType.combine(ContentType.All)).ignoreError()
                 }
 
-                .subscribeOn(BackgroundScheduler.instance())
+                .subscribeOnBackground()
                 .subscribe { comments -> updateCommentIds(TLongHashSet(comments.map { it.id })) }
     }
 

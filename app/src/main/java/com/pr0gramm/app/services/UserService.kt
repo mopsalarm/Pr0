@@ -9,6 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import org.joda.time.Duration.standardDays
@@ -35,6 +36,8 @@ class UserService(private val api: Api,
                   private val gson: Gson,
                   private val database: Holder<SQLiteDatabase>) {
 
+    private val logger = LoggerFactory.getLogger("UserService")
+
     private val lock = Any()
 
     private val fullSyncInProgress = AtomicBoolean()
@@ -44,7 +47,6 @@ class UserService(private val api: Api,
     private val loginStateObservable = BehaviorSubject.create(loginState).toSerialized()
 
     init {
-
         // only restore user data if authorized.
         if (cookieHandler.hasCookie()) {
             restoreLatestUserInfo()
@@ -81,6 +83,13 @@ class UserService(private val api: Api,
         }
     }
 
+    private fun updateUniqueTokenIfNeeded(state: LoginState) {
+        if (state.authorized && state.uniqueToken == null) {
+            api.identifier().ignoreError().subscribeOnBackground().subscribe { result ->
+                updateUniqueToken(result.identifier)
+            }
+        }
+    }
     private fun updateUniqueToken(uniqueToken: String?) {
         if (uniqueToken == null)
             return
@@ -101,11 +110,14 @@ class UserService(private val api: Api,
 
                     // update once now, and one with recent benis history later.
                     .flatMap { state ->
-                        Observable.just(state)
-                                .concatWith(Observable
-                                        .fromCallable { state.copy(benisHistory = loadBenisHistoryAsGraph(state.id)) }
-                                        .subscribeOnBackground())
+                        val extendedState = Observable
+                                .fromCallable { state.copy(benisHistory = loadBenisHistoryAsGraph(state.id)) }
+                                .subscribeOnBackground()
+
+                        Observable.just(state).concatWith(extendedState)
                     }
+
+                    .doOnNext { state -> updateUniqueTokenIfNeeded(state) }
 
                     .subscribe(
                             { loginState -> updateLoginState({ loginState }) },
@@ -163,7 +175,7 @@ class UserService(private val api: Api,
             cookieHandler.clearLoginCookie(false)
 
             // remove sync id
-            preferences.edit() {
+            preferences.edit {
                 remove(KEY_LAST_LOF_OFFSET)
                 remove(KEY_LAST_USER_INFO)
                 remove(KEY_LAST_LOGIN_STATE)
@@ -227,7 +239,7 @@ class UserService(private val api: Api,
 
                 // store syncId for next time.
                 if (response.logLength() > lastLogOffset) {
-                    preferences.edit() {
+                    preferences.edit {
                         putLong(KEY_LAST_LOF_OFFSET, response.logLength())
                     }
                 }
@@ -271,7 +283,7 @@ class UserService(private val api: Api,
         info().retry(3)
                 .subscribeOnBackground()
                 .doOnNext { info ->
-                    val loginState = createLoginState(info)
+                    val loginState = createLoginStateFromInfo(info)
                     updateLoginState { loginState }
                 }
                 .doOnTerminate({ publishSubject.onCompleted() })
@@ -288,12 +300,12 @@ class UserService(private val api: Api,
             if (state.authorized) {
                 logger.info("persisting logins state now.")
 
-                val encoded = gson.toJson(state)
-                preferences.edit() {
+                preferences.edit {
+                    val encoded = gson.toJson(state)
                     putString(KEY_LAST_LOGIN_STATE, encoded)
                 }
             } else {
-                preferences.edit() {
+                preferences.edit {
                     remove(KEY_LAST_LOGIN_STATE)
                 }
             }
@@ -304,7 +316,7 @@ class UserService(private val api: Api,
 
     }
 
-    private fun createLoginState(info: Api.Info): LoginState {
+    private fun createLoginStateFromInfo(info: Api.Info): LoginState {
         checkNotMainThread()
 
         val user = info.user
@@ -317,7 +329,7 @@ class UserService(private val api: Api,
                 premium = isPremiumUser,
                 admin = userIsAdmin,
                 benisHistory = loadBenisHistoryAsGraph(user.id),
-                uniqueToken = null)
+                uniqueToken = loginState.uniqueToken)
     }
 
     val userIsAdmin: Boolean
@@ -365,9 +377,11 @@ class UserService(private val api: Api,
     /**
      * Returns an observable that produces the unique user token, if a hash is currently
      * available. This produces "null", if the user is currently not signed in.
+     *
+     * The observable will produce updated tokens on changes.
      */
     fun userToken(): Observable<String> {
-        return loginStateObservable.take(1).map { value ->
+        return loginStateObservable.map { value ->
             if (value.authorized) value.uniqueToken else null
         }
     }
@@ -379,7 +393,7 @@ class UserService(private val api: Api,
     fun resetPassword(name: String, token: String, password: String): Observable<Boolean> {
         return api.resetPassword(name, token, password)
                 .doOnNext { value -> logger.info("Response is {}", value) }
-                .map { response -> response.error() == null }
+                .map { response -> response.error == null }
     }
 
     data class LoginState(
@@ -412,31 +426,29 @@ class UserService(private val api: Api,
         }
 
         override fun serialize(value: LoginState, type: Type?, ctx: JsonSerializationContext?): JsonElement {
-            val obj = JsonObject()
-            obj.addProperty("id", value.id)
-            obj.addProperty("name", value.name)
-            obj.addProperty("mark", value.mark)
-            obj.addProperty("score", value.score)
-            obj.addProperty("uniqueToken", value.uniqueToken)
-            obj.addProperty("admin", value.admin)
-            obj.addProperty("premium", value.premium)
-            obj.addProperty("authorized", value.authorized)
-            return obj
+            return JsonObject().apply {
+                addProperty("id", value.id)
+                addProperty("name", value.name)
+                addProperty("mark", value.mark)
+                addProperty("score", value.score)
+                addProperty("uniqueToken", value.uniqueToken)
+                addProperty("admin", value.admin)
+                addProperty("premium", value.premium)
+                addProperty("authorized", value.authorized)
+            }
         }
     }
-
 
     class LoginProgress(val login: Api.Login?)
 
     companion object {
-        private val logger = LoggerFactory.getLogger("UserService")
-
-        private val KEY_LAST_LOF_OFFSET = "UserService.lastLogLength"
-        private val KEY_LAST_USER_INFO = "UserService.lastUserInfo"
-        private val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
+        private const val KEY_LAST_LOF_OFFSET = "UserService.lastLogLength"
+        private const val KEY_LAST_USER_INFO = "UserService.lastUserInfo"
+        private const val KEY_LAST_LOGIN_STATE = "UserService.lastLoginState"
 
         private val NOT_AUTHORIZED = LoginState(
                 id = -1, score = 0, mark = 0, admin = false,
                 premium = false, authorized = false, name = null, uniqueToken = null)
+
     }
 }
