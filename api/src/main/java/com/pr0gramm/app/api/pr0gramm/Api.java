@@ -219,7 +219,7 @@ public interface Api {
 
     @Value.Immutable
     interface Names {
-        List<String> users();
+        List<String> getUsers();
     }
 
     @Value.Immutable
