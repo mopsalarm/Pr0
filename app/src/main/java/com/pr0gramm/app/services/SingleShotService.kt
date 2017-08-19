@@ -59,9 +59,9 @@ class SingleShotService(internal val preferences: SharedPreferences) {
             if (timeStringMap[action] == timeString) {
                 return false
             } else {
-                timeStringMap.put(action, timeString)
+                timeStringMap[action] = timeString
 
-                preferences.edit() {
+                preferences.edit {
                     putString(KEY_MAP_ACTIONS, gson.toJson(timeStringMap))
                 }
 

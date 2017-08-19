@@ -2,12 +2,11 @@ package com.pr0gramm.app.services
 
 import com.google.gson.Gson
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.util.doInBackground
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import proguard.annotation.KeepPublicClassMemberNames
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -15,6 +14,8 @@ import retrofit2.http.POST
 
 
 class SettingsTrackerService(httpClient: OkHttpClient, gson: Gson) {
+    private val logger = LoggerFactory.getLogger("SettingsTrackerService")
+
     private val settings: Settings = Settings.get()
 
     private val httpInterface: HttpInterface = Retrofit.Builder()
@@ -28,25 +29,15 @@ class SettingsTrackerService(httpClient: OkHttpClient, gson: Gson) {
     fun track() {
         val values = settings.raw().all.filterKeys { it.startsWith("pref_") }
 
-        // track the object!
-        httpInterface.track(mapOf("settings" to values)).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                logger.info("Tracked settings successfully.")
-            }
-
-            override fun onFailure(call: Call<Void>, err: Throwable) {
-                logger.error("Could not track settings", err)
-            }
-        })
+        doInBackground {
+            httpInterface.track(mapOf("settings" to values)).execute()
+            logger.info("Tracked settings successfully.")
+        }
     }
 
     @KeepPublicClassMemberNames
     private interface HttpInterface {
         @POST("track-settings")
         fun track(@Body values: Any): Call<Void>
-    }
-
-    companion object {
-        internal val logger = LoggerFactory.getLogger("SettingsTrackerService")
     }
 }

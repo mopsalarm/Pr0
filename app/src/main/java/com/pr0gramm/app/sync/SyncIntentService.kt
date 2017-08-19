@@ -21,7 +21,7 @@ class SyncIntentService : KodeinIntentService("SyncIntentService") {
 
     override fun onHandleIntent(intent: Intent?) {
         logger.info("Doing some statistics related trackings")
-        if (singleShotService.firstTimeToday("track-settings:5"))
+        if (singleShotService.firstTimeToday("track-settings:8"))
             Track.statistics()
 
         if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
