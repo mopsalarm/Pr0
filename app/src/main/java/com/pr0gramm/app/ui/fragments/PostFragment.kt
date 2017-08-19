@@ -54,7 +54,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaView
 import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.dp
-import com.pr0gramm.app.util.AndroidUtility.screenIsLandscape
 import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Completable
 import rx.Observable
@@ -332,13 +331,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val isImage = isStaticImage(feedItem)
-        val isLandscape = screenIsLandscape(activity)
 
         menu.findItem(R.id.action_refresh)
                 ?.isVisible = settings.showRefreshButton && !isVideoFullScreen
 
         menu.findItem(R.id.action_zoom)
-                ?.isVisible = !isVideoFullScreen && (isImage || !isLandscape)
+                ?.isVisible = !isVideoFullScreen
 
         menu.findItem(R.id.action_share_image)
                 ?.isVisible = true
@@ -364,6 +362,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         } else {
             val params = ViewerFullscreenParameters.forViewer(getActivity(), viewer)
 
+            viewer.pivotX = params.pivot.x
+            viewer.pivotY = params.pivot.y
+
             fullscreenAnimator = ObjectAnimator.ofPropertyValuesHolder(viewer,
                     ofFloat(View.ROTATION, params.rotation),
                     ofFloat(View.TRANSLATION_Y, params.trY),
@@ -387,7 +388,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             viewer.setClipBoundsCompat(null)
             viewer.visible = true
 
-            activity.supportInvalidateOptionsMenu()
+            activity.invalidateOptionsMenu()
 
             // forbid orientation changes while in fullscreen
             Screen.lockOrientation(activity)
@@ -406,6 +407,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun realignFullScreen() {
         val params = ViewerFullscreenParameters.forViewer(activity, viewer)
+        viewer.pivotX = params.pivot.x
+        viewer.pivotY = params.pivot.y
         viewer.translationY = params.trY
         viewer.scaleX = params.scale
         viewer.scaleY = params.scale
@@ -686,7 +689,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         registerTapListener(viewer)
 
-        // add views in the correct order
+        // add views in the correct order (normally first child)
         val idx = playerContainer.indexOfChild(voteAnimationIndicator)
         playerContainer.addView(viewer, idx)
 

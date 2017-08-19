@@ -20,7 +20,7 @@
             android:includeFontPadding="false"
             android:visibility="gone"
             app:iv_text="M"
-            app:iv_textColor="?colorPrimary"
+            app:iv_textColor="?colorAccent"
             app:iv_textSize="150dp"
             tools:ignore="NegativeMargin"/>
 
