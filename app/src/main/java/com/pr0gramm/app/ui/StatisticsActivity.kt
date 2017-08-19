@@ -84,9 +84,11 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
             handleVoteCounts(it)
         }
 
-        userService.loadBenisRecords().ignoreError().compose(bindToLifecycleAsync()).subscribe {
-            benisValues = it
-        }
+        userService.loadBenisRecords()
+                .ignoreError()
+                .delay(200, TimeUnit.MILLISECONDS)
+                .compose(bindToLifecycleAsync())
+                .subscribe { benisValues = it }
 
         userService.name?.let { username ->
             showContentTypesOf(typesByFavorites, FavoritesCountCache, FeedFilter()

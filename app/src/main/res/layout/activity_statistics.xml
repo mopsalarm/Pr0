@@ -24,18 +24,18 @@
         android:layout_weight="1">
 
         <LinearLayout
-            android:animateLayoutChanges="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="vertical"
             tools:context=".ui.MainActivity">
 
             <com.pr0gramm.app.ui.views.AspectLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                tools:layout_height="200dp"
                 android:background="?colorPrimaryDark"
-                app:aspect="2">
+                app:aspect="2"
+                tools:layout_height="200dp">
 
                 <View
                     android:id="@+id/benis_graph"
@@ -75,223 +75,260 @@
                 app:trs_selectedColor="?colorAccent"
                 tools:visibility="visible"/>
 
-            <LinearLayout
+
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp">
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
-                    style="@style/Statistics.Change.Block">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        style="@style/Statistics.Change.Block_Title"
-                        android:text="@string/stats_day"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stats_title_benis_change"
+                        android:textColor="?colorAccent"/>
 
-                    <TextView
-                        android:id="@+id/stats_change_day"
-                        style="@style/Statistics.Change.Block_Value"
-                        tools:text="2,5%"
-                        tools:textColor="@color/stats_up"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            style="@style/Statistics.Change.Block">
+
+                            <TextView
+                                style="@style/Statistics.Change.Block_Title"
+                                android:text="@string/stats_day"/>
+
+                            <TextView
+                                android:id="@+id/stats_change_day"
+                                style="@style/Statistics.Change.Block_Value"
+                                tools:text="2,5%"
+                                tools:textColor="@color/stats_up"/>
+                        </LinearLayout>
+
+                        <View style="@style/Statistics.Change.Sep"/>
+
+                        <LinearLayout
+                            style="@style/Statistics.Change.Block">
+
+                            <TextView
+                                style="@style/Statistics.Change.Block_Title"
+                                android:text="@string/stats_week"/>
+
+                            <TextView
+                                android:id="@+id/stats_change_week"
+                                style="@style/Statistics.Change.Block_Value"
+                                tools:text="5,5%"
+                                tools:textColor="@color/stats_up"/>
+                        </LinearLayout>
+
+                        <View style="@style/Statistics.Change.Sep"/>
+
+                        <LinearLayout
+                            style="@style/Statistics.Change.Block">
+
+                            <TextView
+                                style="@style/Statistics.Change.Block_Title"
+                                android:text="@string/monat"/>
+
+                            <TextView
+                                android:id="@+id/stats_change_month"
+                                style="@style/Statistics.Change.Block_Value"
+                                tools:text="8,5%"
+                                tools:textColor="@color/stats_up"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
+            </android.support.v7.widget.CardView>
 
-                <View style="@style/Statistics.Change.Sep"/>
 
-                <LinearLayout
-                    style="@style/Statistics.Change.Block">
-
-                    <TextView
-                        style="@style/Statistics.Change.Block_Title"
-                        android:text="@string/stats_week"/>
-
-                    <TextView
-                        android:id="@+id/stats_change_week"
-                        style="@style/Statistics.Change.Block_Value"
-                        tools:text="5,5%"
-                        tools:textColor="@color/stats_up"/>
-                </LinearLayout>
-
-                <View style="@style/Statistics.Change.Sep"/>
-
-                <LinearLayout
-                    style="@style/Statistics.Change.Block">
-
-                    <TextView
-                        style="@style/Statistics.Change.Block_Title"
-                        android:text="@string/monat"/>
-
-                    <TextView
-                        android:id="@+id/stats_change_month"
-                        style="@style/Statistics.Change.Block_Value"
-                        tools:text="8,5%"
-                        tools:textColor="@color/stats_up"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#2e2e2e"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_title_votes"
-                    android:textColor="?colorAccent"/>
+                android:layout_marginTop="-16dp"
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        style="@style/Statistics.VoteCount"
-                        android:text="TOTAL:"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stats_title_votes"
+                        android:textColor="?colorAccent"/>
 
-                    <TextView
-                        android:id="@+id/stats_up"
-                        style="@style/Statistics.VoteCount"
-                        android:textColor="@color/stats_up"
-                        tools:text="UP 512"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="16dp">
 
-                    <TextView
-                        android:id="@+id/stats_down"
-                        style="@style/Statistics.VoteCount"
-                        android:textColor="@color/stats_down"
-                        tools:text="DOWN 486"/>
+                        <TextView
+                            style="@style/Statistics.VoteCount"
+                            android:text="TOTAL:"/>
 
-                    <TextView
-                        android:id="@+id/stats_fav"
-                        style="@style/Statistics.VoteCount"
-                        android:textColor="@color/stats_fav"
-                        tools:text="FAVS 64"/>
+                        <TextView
+                            android:id="@+id/stats_up"
+                            style="@style/Statistics.VoteCount"
+                            android:textColor="@color/stats_up"
+                            tools:text="UP 512"/>
+
+                        <TextView
+                            android:id="@+id/stats_down"
+                            style="@style/Statistics.VoteCount"
+                            android:textColor="@color/stats_down"
+                            tools:text="DOWN 486"/>
+
+                        <TextView
+                            android:id="@+id/stats_fav"
+                            style="@style/Statistics.VoteCount"
+                            android:textColor="@color/stats_fav"
+                            tools:text="FAVS 64"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="16dp">
+
+                        <com.pr0gramm.app.ui.views.CircleChartView
+                            android:id="@+id/votes_by_items"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="16dp"
+                            android:layout_weight="1"
+                            app:chartType="POSTS"
+                            app:lineBottom="VERGEBEN"
+                            app:lineTop="BENIS FÜR"
+                            />
+
+                        <com.pr0gramm.app.ui.views.CircleChartView
+                            android:id="@+id/votes_by_tags"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:chartType="TAGS"
+                            app:lineBottom="VERGEBEN"
+                            app:lineTop="BENIS FÜR"
+                            />
+
+                        <com.pr0gramm.app.ui.views.CircleChartView
+                            android:id="@+id/votes_by_comments"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:layout_weight="1"
+                            app:chartType="KOMMENTARE"
+                            app:lineBottom="VERGEBEN"
+                            app:lineTop="BENIS FÜR"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingTop="16dp">
+            </android.support.v7.widget.CardView>
 
-                    <com.pr0gramm.app.ui.views.CircleChartView
-                        android:id="@+id/votes_by_items"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="16dp"
-                        android:layout_weight="1"
-                        app:chartType="POSTS"
-                        app:lineBottom="VERGEBEN"
-                        app:lineTop="BENIS FÜR"
-                        />
 
-                    <com.pr0gramm.app.ui.views.CircleChartView
-                        android:id="@+id/votes_by_tags"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        app:chartType="TAGS"
-                        app:lineBottom="VERGEBEN"
-                        app:lineTop="BENIS FÜR"
-                        />
-
-                    <com.pr0gramm.app.ui.views.CircleChartView
-                        android:id="@+id/votes_by_comments"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_weight="1"
-                        app:chartType="KOMMENTARE"
-                        app:lineBottom="VERGEBEN"
-                        app:lineTop="BENIS FÜR"/>
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#2e2e2e"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_title_uploads_favs"
-                    android:textColor="?colorAccent"/>
+                android:layout_marginTop="-16dp"
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <com.pr0gramm.app.ui.views.CircleChartView
-                        android:id="@+id/types_uploads"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="48dp"
-                        android:layout_marginRight="16dp"
-                        android:layout_weight="1"
-                        app:chartType="UPLOADS"
-                        app:lineBottom="N/SFW/L"
-                        app:lineTop="VERTEILUNG"/>
 
-                    <com.pr0gramm.app.ui.views.CircleChartView
-                        android:id="@+id/types_favorites"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="48dp"
-                        android:layout_weight="1"
-                        app:chartType="FAVORITEN"
-                        app:lineBottom="N/SFW/L"
-                        app:lineTop="VERTEILUNG"/>
+                        android:text="@string/stats_title_uploads_favs"
+                        android:textColor="?colorAccent"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <com.pr0gramm.app.ui.views.CircleChartView
+                            android:id="@+id/types_uploads"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="48dp"
+                            android:layout_marginRight="16dp"
+                            android:layout_weight="1"
+                            app:chartType="UPLOADS"
+                            app:lineBottom="N/SFW/L"
+                            app:lineTop="VERTEILUNG"/>
+
+                        <com.pr0gramm.app.ui.views.CircleChartView
+                            android:id="@+id/types_favorites"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="48dp"
+                            android:layout_weight="1"
+                            app:chartType="FAVORITEN"
+                            app:lineBottom="N/SFW/L"
+                            app:lineTop="VERTEILUNG"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/type_sfw_upper"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                            android:textColor="@color/type_sfw"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="4dp"
+                            android:text="@string/type_nsfw_upper"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                            android:textColor="@color/type_nsfw"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="4dp"
+                            android:text="@string/type_nsfl_upper"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                            android:textColor="@color/type_nsfl"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/type_sfw_upper"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="@color/type_sfw"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:text="@string/type_nsfw_upper"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="@color/type_nsfw"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:text="@string/type_nsfl_upper"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="@color/type_nsfl"/>
-
-                </LinearLayout>
-
-            </LinearLayout>
+            </android.support.v7.widget.CardView>
 
         </LinearLayout>
     </ScrollView>
