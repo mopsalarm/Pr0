@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 ext {
-    VersionImmutables = "2.4.6"
+    VersionImmutables = "2.5.6"
 }
 
 
@@ -15,9 +15,9 @@ dependencies {
 
 
     implementation "com.google.code.findbugs:jsr305:3.0.2"
-    implementation "org.immutables:gson:$VersionImmutables"
 
-    implementation "org.immutables:value:$VersionImmutables"
+    compileOnly "org.immutables:gson:$VersionImmutables"
+    compileOnly "org.immutables:value:$VersionImmutables"
     annotationProcessor "org.immutables:value:$VersionImmutables"
 
     implementation "net.danlew:android.joda:2.9.9"

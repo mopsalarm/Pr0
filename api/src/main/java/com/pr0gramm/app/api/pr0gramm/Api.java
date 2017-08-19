@@ -182,9 +182,6 @@ public interface Api {
     @GET("api/profile/suggest")
     Call<Names> suggestUsers(@Query("prefix") String prefix);
 
-    @GET("api/user/identifier")
-    Observable<UserIdentifier> identifier();
-
     @FormUrlEncoded
     @POST("api/contact/send")
     Observable<Nothing> contactSend(
@@ -277,7 +274,7 @@ public interface Api {
      * api endpoint <code>/api/items/get</code>.
      */
     @Value.Immutable
-    abstract static class Feed {
+    abstract class Feed {
         @Value.Default
         public boolean isAtStart() {
             return false;

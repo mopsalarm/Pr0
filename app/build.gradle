@@ -7,11 +7,11 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.4"
+        VersionKotlin = "1.1.4-2"
         VersionSupportLibrary = "26.0.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "11.0.4"
+        VersionGoogleServices = "11.2.0"
     }
 
     repositories {
@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
-        classpath 'io.fabric.tools:gradle:1.24.0'
+        classpath 'io.fabric.tools:gradle:1.24.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -179,7 +179,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:3.8.1"
     implementation "com.squareup.picasso:picasso:2.5.2"
     implementation "com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0"
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.7"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.8"
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"
     implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
@@ -189,7 +189,7 @@ dependencies {
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
     implementation "org.nanohttpd:nanohttpd:2.3.1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
-    implementation "me.leolin:ShortcutBadger:1.1.17@aar"
+    implementation "me.leolin:ShortcutBadger:1.1.18@aar"
     implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
@@ -233,7 +233,7 @@ dependencies {
     implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.natpryce:hamkrest:1.4.1.0'
+    testImplementation 'com.natpryce:hamkrest:1.4.2.0'
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
