@@ -1,10 +1,11 @@
 package com.pr0gramm.app
 
+import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.google.common.base.Enums
-import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.base.Objects.equal
 import com.google.common.primitives.Ints
 import com.pr0gramm.app.feed.ContentType
@@ -17,9 +18,9 @@ import java.util.*
 
 /**
  */
-class Settings(private val context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
+class Settings(private val app: Application) : SharedPreferences.OnSharedPreferenceChangeListener {
     private val preferenceChanged = PublishSubject.create<String>()
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(app);
 
     init {
         this.preferences.registerOnSharedPreferenceChangeListener(this)
@@ -61,7 +62,7 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
 
     val downloadLocation: String
         get() {
-            val def = context.getString(R.string.pref_downloadLocation_default)
+            val def = app.getString(R.string.pref_downloadLocation_default)
             return preferences.getString("pref_downloadLocation", def)
         }
 
@@ -97,11 +98,11 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
         get() {
             var prefValue = preferences.getString("pref_confirm_play_on_mobile_list", null)
             if (prefValue == null) {
-                prefValue = context.getString(R.string.pref_confirm_play_on_mobile_default)
+                prefValue = app.getString(R.string.pref_confirm_play_on_mobile_default)
             }
 
             for (enumValue in ConfirmOnMobile.values()) {
-                if (equal(context.getString(enumValue.value), prefValue)) {
+                if (equal(app.getString(enumValue.value), prefValue)) {
                     return enumValue
                 }
             }
@@ -198,6 +199,9 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
     val alwaysShowAds: Boolean
         get() = preferences.getBoolean("pref_always_show_ads", false)
 
+    val rotateInFullscreen: Boolean
+        get() = preferences.getBoolean("pref_rotate_in_fullscreen", true)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit() {
@@ -238,11 +242,12 @@ class Settings(private val context: Context) : SharedPreferences.OnSharedPrefere
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private lateinit var instance: Settings
 
         fun initialize(context: Context) {
             PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
-            instance = Settings(context.applicationContext)
+            instance = Settings(context.applicationContext as Application)
         }
 
         @JvmStatic

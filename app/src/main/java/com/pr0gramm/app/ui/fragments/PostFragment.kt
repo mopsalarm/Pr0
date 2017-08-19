@@ -360,7 +360,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             startActivity(intent)
 
         } else {
-            val params = ViewerFullscreenParameters.forViewer(getActivity(), viewer)
+            val params = ViewerFullscreenParameters.forViewer(getActivity(), viewer, settings.rotateInFullscreen)
 
             viewer.pivotX = params.pivot.x
             viewer.pivotY = params.pivot.y
@@ -406,7 +406,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun realignFullScreen() {
-        val params = ViewerFullscreenParameters.forViewer(activity, viewer)
+        val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
         viewer.pivotX = params.pivot.x
         viewer.pivotY = params.pivot.y
         viewer.translationY = params.trY

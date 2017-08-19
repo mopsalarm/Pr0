@@ -10,7 +10,7 @@ import com.pr0gramm.app.util.AndroidUtility.screenSize
  */
 class ViewerFullscreenParameters private constructor(val scale: Float, val trY: Float, val pivot: PointF, val rotation: Float) {
     companion object {
-        fun forViewer(activity: Activity, viewer: View): ViewerFullscreenParameters {
+        fun forViewer(activity: Activity, viewer: View, rotateIfNeeded: Boolean): ViewerFullscreenParameters {
             val screenSize = screenSize(activity)
 
             val windowWidth = screenSize.x.toFloat()
@@ -32,7 +32,7 @@ class ViewerFullscreenParameters private constructor(val scale: Float, val trY: 
                     windowWidth / viewerWidth)
 
             // check if rotation is necessary
-            if (scaleRot > scaleNoRot) {
+            if (scaleRot > scaleNoRot && rotateIfNeeded) {
                 return ViewerFullscreenParameters(scaleRot, trY, pivot, 90f)
             } else {
                 return ViewerFullscreenParameters(scaleNoRot, trY, pivot, 0f)

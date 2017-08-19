@@ -135,6 +135,12 @@
 
                 <CheckBoxPreference
                     android:defaultValue="true"
+                    android:key="pref_rotate_in_fullscreen"
+                    android:summary="@string/pref_rotate_in_fullscreen_summary"
+                    android:title="@string/pref_rotate_in_fullscreen_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
                     android:key="pref_double_tap_to_upvote"
                     android:summary="@string/pref_double_tap_to_upvote_summary"
                     android:title="@string/pref_double_tap_to_upvote"/>

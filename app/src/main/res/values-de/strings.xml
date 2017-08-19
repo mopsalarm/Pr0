@@ -476,4 +476,12 @@
     <string name="stats_day">TAG</string>
     <string name="stats_week">WOCHE</string>
     <string name="monat">MONAT</string>
+    <string name="time_range_1day">1d</string>
+    <string name="time_range_7day">7d</string>
+    <string name="time_range_1month">1m</string>
+    <string name="time_range_6month">6m</string>
+    <string name="time_range_1year">1j</string>
+    <string name="time_range_forever">ALLE</string>
+    <string name="pref_rotate_in_fullscreen_title">Videos drehen</string>
+    <string name="pref_rotate_in_fullscreen_summary">Videos automatisch im Vollbild drehen, wenn sie dadurch größer werden.</string>
 </resources>
