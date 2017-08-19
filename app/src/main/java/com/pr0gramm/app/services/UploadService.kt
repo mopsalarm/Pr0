@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
@@ -89,20 +88,17 @@ class UploadService(private val api: Api,
         val output = object : RequestBody() {
             override fun contentType(): MediaType {
                 val fallback = MediaType.parse("image/jpeg")!!
-                try {
-                    return MimeTypeHelper.guess(file)?.let { MediaType.parse(it) } ?: fallback
+                return try {
+                    MimeTypeHelper.guess(file)?.let { MediaType.parse(it) } ?: fallback
                 } catch (ignored: IOException) {
-                    return fallback
+                    fallback
                 }
             }
 
-            @Throws(IOException::class)
             override fun contentLength(): Long {
                 return file.length()
             }
 
-            @SuppressLint("NewApi")
-            @Throws(IOException::class)
             override fun writeTo(sink: BufferedSink) {
                 val length = file.length().toFloat()
 
