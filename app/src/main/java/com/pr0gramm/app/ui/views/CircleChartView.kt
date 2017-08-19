@@ -1,10 +1,7 @@
 package com.pr0gramm.app.ui.views
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PixelFormat
-import android.graphics.RectF
+import android.graphics.*
 import android.support.annotation.ColorInt
 import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
@@ -64,6 +61,12 @@ class CircleChartView : AspectLayout {
             val offset = 0.75f * paint.strokeWidth
             val boundsArc = RectF(bounds.left + offset, bounds.top + offset, bounds.bottom - offset, bounds.right - offset)
 
+            val boundsInnerArc = RectF(
+                    boundsArc.left + 0.9f * lineWidth,
+                    boundsArc.top + 0.9f * lineWidth,
+                    boundsArc.bottom - 0.9f * lineWidth,
+                    boundsArc.right - 0.9f * lineWidth)
+
             val angleStep = 5f
             val totalAngle = 360f - angleStep * chartValues.count { it.amount != 0 }
 
@@ -71,19 +74,24 @@ class CircleChartView : AspectLayout {
             chartValues.filter { it.amount != 0 }.forEach { value ->
                 val angle = totalAngle * (Math.abs(value.amount) / totalValue.toFloat())
 
+                paint.color = Color.argb(64, 0, 0, 0)
+                canvas.drawArc(boundsInnerArc, currentAngle, angle, false, paint)
+
                 paint.color = value.color
                 canvas.drawArc(boundsArc, currentAngle, angle, false, paint)
+
                 currentAngle += angle + angleStep
             }
 
             // paint inner circle
-            val circleRadius = boundsArc.width() / 2 - 3f * lineWidth
-            if (circleRadius > 1) {
-                // draw middle circle
-                paint.style = Paint.Style.FILL
-                paint.color = 0xff333333L.toInt()
-                canvas.drawCircle(boundsArc.centerX(), boundsArc.centerY(), circleRadius, paint)
-            }
+
+//            val circleRadius = boundsArc.width() / 2 - 3f * lineWidth
+//            if (circleRadius > 1) {
+//                // draw middle circle
+//                paint.style = Paint.Style.FILL
+//                paint.color = 0xff333333L.toInt()
+//                canvas.drawCircle(boundsArc.centerX(), boundsArc.centerY(), circleRadius, paint)
+//            }
         }
     }
 
