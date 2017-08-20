@@ -9,8 +9,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
-        >
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/value"

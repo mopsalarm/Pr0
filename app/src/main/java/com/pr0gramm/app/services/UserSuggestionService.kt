@@ -9,6 +9,9 @@ import java.util.Collections.emptyList
 /**
  */
 class UserSuggestionService(private val api: Api) {
+    private val logger = LoggerFactory.getLogger("UserSuggestionService")
+    private val suggestionCache = LruCache<String, List<String>>(128)
+
     fun suggestUsers(prefix: String): List<String> {
         return suggestionCache.getOrPut(prefix.toLowerCase()) {
             internalSuggestUsers(it)
@@ -30,10 +33,5 @@ class UserSuggestionService(private val api: Api) {
             logger.warn("Could not fetch username suggestions for prefix={}: {}", prefix, error)
             return emptyList()
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger("UserSuggestionService")
-        private val suggestionCache = LruCache<String, List<String>>(128)
     }
 }
