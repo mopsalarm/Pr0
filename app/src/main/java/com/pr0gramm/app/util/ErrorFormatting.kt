@@ -8,6 +8,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
+import org.slf4j.LoggerFactory
 import java.io.EOFException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -38,7 +39,11 @@ object ErrorFormatting {
          * Gets the message for the given exception. You must only call this,
          * if [.handles] returned true before.
          */
-        fun getMessage(context: Context, thr: Throwable): String = message(thr, context)
+        fun getMessage(context: Context, thr: Throwable): String {
+            LoggerFactory.getLogger("ErrorFormatting").info("Formatting error:", thr)
+
+            return message(thr, context)
+        }
 
         /**
          * Returns true, if this exception should be logged

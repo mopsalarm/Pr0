@@ -6,7 +6,7 @@
 -dontskipnonpubliclibraryclassmembers
 
 -optimizationpasses 10
--optimizations field/marking/private,!method/removal/parameter,method/marking/static,method/inlining/*,!field/*,code/simplification/*,class/merging/vertical,!class/merging/horizontal
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,method/inlining/*,code/simplification/*,class/merging/vertical,!class/merging/horizontal,!method/removal/parameter
 
 
 # remove all not so important logging

@@ -53,7 +53,7 @@ android {
     aaptOptions {
         // See https://www.reddit.com/r/androiddev/comments/47ni7v/if_you_support_older_versions_of_android_there_is/
         additionalParameters "--no-version-vectors"
-        cruncherEnabled = false
+        cruncherEnabled = true
     }
 
     sourceSets.main {

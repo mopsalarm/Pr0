@@ -2,5 +2,6 @@
 
 -dontobfuscate
 -dontoptimize
+-dontpreverify
 
 -keep class com.pr0gramm.app.** { *; }
