@@ -38,6 +38,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.PrivateBrowserSpan
 import com.pr0gramm.app.ui.Truss
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.util.async.Async
@@ -350,9 +351,17 @@ object AndroidUtility {
     }
 }
 
-fun doInBackground(action: () -> Unit): Completable {
+fun doInBackground(logger: Logger? = null, action: () -> Unit): Completable {
     val o = Async.start<Any>({
-        action()
+        try {
+            action()
+        } catch (err: Throwable) {
+            AndroidUtility.logToCrashlytics(err)
+
+            (logger ?: LoggerFactory.getLogger("Background")).error(
+                    "An error occurred in in a background action", err)
+        }
+
         null
     }, BackgroundScheduler.instance())
 
@@ -369,7 +378,7 @@ fun Throwable.getMessageWithCauses(): String {
 
     val hasCause = cause != null && error !== cause
     val message = error.message ?: ""
-    val hasMessage = !message.isNullOrBlank() && (
+    val hasMessage = !message.isBlank() && (
             !hasCause || !message.contains(cause!!.javaClass.simpleName))
 
     if (hasMessage) {

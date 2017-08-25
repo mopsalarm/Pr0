@@ -505,5 +505,8 @@
     <string name="pref_rotate_in_fullscreen_title">Rotate videos</string>
     <string name="pref_rotate_in_fullscreen_summary">Automatically rotate videos in fullscreen to make them even larger.</string>
     <string name="stats_title_benis_change">Changes to your benis</string>
+    <string name="pref_pseudo_backup_title">Backup</string>
+    <string name="pref_pseudo_backup_summary">Creates a backup to your local sdcard or remote storage system like google drive.</string>
+    <string name="prefcat_backup"><![CDATA[Backup & restore]]></string>
 </resources>
 

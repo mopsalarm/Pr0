@@ -74,9 +74,20 @@ class SeenService(context: Context) {
 
         synchronized(lock) {
             logger.info("Removing all the items")
-            for (idx in 0..buffer.limit() - 1) {
+            for (idx in 0 until buffer.limit()) {
                 buffer.put(idx, 0.toByte())
             }
+        }
+    }
+
+    /**
+     * Do something with the raw buffer
+     */
+    fun withBuffer(block: (ByteBuffer) -> Unit) {
+        val buffer = this.buffer.get() ?: return
+
+        synchronized(lock) {
+            block(buffer)
         }
     }
 
