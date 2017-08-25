@@ -17,10 +17,21 @@ import java.util.zip.ZipOutputStream
 class BackupService(val seenService: SeenService,
                     val settings: Settings,
                     val userService: UserService,
-                    val bookmarkService: BookmarkService) {
+                    val bookmarkService: BookmarkService,
+                    val recentSearchesServices: RecentSearchesServices) {
 
     private val logger = LoggerFactory.getLogger("BackupService")
     private val gson = Gson()
+
+    fun backup(resolver: ContentResolver, backupUri: Uri): Observable<Unit> {
+        return Observable.fromCallable {
+            resolver.openFileDescriptor(backupUri, "w").use { fp ->
+                FileOutputStream(fp.fileDescriptor).use { out ->
+                    backup(out)
+                }
+            }
+        }
+    }
 
     fun backup(out: OutputStream) {
         ZipOutputStream(out).use { zip ->
@@ -45,6 +56,18 @@ class BackupService(val seenService: SeenService,
             logger.time("Backing up bookmarks") {
                 backupBookmarks(zip)
             }
+
+            logger.time("Backing up recent searches") {
+                backupRecentSearches(zip)
+            }
+        }
+    }
+
+    private fun backupRecentSearches(zip: ZipOutputStream) {
+        val terms = recentSearchesServices.searches()
+
+        zip.entry("searches.json") { out ->
+            out.writer().use { gson.toJson(terms, it) }
         }
     }
 
@@ -110,16 +133,6 @@ class BackupService(val seenService: SeenService,
             zip.entry("seen.bin") { out ->
                 Channels.newChannel(out).use { channel ->
                     channel.write(buffer)
-                }
-            }
-        }
-    }
-
-    fun backup(resolver: ContentResolver, backupUri: Uri): Observable<Unit> {
-        return Observable.fromCallable {
-            resolver.openFileDescriptor(backupUri, "w").use { fp ->
-                FileOutputStream(fp.fileDescriptor).use { out ->
-                    backup(out)
                 }
             }
         }
