@@ -82,16 +82,6 @@ class CircleChartView : AspectLayout {
 
                 currentAngle += angle + angleStep
             }
-
-            // paint inner circle
-
-//            val circleRadius = boundsArc.width() / 2 - 3f * lineWidth
-//            if (circleRadius > 1) {
-//                // draw middle circle
-//                paint.style = Paint.Style.FILL
-//                paint.color = 0xff333333L.toInt()
-//                canvas.drawCircle(boundsArc.centerX(), boundsArc.centerY(), circleRadius, paint)
-//            }
         }
     }
 

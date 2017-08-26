@@ -162,7 +162,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         return listOf(
                 CircleChartView.Value(summary.up, getColorCompat(R.color.stats_up)),
-                CircleChartView.Value(summary.down, getColorCompat(R.color.stats_down)),
+                CircleChartView.Value(-summary.down, getColorCompat(R.color.stats_down)),
                 CircleChartView.Value(summary.fav, getColorCompat(R.color.stats_fav)))
     }
 
