@@ -1,5 +1,14 @@
 [
   {
+    "version": 130,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Backup und Wiederherstellung über Androids Backupfunktionalität."
+      }
+    ]
+  },
+  {
     "version": 129,
     "changes": [
       {
