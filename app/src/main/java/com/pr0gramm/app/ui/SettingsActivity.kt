@@ -1,7 +1,5 @@
 package com.pr0gramm.app.ui
 
-import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
@@ -19,19 +17,18 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
-import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.services.BackupService
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
-import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
-import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.intro.IntroActivity
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.BackgroundScheduler
+import com.pr0gramm.app.util.bundle
+import com.pr0gramm.app.util.doInBackground
 import com.trello.rxlifecycle.components.RxPreferenceFragment
 import org.joda.time.Instant.now
 import rx.android.schedulers.AndroidSchedulers
@@ -76,7 +73,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         private val userService: UserService by k.instance()
         private val preloadManager: PreloadManager by k.instance()
         private val recentSearchesServices: RecentSearchesServices by k.instance()
-        private val backupService: BackupService by k.instance()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -107,11 +103,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             if (!userService.userIsAdmin) {
                 hidePreferenceByName("pref_show_content_type_flag")
             }
-
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-                hidePreferenceByName("prefcat_backup")
-            }
         }
 
         private fun hidePreferenceByName(name: String) {
@@ -119,7 +110,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             if (pref != null) {
                 preferenceScreen.removePreference(pref)
 
-                for (idx in 0 until preferenceScreen.preferenceCount) {
+                for (idx in 0..preferenceScreen.preferenceCount - 1) {
                     val preference = preferenceScreen.getPreference(idx)
                     if (preference is PreferenceGroup) {
                         if (preference.removePreference(pref))
@@ -236,22 +227,9 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                     startActivity(Intent(activity, IntroActivity::class.java))
                     return true
                 }
-
-                "pref_pseudo_backup" -> {
-                    requestCreateBackup()
-                }
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference)
-        }
-
-        @TargetApi(Build.VERSION_CODES.KITKAT)
-        private fun requestCreateBackup() {
-            val createIntent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-            createIntent.putExtra(Intent.EXTRA_TITLE, "pr0gramm-backup.zip")
-            createIntent.addCategory(Intent.CATEGORY_OPENABLE)
-            createIntent.type = "application/zip"
-            startActivityForResult(createIntent, RequestCodes.WRITE_BACKUP_FILE)
         }
 
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
@@ -268,22 +246,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                     // get the correct theme for the app!
                     ThemeHelper.updateTheme()
                     AndroidUtility.recreateActivity(activity)
-                }
-            }
-        }
-
-        override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
-            super.onActivityResult(requestCode, resultCode, result)
-
-            if (result != null && resultCode == Activity.RESULT_OK) {
-                if (requestCode == RequestCodes.WRITE_BACKUP_FILE) {
-                    backupService.backup(activity.contentResolver, result.data)
-                            .subscribeOnBackground()
-                            .observeOnMain()
-                            .compose(bindToLifecycle())
-                            .withBusyDialog(activity)
-                            .subscribeWithErrorHandling((activity as BaseAppCompatActivity).supportFragmentManager)
-
                 }
             }
         }

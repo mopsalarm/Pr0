@@ -372,19 +372,6 @@
             android:title="Use mock api endpoint"/>
     </PreferenceScreen>
 
-
-    <PreferenceCategory
-        android:key="prefcat_backup"
-        android:persistent="false"
-        android:title="@string/prefcat_backup">
-
-        <Preference
-            android:key="pref_pseudo_backup"
-            android:summary="@string/pref_pseudo_backup_summary"
-            android:title="@string/pref_pseudo_backup_title"/>
-
-    </PreferenceCategory>
-
     <PreferenceCategory
         android:key="prefcat_misc"
         android:persistent="false"

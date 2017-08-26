@@ -7,6 +7,4 @@ object RequestCodes {
     val SELECT_MEDIA = 2
     val WRITE_COMMENT = 3
     val INTRO_ACTIVITY = 4
-
-    val WRITE_BACKUP_FILE = 5
 }

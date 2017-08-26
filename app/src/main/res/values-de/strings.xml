@@ -485,7 +485,4 @@
     <string name="time_range_forever">ALLE</string>
     <string name="pref_rotate_in_fullscreen_title">Videos drehen</string>
     <string name="pref_rotate_in_fullscreen_summary">Videos automatisch im Vollbild drehen, wenn sie dadurch größer werden.</string>
-    <string name="prefcat_backup"><![CDATA[Backup & Wiederherstellung]]></string>
-    <string name="pref_pseudo_backup_summary">Erstelle ein Backup auf deinem Telefon oder in Google Drive.</string>
-    <string name="pref_pseudo_backup_title">Backup</string>
 </resources>

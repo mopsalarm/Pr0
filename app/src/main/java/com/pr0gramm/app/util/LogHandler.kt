@@ -18,9 +18,7 @@ class LogHandler : Handler() {
     }
 
     override fun publish(record: java.util.logging.LogRecord) {
-        val minimumLevel = if (BuildConfig.DEBUG) Level.FINE else Level.INFO
-
-        if (record.level.intValue() >= minimumLevel.intValue()) {
+        if (record.level.intValue() <= Level.INFO.intValue()) {
             val messageBuilder = StringBuilder()
             val logRecord = pl.brightinventions.slf4android.LogRecord.fromRecord(record)
             messageValueSupplier.append(logRecord, messageBuilder)
@@ -64,7 +62,7 @@ class LogHandler : Handler() {
          */
         fun recentMessages(): List<String> {
             val entries = synchronized(BUFFER) {
-                (0 until BUFFER.size()).map { BUFFER.get(it) }
+                (0..BUFFER.size() - 1).map { BUFFER.get(it) }
             }
 
             // get the most recent entry. should be the last one

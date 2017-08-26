@@ -220,8 +220,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         handleUri(intent.data)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
-        super.onActivityResult(requestCode, resultCode, result)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RequestCodes.INTRO_ACTIVITY) {
             AndroidUtility.recreateActivity(this)

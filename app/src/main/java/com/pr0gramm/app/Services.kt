@@ -47,10 +47,6 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
 
-    bind<BackupService>() with singleton {
-        BackupService(instance<SeenService>(), instance<Settings>(), instance<UserService>(), instance<BookmarkService>())
-    }
-
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance(), instance()) }
 
     bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
