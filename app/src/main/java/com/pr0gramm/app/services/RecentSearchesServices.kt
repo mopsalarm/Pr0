@@ -5,37 +5,27 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.pr0gramm.app.util.edit
 import org.slf4j.LoggerFactory
+import java.util.*
 
 
 /**
  * Helps with recent searches
  */
-private const val KEY = "RecentSearchesServices.terms"
 
 class RecentSearchesServices(
         private val sharedPreferences: SharedPreferences,
         private val gson: Gson) {
 
-    private val logger = LoggerFactory.getLogger("RecentSearchesServices")
-
-    private val LIST_OF_STRINGS = object : TypeToken<List<String>>() {}
-
-    private val searches = mutableListOf<String>()
+    private val searches: MutableList<String> = ArrayList<String>()
 
     init {
         restoreState()
     }
 
     fun storeTerm(term: String) {
-        storeTerms(listOf(term))
-    }
-
-    private fun storeTerms(terms: List<String>) {
         synchronized(searches) {
-            terms.forEach { term ->
-                removeCaseInsensitive(term)
-                searches.add(0, term)
-            }
+            removeCaseInsensitive(term)
+            searches.add(0, term)
 
             persistStateAsync()
         }
@@ -65,7 +55,7 @@ class RecentSearchesServices(
         try {
             // write searches as json
             val encoded = gson.toJson(searches, LIST_OF_STRINGS.type)
-            sharedPreferences.edit { putString(KEY, encoded) }
+            sharedPreferences.edit() { putString(KEY, encoded) }
         } catch (ignored: Exception) {
             logger.warn("Could not presist recent searches")
         }
@@ -81,5 +71,12 @@ class RecentSearchesServices(
             logger.warn("Could not deserialize recent searches", error)
         }
 
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger("RecentSearchesServices")
+
+        private val KEY = "RecentSearchesServices.terms"
+        private val LIST_OF_STRINGS = object : TypeToken<List<String>>() {}
     }
 }
