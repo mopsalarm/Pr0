@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Backup und Wiederherstellung über Androids Backupfunktionalität."
+        "change": "Automatisches Backup und Wiederherstellung über Androids Backupfunktionalität."
       }
     ]
   },
