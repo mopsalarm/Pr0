@@ -1,5 +1,18 @@
 [
   {
+    "version": 131,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Benachrichtungen auf Android 8 funktionieren nun wieder. Sorry!"
+      },
+      {
+        "type": "Neu",
+        "change": "Einstellung 'Verhalten -> Musik fortsetzen' zum automatischen Fortsetzen von Musik, die durch die pr0gramm App unterbrochen wurde."
+      }
+    ]
+  },
+  {
     "version": 130,
     "changes": [
       {

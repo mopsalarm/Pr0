@@ -485,4 +485,10 @@
     <string name="time_range_forever">ALLE</string>
     <string name="pref_rotate_in_fullscreen_title">Videos drehen</string>
     <string name="pref_rotate_in_fullscreen_summary">Videos automatisch im Vollbild drehen, wenn sie dadurch größer werden.</string>
+    <string name="notification_channel_new_message">Neue Nachricht</string>
+    <string name="notification_channel_download">Downloads</string>
+    <string name="notification_channel_update">Update verfügbar</string>
+    <string name="notification_channel_preload">Vorladen</string>
+    <string name="pref_audiofocus_transient_title">Musik fortsetzen</string>
+    <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
 </resources>

@@ -67,8 +67,8 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
     private val handler = Handler(Looper.getMainLooper())
     private val settings = Settings.get()
 
-    internal val exo: ExoPlayer
-    internal val exoVideoRenderer: MediaCodecVideoRenderer
+    private val exo: ExoPlayer
+    private val exoVideoRenderer: MediaCodecVideoRenderer
 
     private var exoAudioRenderer: MediaCodecAudioRenderer? = null
 
@@ -114,12 +114,11 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         exoVideoRenderer = MediaCodecVideoRenderer(context, mediaCodecSelector,
                 5000, handler, videoListener, MAX_DROPPED_FRAMES)
 
-        val renderers: Array<Renderer>
-        if (hasAudio) {
+        val renderers = if (hasAudio) {
             exoAudioRenderer = MediaCodecAudioRenderer(mediaCodecSelector)
-            renderers = arrayOf<Renderer>(exoVideoRenderer, exoAudioRenderer!!)
+            arrayOf(exoVideoRenderer, exoAudioRenderer!!)
         } else {
-            renderers = arrayOf<Renderer>(exoVideoRenderer)
+            arrayOf(exoVideoRenderer)
         }
 
         exo = ExoPlayerFactory.newInstance(renderers, DefaultTrackSelector(FixedTrackSelection.Factory()))
@@ -375,14 +374,10 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         private val logger = LoggerFactory.getLogger("ExoVideoPlayer")
 
         private fun bestMatchingCodec(codecs: List<MediaCodecInfo>, videoCodecName: String): MediaCodecInfo? {
-            if ("software" == videoCodecName) {
-                return codecs.firstOrNull { isSoftwareDecoder(it) }
-
-            } else if ("hardware" == videoCodecName) {
-                return codecs.firstOrNull { isHardwareDecoder(it) }
-
-            } else {
-                return codecs.firstOrNull { it.name.equals(videoCodecName, ignoreCase = true) }
+            return when (videoCodecName) {
+                "software" -> codecs.firstOrNull { isSoftwareDecoder(it) }
+                "hardware" -> codecs.firstOrNull { isHardwareDecoder(it) }
+                else -> codecs.firstOrNull { it.name.equals(videoCodecName, ignoreCase = true) }
             }
         }
 

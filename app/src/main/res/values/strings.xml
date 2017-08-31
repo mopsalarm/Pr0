@@ -509,5 +509,7 @@
     <string name="notification_channel_preload">Preloading</string>
     <string name="notification_channel_update">Update available</string>
     <string name="notification_channel_download">Downloads</string>
+    <string name="pref_audiofocus_transient_title">Resume music</string>
+    <string name="pref_audiofocus_transient_summary">Activate this to resume music or sounds by other apps once the pr0gramm app stops playing sound.</string>
 </resources>
 

@@ -202,6 +202,9 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val rotateInFullscreen: Boolean
         get() = preferences.getBoolean("pref_rotate_in_fullscreen", true)
 
+    val audioFocusTransient: Boolean
+        get() = preferences.getBoolean("pref_audiofocus_transient", false)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit() {

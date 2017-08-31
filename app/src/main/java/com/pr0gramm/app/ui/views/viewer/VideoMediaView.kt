@@ -180,11 +180,14 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         }
     }
 
-    private fun setMuted(muted: Boolean) {
-        var muted = muted
-        if (!muted) {
+    private fun setMuted(wantMuted: Boolean) {
+        var muted = wantMuted
+
+        if (muted) {
+            audioManager.abandonAudioFocus(afChangeListener)
+        } else {
             val result = audioManager.requestAudioFocus(afChangeListener,
-                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+                    AudioManager.STREAM_MUSIC, audioFocusDurationHint)
 
             if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 logger.info("Did not get audio focus, muting now!")
@@ -209,6 +212,15 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
         muteButtonView.setImageDrawable(icon)
     }
+
+    private val audioFocusDurationHint: Int
+        get(): Int {
+            return if (settings.audioFocusTransient) {
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            } else {
+                AudioManager.AUDIOFOCUS_GAIN
+            }
+        }
 
     override val videoProgress: AbstractProgressMediaView.ProgressInfo? get() {
         if (videoViewInitialized && isPlaying) {
