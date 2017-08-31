@@ -7,8 +7,8 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.4-2"
-        VersionSupportLibrary = "26.0.1"
+        VersionKotlin = "1.1.4-3"
+        VersionSupportLibrary = "26.0.2"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
         VersionGoogleServices = "11.2.0"
