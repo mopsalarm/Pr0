@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.views
 
 import android.annotation.SuppressLint
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -139,7 +140,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
             val color = ContextCompat.getColor(context, R.color.selected_comment_background)
             holder.itemView.setBackgroundColor(color)
         } else {
-            AndroidUtility.setViewBackground(holder.itemView, null)
+            ViewCompat.setBackground(holder.itemView, null)
         }
 
         holder.kFav?.let { kFav ->

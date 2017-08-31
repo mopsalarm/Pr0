@@ -505,5 +505,9 @@
     <string name="pref_rotate_in_fullscreen_title">Rotate videos</string>
     <string name="pref_rotate_in_fullscreen_summary">Automatically rotate videos in fullscreen to make them even larger.</string>
     <string name="stats_title_benis_change">Changes to your benis</string>
+    <string name="notification_channel_new_message">New message</string>
+    <string name="notification_channel_preload">Preloading</string>
+    <string name="notification_channel_update">Update available</string>
+    <string name="notification_channel_download">Downloads</string>
 </resources>
 

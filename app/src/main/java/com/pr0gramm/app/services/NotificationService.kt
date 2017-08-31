@@ -1,16 +1,15 @@
 package com.pr0gramm.app.services
 
-import android.app.Application
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
+import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import com.google.common.base.Strings.isNullOrEmpty
 import com.pr0gramm.app.BuildConfig
@@ -22,6 +21,7 @@ import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
 import com.pr0gramm.app.util.SenderDrawableProvider
+import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.lruCache
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.picasso.Picasso
@@ -40,14 +40,23 @@ class NotificationService(private val context: Application,
                           private val picasso: Picasso,
                           private val userService: UserService) {
 
+    private val logger = LoggerFactory.getLogger("NotificationService")
+
     private val settings: Settings = Settings.get()
     private val uriHelper: UriHelper = UriHelper.of(context)
     private val nm: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
-    private val downloadNotificationNextId = AtomicInteger(NOTIFICATION_DOWNLOAD_BASE_ID)
-    private val downloadNotificationIdCache = lruCache<File, Int>(128) { downloadNotificationNextId.incrementAndGet() }
+    private val downloadNotificationNextId = AtomicInteger(Types.Download.id)
+
+    private val downloadNotificationIdCache = lruCache<File, Int>(128) {
+        downloadNotificationNextId.incrementAndGet()
+    }
 
     init {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannels()
+        }
+
         // update the icon to show the current inbox count.
         this.inboxService.unreadMessagesCount().subscribe { unreadCount ->
             if (settings.showNotifications) {
@@ -56,13 +65,43 @@ class NotificationService(private val context: Application,
         }
     }
 
-    private fun notify(id: Int, tag: String? = null, configure: NotificationCompat.Builder.() -> Unit) {
-        val n = newNotificationBuilder(context).apply(configure).build()
-        nm.notify(tag, id, n)
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createChannels() {
+        createChannel(Types.NewMessage, NotificationManager.IMPORTANCE_LOW) {
+            setShowBadge(true)
+            enableLights(true)
+            setLightColor(context.getColorCompat(ThemeHelper.accentColor))
+        }
+
+        createChannel(Types.Update, NotificationManager.IMPORTANCE_LOW) {
+            setShowBadge(false)
+        }
+
+        createChannel(Types.Download, NotificationManager.IMPORTANCE_LOW) {
+            setShowBadge(false)
+        }
+
+        createChannel(Types.Preload, NotificationManager.IMPORTANCE_LOW) {
+            setShowBadge(false)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createChannel(type: NotificationType, importance: Int, configure: NotificationChannel.() -> Unit = {}) {
+        val ch = NotificationChannel(type.channel, context.getString(type.description), importance).apply(configure)
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.createNotificationChannel(ch)
+    }
+
+    private fun notify(type: NotificationType, id: Int? = null,
+                       configure: NotificationCompat.Builder.() -> Unit) {
+
+        val n = NotificationCompat.Builder(context, type.channel).apply(configure).build()
+        nm.notify(id ?: type.id, n)
     }
 
     fun showUpdateNotification(update: Update) {
-        notify(NOTIFICATION_UPDATE_ID) {
+        notify(Types.Update) {
             setContentIntent(updateActivityIntent(update))
             setContentTitle(context.getString(R.string.notification_update_available))
             setContentText(context.getString(R.string.notification_update_available_text, update.versionStr()))
@@ -75,7 +114,7 @@ class NotificationService(private val context: Application,
 
     fun showDownloadNotification(file: File, progress: Float, preview: Bitmap? = null) {
         val id = downloadNotificationIdCache[file]
-        notify(id) {
+        notify(Types.Download, id) {
             setContentTitle(file.nameWithoutExtension)
             setSmallIcon(R.drawable.ic_notify_new_message)
             setCategory(NotificationCompat.CATEGORY_PROGRESS)
@@ -127,7 +166,7 @@ class NotificationService(private val context: Application,
         val minMessageTimestamp = messages.minBy { it.creationTime() }!!.creationTime()
         val maxMessageTimestamp = messages.maxBy { it.creationTime() }!!.creationTime()
 
-        notify(NOTIFICATION_NEW_MESSAGE_ID) {
+        notify(Types.NewMessage) {
             setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
             setContentTitle(title)
             setContentText(context.getString(R.string.notify_new_message_summary_text))
@@ -139,7 +178,7 @@ class NotificationService(private val context: Application,
             setAutoCancel(true)
             setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
             setCategory(NotificationCompat.CATEGORY_EMAIL)
-            setLights(ContextCompat.getColor(context, accentColor), 500, 500)
+            setLights(context.getColorCompat(accentColor), 500, 500)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val replyToUserId = instantReplyToUserId(messages)
@@ -147,6 +186,10 @@ class NotificationService(private val context: Application,
                     val action = buildReplyAction(messages[0])
                     addAction(action)
                 }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setBadgeIconType(Notification.BADGE_ICON_SMALL)
             }
         }
 
@@ -163,7 +206,7 @@ class NotificationService(private val context: Application,
     }
 
     fun showSendSuccessfulNotification(receiver: String) {
-        notify(NOTIFICATION_NEW_MESSAGE_ID) {
+        notify(Types.NewMessage) {
             setContentIntent(inboxActivityIntent(Instant(0), InboxType.PRIVATE))
             setContentTitle(context.getString(R.string.notify_message_sent_to, receiver))
             setContentText(context.getString(R.string.notify_goto_inbox))
@@ -220,13 +263,12 @@ class NotificationService(private val context: Application,
 
     private fun loadThumbnail(message: Api.Message): Bitmap? {
         val uri = uriHelper.thumbnail(message)
-        try {
-            return picasso.load(uri).get()
+        return try {
+            picasso.load(uri).get()
         } catch (ignored: IOException) {
             logger.warn("Could not load thumbnail for url: {}", uri)
-            return null
+            null
         }
-
     }
 
     private fun inboxActivityIntent(timestamp: Instant, inboxType: InboxType): PendingIntent {
@@ -268,11 +310,11 @@ class NotificationService(private val context: Application,
     }
 
     fun cancelForInbox() {
-        nm.cancel(NOTIFICATION_NEW_MESSAGE_ID)
+        nm.cancel(Types.NewMessage.id)
     }
 
     fun cancelForUpdate() {
-        nm.cancel(NOTIFICATION_UPDATE_ID)
+        nm.cancel(Types.Update.id)
     }
 
     /**
@@ -284,19 +326,18 @@ class NotificationService(private val context: Application,
         return if (messages.all { it.senderId() == sender }) sender else 0
     }
 
-    /**
-     * Creates a new v7 notification buidler
-     */
-    private fun newNotificationBuilder(context: Context): NotificationCompat.Builder {
-        return android.support.v7.app.NotificationCompat.Builder(context)
+    class NotificationType(val id: Int, channelName: String, val description: Int) {
+        val channel = "com.pr0gramm.app." + channelName
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger("NotificationService")
+    object Types {
+        val NewMessage = NotificationType(5001, "NEW_MESSAGE", R.string.notification_channel_new_message)
+        val Preload = NotificationType(5002, "PRELOAD", R.string.notification_channel_preload)
+        val Update = NotificationType(5003, "UPDATE", R.string.notification_channel_update)
+        val Download = NotificationType(6000, "DOWNLOAD", R.string.notification_channel_download)
+    }
 
-        const val NOTIFICATION_NEW_MESSAGE_ID = 5001
-        const val NOTIFICATION_PRELOAD_ID = 5002
-        const val NOTIFICATION_UPDATE_ID = 5003
-        const val NOTIFICATION_DOWNLOAD_BASE_ID = 6000;
+    fun beginPreloadNotification(): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, Types.Preload.channel)
     }
 }

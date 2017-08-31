@@ -40,6 +40,8 @@ class PreloadService : KodeinIntentService("PreloadService") {
     private val preloadManager: PreloadManager by instance()
     private val powerManager: PowerManager by instance()
 
+    private val notificationService: NotificationService by instance()
+
     @Volatile
     private var canceled: Boolean = false
 
@@ -79,7 +81,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 Intent(this, PreloadService::class.java).putExtra(EXTRA_CANCEL, jobId),
                 PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val noBuilder = NotificationCompat.Builder(this)
+        val noBuilder = notificationService.beginPreloadNotification()
                 .setContentTitle(getString(R.string.preload_ongoing))
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setProgress(100 * items.size, 0, false)
@@ -92,7 +94,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
         val uriHelper = UriHelper.of(this)
 
         // send out the initial notification and bring the service into foreground mode!
-        startForeground(NotificationService.NOTIFICATION_PRELOAD_ID, noBuilder.build())
+        startForeground(NotificationService.Types.Preload.id, noBuilder.build())
 
         // create a wake lock
         val wakeLock = powerManager.newWakeLock(
@@ -244,7 +246,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
     }
 
     private fun show(notification: NotificationCompat.Builder) {
-        notificationManager.notify(NotificationService.NOTIFICATION_PRELOAD_ID, notification.build())
+        notificationManager.notify(NotificationService.Types.Preload.id, notification.build())
     }
 
     private fun maybeShow(builder: NotificationCompat.Builder) {
@@ -253,7 +255,6 @@ class PreloadService : KodeinIntentService("PreloadService") {
         }
     }
 
-    @Throws(IOException::class)
     private fun download(uri: Uri, targetFile: File, progress: (Float) -> Unit) {
         logger.info("Start downloading {} to {}", uri, targetFile)
 

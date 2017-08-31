@@ -13,6 +13,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.trello.rxlifecycle.android.ActivityEvent
 import org.joda.time.Duration.standardHours
@@ -29,8 +30,10 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
     }
 
     private fun updateAvailableDialog(update: Update): Dialog {
+        val content = getString(R.string.new_update_available, update.changelog)
+
         return dialog(activity) {
-            content(getString(R.string.new_update_available, update.changelog))
+            content(AndroidUtility.linkify(context, content))
             positive(R.string.download) { UpdateChecker.download(activity, update) }
             negative(R.string.ignore)
         }

@@ -13,6 +13,7 @@ import android.support.annotation.DrawableRes
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v4.view.ViewCompat
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -85,7 +86,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
 
         val fallbackColor = ContextCompat.getColor(this, primaryColorDark)
         val background = createBackgroundDrawable(drawableId, fallbackColor)
-        AndroidUtility.setViewBackground(findViewById(R.id.content), background)
+        ViewCompat.setBackground(findViewById(R.id.content), background)
     }
 
     private fun createBackgroundDrawable(drawableId: Int, fallbackColor: Int): Drawable {

@@ -124,10 +124,14 @@ object AndroidUtility {
     }
 
     fun isOnMobile(context: Context): Boolean {
-        val cm = context
-                .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = context.getSystemService(
+                Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        return ConnectivityManagerCompat.isActiveNetworkMetered(cm) /*&& !BuildConfig.DEBUG*/
+        if (BuildConfig.DEBUG) {
+            return false
+        }
+
+        return ConnectivityManagerCompat.isActiveNetworkMetered(cm)
     }
 
     /**
@@ -163,14 +167,6 @@ object AndroidUtility {
         return sb.build()
     }
 
-    fun setViewBackground(view: View, drawable: Drawable?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            view.background = drawable
-        } else {
-            view.setBackgroundDrawable(drawable)
-        }
-    }
-
     fun toFile(uri: Uri): File {
         checkArgument("file" == uri.scheme, "not a file:// uri")
         return File(uri.path)
@@ -186,8 +182,9 @@ object AndroidUtility {
         linkify(view, SpannableStringBuilder.valueOf(cleanedContent))
     }
 
-    fun linkify(view: TextView, text: SpannableStringBuilder) {
-        val base = UriHelper.of(view.context).base()
+    fun linkify(context: Context, originalText: CharSequence): CharSequence {
+        val text = SpannableStringBuilder.valueOf(originalText)
+        val base = UriHelper.of(context).base();
         val scheme = base.scheme + "://"
 
         Linkify.addLinks(text, Linkify.WEB_URLS)
@@ -218,7 +215,11 @@ object AndroidUtility {
             }
         }
 
-        view.text = text
+        return text
+    }
+
+    fun linkify(view: TextView, text: SpannableStringBuilder) {
+        view.text = linkify(view.context, text)
         view.movementMethod = NonCrashingLinkMovementMethod()
     }
 
