@@ -8,7 +8,9 @@ import android.net.Uri
 import android.support.customtabs.CustomTabsIntent
 import android.support.customtabs.CustomTabsService
 import android.support.v4.content.ContextCompat
+import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.ui.showDialog
 import com.thefinestartist.finestwebview.FinestWebView
 import java.util.*
 
@@ -63,6 +65,24 @@ object BrowserHelper {
             return
         }
 
+        showDialog(context) {
+            dontShowAgainKey("hint.install-firefox-focus")
+            content("Für einen besseren Incognito Browser (Vollbild, Werbeblocker) installiere dir den von der pr0gramm App unterstützen Browser Firefox Klar.")
+            positive("Zum PlayStore") {
+                openCustomTab(context, "https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
+            }
+
+            negative(R.string.not_now) {
+                openInWebView(context, url)
+            }
+
+            onNotShown {
+                openInWebView(context, url)
+            }
+        }
+    }
+
+    private fun openInWebView(context: Context, url: String) {
         FinestWebView.Builder(context.applicationContext)
                 .theme(ThemeHelper.theme.noActionBar)
                 .iconDefaultColor(Color.WHITE)
@@ -74,28 +94,31 @@ object BrowserHelper {
                 .show(url)
     }
 
+    fun openCustomTab(context: Context, uri: String) = openCustomTab(context, Uri.parse(uri))
+
     fun openCustomTab(context: Context, uri: Uri) {
         val themedContext = AndroidUtility.activityFromContext(context) ?: context
 
+        // get the chrome package to use
         val packageName = chromeTabPackageName(context)
         if (packageName == null) {
-            openIncognito(context, uri.toString())
-
-        } else {
-            val customTabsIntent = CustomTabsIntent.Builder()
-                    .enableUrlBarHiding()
-                    .addDefaultShareMenuItem()
-                    .setToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColor))
-                    .setSecondaryToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColorDark))
-                    .build()
-
-            customTabsIntent.intent.`package` = packageName
-
-            if (themedContext !is Activity) {
-                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-
-            customTabsIntent.launchUrl(themedContext, uri)
+            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            return
         }
+
+        val customTabsIntent = CustomTabsIntent.Builder()
+                .enableUrlBarHiding()
+                .addDefaultShareMenuItem()
+                .setToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColor))
+                .setSecondaryToolbarColor(ContextCompat.getColor(themedContext, ThemeHelper.theme.primaryColorDark))
+                .build()
+
+        customTabsIntent.intent.`package` = packageName
+
+        if (themedContext !is Activity) {
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        customTabsIntent.launchUrl(themedContext, uri)
     }
 }

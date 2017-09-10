@@ -47,6 +47,8 @@ class DialogBuilder internal constructor(private val context: Context) {
     private var dismissOnClick = true
     private var dontShowAgainKey: String? = null
 
+    private var onNotShown: () -> Unit = {}
+
     init {
         // default
         builder.setCancelable(false)
@@ -78,6 +80,11 @@ class DialogBuilder internal constructor(private val context: Context) {
 
     fun dontShowAgainKey(key: String): DialogBuilder {
         dontShowAgainKey = key
+        return this
+    }
+
+    fun onNotShown(fn: () -> Unit): DialogBuilder {
+        onNotShown = fn
         return this
     }
 
@@ -143,7 +150,9 @@ class DialogBuilder internal constructor(private val context: Context) {
     fun show(): Dialog {
         val dialog = build()
 
-        if (!shouldNotShowDialog()) {
+        if (shouldNotShowDialog()) {
+            onNotShown()
+        } else {
             dialog.show()
         }
 
@@ -152,11 +161,15 @@ class DialogBuilder internal constructor(private val context: Context) {
 
     fun build(): Dialog {
         if (shouldNotShowDialog()) {
-            logger.info("Dont show dialog '{}'.", dontShowAgainKey)
+            logger.info("Not showing dialog '{}'.", dontShowAgainKey)
 
             // return a dialog that closes itself whens shown.
             val dialog = Dialog(context)
-            dialog.setOnShowListener { it.dismiss() }
+            dialog.setOnShowListener {
+                it.dismiss()
+                onNotShown()
+            }
+
             return dialog
         }
 

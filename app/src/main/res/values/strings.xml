@@ -511,5 +511,6 @@
     <string name="notification_channel_download">Downloads</string>
     <string name="pref_audiofocus_transient_title">Resume music</string>
     <string name="pref_audiofocus_transient_summary">Activate this to resume music or sounds by other apps once the pr0gramm app stops playing sound.</string>
+    <string name="not_now">Not now</string>
 </resources>
 

@@ -358,29 +358,9 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun openSecretSanta() {
-        // TODO no idea if this works, also there should be a /iap endpoint now.
-//        val cookieValue = cookieHandler.loginCookieValue.orNull()
-//
-//        // check if the cookie is set. If not, set it.
-//        var javaScript = listOf(
-//                "if (!/pr0app=UNIQUE/.test(document.cookie)) {",
-//                "  document.cookie = 'me=$cookieValue';",
-//                "  document.cookie = 'pr0app=UNIQUE';",
-//                "  location.reload();",
-//                "} else {",
-//                "  setInterval(function() {$('.snowflake').remove();}, 250);",
-//                "  setInterval(function() {$('.pane.secret-santa').css('padding-bottom', '96px')}, 1000);",
-//                "}").joinToString("\n")
-//
-//        // use a unique cookie value each time. not sure if this is needed.
-//        javaScript = javaScript.replace("UNIQUE", (System.currentTimeMillis()).toString())
-//
-//        val url = "https://pr0gramm.com/secret-santa/iap"
-//        CustomTabsHelper.newWebviewBuilder(activity)
-//                .injectJavaScript("javascript:" + javaScript)
-//                .show(url)
-//
-//        Track.secretSantaClicked()
+        val url = "https://pr0gramm.com/secret-santa/iap"
+        BrowserHelper.openCustomTab(context, url)
+        Track.secretSantaClicked()
     }
 
     private fun showInboxActivity(unreadCount: Int) {
