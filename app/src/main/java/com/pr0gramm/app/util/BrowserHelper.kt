@@ -47,10 +47,12 @@ object BrowserHelper {
         }
     }
 
-    private val firefoxFocusSupported by memorize<Context, Boolean> { context ->
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
-        intent.`package` = "org.mozilla.focus"
-        return@memorize context.packageManager.queryIntentActivities(intent, 0).size > 0
+    private val firefoxFocusPackage by memorize<Context, String?> { context ->
+        return@memorize listOf("org.mozilla.klar", "org.mozilla.focus").firstOrNull {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+            intent.`package` = "org.mozilla.focus"
+            context.packageManager.queryIntentActivities(intent, 0).size > 0
+        }
     }
 
     /**
@@ -58,9 +60,9 @@ object BrowserHelper {
      */
     fun openIncognito(context: Context, url: String) {
         // if the firefox focus is installed, we'll open the page in this browser.
-        if (firefoxFocusSupported(context)) {
+        firefoxFocusPackage(context)?.let { packageName ->
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            intent.`package` = "org.mozilla.focus"
+            intent.`package` = packageName
             context.startActivity(intent)
             return
         }
