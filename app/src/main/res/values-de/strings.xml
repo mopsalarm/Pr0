@@ -491,4 +491,7 @@
     <string name="notification_channel_preload">Vorladen</string>
     <string name="pref_audiofocus_transient_title">Musik fortsetzen</string>
     <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
+    <string name="not_now">Später</string>
+    <string name="play_store">Zum PlayStore</string>
+    <string name="hint_use_firefox_focus">Für einen besseren Incognito Browser (Vollbild, Werbeblocker) installiere dir den von der pr0gramm App unterstützen Browser Firefox Klar.</string>
 </resources>

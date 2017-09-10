@@ -512,5 +512,7 @@
     <string name="pref_audiofocus_transient_title">Resume music</string>
     <string name="pref_audiofocus_transient_summary">Activate this to resume music or sounds by other apps once the pr0gramm app stops playing sound.</string>
     <string name="not_now">Not now</string>
+    <string name="play_store">PlayStore</string>
+    <string name="hint_use_firefox_focus">Please consider installing Firefox Focus for a better incognito browsing experience. It has ad-blocking and fullscreen videos and will soon be the pr0gramm Apps default incognito browser.</string>
 </resources>
 

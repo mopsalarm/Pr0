@@ -67,8 +67,8 @@ object BrowserHelper {
 
         showDialog(context) {
             dontShowAgainKey("hint.install-firefox-focus")
-            content("Für einen besseren Incognito Browser (Vollbild, Werbeblocker) installiere dir den von der pr0gramm App unterstützen Browser Firefox Klar.")
-            positive("Zum PlayStore") {
+            content(R.string.hint_use_firefox_focus)
+            positive(R.string.play_store) {
                 openCustomTab(context, "https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
             }
 
