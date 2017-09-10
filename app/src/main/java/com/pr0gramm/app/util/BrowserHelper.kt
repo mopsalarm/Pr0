@@ -16,10 +16,10 @@ import java.util.*
  */
 
 object BrowserHelper {
-    private const val STABLE_PACKAGE = "com.android.chrome"
-    private const val BETA_PACKAGE = "com.chrome.beta"
-    private const val DEV_PACKAGE = "com.chrome.dev"
-    private const val LOCAL_PACKAGE = "com.google.android.apps.chrome"
+    private const val CHROME_STABLE_PACKAGE = "com.android.chrome"
+    private const val CHROME_BETA_PACKAGE = "com.chrome.beta"
+    private const val CHROME_DEV_PACKAGE = "com.chrome.dev"
+    private const val CHROME_LOCAL_PACKAGE = "com.google.android.apps.chrome"
 
     private val chromeTabPackageName by memorize<Context, String?> { context ->
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
@@ -36,10 +36,10 @@ object BrowserHelper {
         }
 
         return@memorize when {
-            packagesSupportingCustomTabs.contains(STABLE_PACKAGE) -> STABLE_PACKAGE
-            packagesSupportingCustomTabs.contains(BETA_PACKAGE) -> BETA_PACKAGE
-            packagesSupportingCustomTabs.contains(DEV_PACKAGE) -> DEV_PACKAGE
-            packagesSupportingCustomTabs.contains(LOCAL_PACKAGE) -> LOCAL_PACKAGE
+            packagesSupportingCustomTabs.contains(CHROME_STABLE_PACKAGE) -> CHROME_STABLE_PACKAGE
+            packagesSupportingCustomTabs.contains(CHROME_BETA_PACKAGE) -> CHROME_BETA_PACKAGE
+            packagesSupportingCustomTabs.contains(CHROME_DEV_PACKAGE) -> CHROME_DEV_PACKAGE
+            packagesSupportingCustomTabs.contains(CHROME_LOCAL_PACKAGE) -> CHROME_LOCAL_PACKAGE
             packagesSupportingCustomTabs.size == 1 -> packagesSupportingCustomTabs[0]
             else -> null
         }
