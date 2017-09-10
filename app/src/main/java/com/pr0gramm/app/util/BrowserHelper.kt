@@ -47,10 +47,10 @@ object BrowserHelper {
         }
     }
 
-    private val firefoxFocusPackage by memorize<Context, String?> { context ->
-        return@memorize listOf("org.mozilla.klar", "org.mozilla.focus").firstOrNull {
+    private fun firefoxFocusPackage(context: Context): String? {
+        return listOf("org.mozilla.klar", "org.mozilla.focus").firstOrNull { packageName ->
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
-            intent.`package` = "org.mozilla.focus"
+            intent.`package` = packageName
             context.packageManager.queryIntentActivities(intent, 0).size > 0
         }
     }
