@@ -13,7 +13,7 @@ if [[ $SVG == *app*.svg ]] ; then
   FACTOR=4
 fi
 
-mkdir -p ../app/src/main/res/drawablhdpi
+mkdir -p ../app/src/main/res/drawable-hdpi
 inkscape -d$((90*240/(FACTOR*160))) --export-png=../app/src/main/res/drawable-hdpi/$PNG $SVG
 optipng -o7 ../app/src/main/res/drawable-hdpi/$PNG
 git add ../app/src/main/res/drawable-hdpi/$PNG
