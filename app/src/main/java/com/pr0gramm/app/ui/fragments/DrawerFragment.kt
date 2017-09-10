@@ -26,7 +26,7 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
-import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.BrowserHelper
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.pr0gramm.app.util.use
 import com.pr0gramm.app.util.visible
@@ -109,7 +109,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         actionPremium.setOnClickListener {
             Track.registerLinkClicked()
             val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
-            CustomTabsHelper(context).openCustomTab(uri)
+            BrowserHelper.openCustomTab(activity, uri)
         }
 
         loginView.setOnClickListener({

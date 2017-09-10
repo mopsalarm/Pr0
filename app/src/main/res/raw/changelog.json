@@ -1,5 +1,18 @@
 [
   {
+    "version": 132,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "App Icon überarbeitet um mehr den Richtlinien für Materialdesign zu entsprechen."
+      },
+      {
+        "type": "Neu",
+        "change": "Wenn vorhanden, wird der Firefox Klar (https://goo.gl/oW9nci) als Incognito Browser verwendet. Dieser kann mehr als der in die App integrierte Browser, zum Beispiel Videos im Vollbild abspielen und Werbung blocken."
+      }
+    ]
+  },
+  {
     "version": 131,
     "changes": [
       {

@@ -192,7 +192,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         Track.registerLinkClicked()
 
         val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
-        CustomTabsHelper(this).openCustomTab(uri)
+        BrowserHelper.openCustomTab(this, uri)
     }
 
     fun onPasswordRecoveryClicked() {

@@ -20,7 +20,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.ui.RecentSearchesAutoCompleteAdapter
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.BrowserHelper
 import com.pr0gramm.app.util.find
 import kotterknife.bindView
 import rx.Observable
@@ -104,7 +104,7 @@ class SearchOptionsView @JvmOverloads constructor(context: Context, attrs: Attri
 
     private fun showAdvancedHelpPage() {
         val uri = Uri.parse("https://github.com/mopsalarm/pr0gramm-tags/blob/master/README.md#tag-suche-für-pr0gramm")
-        CustomTabsHelper(context).openCustomTab(uri)
+        BrowserHelper.openCustomTab(context, uri)
     }
 
     override fun onSaveInstanceState(): Parcelable {

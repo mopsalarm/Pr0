@@ -287,7 +287,7 @@
     <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
     <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
-    <string name="pref_use_incognito_browser_summary">Öffnet Links in einem inkognito Browser direkt in der App.</string>
+    <string name="pref_use_incognito_browser_summary">Öffnet Links in einem Inkognito Browser. Falls installiert, wird der Firefox Klar aufgerufen.</string>
     <string name="action_invite">INVITES</string>
     <string name="error_email">Gültige E-Mail erforderlich</string>
     <string name="invite_email_in_use">Ein Benutzer mit dieser Adresse wurde bereits eingeladen.</string>

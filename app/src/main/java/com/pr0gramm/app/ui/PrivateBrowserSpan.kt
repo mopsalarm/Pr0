@@ -4,7 +4,7 @@ import android.net.Uri
 import android.text.style.URLSpan
 import android.view.View
 import com.pr0gramm.app.Settings
-import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.BrowserHelper
 
 /**
  */
@@ -23,7 +23,7 @@ class PrivateBrowserSpan(url: String) : URLSpan(url) {
         }
 
         if (useIncognitoBrowser) {
-            CustomTabsHelper.newWebviewBuilder(widget.context).show(url)
+            BrowserHelper.openIncognito(widget.context, url)
         } else {
             // dispatch link normally
             super.onClick(widget)

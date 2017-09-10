@@ -37,7 +37,7 @@ import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
 import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.BrowserHelper
 import com.pr0gramm.app.util.decoupleSubscribe
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotterknife.bindOptionalView
@@ -187,7 +187,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                                 .setAction("pr0mium") {
                                     Track.registerLinkClicked()
                                     val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
-                                    CustomTabsHelper(this).openCustomTab(uri)
+                                    BrowserHelper.openCustomTab(this, uri)
                                 }
                                 .show()
                     }

@@ -9,7 +9,7 @@ import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.DialogDismissListener
-import com.pr0gramm.app.util.CustomTabsHelper
+import com.pr0gramm.app.util.BrowserHelper
 
 /**
  * This activity is just there to host the update dialog fragment.
@@ -26,7 +26,7 @@ class UpdateActivity : BaseAppCompatActivity("UpdateActivity"), DialogDismissLis
         } else {
             // forward to app page.
             val uri = Uri.parse("https://app.pr0gramm.com")
-            CustomTabsHelper(this).openCustomTab(uri)
+            BrowserHelper.openCustomTab(this, uri)
             finish()
         }
     }

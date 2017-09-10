@@ -184,7 +184,7 @@ object AndroidUtility {
 
     fun linkify(context: Context, originalText: CharSequence): CharSequence {
         val text = SpannableStringBuilder.valueOf(originalText)
-        val base = UriHelper.of(context).base();
+        val base = UriHelper.of(context).base()
         val scheme = base.scheme + "://"
 
         Linkify.addLinks(text, Linkify.WEB_URLS)
@@ -370,7 +370,7 @@ fun Throwable.getMessageWithCauses(): String {
 
     val hasCause = cause != null && error !== cause
     val message = error.message ?: ""
-    val hasMessage = !message.isNullOrBlank() && (
+    val hasMessage = !message.isBlank() && (
             !hasCause || !message.contains(cause!!.javaClass.simpleName))
 
     if (hasMessage) {
