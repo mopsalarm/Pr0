@@ -18,6 +18,13 @@ for name, target_colors in themes.items():
     if target_colors:
         target_light, target_dark = target_colors
         source_light, source_dark = source_colors
+
+        if source_light + ";fill-opacity:1" not in svg:
+            raise ValueError("light source not found in " + name)
+
+        if source_dark + ";fill-opacity:1" not in svg:
+            raise ValueError("dark source not found in " + name)
+
         result = svg \
             .replace(source_light + ";fill-opacity:1", target_light + ";fill-opacity:1") \
             .replace(source_dark + ";fill-opacity:1", target_dark + ";fill-opacity:0.5")
