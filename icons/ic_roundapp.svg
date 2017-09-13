@@ -66,9 +66,9 @@
      inkscape:window-height="1169"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="11.313708"
-     inkscape:cx="134.44944"
-     inkscape:cy="58.137177"
+     inkscape:zoom="3.9999998"
+     inkscape:cx="83.245924"
+     inkscape:cy="92.124409"
      inkscape:window-x="1032"
      inkscape:window-y="104"
      inkscape:window-maximized="0"
@@ -146,7 +146,7 @@
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccccccc" />
   <path
-     style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="opacity:0.4;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      d="M 96 8 A 88 88 0 0 0 8 96 A 88 88 0 0 0 8.0214844 96.585938 A 88 88 0 0 1 96 9 A 88 88 0 0 1 183.97852 96.414062 A 88 88 0 0 0 184 96 A 88 88 0 0 0 96 8 z "
      id="circle4160" />
 </svg>
