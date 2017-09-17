@@ -275,7 +275,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
         if (!errorShown) {
             showDialog(context) {
-                dontShowAgainKey("video." + Hashing.md5().hashUnencodedChars(message).toString())
+                dontShowAgainKey("video." + Hashing.murmur3_32().hashUnencodedChars(message).toString())
                 content(R.string.media_exo_error, message)
                 positive()
             }

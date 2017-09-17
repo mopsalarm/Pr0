@@ -21,7 +21,7 @@ class HttpProxyService(
         private val cache: Cache,
         private val port: Int) : NanoHTTPD("127.0.0.1", port), ProxyService {
 
-    private val nonce: String = Hashing.md5().hashLong(currentTimeMillis()).toString()
+    private val nonce: String = Hashing.murmur3_32().hashLong(currentTimeMillis()).toString()
 
     override fun proxy(url: Uri): Uri {
         // do not proxy twice!
