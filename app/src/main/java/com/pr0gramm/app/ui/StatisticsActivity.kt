@@ -10,9 +10,6 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.ContentType
-import com.pr0gramm.app.feed.FeedFilter
-import com.pr0gramm.app.feed.FeedService
-import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.orm.CachedVote
 import com.pr0gramm.app.services.*
@@ -24,14 +21,14 @@ import com.pr0gramm.app.ui.views.formatScore
 import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import kotterknife.bindView
-import java.util.concurrent.ConcurrentHashMap
+import rx.Observable
 import java.util.concurrent.TimeUnit
 
 class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
     private val userService: UserService by instance()
     private val voteService: VoteService by instance()
-    private val feedService: FeedService by instance()
+    private val statsService: StatisticsService by instance()
 
     private val benisGraph: View by bindView(R.id.benis_graph)
     private val benisGraphLoading: View by bindView(R.id.benis_graph_loading)
@@ -91,48 +88,19 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 .subscribe { benisValues = it }
 
         userService.name?.let { username ->
-            showContentTypesOf(typesByFavorites, FavoritesCountCache, FeedFilter()
-                    .withFeedType(FeedType.NEW)
-                    .withLikes(username))
-
-            showContentTypesOf(typesOfUpload, UploadsCountCache, FeedFilter()
-                    .withFeedType(FeedType.NEW)
-                    .withUser(username))
+            showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))
+            showContentTypesOf(typesOfUpload, statsService.statsForUploads(username))
         }
     }
 
-    private fun showContentTypesOf(view: CircleChartView,
-                                   cache: MutableMap<Long, Map<ContentType, Int>>,
-                                   filter: FeedFilter) {
-
-        val startAt = cache.keys.max() ?: 0L
-        val initialState = (cache[startAt] ?: emptyMap()).toMutableMap()
-
-        feedService.stream(FeedService.FeedQuery(filter, ContentType.AllSet, newer = startAt))
-                .timeout(1, TimeUnit.MINUTES)
-                .compose(bindToLifecycleAsync())
-
-                .scan(initialState) { state, feed ->
-                    // count each flag of each item once.
-                    for (type in feed.items.flatMap { ContentType.decompose(it.flags) }) {
-                        state[type] = (state[type] ?: 0) + 1
-                    }
-
-                    if (!feed.isAtEnd && !feed.isAtStart) {
-                        // this is a complete page, just cache the state at
-                        // it's most recent item
-                        feed.items.maxBy { it.id }?.let { item ->
-                            cache[item.id] = state.toMap()
-                        }
-                    }
-
-                    state
-                }
-
-                .subscribeWithErrorHandling { showContentTypes(view, it) }
+    private fun showContentTypesOf(view: CircleChartView, stats: Observable<StatisticsService.Stats>) {
+        stats.compose(bindToLifecycleAsync()).subscribeWithErrorHandling {
+            showContentTypes(view, it)
+        }
     }
 
-    private fun showContentTypes(view: CircleChartView, counts: Map<ContentType, Int>) {
+    private fun showContentTypes(view: CircleChartView, stats: StatisticsService.Stats) {
+        val counts = stats.counts
         val sfw = counts[ContentType.SFW] ?: 0
         val nsfw = (counts[ContentType.NSFW] ?: 0) + (counts[ContentType.NSFP] ?: 0)
         val nsfl = counts[ContentType.NSFL] ?: 0
@@ -187,6 +155,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 System.currentTimeMillis() - records[0].time < 60 * 1000) {
 
             benisGraphEmpty.visible = true
+            benisGraphTimeSelector.visible = false
             records = randomBenisGraph()
         }
 
@@ -236,11 +205,5 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
 
         view.text = formatScore(absChange.toInt())
         view.setTextColor(getColorCompat(if (absChange < 0) R.color.stats_down else R.color.stats_up))
-    }
-
-    companion object {
-
-        private val UploadsCountCache = ConcurrentHashMap<Long, Map<ContentType, Int>>()
-        private val FavoritesCountCache = ConcurrentHashMap<Long, Map<ContentType, Int>>()
     }
 }
