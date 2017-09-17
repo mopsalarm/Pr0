@@ -116,6 +116,21 @@ object Track {
         }
     }
 
+    fun gotoFirefoxFocusWebsite() {
+        send {
+            setCategory("FirefoxFocus")
+            setAction("Website")
+        }
+    }
+
+    fun openBrowser(type: String) {
+        send {
+            setCategory("Browser")
+            setAction("Open")
+            setLabel(type)
+        }
+    }
+
     fun upload(size: Long) {
         val categoryStart = size / (512 * 1024) * 512
 

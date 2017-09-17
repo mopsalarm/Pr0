@@ -10,6 +10,7 @@ import android.support.customtabs.CustomTabsService
 import android.support.v4.content.ContextCompat
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper
+import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.ui.showDialog
 import com.thefinestartist.finestwebview.FinestWebView
 import java.util.*
@@ -64,14 +65,17 @@ object BrowserHelper {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             intent.`package` = packageName
             context.startActivity(intent)
+            Track.openBrowser("FirefoxFocus")
             return
         }
 
         showDialog(context) {
             dontShowAgainKey("hint.install-firefox-focus")
             content(R.string.hint_use_firefox_focus)
+
             positive(R.string.play_store) {
                 openCustomTab(context, "https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
+                Track.gotoFirefoxFocusWebsite()
             }
 
             negative(R.string.not_now) {
@@ -85,6 +89,8 @@ object BrowserHelper {
     }
 
     private fun openInWebView(context: Context, url: String) {
+        Track.openBrowser("WebView")
+
         FinestWebView.Builder(context.applicationContext)
                 .theme(ThemeHelper.theme.noActionBar)
                 .iconDefaultColor(Color.WHITE)
@@ -104,6 +110,7 @@ object BrowserHelper {
         // get the chrome package to use
         val packageName = chromeTabPackageName(context)
         if (packageName == null) {
+            Track.openBrowser("External")
             context.startActivity(Intent(Intent.ACTION_VIEW, uri))
             return
         }
@@ -122,5 +129,6 @@ object BrowserHelper {
         }
 
         customTabsIntent.launchUrl(themedContext, uri)
+        Track.openBrowser("CustomTabs")
     }
 }

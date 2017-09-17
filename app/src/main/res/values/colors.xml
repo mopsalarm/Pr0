@@ -74,7 +74,7 @@
     <color name="stats_fav">#d45099</color>
 
     <color name="type_sfw">#2f9b16</color>
-    <color name="type_nsfw">#94881e</color>
-    <color name="type_nsfl">#8c2d8e</color>
+    <color name="type_nsfw">#c9cc28</color>
+    <color name="type_nsfl">#843924</color>
 
 </resources>
