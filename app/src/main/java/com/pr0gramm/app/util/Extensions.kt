@@ -355,3 +355,14 @@ inline fun FragmentManager.transaction(now: Boolean = false, block: FragmentTran
         tr.commit()
     }
 }
+
+/**
+ * Converts a boolean to either 'one' or 'zero'.
+ */
+fun Boolean.toInt(): Int {
+    return if (this) 1 else 0
+}
+
+inline fun <reified R, Any> Observable<Any>.ofType(): Observable<R> {
+    return ofType(R::class.java)
+}

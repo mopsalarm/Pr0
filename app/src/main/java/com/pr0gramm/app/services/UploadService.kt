@@ -4,8 +4,10 @@ import android.graphics.Bitmap
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.util.toInt
 import com.squareup.picasso.Picasso
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -14,6 +16,7 @@ import okio.BufferedSink
 import org.slf4j.LoggerFactory
 import retrofit2.HttpException
 import rx.Observable
+import rx.lang.kotlin.ofType
 import rx.subjects.BehaviorSubject
 import java.io.*
 
@@ -24,6 +27,7 @@ class UploadService(private val api: Api,
                     private val userService: UserService,
                     private val picasso: Picasso,
                     private val configService: ConfigService,
+                    private val voteService: VoteService,
                     private val cacheService: InMemoryCacheService) {
 
     private val maxSize: Observable<Long> get() {
@@ -149,19 +153,30 @@ class UploadService(private val api: Api,
                      checkSimilar: Boolean): Observable<Api.Posted> {
 
         val contentTypeTag = contentType.name.toLowerCase()
+        val tags = tags_.map { it.trim() }.filter { isValidTag(it) }
 
-        val tags = tags_.map { it.trim() }
-                .filter { isValidTag(it) }
-                .plus(contentTypeTag)
-
-        val tagStr = tags.joinToString(",")
+        // we can only post 5 tags with an upload, so lets add the rest later
+        val firstTags = tags.take(5)
+        val extraTags = tags.drop(5)
 
         return api
-                .post(null, contentTypeTag, tagStr, if (checkSimilar) 1 else 0, key)
+                .post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key)
                 .doOnNext { posted ->
                     // cache tags so that they appear immediately
                     if (posted.itemId > 0) {
                         cacheService.cacheTags(posted.itemId, tags)
+                    }
+                }
+                .flatMap { posted ->
+                    if (extraTags.isNotEmpty() && posted.itemId > 0) {
+                        // try to add the extra parameters.
+                        voteService.tag(posted.itemId, extraTags)
+                                .ignoreError()
+                                .ofType<Api.Posted>()
+                                .concatWith(Observable.just(posted))
+
+                    } else {
+                        Observable.just(posted)
                     }
                 }
     }

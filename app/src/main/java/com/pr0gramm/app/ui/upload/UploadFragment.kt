@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.github.salomonbrys.kodein.instance
+import com.google.common.base.CharMatcher
 import com.google.common.base.Preconditions.checkNotNull
 import com.google.common.base.Splitter
 import com.google.common.base.Throwables
@@ -141,7 +142,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         // get those from UI
         val type = selectedContentType
-        val tags = Splitter.on(",").trimResults().omitEmptyStrings().split(this.tags.text.toString()).toSet()
+        val tags = Splitter.on(CharMatcher.anyOf("#,"))
+                .trimResults().omitEmptyStrings()
+                .split(this.tags.text.toString()).toSet()
 
         val uploadInfo = uploadInfo
 

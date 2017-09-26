@@ -5,6 +5,7 @@ import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidActivityScope
 import com.google.gson.Gson
 import com.pr0gramm.app.api.categories.ExtraCategories
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
@@ -16,6 +17,7 @@ import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
+import com.squareup.picasso.Picasso
 
 fun servicesModule(app: Application) = Kodein.Module {
     bind<Gson>() with instance(GsonModule.INSTANCE)
@@ -55,7 +57,17 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<RulesService>() with singleton { RulesService(instance()) }
     bind<StalkService>() with singleton { StalkService(instance()) }
 
-    bind<UploadService>() with singleton { UploadService(instance(), instance(), instance(), instance(), instance()) }
+    bind<UploadService>() with singleton {
+        UploadService(
+                instance<Api>(),
+                instance<UserService>(),
+                instance<Picasso>(),
+                instance<ConfigService>(),
+                instance<VoteService>(),
+                instance<InMemoryCacheService>()
+        )
+    }
+
     bind<UserSuggestionService>() with singleton { UserSuggestionService(instance()) }
 
     bind<Config>() with provider { instance<ConfigService>().config() }

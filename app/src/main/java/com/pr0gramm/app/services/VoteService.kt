@@ -17,9 +17,6 @@ import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.subscribeOnBackground
-import gnu.trove.TCollections
-import gnu.trove.map.TLongObjectMap
-import gnu.trove.map.hash.TLongObjectHashMap
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
@@ -147,9 +144,9 @@ class VoteService(private val api: Api,
      * Tags the given post. This methods adds the tags to the given post
      * and returns a list of tags.
      */
-    fun tag(feedItem: FeedItem, tags: List<String>): Observable<List<Api.Tag>> {
+    fun tag(itemId: Long, tags: List<String>): Observable<List<Api.Tag>> {
         val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
-        return api.addTags(null, feedItem.id(), tagString).map { response ->
+        return api.addTags(null, itemId, tagString).map { response ->
             withTransaction(database.value) {
                 // auto-apply up-vote to newly created tags
                 for (tagId in response.tagIds) {

@@ -915,7 +915,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
-        voteService.tag(feedItem, tags.filter { tag -> isValidTag(tag) })
+        voteService.tag(feedItem.id, tags.filter { tag -> isValidTag(tag) })
                 .compose(bindToLifecycleAsync())
                 .lift(BusyDialog.busyDialog(activity))
                 .subscribeWithErrorHandling { displayTags(it) }
