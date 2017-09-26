@@ -1,5 +1,14 @@
 [
   {
+    "version": 133,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Beim Hochladen werden nun bis zu 10 Tags übernommen, alles darüber hinaus wird einfach verworfen. Deal with it."
+      }
+    ]
+  },
+  {
     "version": 132,
     "changes": [
       {
