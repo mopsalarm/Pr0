@@ -17,6 +17,9 @@ import com.pr0gramm.app.util.Databases.withTransaction
 import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.subscribeOnBackground
+import gnu.trove.TCollections
+import gnu.trove.map.TLongObjectMap
+import gnu.trove.map.hash.TLongObjectHashMap
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
