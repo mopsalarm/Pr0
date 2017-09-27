@@ -155,9 +155,19 @@ class UploadService(private val api: Api,
         val contentTypeTag = contentType.name.toLowerCase()
         val tags = tags_.map { it.trim() }.filter { isValidTag(it) }
 
-        // we can only post 5 tags with an upload, so lets add the rest later
-        val firstTags = tags.take(5)
-        val extraTags = tags.drop(5)
+        // we can only post 4 extra tags with an upload, so lets add the rest later
+        val firstTags: List<String>
+        val extraTags: List<String>
+
+        if (contentType == ContentType.SFW) {
+            firstTags = tags.take(5)
+            extraTags = tags.drop(5)
+        } else {
+            // we need to add the nsfw/nsfl tag to the list of tags.
+            // It looks like the sfwstatus is getting ignored
+            firstTags = listOf(contentTypeTag) + tags.take(4)
+            extraTags = tags.drop(4)
+        }
 
         return api
                 .post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key)
