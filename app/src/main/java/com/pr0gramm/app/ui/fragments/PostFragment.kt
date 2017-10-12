@@ -142,7 +142,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             if (active) {
                 playMediaOnViewer()
             } else {
-                viewer.stopMedia()
+                stopMediaOnViewer()
             }
 
             if (!active) {
@@ -159,6 +159,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
+    private fun stopMediaOnViewer() {
+        viewer.stopMedia()
+
+        val remoteMediaClient = CastContext.getSharedInstance(context)
+                .sessionManager
+                .currentCastSession
+                ?.remoteMediaClient
+
+        logger.info("Stopping media on remote client: {}", remoteMediaClient)
+        remoteMediaClient?.stop()
+    }
+
     private fun playMediaOnViewer() {
         val remoteMediaClient = CastContext.getSharedInstance(context)
                 .sessionManager
@@ -171,7 +183,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
         }
 
-
         logger.info("Got cast remote client at {}", remoteMediaClient)
 
         // stop any local playing video
@@ -179,14 +190,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val uris = UriHelper.of(context)
 
-        val mediaUri = uris.media(feedItem, true).toString()
+        val mediaUri = uris.media(feedItem, false).toString()
         val thumbUri = uris.thumbnail(feedItem)
         val contentType = ShareProvider.Companion.guessMimetype(context, feedItem)
 
-        val mediaType = if (feedItem.isVideo) MediaMetadata.MEDIA_TYPE_MOVIE else MediaMetadata.MEDIA_TYPE_PHOTO
-
-        logger.info("Creating media metadata for {}", mediaType)
-        val meta = MediaMetadata(mediaType)
+        logger.info("Creating media metadata")
+        val meta = MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC)
         meta.putString(MediaMetadata.KEY_TITLE, feedItem.user)
         meta.putString(MediaMetadata.KEY_SUBTITLE, "%s, %d up, %d down".format(
                 formatTimeTo(context, feedItem.created, TimeMode.SINCE),
