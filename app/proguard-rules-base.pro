@@ -26,6 +26,8 @@
 -keep public class com.evernote.android.job.JobBootReceiver
 -keep public class com.evernote.android.job.JobRescheduleService
 
+-keepclassmembers public class android.support.v7.app.MediaRouteActionProvider { public <init>(...); }
+
 # keep enums!
 -keepclassmembers enum * {
     public static **[] values();

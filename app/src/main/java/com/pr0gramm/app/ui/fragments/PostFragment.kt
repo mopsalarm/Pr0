@@ -23,6 +23,10 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import com.github.salomonbrys.kodein.instance
+import com.google.android.gms.cast.MediaInfo
+import com.google.android.gms.cast.MediaMetadata
+import com.google.android.gms.cast.framework.CastContext
+import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.player_container
@@ -117,6 +121,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setHasOptionsMenu(true)
 
         if (savedInstanceState != null) {
@@ -132,16 +137,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
 
         activeState().compose(bindToLifecycle()).subscribe { active ->
+            // TODO shouldn't this be in onViewCreated or somewhere?
             logger.info("Switching viewer state to {}", active)
-            viewer.let {
-                if (active) {
-                    it.playMedia()
-                } else {
-                    it.stopMedia()
-                }
+            if (active) {
+                playMediaOnViewer()
+            } else {
+                viewer.stopMedia()
             }
 
-            if ((!active)) {
+            if (!active) {
                 exitFullscreen()
             }
         }
@@ -151,8 +155,58 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // check if we are admin or not
         userService.loginState().observeOn(mainThread()).compose(bindToLifecycle()).subscribe {
             adminMode = it.admin
-            activity?.supportInvalidateOptionsMenu()
+            activity?.invalidateOptionsMenu()
         }
+    }
+
+    private fun playMediaOnViewer() {
+        val remoteMediaClient = CastContext.getSharedInstance(context)
+                .sessionManager
+                .currentCastSession?.remoteMediaClient
+
+
+        if (remoteMediaClient == null) {
+            logger.info("Playing media locally")
+            viewer.playMedia()
+            return
+        }
+
+
+        logger.info("Got cast remote client at {}", remoteMediaClient)
+
+        // stop any local playing video
+        viewer.stopMedia()
+
+        val uris = UriHelper.of(context)
+
+        val mediaUri = uris.media(feedItem, true).toString()
+        val thumbUri = uris.thumbnail(feedItem)
+        val contentType = ShareProvider.Companion.guessMimetype(context, feedItem)
+
+        val mediaType = if (feedItem.isVideo) MediaMetadata.MEDIA_TYPE_MOVIE else MediaMetadata.MEDIA_TYPE_PHOTO
+
+        logger.info("Creating media metadata for {}", mediaType)
+        val meta = MediaMetadata(mediaType)
+        meta.putString(MediaMetadata.KEY_TITLE, feedItem.user)
+        meta.putString(MediaMetadata.KEY_SUBTITLE, "%s, %d up, %d down".format(
+                formatTimeTo(context, feedItem.created, TimeMode.SINCE),
+                feedItem.up, feedItem.down))
+
+        // we already know the size
+        meta.putInt(MediaMetadata.KEY_WIDTH, feedItem.width)
+        meta.putInt(MediaMetadata.KEY_HEIGHT, feedItem.height)
+
+        // add the thumbnail
+        meta.addImage(WebImage(thumbUri))
+
+        logger.info("Create media info for url {} ({})", mediaUri, contentType)
+        val mediaInfo = MediaInfo.Builder(mediaUri)
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setContentType(contentType)
+                .setMetadata(meta)
+                .build()
+
+        remoteMediaClient.load(mediaInfo)
     }
 
     private fun activeState(): Observable<Boolean> {

@@ -7,11 +7,11 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.50"
+        VersionKotlin = "1.1.51"
         VersionSupportLibrary = "26.1.0"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "11.4.0"
+        VersionGoogleServices = "10.0.1"
     }
 
     repositories {
@@ -29,7 +29,7 @@ buildscript {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         minSdkVersion 15
@@ -160,17 +160,20 @@ dependencies {
     implementation "com.android.support:palette-v7:$VersionSupportLibrary"
     implementation "com.android.support:support-annotations:$VersionSupportLibrary"
     implementation "com.android.support:cardview-v7:$VersionSupportLibrary"
+    implementation "com.android.support:mediarouter-v7:$VersionSupportLibrary"
+
     implementation("com.android.support:appcompat-v7:$VersionSupportLibrary") {
         exclude(module: "support-media-compat")
         exclude(module: "support-core-utils")
     }
 
-    implementation("com.google.guava:guava:23.0-android") {
+    implementation("com.google.guava:guava:23.2-android") {
         force = true
     }
 
     implementation "com.google.android.gms:play-services-analytics:$VersionGoogleServices"
     implementation "com.google.android.gms:play-services-ads:$VersionGoogleServices"
+    implementation "com.google.android.gms:play-services-cast-framework:$VersionGoogleServices"
 
     implementation "net.danlew:android.joda:2.9.9"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
@@ -225,8 +228,8 @@ dependencies {
     // bottomsheets
     implementation "com.flipboard:bottomsheet-core:1.5.3"
 
-    implementation "com.github.bright:slf4android:0.1.3"
-    implementation "com.crashlytics.sdk.android:crashlytics:2.6.8"
+    implementation "com.github.bright:slf4android:0.1.4"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.7.0"
 
     // dependency injection using kotlin.
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'

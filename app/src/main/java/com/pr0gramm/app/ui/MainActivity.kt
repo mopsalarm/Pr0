@@ -15,12 +15,12 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
-import android.view.KeyEvent
-import android.view.MenuItem
-import android.view.View
-import android.view.Window
+import android.view.*
 import com.flipboard.bottomsheet.BottomSheetLayout
 import com.github.salomonbrys.kodein.instance
+import com.google.android.gms.cast.framework.CastButtonFactory
+import com.google.android.gms.cast.framework.CastContext
+import com.google.android.gms.cast.framework.Session
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -28,6 +28,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*
+import com.pr0gramm.app.services.cast.SessionManagerListenerAdapter
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
@@ -351,6 +352,18 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if (menu?.findItem(R.id.media_route_menu_item) != null) {
+            logger.info("Found cast button from fragment menu.")
+
+            // show the cast button if available
+            CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
+                    R.id.media_route_menu_item)
+        }
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     private fun dispatchFakeHomeEvent(item: MenuItem): Boolean {
         return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
                 this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title))
@@ -414,9 +427,31 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
+    val castSessionListener = object : SessionManagerListenerAdapter<Session>() {
+        override fun onSessionStarted(session: Session, sessionId: String) {
+            invalidateOptionsMenu()
+        }
+
+        override fun onSessionResumed(session: Session, wasSuspended: Boolean) {
+            invalidateOptionsMenu()
+        }
+    }
+
     override fun onResume() {
+        CastContext.getSharedInstance(this)
+                .sessionManager
+                .addSessionManagerListener(castSessionListener)
+
         super.onResume()
         onBackStackChanged()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        CastContext.getSharedInstance(this)
+                .sessionManager
+                .removeSessionManagerListener(castSessionListener)
     }
 
     override fun onStart() {
