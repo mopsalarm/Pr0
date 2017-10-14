@@ -48,9 +48,6 @@
         <receiver android:name=".services.MessageReplyReceiver"/>
 
         <service
-            android:name=".sync.SyncIntentService"
-            android:exported="false"/>
-        <service
             android:name=".services.preloading.PreloadService"
             android:exported="false"/>
 
@@ -60,6 +57,7 @@
             android:exported="true"
             android:grantUriPermissions="true"
             tools:ignore="ExportedContentProvider"/>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"

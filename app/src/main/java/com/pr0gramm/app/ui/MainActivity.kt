@@ -466,10 +466,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     override fun onStart() {
         super.onStart()
 
-        // schedule a sync operation every minute
-        Observable.interval(0, 1, TimeUnit.MINUTES, mainThread())
+        // schedule a sync operation every 45 seconds while the app window is open
+        Observable.interval(0, 45, TimeUnit.SECONDS, mainThread())
                 .compose(bindToLifecycle())
-                .subscribe { SyncJob.syncNow(this) }
+                .subscribe { SyncJob.syncNow() }
     }
 
     override fun onLogoutClicked() {

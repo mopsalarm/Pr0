@@ -15,6 +15,7 @@ import com.pr0gramm.app.services.gif.GifToVideoService
 import com.pr0gramm.app.services.gif.MyGifToVideoService
 import com.pr0gramm.app.services.preloading.DatabasePreloadManager
 import com.pr0gramm.app.services.preloading.PreloadManager
+import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.squareup.picasso.Picasso
@@ -49,6 +50,14 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
     bind<StatisticsService>() with singleton { StatisticsService(instance<FeedService>()) }
+
+    bind<SyncService>() with singleton {
+        SyncService(
+                instance<UserService>(),
+                instance<NotificationService>(),
+                instance<SingleShotService>(),
+                instance<FavedCommentService>())
+    }
 
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance(), instance()) }
 

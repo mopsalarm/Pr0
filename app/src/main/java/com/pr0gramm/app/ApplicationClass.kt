@@ -3,6 +3,7 @@ package com.pr0gramm.app
 import android.app.Application
 import android.os.StrictMode
 import com.crashlytics.android.Crashlytics
+import com.evernote.android.job.JobConfig
 import com.evernote.android.job.JobManager
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.KodeinAware
@@ -18,6 +19,7 @@ import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.LogHandler
+import com.pr0gramm.app.util.SimpleJobLogger
 import com.thefinestartist.Base
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
@@ -46,9 +48,11 @@ open class ApplicationClass : Application(), KodeinAware {
         Track.initialize(this)
         TagInputView.initialize(this)
 
+        JobConfig.setLogcatEnabled(BuildConfig.DEBUG)
+        JobConfig.addLogger(SimpleJobLogger())
+
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
-        jobManager.config.isVerbose = BuildConfig.DEBUG
         jobManager.addJobCreator(SyncJob.CREATOR)
 
         // schedule first sync 30seconds after bootup.

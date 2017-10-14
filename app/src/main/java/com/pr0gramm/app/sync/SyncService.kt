@@ -1,9 +1,5 @@
 package com.pr0gramm.app.sync
 
-import android.content.Intent
-import com.evernote.android.job.Job
-import com.github.salomonbrys.kodein.android.KodeinIntentService
-import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Stopwatch.createStarted
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.services.*
@@ -13,13 +9,14 @@ import org.slf4j.LoggerFactory
 
 /**
  */
-class SyncIntentService : KodeinIntentService("SyncIntentService") {
-    private val userService: UserService by instance()
-    private val notificationService: NotificationService by instance()
-    private val singleShotService: SingleShotService by instance()
-    private val favedCommentService: FavedCommentService by instance()
+class SyncService(private val userService: UserService,
+                  private val notificationService: NotificationService,
+                  private val singleShotService: SingleShotService,
+                  private val favedCommentService: FavedCommentService) {
 
-    override fun onHandleIntent(intent: Intent?) {
+    private val logger = LoggerFactory.getLogger("SyncService")
+
+    fun sync() {
         logger.info("Doing some statistics related trackings")
         if (singleShotService.firstTimeToday("track-settings:8"))
             Track.statistics()
@@ -35,9 +32,12 @@ class SyncIntentService : KodeinIntentService("SyncIntentService") {
             favedCommentService.updateCache()
         }
 
-        logger.info("Performing a sync operation now")
-        if (!userService.isAuthorized || intent == null)
+        if (!userService.isAuthorized) {
+            logger.info("Will not sync now - user is not signed in.")
             return
+        }
+
+        logger.info("Performing a sync operation now")
 
         val watch = createStarted()
         try {
@@ -62,13 +62,6 @@ class SyncIntentService : KodeinIntentService("SyncIntentService") {
 
         } catch (thr: Throwable) {
             logger.error("Error while syncing", thr)
-
-        } finally {
-            Job.completeWakefulIntent(intent)
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger("SyncIntentService")
     }
 }

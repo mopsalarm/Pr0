@@ -353,12 +353,23 @@ object AndroidUtility {
 
 fun doInBackground(action: () -> Unit): Completable {
     val o = Async.start<Any>({
-        action()
+        try {
+            action()
+        } catch (thr: Throwable) {
+            // log it
+            AndroidUtility.logToCrashlytics(BackgroundThreadException(thr))
+
+            // forward the exception
+            throw thr
+        }
+
         null
     }, BackgroundScheduler.instance())
 
     return o.toCompletable()
 }
+
+class BackgroundThreadException(cause: Throwable) : RuntimeException(cause)
 
 fun Throwable.getMessageWithCauses(): String {
     val error = this
