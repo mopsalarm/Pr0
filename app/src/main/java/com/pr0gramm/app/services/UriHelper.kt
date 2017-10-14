@@ -16,7 +16,7 @@ import com.pr0gramm.app.util.toUri
 /**
  * A little helper class to work with URLs
  */
-class UriHelper private constructor(context: Context) {
+class UriHelper private constructor(context: Context, private val forceHttps: Boolean) {
     private val settings: Settings = Settings.get()
     private val noPreload = NoPreload()
 
@@ -29,7 +29,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     private fun scheme(): String {
-        return if (settings.useHttps) "https" else "http"
+        return if (forceHttps || settings.useHttps) "https" else "http"
     }
 
     internal fun start(subdomain: String): Uri.Builder {
@@ -130,8 +130,8 @@ class UriHelper private constructor(context: Context) {
     }
 
     companion object {
-        fun of(context: Context): UriHelper {
-            return UriHelper(context)
+        fun of(context: Context, forceHttps: Boolean = false): UriHelper {
+            return UriHelper(context, forceHttps)
         }
 
         private val FEED_TYPES = mapOf(

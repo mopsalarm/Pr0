@@ -199,7 +199,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // stop any local playing video
         viewer.stopMedia()
 
-        val uris = UriHelper.of(context)
+        // we require https urls, nothing from the local cache
+        val uris = UriHelper.of(context, forceHttps = true).noPreload()
 
         val mediaUri = uris.media(feedItem, false).toString()
         val thumbUri = uris.thumbnail(feedItem)
