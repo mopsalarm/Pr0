@@ -3,6 +3,14 @@
     "version": 133,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Anfänglicher Support für den ChromeCast. Du kannst nun Posts an deinen Fernseher sendne. Schön ist es aber noch nicht."
+      },
+      {
+        "type": "Neu",
+        "change": "Option um den Screenshot der App in er Liste der zuletzt verwendeten Apps zu verstecken."
+      },
+      {
         "type": "Fix",
         "change": "Beim Hochladen werden nun bis zu 10 Tags übernommen, alles darüber hinaus wird einfach verworfen. Deal with it."
       }

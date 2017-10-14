@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
-        classpath 'io.fabric.tools:gradle:1.24.2'
+        classpath 'io.fabric.tools:gradle:1.24.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -196,7 +196,8 @@ dependencies {
     implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
-    implementation 'com.github.evernote:android-job:v1.1.11'
+    // implementation 'com.github.evernote:android-job:v1.2.1'
+    implementation 'com.github.evernote:android-job:d53387df8def8880e36482283c995e41a7c420d8'
 
     implementation "com.github.apl-devs:appintro:v4.2.2"
 
