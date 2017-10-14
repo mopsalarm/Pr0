@@ -215,6 +215,12 @@
 
                 <CheckBoxPreference
                     android:defaultValue="true"
+                    android:key="pref_allow_casting"
+                    android:summary="@string/pref_allow_casting_summary"
+                    android:title="@string/pref_allow_casting_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
                     android:key="pref_fullscreen_zoom_view"
                     android:summary="@string/pref_fullscreen_zoom_view_summary"
                     android:title="@string/pref_fullscreen_zoom_view"/>
@@ -278,6 +284,12 @@
                     android:persistent="false"
                     android:summary="@string/pref_pseudo_clear_tag_suggestions_summary"
                     android:title="@string/pref_pseudo_clear_tag_suggestions_title"/>
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_secure_app"
+                    android:summary="@string/pref_secure_app_summary"
+                    android:title="@string/pref_secure_app_title"/>
 
                 <CheckBoxPreference
                     android:defaultValue="false"

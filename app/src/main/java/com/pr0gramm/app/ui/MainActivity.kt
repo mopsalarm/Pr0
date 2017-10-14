@@ -90,6 +90,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         setTheme(ThemeHelper.theme.translucentStatus)
         super.onCreate(savedInstanceState)
 
+        if (settings.secureApp) {
+            // hide app from recent apps list
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
+
         setContentView(R.layout.activity_main)
 
         // use toolbar as action bar
@@ -353,12 +358,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        if (menu?.findItem(R.id.media_route_menu_item) != null) {
+        menu?.findItem(R.id.media_route_menu_item)?.let { item ->
             logger.info("Found cast button from fragment menu.")
 
-            // show the cast button if available
-            CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
-                    R.id.media_route_menu_item)
+            if (settings.allowCasting) {
+                // show the cast button if available
+                CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
+                        R.id.media_route_menu_item)
+            } else {
+                item.setVisible(false)
+            }
         }
 
         return super.onPrepareOptionsMenu(menu)

@@ -205,6 +205,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val audioFocusTransient: Boolean
         get() = preferences.getBoolean("pref_audiofocus_transient", false)
 
+    val secureApp: Boolean
+        get() = preferences.getBoolean("pref_secure_app", false)
+
+    val allowCasting: Boolean
+        get() = preferences.getBoolean("pref_allow_casting", true)
+
     fun resetContentTypeSettings() {
         // reset settings.
         preferences.edit() {

@@ -26,6 +26,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.framework.CastContext
+import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
@@ -162,20 +163,26 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun stopMediaOnViewer() {
         viewer.stopMedia()
 
-        val remoteMediaClient = CastContext.getSharedInstance(context)
-                .sessionManager
-                .currentCastSession
-                ?.remoteMediaClient
+        if (settings.allowCasting) {
+            val remoteMediaClient = CastContext.getSharedInstance(context)
+                    .sessionManager
+                    .currentCastSession
+                    ?.remoteMediaClient
 
-        logger.info("Stopping media on remote client: {}", remoteMediaClient)
-        remoteMediaClient?.stop()
+            logger.info("Stopping media on remote client: {}", remoteMediaClient)
+            remoteMediaClient?.stop()
+        }
     }
 
     private fun playMediaOnViewer() {
-        val remoteMediaClient = CastContext.getSharedInstance(context)
-                .sessionManager
-                .currentCastSession?.remoteMediaClient
-
+        val remoteMediaClient = if (settings.allowCasting) {
+            CastContext.getSharedInstance(context)
+                    .sessionManager
+                    .currentCastSession?.remoteMediaClient
+        } else {
+            // we do not have a media client if we do not allow casting.
+            null
+        }
 
         if (remoteMediaClient == null) {
             logger.info("Playing media locally")
@@ -183,6 +190,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
         }
 
+        castMedia(remoteMediaClient)
+    }
+
+    private fun castMedia(remoteMediaClient: RemoteMediaClient) {
         logger.info("Got cast remote client at {}", remoteMediaClient)
 
         // stop any local playing video
@@ -192,7 +203,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         val mediaUri = uris.media(feedItem, false).toString()
         val thumbUri = uris.thumbnail(feedItem)
-        val contentType = ShareProvider.Companion.guessMimetype(context, feedItem)
+        val contentType = ShareProvider.guessMimetype(context, feedItem)
 
         logger.info("Creating media metadata")
         val meta = MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC)
