@@ -14,6 +14,7 @@ import com.google.android.gms.ads.MobileAds
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncJob
+import com.pr0gramm.app.sync.SyncStatisticsJob
 import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
@@ -54,9 +55,13 @@ open class ApplicationClass : Application(), KodeinAware {
         // do job handling & scheduling
         val jobManager = JobManager.create(this)
         jobManager.addJobCreator(SyncJob.CREATOR)
+        jobManager.addJobCreator(SyncStatisticsJob.CREATOR)
 
         // schedule first sync 30seconds after bootup.
         SyncJob.scheduleNextSyncIn(30, TimeUnit.SECONDS)
+
+        // also schedule the nightly update job
+        SyncStatisticsJob.schedule()
 
         if (BuildConfig.DEBUG) {
             logger.info("This is a development version.")

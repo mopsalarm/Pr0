@@ -1,7 +1,7 @@
 package com.pr0gramm.app.sync
 
 import com.google.common.base.Stopwatch.createStarted
-import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.slf4j.LoggerFactory
@@ -16,16 +16,19 @@ class SyncService(private val userService: UserService,
 
     private val logger = LoggerFactory.getLogger("SyncService")
 
-    fun sync() {
-        logger.info("Doing some statistics related trackings")
-        if (singleShotService.firstTimeToday("track-settings:8"))
-            Track.statistics()
+    fun syncStatistics() {
+        Stats.get().incrementCounter("jobs.sync-stats")
 
-        if (singleShotService.firstTimeToday("background-update-check") || BuildConfig.DEBUG) {
-            UpdateChecker().check().ignoreError().toBlocking().subscribe {
-                notificationService.showUpdateNotification(it)
-            }
+        logger.info("Doing some statistics related trackings")
+        Track.statistics()
+
+        UpdateChecker().check().ignoreError().toBlocking().subscribe {
+            notificationService.showUpdateNotification(it)
         }
+    }
+
+    fun sync() {
+        Stats.get().incrementCounter("jobs.sync")
 
         if (singleShotService.firstTimeInHour("auto-sync-comments")) {
             logger.info("sync favorite comments")
