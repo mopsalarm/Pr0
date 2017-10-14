@@ -11,7 +11,7 @@ buildscript {
         VersionSupportLibrary = "26.1.0"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "10.0.1"
+        VersionGoogleServices = "11.4.2"
     }
 
     repositories {
