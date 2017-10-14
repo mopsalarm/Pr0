@@ -101,6 +101,8 @@ open class ApplicationClass : Application(), KodeinAware {
         MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
         MobileAds.setAppVolume(0f)
         MobileAds.setAppMuted(true)
+
+        Stats.get().incrementCounter("app.booted")
     }
 
     /**
