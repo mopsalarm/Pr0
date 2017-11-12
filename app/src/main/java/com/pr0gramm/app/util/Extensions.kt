@@ -361,3 +361,11 @@ fun Boolean.toInt(): Int {
 inline fun <reified R, Any> Observable<Any>.ofType(): Observable<R> {
     return ofType(R::class.java)
 }
+
+inline fun ignoreException(block: () -> Unit) {
+    try {
+        block()
+    } catch (err: Exception) {
+        AndroidUtility.logToCrashlytics(err)
+    }
+}

@@ -164,21 +164,27 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         viewer.stopMedia()
 
         if (settings.allowCasting) {
-            val remoteMediaClient = CastContext.getSharedInstance(context)
-                    .sessionManager
-                    .currentCastSession
-                    ?.remoteMediaClient
+            ignoreException {
+                val remoteMediaClient = CastContext.getSharedInstance(context)
+                        .sessionManager
+                        .currentCastSession
+                        ?.remoteMediaClient
 
-            logger.info("Stopping media on remote client: {}", remoteMediaClient)
-            remoteMediaClient?.stop()
+                logger.info("Stopping media on remote client: {}", remoteMediaClient)
+                remoteMediaClient?.stop()
+            }
         }
     }
 
     private fun playMediaOnViewer() {
         val remoteMediaClient = if (settings.allowCasting) {
-            CastContext.getSharedInstance(context)
-                    .sessionManager
-                    .currentCastSession?.remoteMediaClient
+            try {
+                CastContext.getSharedInstance(context)
+                        .sessionManager
+                        .currentCastSession?.remoteMediaClient
+            } catch (err: Exception) {
+                null
+            }
         } else {
             // we do not have a media client if we do not allow casting.
             null

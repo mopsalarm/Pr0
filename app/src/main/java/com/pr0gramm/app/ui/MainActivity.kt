@@ -37,10 +37,7 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadActivity
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.decoupleSubscribe
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
@@ -447,9 +444,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onResume() {
-        CastContext.getSharedInstance(this)
-                .sessionManager
-                .addSessionManagerListener(castSessionListener)
+        ignoreException {
+            CastContext.getSharedInstance(this)
+                    .sessionManager
+                    .addSessionManagerListener(castSessionListener)
+        }
 
         super.onResume()
         onBackStackChanged()
@@ -458,9 +457,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     override fun onPause() {
         super.onPause()
 
-        CastContext.getSharedInstance(this)
-                .sessionManager
-                .removeSessionManagerListener(castSessionListener)
+        ignoreException {
+            CastContext.getSharedInstance(this)
+                    .sessionManager
+                    .removeSessionManagerListener(castSessionListener)
+        }
     }
 
     override fun onStart() {
