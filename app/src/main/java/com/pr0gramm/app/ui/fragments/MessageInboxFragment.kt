@@ -40,7 +40,7 @@ open class MessageInboxFragment(name: String = "MessageInboxFragment") : InboxFr
     }
 
     protected open fun newMessageAdapter(messages: List<Api.Message>): MessageAdapter {
-        val adapter = MessageAdapter(R.layout.row_inbox_message, activity, messages)
+        val adapter = MessageAdapter(R.layout.row_inbox_message, context, messages)
         adapter.actionListener = actionListener
         return adapter
     }

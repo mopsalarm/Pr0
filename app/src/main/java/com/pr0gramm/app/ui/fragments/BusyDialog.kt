@@ -100,7 +100,8 @@ fun Completable.withBusyDialog(context: Context, text: Int = 0): Completable {
 }
 
 fun Completable.withBusyDialog(fragment: Fragment, text: Int = 0): Completable {
-    return withBusyDialog(fragment.activity ?: fragment.context, text)
+    val context = fragment.activity ?: fragment.context
+    return context?.let { withBusyDialog(it, text) } ?: this
 }
 
 fun <T> Observable<T>.withBusyDialog(context: Context, text: Int = 0): Observable<T> {
@@ -108,5 +109,6 @@ fun <T> Observable<T>.withBusyDialog(context: Context, text: Int = 0): Observabl
 }
 
 fun <T> Observable<T>.withBusyDialog(fragment: Fragment, text: Int = 0): Observable<T> {
-    return withBusyDialog(fragment.activity ?: fragment.context, text)
+    val context = fragment.activity ?: fragment.context
+    return context?.let { withBusyDialog(it, text) } ?: this
 }

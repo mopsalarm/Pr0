@@ -28,6 +28,10 @@ abstract class BaseDialogFragment(name: String) : RxAppCompatDialogFragment(), S
 
     override val viewCache: ViewCache = ViewCache { dialog.findViewById(it) }
 
+    override fun getContext(): Context {
+        return super.getContext()!!
+    }
+
     fun <T> bindToLifecycleAsync(): LifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindToLifecycle<T>())
     }

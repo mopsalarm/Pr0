@@ -40,7 +40,7 @@ class NavigationProvider(
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
 
     private fun drawable(@DrawableRes id: Int): Drawable {
-        return ContextCompat.getDrawable(context, id)
+        return ContextCompat.getDrawable(context, id)!!
     }
 
     fun navigationItems(): Observable<List<NavigationItem>> {

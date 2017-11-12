@@ -111,9 +111,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun onUploadClicked() {
         val file = file
         if (file == null) {
-            showDialog(activity) {
+            showDialog(this) {
                 content(R.string.hint_upload_something_happen_try_again)
-                positive(R.string.okay, { activity.finish() })
+                positive(R.string.okay, { activity?.finish() })
             }
             return
         }
@@ -220,6 +220,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
     private fun onUploadComplete(postId: Long) {
         logger.info("Go to new post now: {}", postId)
+        val activity = activity ?: return
 
         val intent = Intent(activity, MainActivity::class.java)
         intent.action = Intent.ACTION_VIEW
@@ -239,7 +240,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 val image = intent.data
                 handleImageUri(image)
             } else {
-                activity.finish()
+                activity?.finish()
             }
         }
     }
@@ -247,6 +248,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
     @MainThread
     private fun handleImageUri(image: Uri) {
         checkMainThread()
+        val activity = activity ?: return
 
         busyIndicator.visible = true
 
@@ -262,20 +264,23 @@ class UploadFragment : BaseFragment("UploadFragment") {
             return
         }
 
-        showDialog(activity) {
+        showDialog(this) {
             content(R.string.error_check_file_permission)
-            positive(android.R.string.ok, { activity.finish() })
-            onCancel { activity.finish() }
+            positive(android.R.string.ok, { activity?.finish() })
+            onCancel { activity?.finish() }
         }
     }
 
     private fun onUploadError(throwable: Throwable) {
         setFormEnabled(true)
+
+        val activity = activity ?: return
+
         busyIndicator.visible = false
 
         if (throwable is UploadService.UploadFailedException) {
             val causeText = getUploadFailureText(activity, throwable)
-            showDialog(activity) {
+            showDialog(this) {
                 content(causeText)
                 positive()
             }
@@ -290,6 +295,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun onMediaFile(file: File) {
+        val activity = activity ?: return
+
         this.file = file
 
         logger.info("loading file into view.")
@@ -313,13 +320,13 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private fun handleSizeNotOkay() {
         checkMainThread()
         if (fileMediaType == MediaUri.MediaType.IMAGE) {
-            showDialog(activity) {
+            showDialog(this) {
                 content(R.string.hint_image_too_large)
                 positive(R.string.down_size, { shrinkImage() })
                 negative(android.R.string.no)
             }
         } else {
-            showDialog(activity) {
+            showDialog(this) {
                 content(R.string.upload_hint_too_large)
                 positive()
             }
@@ -344,9 +351,9 @@ class UploadFragment : BaseFragment("UploadFragment") {
     }
 
     private fun showCanNotHandleTypeDialog() {
-        showDialog(activity) {
+        showDialog(this) {
             content(R.string.upload_error_invalid_type)
-            positive(R.string.okay, { activity.finish() })
+            positive(R.string.okay, { activity?.finish() })
         }
     }
 

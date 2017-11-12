@@ -75,7 +75,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
-    val feedItem: FeedItem by lazy { arguments.getParcelable<FeedItem>(ARG_FEED_ITEM) }
+    val feedItem: FeedItem by fragmentArgument(name = ARG_FEED_ITEM)
 
     private val adapter = MergeRecyclerAdapter()
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
@@ -252,10 +252,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (activity !is ToolbarActivity) {
-            throw IllegalStateException("Fragment must be child of a ToolbarActivity.")
-        }
+        val activity = activity
 
         (activity as ToolbarActivity).scrollHideToolbarListener.reset()
 
@@ -314,8 +311,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onDestroyView() {
         content.removeOnScrollListener(scrollHandler)
 
-        // restore orientation if the user closes this view
-        Screen.unlockOrientation(activity)
+        activity?.let {
+            // restore orientation if the user closes this view
+            Screen.unlockOrientation(it)
+        }
 
         adapter.clear()
 
@@ -355,12 +354,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun initializeCommentPostLine() {
-        val line = CommentPostLine(activity)
+        val line = CommentPostLine(activity!!)
         line.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         adapter.addAdapter(SingleViewAdapter.ofView(line))
 
-        line.setCommentDraft(arguments.getString(ARG_COMMENT_DRAFT, ""))
-        line.textChanges().subscribe({ text -> arguments.putString(ARG_COMMENT_DRAFT, text) })
+        line.setCommentDraft(arguments?.getString(ARG_COMMENT_DRAFT) ?: "")
+        line.textChanges().subscribe { text -> arguments?.putString(ARG_COMMENT_DRAFT, text) }
 
         line.comments().subscribe { text ->
             val action = Runnable {
@@ -375,7 +374,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun writeComment(text: String) {
         voteService.postComment(feedItem, 0, text)
                 .compose(bindToLifecycleAsync())
-                .lift(BusyDialog.busyDialog(activity))
+                .lift(BusyDialog.busyDialog(context))
                 .subscribeWithErrorHandling { onNewComments(it) }
 
         AndroidUtility.hideSoftKeyboard(view)
@@ -388,7 +387,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      */
     private fun scrollToComment(commentId: Long) {
         adapter.getOffset(commentsAdapter)?.let { offset ->
-            for (idx in 0..commentsAdapter.itemCount - 1) {
+            for (idx in 0 until commentsAdapter.itemCount) {
                 if (commentsAdapter.getItemId(idx) == commentId) {
                     content.scrollToPosition(offset + idx)
                     break
@@ -435,7 +434,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             startActivity(intent)
 
         } else {
-            val params = ViewerFullscreenParameters.forViewer(getActivity(), viewer, settings.rotateInFullscreen)
+            val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
 
             viewer.pivotX = params.pivot.x
             viewer.pivotY = params.pivot.y
@@ -481,18 +480,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun realignFullScreen() {
-        val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
-        viewer.pivotX = params.pivot.x
-        viewer.pivotY = params.pivot.y
-        viewer.translationY = params.trY
-        viewer.scaleX = params.scale
-        viewer.scaleY = params.scale
+        activity?.let { activity ->
+            val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
+            viewer.pivotX = params.pivot.x
+            viewer.pivotY = params.pivot.y
+            viewer.translationY = params.trY
+            viewer.scaleX = params.scale
+            viewer.scaleY = params.scale
+        }
     }
 
     fun exitFullscreen() {
         if (!isVideoFullScreen)
             return
 
+        val activity = activity ?: return
         AndroidUtility.applyWindowFullscreen(activity, false)
 
 
@@ -514,8 +516,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         simulateScroll()
 
         // go back to normal!
-        val activity = activity
-        activity.supportInvalidateOptionsMenu()
+        activity.invalidateOptionsMenu()
 
         if (activity is ToolbarActivity) {
             // show the toolbar again
@@ -550,6 +551,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val activity = activity ?: return true
+
         when (item.itemId) {
             R.id.action_search_image -> {
                 ShareHelper.searchImage(activity, feedItem)
@@ -648,7 +651,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         infoLineView = view!!.findOptional<InfoLineView>(R.id.infoview)
                 .or {
-                    val fallback = InfoLineView(activity)
+                    val fallback = InfoLineView(activity!!)
                     adapter.addAdapter(SingleViewAdapter.ofView(fallback))
                     fallback
                 }
@@ -736,6 +739,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun initializeMediaView() {
+        val activity = activity ?: return
         val padding = AndroidUtility.getActionBarContentOffset(activity)
 
         // initialize a new viewer fragment
@@ -966,7 +970,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show now
         commentsAdapter.set(this.comments, VoteService.NO_VOTES, feedItem.user)
 
-        val commentId = arguments.getLong(ARG_AUTOSCROLL_COMMENT_ID, 0)
+        val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: 0
         if (commentId > 0) {
             scrollToComment(commentId)
         }
@@ -990,6 +994,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onAddNewTags(tags: List<String>) {
+        val activity = activity ?: return
+
         voteService.tag(feedItem.id, tags.filter { tag -> isValidTag(tag) })
                 .compose(bindToLifecycleAsync())
                 .lift(BusyDialog.busyDialog(activity))
@@ -1010,7 +1016,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         doIfAuthorizedHelper.run(Runnable {
             startActivityForResult(
-                    WriteMessageActivity.answerToComment(activity, feedItem, comment),
+                    WriteMessageActivity.answerToComment(context, feedItem, comment),
                     RequestCodes.WRITE_COMMENT)
 
         }, retry)
@@ -1077,7 +1083,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     fun autoScrollToComment(commentId: Long) {
-        arguments.putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId)
+        arguments?.putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId)
         scrollToComment(commentId)
     }
 
@@ -1095,7 +1101,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private inner class PlaceholderView : FrameLayout(this@PostFragment.context) {
-        var fixedHeight = AndroidUtility.dp(activity, 150)
+        var fixedHeight = AndroidUtility.dp(context, 150)
 
         init {
             val v = View(context)

@@ -8,10 +8,10 @@ apply from: 'version.gradle'
 buildscript {
     ext {
         VersionKotlin = "1.1.51"
-        VersionSupportLibrary = "26.1.0"
+        VersionSupportLibrary = "27.0.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
-        VersionGoogleServices = "11.4.2"
+        VersionGoogleServices = "11.6.0"
     }
 
     repositories {
@@ -21,8 +21,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
-        classpath 'io.fabric.tools:gradle:1.24.3'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+        classpath 'io.fabric.tools:gradle:1.24.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -167,7 +167,7 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    implementation("com.google.guava:guava:23.2-android") {
+    implementation("com.google.guava:guava:23.4-android") {
         force = true
     }
 
@@ -175,7 +175,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-ads:$VersionGoogleServices"
     implementation "com.google.android.gms:play-services-cast-framework:$VersionGoogleServices"
 
-    implementation "net.danlew:android.joda:2.9.9"
+    implementation "net.danlew:android.joda:2.9.9.1"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
@@ -189,10 +189,10 @@ dependencies {
     implementation "com.squareup.sqlbrite:sqlbrite:1.1.2"
     implementation "com.infstory:proguard-annotations:1.0.2"
     implementation 'net.sf.trove4j:trove4j:3.0.3'
-    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.6.0"
+    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.7.2"
     implementation "org.nanohttpd:nanohttpd:2.3.1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
-    implementation "me.leolin:ShortcutBadger:1.1.18@aar"
+    implementation "me.leolin:ShortcutBadger:1.1.19@aar"
     implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
 
 
@@ -201,7 +201,7 @@ dependencies {
 
     implementation "com.github.apl-devs:appintro:v4.2.2"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:r2.5.3'
+    implementation 'com.google.android.exoplayer:exoplayer-core:r2.5.4'
 
     // forked dependencies.
     implementation "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
@@ -210,11 +210,11 @@ dependencies {
     debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
 
     // rx java
-    implementation "io.reactivex:rxjava:1.3.2"
+    implementation "io.reactivex:rxjava:1.3.3"
     implementation "io.reactivex:rxandroid:1.2.1"
     implementation "io.reactivex:rxjava-async-util:0.21.0"
     implementation 'io.reactivex:rxkotlin:1.0.0'
-    implementation "com.artemzin.rxjava:proguard-rules:1.3.2.0"
+    implementation "com.artemzin.rxjava:proguard-rules:1.3.3.0"
     implementation "com.trello:rxlifecycle:1.0"
     implementation "com.trello:rxlifecycle-android:1.0"
     implementation "com.trello:rxlifecycle-components:1.0"
@@ -230,14 +230,14 @@ dependencies {
     implementation "com.flipboard:bottomsheet-core:1.5.3"
 
     implementation "com.github.bright:slf4android:0.1.4"
-    implementation "com.crashlytics.sdk.android:crashlytics:2.7.0"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.7.1"
 
     // dependency injection using kotlin.
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
     implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.natpryce:hamkrest:1.4.2.0'
+    testImplementation 'com.natpryce:hamkrest:1.4.2.2'
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$VersionKotlin"
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"

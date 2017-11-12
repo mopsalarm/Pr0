@@ -13,16 +13,17 @@ import kotlin.reflect.KProperty
  *
  * Inspired by Jake Wharton, he mentioned it during his IO/17 talk about Kotlin
  */
-private class FragmentArgumentDelegate<T : Any>() : ReadWriteProperty<Fragment, T> {
+private class FragmentArgumentDelegate<T : Any>(val nameOverride: String?) : ReadWriteProperty<Fragment, T> {
     var value: T? = null
 
     override operator fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        val name = nameOverride ?: property.name
         if (value == null) {
-            val args = thisRef.arguments ?: throw IllegalStateException("Cannot read property ${property.name} if no arguments have been set")
+            val args = thisRef.arguments ?: throw IllegalStateException("Cannot read property $name if no arguments have been set")
             @Suppress("UNCHECKED_CAST")
-            value = args.get(property.name) as T
+            value = args.get(name) as T
         }
-        return value ?: throw IllegalStateException("Property ${property.name} could not be read")
+        return value ?: throw IllegalStateException("Property $name could not be read")
     }
 
     override operator fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
@@ -32,8 +33,8 @@ private class FragmentArgumentDelegate<T : Any>() : ReadWriteProperty<Fragment, 
 
         this.value = value
 
-        val args = thisRef.arguments
-        setArgumentValue(args, property.name, value)
+        val args = thisRef.arguments!!
+        setArgumentValue(args, nameOverride ?: property.name, value)
     }
 }
 
@@ -48,7 +49,7 @@ private class OptionalFragmentArgumentDelegate<T : Any>(val default: T? = null) 
             thisRef.arguments = Bundle()
         }
 
-        val args = thisRef.arguments
+        val args = thisRef.arguments!!
         setArgumentValue(args, property.name, value)
     }
 }
@@ -73,12 +74,12 @@ private fun setArgumentValue(args: Bundle, key: String, value: Any?) {
         is Double -> args.putDouble(key, value)
         is Bundle -> args.putBundle(key, value)
         is Parcelable -> args.putParcelable(key, value)
-        else -> throw IllegalStateException("Type ${value.javaClass.canonicalName} of property ${key} is not supported")
+        else -> throw IllegalStateException("Type ${value.javaClass.canonicalName} of property $key is not supported")
     }
 }
 
-fun <T : Any> fragmentArgument(): ReadWriteProperty<Fragment, T> {
-    return FragmentArgumentDelegate()
+fun <T : Any> fragmentArgument(name: String? = null): ReadWriteProperty<Fragment, T> {
+    return FragmentArgumentDelegate(name)
 }
 
 fun <T : Any> optionalFragmentArgument(default: T? = null): ReadWriteProperty<Fragment, T?> {

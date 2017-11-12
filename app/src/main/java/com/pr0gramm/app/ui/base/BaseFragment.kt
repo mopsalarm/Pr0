@@ -29,6 +29,10 @@ abstract class BaseFragment(name: String) : RxFragment(), HasViewCache, SupportF
 
     override val viewCache: ViewCache = ViewCache { view?.findViewById(it) }
 
+    override fun getContext(): Context {
+        return super.getContext()!!
+    }
+
     fun <T> bindUntilEventAsync(event: FragmentEvent): AsyncLifecycleTransformer<T> {
         return AsyncLifecycleTransformer(bindUntilEvent<T>(event))
     }

@@ -29,7 +29,7 @@ class FavoritesFragment : BaseFragment("FavoritesFragment"), FilterFragment {
         super.onCreate(savedInstanceState)
 
         // build the filter for this view
-        val username = arguments.getString(ARG_USERNAME, "")
+        val username = arguments?.getString(ARG_USERNAME) ?: ""
         feedFilter = FeedFilter().withFeedType(FeedType.NEW).withLikes(username)
     }
 

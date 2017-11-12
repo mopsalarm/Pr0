@@ -22,8 +22,8 @@ class ErrorDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(activity) {
-            content(arguments.getString("content") ?: "no content :(")
+        return dialog(this) {
+            content(arguments?.getString("content") ?: "no content :(")
             positive()
         }
     }
@@ -79,8 +79,10 @@ class ErrorDialogFragment : DialogFragment() {
         }
 
         @JvmStatic
-        fun showErrorString(fragmentManager: FragmentManager, message: String) {
+        fun showErrorString(fragmentManager: FragmentManager?, message: String) {
             logger.info(message)
+
+            fragmentManager ?: return
 
             try {
                 val arguments = Bundle()

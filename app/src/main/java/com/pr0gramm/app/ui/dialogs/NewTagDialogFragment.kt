@@ -24,7 +24,7 @@ class NewTagDialogFragment : BaseDialogFragment("NewTagDialogFragment") {
     private val config: Config by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(activity) {
+        return dialog(this) {
             layout(R.layout.dialog_add_tags)
             negative(R.string.cancel) { AndroidUtility.hideSoftKeyboard(tagInput) }
             positive(R.string.dialog_action_add) { onOkayClicked() }

@@ -17,7 +17,7 @@ class ChooseMediaTypeFragment : BaseFragment("ChooseMediaTypeFragment") {
         return inflater.inflate(R.layout.fragment_choose_media_type, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         btnImage.setOnClickListener { openWithType("image/*") }

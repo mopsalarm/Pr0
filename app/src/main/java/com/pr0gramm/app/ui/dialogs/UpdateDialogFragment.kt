@@ -25,22 +25,22 @@ import rx.Observable
  */
 class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val update = arguments.getParcelable<Update?>("update")
+        val update = arguments?.getParcelable<Update?>("update")
         return update?.let { updateAvailableDialog(it) } ?: noNewUpdateDialog()
     }
 
     private fun updateAvailableDialog(update: Update): Dialog {
         val content = getString(R.string.new_update_available, update.changelog)
 
-        return dialog(activity) {
+        return dialog(this) {
             content(AndroidUtility.linkify(context, content))
-            positive(R.string.download) { UpdateChecker.download(activity, update) }
+            positive(R.string.download) { activity?.let { UpdateChecker.download(it, update) } }
             negative(R.string.ignore)
         }
     }
 
     private fun noNewUpdateDialog(): Dialog {
-        return dialog(activity) {
+        return dialog(this) {
             content(R.string.no_new_update)
             positive()
         }

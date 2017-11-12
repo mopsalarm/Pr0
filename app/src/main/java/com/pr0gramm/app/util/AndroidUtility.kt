@@ -123,11 +123,13 @@ object AndroidUtility {
         return context.dp2px(dpValue.toFloat()).toInt()
     }
 
-    fun isOnMobile(context: Context): Boolean {
+    fun isOnMobile(context: Context?): Boolean {
+        context ?: return false
+
         val cm = context.getSystemService(
                 Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        if (BuildConfig.DEBUG) {
+        debug {
             return false
         }
 

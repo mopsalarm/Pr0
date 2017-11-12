@@ -42,6 +42,7 @@ class PrivateMessageInboxFragment : InboxFragment<Api.PrivateMessage>("PrivateMe
     }
 
     override fun displayMessages(recyclerView: RecyclerView, messages: List<Api.PrivateMessage>) {
+        val activity = activity ?: return
         recyclerView.adapter = PrivateMessageAdapter(activity, messages, actionListener)
     }
 

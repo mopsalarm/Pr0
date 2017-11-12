@@ -157,28 +157,28 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
 
     protected val actionListener: MessageActionListener = object : MessageActionListener {
         override fun onAnswerToPrivateMessage(message: Api.Message) {
-            startActivity(WriteMessageActivity.intent(activity, message))
+            startActivity(WriteMessageActivity.intent(context, message))
         }
 
         override fun onAnswerToCommentClicked(comment: Api.Message) {
-            startActivity(WriteMessageActivity.answerToComment(activity, comment))
+            startActivity(WriteMessageActivity.answerToComment(context, comment))
         }
 
         override fun onNewPrivateMessage(userId: Long, name: String) {
-            startActivity(WriteMessageActivity.intent(activity, userId, name))
+            startActivity(WriteMessageActivity.intent(context, userId, name))
         }
 
         override fun onCommentClicked(itemId: Long, commentId: Long) {
-            open(UriHelper.of(activity).post(FeedType.NEW, itemId, commentId))
+            open(UriHelper.of(context).post(FeedType.NEW, itemId, commentId))
         }
 
         private fun open(uri: Uri) {
-            val intent = Intent(Intent.ACTION_VIEW, uri, activity, MainActivity::class.java)
+            val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
             startActivity(intent)
         }
 
         override fun onUserClicked(userId: Int, username: String) {
-            open(UriHelper.of(activity).uploads(username))
+            open(UriHelper.of(context).uploads(username))
         }
     }
 

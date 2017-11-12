@@ -280,7 +280,7 @@ class NotificationService(private val context: Application,
 
         return TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
     private fun markAsReadIntent(timestamp: Instant): PendingIntent {
@@ -296,7 +296,7 @@ class NotificationService(private val context: Application,
         return TaskStackBuilder.create(context)
                 .addParentStack(UpdateActivity::class.java)
                 .addNextIntent(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
     private fun viewFileIntent(file: File): PendingIntent {

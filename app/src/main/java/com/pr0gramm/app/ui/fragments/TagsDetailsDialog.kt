@@ -19,6 +19,7 @@ import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.fragmentArgument
 import com.pr0gramm.app.util.removeFromParent
 import gnu.trove.set.TLongSet
 import gnu.trove.set.hash.TLongHashSet
@@ -31,7 +32,7 @@ import java.util.*
 class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     private val adminService: AdminService by instance()
 
-    private val itemId: Long by lazy { arguments.getLong(KEY_FEED_ITEM_ID) }
+    private val itemId: Long by fragmentArgument(name = KEY_FEED_ITEM_ID)
 
     private val tagsView: RecyclerView by bindView(R.id.tags)
     private val busyView: View by bindView(R.id.busy_indicator)

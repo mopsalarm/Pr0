@@ -135,6 +135,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val activity = activity!!
 
         seenIndicatorStyle = settings.seenIndicatorStyle
 
@@ -257,14 +258,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun initialSearchViewState(): Bundle? {
-        var state = arguments.getBundle(ARG_SEARCH_QUERY_STATE)
-        if (state == null) {
+        return arguments?.getBundle(ARG_SEARCH_QUERY_STATE) ?: run {
             currentFilter.tags?.let { tags ->
-                state = SearchOptionsView.ofQueryTerm(tags)
+                SearchOptionsView.ofQueryTerm(tags)
             }
         }
-
-        return state
     }
 
     private fun initializeMergeAdapter() {
@@ -309,18 +307,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun presentUserInfoCell(info: EnhancedUserInfo) {
-        val messages = UserCommentsAdapter(activity)
+        val messages = UserCommentsAdapter(activity!!)
         val comments = info.comments
 
         if (userInfoCommentsOpen) {
             messages.setComments(info.info.user, comments)
         }
 
-        val view = UserInfoCell(activity, info.info, doIfAuthorizedHelper)
+        val view = UserInfoCell(activity!!, info.info, doIfAuthorizedHelper)
 
         view.userActionListener = object : UserInfoCell.UserActionListener {
             override fun onWriteMessageClicked(userId: Int, name: String) {
-                startActivity(WriteMessageActivity.intent(activity, userId.toLong(), name))
+                startActivity(WriteMessageActivity.intent(activity!!, userId.toLong(), name))
             }
 
             override fun onUserFavoritesClicked(name: String) {
@@ -362,11 +360,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // we are showing a user.
         activeUsername = info.info.user.name
-        activity.supportInvalidateOptionsMenu()
+        activity?.invalidateOptionsMenu()
     }
 
     private fun presentUserUploadsHint(info: Api.Info) {
-        if (isSelfInfo(info))
+        val activity = activity
+        if (isSelfInfo(info) || activity == null)
             return
 
         val view = UserInfoFoundView(activity, info)
@@ -480,11 +479,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private fun onBookmarkableStateChanged(bookmarkable: Boolean) {
         this.bookmarkable = bookmarkable
-        activity.supportInvalidateOptionsMenu()
+        activity?.invalidateOptionsMenu()
     }
 
-    private val filterArgument: FeedFilter
-        get() = arguments.getParcelable<FeedFilter>(ARG_FEED_FILTER)
+    val filterArgument: FeedFilter by fragmentArgument(name = ARG_FEED_FILTER)
 
     private val selectedContentType: EnumSet<ContentType> get() {
         if (!userService.isAuthorized)
@@ -539,7 +537,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         loader.reset(Feed(feedFilter, newContentType))
         loader.restart(around = autoScrollOnLoad)
 
-        activity.invalidateOptionsMenu()
+        activity?.invalidateOptionsMenu()
     }
 
     /**
@@ -596,8 +594,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        if (activity == null)
-            return
+        val activity = activity ?: return
 
         val filter = currentFilter
         val feedType = filter.feedType
@@ -728,7 +725,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     @OnOptionsItemSelected(R.id.action_preload)
     fun preloadCurrentFeed() {
         if (AndroidUtility.isOnMobile(activity)) {
-            showDialog(activity) {
+            showDialog(this) {
                 content(R.string.preload_not_on_mobile)
                 positive()
             }
@@ -736,16 +733,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
         }
 
-        val intent = PreloadService.newIntent(activity, feedAdapter.feed)
-        activity.startService(intent)
+        activity?.let { activity ->
+            val intent = PreloadService.newIntent(activity, feedAdapter.feed)
+            activity.startService(intent)
 
-        Track.preloadCurrentFeed(feedAdapter.feed.size)
+            Track.preloadCurrentFeed(feedAdapter.feed.size)
 
-        if (singleShotService.isFirstTime("preload_info_hint")) {
-            DialogBuilder.start(activity)
-                    .content(R.string.preload_info_hint)
-                    .positive()
-                    .show()
+            if (singleShotService.isFirstTime("preload_info_hint")) {
+                DialogBuilder.start(activity)
+                        .content(R.string.preload_info_hint)
+                        .positive()
+                        .show()
+            }
         }
     }
 
@@ -803,6 +802,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun onItemClicked(idx: Int, commentId: Long? = null, preview: ImageView? = null) {
+        val activity = activity ?: return
+
         // reset auto open.
         autoOpenOnLoad = null
 
@@ -846,7 +847,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun createRecyclerViewClickListener() {
-        val listener = RecyclerItemClickListener(activity, recyclerView)
+        val listener = RecyclerItemClickListener(context, recyclerView)
 
         listener.itemClicked()
                 .map { extractFeedItemHolder(it) }

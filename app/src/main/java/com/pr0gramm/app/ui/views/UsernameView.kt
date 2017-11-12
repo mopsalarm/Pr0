@@ -30,7 +30,7 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
             val mark = v.takeUnless { it < 0 || it >= UserClasses.MarkDrawables.size } ?: 4
             field = mark
 
-            val circle = ContextCompat.getDrawable(context, UserClasses.MarkDrawables[mark])
+            val circle = ContextCompat.getDrawable(context, UserClasses.MarkDrawables[mark])!!
 
             val wrapped = BaselineCompoundDrawable(circle)
             wrapped.setBounds(0, 0, circle.intrinsicWidth, height)

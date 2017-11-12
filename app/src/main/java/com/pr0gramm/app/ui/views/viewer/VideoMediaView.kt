@@ -198,15 +198,14 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         logger.info("Setting mute state on video player: {}", muted)
         videoPlayer.muted = muted
 
-        val icon: Drawable
-        if (muted) {
+        val icon: Drawable = if (muted) {
             storeUnmuteTime(0)
 
-            icon = ContextCompat.getDrawable(context, R.drawable.ic_volume_off_white_24dp)
+            ContextCompat.getDrawable(context, R.drawable.ic_volume_off_white_24dp)!!
         } else {
             storeUnmuteTime(System.currentTimeMillis())
 
-            icon = AndroidUtility.getTintentDrawable(context,
+            AndroidUtility.getTintentDrawable(context,
                     R.drawable.ic_volume_up_white_24dp, ThemeHelper.accentColor)
         }
 

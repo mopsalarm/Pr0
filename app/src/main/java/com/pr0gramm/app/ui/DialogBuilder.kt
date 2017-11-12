@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.support.annotation.LayoutRes
 import android.support.annotation.MainThread
 import android.support.annotation.StringRes
+import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatCheckBox
 import android.text.SpannableString
@@ -284,10 +285,17 @@ class DialogBuilder internal constructor(private val context: Context) {
     }
 }
 
+inline fun dialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+    return DialogBuilder.start(fragment.context!!).apply { configure() }.build()
+}
+
 inline fun dialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
     return DialogBuilder.start(context).apply { configure() }.build()
 }
 
+inline fun showDialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+    return DialogBuilder.start(fragment.context!!).apply { configure() }.show()
+}
 inline fun showDialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
     return DialogBuilder.start(context).apply { configure() }.show()
 }

@@ -22,7 +22,7 @@ class DeleteCommentDialog : BaseDialogFragment("DeleteCommentFragment") {
     private val adminService: AdminService by instance()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return dialog(activity) {
+        return dialog(this) {
             noAutoDismiss()
             layout(R.layout.admin_delete_comment)
             positive(R.string.delete) { delete() }

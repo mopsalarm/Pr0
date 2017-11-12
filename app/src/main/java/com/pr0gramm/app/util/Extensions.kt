@@ -229,12 +229,7 @@ inline fun bundle(builder: Bundle.() -> Unit): Bundle {
 }
 
 inline fun <F : Fragment> F.arguments(builder: Bundle.() -> Unit): F {
-    if (arguments != null) {
-        arguments.builder()
-    } else {
-        arguments = bundle { builder() }
-    }
-
+    (arguments ?: Bundle().also { arguments = it }).builder()
     return this
 }
 

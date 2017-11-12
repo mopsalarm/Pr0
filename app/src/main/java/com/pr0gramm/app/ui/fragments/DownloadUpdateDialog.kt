@@ -25,7 +25,7 @@ class DownloadUpdateDialog(private val progress: Observable<DownloadService.Stat
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = showDialog(activity) {
+        val dialog = showDialog(this) {
             layout(R.layout.progress_update)
         }
 

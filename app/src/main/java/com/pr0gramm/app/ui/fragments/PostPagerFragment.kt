@@ -122,7 +122,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
             // try scroll to initial comment. This will only work if the comment
             // is a part of the given post and will otherwise do nothing
-            val startCommentId = arguments.getLong(ARG_START_ITEM_COMMENT)
+            val startCommentId = arguments?.getLong(ARG_START_ITEM_COMMENT) ?: 0
             if (startCommentId > 0) {
                 fragment.autoScrollToComment(startCommentId)
             }
@@ -202,9 +202,11 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     }
 
     override fun moveToNext() {
-        val newIndex = viewPager.currentItem + 1
-        if (newIndex < viewPager.adapter.count)
-            viewPager.currentItem = newIndex
+        viewPager.adapter?.let { adapter ->
+            val newIndex = viewPager.currentItem + 1
+            if (newIndex < adapter.count)
+                viewPager.currentItem = newIndex
+        }
     }
 
     override fun moveToPrev() {
@@ -223,7 +225,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             updateActiveItem(`object` as PostFragment)
 
             if (view != null) {
-                saveStateToBundle(arguments)
+                arguments?.let { saveStateToBundle(it) }
             }
         }
 
@@ -249,7 +251,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             return feed.size
         }
 
-        override fun getItemPosition(`object`: Any?): Int {
+        override fun getItemPosition(`object`: Any): Int {
             val item = (`object` as PostFragment).feedItem
             return feed.indexById(item.id) ?: PagerAdapter.POSITION_NONE
         }

@@ -80,7 +80,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         // add some space on the top for the translucent status bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val params = userImageView.layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin += getStatusBarHeight(activity)
+            params.topMargin += getStatusBarHeight(activity!!)
         }
 
         // initialize the top navigation items
@@ -109,7 +109,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         actionPremium.setOnClickListener {
             Track.registerLinkClicked()
             val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
-            BrowserHelper.openCustomTab(activity, uri)
+            BrowserHelper.openCustomTab(activity!!, uri)
         }
 
         loginView.setOnClickListener({
@@ -386,11 +386,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun showDialogToRemoveBookmark(bookmark: Bookmark) {
-        DialogBuilder.start(activity)
-                .content(R.string.do_you_want_to_remove_this_bookmark)
-                .negative(R.string.cancel)
-                .positive(R.string.delete, { bookmarkService.delete(bookmark) })
-                .show()
+        showDialog(this) {
+            content(R.string.do_you_want_to_remove_this_bookmark)
+            negative(R.string.cancel)
+            positive(R.string.delete, { bookmarkService.delete(bookmark) })
+        }
     }
 
     private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

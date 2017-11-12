@@ -33,8 +33,8 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val notifyUser: CheckBox? by bindOptionalView(R.id.notify_user)
 
     // one of those must be set.
-    private val user: String? by lazy { arguments.getString(KEY_USER) }
-    private val item: FeedItem? by lazy { arguments.getParcelable<FeedItem?>(KEY_FEED_ITEM) }
+    private val user: String? by lazy { arguments?.getString(KEY_USER) }
+    private val item: FeedItem? by lazy { arguments?.getParcelable<FeedItem?>(KEY_FEED_ITEM) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layout = if (user != null) R.layout.admin_ban_user else R.layout.admin_delete_item
