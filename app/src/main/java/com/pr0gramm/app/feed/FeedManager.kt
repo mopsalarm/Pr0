@@ -91,6 +91,7 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
         update.error?.let { error ->
             publishError(when (error) {
                 "notPublic" -> FeedException.NotPublicException()
+                "notFound" -> FeedException.NotFoundException()
                 "sfwRequired" -> FeedException.InvalidContentTypeException(ContentType.SFW)
                 "nsfwRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFW)
                 "nsflRequired" -> FeedException.InvalidContentTypeException(ContentType.NSFL)

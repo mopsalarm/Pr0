@@ -499,4 +499,5 @@
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>
     <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste</string>
     <string name="cast">Cast</string>
+    <string name="error_feed_not_found">Der angefragte Post existiert nicht mehr.</string>
 </resources>

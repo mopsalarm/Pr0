@@ -1009,6 +1009,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             error is FeedException.NotPublicException -> showFeedNotPublicError()
 
+            error is FeedException.NotFoundException -> showFeedNotFoundError()
+
             error is JsonSyntaxException -> {
                 ErrorDialogFragment.showErrorString(fragmentManager,
                         getString(R.string.could_not_load_feed_json))
@@ -1023,13 +1025,24 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
+    private fun showFeedNotFoundError() {
+        showDialog(context) {
+            content(R.string.error_feed_not_found)
+            positive {
+                // open top instead
+                autoOpenOnLoad = null
+                replaceFeedFilter(FeedFilter(), selectedContentType)
+            }
+        }
+    }
+
     private fun showFeedNotPublicError() {
         val username = currentFilter.likes ?: "???"
 
         val targetItem = autoOpenOnLoad
 
         if (targetItem != null) {
-            showDialog(context) {
+            showDialog(this) {
                 content(R.string.error_feed_not_public__item, username)
 
                 negative()
@@ -1040,7 +1053,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
         } else {
-            showDialog(context) {
+            showDialog(this) {
                 content(R.string.error_feed_not_public__general, username)
                 positive()
             }
@@ -1053,7 +1066,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val msg = getString(R.string.could_not_load_feed_content_type, requiredType.name)
 
         if (userService.isAuthorized) {
-            showDialog(context) {
+            showDialog(this) {
                 content(msg + "\n" + getString(R.string.could_not_load_feed_content_type__change, requiredType.name))
 
                 negative()
