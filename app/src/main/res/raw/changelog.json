@@ -4,7 +4,7 @@
     "changes": [
       {
         "type": "Neu",
-        "change": "Support für den Chromecast. Du kannst nun Posts an deinen Fernseher senden. Schön ist es aber noch nicht."
+        "change": "Support für den Chromecast. Du kannst nun Posts an deinen Fernseher senden. Schön ist es aber noch nicht und muss in den Einstellungen explizit aktiviert werden."
       },
       {
         "type": "Neu",
@@ -12,7 +12,11 @@
       },
       {
         "type": "Fix",
-        "change": "Beim Hochladen werden nun bis zu 10 Tags übernommen, alles darüber hinaus wird einfach verworfen. Deal with it."
+        "change": "Beim Hochladen werden nun bis zu 10 Tags übernommen, alles darüber hinaus wird einfach verworfen."
+      },
+      {
+        "type": "Fix",
+        "change": "Nachträgliches Taggen eigener Posts mit nsfw oder nsfl ist jetzt möglich."
       }
     ]
   },
