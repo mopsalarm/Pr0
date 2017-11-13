@@ -258,3 +258,9 @@ fun isValidTag(tag: String): Boolean {
     val isInvalid = tag in validTags || tag.length < 2 || tag.length > 32
     return !isInvalid
 }
+
+fun isMoreRestrictiveContentTypeTag(tags: List<Api.Tag>, tag: String): Boolean {
+    val t = tags.map { it.tag }
+    return (tag !in t) && ((tag == "nsfw" && "nsfl" !in t) || (tag == "nsfl"))
+}
+

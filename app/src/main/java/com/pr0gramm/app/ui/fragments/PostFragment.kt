@@ -1002,10 +1002,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     override fun onAddNewTags(tags: List<String>) {
         val activity = activity ?: return
 
-        voteService.tag(feedItem.id, tags.filter { tag -> isValidTag(tag) })
-                .compose(bindToLifecycleAsync())
-                .lift(BusyDialog.busyDialog(activity))
-                .subscribeWithErrorHandling { displayTags(it) }
+        // allow op to tag a more restrictive content type.
+        val op = feedItem.user.equals(userService.name, true)
+        val newTags = tags.filter { tag ->
+            isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(this.tags, tag))
+        }
+
+        if (newTags.isNotEmpty()) {
+            logger.info("Adding new tags {} to post", newTags)
+
+            voteService.tag(feedItem.id, newTags)
+                    .compose(bindToLifecycleAsync())
+                    .lift(BusyDialog.busyDialog(activity))
+                    .subscribeWithErrorHandling { displayTags(it) }
+        }
     }
 
     override fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean {
