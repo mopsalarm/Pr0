@@ -359,9 +359,11 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             logger.info("Found cast button from fragment menu.")
 
             if (settings.allowCasting) {
-                // show the cast button if available
-                CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
-                        R.id.media_route_menu_item)
+                ignoreException {
+                    // show the cast button if available
+                    CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
+                            R.id.media_route_menu_item)
+                }
             } else {
                 item.setVisible(false)
             }
