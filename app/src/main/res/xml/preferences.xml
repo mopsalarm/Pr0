@@ -214,7 +214,7 @@
                 android:title="@string/prefcat_visual__menu_items_title">
 
                 <CheckBoxPreference
-                    android:defaultValue="true"
+                    android:defaultValue="false"
                     android:key="pref_allow_casting"
                     android:summary="@string/pref_allow_casting_summary"
                     android:title="@string/pref_allow_casting_title"/>
