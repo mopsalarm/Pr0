@@ -606,7 +606,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 ?.isVisible = bookmarkable
 
         menu.findItem(R.id.action_preload)
-                ?.isVisible = feedType.preloadable && !AndroidUtility.isOnMobile(activity)
+                ?.isVisible = feedType.preloadable
 
         menu.findItem(R.id.action_block_user)
                 ?.isVisible = userService.userIsAdmin && activeUsername != null
@@ -727,23 +727,30 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (AndroidUtility.isOnMobile(activity)) {
             showDialog(this) {
                 content(R.string.preload_not_on_mobile)
-                positive()
+                negative()
+                positive {
+                    doPreloadCurrentFeed(allowOnMobile = true)
+                }
             }
 
             return
+        } else {
+            doPreloadCurrentFeed(allowOnMobile = false)
         }
+    }
 
-        activity?.let { activity ->
-            val intent = PreloadService.newIntent(activity, feedAdapter.feed)
-            activity.startService(intent)
+    private fun doPreloadCurrentFeed(allowOnMobile: Boolean) {
+        val activity = activity ?: return
 
-            Track.preloadCurrentFeed(feedAdapter.feed.size)
+        // start preloading now
+        PreloadService.preload(activity, feedAdapter.feed, allowOnMobile)
 
-            if (singleShotService.isFirstTime("preload_info_hint")) {
-                DialogBuilder.start(activity)
-                        .content(R.string.preload_info_hint)
-                        .positive()
-                        .show()
+        Track.preloadCurrentFeed(feedAdapter.feed.size)
+
+        if (singleShotService.isFirstTime("preload_info_hint")) {
+            showDialog(this) {
+                content(R.string.preload_info_hint)
+                positive()
             }
         }
     }

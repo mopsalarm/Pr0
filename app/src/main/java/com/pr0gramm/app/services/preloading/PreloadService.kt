@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import com.github.salomonbrys.kodein.android.KodeinIntentService
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
@@ -100,6 +101,8 @@ class PreloadService : KodeinIntentService("PreloadService") {
         val wakeLock = powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK, PreloadService::class.java.name)
 
+        val allowOnlyOnMobile = !intent.getBooleanExtra(EXTRA_ALLOW_ON_MOBILE, false)
+
         try {
             logger.info("Acquire wake lock for at most 10 minutes")
             wakeLock.use(10, TimeUnit.MINUTES) {
@@ -108,7 +111,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 var statsDownloaded = 0
                 var idx = 0
                 while (idx < items.size && !canceled) {
-                    if (AndroidUtility.isOnMobile(this))
+                    if (allowOnlyOnMobile && AndroidUtility.isOnMobile(this))
                         break
 
                     val item = items[idx]
@@ -282,7 +285,6 @@ class PreloadService : KodeinIntentService("PreloadService") {
      * Copies from the input stream to the output stream.
      * The progress is written to the given observable.
      */
-    @Throws(IOException::class)
     private fun copyWithProgress(
             progress: (Float) -> Unit, contentLength: Long,
             inputStream: InputStream, outputStream: OutputStream) {
@@ -308,11 +310,14 @@ class PreloadService : KodeinIntentService("PreloadService") {
         private val logger = LoggerFactory.getLogger("PreloadService")
         private val EXTRA_LIST_OF_ITEMS = "PreloadService.listOfItems"
         private val EXTRA_CANCEL = "PreloadService.cancel"
+        private val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"
 
-        fun newIntent(context: Context, items: Iterable<FeedItem>): Intent {
+        fun preload(context: Context, items: Iterable<FeedItem>, allowOnMobile: Boolean) {
             val intent = Intent(context, PreloadService::class.java)
             intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, items.toCollection(ArrayList()))
-            return intent
+            intent.putExtra(EXTRA_ALLOW_ON_MOBILE, allowOnMobile)
+
+            ContextCompat.startForegroundService(context, intent)
         }
     }
 }

@@ -129,10 +129,6 @@ object AndroidUtility {
         val cm = context.getSystemService(
                 Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        debug {
-            return false
-        }
-
         return ConnectivityManagerCompat.isActiveNetworkMetered(cm)
     }
 
