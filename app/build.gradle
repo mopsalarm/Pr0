@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-        classpath 'io.fabric.tools:gradle:1.24.4'
+        classpath 'io.fabric.tools:gradle:1.24.5'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -189,7 +189,7 @@ dependencies {
     implementation "com.squareup.sqlbrite:sqlbrite:1.1.2"
     implementation "com.infstory:proguard-annotations:1.0.2"
     implementation 'net.sf.trove4j:trove4j:3.0.3'
-    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.7.2"
+    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.8.0"
     implementation "org.nanohttpd:nanohttpd:2.3.1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.19@aar"
