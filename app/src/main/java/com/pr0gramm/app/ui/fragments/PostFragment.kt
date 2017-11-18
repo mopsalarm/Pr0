@@ -204,6 +204,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun castMedia(remoteMediaClient: RemoteMediaClient) {
         logger.info("Got cast remote client at {}", remoteMediaClient)
 
+        Track.castMedia()
+
         // stop any local playing video
         viewer.stopMedia()
 
@@ -235,28 +237,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .setMetadata(meta)
                 .build()
 
-
         val queueItem = MediaQueueItem.Builder(mediaInfo)
                 .setAutoplay(true)
                 .build()
 
         remoteMediaClient.queueLoad(arrayOf(queueItem), 0, MediaStatus.REPEAT_MODE_REPEAT_SINGLE, 0, null)
-                .rx.observeOnMain().compose(bindToLifecycle())
-                .subscribe { result ->
-                    logger.info("Cast: queueLoad result is {}", result.status)
-                }
-
-//        if (feedItem.isVideo || feedItem.isGIF) {
-//            // enable repeating of the item
-//            remoteMediaClient.queueSetRepeatMode(MediaStatus.REPEAT_MODE_REPEAT_SINGLE, null).rx
-//                    .observeOnMain()
-//                    .compose(bindToLifecycle())
-//                    .subscribe { result ->
-//                        logger.info("Cast: repeat mode result is {}", result.status)
-//                    }
-//
-//
-//        }
     }
 
     private fun activeState(): Observable<Boolean> {

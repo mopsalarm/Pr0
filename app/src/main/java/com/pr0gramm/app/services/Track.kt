@@ -250,6 +250,13 @@ object Track {
         }
     }
 
+    fun castMedia() {
+        send {
+            setCategory("Cast")
+            setAction("Cast")
+        }
+    }
+
     fun screen(name: String) {
         ga.setScreenName(name)
         ga.send(HitBuilders.ScreenViewBuilder().build())
