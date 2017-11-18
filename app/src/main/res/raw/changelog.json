@@ -3,12 +3,16 @@
     "version": 133,
     "changes": [
       {
-        "type": "Neu",
-        "change": "Support für den Chromecast. Du kannst nun Posts an deinen Fernseher senden. Schön ist es aber noch nicht und muss in den Einstellungen explizit aktiviert werden."
+        "type": "Beta",
+        "change": "Support für den Chromecast. Du kannst nun Posts an deinen Fernseher senden. Muss explizit in den Einstellungen unter 'Visuell' aktiviert werden."
       },
       {
         "type": "Neu",
         "change": "Option um den Screenshot der App in er Liste der zuletzt verwendeten Apps zu verstecken."
+      },
+      {
+        "type": "Neu",
+        "change": "Vorladen nun auch auf Mobilnetz möglich."
       },
       {
         "type": "Fix",
