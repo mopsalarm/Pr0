@@ -21,6 +21,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.gms.common.api.PendingResult
+import com.google.android.gms.common.api.Result
 import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
@@ -369,3 +371,15 @@ inline fun ignoreException(block: () -> Unit) {
         AndroidUtility.logToCrashlytics(err)
     }
 }
+
+val <T : Result> PendingResult<T>.rx: Observable<T>
+    get() = createObservable<T> { emitter ->
+        emitter.setCancellation {
+            cancel()
+        }
+
+        this.setResultCallback { result ->
+            emitter.onNext(result)
+            emitter.onCompleted()
+        }
+    }

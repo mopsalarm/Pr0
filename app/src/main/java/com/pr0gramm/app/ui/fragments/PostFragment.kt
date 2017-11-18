@@ -25,6 +25,8 @@ import android.widget.FrameLayout
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaMetadata
+import com.google.android.gms.cast.MediaQueueItem
+import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
@@ -233,7 +235,28 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .setMetadata(meta)
                 .build()
 
-        remoteMediaClient.load(mediaInfo)
+
+        val queueItem = MediaQueueItem.Builder(mediaInfo)
+                .setAutoplay(true)
+                .build()
+
+        remoteMediaClient.queueLoad(arrayOf(queueItem), 0, MediaStatus.REPEAT_MODE_REPEAT_SINGLE, 0, null)
+                .rx.observeOnMain().compose(bindToLifecycle())
+                .subscribe { result ->
+                    logger.info("Cast: queueLoad result is {}", result.status)
+                }
+
+//        if (feedItem.isVideo || feedItem.isGIF) {
+//            // enable repeating of the item
+//            remoteMediaClient.queueSetRepeatMode(MediaStatus.REPEAT_MODE_REPEAT_SINGLE, null).rx
+//                    .observeOnMain()
+//                    .compose(bindToLifecycle())
+//                    .subscribe { result ->
+//                        logger.info("Cast: repeat mode result is {}", result.status)
+//                    }
+//
+//
+//        }
     }
 
     private fun activeState(): Observable<Boolean> {

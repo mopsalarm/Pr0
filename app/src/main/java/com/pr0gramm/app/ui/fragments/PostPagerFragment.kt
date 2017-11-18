@@ -99,6 +99,11 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         makeItemCurrent(start)
     }
 
+    fun restartCurrentPostFragment() {
+        activePostFragment?.setActive(false)
+        activePostFragment?.setActive(true)
+    }
+
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 

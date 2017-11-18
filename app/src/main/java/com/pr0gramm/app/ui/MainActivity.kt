@@ -435,13 +435,16 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
-    val castSessionListener = object : SessionManagerListenerAdapter<Session>() {
+    private val castSessionListener = object : SessionManagerListenerAdapter<Session>() {
         override fun onSessionStarted(session: Session, sessionId: String) {
             invalidateOptionsMenu()
-        }
 
-        override fun onSessionResumed(session: Session, wasSuspended: Boolean) {
-            invalidateOptionsMenu()
+            // if the current active fragment is a post, we'll restart it to move it
+            // to the big screen.
+            val fragment = currentFragment
+            if (fragment is PostPagerFragment) {
+                fragment.restartCurrentPostFragment()
+            }
         }
     }
 

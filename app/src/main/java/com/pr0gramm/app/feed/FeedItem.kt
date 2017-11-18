@@ -57,9 +57,11 @@ class FeedItem : Parcelable, HasThumbnail {
     val contentType: ContentType
         get() = ContentType.valueOf(_flags.toInt()) ?: ContentType.SFW
 
-
     val isVideo: Boolean
         get() = image.endsWith(".webm") || image.endsWith(".mp4")
+
+    val isGIF: Boolean
+        get() = image.endsWith(".gif")
 
     override fun id(): Long {
         return _id.toLong()

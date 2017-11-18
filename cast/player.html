@@ -1,0 +1,55 @@
+<html>
+<head>
+    <title>Cast Media Player</title>
+    <link rel="stylesheet" href="https://www.gstatic.com/eureka/player/0012/player.css">
+
+    <script type="text/javascript"
+            src="https://www.gstatic.com/eureka/player/0012/player.js"></script>
+
+    <script type="text/javascript"
+            src="https://www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+
+    <script type="text/javascript"
+            src="https://www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js"></script>
+
+    <style>
+        .background {
+          background: #161618;
+        }
+
+        .logo, .splash {
+          background-image: url(logo.png);
+        }
+
+        .progressBar {
+          background-color: #ee6d2e;
+        }
+
+        #player[state=playing] .gcpd,
+        #player[state=playing] .gcpc {
+            display: none;
+            background: transparent;
+        }
+
+    </style>
+
+</head>
+<body>
+<div id="player"></div>
+<script>
+      var playerDiv = document.querySelector("#player");
+      new castplayer.CastPlayer(playerDiv).start();
+
+      console.log("custom player v2");
+
+      window.setInterval(function() {
+        var video = document.querySelector("video")
+        if (!video.loop) {
+          console.log("Enabled video looping.");
+          video.loop = true;
+        }
+      }, 1000);
+
+</script>
+</body>
+</html>
