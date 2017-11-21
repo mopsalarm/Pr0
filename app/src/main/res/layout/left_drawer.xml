@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -100,19 +100,13 @@
 
         </LinearLayout>
 
-        <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/drawer_nav_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/drawer_nav_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"/>
-
-        </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
-
+        <!-- Separator -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -164,4 +158,4 @@
             android:drawableLeft="@drawable/ic_grey_action_login"
             android:text="@string/action_login"/>
     </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</ScrollView>
