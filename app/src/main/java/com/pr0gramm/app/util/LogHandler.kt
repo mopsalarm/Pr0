@@ -18,7 +18,7 @@ class LogHandler : Handler() {
     }
 
     override fun publish(record: java.util.logging.LogRecord) {
-        if (record.level.intValue() <= Level.INFO.intValue()) {
+        if (record.level.intValue() >= Level.INFO.intValue()) {
             val messageBuilder = StringBuilder()
             val logRecord = pl.brightinventions.slf4android.LogRecord.fromRecord(record)
             messageValueSupplier.append(logRecord, messageBuilder)

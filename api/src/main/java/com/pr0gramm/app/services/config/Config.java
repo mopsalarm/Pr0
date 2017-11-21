@@ -7,6 +7,8 @@ import org.immutables.value.Value;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  */
 @Value.Immutable
@@ -53,6 +55,21 @@ public abstract class Config {
                 "0815", "kann weg", "heil hitler", "ban pls", "deshalb",
                 "ab ins gas", "und weiter", "alles ist", "hure", "da drückste",
                 "pr0paganda", "pr0gida", "für mehr", "dein scheiß", "kann ich auch");
+    }
+
+    @Nullable
+    @Value.Default
+    public MenuItem getSpecialMenuItem() {
+        return null;
+    }
+
+    @Value.Immutable
+    public interface MenuItem {
+        String getName();
+
+        String getIcon();
+
+        String getLink();
     }
 
     public enum AdType {

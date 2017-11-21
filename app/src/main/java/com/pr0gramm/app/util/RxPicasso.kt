@@ -28,7 +28,7 @@ object RxPicasso {
                     emitter.onError(RuntimeException("Could not load image"))
                 }
 
-                override fun onPrepareLoad(placeHolderDrawable: Drawable) {}
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
             }
 
             emitter.setCancellation { picasso.cancelRequest(target) }

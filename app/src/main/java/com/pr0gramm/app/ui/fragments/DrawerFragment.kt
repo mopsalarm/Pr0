@@ -25,9 +25,10 @@ import com.pr0gramm.app.services.NavigationProvider.NavigationItem
 import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
 import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.use
 import com.pr0gramm.app.util.visible
 import java.util.*
@@ -155,13 +156,18 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         userService.loginState()
                 .compose(bindToLifecycleAsync())
-                .onErrorResumeEmpty()
+                .ignoreError()
                 .subscribe({ this.onLoginStateChanged(it) })
 
         navigationProvider.navigationItems()
+                .debug("MENU", logger)
                 .distinctUntilChanged()
+                .retryWhen { errObservable ->
+                    errObservable
+                            .debug("MENU ERROR", logger)
+                            .delay(5, TimeUnit.SECONDS)
+                }
                 .compose(bindToLifecycleAsync())
-                .retryWhen { err -> err.delay(5, TimeUnit.SECONDS) }
                 .subscribe { navigationAdapter.setNavigationItems(it) }
     }
 
@@ -352,15 +358,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             NavigationProvider.ActionType.FAVORITES ->
                 callback.onNavigateToFavorites(item.filter!!.likes!!)
 
-            NavigationProvider.ActionType.SECRETSANTA ->
-                openSecretSanta()
+            NavigationProvider.ActionType.URI ->
+                item.uri?.let { openActionUri(it) }
         }
     }
 
-    private fun openSecretSanta() {
-        val url = "https://pr0gramm.com/secret-santa/iap"
-        BrowserHelper.openCustomTab(context, url)
-        Track.secretSantaClicked()
+    private fun openActionUri(uri: Uri) {
+        BrowserHelper.openCustomTab(context, uri)
+        Track.specialMenuActionClicked(uri)
     }
 
     private fun showInboxActivity(unreadCount: Int) {

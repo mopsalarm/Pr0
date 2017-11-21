@@ -82,6 +82,8 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<Config>() with provider { instance<ConfigService>().config() }
 
     bind<NavigationProvider>() with scopedSingleton(androidActivityScope) { activity ->
-        NavigationProvider(activity, instance(), instance(), instance(), instance(), instance())
+        NavigationProvider(
+                activity, instance(), instance(), instance(), instance(), instance(),
+                instance<Picasso>())
     }
 }

@@ -1,7 +1,9 @@
 package com.pr0gramm.app.services
 
 import android.app.Activity
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
 import com.pr0gramm.app.R
@@ -10,10 +12,17 @@ import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Bookmark
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.RxPicasso
+import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.observeOnMain
+import com.squareup.picasso.Picasso
+import org.slf4j.LoggerFactory
 import rx.Observable
-import rx.Observable.combineLatest
-import rx.Observable.empty
+import rx.Observable.*
 import java.util.*
 
 /**
@@ -24,7 +33,10 @@ class NavigationProvider(
         private val inboxService: InboxService,
         private val bookmarkService: BookmarkService,
         private val configService: ConfigService,
-        private val extraCategories: ExtraCategories) {
+        private val extraCategories: ExtraCategories,
+        private val picasso: Picasso) {
+
+    private val logger = LoggerFactory.getLogger("NavigationProvider")
 
     private val iconBookmark = drawable(R.drawable.ic_black_action_bookmark)
     private val iconFavorites = drawable(R.drawable.ic_black_action_favorite)
@@ -39,13 +51,33 @@ class NavigationProvider(
     private val iconSecretSanta = drawable(R.drawable.ic_action_wichteln)
     private val iconUpload = drawable(R.drawable.ic_black_action_upload)
 
+    private val specialMenuItems = configService.observeConfig()
+            .observeOnMain()
+            .flatMap { resolveSpecial(it).ignoreError() }
+            .startWith(emptyList<NavigationItem>())
+
     private fun drawable(@DrawableRes id: Int): Drawable {
         return ContextCompat.getDrawable(context, id)!!
     }
 
     fun navigationItems(): Observable<List<NavigationItem>> {
         // observe and merge the menu items from different sources
-        return combineLatest(listOf(
+        fun merge(args: Array<Any>): List<NavigationItem> {
+            val result = mutableListOf<NavigationItem>()
+            args.filterIsInstance<List<Any?>>().forEach { items ->
+                items.filterIsInstanceTo(result)
+            }
+
+            debug {
+                logger.info("Current nav items are: {}", result.map { it.action })
+            }
+
+            return result
+        }
+
+        return combineLatest(listOf<Observable<List<NavigationItem>>>(
+                specialMenuItems,
+
                 categoryNavigationItems(),
 
                 userService.loginState()
@@ -59,16 +91,7 @@ class NavigationProvider(
                         .map({ listOf(inboxNavigationItem(it)) }),
 
                 Observable.just(listOf(uploadNavigationItem))
-        )) { args ->
-            val result = ArrayList<NavigationItem>()
-
-            @Suppress("UNCHECKED_CAST")
-            for (arg in args) {
-                result.addAll(arg as List<NavigationItem>)
-            }
-
-            result
-        }
+        ), ::merge)
     }
 
     /**
@@ -139,14 +162,13 @@ class NavigationProvider(
         }
 
         if (username != null) {
-            if (configService.config().getSecretSanta()) {
-
+            if (configService.config().secretSanta) {
                 items.add(NavigationItem(
-                        action = ActionType.SECRETSANTA,
+                        action = ActionType.URI,
                         title = getString(R.string.action_secret_santa),
-                        icon = iconSecretSanta))
+                        icon = iconSecretSanta,
+                        uri = Uri.parse("https://pr0gramm.com/secret-santa/iap")))
             }
-
 
             items.add(NavigationItem(
                     action = ActionType.FAVORITES,
@@ -186,10 +208,11 @@ class NavigationProvider(
     }
 
     private fun categoryNavigationItems(): Observable<List<NavigationItem>> {
-        return combineLatest(
-                userService.loginState().map({ it.name }),
-                extraCategories.categoriesAvailable,
-                { username, extraCategory -> this.categoryNavigationItems(username, extraCategory) })
+        val username = userService.loginState().map({ it.name })
+        val categoriesAvailable = extraCategories.categoriesAvailable
+
+        return combineLatest(username, categoriesAvailable, this::categoryNavigationItems)
+                .startWith(emptyList<NavigationItem>())
     }
 
     /**
@@ -207,18 +230,47 @@ class NavigationProvider(
         return context.getString(id)
     }
 
+    /**
+     * Resolves the special for the given config and loads the icon,
+     * if there is one.
+     */
+    private fun resolveSpecial(config: Config): Observable<List<NavigationItem>> {
+        val item = config.specialMenuItem ?: return just(emptyList())
+
+        logger.info("Loading item {}", item)
+
+        return Observable.just(item)
+                .flatMap {
+                    RxPicasso.load(picasso, picasso.load(Uri.parse(item.icon))
+                            .noPlaceholder()
+                            .resize(AndroidUtility.dp(context, 24), AndroidUtility.dp(context, 24)))
+                }
+                .map { bitmap ->
+                    logger.info("Loaded image for {}", item)
+                    val icon = BitmapDrawable(context.resources, bitmap)
+                    val uri = Uri.parse(item.link)
+
+                    listOf(NavigationItem(ActionType.URI, item.name, icon, uri = uri))
+                }
+    }
+
     class NavigationItem(val action: ActionType,
                          val title: String,
                          val icon: Drawable,
                          val layout: Int = R.layout.left_drawer_nav_item,
                          val filter: FeedFilter? = null,
                          val bookmark: Bookmark? = null,
-                         val unreadCount: Int = 0) {
+                         val unreadCount: Int = 0,
+                         val uri: Uri? = null) {
 
         fun hasFilter(): Boolean = filter != null
+
+        override fun toString(): String {
+            return "$action($title)"
+        }
     }
 
     enum class ActionType {
-        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, SECRETSANTA
+        FILTER, BOOKMARK, MESSAGES, UPLOAD, FAVORITES, URI
     }
 }

@@ -2,6 +2,7 @@ package com.pr0gramm.app.services
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.analytics.HitBuilders
@@ -235,10 +236,11 @@ object Track {
         }
     }
 
-    fun secretSantaClicked() {
+    fun specialMenuActionClicked(uri: Uri) {
         send {
-            setCategory("SecretSanta")
+            setCategory("SpecialMenu")
             setAction("Clicked")
+            setLabel(uri.toString())
         }
     }
 
