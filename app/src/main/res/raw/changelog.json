@@ -1,5 +1,14 @@
 [
   {
+    "version": 134,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Chromecast Button wurde angezeigt, obwohl Chromecast deaktiviert war."
+      }
+    ]
+  },
+  {
     "version": 133,
     "changes": [
       {

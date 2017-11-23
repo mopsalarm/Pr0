@@ -356,8 +356,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         menu?.findItem(R.id.media_route_menu_item)?.let { item ->
-            logger.info("Found cast button from fragment menu.")
-
             if (settings.allowCasting) {
                 ignoreException {
                     // show the cast button if available
@@ -365,7 +363,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                             R.id.media_route_menu_item)
                 }
             } else {
-                item.setVisible(false)
+                menu.removeItem(R.id.media_route_menu_item)
             }
         }
 
