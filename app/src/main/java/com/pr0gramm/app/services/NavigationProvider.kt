@@ -16,7 +16,6 @@ import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
-import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.observeOnMain
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
@@ -67,10 +66,6 @@ class NavigationProvider(
             val result = mutableListOf<NavigationItem>()
             args.filterIsInstance<List<Any?>>().forEach { items ->
                 items.filterIsInstanceTo(result)
-            }
-
-            debug {
-                logger.info("Current nav items are: {}", result.map { it.action })
             }
 
             return result
