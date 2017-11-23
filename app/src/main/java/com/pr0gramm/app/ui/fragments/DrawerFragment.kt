@@ -160,11 +160,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .subscribe({ this.onLoginStateChanged(it) })
 
         navigationProvider.navigationItems()
-                .debug("MENU", logger)
                 .distinctUntilChanged()
+                .debug("navigation items", logger)
                 .retryWhen { errObservable ->
                     errObservable
-                            .debug("MENU ERROR", logger)
+                            .doOnNext { logger.warn("Error fetching menu items: {}", it) }
                             .delay(5, TimeUnit.SECONDS)
                 }
                 .compose(bindToLifecycleAsync())

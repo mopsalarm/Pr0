@@ -18,31 +18,33 @@ class LogHandler : Handler() {
     }
 
     override fun publish(record: java.util.logging.LogRecord) {
-        if (record.level.intValue() >= Level.INFO.intValue()) {
-            val messageBuilder = StringBuilder()
-            val logRecord = pl.brightinventions.slf4android.LogRecord.fromRecord(record)
-            messageValueSupplier.append(logRecord, messageBuilder)
+        val logThis = BuildConfig.DEBUG || record.level.intValue() >= Level.INFO.intValue()
+        if (!logThis)
+            return
 
-            val formatted = messageBuilder.toString()
+        val messageBuilder = StringBuilder()
+        val logRecord = pl.brightinventions.slf4android.LogRecord.fromRecord(record)
+        messageValueSupplier.append(logRecord, messageBuilder)
 
-            val tag = record.loggerName
-            val androidLogLevel = logRecord.logLevel.androidLevel
+        val formatted = messageBuilder.toString()
 
-            if (BuildConfig.DEBUG) {
-                Log.println(androidLogLevel, tag, formatted)
-            } else {
-                crashlytics.log(androidLogLevel, tag, formatted)
+        val tag = record.loggerName
+        val androidLogLevel = logRecord.logLevel.androidLevel
+
+        if (BuildConfig.DEBUG) {
+            Log.println(androidLogLevel, tag, formatted)
+        } else {
+            crashlytics.log(androidLogLevel, tag, formatted)
+        }
+
+        synchronized(BUFFER) {
+            // remove the oldest message if we've reached the limit
+            if (BUFFER.size() == MESSAGE_LIMIT) {
+                BUFFER.popLast()
             }
 
-            synchronized(BUFFER) {
-                // remove the oldest message if we've reached the limit
-                if (BUFFER.size() == MESSAGE_LIMIT) {
-                    BUFFER.popLast()
-                }
-
-                // and add the new message to the buffer
-                BUFFER.addFirst(LogEntry(record.millis, record.level, tag, formatted))
-            }
+            // and add the new message to the buffer
+            BUFFER.addFirst(LogEntry(record.millis, record.level, tag, formatted))
         }
     }
 

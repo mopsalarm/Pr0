@@ -15,7 +15,6 @@ import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.RxPicasso
 import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.observeOnMain
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.Observable.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -53,6 +53,7 @@ class NavigationProvider(
 
     private val specialMenuItems = configService.observeConfig()
             .observeOnMain()
+            .distinctUntilChanged()
             .flatMap { resolveSpecial(it).ignoreError() }
             .startWith(emptyList<NavigationItem>())
 
@@ -243,25 +244,33 @@ class NavigationProvider(
                 .flatMap {
                     RxPicasso.load(picasso, picasso.load(Uri.parse(item.icon))
                             .noPlaceholder()
-                            .resize(AndroidUtility.dp(context, 24), AndroidUtility.dp(context, 24)))
+                            .resize(iconUpload.intrinsicWidth, iconUpload.intrinsicHeight))
                 }
                 .map { bitmap ->
                     logger.info("Loaded image for {}", item)
                     val icon = BitmapDrawable(context.resources, bitmap)
                     val uri = Uri.parse(item.link)
 
-                    listOf(NavigationItem(ActionType.URI, item.name, icon, uri = uri))
+                    listOf(NavigationItem(ActionType.URI, item.name, icon,
+                            uri = uri,
+                            layout = R.layout.left_drawer_nav_item_special))
+                }
+                .retryWhen { err ->
+                    err.zipWith(Observable.range(1, 3), { n, i -> i }).flatMap { idx ->
+                        logger.debug("Delay retry by {} second(s)", idx);
+                        Observable.timer(idx.toLong(), TimeUnit.SECONDS);
+                    }
                 }
     }
 
-    class NavigationItem(val action: ActionType,
-                         val title: String,
-                         val icon: Drawable,
-                         val layout: Int = R.layout.left_drawer_nav_item,
-                         val filter: FeedFilter? = null,
-                         val bookmark: Bookmark? = null,
-                         val unreadCount: Int = 0,
-                         val uri: Uri? = null) {
+    data class NavigationItem(val action: ActionType,
+                              val title: String,
+                              val icon: Drawable,
+                              val layout: Int = R.layout.left_drawer_nav_item,
+                              val filter: FeedFilter? = null,
+                              val bookmark: Bookmark? = null,
+                              val unreadCount: Int = 0,
+                              val uri: Uri? = null) {
 
         fun hasFilter(): Boolean = filter != null
 
