@@ -7,7 +7,7 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.1.60"
+        VersionKotlin = "1.1.61"
         VersionSupportLibrary = "27.0.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.3.0"
@@ -200,7 +200,7 @@ dependencies {
 
     implementation "com.github.apl-devs:appintro:v4.2.2"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:r2.5.4'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.6.0'
 
     // forked dependencies.
     implementation "com.github.mopsalarm:FinestWebView-Android:aef2e77ca9"
