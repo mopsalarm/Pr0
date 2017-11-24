@@ -24,7 +24,7 @@ object RxPicasso {
                     }
                 }
 
-                override fun onBitmapFailed(errorDrawable: Drawable) {
+                override fun onBitmapFailed(errorDrawable: Drawable?) {
                     emitter.onError(RuntimeException("Could not load image"))
                 }
 

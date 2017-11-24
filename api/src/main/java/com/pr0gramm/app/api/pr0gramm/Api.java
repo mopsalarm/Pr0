@@ -203,6 +203,10 @@ public interface Api {
             @Field("token") String token,
             @Field("password") String password);
 
+    @FormUrlEncoded
+    @POST("api/user/handoverrequest")
+    Observable<HandoverTokenResponse> handoverToken(@Field("_nonce") Nonce nonce);
+
     final class Nonce {
         public final String value;
 
@@ -706,5 +710,10 @@ public interface Api {
 
             String user();
         }
+    }
+
+    @Value.Immutable
+    interface HandoverTokenResponse {
+        String getToken();
     }
 }

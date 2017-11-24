@@ -1,6 +1,5 @@
 package com.pr0gramm.app.util
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -8,21 +7,32 @@ import android.net.Uri
 import android.support.customtabs.CustomTabsIntent
 import android.support.customtabs.CustomTabsService
 import android.support.v4.content.ContextCompat
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.ui.base.BaseAppCompatActivity
+import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
 import com.thefinestartist.finestwebview.FinestWebView
+import org.slf4j.LoggerFactory
 import java.util.*
 
 /**
  */
 
 object BrowserHelper {
+    private val logger = LoggerFactory.getLogger("BrowserHelper")
+
     private const val CHROME_STABLE_PACKAGE = "com.android.chrome"
     private const val CHROME_BETA_PACKAGE = "com.chrome.beta"
     private const val CHROME_DEV_PACKAGE = "com.chrome.dev"
     private const val CHROME_LOCAL_PACKAGE = "com.google.android.apps.chrome"
+
+    private val FIREFOX_URI = Uri.parse("https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
 
     private val chromeTabPackageName by memorize<Context, String?> { context ->
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
@@ -57,32 +67,30 @@ object BrowserHelper {
     }
 
     /**
-     * Creates a builder with reasonable defaults to create a webview activity.
+     * Try to open the url in a firefox focus window.
+     * This one will never attempt to do session handover.
      */
     fun openIncognito(context: Context, url: String) {
+        val uri = Uri.parse(url)
+
         // if the firefox focus is installed, we'll open the page in this browser.
         firefoxFocusPackage(context)?.let { packageName ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.`package` = packageName
             context.startActivity(intent)
+
             Track.openBrowser("FirefoxFocus")
-            return
         }
 
         showDialog(context) {
-            dontShowAgainKey("hint.install-firefox-focus")
             content(R.string.hint_use_firefox_focus)
 
             positive(R.string.play_store) {
-                openCustomTab(context, "https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
+                openCustomTab(context, FIREFOX_URI)
                 Track.gotoFirefoxFocusWebsite()
             }
 
             negative(R.string.not_now) {
-                openInWebView(context, url)
-            }
-
-            onNotShown {
                 openInWebView(context, url)
             }
         }
@@ -90,7 +98,6 @@ object BrowserHelper {
 
     private fun openInWebView(context: Context, url: String) {
         Track.openBrowser("WebView")
-
         FinestWebView.Builder(context.applicationContext)
                 .theme(ThemeHelper.theme.noActionBar)
                 .iconDefaultColor(Color.WHITE)
@@ -101,8 +108,6 @@ object BrowserHelper {
                 .webViewDisplayZoomControls(false)
                 .show(url)
     }
-
-    fun openCustomTab(context: Context, uri: String) = openCustomTab(context, Uri.parse(uri))
 
     fun openCustomTab(context: Context, uri: Uri) {
         val themedContext = AndroidUtility.activityFromContext(context) ?: context
@@ -124,11 +129,43 @@ object BrowserHelper {
 
         customTabsIntent.intent.`package` = packageName
 
-        if (themedContext !is Activity) {
-            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runWithHandoverToken(context, uri) { uriWithHandoverToken ->
+            customTabsIntent.launchUrl(themedContext, uriWithHandoverToken)
+            Track.openBrowser("CustomTabs")
+        }
+    }
+
+    private fun runWithHandoverToken(context: Context, uri: Uri, block: (Uri) -> Unit) {
+        // we need an activity to do the request and to show the 'busy dialog'
+        val activity = AndroidUtility.activityFromContext(context)
+
+        // we only want to do handover for pr0gramm urls
+        val externalUri = uri.host.toLowerCase() != "pr0gramm.com"
+
+        // the user needs to be signed in for handover to make sense
+        val userService = context.appKodein().instance<UserService>()
+        val notAuthorized = !userService.isAuthorized
+
+        if (activity !is BaseAppCompatActivity || externalUri || notAuthorized) {
+            block(uri)
+            return
         }
 
-        customTabsIntent.launchUrl(themedContext, uri)
-        Track.openBrowser("CustomTabs")
+        activity.appKodein().instance<Api>()
+                .handoverToken(null)
+                .map { response ->
+                    Uri.parse("https://pr0gramm.com/api/user/handoverlogin").buildUpon()
+                            .appendQueryParameter("path", uri.path)
+                            .appendQueryParameter("token", response.token)
+                            .build()
+                }
+                .compose(activity.bindToLifecycleAsync())
+                .withBusyDialog(activity)
+                .onErrorReturn { err ->
+                    logger.warn("Error getting handover token: {}", err)
+                    uri
+                }
+                .debug("handovertoken")
+                .subscribe { block(it) }
     }
 }
