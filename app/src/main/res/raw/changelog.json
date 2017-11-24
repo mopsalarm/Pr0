@@ -3,6 +3,10 @@
     "version": 134,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Handover in den Browser. Ein Klick auf 'Wichteln' im Menü meldet dich auch direkt im Browser an."
+      },
+      {
         "type": "Fix",
         "change": "Chromecast Button wurde angezeigt, obwohl Chromecast deaktiviert war."
       }
