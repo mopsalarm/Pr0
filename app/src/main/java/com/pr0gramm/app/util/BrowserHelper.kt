@@ -80,17 +80,22 @@ object BrowserHelper {
             context.startActivity(intent)
 
             Track.openBrowser("FirefoxFocus")
+            return
         }
 
         showDialog(context) {
             content(R.string.hint_use_firefox_focus)
 
             positive(R.string.play_store) {
+                it.dismiss()
+
                 openCustomTab(context, FIREFOX_URI)
                 Track.gotoFirefoxFocusWebsite()
             }
 
             negative(R.string.not_now) {
+                it.dismiss()
+
                 openInWebView(context, url)
             }
         }

@@ -7,6 +7,10 @@
         "change": "Handover in den Browser. Ein Klick auf 'Wichteln' im Menü meldet dich auch direkt im Browser an."
       },
       {
+        "type": "Neu",
+        "change": "Support für Adaptive Icons auf neusten Android Versionen."
+      },
+      {
         "type": "Fix",
         "change": "Chromecast Button wurde angezeigt, obwohl Chromecast deaktiviert war."
       }
