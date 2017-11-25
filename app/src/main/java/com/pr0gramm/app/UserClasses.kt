@@ -4,17 +4,17 @@ package com.pr0gramm.app
  */
 object UserClasses {
     @JvmStatic
-    val MarkDrawables: List<Int> = listOf(
-            R.drawable.user_type_schwuchtel_small,
-            R.drawable.user_type_neuschwuchtel_small,
-            R.drawable.user_type_altschwuchtel_small,
-            R.drawable.user_type_admin_small,
-            R.drawable.user_type_gesperrt_small,
-            R.drawable.user_type_moderator_small,
-            R.drawable.user_type_fliesentisch_small,
-            R.drawable.user_type_legende_small,
-            R.drawable.user_type_wichtler_small,
-            R.drawable.user_type_pr0mium_small)
+    val MarkSymbol: List<String> = listOf(
+            "\u25CF", // user_type_schwuchtel
+            "\u25CF", // user_type_neuschwuchtel
+            "\u25CF", // user_type_altschwuchtel
+            "\u25CF", // user_type_admin
+            "\u25CF", // user_type_gesperrt
+            "\u25CF", // user_type_moderator
+            "\u25CF", // user_type_fliesentisch
+            "\u25C6", // user_type_legende
+            "\u25A7", // user_type_wichtler
+            "\u25CF") // user_type_pr0mium
 
     @JvmStatic
     val MarkStrings: List<Int> = listOf(
