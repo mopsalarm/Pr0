@@ -136,7 +136,6 @@ class NavigationProvider(
             }
 
             if (settings.showCategoryRandom) {
-
                 items.add(NavigationItem(
                         action = ActionType.FILTER,
                         title = getString(R.string.action_feed_type_random),

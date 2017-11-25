@@ -2,17 +2,14 @@ package com.pr0gramm.app.api.categories
 
 import com.google.gson.Gson
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.subscribeOnBackground
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.Observable
-import rx.Observable.just
-import rx.subjects.BehaviorSubject
-import rx.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  */
@@ -26,30 +23,29 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
             .build()
             .create(ExtraCategoryApi::class.java)
 
-    private val cachedState = BehaviorSubject.create<Boolean>(false).toSerialized()
-    private val updateState = PublishSubject.create<Boolean>()
-
-    init {
-        val byConfig = configService.observeConfig().map { it.getExtraCategories() }
-        Observable.merge(updateState, byConfig)
-                .debounce(1, TimeUnit.SECONDS, BackgroundScheduler.instance())
-                .switchMap { pingOnce() }
-                .distinctUntilChanged()
-                .subscribe(cachedState)
-    }
+    private val cachedState = AtomicBoolean()
 
     val categoriesAvailable: Observable<Boolean> get() {
-        updateState.onNext(true)
-        return cachedState;
+        return configService.observeConfig()
+                .switchMap { config ->
+                    if (config.extraCategories) {
+                        Observable.interval(0, 1, TimeUnit.MINUTES).flatMap { pingOnce() }
+                    } else {
+                        Observable.just(false)
+                    }
+                }
+
+                // always emit the last known state first
+                .doOnNext { cachedState.set(it) }
+                .startWith(Observable.fromCallable { cachedState.get() })
+
+                .distinctUntilChanged()
     }
 
     private fun pingOnce(): Observable<Boolean>? {
-        if (configService.config().getExtraCategories()) {
-            return api.ping().subscribeOnBackground()
-                    .map { true }
-                    .onErrorReturn { false }
-        } else {
-            return just(false)
-        }
+        return api.ping()
+                .subscribeOnBackground()
+                .map { true }
+                .onErrorReturn { false }
     }
 }

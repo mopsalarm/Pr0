@@ -286,7 +286,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             // update color
             val color = if ((selected == item)) markedColor else defaultColor
             holder.text.setTextColor(color)
-            changeCompoundDrawableColor(holder.text, color.withAlpha(ICON_ALPHA))
+            changeCompoundDrawableColor(holder.text, color.withAlpha(127))
 
             // handle clicks
             holder.itemView.setOnClickListener {
@@ -332,7 +332,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
     }
 
-    internal fun dispatchItemClick(item: NavigationItem) {
+    private fun dispatchItemClick(item: NavigationItem) {
         when (item.action) {
             NavigationProvider.ActionType.FILTER,
             NavigationProvider.ActionType.BOOKMARK ->
@@ -391,32 +391,25 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
     }
 
+    /**
+     * Fakes the drawable tint by applying a color filter on all compound
+     * drawables of this view.
+
+     * @param view  The view to "tint"
+     * @param color The color with which the drawables are to be tinted.
+     */
+    private fun changeCompoundDrawableColor(view: TextView, color: ColorStateList) {
+        val defaultColor = color.defaultColor
+        val drawables = view.compoundDrawables
+
+        drawables.filterNotNull().forEach {
+            // fake the tint with a color filter.
+            it.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN)
+        }
+    }
+
     private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text = (itemView as? TextView ?: itemView.findViewById(R.id.title))
         val unread = itemView.findViewById<TextView>(R.id.unread_count)
-    }
-
-    companion object {
-        private val ICON_ALPHA = 127
-
-        /**
-         * Fakes the drawable tint by applying a color filter on all compound
-         * drawables of this view.
-
-         * @param view  The view to "tint"
-         * *
-         * @param color The color with which the drawables are to be tinted.
-         */
-        private fun changeCompoundDrawableColor(view: TextView, color: ColorStateList) {
-            val defaultColor = color.defaultColor
-            val drawables = view.compoundDrawables
-            for (drawable in drawables) {
-                if (drawable == null)
-                    continue
-
-                // fake the tint with a color filter.
-                drawable.mutate().setColorFilter(defaultColor, PorterDuff.Mode.SRC_IN)
-            }
-        }
     }
 }

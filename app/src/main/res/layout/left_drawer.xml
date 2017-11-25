@@ -100,11 +100,18 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/drawer_nav_list"
+        <!-- The unbounded layout is required to show all items, even if scrolling of
+        the outer container is required. -->
+        <com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/drawer_nav_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"/>
+        </com.pr0gramm.app.ui.VerticallyUnboundedFrameLayout>
 
         <!-- Separator -->
         <View
