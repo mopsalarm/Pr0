@@ -32,7 +32,6 @@ import com.pr0gramm.app.util.debug
 import com.pr0gramm.app.util.use
 import com.pr0gramm.app.util.visible
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -159,14 +158,8 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
                 .ignoreError()
                 .subscribe({ this.onLoginStateChanged(it) })
 
-        navigationProvider.navigationItems()
-                .distinctUntilChanged()
+        navigationProvider.navigationItems
                 .debug("navigation items", logger)
-                .retryWhen { errObservable ->
-                    errObservable
-                            .doOnNext { logger.warn("Error fetching menu items: {}", it) }
-                            .delay(5, TimeUnit.SECONDS)
-                }
                 .compose(bindToLifecycleAsync())
                 .subscribe { navigationAdapter.setNavigationItems(it) }
     }
@@ -327,7 +320,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         private fun merge() {
-            selected = allItems.firstOrNull { it.hasFilter() && it.filter == currentFilter }
+            selected = allItems.firstOrNull { it.hasFilter && it.filter == currentFilter }
 
             if (selected == null) {
                 currentFilter?.let { current ->

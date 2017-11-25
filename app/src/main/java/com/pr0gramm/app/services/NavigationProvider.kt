@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
+import com.google.common.base.Objects
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -14,13 +15,13 @@ import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Bookmark
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
-import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.RxPicasso
 import com.pr0gramm.app.util.observeOnMain
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
 import rx.Observable
-import rx.Observable.*
+import rx.Observable.combineLatest
+import rx.Observable.just
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -53,42 +54,48 @@ class NavigationProvider(
     private val specialMenuItems = configService.observeConfig()
             .observeOnMain()
             .distinctUntilChanged()
-            .flatMap { resolveSpecial(it).ignoreError() }
-            .startWith(emptyList<NavigationItem>())
+            .flatMap { resolveSpecial(it) }
 
     private fun drawable(@DrawableRes id: Int): Drawable {
         return ContextCompat.getDrawable(context, id)!!
     }
 
-    fun navigationItems(): Observable<List<NavigationItem>> {
-        // observe and merge the menu items from different sources
-        fun merge(args: Array<Any>): List<NavigationItem> {
-            val result = mutableListOf<NavigationItem>()
-            args.filterIsInstance<List<Any?>>().forEach { items ->
-                items.filterIsInstanceTo(result)
+    val navigationItems: Observable<List<NavigationItem>>
+        get() {
+            // observe and merge the menu items from different sources
+            fun merge(args: Array<Any>): List<NavigationItem> {
+                val result = mutableListOf<NavigationItem>()
+                args.filterIsInstance<List<Any?>>().forEach { items ->
+                    items.filterIsInstanceTo(result)
+                }
+
+                return result
             }
 
-            return result
+            val rawSources = listOf<Observable<List<NavigationItem>>>(
+                    specialMenuItems,
+
+                    categoryNavigationItems(),
+
+                    userService.loginState()
+                            .flatMap { bookmarkService.get() }
+                            .map { bookmarksToNavItem(it) },
+
+                    inboxService.unreadMessagesCount()
+                            .startWith(0)
+                            .map { listOf(inboxNavigationItem(it)) },
+
+                    Observable.just(listOf(uploadNavigationItem)))
+
+            val sources = rawSources.map { source ->
+                source.startWith(emptyList<NavigationItem>()).retryWhen { err ->
+                    logger.warn("Could not get category sub-items: ", err)
+                    err.delay(5, TimeUnit.SECONDS)
+                }
+            }
+
+            return combineLatest(sources, ::merge).distinctUntilChanged()
         }
-
-        return combineLatest(listOf<Observable<List<NavigationItem>>>(
-                specialMenuItems,
-
-                categoryNavigationItems(),
-
-                userService.loginState()
-                        .flatMap { bookmarkService.get() }
-                        .startWith(emptyList<Bookmark>())
-                        .map({ bookmarksToNavItem(it) })
-                        .onErrorResumeNext(empty()),
-
-                inboxService.unreadMessagesCount()
-                        .startWith(0)
-                        .map({ listOf(inboxNavigationItem(it)) }),
-
-                Observable.just(listOf(uploadNavigationItem))
-        ), ::merge)
-    }
 
     /**
      * Adds the default "fixed" items to the menu
@@ -258,19 +265,28 @@ class NavigationProvider(
                 }
     }
 
-    data class NavigationItem(val action: ActionType,
-                              val title: String,
-                              val icon: Drawable,
-                              val layout: Int = R.layout.left_drawer_nav_item,
-                              val filter: FeedFilter? = null,
-                              val bookmark: Bookmark? = null,
-                              val unreadCount: Int = 0,
-                              val uri: Uri? = null) {
+    class NavigationItem(val action: ActionType,
+                         val title: String,
+                         val icon: Drawable,
+                         val layout: Int = R.layout.left_drawer_nav_item,
+                         val filter: FeedFilter? = null,
+                         val bookmark: Bookmark? = null,
+                         val unreadCount: Int = 0,
+                         val uri: Uri? = null) {
 
-        fun hasFilter(): Boolean = filter != null
+        val hasFilter: Boolean get() = filter != null
 
-        override fun toString(): String {
-            return "$action($title)"
+        override fun hashCode(): Int = Objects.hashCode(action, title, layout, filter, bookmark, unreadCount, uri)
+
+        override fun equals(other: Any?): Boolean {
+            return other is NavigationItem
+                    && other.action == action
+                    && other.title == title
+                    && other.layout == layout
+                    && other.filter == filter
+                    && other.bookmark == bookmark
+                    && other.unreadCount == unreadCount
+                    && other.uri == uri
         }
     }
 
