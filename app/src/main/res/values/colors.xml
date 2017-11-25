@@ -77,4 +77,6 @@
     <color name="type_nsfw">#c9cc28</color>
     <color name="type_nsfl">#843924</color>
 
+    <color name="icon_color">#d23b22</color>
+
 </resources>
