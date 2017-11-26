@@ -178,7 +178,7 @@ class ConfigService(context: Application,
             val alphabet = "0123456789abcdef"
 
             val b = StringBuilder(length)
-            for (i in 0..length - 1) {
+            for (i in 0 until length) {
                 val r = (Math.random() * alphabet.length).toInt()
                 b.append(alphabet[r])
             }
