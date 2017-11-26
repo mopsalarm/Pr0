@@ -74,8 +74,6 @@ class UploadActivity : BaseAppCompatActivity("UploadActivity"), ChooseMediaTypeF
     }
 
     internal fun showUploadFragment(type: String?, addToBackstack: Boolean) {
-        val arguments = Bundle()
-
         val fragment = if (intent?.action == Intent.ACTION_SEND) {
             val url = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
             UploadFragment.forLocalUri(url)

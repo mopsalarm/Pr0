@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "Hintergrund auf der Login Seite ist nun wieder da."
+      },
+      {
+        "type": "Fix",
+        "change": "Ist keine Galerie App installiert, ist die App beim Versuch einen Upload zu machen, abgestürzt. Dies ist nun nicht mehr der Fall."
       }
     ]
   },

@@ -2,6 +2,7 @@ package com.pr0gramm.app.util
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.TypedArray
 import android.database.Cursor
@@ -383,3 +384,7 @@ val <T : Result> PendingResult<T>.rx: Observable<T>
             emitter.onCompleted()
         }
     }
+
+fun Context.canStartIntent(intent: Intent): Boolean {
+    return packageManager.resolveActivity(intent, 0) != null
+}

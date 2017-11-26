@@ -88,9 +88,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             handleImageUri(uri)
 
         } else if (savedInstanceState == null) {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = mediaTypeArgument
-            startActivityForResult(intent, RequestCodes.SELECT_MEDIA)
+            handleImagePickRequest()
         }
 
         // enable auto-complete
@@ -108,12 +106,29 @@ class UploadFragment : BaseFragment("UploadFragment") {
         }
     }
 
+    private fun handleImagePickRequest() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = mediaTypeArgument
+
+        // check if someone can handle this intent
+        if (!context.canStartIntent(intent)) {
+            showDialog(this) {
+                content(R.string.error_no_gallery_app)
+                positive { activity?.finish() }
+            }
+
+            return
+        }
+
+        startActivityForResult(intent, RequestCodes.SELECT_MEDIA)
+    }
+
     private fun onUploadClicked() {
         val file = file
         if (file == null) {
             showDialog(this) {
                 content(R.string.hint_upload_something_happen_try_again)
-                positive(R.string.okay, { activity?.finish() })
+                positive(R.string.okay) { activity?.finish() }
             }
             return
         }

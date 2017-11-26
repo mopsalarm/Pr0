@@ -521,5 +521,6 @@
     <string name="cast">Cast</string>
     <string name="error_feed_not_found">The requested post does not exist.</string>
     <string name="menu_new_badge">NEW</string>
+    <string name="error_no_gallery_app">There is no app installed on your device that can handle an image picking request. Please install a gallery app like \'Simple Gallery\' or \'Google Photos\'.</string>
 </resources>
 
