@@ -13,6 +13,10 @@
       {
         "type": "Fix",
         "change": "Chromecast Button wurde angezeigt, obwohl Chromecast deaktiviert war."
+      },
+      {
+        "type": "Fix",
+        "change": "Hintergrund auf der Login Seite ist nun wieder da."
       }
     ]
   },

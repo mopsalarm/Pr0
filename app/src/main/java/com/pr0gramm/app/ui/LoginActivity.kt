@@ -76,8 +76,10 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     }
 
     private fun updateActivityBackground() {
+        val style = ThemeHelper.theme.whiteAccent
+
         @DrawableRes
-        val drawableId = theme.obtainStyledAttributes(R.style.AppTheme, intArrayOf(R.attr.loginBackground)).use {
+        val drawableId = theme.obtainStyledAttributes(style, R.styleable.AppTheme).use {
             it.getResourceId(R.styleable.AppTheme_loginBackground, 0)
         }
 
@@ -188,14 +190,14 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         }
     }
 
-    fun onRegisterClicked() {
+    private fun onRegisterClicked() {
         Track.registerLinkClicked()
 
         val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
         BrowserHelper.openCustomTab(this, uri)
     }
 
-    fun onPasswordRecoveryClicked() {
+    private fun onPasswordRecoveryClicked() {
         val intent = Intent(this, RequestPasswordRecoveryActivity::class.java)
         startActivity(intent)
     }
