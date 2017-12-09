@@ -50,9 +50,9 @@ import java.util.regex.Pattern
 object AndroidUtility {
     private val logger = LoggerFactory.getLogger("AndroidUtility")
 
-    private val RE_USERNAME = Pattern.compile("@[A-Za-z0-9]+")
+    private val RE_USERNAME = Pattern.compile("(?<![a-zA-Z0-9])@[A-Za-z0-9]+")
     private val RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])")
-    private val RE_GENERIC_SHORT_LINK = Pattern.compile("/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])")
+    private val RE_GENERIC_SHORT_LINK = Pattern.compile("(?<!reddit.com)/((?:new|top|user)/[^\\p{javaWhitespace}]*[0-9])")
 
     private val cache = LruCache<String, Unit>(6)
 
