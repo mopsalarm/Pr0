@@ -1,5 +1,14 @@
 [
   {
+    "version": 135,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "E-Mail Adressen wurden fehlerhaft als User Markierungen erkannt."
+      }
+    ]
+  },
+  {
     "version": 134,
     "changes": [
       {
