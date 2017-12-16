@@ -88,10 +88,8 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         val viewWidth = imageView.width.toFloat()
         val viewHeight = imageView.height.toFloat()
 
-        val minScale: Float
-        val maxScale: Float
-            maxScale = viewWidth / imageView.sWidth
-            minScale = viewHeight / imageView.sHeight
+        val maxScale = viewWidth / imageView.sWidth
+        val minScale = viewHeight / imageView.sHeight
 
         imageView.minScale = minScale
         imageView.maxScale = maxScale
