@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "E-Mail Adressen wurden fehlerhaft als User Markierungen erkannt."
+      },
+      {
+        "type": "Fix",
+        "change": "Das Suchfeld war manchmal nicht nutzbar, wenn der Feed gleichzeitig scrollte."
       }
     ]
   },

@@ -11,6 +11,7 @@ import com.pr0gramm.app.util.visible
 class ScrollHideToolbarListener(private val toolbar: View) {
     private var toolbarMarginOffset: Int = 0
     private var animation: ViewPropertyAnimator? = null
+    private var hidden: Boolean = false
 
     init {
 
@@ -26,6 +27,9 @@ class ScrollHideToolbarListener(private val toolbar: View) {
     }
 
     private fun applyToolbarPosition(animated: Boolean) {
+        // do not do anything if hidden
+        if (hidden) return
+
         // stop any previous animation
         animation?.cancel()
         animation = null
@@ -55,6 +59,9 @@ class ScrollHideToolbarListener(private val toolbar: View) {
     }
 
     fun onScrolled(dy: Int) {
+        // do not do anything if hidden
+        if (hidden) return
+
         val abHeight = toolbar.height
         if (abHeight == 0)
             return
@@ -71,6 +78,9 @@ class ScrollHideToolbarListener(private val toolbar: View) {
     }
 
     fun onScrollFinished(y: Int) {
+        // do not do anything if hidden
+        if (hidden) return
+
         val abHeight = toolbar.height
         if (abHeight == 0)
             return
@@ -84,6 +94,8 @@ class ScrollHideToolbarListener(private val toolbar: View) {
     }
 
     fun reset() {
+        hidden = false
+
         if (toolbarMarginOffset != 0) {
             toolbarMarginOffset = 0
             applyToolbarPosition(true)
@@ -100,6 +112,8 @@ class ScrollHideToolbarListener(private val toolbar: View) {
         if (toolbarMarginOffset != toolbar.height) {
             toolbarMarginOffset = toolbar.height
             applyToolbarPosition(true)
+
+            hidden = true
         }
     }
 
