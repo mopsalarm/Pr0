@@ -14,11 +14,14 @@ import com.pr0gramm.app.util.decoders.Decoders
 import com.pr0gramm.app.util.decoders.PicassoDecoder
 import com.pr0gramm.app.util.endAction
 import com.pr0gramm.app.util.removeFromParent
+import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Downloader
 import kotterknife.bindView
 
 @SuppressLint("ViewConstructor")
 class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.player_kind_image) {
+    private val CAP_IMAGE_RATIO = 1f / 30f
+
     private val tag = "ImageMediaView" + System.identityHashCode(this)
     private val zoomView = findViewById<View>(R.id.tabletlayout) != null
 
@@ -30,7 +33,9 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
     init {
         imageView.visibility = View.VISIBLE
         imageView.alpha = 0f
-        imageView.isZoomEnabled = zoomView
+        imageView.isZoomEnabled = false
+        imageView.isQuickScaleEnabled = false
+        imageView.isPanEnabled = false
         imageView.setDebug(BuildConfig.DEBUG)
 
         // try not to use too much memory, even on big devices
@@ -85,17 +90,12 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
 
         val minScale: Float
         val maxScale: Float
-        if (zoomView) {
             maxScale = viewWidth / imageView.sWidth
             minScale = viewHeight / imageView.sHeight
-        } else {
-            maxScale = viewWidth / imageView.sWidth * (ratio / ratioCapped)
-            minScale = maxScale
-        }
 
         imageView.minScale = minScale
         imageView.maxScale = maxScale
-        imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+        imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         imageView.resetScaleAndCenter()
     }
 
@@ -108,7 +108,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         }
 
     override fun onMediaShown() {
-        imageView.visibility = View.VISIBLE
+        imageView.visible = true
 
         if (imageView.alpha == 0f) {
             imageView.animate().alpha(1f)
@@ -129,10 +129,5 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
         // set a more useful error message
         errorIndicator.text = context.getText(R.string.could_not_load_image).toString() +
                 "\n\n" + ErrorFormatting.getFormatter(error).getMessage(context, error)
-    }
-
-    companion object {
-        // we cap the image if it is more than 30 times as high as it is wide
-        private const val CAP_IMAGE_RATIO = 1f / 30f
     }
 }
