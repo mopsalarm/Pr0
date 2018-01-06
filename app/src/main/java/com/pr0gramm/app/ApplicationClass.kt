@@ -21,7 +21,6 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDial
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
-import com.thefinestartist.Base
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
 import okhttp3.Interceptor
@@ -43,7 +42,6 @@ open class ApplicationClass : Application(), KodeinAware {
 
         Stats.init(buildVersionCode())
         JodaTimeAndroid.init(this)
-        Base.initialize(this)
 
         Settings.initialize(this)
         Track.initialize(this)

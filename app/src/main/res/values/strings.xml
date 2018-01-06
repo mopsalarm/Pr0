@@ -306,7 +306,7 @@
     <string name="pref_feed_start_at_sfw_title">Default to \'sfw\'</string>
     <string name="pref_feed_start_at_sfw_summary">Default to \'sfw\' when opening the app freshly.</string>
     <string name="pref_use_incognito_browser_title">Incognito browser</string>
-    <string name="pref_use_incognito_browser_summary">Open links in a simple incognito browser with no history. If installed, Firefox Focus will be used.</string>
+    <string name="pref_use_incognito_browser_summary">Open links from comments in firefox focus browser with no history.</string>
     <string name="action_invite">INVITES</string>
     <string name="invites_title">Invites</string>
     <string name="invite_description" translatable="false">Wenn Du keine Neuschwuchtel oder Fliesentischbesitzer bist und ein paar Invites übrig hast, kannst du hier Deine Freunde zu pr0gramm einladen.</string>
@@ -513,7 +513,7 @@
     <string name="pref_audiofocus_transient_summary">Activate this to resume music or sounds by other apps once the pr0gramm app stops playing sound.</string>
     <string name="not_now">Not now</string>
     <string name="play_store">PlayStore</string>
-    <string name="hint_use_firefox_focus">Please consider installing Firefox Focus for a better incognito browsing experience. It has ad-blocking and fullscreen videos and will soon be the pr0gramm Apps default incognito browser.</string>
+    <string name="hint_use_firefox_focus">Please install Firefox Focus or disable the incognito browser setting.</string>
     <string name="pref_allow_casting_title">Support chromecast</string>
     <string name="pref_allow_casting_summary">Activate to show the \'Cast\' button if a chromecast compatible receiver could be detected on the network. This is experimental.</string>
     <string name="pref_secure_app_title">Hide from app switcher</string>

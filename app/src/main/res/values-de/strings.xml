@@ -287,7 +287,7 @@
     <string name="pref_feed_start_at_sfw_title">Zeige \'sfw\' beim Start</string>
     <string name="pref_feed_start_at_sfw_summary">Wechsle automatisch zu \'sfw\' wenn die App neu geöffnet wird.</string>
     <string name="pref_use_incognito_browser_title">Inkognito Browser</string>
-    <string name="pref_use_incognito_browser_summary">Öffnet Links in einem Inkognito Browser. Falls installiert, wird der Firefox Klar aufgerufen.</string>
+    <string name="pref_use_incognito_browser_summary">Öffnet Links immer im Firefox Klar Browser. Dieser muss installiert sein.</string>
     <string name="action_invite">INVITES</string>
     <string name="error_email">Gültige E-Mail erforderlich</string>
     <string name="invite_email_in_use">Ein Benutzer mit dieser Adresse wurde bereits eingeladen.</string>
@@ -493,11 +493,11 @@
     <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
     <string name="not_now">Später</string>
     <string name="play_store">Zum PlayStore</string>
-    <string name="hint_use_firefox_focus">Für einen besseren Incognito Browser (Vollbild, Werbeblocker) installiere dir den von der pr0gramm App unterstützen Browser Firefox Klar.</string>
+    <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung 'Incognito Browser'.</string>
     <string name="pref_allow_casting_title">Chromecast</string>
     <string name="pref_allow_casting_summary">Zeige den \'Cast\' Knopf, wenn ein Chromecast kompatibles Gerät im Netzwerk gefunden wurde. Diese Funktion ist experimentell.</string>
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>
-    <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste und verhindert das erstellen von Screenshots.</string>
+    <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste und verhindert das Erstellen von Screenshots.</string>
     <string name="cast">Cast</string>
     <string name="error_feed_not_found">Der angefragte Post existiert nicht mehr.</string>
     <string name="menu_new_badge">NEU</string>

@@ -2,7 +2,6 @@ package com.pr0gramm.app.util
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.support.customtabs.CustomTabsIntent
 import android.support.customtabs.CustomTabsService
@@ -17,7 +16,6 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.fragments.withBusyDialog
 import com.pr0gramm.app.ui.showDialog
-import com.thefinestartist.finestwebview.FinestWebView
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -93,25 +91,10 @@ object BrowserHelper {
                 Track.gotoFirefoxFocusWebsite()
             }
 
-            negative(R.string.not_now) {
+            negative(R.string.cancel) {
                 it.dismiss()
-
-                openInWebView(context, url)
             }
         }
-    }
-
-    private fun openInWebView(context: Context, url: String) {
-        Track.openBrowser("WebView")
-        FinestWebView.Builder(context.applicationContext)
-                .theme(ThemeHelper.theme.noActionBar)
-                .iconDefaultColor(Color.WHITE)
-                .toolbarColorRes(ThemeHelper.theme.primaryColor)
-                .progressBarColorRes(ThemeHelper.theme.primaryColorDark)
-                .webViewSupportZoom(true)
-                .webViewBuiltInZoomControls(true)
-                .webViewDisplayZoomControls(false)
-                .show(url)
     }
 
     fun openCustomTab(context: Context, uri: Uri) {

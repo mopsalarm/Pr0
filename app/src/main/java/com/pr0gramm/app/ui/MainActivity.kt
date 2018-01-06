@@ -186,7 +186,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .onErrorResumeEmpty()
                     .filter { !userService.isPremiumUser }
                     .subscribe { adsAreShown ->
-                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 20000)
+                        Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
                                 .setAction("pr0mium") {
                                     Track.registerLinkClicked()
                                     val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
