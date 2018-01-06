@@ -497,7 +497,7 @@
     <string name="pref_allow_casting_title">Chromecast</string>
     <string name="pref_allow_casting_summary">Zeige den \'Cast\' Knopf, wenn ein Chromecast kompatibles Gerät im Netzwerk gefunden wurde. Diese Funktion ist experimentell.</string>
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>
-    <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste</string>
+    <string name="pref_secure_app_summary">Versteckt den Inhalt der App in der \'zuletzt verwendete Apps\' Liste und verhindert das erstellen von Screenshots.</string>
     <string name="cast">Cast</string>
     <string name="error_feed_not_found">Der angefragte Post existiert nicht mehr.</string>
     <string name="menu_new_badge">NEU</string>

@@ -517,7 +517,7 @@
     <string name="pref_allow_casting_title">Support chromecast</string>
     <string name="pref_allow_casting_summary">Activate to show the \'Cast\' button if a chromecast compatible receiver could be detected on the network. This is experimental.</string>
     <string name="pref_secure_app_title">Hide from app switcher</string>
-    <string name="pref_secure_app_summary">Blanks out the pr0gramm in the recent apps switcher.</string>
+    <string name="pref_secure_app_summary">Blanks out the pr0gramm in the recent apps switcher and prevents taking of screenshots.</string>
     <string name="cast">Cast</string>
     <string name="error_feed_not_found">The requested post does not exist.</string>
     <string name="menu_new_badge">NEW</string>
