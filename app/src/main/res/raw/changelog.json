@@ -3,12 +3,20 @@
     "version": 135,
     "changes": [
       {
+        "type": "Änderung",
+        "change": "Firefox Klar als einziger Incognito Browser unterstützt."
+      },
+      {
         "type": "Fix",
         "change": "E-Mail Adressen wurden fehlerhaft als User Markierungen erkannt."
       },
       {
         "type": "Fix",
         "change": "Das Suchfeld war manchmal nicht nutzbar, wenn der Feed gleichzeitig scrollte."
+      },
+      {
+        "type": "Fix",
+        "change": "Links die %20 enthalten wurden teilweise nicht korrekt erkannt."
       }
     ]
   },
