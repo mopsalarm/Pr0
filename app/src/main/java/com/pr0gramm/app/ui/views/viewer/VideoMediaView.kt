@@ -22,7 +22,6 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.ThemeHelper
-import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.proxy.ProxyService
 import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.AspectLayout
@@ -75,7 +74,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
         muteButtonView.setOnClickListener {
             setMuted(!videoPlayer.muted)
-            Track.muted(!videoPlayer.muted)
         }
 
         detaches().subscribe { videoPlayer.videoCallbacks = null }

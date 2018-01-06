@@ -79,8 +79,6 @@ class FavedCommentService(userService: UserService, okHttpClient: OkHttpClient) 
     fun save(comment: FavedComment): Completable {
         logger.info("save comment-fav with id {}", comment.id)
 
-        Track.commentFaved()
-
         synchronized(favCommentIds) {
             if (favCommentIds.add(comment.id))
                 updateAfterChange()
@@ -108,8 +106,6 @@ class FavedCommentService(userService: UserService, okHttpClient: OkHttpClient) 
 
     fun list(contentType: EnumSet<ContentType>): Observable<List<FavedComment>> {
         val flags = ContentType.combine(contentType)
-
-        Track.listFavedComments()
 
         // update cache too
         updateCache()

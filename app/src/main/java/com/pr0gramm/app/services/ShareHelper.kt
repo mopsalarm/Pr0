@@ -44,8 +44,6 @@ object ShareHelper {
                 .setText(text)
                 .setChooserTitle(R.string.share_with)
                 .startChooser()
-
-        Track.share("post")
     }
 
     @JvmStatic
@@ -57,8 +55,6 @@ object ShareHelper {
                 .setText(uri)
                 .setChooserTitle(R.string.share_with)
                 .startChooser()
-
-        Track.share("image_link")
     }
 
     @JvmStatic
@@ -69,8 +65,6 @@ object ShareHelper {
                 .addStream(ShareProvider.getShareUri(activity, feedItem))
                 .setChooserTitle(R.string.share_with)
                 .startChooser()
-
-        Track.share("image")
     }
 
     @JvmStatic

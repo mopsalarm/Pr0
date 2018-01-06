@@ -63,6 +63,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private val recentSearchesServices: RecentSearchesServices by instance()
     private val followService: StalkService by instance()
     private val adService: AdService by instance()
+    private val config: Config by instance()
 
     private val recyclerView: RecyclerView by bindView(R.id.list)
     private val swipeRefreshLayout: CustomSwipeRefreshLayout by bindView(R.id.refresh)
@@ -494,7 +495,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     override fun onResume() {
         super.onResume()
 
-        Track.screen("Feed")
+        if (config.trackItemView) {
+            Track.screen("Feed")
+        }
 
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
@@ -887,7 +890,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (activity != null) {
             quickPeekDialog = PopupPlayerFactory.newInstance(activity, item)
             swipeRefreshLayout.isEnabled = false
-            Track.quickPeek()
         }
     }
 

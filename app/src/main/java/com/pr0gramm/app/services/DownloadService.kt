@@ -38,8 +38,6 @@ class DownloadService(
      * the error string. You can then display it as you please.
      */
     fun downloadWithNotification(feedItem: FeedItem, preview: Bitmap? = null): Observable<Status> = Observable.defer {
-        Track.download()
-
         // download over proxy to use caching
         val url = proxyService.proxy(UriHelper.of(context).media(feedItem, true))
 

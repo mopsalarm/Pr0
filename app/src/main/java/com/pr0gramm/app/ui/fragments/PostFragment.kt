@@ -204,8 +204,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun castMedia(remoteMediaClient: RemoteMediaClient) {
         logger.info("Got cast remote client at {}", remoteMediaClient)
 
-        Track.castMedia()
-
         // stop any local playing video
         viewer.stopMedia()
 

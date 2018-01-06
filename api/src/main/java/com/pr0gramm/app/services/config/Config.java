@@ -50,6 +50,11 @@ public abstract class Config {
     }
 
     @Value.Default
+    public boolean getTrackVotes() {
+        return false;
+    }
+
+    @Value.Default
     public List<String> getQuestionableTags() {
         return Arrays.asList(
                 "0815", "kann weg", "heil hitler", "ban pls", "deshalb",

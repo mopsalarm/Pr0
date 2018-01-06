@@ -16,16 +16,18 @@ import java.util.concurrent.TimeUnit
  * Tracking using google analytics. Obviously this is anonymous.
  */
 object Track {
-    val GA_CUSTOM_AUTHORIZED = "&cd1"
-    val GA_CUSTOM_PREMIUM = "&cd2"
-    val GA_CUSTOM_ADS = "&cd3"
+    private const val GA_CUSTOM_AUTHORIZED = "&cd1"
+    private const val GA_CUSTOM_PREMIUM = "&cd2"
+    private const val GA_CUSTOM_ADS = "&cd3"
 
     private lateinit var ga: Tracker
     private lateinit var settingsTracker: SettingsTrackerService
+    private lateinit var config: Config
 
     fun initialize(context: Context) {
         ga = context.appKodein().instance()
         settingsTracker = context.appKodein().instance()
+        config = context.appKodein().instance()
     }
 
     inline private fun send(b: HitBuilders.EventBuilder.() -> Unit) {
@@ -85,35 +87,33 @@ object Track {
         }
     }
 
-    fun share(type: String) {
-        send {
-            setCategory("Content")
-            setAction("Share")
-            setLabel(type)
-        }
-    }
-
     fun votePost(vote: Vote) {
-        send {
-            setCategory("Content")
-            setAction("Vote" + vote.name)
-            setLabel("Post")
+        if (config.trackVotes) {
+            send {
+                setCategory("Content")
+                setAction("Vote" + vote.name)
+                setLabel("Post")
+            }
         }
     }
 
     fun voteTag(vote: Vote) {
-        send {
-            setCategory("Content")
-            setAction("Vote" + vote.name)
-            setLabel("Tag")
+        if (config.trackVotes) {
+            send {
+                setCategory("Content")
+                setAction("Vote" + vote.name)
+                setLabel("Tag")
+            }
         }
     }
 
     fun voteComment(vote: Vote) {
-        send {
-            setCategory("Content")
-            setAction("Vote" + vote.name)
-            setLabel("Comment")
+        if (config.trackVotes) {
+            send {
+                setCategory("Content")
+                setAction("Vote" + vote.name)
+                setLabel("Comment")
+            }
         }
     }
 
@@ -142,13 +142,6 @@ object Track {
             setCategory("Content")
             setAction("Upload")
             setLabel(sizeCategory)
-        }
-    }
-
-    fun download() {
-        send {
-            setCategory("Content")
-            setAction("Download")
         }
     }
 
@@ -183,34 +176,6 @@ object Track {
         send {
             setCategory("User")
             setAction("Invited")
-        }
-    }
-
-    fun commentFaved() {
-        send {
-            setCategory("Content")
-            setAction("KFavCreated")
-        }
-    }
-
-    fun listFavedComments() {
-        send {
-            setCategory("Content")
-            setAction("KFavViewed")
-        }
-    }
-
-    fun quickPeek() {
-        send {
-            setCategory("Feed")
-            setAction("QuickPeek")
-        }
-    }
-
-    fun muted(mute: Boolean) {
-        send {
-            setCategory("Content")
-            setAction(if (mute) "Muted" else "Unmuted")
         }
     }
 
@@ -249,13 +214,6 @@ object Track {
             setCategory("Ads")
             setAction("Clicked")
             setLabel(type.toString())
-        }
-    }
-
-    fun castMedia() {
-        send {
-            setCategory("Cast")
-            setAction("Cast")
         }
     }
 
