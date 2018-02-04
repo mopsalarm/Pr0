@@ -55,6 +55,11 @@ public abstract class Config {
     }
 
     @Value.Default
+    public boolean getForceSSL() {
+        return false;
+    }
+
+    @Value.Default
     public List<String> getQuestionableTags() {
         return Arrays.asList(
                 "0815", "kann weg", "heil hitler", "ban pls", "deshalb",

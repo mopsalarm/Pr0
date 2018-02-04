@@ -119,7 +119,7 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val tagCloudView: Boolean
         get() = preferences.getBoolean("pref_tag_cloud_view", false)
 
-    val useHttps: Boolean
+    val useSSL: Boolean
         get() = preferences.getBoolean("pref_use_https", false)
 
     val showGoogleImageButton: Boolean

@@ -1025,7 +1025,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         getString(R.string.could_not_load_feed_json))
             }
 
-            Throwables.getRootCause(error) is ConnectException && settings.useHttps -> {
+            Throwables.getRootCause(error) is ConnectException && settings.useSSL -> {
                 ErrorDialogFragment.showErrorString(fragmentManager,
                         getString(R.string.could_not_load_feed_https))
             }

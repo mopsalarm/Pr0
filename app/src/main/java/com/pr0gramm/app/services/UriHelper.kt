@@ -9,6 +9,7 @@ import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.util.toUri
 
@@ -29,7 +30,7 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
     }
 
     private fun scheme(): String {
-        return if (forceHttps || settings.useHttps) "https" else "http"
+        return if (forceHttps || settings.useSSL) "https" else "http"
     }
 
     internal fun start(subdomain: String): Uri.Builder {
@@ -130,8 +131,9 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
     }
 
     companion object {
-        fun of(context: Context, forceHttps: Boolean = false): UriHelper {
-            return UriHelper(context, forceHttps)
+        fun of(context: Context, forceSSL: Boolean = false): UriHelper {
+            val configForceSSL = context.appKodein().instance<Config>().forceSSL
+            return UriHelper(context, configForceSSL || forceSSL)
         }
 
         private val FEED_TYPES = mapOf(
