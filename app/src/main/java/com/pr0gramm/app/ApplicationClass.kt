@@ -21,6 +21,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDial
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
+import com.pr0gramm.app.util.ignoreException
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
 import okhttp3.Interceptor
@@ -95,10 +96,12 @@ open class ApplicationClass : Application(), KodeinAware {
             }
         }
 
-        // enable ads.
-        MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
-        MobileAds.setAppVolume(0f)
-        MobileAds.setAppMuted(true)
+        // enable ads - do not fail if we get an exception from this shitty google library.
+        ignoreException {
+            MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
+            MobileAds.setAppVolume(0f)
+            MobileAds.setAppMuted(true)
+        }
 
         Stats.get().incrementCounter("app.booted")
     }
