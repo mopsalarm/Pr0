@@ -15,6 +15,8 @@ import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.parcel.byteArrayToParcel
+import com.pr0gramm.app.parcel.parcelToByteArray
 import com.pr0gramm.app.services.DownloadService
 import com.pr0gramm.app.services.NotificationService
 import com.pr0gramm.app.services.UriHelper
@@ -40,7 +42,6 @@ class PreloadService : KodeinIntentService("PreloadService") {
     private val notificationManager: NotificationManager by instance()
     private val preloadManager: PreloadManager by instance()
     private val powerManager: PowerManager by instance()
-
     private val notificationService: NotificationService by instance()
 
     @Volatile
@@ -51,8 +52,19 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
     private lateinit var preloadCache: File
 
+    private val notification by lazy {
+        notificationService.beginPreloadNotification()
+                .setContentTitle(getString(R.string.preload_ongoing))
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setOngoing(true)
+                .setTicker("")
+    }
+
     override fun onCreate() {
         super.onCreate()
+
+        // send out the initial notification and bring the service into foreground mode!
+        startForeground(NotificationService.Types.Preload.id, notification.build())
 
         preloadCache = File(cacheDir, "preload").apply {
             if (mkdirs()) {
@@ -71,9 +83,10 @@ class PreloadService : KodeinIntentService("PreloadService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
-        val items = intent?.extras?.getParcelableArrayList<FeedItem>(EXTRA_LIST_OF_ITEMS)
-        if (items == null || items.isEmpty())
+        val items = parseFeedItemsFromIntent(intent)
+        if (intent == null || items.isEmpty())
             return
+
 
         jobId = System.currentTimeMillis()
         canceled = false
@@ -82,20 +95,15 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 Intent(this, PreloadService::class.java).putExtra(EXTRA_CANCEL, jobId),
                 PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val noBuilder = notificationService.beginPreloadNotification()
-                .setContentTitle(getString(R.string.preload_ongoing))
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setProgress(100 * items.size, 0, false)
-                .setOngoing(true)
-                .addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), cancelIntent)
-                .setContentIntent(cancelIntent)
-                .setTicker("")
+        // update notification
+        show {
+            setProgress(100 * items.size, 0, false)
+            addAction(R.drawable.ic_close_24dp, getString(R.string.cancel), cancelIntent)
+            setContentIntent(cancelIntent)
+        }
 
         val creation = Instant.now()
         val uriHelper = UriHelper.of(this)
-
-        // send out the initial notification and bring the service into foreground mode!
-        startForeground(NotificationService.Types.Preload.id, noBuilder.build())
 
         // create a wake lock
         val wakeLock = powerManager.newWakeLock(
@@ -125,16 +133,18 @@ class PreloadService : KodeinIntentService("PreloadService") {
                         val thumbFile = if (thumbIsLocal) toFile(thumbUri) else cacheFileForUri(thumbUri)
 
                         // update the notification
-                        maybeShow(noBuilder.setProgress(items.size, idx, false))
+                        maybeShow {
+                            setProgress(items.size, idx, false)
+                        }
 
                         // prepare the entry that will be put into the database later
                         val entry = PreloadManager.PreloadItem(item.id(), creation, mediaFile, thumbFile)
 
                         if (!mediaIsLocal)
-                            download(noBuilder, 2 * idx, 2 * items.size, mediaUri, entry.media)
+                            download(2 * idx, 2 * items.size, mediaUri, entry.media)
 
                         if (!thumbIsLocal)
-                            download(noBuilder, 2 * idx + 1, 2 * items.size, thumbUri, entry.thumbnail)
+                            download(2 * idx + 1, 2 * items.size, thumbUri, entry.thumbnail)
 
                         preloadManager.store(entry)
 
@@ -148,10 +158,10 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 }
 
                 // doing cleanup
-                doCleanup(noBuilder, createdBefore = Instant.now().minus(standardDays(1)))
+                doCleanup(createdBefore = Instant.now().minus(standardDays(1)))
 
                 // setting end message
-                showEndMessage(noBuilder, statsDownloaded, statsFailed)
+                showEndMessage(statsDownloaded, statsFailed)
             }
 
         } catch (error: Throwable) {
@@ -159,26 +169,38 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 AndroidUtility.logToCrashlytics(error)
             }
 
-            noBuilder.setContentTitle(getString(R.string.preload_failed))
+            notification.setContentTitle(getString(R.string.preload_failed))
 
         } finally {
             logger.info("Preloading finished")
 
             // clear the action button
-            noBuilder.mActions.clear()
+            notification.mActions.clear()
 
-            show(noBuilder
-                    .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                    .setSubText(null)
-                    .setProgress(0, 0, false)
-                    .setOngoing(false)
-                    .setContentIntent(null))
+            show {
+                setSmallIcon(android.R.drawable.stat_sys_download_done)
+                setSubText(null)
+                setProgress(0, 0, false)
+                setOngoing(false)
+                setContentIntent(null)
+            }
 
             stopForeground(false)
         }
     }
 
-    private fun showEndMessage(noBuilder: NotificationCompat.Builder, downloaded: Int, failed: Int) {
+    private fun parseFeedItemsFromIntent(intent: Intent?): List<FeedItem> {
+        val bytes = intent?.extras?.getByteArray(EXTRA_LIST_OF_ITEMS)
+        if (bytes == null || bytes.isEmpty()) {
+            return listOf()
+        }
+
+        byteArrayToParcel(bytes) { parcel ->
+            return parcel.createTypedArrayList(FeedItem.CREATOR)
+        }
+    }
+
+    private fun showEndMessage(downloaded: Int, failed: Int) {
         val contentText = ArrayList<String>()
         contentText.add(getString(R.string.preload_sub_downloaded, downloaded))
         if (failed > 0) {
@@ -189,25 +211,27 @@ class PreloadService : KodeinIntentService("PreloadService") {
             contentText.add(getString(R.string.preload_canceled))
         }
 
-        noBuilder
-                .setContentTitle(getString(R.string.preload_finished))
-                .setContentText(contentText.joinToString(", "))
+        show {
+            setProgress(0, 0, true)
+            setContentTitle(getString(R.string.preload_finished))
+            setContentText(contentText.joinToString(", "))
+        }
     }
 
     /**
      * Cleaning old files before the given threshold.
      */
-    private fun doCleanup(noBuilder: NotificationCompat.Builder, createdBefore: Instant) {
-        show(noBuilder
-                .setContentText(getString(R.string.preload_cleanup))
-                .setProgress(0, 0, true))
+    private fun doCleanup(createdBefore: Instant) {
+        show {
+            setContentText(getString(R.string.preload_cleanup))
+            setProgress(1, 0, true)
+        }
 
         preloadManager.deleteBefore(createdBefore)
     }
 
     @Throws(IOException::class)
-    private fun download(noBuilder: NotificationCompat.Builder, index: Int, total: Int,
-                         uri: Uri, targetFile: File) {
+    private fun download(index: Int, total: Int, uri: Uri, targetFile: File) {
 
         // if the file exists, we dont need to download it again
         if (targetFile.exists()) {
@@ -232,7 +256,9 @@ class PreloadService : KodeinIntentService("PreloadService") {
                     msg = getString(R.string.preload_fetching, uri.path)
                 }
 
-                maybeShow(noBuilder.setContentText(msg).setProgress(progressTotal, progressCurrent, false))
+                maybeShow {
+                    setContentText(msg).setProgress(progressTotal, progressCurrent, false)
+                }
             }
 
             if (!tempFile.renameTo(targetFile))
@@ -248,13 +274,14 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
     }
 
-    private fun show(notification: NotificationCompat.Builder) {
+    inline private fun show(config: NotificationCompat.Builder.() -> Unit) {
+        notification.config()
         notificationManager.notify(NotificationService.Types.Preload.id, notification.build())
     }
 
-    private fun maybeShow(builder: NotificationCompat.Builder) {
+    private fun maybeShow(config: NotificationCompat.Builder.() -> Unit) {
         interval.doIfTime {
-            show(builder)
+            show(config)
         }
     }
 
@@ -312,10 +339,12 @@ class PreloadService : KodeinIntentService("PreloadService") {
         private val EXTRA_CANCEL = "PreloadService.cancel"
         private val EXTRA_ALLOW_ON_MOBILE = "PreloadService.allowOnMobile"
 
-        fun preload(context: Context, items: Iterable<FeedItem>, allowOnMobile: Boolean) {
+        fun preload(context: Context, items: List<FeedItem>, allowOnMobile: Boolean) {
             val intent = Intent(context, PreloadService::class.java)
-            intent.putParcelableArrayListExtra(EXTRA_LIST_OF_ITEMS, items.toCollection(ArrayList()))
             intent.putExtra(EXTRA_ALLOW_ON_MOBILE, allowOnMobile)
+            intent.putExtra(EXTRA_LIST_OF_ITEMS, parcelToByteArray {
+                writeTypedList(items)
+            })
 
             ContextCompat.startForegroundService(context, intent)
         }
