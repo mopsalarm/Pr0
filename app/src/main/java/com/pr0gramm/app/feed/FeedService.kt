@@ -4,11 +4,13 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.services.Reducer
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
 import org.slf4j.LoggerFactory
 import rx.Observable
+import java.util.*
 
 /**
  * Performs the actual request to get the items for a feed.
@@ -59,7 +61,14 @@ class FeedServiceImpl(private val api: Api,
         val q = SearchQuery(feedFilter.tags)
 
         when (feedType) {
-            FeedType.RANDOM -> return extraCategories.api.random(q.tags, flags)
+            FeedType.RANDOM -> return extraCategories.api
+                    .random(q.tags, flags)
+                    .map { feed ->
+                        // shuffle items to ensure they are "random"
+                        val items = feed.items.toMutableList()
+                        Collections.shuffle(items)
+                        ImmutableApi.Feed.copyOf(feed).withItems(items)
+                    }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold

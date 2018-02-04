@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Posts in der Zufallskategorie waren nach Datum sortiert."
+      },
+      {
+        "type": "Fix",
         "change": "Wenn die App in den Hintergrund geht, sollte sie seltener abstürzen."
       },
       {
