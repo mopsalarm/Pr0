@@ -1,5 +1,18 @@
 [
   {
+    "version": 136,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Wenn die App in den Hintergrund geht, sollte sie seltener abstürzen."
+      },
+      {
+        "type": "Fix",
+        "change": "Auf einigen Geräten beendete sich die App beim Vorladen sofort."
+      }
+    ]
+  },
+  {
     "version": 135,
     "changes": [
       {
