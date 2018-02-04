@@ -1,8 +1,12 @@
 package com.pr0gramm.app.feed
 
-import android.os.Bundle
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.parcel.byteArrayToParcel
+import com.pr0gramm.app.parcel.parcelToByteArray
+import com.pr0gramm.app.parcel.readTyped
+import com.pr0gramm.app.parcel.writeTyped
+import com.pr0gramm.app.util.toInt
 
 /**
  * Represents a feed.
@@ -78,24 +82,6 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         return if (index >= 0) index else null
     }
 
-    fun persist(pivot: Int): Bundle {
-        val bundle = Bundle()
-        bundle.putParcelable(FEED_FIELD_FILTER, filter)
-        bundle.putInt(FEED_FIELD_CONTENT_TYPE, ContentType.combine(contentType))
-
-        // how many items to save to older and newer than the pivot item.
-        val itemCount = if (BuildConfig.DEBUG) 16 else 64
-
-        // add a subset of the items
-        val start = (pivot - itemCount).coerceIn(0, items.size)
-        val stop = (pivot + itemCount).coerceIn(0, items.size)
-        val items = ArrayList(this.items.subList(start, stop))
-        bundle.putParcelableArrayList(FEED_FIELD_ITEMS, items)
-        bundle.putBoolean(FEED_FIELD_AT_START, isAtStart && start == 0)
-
-        return bundle
-    }
-
     override fun toString(): String {
         return "Feed[newest=${newest?.id}, oldest=${oldest?.id}, size=$size]"
     }
@@ -131,19 +117,31 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
         }
     }
 
+    fun persist(pivot: Int): ByteArray {
+        // how many items to save to older and newer than the pivot item.
+        val itemCountAround = if (BuildConfig.DEBUG) 64 else 64
+
+        // add a subset of the items
+        val start = (pivot - itemCountAround).coerceIn(0, items.size)
+        val stop = (pivot + itemCountAround).coerceIn(0, items.size)
+        val items = ArrayList(this.items.subList(start, stop))
+
+        return parcelToByteArray {
+            writeTyped(filter)
+            writeInt(ContentType.combine(contentType))
+            writeInt((isAtStart && start == 0).toInt())
+            writeTypedList(items)
+        }
+    }
+
     companion object {
-        const val FEED_FIELD_FILTER = "filter"
-        const val FEED_FIELD_ITEMS = "items"
-        const val FEED_FIELD_CONTENT_TYPE = "contentType"
-        const val FEED_FIELD_AT_START = "atStart"
+        fun restore(bytes: ByteArray): Feed = byteArrayToParcel(bytes) { parcel ->
+            val feedFilter = parcel.readTyped(FeedFilter.CREATOR)
+            val contentType = ContentType.decompose(parcel.readInt())
+            val atStart = parcel.readInt() != 0
+            val items = parcel.createTypedArrayList(FeedItem.CREATOR)
 
-        fun restore(bundle: Bundle): Feed {
-            val feedFilter = bundle.getParcelable<FeedFilter>(FEED_FIELD_FILTER)
-            val items = bundle.getParcelableArrayList<FeedItem>(FEED_FIELD_ITEMS)
-            val contentType = ContentType.decompose(bundle.getInt(FEED_FIELD_CONTENT_TYPE))
-            val atStart = bundle.getBoolean(FEED_FIELD_AT_START, false)
-
-            return Feed(feedFilter, contentType, items, isAtStart = atStart)
+            Feed(feedFilter, contentType, items, isAtStart = atStart)
         }
     }
 }

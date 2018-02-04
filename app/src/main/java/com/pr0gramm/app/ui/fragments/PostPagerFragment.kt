@@ -32,6 +32,9 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     private var activePostFragment: PostFragment? = null
     private var previewInfo: PreviewInfo? = null
 
+    // to prevent double saving of current state
+    private var lastSavedPosition: Int = -1
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_post_pager, container, false)
     }
@@ -146,8 +149,8 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
      * @param savedState An optional saved state.
      */
     private fun getArgumentFeed(savedState: Bundle?): Feed {
-        val encoded: Bundle = savedState?.getBundle(ARG_FEED)
-                ?: arguments?.getBundle(ARG_FEED)
+        val encoded: ByteArray = savedState?.getByteArray(ARG_FEED)
+                ?: arguments?.getByteArray(ARG_FEED)
                 ?: throw IllegalStateException("No feed found.")
 
         return Feed.restore(encoded)
@@ -193,9 +196,13 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
         if (adapter.feed.isNotEmpty()) {
             val position = viewPager.currentItem.coerceIn(adapter.feed.indices)
 
-            val item = adapter.feed[position]
-            outState.putParcelable(ARG_START_ITEM, item)
-            outState.putParcelable(ARG_FEED, adapter.feed.persist(position))
+            if (lastSavedPosition != position) {
+                val item = adapter.feed[position]
+                outState.putParcelable(ARG_START_ITEM, item)
+                outState.putByteArray(ARG_FEED, adapter.feed.persist(position))
+
+                lastSavedPosition = position
+            }
         }
     }
 
@@ -230,7 +237,9 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
             updateActiveItem(`object` as PostFragment)
 
             if (view != null) {
-                arguments?.let { saveStateToBundle(it) }
+                arguments?.let { args ->
+                    saveStateToBundle(args)
+                }
             }
         }
 
@@ -273,7 +282,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
 
         fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
             val arguments = Bundle()
-            arguments.putBundle(ARG_FEED, feed.persist(idx))
+            arguments.putByteArray(ARG_FEED, feed.persist(idx))
             arguments.putParcelable(ARG_START_ITEM, feed[idx])
             arguments.putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
 

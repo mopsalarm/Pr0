@@ -86,7 +86,7 @@ class MessageReplyReceiver : KodeinBroadcastReceiver() {
             intent.putExtra("receiverId", message.senderId())
             intent.putExtra("receiverName", message.name())
 
-            intent.putExtra("messageCreated", message.creationTime().getMillis())
+            intent.putExtra("messageCreated", message.creationTime().millis)
             return intent
         }
     }
