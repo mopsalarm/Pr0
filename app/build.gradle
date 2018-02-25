@@ -194,6 +194,7 @@ dependencies {
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
     implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
+    implementation "dnsjava:dnsjava:2.1.8"
 
 
     implementation 'com.github.evernote:android-job:v1.2.2'

@@ -28,6 +28,7 @@ import com.squareup.picasso.NetworkPolicy.shouldWriteToDiskCache
 import com.squareup.picasso.Picasso
 import okhttp3.*
 import org.slf4j.LoggerFactory
+import org.xbill.DNS.*
 import rx.Observable
 import rx.Scheduler
 import rx.lang.kotlin.toObservable
@@ -35,6 +36,8 @@ import rx.util.async.Async
 import java.io.File
 import java.io.IOException
 import java.lang.UnsupportedOperationException
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.*
 import kotlin.concurrent.timer
 
@@ -60,6 +63,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
                 .connectionPool(ConnectionPool(8, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
                 .dispatcher(Dispatcher(executor))
+                .dns(FallbackDns())
 
                 .addNetworkInterceptor(DebugInterceptor())
 
@@ -297,5 +301,55 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 
     override fun execute(command: Runnable?) {
         Async.fromRunnable(command, null, scheduler)
+    }
+}
+
+private class FallbackDns : Dns {
+    val logger = LoggerFactory.getLogger("FallbackDns");
+
+    val resolver = SimpleResolver("8.8.8.8")
+    val cache = org.xbill.DNS.Cache()
+
+    override fun lookup(hostname: String): MutableList<InetAddress> {
+        val resolved = try {
+            Dns.SYSTEM.lookup(hostname)
+                    .filterNot { it.isAnyLocalAddress }
+                    .filterNot { it.isLinkLocalAddress }
+                    .filterNot { it.isLoopbackAddress }
+                    .filterNot { it.isMulticastAddress }
+                    .filterNot { it.isSiteLocalAddress }
+                    .filterNot { it.isMCSiteLocal }
+                    .filterNot { it.isMCGlobal }
+                    .filterNot { it.isMCLinkLocal }
+                    .filterNot { it.isMCNodeLocal }
+                    .filterNot { it.isMCOrgLocal }
+                    .toMutableList()
+
+        } catch (err: UnknownHostException) {
+            mutableListOf<InetAddress>()
+        }
+
+        if (resolved.isNotEmpty()) {
+            debug {
+                logger.info("System resolver for {} returned {}", hostname, resolved)
+            }
+
+            return resolved
+        } else {
+            val fallback = fallbackLookup(hostname)
+            debug {
+                logger.info("Fallback resolver for {} returned {}", hostname, fallback)
+            }
+            return fallback
+        }
+    }
+
+    private fun fallbackLookup(hostname: String): MutableList<InetAddress> {
+        val lookup = Lookup(hostname, Type.A, DClass.IN)
+        lookup.setResolver(resolver)
+        lookup.setCache(cache)
+
+        val records = lookup.run()
+        return records.filterIsInstance<ARecord>().mapTo(mutableListOf()) { it.address }
     }
 }
