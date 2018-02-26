@@ -311,6 +311,10 @@ private class FallbackDns : Dns {
     val cache = org.xbill.DNS.Cache()
 
     override fun lookup(hostname: String): MutableList<InetAddress> {
+        if (hostname == "127.0.0.1" || hostname == "localhost") {
+            return mutableListOf(InetAddress.getByName("127.0.0.1"))
+        }
+
         val resolved = try {
             Dns.SYSTEM.lookup(hostname)
                     .filterNot { it.isAnyLocalAddress }
