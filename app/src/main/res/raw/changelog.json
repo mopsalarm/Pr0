@@ -1,5 +1,14 @@
 [
   {
+    "version": 137,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "App läuft auch, wenn der Werbeblocker pr0gramm.com blockiert."
+      }
+    ]
+  },
+  {
     "version": 136,
     "changes": [
       {

@@ -47,6 +47,7 @@ import java.lang.ref.WeakReference
 class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayout) :
         RxVideoPlayer(), VideoPlayer, Player.EventListener {
 
+
     private val context = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
     private val settings = Settings.get()
@@ -234,7 +235,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
         }
     }
 
-    override fun onTimelineChanged(timeline: Timeline, manifest: Any?) {
+    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
         logger.info("Timeline has changed")
     }
 
