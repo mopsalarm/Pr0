@@ -5,7 +5,8 @@ import android.net.Uri
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.util.AndroidUtility.toFile
 import com.pr0gramm.app.util.BackgroundScheduler
-import okhttp3.OkHttpClient
+import okhttp3.*
+import okio.Okio
 import org.slf4j.LoggerFactory
 import rx.Observable
 import java.io.Closeable
@@ -158,7 +159,7 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
     }
 
     interface Entry : Closeable {
-        fun totalSize(): Int
+        val totalSize: Int
 
         fun inputStreamAt(offset: Int): InputStream
 
@@ -171,5 +172,19 @@ class Cache(context: Context, private val httpClient: OkHttpClient) {
         val file: File
 
         override fun close()
+
+        fun toResponse(request: Request, mediaType: MediaType? = null): Response {
+            val body = ResponseBody.create(
+                    mediaType, totalSize.toLong(),
+                    Okio.buffer(Okio.source(inputStreamAt(0))))
+
+            return Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_0)
+                    .code(200)
+                    .message("OK")
+                    .body(body)
+                    .build()
+        }
     }
 }

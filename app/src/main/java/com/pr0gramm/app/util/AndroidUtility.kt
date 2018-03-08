@@ -38,6 +38,7 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.PrivateBrowserSpan
 import com.pr0gramm.app.ui.Truss
+import okhttp3.HttpUrl
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.util.async.Async
@@ -421,3 +422,5 @@ fun hideViewEndAction(view: View): Animator.AnimatorListener {
         }
     }
 }
+
+fun Uri.toHttpUrl(): HttpUrl = HttpUrl.parse(this.toString())!!

@@ -90,7 +90,7 @@ class HttpProxyService(
 
     private fun proxyHttpUri(session: NanoHTTPD.IHTTPSession, url: String): NanoHTTPD.Response {
         cache.get(Uri.parse(url)).use { entry ->
-            val totalSize = entry.totalSize()
+            val totalSize = entry.totalSize
 
             val rangeValue = session.headers["Range"]
 

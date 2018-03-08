@@ -1,6 +1,7 @@
 package com.pr0gramm.app.ui
 
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.ViewGroup
 import com.google.common.base.Preconditions.checkNotNull
 import gnu.trove.map.TIntIntMap
@@ -106,14 +107,15 @@ class MergeRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         for (adapter in adapters) {
             val localViewType = adapter.viewTypeGlobalToLocal.get(viewType)
             if (localViewType != adapter.viewTypeGlobalToLocal.noEntryValue) {
                 return adapter.adapter.onCreateViewHolder(viewGroup, localViewType)
             }
         }
-        return null
+
+        return SingleViewAdapter.ViewHolder(View(viewGroup.context))
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {

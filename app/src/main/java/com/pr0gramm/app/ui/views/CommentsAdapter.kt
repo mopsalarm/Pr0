@@ -78,10 +78,6 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
                 .inflate(R.layout.comment_layout, parent, false))
     }
 
-    override fun onViewRecycled(holder: CommentView?) {
-        super.onViewRecycled(holder)
-    }
-
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CommentView, position: Int) {
         val entry = comments[position]

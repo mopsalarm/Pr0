@@ -7,6 +7,7 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
 import com.squareup.picasso.Target
 import rx.Observable
+import java.lang.Exception
 
 /**
  */
@@ -24,8 +25,8 @@ object RxPicasso {
                     }
                 }
 
-                override fun onBitmapFailed(errorDrawable: Drawable?) {
-                    emitter.onError(RuntimeException("Could not load image"))
+                override fun onBitmapFailed(err: Exception?, errorDrawable: Drawable?) {
+                    emitter.onError(RuntimeException("Could not load image", err))
                 }
 
                 override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}

@@ -62,7 +62,7 @@ class ShareProvider : ContentProvider() {
     @Throws(IOException::class)
     private fun getSizeForUri(uri: Uri): Long {
         val url = decode(uri).toString()
-        return cache.get(Uri.parse(url)).totalSize().toLong()
+        return cache.get(Uri.parse(url)).totalSize.toLong()
     }
 
     override fun getType(uri: Uri): String? {

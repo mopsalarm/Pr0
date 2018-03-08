@@ -21,10 +21,10 @@ internal class InputStreamCacheDataSource(private val uri: Uri, private val cach
 
             if (dataSpec.length >= 0) {
                 // limit amount to the requestet length.
-                inputStream = ByteStreams.limit(inputStream, dataSpec.length)
+                inputStream = ByteStreams.limit(inputStream!!, dataSpec.length)
             }
 
-            return entry.totalSize().toLong()
+            return entry.totalSize.toLong()
         }
     }
 

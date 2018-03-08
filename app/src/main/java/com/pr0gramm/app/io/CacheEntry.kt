@@ -31,7 +31,8 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     private val refCount = AtomicInteger()
 
     @Volatile private var fp: RandomAccessFile? = null
-    @Volatile private var totalSize: Int = 0
+    @Volatile
+    private var totalSizeField: Int = 0
     @Volatile private var written: Int = 0
 
     @Volatile
@@ -47,12 +48,12 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
             val fp = ensureInitialized()
 
             // if we are at the end of the file, we need to signal that
-            if (pos >= totalSize) {
+            if (pos >= totalSizeField) {
                 return -1
             }
 
             // check how much we can actually read at most!
-            val amount = Math.min(pos + amount, totalSize) - pos
+            val amount = Math.min(pos + amount, totalSizeField) - pos
 
             // wait for the data to be there
             expectCached(pos + amount)
@@ -72,10 +73,11 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     }
 
 
-    override fun totalSize(): Int {
-        ensureInitialized()
-        return totalSize
-    }
+    override val totalSize: Int
+        get() {
+            ensureInitialized()
+            return totalSizeField
+        }
 
     private fun write(data: ByteArray, offset: Int, amount: Int) {
         lock.withLock {
@@ -129,7 +131,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
      * You need to hold the lock to call this method.
      */
     private fun fullyCached(): Boolean {
-        return written >= totalSize
+        return written >= totalSizeField
     }
 
     /**
@@ -162,12 +164,12 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
 
                 // read the total size from the file now.
                 // We've previously read the first four bytes (checksum).
-                totalSize = fp.readInt()
+                totalSizeField = fp.readInt()
                 written = Math.max(0, length - PAYLOAD_OFFSET)
 
-                if (written > totalSize) {
+                if (written > totalSizeField) {
                     // okay, someone fucked up! :/
-                    logToCrashlytics(IOException("written=$written greater than totalSize=$totalSize"))
+                    logToCrashlytics(IOException("written=$written greater than totalSize=$totalSizeField"))
 
                     // invalidate the file and try again.
                     fp.setLength(0)
@@ -186,10 +188,10 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 written = 0
 
                 // start caching now.
-                totalSize = resumeCaching(0)
+                totalSizeField = resumeCaching(0)
 
                 fp.writeInt(expectedChecksum)
-                fp.writeInt(totalSize)
+                fp.writeInt(totalSizeField)
             }
 
             logger.debug("Initialized entry {}", this)
@@ -210,7 +212,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
         logger.debug("Resetting entry {}", this)
         this.fp = null
         this.written = 0
-        this.totalSize = 0
+        this.totalSizeField = 0
 
         this.cacheWriter = null
     }
@@ -376,8 +378,8 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
     }
 
     override val fractionCached: Float get() {
-        if (totalSize > 0) {
-            return written / totalSize.toFloat()
+        if (totalSizeField > 0) {
+            return written / totalSizeField.toFloat()
         } else {
             return -1f
         }
@@ -397,7 +399,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
         lock.withLock {
             return MoreObjects.toStringHelper(this)
                     .add("written", written)
-                    .add("totalSize", totalSize)
+                    .add("totalSize", totalSizeField)
                     .add("caching", cacheWriter != null)
                     .add("refCount", refCount.get())
                     .add("fullyCached", fullyCached())
@@ -427,7 +429,7 @@ internal class CacheEntry(private val httpClient: OkHttpClient, override val fil
                 return 0
             }
 
-            val skipped = Math.min(entry.totalSize().toLong(), position + amount) - position
+            val skipped = Math.min(entry.totalSize.toLong(), position + amount) - position
             position += skipped.toInt()
             return skipped
         }

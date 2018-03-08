@@ -59,7 +59,7 @@ class GifDrawableLoader(val fileCache: File, private val cache: Cache) {
 
             // copy data to the file.
             val iv = DownloadService.Interval(250)
-            val contentLength = entry.totalSize().toFloat()
+            val contentLength = entry.totalSize.toFloat()
             entry.inputStreamAt(0).use { stream ->
                 var count = 0
                 readStream(stream) { buffer, length ->

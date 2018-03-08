@@ -17,7 +17,7 @@ abstract class SingleViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     override fun getItemId(position: Int): Long = 1
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         // do nothing
     }
 

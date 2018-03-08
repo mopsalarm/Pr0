@@ -89,8 +89,10 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     }
 
     private fun downloadTo(uri: Uri, imageFile: File) {
+        val req = okhttp3.Request.Builder().url(uri.toString()).build()
+
         // download to temp file. not nice, but useful :/
-        downloader.load(uri, 0).inputStream.use { inputStream ->
+        downloader.load(req).body()?.byteStream()?.use { inputStream ->
             FileOutputStream(imageFile).use { output ->
                 ByteStreams.copy(inputStream, output)
             }

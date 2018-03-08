@@ -4,11 +4,11 @@ package com.pr0gramm.app.ui
 import android.app.Application
 import android.graphics.*
 import android.net.Uri
-import com.google.common.io.ByteStreams
 import com.pr0gramm.app.R
 import com.pr0gramm.app.util.time
 import com.squareup.picasso.Downloader
 import it.sephiroth.android.library.exif2.ExifInterface
+import okhttp3.Request
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 
@@ -100,8 +100,8 @@ class FancyExifThumbnailGenerator(context: Application, private val downloader: 
     }
 
     private fun fetch(uri: Uri): ByteArray {
-        val response = downloader.load(uri, 0)
-        return response.inputStream.use { input -> ByteStreams.toByteArray(input) }
+        val response = downloader.load(Request.Builder().url(uri.toString()).build())
+        return response.body()?.bytes() ?: byteArrayOf()
     }
 
     private fun decode565(bytes: ByteArray): Bitmap {

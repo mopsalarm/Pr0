@@ -10,7 +10,6 @@ import com.github.salomonbrys.kodein.singleton
 import com.google.common.base.Stopwatch
 import com.google.common.net.HttpHeaders
 import com.google.common.util.concurrent.Uninterruptibles
-import com.jakewharton.picasso.OkHttp3Downloader
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.ApiProvider
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
@@ -23,8 +22,7 @@ import com.pr0gramm.app.util.GuavaPicassoCache
 import com.pr0gramm.app.util.SmallBufferSocketFactory
 import com.pr0gramm.app.util.debug
 import com.squareup.picasso.Downloader
-import com.squareup.picasso.NetworkPolicy.shouldReadFromDiskCache
-import com.squareup.picasso.NetworkPolicy.shouldWriteToDiskCache
+import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import okhttp3.*
 import org.slf4j.LoggerFactory
@@ -139,36 +137,41 @@ private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloade
         }
     }
 
-    override fun load(uri: Uri, networkPolicy: Int): Downloader.Response {
+    override fun load(request: Request): Response {
         // load thumbnails normally
-        if (uri.host.contains("thumb.pr0gramm.com") || uri.path.contains("/thumb.jpg")) {
+        val url = request.url()
+        if (url.host().contains("thumb.pr0gramm.com") || url.encodedPath().contains("/thumb.jpg")) {
             // try memory cache first.
-            if (shouldReadFromDiskCache(networkPolicy)) {
-                memoryCache.get(uri.toString())?.let {
-                    return Downloader.Response(it.inputStream(), true, it.size.toLong())
-                }
+            memoryCache.get(url.toString())?.let {
+                return Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_0)
+                        .code(200)
+                        .message("OK")
+                        .body(ResponseBody.create(MediaType.parse("image/jpeg"), it))
+                        .build();
             }
 
             // do request using fallback - network or disk.
-            val response = fallback.load(uri, networkPolicy)
+            val response = fallback.load(request)
 
             // check if we want to cache the response in memory
-            if (shouldWriteToDiskCache(networkPolicy) && response.contentLength in (1 until 20 * 1024)) {
-                // directly read the response and buffer it in-memory
-                val bytes = response.inputStream.use {
-                    it.readBytes(estimatedSize = response.contentLength.toInt().coerceAtLeast(1024))
-                }
+            response.body()?.let { body ->
+                if (body.contentLength() in (1 until 20 * 1024)) {
+                    val bytes = body.bytes()
 
-                memoryCache.put(uri.toString(), bytes)
-                return Downloader.Response(bytes.inputStream(), true, bytes.size.toLong())
-            } else {
-                return response
+                    memoryCache.put(url.toString(), bytes)
+                    return response.newBuilder()
+                            .body(ResponseBody.create(body.contentType(), bytes))
+                            .build()
+                }
             }
+
+            return response
         } else {
-            logger.debug("Using cache to download image {}", uri)
-            cache.get(uri).use { entry ->
-                val fullyCached = entry.fractionCached == 1f
-                return Downloader.Response(entry.inputStreamAt(0), fullyCached, entry.totalSize().toLong())
+            logger.debug("Using cache to download image {}", url)
+            cache.get(Uri.parse(url.toString())).use { entry ->
+                return entry.toResponse(request)
             }
         }
     }
@@ -353,7 +356,7 @@ private class FallbackDns : Dns {
         lookup.setResolver(resolver)
         lookup.setCache(cache)
 
-        val records = lookup.run()
+        val records: Array<Record> = lookup.run() ?: return mutableListOf()
         return records.filterIsInstance<ARecord>().mapTo(mutableListOf()) { it.address }
     }
 }

@@ -13,9 +13,10 @@ import java.io.InputStream
 internal class FileEntry(override val file: File) : Cache.Entry {
     private val logger = LoggerFactory.getLogger("FileEntry")
 
-    override fun totalSize(): Int {
-        return file.length().toInt()
-    }
+    override val totalSize: Int
+        get() {
+            return file.length().toInt()
+        }
 
     override fun inputStreamAt(offset: Int): InputStream {
         if (file.exists() && !file.setLastModified(System.currentTimeMillis())) {
