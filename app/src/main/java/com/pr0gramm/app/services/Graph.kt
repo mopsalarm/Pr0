@@ -20,19 +20,11 @@ class Graph(start: Double, end: Double,
         get() = points.isEmpty()
 
     val maxValue: Double get() {
-        var max = points[0].y
-        for (point in points)
-            max = Math.max(max, point.y)
-
-        return max
+        return points.maxBy { it.y }!!.y
     }
 
     val minValue: Double get() {
-        var min = points[0].y
-        for (point in points)
-            min = Math.min(min, point.y)
-
-        return min
+        return points.minBy { it.y }!!.y
     }
 
     operator fun get(idx: Int): Point {
