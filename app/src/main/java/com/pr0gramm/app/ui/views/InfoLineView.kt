@@ -154,23 +154,28 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         val sorted = tags.keys.sortedWith(
                 compareByDescending<Api.Tag> { it.confidence }.thenBy { it.id })
 
-        val addTagView = layoutInflater.inflate(R.layout.tags_add, null)
-        addTagView.setOnClickListener { onAddTagClickedListener() }
+        val factory = { context: Context ->
+            val addTagView = layoutInflater.inflate(R.layout.tags_add, null)
+            addTagView.setOnClickListener { onAddTagClickedListener() }
+            addTagView
+        }
 
-        addTagView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
+        factory(context).let { view ->
+            view.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        addTagView.measure(spec, spec)
+            val spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            view.measure(spec, spec)
 
-        val height = addTagView.measuredHeight
-        tagsView.minimumHeight = height
+            val height = view.measuredHeight
+            tagsView.minimumHeight = height
 
-        tagsAdapter = TagsAdapter(sorted, tags)
+            tagsAdapter = TagsAdapter(sorted, tags)
+        }
 
         val adapter = MergeRecyclerAdapter()
-        adapter.addAdapter(SingleViewAdapter.ofView(addTagView))
+        adapter.addAdapter(SingleViewAdapter.of(factory))
         adapter.addAdapter(tagsAdapter)
         tagsView.adapter = adapter
     }

@@ -24,8 +24,6 @@ abstract class SingleViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     companion object {
-        fun <V : View> ofView(view: V): SingleViewAdapter = of { _ -> view }
-
         fun ofLayout(@LayoutRes layoutId: Int): SingleViewAdapter {
             return of { context -> View.inflate(context, layoutId, null) }
         }

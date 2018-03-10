@@ -15,10 +15,18 @@ class ViewerFullscreenParameters private constructor(val scale: Float, val trY: 
 
             val windowWidth = screenSize.x.toFloat()
             val windowHeight = screenSize.y.toFloat()
+            val windowAspect = windowWidth / windowHeight
 
             val viewerAspect = viewer.width.toFloat() / (viewer.measuredHeight - viewer.paddingTop).toFloat()
-            val viewerWidth = windowWidth
-            val viewerHeight = windowWidth / viewerAspect
+
+            val (viewerWidth, viewerHeight) = if (!rotateIfNeeded && windowAspect > viewerAspect) {
+                // landscape
+                Pair(windowHeight * viewerAspect, windowHeight)
+
+            } else {
+                // portrait
+                Pair(windowWidth, (windowWidth / viewerAspect))
+            }
 
             val pivot = PointF(viewerWidth / 2f, viewerHeight - 0.5f * viewerHeight + viewer.paddingTop)
             val trY = windowHeight / 2f - pivot.y
@@ -39,5 +47,4 @@ class ViewerFullscreenParameters private constructor(val scale: Float, val trY: 
             }
         }
     }
-
 }

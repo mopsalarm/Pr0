@@ -2,6 +2,7 @@ package com.pr0gramm.app.ui.fragments
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -315,47 +316,51 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             messages.setComments(info.info.user, comments)
         }
 
-        val view = UserInfoCell(activity!!, info.info, doIfAuthorizedHelper)
+        val userViewFactory = { context: Context ->
+            val view = UserInfoCell(context, info.info, doIfAuthorizedHelper)
 
-        view.userActionListener = object : UserInfoCell.UserActionListener {
-            override fun onWriteMessageClicked(userId: Int, name: String) {
-                startActivity(WriteMessageActivity.intent(activity!!, userId.toLong(), name))
-            }
-
-            override fun onUserFavoritesClicked(name: String) {
-                val filter = currentFilter.basic().withLikes(name)
-                if (filter != currentFilter) {
-                    (activity as MainActionHandler).onFeedFilterSelected(filter)
+            view.userActionListener = object : UserInfoCell.UserActionListener {
+                override fun onWriteMessageClicked(userId: Int, name: String) {
+                    startActivity(WriteMessageActivity.intent(context, userId.toLong(), name))
                 }
 
-                showUserInfoComments(listOf())
-            }
+                override fun onUserFavoritesClicked(name: String) {
+                    val filter = currentFilter.basic().withLikes(name)
+                    if (filter != currentFilter) {
+                        (activity as MainActionHandler).onFeedFilterSelected(filter)
+                    }
 
-            override fun onShowUploadsClicked(id: Int, name: String) {
-                val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
-                if (filter != currentFilter) {
-                    (activity as MainActionHandler).onFeedFilterSelected(filter)
+                    showUserInfoComments(listOf())
                 }
 
-                showUserInfoComments(listOf())
+                override fun onShowUploadsClicked(id: Int, name: String) {
+                    val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
+                    if (filter != currentFilter) {
+                        (activity as MainActionHandler).onFeedFilterSelected(filter)
+                    }
+
+                    showUserInfoComments(listOf())
+                }
+
+                override fun onShowCommentsClicked() {
+                    showUserInfoComments(if (messages.itemCount == 0) comments else listOf())
+                }
+
+                private fun showUserInfoComments(comments: List<Api.UserComments.UserComment>) {
+                    userInfoCommentsOpen = comments.isNotEmpty()
+                    messages.setComments(info.info.user, comments)
+                    updateSpanSizeLookup()
+                }
             }
 
-            override fun onShowCommentsClicked() {
-                showUserInfoComments(if (messages.itemCount == 0) comments else listOf())
-            }
+            view.showWriteMessage = !isSelfInfo(info.info)
+            view.showComments = !comments.isEmpty()
 
-            private fun showUserInfoComments(comments: List<Api.UserComments.UserComment>) {
-                userInfoCommentsOpen = comments.isNotEmpty()
-                messages.setComments(info.info.user, comments)
-                updateSpanSizeLookup()
-            }
+            view
         }
 
-        view.showWriteMessage = !isSelfInfo(info.info)
-        view.showComments = !comments.isEmpty()
-
         appendUserInfoAdapters(
-                SingleViewAdapter.ofView(view),
+                SingleViewAdapter.of(userViewFactory),
                 messages,
                 SingleViewAdapter.ofLayout(R.layout.user_info_footer))
 
@@ -369,15 +374,16 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (isSelfInfo(info) || activity == null)
             return
 
-        val view = UserInfoFoundView(activity, info)
-        view.uploadsClickedListener = { _, name ->
-            val newFilter = currentFilter.basic()
-                    .withFeedType(FeedType.NEW).withUser(name)
+        appendUserInfoAdapters(SingleViewAdapter.of { context ->
+            UserInfoFoundView(context, info).apply {
+                uploadsClickedListener = { _, name ->
+                    val newFilter = currentFilter.basic()
+                            .withFeedType(FeedType.NEW).withUser(name)
 
-            (activity as MainActionHandler).onFeedFilterSelected(newFilter)
-        }
-
-        appendUserInfoAdapters(SingleViewAdapter.ofView(view))
+                    (activity as MainActionHandler).onFeedFilterSelected(newFilter)
+                }
+            }
+        })
     }
 
     private fun appendUserInfoAdapters(vararg adapters: RecyclerView.Adapter<*>) {

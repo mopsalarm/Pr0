@@ -30,7 +30,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
 
         var top = 0
         var left = 0
-        for (idx in 0..state.itemCount - 1) {
+        for (idx in 0 until state.itemCount) {
             val view = recycler.getViewForPosition(idx)
             removeMarginsFromView(view)
 
@@ -96,7 +96,7 @@ class TagCloudLayoutManager(private val gapX: Int, private val gapY: Int, privat
 
     private fun measureElements(recycler: RecyclerView.Recycler): List<Size> {
         val sizes = ArrayList<Size>()
-        for (idx in 0..itemCount - 1) {
+        for (idx in 0 until itemCount) {
             val view = recycler.getViewForPosition(idx)
             removeMarginsFromView(view)
             sizes.add(measureChildUnspecified(view))

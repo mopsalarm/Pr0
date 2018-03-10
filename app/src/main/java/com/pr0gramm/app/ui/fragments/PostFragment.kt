@@ -4,9 +4,9 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder.ofFloat
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -114,7 +114,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private lateinit var viewer: MediaView
     private lateinit var mediaControlsContainer: ViewGroup
-    private lateinit var infoLineView: InfoLineView
+    private lateinit var infoLine: InfoLineAccessor
 
     private var playerPlaceholder: FrameLayout? = null
 
@@ -366,21 +366,24 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun initializeCommentPostLine() {
-        val line = CommentPostLine(activity!!)
-        line.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        adapter.addAdapter(SingleViewAdapter.ofView(line))
+        adapter.addAdapter(SingleViewAdapter.of { context: Context ->
+            val line = CommentPostLine(context)
+            line.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
 
-        line.setCommentDraft(arguments?.getString(ARG_COMMENT_DRAFT) ?: "")
-        line.textChanges().subscribe { text -> arguments?.putString(ARG_COMMENT_DRAFT, text) }
+            line.setCommentDraft(arguments?.getString(ARG_COMMENT_DRAFT) ?: "")
+            line.textChanges().subscribe { text -> arguments?.putString(ARG_COMMENT_DRAFT, text) }
 
-        line.comments().subscribe { text ->
-            val action = Runnable {
-                line.clear()
-                writeComment(text)
+            line.comments().subscribe { text ->
+                val action = Runnable {
+                    line.clear()
+                    writeComment(text)
+                }
+
+                doIfAuthorizedHelper.run(action, action)
             }
 
-            doIfAuthorizedHelper.run(action, action)
-        }
+            line
+        })
     }
 
     private fun writeComment(text: String) {
@@ -446,7 +449,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             startActivity(intent)
 
         } else {
-            val params = ViewerFullscreenParameters.forViewer(activity, viewer, settings.rotateInFullscreen)
+            val rotateIfNeeded = settings.rotateInFullscreen && tabletLayoutView == null
+            val params = ViewerFullscreenParameters.forViewer(activity, viewer, rotateIfNeeded)
 
             viewer.pivotX = params.pivot.x
             viewer.pivotY = params.pivot.y
@@ -465,6 +469,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             // hide content below
             swipeRefreshLayout.visible = false
+            infoLine.visible = false
 
             if (activity is ToolbarActivity) {
                 // hide the toolbar if required necessary
@@ -513,7 +518,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         fullscreenAnimator?.cancel()
         fullscreenAnimator = null
 
-        infoLineView.visible = true
         swipeRefreshLayout.visible = true
 
         // reset the values correctly
@@ -543,6 +547,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // move views back
         mediaControlsContainer.removeFromParent()
+        infoLine.visible = true
 
         val targetView = if ((tabletLayoutView != null)) playerContainer else playerPlaceholder
         targetView?.addView(mediaControlsContainer)
@@ -657,59 +662,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun initializeInfoLine() {
-        // get the vote from the service
-        val cachedVote = voteService.getVote(feedItem).compose(bindToLifecycleAsync())
-
-
-        infoLineView = view!!.findOptional<InfoLineView>(R.id.infoview)
-                .or {
-                    val fallback = InfoLineView(activity!!)
-                    adapter.addAdapter(SingleViewAdapter.ofView(fallback))
-                    fallback
-                }
-                .also { infoView ->
-                    val isSelfPost = userService.name.equals(feedItem.user, ignoreCase = true)
-
-                    // display the feed item in the view
-                    infoView.setFeedItem(feedItem, isSelfPost, cachedVote)
-
-                    infoView.onDetailClickedListener = this
-
-                    // register the vote listener
-                    infoView.onVoteListener = { vote ->
-                        val action = Runnable {
-                            showPostVoteAnimation(vote)
-
-                            voteService.vote(feedItem, vote)
-                                    .decoupleSubscribe()
-                                    .compose(bindToLifecycleAsync<Any>())
-                                    .subscribeWithErrorHandling()
-                        }
-
-                        val retry = Runnable { infoView.voteView.vote = vote }
-                        doIfAuthorizedHelper.run(action, retry)
-                    }
-
-                    // and a vote listener vor voting tags.
-                    infoView.tagVoteListener = { tag, vote ->
-                        val action = Runnable {
-                            voteService.vote(tag, vote)
-                                    .decoupleSubscribe()
-                                    .compose(bindToLifecycleAsync<Any>())
-                                    .doAfterTerminate({ infoView.addVote(tag, vote) })
-                                    .subscribeWithErrorHandling()
-                        }
-
-                        doIfAuthorizedHelper.run(action, action)
-                    }
-
-                    infoView.onAddTagClickedListener = {
-                        doIfAuthorizedHelper.run {
-                            val dialog = NewTagDialogFragment()
-                            dialog.show(childFragmentManager, null)
-                        }
-                    }
-                }
+        infoLine = view
+                ?.findOptional<InfoLineView>(R.id.infoview)
+                ?.let { InfoLineAsView(it) }
+                ?: InfoLineAdapter().also { adapter.addAdapter(it) }
     }
 
     @OnOptionsItemSelected(R.id.action_delete_item)
@@ -725,7 +681,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun showPostVoteAnimation(vote: Vote?) {
-        if (vote == null || vote === Vote.NEUTRAL)
+        if (vote === null || vote === Vote.NEUTRAL)
             return
 
         // quickly center the vote button
@@ -796,51 +752,50 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             playerContainer.addView(mediaControlsContainer)
 
-            if (isStaticImage(feedItem)) {
-                viewer.thumbnail()
-                        .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
-                        .subscribe { this.updatePlayerContainerBackground(it) }
-            } else {
-                playerContainer.setBackgroundColor(Color.BLACK)
-            }
+            viewer.thumbnail()
+                    .compose(bindUntilEvent(FragmentEvent.DESTROY_VIEW))
+                    .subscribe { this.updatePlayerContainerBackground(it) }
 
         } else {
             viewer.setPadding(0, padding, 0, 0)
 
-            // we add a placeholder to the first element of the recycler view.
-            // this placeholder will mirror the size of the viewer.
-            val placeholder = PlaceholderView()
-            adapter.addAdapter(SingleViewAdapter.ofView(placeholder))
+            adapter.addAdapter(SingleViewAdapter.of {
+                // we add a placeholder to the first element of the recycler view.
+                // this placeholder will mirror the size of the viewer.
+                val placeholder = PlaceholderView()
 
-            RxView.layoutChanges(viewer).subscribe {
-                val newHeight = viewer.measuredHeight
-                if (newHeight != placeholder.fixedHeight) {
-                    placeholder.fixedHeight = newHeight
+                RxView.layoutChanges(viewer).map { Unit }.startWith(Unit).subscribe {
+                    val newHeight = viewer.measuredHeight
+                    if (newHeight != placeholder.fixedHeight) {
+                        placeholder.fixedHeight = newHeight
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        placeholder.requestLayout()
-                    } else {
-                        // it looks like a requestLayout is not honored on pre kitkat devices
-                        // if already in a layout pass.
-                        placeholder.post { placeholder.requestLayout() }
-                    }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            placeholder.requestLayout()
+                        } else {
+                            // it looks like a requestLayout is not honored on pre kitkat devices
+                            // if already in a layout pass.
+                            placeholder.post { placeholder.requestLayout() }
+                        }
 
-                    if (isVideoFullScreen) {
-                        realignFullScreen()
+                        if (isVideoFullScreen) {
+                            realignFullScreen()
+                        }
                     }
                 }
-            }
 
-            RxView.layoutChanges(placeholder).subscribe {
-                // simulate scroll after layouting the placeholder to
-                // reflect changes to the viewers clipping.
-                simulateScroll()
-            }
+                RxView.layoutChanges(placeholder).subscribe {
+                    // simulate scroll after layouting the placeholder to
+                    // reflect changes to the viewers clipping.
+                    simulateScroll()
+                }
 
 
-            placeholder.addView(mediaControlsContainer)
+                placeholder.addView(mediaControlsContainer)
 
-            playerPlaceholder = placeholder
+                playerPlaceholder = placeholder
+
+                placeholder
+            })
         }
 
         // add the controls as child of the controls-container.
@@ -914,7 +869,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             override fun onDoubleTap(): Boolean {
                 if (settings.doubleTapToUpvote) {
-                    infoLineView.voteView.triggerUpVoteClicked()
+                    infoLine.view?.voteView?.triggerUpVoteClicked()
                 }
 
                 return true
@@ -944,7 +899,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_).toList()
 
         // show tags now
-        infoLineView.updateTags(tags.associate { it to Vote.NEUTRAL })
+        infoLine.updateTags(tags.associate { it to Vote.NEUTRAL })
 
         // and update tags with votes later.
         voteService.getTagVotes(tags)
@@ -952,7 +907,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .onErrorResumeNext(just(VoteService.NO_VOTES))
                 .compose(bindToLifecycleAsync())
                 .subscribe { votes ->
-                    infoLineView.updateTags(tags.associate { it to (votes[it.id] ?: Vote.NEUTRAL) })
+                    infoLine.updateTags(tags.associate {
+                        it to (votes[it.id] ?: Vote.NEUTRAL)
+                    })
                 }
 
         hideProgressIfLoop(tags)
@@ -1066,7 +1023,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 content(R.string.hint_kfav_userscript)
                 positive(R.string.open_website) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"))
-                    context?.startActivity(intent)
+                    context.startActivity(intent)
                 }
 
                 negative(R.string.ignore)
@@ -1256,6 +1213,109 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         fun newInstance(item: FeedItem): PostFragment {
             return PostFragment().arguments {
                 putParcelable(ARG_FEED_ITEM, item)
+            }
+        }
+    }
+
+    fun initializeInfoView(infoView: InfoLineView) {
+        val isSelfPost = userService.name.equals(feedItem.user, ignoreCase = true)
+
+        // display the feed item in the view
+        val cachedVote = voteService.getVote(feedItem).compose(bindToLifecycleAsync())
+        infoView.setFeedItem(feedItem, isSelfPost, cachedVote)
+
+        infoView.onDetailClickedListener = this@PostFragment
+
+        // register the vote listener
+        infoView.onVoteListener = { vote ->
+            val action = Runnable {
+                showPostVoteAnimation(vote)
+
+                voteService.vote(feedItem, vote)
+                        .decoupleSubscribe()
+                        .compose(bindToLifecycleAsync<Any>())
+                        .subscribeWithErrorHandling()
+            }
+
+            val retry = Runnable { infoView.voteView.vote = vote }
+            doIfAuthorizedHelper.run(action, retry)
+        }
+
+        // and a vote listener vor voting tags.
+        infoView.tagVoteListener = { tag, vote ->
+            val action = Runnable {
+                voteService.vote(tag, vote)
+                        .decoupleSubscribe()
+                        .compose(bindToLifecycleAsync<Any>())
+                        .doAfterTerminate({ infoView.addVote(tag, vote) })
+                        .subscribeWithErrorHandling()
+            }
+
+            doIfAuthorizedHelper.run(action, action)
+        }
+
+        infoView.onAddTagClickedListener = {
+            doIfAuthorizedHelper.run {
+                val dialog = NewTagDialogFragment()
+                dialog.show(childFragmentManager, null)
+            }
+        }
+    }
+
+    interface InfoLineAccessor {
+        var view: InfoLineView?
+        var visible: Boolean
+
+        fun updateTags(tags: Map<Api.Tag, Vote>) {
+            view?.updateTags(tags)
+        }
+    }
+
+    inner class InfoLineAsView(override var view: InfoLineView?) : InfoLineAccessor {
+        override var visible: Boolean by observeChange(true) {
+            view?.visible = visible
+        }
+
+        init {
+            view?.let { initializeInfoView(it) }
+        }
+    }
+
+    inner class InfoLineAdapter() : RecyclerView.Adapter<InfoLineAdapter.Holder>(), InfoLineAccessor {
+        override var visible by observeChange(true) { notifyDataSetChanged() }
+        override var view: InfoLineView? = null
+
+        private var tags: Map<Api.Tag, Vote> = emptyMap()
+
+        override fun getItemCount(): Int {
+            return if (visible) 1 else 0
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
+            return Holder(InfoLineView(parent.context))
+        }
+
+        override fun onViewRecycled(holder: Holder) {
+            if (view === holder.view) {
+                view = null
+            }
+        }
+
+        override fun onBindViewHolder(holder: Holder, position: Int) {
+            val infoView = holder.view
+            view = infoView
+            initializeInfoView(infoView)
+            infoView.updateTags(tags)
+        }
+
+        inner class Holder(val view: InfoLineView) : RecyclerView.ViewHolder(view) {
+        }
+
+        override fun updateTags(tags: Map<Api.Tag, Vote>) {
+            this.tags = tags
+
+            if (visible) {
+                this.notifyItemChanged(0)
             }
         }
     }
