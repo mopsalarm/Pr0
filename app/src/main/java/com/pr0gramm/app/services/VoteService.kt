@@ -125,7 +125,7 @@ class VoteService(private val api: Api,
             val watch = Stopwatch.createStarted()
             withTransaction(database.value) {
                 logger.info("Applying {} vote actions", actionCount)
-                for (idx in 0..actionCount - 1) {
+                for (idx in 0 until actionCount) {
                     val id = actionStream.readInt().toLong()
                     val action = VOTE_ACTIONS[actionStream.readUnsignedByte()] ?: continue
 
@@ -248,6 +248,7 @@ class VoteService(private val api: Api,
                 7 to VoteAction(CachedVote.Type.TAG, Vote.DOWN),
                 8 to VoteAction(CachedVote.Type.TAG, Vote.NEUTRAL),
                 9 to VoteAction(CachedVote.Type.TAG, Vote.UP),
-                10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE))
+                10 to VoteAction(CachedVote.Type.ITEM, Vote.FAVORITE),
+                11 to VoteAction(CachedVote.Type.COMMENT, Vote.FAVORITE))
     }
 }

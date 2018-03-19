@@ -145,7 +145,6 @@ public interface Api {
             @Field("id") long id,
             @Field("reason") String reason,
             @Field("customReason") String customReason,
-            @Field("notifyUser") String notifyUser,
             @Field("banUser") String banUser,
             @Field("days") Float days);
 

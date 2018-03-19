@@ -16,12 +16,11 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
         return api.tagDetails(itemId)
     }
 
-    fun deleteItem(item: FeedItem, reason: String, notifyUser: Boolean, blockDays: Float? = null): Completable {
-        val pNotifyUser = if (notifyUser) "on" else null
+    fun deleteItem(item: FeedItem, reason: String, blockDays: Float? = null): Completable {
         val blockUser = if (blockDays != null && blockDays >= 0) "on" else null
 
         return api
-                .deleteItem(null, item.id(), "custom", reason, pNotifyUser, blockUser, blockDays)
+                .deleteItem(null, item.id(), "custom", reason, blockUser, blockDays)
                 .toCompletable()
     }
 

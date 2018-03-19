@@ -30,7 +30,6 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     private val blockUser: CheckBox by bindView(R.id.block_user)
     private val blockUserForDays: EditText by bindView(R.id.block_user_days)
     private val blockTreeup: CheckBox by bindView(R.id.block_treeup)
-    private val notifyUser: CheckBox? by bindOptionalView(R.id.notify_user)
 
     // one of those must be set.
     private val user: String? by lazy { arguments?.getString(KEY_USER) }
@@ -84,10 +83,9 @@ class ItemUserAdminDialog : BaseDialogFragment("ItemUserAdminDialog") {
     }
 
     private fun deleteItem(item: FeedItem, reason: String): Completable {
-        val notifyUser = this.notifyUser?.isChecked ?: false
         val ban = blockUser.isChecked
         val banUserDays = if (ban) Floats.tryParse(blockUserForDays.text.toString()) else null
-        return adminService.deleteItem(item, reason, notifyUser, banUserDays)
+        return adminService.deleteItem(item, reason, banUserDays)
     }
 
     private fun blockUser(user: String, reason: String): Completable {

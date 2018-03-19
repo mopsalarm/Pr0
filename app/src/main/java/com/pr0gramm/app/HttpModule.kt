@@ -320,34 +320,40 @@ private class FallbackDns : Dns {
 
         val resolved = try {
             Dns.SYSTEM.lookup(hostname)
-                    .filterNot { it.isAnyLocalAddress }
-                    .filterNot { it.isLinkLocalAddress }
-                    .filterNot { it.isLoopbackAddress }
-                    .filterNot { it.isMulticastAddress }
-                    .filterNot { it.isSiteLocalAddress }
-                    .filterNot { it.isMCSiteLocal }
-                    .filterNot { it.isMCGlobal }
-                    .filterNot { it.isMCLinkLocal }
-                    .filterNot { it.isMCNodeLocal }
-                    .filterNot { it.isMCOrgLocal }
-                    .toMutableList()
-
         } catch (err: UnknownHostException) {
-            mutableListOf<InetAddress>()
+            emptyList<InetAddress>()
         }
 
-        if (resolved.isNotEmpty()) {
+        val resolvedFiltered = resolved
+                .filterNot { it.isAnyLocalAddress }
+                .filterNot { it.isLinkLocalAddress }
+                .filterNot { it.isLoopbackAddress }
+                .filterNot { it.isMulticastAddress }
+                .filterNot { it.isSiteLocalAddress }
+                .filterNot { it.isMCSiteLocal }
+                .filterNot { it.isMCGlobal }
+                .filterNot { it.isMCLinkLocal }
+                .filterNot { it.isMCNodeLocal }
+                .filterNot { it.isMCOrgLocal }
+
+        if (resolvedFiltered.isNotEmpty()) {
             debug {
                 logger.info("System resolver for {} returned {}", hostname, resolved)
             }
 
-            return resolved
+            return resolved.toMutableList()
         } else {
             val fallback = fallbackLookup(hostname)
             debug {
                 logger.info("Fallback resolver for {} returned {}", hostname, fallback)
             }
-            return fallback
+
+            if (fallback.isNotEmpty()) {
+                return fallback
+            }
+
+            // still nothing? lets just return whatever the system told us
+            return resolved.toMutableList()
         }
     }
 

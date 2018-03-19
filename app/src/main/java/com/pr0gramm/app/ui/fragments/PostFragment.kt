@@ -9,7 +9,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -62,7 +61,6 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.dp
 import com.trello.rxlifecycle.android.FragmentEvent
-import rx.Completable
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
@@ -97,11 +95,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val feedService: FeedService by instance()
     private val voteService: VoteService by instance()
     private val seenService: SeenService by instance()
-    private val singleShotService: SingleShotService by instance()
     private val inMemoryCacheService: InMemoryCacheService by instance()
     private val userService: UserService by instance()
     private val downloadService: DownloadService by instance()
-    private val favedCommentService: FavedCommentService by instance()
     private val configService: ConfigService by instance()
 
     private val swipeRefreshLayout: SwipeRefreshLayout by bindView(R.id.refresh)
@@ -300,15 +296,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "")
         commentsAdapter.commentActionListener = this
+        commentsAdapter.showFavCommentButton = true
         adapter.addAdapter(commentsAdapter)
-
-        // apply login state.
-        userService.loginState()
-                .map { it.authorized }
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe { commentsAdapter.showFavCommentButton = it }
-
 
         // restore the postInfo, if possible.
         tags.takeIf { it.isNotEmpty() }?.let { displayTags(it) }
@@ -633,15 +622,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 })
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        favedCommentService.favedCommentIds
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe { commentsAdapter.favedComments = it }
-    }
-
     override fun onResume() {
         super.onResume()
 
@@ -762,7 +742,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             adapter.addAdapter(SingleViewAdapter.of {
                 // we add a placeholder to the first element of the recycler view.
                 // this placeholder will mirror the size of the viewer.
-                val placeholder = PlaceholderView()
+                val placeholder = PlaceholderView(viewer)
 
                 RxView.layoutChanges(viewer).map { Unit }.startWith(Unit).subscribe {
                     val newHeight = viewer.measuredHeight
@@ -790,6 +770,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
 
 
+                mediaControlsContainer.removeFromParent()
                 placeholder.addView(mediaControlsContainer)
 
                 playerPlaceholder = placeholder
@@ -944,7 +925,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             scrollToComment(commentId)
         }
 
-        // load the votes for the comments and update, when we found any
+        asyncQueryVotesForComments()
+    }
+
+    private fun asyncQueryVotesForComments() {
+        // load the votes for the comments and update if we found any
         voteService.getCommentVotes(this.comments)
                 .filter { votes -> !votes.isEmpty }
                 .onErrorResumeEmpty()
@@ -985,7 +970,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return doIfAuthorizedHelper.run(Runnable {
             voteService.vote(comment, vote)
                     .decoupleSubscribe()
-                    .compose(bindToLifecycleAsync<Any>())
+                    .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
+                    .doAfterTerminate { asyncQueryVotesForComments() }
                     .subscribeWithErrorHandling()
         })
     }
@@ -1003,32 +989,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onCommentAuthorClicked(comment: Api.Comment) {
         onUserClicked(comment.name)
-    }
-
-    override fun onCommentMarkAsFavoriteClicked(comment: Api.Comment, markAsFavorite: Boolean) {
-        val operationCompletable: Completable
-        if (markAsFavorite) {
-            operationCompletable = favedCommentService.save(feedItem, comment)
-        } else {
-            operationCompletable = favedCommentService.delete(comment.id)
-        }
-
-        operationCompletable
-                .decoupleSubscribe()
-                .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .subscribeWithErrorHandling()
-
-        if (singleShotService.isFirstTime("kfav-userscript-hint")) {
-            showDialog(context) {
-                content(R.string.hint_kfav_userscript)
-                positive(R.string.open_website) {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://goo.gl/py7xNW"))
-                    context.startActivity(intent)
-                }
-
-                negative(R.string.ignore)
-            }
-        }
     }
 
     override fun onCopyCommentLink(comment: Api.Comment) {
@@ -1079,7 +1039,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         return false
     }
 
-    private inner class PlaceholderView : FrameLayout(this@PostFragment.context) {
+    private class PlaceholderView(val viewer: View) : FrameLayout(viewer.context) {
         var fixedHeight = AndroidUtility.dp(context, 150)
 
         init {
