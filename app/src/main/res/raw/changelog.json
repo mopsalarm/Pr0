@@ -5,6 +5,10 @@
       {
         "type": "Fix",
         "change": "'records must not be null' Fehler behoben."
+      },
+      {
+        "type": "Fix",
+        "change": "Abstürtze der App auf einigen Systemen behoben."
       }
     ]
   },
