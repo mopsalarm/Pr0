@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory
  */
 class SyncService(private val userService: UserService,
                   private val notificationService: NotificationService,
-                  private val singleShotService: SingleShotService) {
+                  private val singleShotService: SingleShotService,
+                  private val favedCommentService: FavedCommentService) {
 
     private val logger = LoggerFactory.getLogger("SyncService")
 
@@ -28,6 +29,11 @@ class SyncService(private val userService: UserService,
 
     fun sync() {
         Stats.get().incrementCounter("jobs.sync")
+
+        if (singleShotService.firstTimeInHour("auto-sync-comments")) {
+            logger.info("sync favorite comments")
+            favedCommentService.updateCache()
+        }
 
         if (!userService.isAuthorized) {
             logger.info("Will not sync now - user is not signed in.")

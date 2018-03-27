@@ -36,7 +36,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with singleton { DatabasePreloadManager(instance()) }
-    bind<FavedCommentService>() with instance(FavedCommentService())
+    bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
     bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance(), instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }
@@ -55,7 +55,8 @@ fun servicesModule(app: Application) = Kodein.Module {
         SyncService(
                 instance<UserService>(),
                 instance<NotificationService>(),
-                instance<SingleShotService>())
+                instance<SingleShotService>(),
+                instance<FavedCommentService>())
     }
 
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance(), instance()) }

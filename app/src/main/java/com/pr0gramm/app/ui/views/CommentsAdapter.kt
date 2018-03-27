@@ -20,6 +20,8 @@ import com.pr0gramm.app.util.visible
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
+import gnu.trove.set.TLongSet
+import gnu.trove.set.hash.TLongHashSet
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import org.joda.time.Hours
@@ -37,11 +39,11 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
     var showFavCommentButton: Boolean = false
 
+    var favedComments: TLongSet by observeChange(TLongHashSet()) { notifyDataSetChanged() }
+
     var commentActionListener: CommentActionListener? = null
 
     var selectedCommentId by observeChange(0L) { notifyDataSetChanged() }
-
-    var baseVote: TLongObjectMap<Vote> = TLongObjectHashMap()
 
     init {
         setHasStableIds(true)
@@ -57,10 +59,6 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
             val depth = getCommentDepth(byId, comment)
             val baseVote = votes.get(comment.id) ?: Vote.NEUTRAL
             CommentEntry(comment, baseVote, depth)
-        }
-
-        if (baseVote.isEmpty) {
-            baseVote = TLongObjectHashMap<Vote>(votes)
         }
 
         notifyDataSetChanged()
@@ -143,8 +141,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
         holder.kFav?.let { kFav ->
             if (showFavCommentButton) {
-                val isFavorite = entry.vote == Vote.FAVORITE
-                val newVote = if (isFavorite) Vote.UP else Vote.FAVORITE
+                val isFavorite = favedComments.contains(comment.id)
 
                 if (isFavorite) {
                     val color = ContextCompat.getColor(context, ThemeHelper.accentColor)
@@ -158,8 +155,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
 
                 kFav.visibility = View.VISIBLE
                 kFav.setOnClickListener {
-                    doVote(entry, newVote)
-                    notifyItemChanged(position)
+                    commentActionListener?.onCommentMarkAsFavoriteClicked(comment, !isFavorite)
                 }
             } else {
                 kFav.visibility = View.GONE
@@ -170,7 +166,7 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
     private fun getCommentScore(entry: CommentEntry): CommentScore {
         var score = 0
         score += entry.comment.up - entry.comment.down
-        score += entry.vote.voteValue - (baseVote[entry.comment.id]?.voteValue ?: 0)
+        score += entry.vote.voteValue - entry.baseVote.voteValue
         return CommentScore(score, entry.comment.up, entry.comment.down)
     }
 
@@ -247,7 +243,9 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         }
     }
 
-    private class CommentEntry(val comment: Api.Comment, var vote: Vote, val depth: Int)
+    private class CommentEntry(val comment: Api.Comment, val baseVote: Vote, val depth: Int) {
+        var vote: Vote = baseVote
+    }
 
     interface CommentActionListener {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean
@@ -255,6 +253,8 @@ class CommentsAdapter(private val admin: Boolean, private val selfName: String) 
         fun onAnswerClicked(comment: Api.Comment)
 
         fun onCommentAuthorClicked(comment: Api.Comment)
+
+        fun onCommentMarkAsFavoriteClicked(comment: Api.Comment, markAsFavorite: Boolean)
 
         fun onCopyCommentLink(comment: Api.Comment)
 
