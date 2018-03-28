@@ -68,6 +68,11 @@ public abstract class Config {
     }
 
     @Value.Default
+    public boolean isReportItemsActive() {
+        return true;
+    }
+
+    @Value.Default
     public List<String> getReportReasons() {
         return Arrays.asList(
                 "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",

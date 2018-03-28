@@ -419,6 +419,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
+        val config = configService.config()
         val isImage = isStaticImage(feedItem)
 
         menu.findItem(R.id.action_refresh)
@@ -440,7 +441,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = adminMode
 
         menu.findItem(R.id.action_report)
-                ?.isVisible = userService.isAuthorized
+                ?.isVisible = config.isReportItemsActive && userService.isAuthorized
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
