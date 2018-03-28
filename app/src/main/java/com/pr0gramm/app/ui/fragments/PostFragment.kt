@@ -438,6 +438,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         menu.findItem(R.id.action_tags_details)
                 ?.isVisible = adminMode
+
+        menu.findItem(R.id.action_report)
+                ?.isVisible = userService.isAuthorized
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
@@ -677,6 +680,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     @OnOptionsItemSelected(R.id.action_tags_details)
     fun showTagsDetailsDialog() {
         val dialog = TagsDetailsDialog.newInstance(feedItem.id())
+        dialog.show(fragmentManager, null)
+    }
+
+    @OnOptionsItemSelected(R.id.action_report)
+    fun showReportDialog() {
+        val dialog = ReportDialog.forItem(feedItem)
         dialog.show(fragmentManager, null)
     }
 

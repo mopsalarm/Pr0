@@ -67,6 +67,23 @@ public abstract class Config {
                 "pr0paganda", "pr0gida", "für mehr", "dein scheiß", "kann ich auch");
     }
 
+    @Value.Default
+    public List<String> getReportReasons() {
+        return Arrays.asList(
+                "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
+                "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
+                "Regel #3 - Tierporn",
+                "Regel #4 - Stumpfer Rassismus/Nazi-Nostalgie",
+                "Regel #5 - Werbung/Spam",
+                "Regel #6 - Infos zu Privatpersonen",
+                "Regel #7 - Bildqualität",
+                "Regel #12 - Warez/Logins zu Pay Sites",
+                "Regel #14 - Screamer/Sound-getrolle",
+                "Regel #15 - Reiner Musikupload",
+                "Verstoß in den Tags",
+                "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben");
+    }
+
     @Nullable
     @Value.Default
     public MenuItem getSpecialMenuItem() {

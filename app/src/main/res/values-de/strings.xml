@@ -493,7 +493,7 @@
     <string name="pref_audiofocus_transient_summary">"Ist diese Option aktiviert, werden Musik und Töne anderer Apps, die durch das pr0gramm unterbrochen wurden, automatisch fortgesetzt.\n "</string>
     <string name="not_now">Später</string>
     <string name="play_store">Zum PlayStore</string>
-    <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung 'Incognito Browser'.</string>
+    <string name="hint_use_firefox_focus">Bitte installiere dir den von der pr0gramm App unterstützen Firefox Klar oder deaktiviere die Einstellung \'Incognito Browser\'.</string>
     <string name="pref_allow_casting_title">Chromecast</string>
     <string name="pref_allow_casting_summary">Zeige den \'Cast\' Knopf, wenn ein Chromecast kompatibles Gerät im Netzwerk gefunden wurde. Diese Funktion ist experimentell.</string>
     <string name="pref_secure_app_title">Verstecke die App im Appwechsler</string>
@@ -502,4 +502,5 @@
     <string name="error_feed_not_found">Der angefragte Post existiert nicht mehr.</string>
     <string name="menu_new_badge">NEU</string>
     <string name="error_no_gallery_app">Es ist keine App zum Auswählen von Bildern und Videos installiert. Bitte installiere eine Galerie App wie \'Google Photos\' oder \'Simple Gallery\'</string>
+    <string name="action_report">Melden</string>
 </resources>

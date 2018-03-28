@@ -192,6 +192,13 @@ public interface Api {
             @Field("message") String message);
 
     @FormUrlEncoded
+    @POST("api/contact/report")
+    Observable<Nothing> report(@Field("_nonce") Nonce nonce,
+                               @Field("itemId") long item,
+                               @Field("commentId") long commentId,
+                               @Field("reason") String reason);
+
+    @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
     Observable<Nothing> requestPasswordRecovery(@Field("email") String email);
 

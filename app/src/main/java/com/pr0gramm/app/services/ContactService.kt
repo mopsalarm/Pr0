@@ -10,4 +10,8 @@ class ContactService(private val api: Api) {
     fun post(email: String, subject: String, message: String): Completable {
         return api.contactSend(subject, email, message).toCompletable()
     }
+
+    fun report(itemId: Long, reason: String): Completable {
+        return api.report(null, itemId, 0, reason).toCompletable()
+    }
 }
