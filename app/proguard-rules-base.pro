@@ -30,6 +30,9 @@
 -keep public class com.pr0gramm.app.services.cast.CastOptionsProvider { *; }
 -keep public class android.support.v7.app.MediaRouteActionProvider { public <init>(...); }
 
+# we need this for the publicsuffixes.gz
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+
 # keep enums!
 -keepclassmembers enum * {
     public static **[] values();
