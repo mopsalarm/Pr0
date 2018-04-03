@@ -3,6 +3,14 @@
     "version": 138,
     "changes": [
       {
+        "type": "Neu",
+        "change": "Erste Version der Melden Funktion für Posts"
+      },
+      {
+        "type": "Fix",
+        "change": "Probleme mit SSL auf älteren Android Geräte behoben."
+      },
+      {
         "type": "Fix",
         "change": "'records must not be null' Fehler behoben."
       },
