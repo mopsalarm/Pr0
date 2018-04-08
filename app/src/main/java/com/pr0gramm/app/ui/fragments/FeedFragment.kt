@@ -348,8 +348,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
                 private fun showUserInfoComments(comments: List<Api.UserComments.UserComment>) {
                     userInfoCommentsOpen = comments.isNotEmpty()
-                    messages.setComments(info.info.user, comments)
-                    updateSpanSizeLookup()
+
+                    if (userService.isAuthorized) {
+                        messages.setComments(info.info.user, comments)
+                        updateSpanSizeLookup()
+                    }
                 }
             }
 

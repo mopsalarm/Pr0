@@ -300,14 +300,29 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "")
         commentsAdapter.commentActionListener = this
-        adapter.addAdapter(commentsAdapter)
+
+        if (userService.isAuthorized) {
+            adapter.addAdapter(commentsAdapter)
+        }
 
         // apply login state.
         userService.loginState()
                 .map { it.authorized }
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
-                .subscribe { commentsAdapter.showFavCommentButton = it }
+                .subscribe { authorized ->
+                    if (authorized && commentsAdapter !in adapter) {
+                        logger.info("Add comments adapter cause the user is logged in")
+                        adapter.addAdapter(commentsAdapter)
+                    }
+
+                    if (!authorized && commentsAdapter in adapter) {
+                        logger.info("Remove comments adapter cause the user is not logged in")
+                        adapter.removeAdapter(commentsAdapter)
+                    }
+
+                    commentsAdapter.showFavCommentButton = authorized
+                }
 
 
         // restore the postInfo, if possible.
@@ -800,6 +815,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 }
 
 
+                mediaControlsContainer.removeFromParent()
                 placeholder.addView(mediaControlsContainer)
 
                 playerPlaceholder = placeholder

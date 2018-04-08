@@ -152,6 +152,25 @@ class MergeRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun removeAdapter(adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>) {
+        var changed = false
+
+        for (holder in this.adapters.toList()) {
+            if (holder.adapter == adapter) {
+                holder.adapter.unregisterAdapterDataObserver(holder.observer)
+                changed = true
+            }
+        }
+
+        if (changed) {
+            notifyDataSetChanged()
+        }
+    }
+
+    operator fun contains(adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>): Boolean {
+        return adapters.any { it.adapter == adapter }
+    }
+
     /**
      */
     private inner class Holder(val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>) {
