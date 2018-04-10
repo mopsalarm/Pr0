@@ -895,7 +895,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             override fun onDoubleTap(): Boolean {
                 if (settings.doubleTapToUpvote) {
-                    infoLine.view?.voteView?.triggerUpVoteClicked()
+                    doVote(Vote.UP)
                 }
 
                 return true
@@ -1253,19 +1253,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         infoView.onDetailClickedListener = this@PostFragment
 
         // register the vote listener
-        infoView.onVoteListener = { vote ->
-            val action = Runnable {
-                showPostVoteAnimation(vote)
-
-                voteService.vote(feedItem, vote)
-                        .decoupleSubscribe()
-                        .compose(bindToLifecycleAsync<Any>())
-                        .subscribeWithErrorHandling()
-            }
-
-            val retry = Runnable { infoView.voteView.vote = vote }
-            doIfAuthorizedHelper.run(action, retry)
-        }
+        infoView.onVoteListener = { vote -> doVote(vote) }
 
         // and a vote listener vor voting tags.
         infoView.tagVoteListener = { tag, vote ->
@@ -1286,6 +1274,22 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 dialog.show(childFragmentManager, null)
             }
         }
+    }
+
+    private fun doVote(vote: Vote): Boolean {
+        val action = Runnable {
+            showPostVoteAnimation(vote)
+
+            voteService.vote(feedItem, vote)
+                    .decoupleSubscribe()
+                    .compose(bindToLifecycleAsync<Any>())
+                    .subscribeWithErrorHandling()
+
+            infoLine.view?.voteView?.setVote(vote, force = true)
+        }
+
+        val retry = Runnable { doVote(vote) }
+        return doIfAuthorizedHelper.run(action, retry)
     }
 
     interface InfoLineAccessor {
