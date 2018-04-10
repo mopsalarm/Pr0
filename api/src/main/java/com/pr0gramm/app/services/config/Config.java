@@ -85,6 +85,7 @@ public abstract class Config {
                 "Regel #12 - Warez/Logins zu Pay Sites",
                 "Regel #14 - Screamer/Sound-getrolle",
                 "Regel #15 - Reiner Musikupload",
+                "Regel #18 - Hetze/Aufruf zur Gewalt",
                 "Verstoß in den Tags",
                 "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben");
     }

@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.google.common.base.Preconditions.checkNotNull
+import com.pr0gramm.app.util.ignoreException
 import gnu.trove.map.TIntIntMap
 import gnu.trove.map.hash.TIntIntHashMap
 import org.slf4j.LoggerFactory
@@ -143,11 +144,12 @@ class MergeRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun clear() {
         for (adapter in this.adapters) {
-            adapter.adapter.unregisterAdapterDataObserver(adapter.observer)
+            ignoreException {
+                adapter.adapter.unregisterAdapterDataObserver(adapter.observer)
+            }
         }
 
         this.adapters.clear()
-        this.globalViewTypeIndex = 0
 
         notifyDataSetChanged()
     }

@@ -7,10 +7,10 @@ apply from: 'version.gradle'
 
 buildscript {
     ext {
-        VersionKotlin = "1.2.30"
+        VersionKotlin = "1.2.31"
         VersionSupportLibrary = "27.0.2"
         VersionRxBinding = "1.0.1"
-        VersionRetrofit = "2.3.0"
+        VersionRetrofit = "2.4.0"
         VersionGoogleServices = "11.8.0"
     }
 
@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-        classpath 'io.fabric.tools:gradle:1.25.1'
+        classpath 'io.fabric.tools:gradle:1.25.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
     }
 }
@@ -167,7 +167,7 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    implementation("com.google.guava:guava:23.6-android") {
+    implementation("com.google.guava:guava:24.1-android") {
         force = true
     }
 
@@ -175,7 +175,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-ads:$VersionGoogleServices"
     implementation "com.google.android.gms:play-services-cast-framework:$VersionGoogleServices"
 
-    implementation "net.danlew:android.joda:2.9.9.2"
+    implementation "net.danlew:android.joda:2.9.9.3"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
@@ -188,7 +188,7 @@ dependencies {
     implementation "com.squareup.sqlbrite:sqlbrite:1.1.2"
     implementation "com.infstory:proguard-annotations:1.0.2"
     implementation 'net.sf.trove4j:trove4j:3.0.3'
-    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.9.0"
+    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation "org.nanohttpd:nanohttpd:2.3.1"
     implementation "com.indeed:java-dogstatsd-client:2.0.16"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
@@ -196,17 +196,17 @@ dependencies {
     implementation "dnsjava:dnsjava:2.1.8"
 
 
-    implementation 'com.github.evernote:android-job:v1.2.4'
+    implementation 'com.github.evernote:android-job:v1.2.5'
 
     implementation "com.github.apl-devs:appintro:v4.2.3"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.7.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
 
     debugImplementation "com.facebook.stetho:stetho:1.5.0"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
 
     // rx java
-    implementation "io.reactivex:rxjava:1.3.6"
+    implementation "io.reactivex:rxjava:1.3.8"
     implementation "io.reactivex:rxandroid:1.2.1"
     implementation "io.reactivex:rxjava-async-util:0.21.0"
     implementation 'io.reactivex:rxkotlin:1.0.0'
@@ -225,7 +225,7 @@ dependencies {
     // bottomsheets
     implementation "com.flipboard:bottomsheet-core:1.5.3"
 
-    implementation "com.github.bright:slf4android:0.1.4"
+    implementation "com.github.bright:slf4android:0.1.5"
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.1"
 
     // dependency injection using kotlin.

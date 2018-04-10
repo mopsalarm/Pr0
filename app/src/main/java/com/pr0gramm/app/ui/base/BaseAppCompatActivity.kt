@@ -1,11 +1,13 @@
 package com.pr0gramm.app.ui.base
 
 import android.os.Bundle
+import android.view.MotionEvent
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
 import com.pr0gramm.app.ui.dialogs.OnComplete
 import com.pr0gramm.app.ui.dialogs.OnNext
 import com.pr0gramm.app.ui.dialogs.subscribeWithErrorHandling
+import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.time
 import com.trello.rxlifecycle.LifecycleTransformer
 import com.trello.rxlifecycle.android.ActivityEvent
@@ -44,8 +46,13 @@ abstract class BaseAppCompatActivity(name: String) : RxAppCompatActivity(), AppC
         destroyInjector()
     }
 
-    override fun onContentChanged() {
-        super.onContentChanged()
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return try {
+            super.dispatchTouchEvent(ev)
+        } catch (err: IllegalArgumentException) {
+            AndroidUtility.logToCrashlytics(err)
+            true
+        }
     }
 
     final override fun initializeInjector() = super.initializeInjector()
