@@ -42,7 +42,7 @@
 }
 
 # Preserve some attributes that may be required for reflection.
--keepattributes *Annotation*,SourceFile,Signature,InnerClasses,EnclosingMethod
+-keepattributes *Annotation*,LineNumberTable,SourceFile,Signature,InnerClasses,EnclosingMethod
 
 # For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
 -keepclasseswithmembernames class * {

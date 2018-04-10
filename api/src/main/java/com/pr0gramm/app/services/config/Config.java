@@ -75,6 +75,7 @@ public abstract class Config {
     @Value.Default
     public List<String> getReportReasons() {
         return Arrays.asList(
+                "Repost",
                 "Regel #1 - Bild unzureichend getagged (nsfw/nsfl)",
                 "Regel #2 - Gore/Porn/Suggestive Bilder mit Minderjährigen",
                 "Regel #3 - Tierporn",
