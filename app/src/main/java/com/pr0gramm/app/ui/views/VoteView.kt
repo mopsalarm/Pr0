@@ -89,11 +89,11 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return view
     }
 
-    fun triggerDownVoteClicked() {
+    private fun triggerDownVoteClicked() {
         vote = if (state === Vote.DOWN) Vote.NEUTRAL else Vote.DOWN
     }
 
-    fun triggerUpVoteClicked() {
+    private fun triggerUpVoteClicked() {
         vote = if (state === Vote.UP || state === Vote.FAVORITE) Vote.NEUTRAL else Vote.UP
     }
 
