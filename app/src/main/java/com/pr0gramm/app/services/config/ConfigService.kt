@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.Settings
 import com.google.gson.Gson
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.util.ignoreException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
@@ -44,7 +45,11 @@ class ConfigService(context: Application,
         publishState()
 
         // schedule updates once an hour
-        Observable.interval(0, 1, TimeUnit.HOURS, Schedulers.io()).subscribe { update() }
+        Observable.interval(0, 1, TimeUnit.HOURS, Schedulers.io()).subscribe {
+            ignoreException {
+                update()
+            }
+        }
     }
 
     private fun update() {
