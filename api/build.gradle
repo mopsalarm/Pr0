@@ -6,7 +6,7 @@ ext {
 
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 }
 
@@ -20,9 +20,9 @@ dependencies {
     compileOnly "org.immutables:value:$VersionImmutables"
     annotationProcessor "org.immutables:value:$VersionImmutables"
 
-    implementation "net.danlew:android.joda:2.9.9.1"
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'io.reactivex:rxjava:1.3.8'
+    compileOnly "net.danlew:android.joda:2.9.9.1"
+    compileOnly 'com.squareup.retrofit2:retrofit:2.4.0'
+    compileOnly 'io.reactivex:rxjava:1.3.8'
 
     implementation("com.google.guava:guava:23.5-android") {
         force = true

@@ -416,8 +416,10 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                         "aktuelle Version von https://app.pr0gramm.com herunter.")
 
                 positive(R.string.okay) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://app.pr0gramm.com")))
-                    finish()
+                    if (!BuildConfig.DEBUG) {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://app.pr0gramm.com")))
+                        finish()
+                    }
                 }
             }
 

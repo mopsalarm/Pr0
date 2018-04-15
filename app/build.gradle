@@ -8,10 +8,10 @@ apply from: 'version.gradle'
 buildscript {
     ext {
         VersionKotlin = "1.2.31"
-        VersionSupportLibrary = "27.0.2"
+        VersionSupportLibrary = "27.1.1"
         VersionRxBinding = "1.0.1"
         VersionRetrofit = "2.4.0"
-        VersionGoogleServices = "11.8.0"
+        VersionGoogleServices = "15.0.0"
     }
 
     repositories {
@@ -28,12 +28,12 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 27
         applicationId "com.pr0gramm.app"
 
         versionCode appVersion
@@ -181,7 +181,7 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
     implementation "com.squareup.okhttp3:okhttp:3.10.0"
     implementation "com.squareup.picasso:picasso:2.71828"
-    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.11"
+    implementation "pl.droidsonroids.gif:android-gif-drawable:1.2.12"
     implementation "com.github.tony19:named-regexp:0.2.5"
     implementation "com.pnikosis:materialish-progress:1.7"
     implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
