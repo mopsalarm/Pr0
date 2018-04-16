@@ -105,7 +105,6 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         // update the views!
         usernameView.setUsername(item.user, item.mark)
         dateView.text = getRelativeTimeSpanString(context, item.created)
-        updateViewState(Vote.NEUTRAL)
 
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)
@@ -123,7 +122,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
      * @param vote The vote that is currently selected.
      */
-    private fun updateViewState(vote: Vote) {
+    fun updateViewState(vote: Vote) {
         feedItem?.let { feedItem ->
             if (isOneHourOld || isSelfPost || admin) {
                 val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)

@@ -895,11 +895,18 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             override fun onDoubleTap(): Boolean {
                 if (settings.doubleTapToUpvote) {
-                    doVote(Vote.UP)
+                    doVoteOnDoubleTap()
                 }
 
                 return true
             }
+        }
+    }
+
+    private fun doVoteOnDoubleTap() {
+        voteService.getVote(feedItem).compose(bindToLifecycleAsync()).subscribe { currentVote ->
+            val nextVote = if (currentVote === Vote.UP || currentVote === Vote.FAVORITE) Vote.NEUTRAL else Vote.UP
+            doVote(nextVote)
         }
     }
 
@@ -1286,6 +1293,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     .subscribeWithErrorHandling()
 
             infoLine.view?.voteView?.setVote(vote, force = true)
+            infoLine.view?.updateViewState(vote)
+
         }
 
         val retry = Runnable { doVote(vote) }
