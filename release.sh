@@ -34,6 +34,7 @@ function format_version() {
 
 function deploy_upload_apk() {
   local APK_ALIGNED=app/build/outputs/apk/release/app-release.apk
+  local TAG=$(format_version ${VERSION})
 
   echo "Upload apk file now..."
   curl -u "$CREDENTIALS_UPDATE" -F apk=@"${APK_ALIGNED}" \
@@ -41,8 +42,11 @@ function deploy_upload_apk() {
 
   echo "Upload apk file to github"
   ./upload.sh github_api_token="${CREDENTIALS_GITHUB}" \
-    owner="mopsalarm" repo="pr0" tag="$(format_version ${VERSION})" \
+    owner="mopsalarm" repo="pr0" tag="$TAG" \
     filename="${APK_ALIGNED}"
+
+  ssh apk.pr0gramm.com "wget -O www/pr0gramm-$TAG.apk \
+    https://github.com/mopsalarm/Pr0/releases/download/$TAG/app-release.apk"
 }
 
 # compile code and create apks
