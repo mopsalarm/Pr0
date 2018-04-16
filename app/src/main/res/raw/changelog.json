@@ -1,5 +1,18 @@
 [
   {
+    "version": 139,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Benis Anzeige beim Voten korrigiert"
+      },
+      {
+        "type": "Fix",
+        "change": "Kommentare waren teilweise noch unangemeldet sichtbar, das ist nun auch geblockt."
+      }
+    ]
+  },
+  {
     "version": 138,
     "changes": [
       {
