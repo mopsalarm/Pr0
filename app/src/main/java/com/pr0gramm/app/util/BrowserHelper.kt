@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
@@ -61,6 +62,14 @@ object BrowserHelper {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
             intent.`package` = packageName
             context.packageManager.queryIntentActivities(intent, 0).size > 0
+        }
+    }
+
+    fun open(context: Context, url: String) {
+        if (context.appKodein().instance<Settings>().useIncognitoBrowser) {
+            openIncognito(context, url)
+        } else {
+            openCustomTab(context, Uri.parse(url))
         }
     }
 

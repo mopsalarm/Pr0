@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.ShareCompat
 import android.widget.Toast
@@ -12,6 +11,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
+import com.pr0gramm.app.util.BrowserHelper
 
 /**
  * This class helps starting "Share with"-chooser for a [FeedItem].
@@ -29,7 +29,8 @@ object ShareHelper {
                 .build()
 
         Track.searchImage()
-        activity.startActivity(Intent(Intent.ACTION_VIEW, uri))
+
+        BrowserHelper.open(activity, uri.toString())
     }
 
     @JvmStatic
