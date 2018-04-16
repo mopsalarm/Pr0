@@ -9,6 +9,10 @@
       {
         "type": "Fix",
         "change": "Kommentare waren teilweise noch unangemeldet sichtbar, das ist nun auch geblockt."
+      },
+      {
+        "type": "Fix",
+        "change": "Google Bildersuche wird nun auch im Firefox Klar geöffnet, wenn aktiviert."
       }
     ]
   },
