@@ -313,7 +313,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val comments = info.comments
 
         if (userInfoCommentsOpen) {
-            messages.setComments(info.info.user, comments)
+            showUserComments(comments, messages, info.info.user)
         }
 
         val userViewFactory = { context: Context ->
@@ -347,12 +347,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
 
                 private fun showUserInfoComments(comments: List<Api.UserComments.UserComment>) {
-                    userInfoCommentsOpen = comments.isNotEmpty()
-
-                    if (userService.isAuthorized) {
-                        messages.setComments(info.info.user, comments)
-                        updateSpanSizeLookup()
-                    }
+                    showUserComments(comments, messages, info.info.user)
                 }
             }
 
@@ -370,6 +365,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // we are showing a user.
         activeUsername = info.info.user.name
         activity?.invalidateOptionsMenu()
+    }
+
+    private fun showUserComments(comments: List<Api.UserComments.UserComment>, messages: UserCommentsAdapter, user: Api.Info.User) {
+        userInfoCommentsOpen = comments.isNotEmpty()
+
+        if (userService.isAuthorized) {
+            messages.setComments(user, comments)
+            updateSpanSizeLookup()
+        }
     }
 
     private fun presentUserUploadsHint(info: Api.Info) {
