@@ -675,6 +675,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * tags and the comments.
      */
     private fun loadPostDetails() {
+        // postDelayed could execute this if it is not added anymore
+        if (!isAdded || isDetached) {
+            return
+        }
+
         feedService.post(feedItem.id())
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribeWithErrorHandling { onPostReceived(it) }

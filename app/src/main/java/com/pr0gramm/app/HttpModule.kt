@@ -370,7 +370,14 @@ private class FallbackDns : Dns {
 
             return resolved.toMutableList()
         } else {
-            val fallback = fallbackLookup(hostname)
+            val fallback = try {
+                fallbackLookup(hostname)
+            } catch (r: RuntimeException) {
+                // sometimes the Lookup class does not initialize correctly, in that case, we'll
+                // just return an empty array here and delegate back to the systems resolver.
+                arrayListOf<InetAddress>()
+            }
+
             debug {
                 logger.info("Fallback resolver for {} returned {}", hostname, fallback)
             }
