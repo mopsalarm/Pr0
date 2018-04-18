@@ -5,21 +5,19 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
 import com.google.common.base.Preconditions.checkState
 import org.slf4j.LoggerFactory
-import java.util.*
 
 /**
  * This decoder has a reference to two decoders and initializes and uses the fallback
  * decoder if the firstone encounters an error.
  */
-class FallbackRegionDecoder(private val decoder: ImageRegionDecoder,
-                            private var fallbackSupplier: () -> ImageRegionDecoder) : ImageRegionDecoder {
+class FallbackRegionDecoder(private val decoder: Decoder,
+                            private var fallbackSupplier: () -> Decoder) : Decoder {
 
-    private var fallback: ImageRegionDecoder? = null
+    private var fallback: Decoder? = null
 
-    override fun init(context: Context, uri: Uri): Point {
+    override fun init(context: Context, uri: Uri): Point? {
         try {
             val result = decoder.init(context, uri)
 
@@ -35,9 +33,9 @@ class FallbackRegionDecoder(private val decoder: ImageRegionDecoder,
         }
     }
 
-    override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap {
-        fallback?.let {
-            return it.decodeRegion(rect, sampleSize)
+    override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap? {
+        fallback?.let { fallback ->
+            return fallback.decodeRegion(rect, sampleSize)
         }
 
         try {
@@ -55,18 +53,18 @@ class FallbackRegionDecoder(private val decoder: ImageRegionDecoder,
     }
 
     override fun isReady(): Boolean {
-        return current().isReady
+        return current().isReady()
     }
 
     override fun recycle() {
         current().recycle()
     }
 
-    private fun current(): ImageRegionDecoder {
+    private fun current(): Decoder {
         return fallback ?: decoder
     }
 
-    private fun switchToFallback(): ImageRegionDecoder {
+    private fun switchToFallback(): Decoder {
         try {
             decoder.recycle()
         } catch (ignored: Exception) {
@@ -83,7 +81,7 @@ class FallbackRegionDecoder(private val decoder: ImageRegionDecoder,
     companion object {
         private val logger = LoggerFactory.getLogger("FallbackRegionDecoder")
 
-        private fun makeAfterInitFallbackSupplier(context: Context, uri: Uri, originalFallbackFactory: () -> ImageRegionDecoder): () -> ImageRegionDecoder {
+        private fun makeAfterInitFallbackSupplier(context: Context, uri: Uri, originalFallbackFactory: () -> Decoder): () -> Decoder {
             return {
                 try {
                     originalFallbackFactory().apply { init(context, uri) }
@@ -94,12 +92,12 @@ class FallbackRegionDecoder(private val decoder: ImageRegionDecoder,
             }
         }
 
-        fun chain(start: ImageRegionDecoder, vararg fallbacks: ImageRegionDecoder): ImageRegionDecoder {
-            if (fallbacks.isEmpty()) {
-                return start
+        fun chain(chain: List<Decoder>): Decoder {
+            if (chain.size == 1) {
+                return chain.first()
             } else {
-                val tail = Arrays.copyOfRange(fallbacks, 1, fallbacks.size)
-                return FallbackRegionDecoder(start, { chain(fallbacks[0], *tail) })
+                val tail = chain.drop(1)
+                return FallbackRegionDecoder(chain.first(), { chain(tail) })
             }
         }
     }

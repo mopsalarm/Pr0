@@ -10,7 +10,7 @@ import java.io.FileInputStream
 /**
  * Default decoder using android region decoder.
  */
-class AndroidRegionDecoder(private val config: Bitmap.Config) : ImageRegionDecoder {
+class AndroidRegionDecoder(private val config: Bitmap.Config) : Decoder {
     private var decoder: BitmapRegionDecoder? = null
 
     override fun init(context: Context, uri: Uri): Point {
@@ -25,11 +25,11 @@ class AndroidRegionDecoder(private val config: Bitmap.Config) : ImageRegionDecod
         return Point(decoder.width, decoder.height)
     }
 
-    override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap {
+    override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap? {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = config
         options.inSampleSize = sampleSize
-        return decoder!!.decodeRegion(rect, options)
+        return decoder?.decodeRegion(rect, options)
     }
 
     override fun isReady(): Boolean {

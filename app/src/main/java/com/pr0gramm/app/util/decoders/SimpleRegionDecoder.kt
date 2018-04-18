@@ -3,13 +3,12 @@ package com.pr0gramm.app.util.decoders
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
 import com.pr0gramm.app.util.AndroidUtility.toFile
 
 /**
  * Decodes the complete image and then cuts out the region we want.
  */
-class SimpleRegionDecoder(private val config: Bitmap.Config) : ImageRegionDecoder {
+class SimpleRegionDecoder(private val config: Bitmap.Config) : Decoder {
     private var bitmap: Bitmap? = null
 
     override fun init(context: Context, uri: Uri): Point {
@@ -20,6 +19,7 @@ class SimpleRegionDecoder(private val config: Bitmap.Config) : ImageRegionDecode
 
             // load the image
             BitmapFactory.decodeFile(toFile(uri).path, options).let {
+                bitmap = it
                 return Point(it.width, it.height)
             }
         }

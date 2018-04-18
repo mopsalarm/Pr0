@@ -18,12 +18,11 @@ import java.io.IOException
 /**
  * This decoder first downloads the image before starting to decode it.
  */
-class DownloadingRegionDecoder(private val downloader: Downloader, private val decoder: ImageRegionDecoder) : ImageRegionDecoder {
+class DownloadingRegionDecoder(private val downloader: Downloader, private val decoder: Decoder) : Decoder {
     private var imageFile: File? = null
     private var deleteImageOnRecycle: Boolean = false
 
-    @Throws(Exception::class)
-    override fun init(context: Context, uri: Uri): Point {
+    override fun init(context: Context, uri: Uri): Point? {
         checkState(imageFile == null, "Can not call init twice.")
 
         val file = if ("file" == uri.scheme) {
@@ -51,13 +50,9 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
         return decoder.init(context, Uri.fromFile(file))
     }
 
-    override fun decodeRegion(rect: Rect, sample: Int): Bitmap {
+    override fun decodeRegion(rect: Rect, sampleSize: Int): Bitmap? {
         try {
-            val result = decoder.decodeRegion(rect, sample)
-            if (result != null)
-                return result
-
-            throw RuntimeException("Could not decode")
+            return decoder.decodeRegion(rect, sampleSize)
 
         } catch (oom: OutOfMemoryError) {
             throw RuntimeException(oom)
@@ -65,7 +60,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
     }
 
     override fun isReady(): Boolean {
-        return imageFile != null && decoder.isReady
+        return imageFile != null && decoder.isReady()
     }
 
     override fun recycle() {
@@ -84,7 +79,7 @@ class DownloadingRegionDecoder(private val downloader: Downloader, private val d
         }
     }
 
-    protected fun finalize() {
+    fun finalize() {
         cleanup()
     }
 
