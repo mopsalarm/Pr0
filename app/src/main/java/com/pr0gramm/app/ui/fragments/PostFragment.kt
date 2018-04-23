@@ -1004,7 +1004,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val activity = activity ?: return
 
         // allow op to tag a more restrictive content type.
-        val op = feedItem.user.equals(userService.name, true)
+        val op = feedItem.user.equals(userService.name, true) || userService.userIsAdmin
         val newTags = tags.filter { tag ->
             isValidTag(tag) || (op && isMoreRestrictiveContentTypeTag(this.tags, tag))
         }

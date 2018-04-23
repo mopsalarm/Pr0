@@ -254,9 +254,9 @@ class UploadService(private val api: Api,
 }
 
 fun isValidTag(tag: String): Boolean {
-    val validTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
-    val isInvalid = tag in validTags || tag.length < 2 || tag.length > 32
-    return !isInvalid
+    val invalidTags = setOf("sfw", "nsfw", "nsfl", "nsfp", "gif", "webm", "sound")
+    val invalid = tag in invalidTags || tag.length < 2 || tag.length > 32
+    return !invalid
 }
 
 fun isMoreRestrictiveContentTypeTag(tags: List<Api.Tag>, tag: String): Boolean {
