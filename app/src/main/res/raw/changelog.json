@@ -1,5 +1,14 @@
 [
   {
+    "version": 140,
+    "changes": [
+      {
+        "type": "Info",
+        "change": "Abhängigkeiten upgedated"
+      }
+    ]
+  },
+  {
     "version": 139,
     "changes": [
       {
