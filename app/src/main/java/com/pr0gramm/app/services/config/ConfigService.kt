@@ -1,6 +1,7 @@
 package com.pr0gramm.app.services.config
 
 import android.app.Application
+import android.content.ContentResolver
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
@@ -132,14 +133,14 @@ class ConfigService(context: Application,
         private val PREF_DATA_KEY = "ConfigService.data"
         private val PREF_ID_KEY = "ConfigService.id"
 
-        private fun makeUniqueIdentifier(context: Context, preferences: SharedPreferences): String {
+        fun makeUniqueIdentifier(context: Context, preferences: SharedPreferences): String {
             // get a cached version
             var cached: String = preferences.getString(PREF_ID_KEY, null) ?: ""
 
             if (invalidUniqueIdentifier(cached)) {
                 // try the device id.
                 val resolver = context.applicationContext.contentResolver
-                cached = Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID)
+                cached = getAndroidId(resolver) ?: ""
 
                 // still nothing? create a random id.
                 if (invalidUniqueIdentifier(cached)) {
@@ -156,6 +157,12 @@ class ConfigService(context: Application,
             return cached
         }
 
+        private fun getAndroidId(resolver: ContentResolver?): String? = try {
+            Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID)
+        } catch (err: Exception) {
+            null
+        }
+
         private fun loadState(gson: Gson, jsonCoded: String): Config {
             try {
                 return gson.fromJson(jsonCoded, Config::class.java)
@@ -167,7 +174,7 @@ class ConfigService(context: Application,
         }
 
         private fun invalidUniqueIdentifier(cached: String?): Boolean {
-            if (cached == null || cached.isBlank() || cached.length < 5 || "DEFACE" == cached) {
+            if (cached == null || cached.isBlank() || cached.length < 5 || cached == "DEFACE" || cached == "UNKNOWN") {
                 return true
             }
 

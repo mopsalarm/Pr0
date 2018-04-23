@@ -43,7 +43,7 @@ import kotlin.concurrent.timer
 /**
  */
 fun httpModule(app: ApplicationClass) = Kodein.Module {
-    bind<LoginCookieHandler>() with singleton { LoginCookieHandler(instance()) }
+    bind<LoginCookieHandler>() with singleton { LoginCookieHandler(app, instance()) }
 
     bind<OkHttpClient>() with singleton {
         val executor: ExecutorService = instance()

@@ -1,14 +1,19 @@
 package com.pr0gramm.app.api.pr0gramm
 
+import android.content.Context
 import android.content.SharedPreferences
 import com.google.common.base.Strings
+import com.google.common.hash.Hashing
+import com.google.common.io.BaseEncoding
 import com.google.common.primitives.Doubles
 import com.google.gson.*
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.getIfPrimitive
+import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import org.joda.time.DateTime
@@ -21,9 +26,16 @@ typealias OnCookieChangedListener = () -> Unit
 
 /**
  */
-class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar {
-
+class LoginCookieHandler(context: Context, private val preferences: SharedPreferences) : CookieJar {
     private val lock = Any()
+
+    private val uniqueToken: String by lazy {
+        val hash = Hashing.md5()
+                .hashBytes(ConfigService.makeUniqueIdentifier(context, preferences).toByteArray())
+                .asBytes()
+
+        BaseEncoding.base16().encode(hash).take(32)
+    }
 
     private val gson = GsonBuilder()
             .registerTypeAdapter(Cookie::class.java, CookieDeserializer())
@@ -59,14 +71,19 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
     }
 
     override fun loadForRequest(url: HttpUrl): List<okhttp3.Cookie> {
+        val ppCookie = okhttp3.Cookie.Builder()
+                .name("pp").value(uniqueToken)
+                .hostOnlyDomain("pr0gramm.com")
+                .build()
+
         if (isNoApiRequest(url))
-            return emptyList()
+            return listOf(ppCookie)
 
-        val theCookie = httpCookie
-        if (theCookie == null || theCookie.value() == null)
-            return emptyList()
+        val meCookie = httpCookie
+        if (meCookie?.value() == null)
+            return listOf(ppCookie)
 
-        return listOf(theCookie)
+        return listOf(meCookie, ppCookie)
     }
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<okhttp3.Cookie>) {
@@ -143,7 +160,7 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
      * Tries to parse the cookie into a [LoginCookieHandler.Cookie] instance.
      */
     private fun parseCookie(cookie: okhttp3.Cookie?): Cookie? {
-        if (cookie == null || cookie.value() == null)
+        if (cookie?.value() == null)
             return null
 
         try {
@@ -164,10 +181,9 @@ class LoginCookieHandler(private val preferences: SharedPreferences) : CookieJar
      * no cookie to get the nonce from.
      */
     val nonce: Api.Nonce
-        @Throws(LoginRequiredException::class)
         get() {
             val cookie = cookie
-            if (cookie == null || cookie.id == null) {
+            if (cookie?.id == null) {
                 if (cookie != null)
                     clearLoginCookie(true)
 
