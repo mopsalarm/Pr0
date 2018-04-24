@@ -83,6 +83,7 @@ public abstract class Config {
                 "Regel #5 - Werbung/Spam",
                 "Regel #6 - Infos zu Privatpersonen",
                 "Regel #7 - Bildqualität",
+                "Regel #8 - Ähnliche Bilder in Reihe",
                 "Regel #12 - Warez/Logins zu Pay Sites",
                 "Regel #14 - Screamer/Sound-getrolle",
                 "Regel #15 - Reiner Musikupload",
