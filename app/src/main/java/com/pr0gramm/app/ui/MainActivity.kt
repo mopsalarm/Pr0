@@ -185,7 +185,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .compose(bindToLifecycle())
                     .onErrorResumeEmpty()
                     .filter { !userService.isPremiumUser }
-                    .subscribe { adsAreShown ->
+                    .subscribe {
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
                                 .setAction("pr0mium") {
                                     Track.registerLinkClicked()
