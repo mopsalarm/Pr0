@@ -1,5 +1,14 @@
 [
   {
+    "version": 141,
+    "changes": [
+      {
+        "type": "Neu",
+        "change": "Kommentarfavoriten wie auf der Website"
+      }
+    ]
+  },
+  {
     "version": 140,
     "changes": [
       {

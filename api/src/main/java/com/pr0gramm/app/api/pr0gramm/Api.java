@@ -110,6 +110,10 @@ public interface Api {
     Observable<UserComments> userComments(@Query("name") String user,
                                           @Query("before") long before, @Query("flags") Integer flags);
 
+    @GET("/api/profile/commentlikes")
+    Observable<FavedUserComments> userCommentsLike(@Query("name") String user,
+                                                   @Query("before") long before, @Query("flags") Integer flags);
+
     @FormUrlEncoded
     @POST("/api/inbox/post")
     Observable<Nothing> sendMessage(
@@ -675,6 +679,37 @@ public interface Api {
             int getMark();
 
             String getName();
+        }
+    }
+
+    @Value.Immutable
+    interface FavedUserComments {
+        UserComments.UserInfo getUser();
+
+        List<FavedUserComment> getComments();
+
+        @Value.Immutable
+        interface FavedUserComment {
+            long getId();
+
+            long getItemId();
+
+            Instant getCreated();
+
+            @Gson.Named("ccreated")
+            Instant getCommentCreated();
+
+            String getThumb();
+
+            String getName();
+
+            int getUp();
+
+            int getDown();
+
+            int getMark();
+
+            String getContent();
         }
     }
 
