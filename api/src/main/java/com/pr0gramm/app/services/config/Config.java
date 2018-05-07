@@ -97,6 +97,11 @@ public abstract class Config {
                 "Ich habe diesen Beitrag selbst erstellt und möchte ihn gelöscht haben");
     }
 
+    @Value.Default
+    public int getSyncVersion() {
+        return 1;
+    }
+
     @Nullable
     @Value.Default
     public MenuItem getSpecialMenuItem() {

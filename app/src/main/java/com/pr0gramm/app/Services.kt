@@ -32,7 +32,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<BookmarkService>() with singleton { BookmarkService(instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
-    bind<UserService>() with singleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bind<UserService>() with singleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with singleton { DatabasePreloadManager(instance()) }

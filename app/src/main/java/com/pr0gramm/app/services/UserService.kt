@@ -9,6 +9,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
+import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
@@ -34,7 +35,8 @@ class UserService(private val api: Api,
                   private val cookieHandler: LoginCookieHandler,
                   private val preferences: SharedPreferences,
                   private val gson: Gson,
-                  private val database: Holder<SQLiteDatabase>) {
+                  private val database: Holder<SQLiteDatabase>,
+                  private val config: Config) {
 
     private val logger = LoggerFactory.getLogger("UserService")
 
@@ -176,7 +178,10 @@ class UserService(private val api: Api,
 
             // remove sync id
             preferences.edit {
-                remove(KEY_LAST_LOF_OFFSET)
+                preferences.all.keys
+                        .filter { it.startsWith(KEY_LAST_LOF_OFFSET) }
+                        .forEach { remove(it) }
+
                 remove(KEY_LAST_USER_INFO)
                 remove(KEY_LAST_LOGIN_STATE)
             }
@@ -210,7 +215,7 @@ class UserService(private val api: Api,
             return Observable.empty()
 
         // tell the sync request where to start
-        val lastLogOffset = preferences.getLong(KEY_LAST_LOF_OFFSET, 0L)
+        val lastLogOffset = preferences.getLong(KEY_LAST_LOF_OFFSET + config.syncVersion, 0L)
         val fullSync = (lastLogOffset == 0L)
 
         if (fullSync && !fullSyncInProgress.compareAndSet(false, true)) {
@@ -240,7 +245,7 @@ class UserService(private val api: Api,
                 // store syncId for next time.
                 if (response.logLength() > lastLogOffset) {
                     preferences.edit {
-                        putLong(KEY_LAST_LOF_OFFSET, response.logLength())
+                        putLong(KEY_LAST_LOF_OFFSET + config.syncVersion, response.logLength())
                     }
                 }
             } catch (error: Throwable) {
