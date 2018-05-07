@@ -5,6 +5,11 @@
       {
         "type": "Neu",
         "change": "Kommentarfavoriten wie auf der Website"
+      },
+
+      {
+        "type": "Neu",
+        "change": "Ein- und Ausklappen von Kommentarbäumen"
       }
     ]
   },
