@@ -73,6 +73,11 @@ public abstract class Config {
     }
 
     @Value.Default
+    public int getCommentsMaxLevels() {
+        return 18;
+    }
+
+    @Value.Default
     public List<String> getReportReasons() {
         return Arrays.asList(
                 "Repost",

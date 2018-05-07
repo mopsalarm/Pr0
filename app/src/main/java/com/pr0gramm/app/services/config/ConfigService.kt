@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.provider.Settings
+import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.instance
 import com.google.gson.Gson
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.util.ignoreException
@@ -196,6 +198,10 @@ class ConfigService(context: Application,
             }
 
             return b.toString()
+        }
+
+        fun get(context: Context): Config {
+            return context.appKodein().instance()
         }
     }
 }

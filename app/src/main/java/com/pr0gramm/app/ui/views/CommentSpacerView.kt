@@ -9,6 +9,8 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.pr0gramm.app.R
+import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.paint
 
 /**
@@ -18,8 +20,10 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     private val lineWidth: Float
     private val linePaint: Paint
 
+    private val config: Config = ConfigService.get(context)
+
     var depth: Int = 0; set(value) {
-        field = value.coerceAtMost(10)
+        field = value.coerceAtMost(config.commentsMaxLevels)
         val paddingLeft = spaceAtDepth(field).toInt()
         setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
 
@@ -27,7 +31,9 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
         requestLayout()
     }
 
-    private fun spaceAtDepth(depth: Int): Float = lineMargin * depth
+    private fun spaceAtDepth(depth: Int): Float {
+        return lineMargin * Math.pow(depth.toDouble(), 1 / 1.2).toFloat()
+    }
 
     init {
         setWillNotDraw(false)
@@ -56,7 +62,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         val path = Path()
-        for (i in 1..depth - 1) {
+        for (i in 1 until depth) {
             val x = spaceAtDepth(i) - lineWidth
 
             path.moveTo(x, 0f)

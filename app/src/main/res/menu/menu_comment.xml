@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_copy_link"
+        android:title="@string/action_copy_link"/>
+
+    <item
+        android:id="@+id/action_collapse"
+        android:title="@string/action_collapse"/>
+
+    <item
+        android:id="@+id/action_expand"
+        android:title="@string/action_expand"/>
+
+    <item
+        android:id="@+id/action_delete_comment"
+        android:title="@string/action_delete_comment"/>
+</menu>

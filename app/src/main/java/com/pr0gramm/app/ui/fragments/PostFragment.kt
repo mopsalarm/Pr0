@@ -71,7 +71,7 @@ import rx.subjects.BehaviorSubject
 /**
  * This fragment shows the content of one post.
  */
-class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, BackAwareFragment, CommentsAdapter.CommentActionListener, InfoLineView.OnDetailClickedListener {
+class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNewTagsListener, BackAwareFragment, CommentsAdapter.Listener, InfoLineView.OnDetailClickedListener {
     /**
      * Returns the feed item that is displayed in this [PostFragment].
      */
@@ -82,7 +82,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
 
     // start with an empty adapter here
-    private var commentsAdapter: CommentsAdapter = CommentsAdapter(false, "")
+    private var commentsAdapter: CommentsAdapter = CommentsAdapter(false, "", this)
     private var scrollHandler: RecyclerView.OnScrollListener? = null
     private var fullscreenAnimator: ObjectAnimator? = null
 
@@ -294,9 +294,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeInfoLine()
         initializeCommentPostLine()
 
-        commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "")
-        commentsAdapter.commentActionListener = this
-        commentsAdapter.showFavCommentButton = true
+        commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "", this)
 
         if (userService.isAuthorized) {
             adapter.addAdapter(commentsAdapter)
@@ -961,7 +959,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.comments = comments.toList()
 
         // show now
-        commentsAdapter.set(this.comments, VoteService.NO_VOTES, feedItem.user)
+        commentsAdapter.updateComments(this.comments, feedItem.user)
 
         val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: 0
         if (commentId > 0) {
@@ -977,7 +975,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .filter { votes -> !votes.isEmpty }
                 .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
-                .subscribe { votes -> commentsAdapter.set(this.comments, votes, feedItem.user) }
+                .subscribe { votes -> commentsAdapter.updateVotes(votes) }
     }
 
     /**

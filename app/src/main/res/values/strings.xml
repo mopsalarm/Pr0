@@ -523,5 +523,9 @@
     <string name="menu_new_badge">NEW</string>
     <string name="error_no_gallery_app">There is no app installed on your device that can handle an image picking request. Please install a gallery app like \'Simple Gallery\' or \'Google Photos\'.</string>
     <string name="action_report">Report</string>
+    <string name="action_copy_link">Copy link</string>
+    <string name="action_collapse">Collapse</string>
+    <string name="action_expand">Expand</string>
+    <string name="action_delete_comment">Delete</string>
 </resources>
 
