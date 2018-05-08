@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
     android:paddingBottom="4dp"
     android:paddingLeft="8dp"
-    android:layout_marginLeft="8dp"
     android:paddingRight="16dp"
     android:paddingTop="4dp"
     app:depth="3"
@@ -32,7 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="4dp"
         android:layout_toRightOf="@+id/voting"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
         android:textIsSelectable="true"
@@ -54,16 +53,6 @@
         android:layout_alignParentRight="true"
         android:orientation="horizontal">
 
-        <!--
-        <ImageButton
-            android:id="@+id/copy_comment_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_link_white_24dp"
-            android:tint="@color/grey_700"/>
-        -->
-
         <ImageButton
             android:id="@+id/action_more"
             android:layout_width="wrap_content"
@@ -71,6 +60,24 @@
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_more_vert_white_24dp"
             android:tint="@color/grey_700"/>
+
+        <Button
+            android:id="@+id/action_expand"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/roundedCornerBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:paddingBottom="2dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            tools:text="+10"
+            tools:visibility="visible"/>
 
         <ImageButton
             android:id="@+id/action_kfav"

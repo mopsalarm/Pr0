@@ -24,7 +24,6 @@ import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.*
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
-import gnu.trove.set.hash.TLongHashSet
 import org.joda.time.Hours
 import org.joda.time.Instant.now
 import org.slf4j.Logger
@@ -95,25 +94,7 @@ class CommentsAdapter(
 
     private fun updateVisibleComments() {
         logger.time("calculate comment tree") {
-            val filteredSortedComments = logger.time("... sort comments") {
-                sort(allComments, op)
-            }
-
-            val updatedComments = logger.time("... calculate depth") {
-                val depths = DepthCalculator(allComments)
-
-                val hasChildren = TLongHashSet(allComments.size).apply {
-                    allComments.forEach { add(it.parent) }
-                }
-
-                filteredSortedComments.map { comment ->
-                    val depth = depths.of(comment)
-                    val vote = currentVote(comment)
-                    val score = commentScore(comment, vote)
-                    CommentEntry(comment, vote, depth, comment.id in hasChildren, score)
-                }
-            }
-
+            val updatedComments = CommentTree(allComments, op).visibleComments
             applyUpdatedComments(updatedComments)
         }
     }
@@ -122,25 +103,21 @@ class CommentsAdapter(
         val previousComments = visibleComments
 
         // calculate difference to apply only update
-        val diff = logger.time("... calculate diff") {
-            DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getNewListSize(): Int = updatedComments.size
-                override fun getOldListSize(): Int = previousComments.size
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getNewListSize(): Int = updatedComments.size
+            override fun getOldListSize(): Int = previousComments.size
 
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return previousComments[oldItemPosition].comment.id == updatedComments[newItemPosition].comment.id
-                }
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return previousComments[oldItemPosition].comment.id == updatedComments[newItemPosition].comment.id
+            }
 
-                override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return previousComments[oldItemPosition] == updatedComments[newItemPosition]
-                }
-            })
-        }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return previousComments[oldItemPosition] == updatedComments[newItemPosition]
+            }
+        })
 
-        logger.time("... apply diff") {
-            visibleComments = updatedComments
-            diff.dispatchUpdatesTo(this)
-        }
+        visibleComments = updatedComments
+        diff.dispatchUpdatesTo(this)
     }
 
     private fun baseVote(comment: Api.Comment): Vote {
@@ -187,7 +164,7 @@ class CommentsAdapter(
                 || equalsIgnoreCase(comment.name, selfName)
                 || comment.created.isBefore(scoreVisibleThreshold)) {
 
-            holder.senderInfo.setPoints(commentScore(entry.comment, entry.vote))
+            holder.senderInfo.setPoints(entry.currentScore)
         } else {
             holder.senderInfo.setPointsUnknown()
         }
@@ -250,8 +227,22 @@ class CommentsAdapter(
             }
         }
 
-        holder.more.setOnClickListener { view ->
-            showCommentMenu(view, entry)
+        if (entry.hiddenCount != null) {
+            holder.more.visible = false
+
+            holder.expand.visible = true
+            holder.expand.text = "+" + entry.hiddenCount
+            holder.expand.setOnClickListener {
+                collapsed -= comment.id
+                notifyItemChanged(holder.adapterPosition)
+            }
+        } else {
+            holder.expand.visible = false
+
+            holder.more.visible = true
+            holder.more.setOnClickListener { view ->
+                showCommentMenu(view, entry)
+            }
         }
     }
 
@@ -302,59 +293,77 @@ class CommentsAdapter(
         return actionListener.onCommentVoteClicked(entry.comment, vote)
     }
 
-    /**
-     * "Flattens" a list of hierarchical comments to a sorted list of comments.
-     * @param comments The comments to sort
-     */
-    private fun sort(comments: Collection<Api.Comment>, op: String?): List<Api.Comment> {
-        // index all comments by their parent in a multimap.
-        val byParent = TLongObjectHashMap<MutableList<Api.Comment>>(comments.size)
-        for (comment in comments) {
-            val children = byParent[comment.parent] ?: run {
-                val newList = mutableListOf<Api.Comment>()
-                byParent.put(comment.parent, newList)
-                newList
-            }
-
-            children.add(comment)
-        }
-
-        // sort all comments in byParent
-        // bring op comments to top, then order by confidence
-        val ordering = compareByDescending<Api.Comment> { it.name == op }.thenByDescending { it.confidence }
-        byParent.forEachValue { children ->
-            children.sortWith(ordering)
-            true
-        }
-
-        // now linearize the tree
-        val result = mutableListOf<Api.Comment>()
-        appendChildComments(result, byParent, 0)
-        return result
-    }
-
-    private fun appendChildComments(target: MutableList<Api.Comment>,
-                                    byParent: TLongObjectHashMap<MutableList<Api.Comment>>,
-                                    id: Long) {
-
-        byParent[id]?.takeUnless { id in collapsed }?.forEach { child ->
-            if (id !in collapsed) {
-                target.add(child)
-                appendChildComments(target, byParent, child.id)
-            }
-        }
-    }
-
     private var collapsed: Set<Long> by observeChange(emptySet()) {
         updateVisibleComments()
     }
 
-    private class DepthCalculator(allComments: List<Api.Comment>) {
-        private val byId = allComments.associateBy { it.id }
-        private val cache = mutableMapOf<Long, Int>()
+    private inner class CommentTree(allComments: List<Api.Comment>, val op: String?) {
+        private val byId = allComments.associateByTo(hashMapOf()) { it.id }
+        private val byParent = allComments.groupByTo(hashMapOf()) { it.parent }
 
-        fun of(comment: Api.Comment): Int {
-            return cache.getOrPut(comment.id) {
+        private val depthCache = mutableMapOf<Long, Int>()
+
+        /**
+         * "Flattens" a list of hierarchical comments to a sorted list of comments.
+         */
+        private val linearizedComments: List<Api.Comment> = run {
+            // bring op comments to top, then order by confidence.
+            // actually we'll sort in reverse. We use this fact to optimize the
+            // linearize step
+            val ordering = compareBy<Api.Comment> { it.name == op }.thenBy { it.confidence }
+            byParent.values.forEach { children -> children.sortWith(ordering) }
+
+
+            mutableListOf<Api.Comment>().apply {
+                val stack = byParent[0]?.toMutableList() ?: return@apply
+
+                while (stack.isNotEmpty()) {
+                    // get next element
+                    val comment = stack.removeAt(stack.lastIndex)
+
+                    if (comment.id !in collapsed) {
+                        // and add all children to stack if the element itself is not collapsed
+                        byParent[comment.id]?.let { stack.addAll(it) }
+                    }
+
+                    // also add element to result
+                    add(comment)
+                }
+            }
+        }
+
+        val visibleComments: List<CommentEntry> = run {
+            linearizedComments.map { comment ->
+                val depth = depthOf(comment)
+                val vote = currentVote(comment)
+                val score = commentScore(comment, vote)
+
+                val isCollapsed = comment.id in collapsed
+                val hiddenCount = if (isCollapsed) countSubTreeComments(comment) else null
+
+                val hasChildren = comment.id in byParent
+
+                CommentEntry(comment, vote, depth, hasChildren, score, hiddenCount)
+            }
+        }
+
+        private fun countSubTreeComments(start: Api.Comment): Int {
+            var count = 0
+
+            val queue = mutableListOf(start)
+            while (queue.isNotEmpty()) {
+                val comment = queue.removeAt(queue.lastIndex)
+                byParent[comment.id]?.let { children ->
+                    queue.addAll(children)
+                    count += children.size
+                }
+            }
+
+            return count
+        }
+
+        private fun depthOf(comment: Api.Comment): Int {
+            return depthCache.getOrPut(comment.id) {
                 var current = comment
                 var depth = 0
 
@@ -362,7 +371,7 @@ class CommentsAdapter(
                     depth++
 
                     // check if parent is already cached, then we'll take the cached value
-                    cache[current.parent]?.let { depthOfParent ->
+                    depthCache[current.parent]?.let { depthOfParent ->
                         return@getOrPut depth + depthOfParent
                     }
 
@@ -385,6 +394,7 @@ class CommentsAdapter(
 
         val more: View = itemView.find(R.id.action_more)
         val fav: ImageView = itemView.find(R.id.action_kfav)
+        val expand: TextView = itemView.find(R.id.action_expand)
 
         fun updateCommentDepth(depth: Int) {
             val spacerView = itemView as CommentSpacerView
@@ -396,7 +406,8 @@ class CommentsAdapter(
     }
 
     private data class CommentEntry(val comment: Api.Comment, val vote: Vote, val depth: Int,
-                                    val hasChildren: Boolean, val currentScore: CommentScore)
+                                    val hasChildren: Boolean, val currentScore: CommentScore,
+                                    val hiddenCount: Int?)
 
     interface Listener {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean
