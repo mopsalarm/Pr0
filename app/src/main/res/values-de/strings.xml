@@ -503,4 +503,7 @@
     <string name="menu_new_badge">NEU</string>
     <string name="error_no_gallery_app">Es ist keine App zum Auswählen von Bildern und Videos installiert. Bitte installiere eine Galerie App wie \'Google Photos\' oder \'Simple Gallery\'</string>
     <string name="action_report">Melden</string>
+    <string name="action_copy_link">Link kopieren</string>
+    <string name="action_collapse">Einklappen</string>
+    <string name="action_delete_comment">Löschen</string>
 </resources>

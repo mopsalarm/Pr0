@@ -260,10 +260,6 @@ class CommentsAdapter(
             item.isVisible = entry.hasChildren && entry.comment.id !in collapsed
         }
 
-        popup.menu.findItem(R.id.action_expand)?.let { item ->
-            item.isVisible = entry.comment.id in collapsed
-        }
-
         popup.setOnMenuItemClickListener { item -> onMenuItemClicked(item, entry) }
         popup.show()
     }
@@ -275,7 +271,6 @@ class CommentsAdapter(
             R.id.action_copy_link -> l.onCopyCommentLink(entry.comment)
             R.id.action_delete_comment -> l.onDeleteCommentClicked(entry.comment)
             R.id.action_collapse -> collapsed += entry.comment.id
-            R.id.action_expand -> collapsed -= entry.comment.id
         }
 
         return true

@@ -525,7 +525,6 @@
     <string name="action_report">Report</string>
     <string name="action_copy_link">Copy link</string>
     <string name="action_collapse">Collapse</string>
-    <string name="action_expand">Expand</string>
     <string name="action_delete_comment">Delete</string>
 </resources>
 
