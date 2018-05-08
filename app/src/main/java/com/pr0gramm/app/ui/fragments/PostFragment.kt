@@ -64,6 +64,7 @@ import com.trello.rxlifecycle.android.FragmentEvent
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
+import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.lang.kotlin.subscribeBy
 import rx.subjects.BehaviorSubject
@@ -113,6 +114,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private lateinit var infoLine: InfoLineAccessor
 
     private var playerPlaceholder: FrameLayout? = null
+
+    private var commentVoteSubscription: Subscription? = null
 
     init {
         arguments = Bundle()
@@ -317,10 +320,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     }
                 }
 
+        if (tags.isNotEmpty())
+            displayTags(tags)
 
-        // restore the postInfo, if possible.
-        tags.takeIf { it.isNotEmpty() }?.let { displayTags(it) }
-        comments.takeIf { it.isNotEmpty() }?.let { displayComments(it) }
+        if (comments.isNotEmpty())
+            displayComments(comments)
 
         loadPostDetails()
 
@@ -893,9 +897,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun doVoteOnDoubleTap() {
-        voteService.getVote(feedItem).compose(bindToLifecycleAsync()).subscribe { currentVote ->
-            val nextVote = if (currentVote === Vote.UP || currentVote === Vote.FAVORITE) Vote.NEUTRAL else Vote.UP
-            doVote(nextVote)
+        voteService.getVote(feedItem).first().compose(bindToLifecycleAsync()).subscribe { currentVote ->
+            doVote(currentVote.nextUpVote)
         }
     }
 
@@ -925,12 +928,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // and update tags with votes later.
         voteService.getTagVotes(tags)
+                .take(1)
                 .filter { votes -> !votes.isEmpty }
                 .onErrorResumeNext(just(VoteService.NO_VOTES))
                 .compose(bindToLifecycleAsync())
                 .subscribe { votes ->
-                    infoLine.updateTags(tags.associate {
-                        it to (votes[it.id] ?: Vote.NEUTRAL)
+                    infoLine.updateTags(tags.associate { tag ->
+                        tag to (votes[tag.id] ?: Vote.NEUTRAL)
                     })
                 }
 
@@ -952,7 +956,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     /**
      * Displays the given list of comments combined with the voting for those comments.
-
+     *
      * @param comments The list of comments to display.
      */
     private fun displayComments(comments: List<Api.Comment>) {
@@ -966,12 +970,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             scrollToComment(commentId)
         }
 
-        asyncQueryVotesForComments()
-    }
-
-    private fun asyncQueryVotesForComments() {
-        // load the votes for the comments and update if we found any
-        voteService.getCommentVotes(this.comments)
+        // look for votes for the comments
+        commentVoteSubscription?.unsubscribe()
+        commentVoteSubscription = voteService.getCommentVotes(this.comments)
                 .filter { votes -> !votes.isEmpty }
                 .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
@@ -1012,7 +1013,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             voteService.vote(comment, vote)
                     .decoupleSubscribe()
                     .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                    .doAfterTerminate { asyncQueryVotesForComments() }
                     .subscribeWithErrorHandling()
         })
     }
@@ -1260,7 +1260,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     .compose(bindToLifecycleAsync<Any>())
                     .subscribeWithErrorHandling()
 
-            infoLine.view?.voteView?.setVote(vote, force = true)
+            infoLine.view?.voteView?.setVoteState(vote)
             infoLine.view?.updateViewState(vote)
 
         }

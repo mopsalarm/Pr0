@@ -21,16 +21,15 @@ import kotlin.properties.Delegates.notNull
 class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
     private val viewRateUp: Pr0grammIconView
     private val viewRateDown: Pr0grammIconView
-    private var state: Vote = Vote.NEUTRAL
+
+    private var voteState: Vote = Vote.NEUTRAL
 
     var markedColor: ColorStateList by notNull()
     var markedColorDown: ColorStateList by notNull()
     var defaultColor: ColorStateList by notNull()
     var onVote: (Vote) -> Boolean = { false }
 
-    var vote: Vote
-        get() = state
-        set(vote) = setVote(vote, false)
+    val vote: Vote get() = voteState
 
     init {
         var orientation = 0
@@ -70,7 +69,7 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         }
 
         // set initial voting state
-        setVote(Vote.NEUTRAL, true)
+        setVoteState(Vote.NEUTRAL, true)
 
         // register listeners
         viewRateUp.setOnClickListener { triggerUpVoteClicked() }
@@ -89,48 +88,56 @@ class VoteView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         return view
     }
 
-    private fun triggerDownVoteClicked() {
-        vote = if (state === Vote.DOWN) Vote.NEUTRAL else Vote.DOWN
-    }
+    private fun triggerUpVoteClicked() = doVote(voteState.nextUpVote)
+    private fun triggerDownVoteClicked() = doVote(voteState.nextDownVote)
 
-    private fun triggerUpVoteClicked() {
-        vote = if (state === Vote.UP || state === Vote.FAVORITE) Vote.NEUTRAL else Vote.UP
-    }
-
-    fun setVote(vote: Vote, force: Boolean) {
-        if (state === vote)
+    /**
+     * Performs a "vote" by calling the listener and updating the internal state accordingly
+     */
+    fun doVote(vote: Vote, force: Boolean = false) {
+        if (voteState === vote)
             return
 
         // check with listener, if we really want to do the vote.
-        if (!force && !(onVote(vote)))
+        if (!force && !onVote(vote))
+            return
+
+        setVoteState(vote)
+    }
+
+    /**
+     * Updates the vote state internally, does not trigger a call to the listener.
+     */
+    fun setVoteState(vote: Vote, animate: Boolean = true) {
+        if (voteState === vote)
             return
 
         // set new voting state
-        state = vote
+        voteState = vote
 
         if (!isInEditMode) {
-            updateVoteViewState(!force)
+            updateVoteViewState(animate)
         }
     }
 
     private fun updateVoteViewState(animated: Boolean) {
         val duration = if (animated) 500 else 0
 
-        if (state === Vote.NEUTRAL) {
+        if (voteState === Vote.NEUTRAL) {
             viewRateUp.setTextColor(defaultColor)
             viewRateDown.setTextColor(defaultColor)
             viewRateUp.animate().rotation(0f).alpha(1f).setDuration(duration.toLong()).start()
             viewRateDown.animate().rotation(0f).alpha(1f).setDuration(duration.toLong()).start()
         }
 
-        if (state === Vote.UP || state === Vote.FAVORITE) {
+        if (voteState === Vote.UP || voteState === Vote.FAVORITE) {
             viewRateUp.setTextColor(markedColor)
             viewRateDown.setTextColor(defaultColor)
             viewRateUp.animate().rotation(360f).alpha(1f).setDuration(duration.toLong()).start()
             viewRateDown.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()
         }
 
-        if (state === Vote.DOWN) {
+        if (voteState === Vote.DOWN) {
             viewRateUp.setTextColor(defaultColor)
             viewRateDown.setTextColor(firstNonNull(markedColorDown, markedColor))
             viewRateUp.animate().rotation(0f).alpha(0.5f).setDuration(duration.toLong()).start()

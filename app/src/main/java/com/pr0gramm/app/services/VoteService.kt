@@ -1,10 +1,7 @@
 package com.pr0gramm.app.services
 
-import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Preconditions.checkArgument
 import com.google.common.base.Stopwatch
-import com.google.common.base.Stopwatch.createStarted
-import com.google.common.base.Throwables
 import com.google.common.io.BaseEncoding
 import com.google.common.io.LittleEndianDataInputStream
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -14,9 +11,9 @@ import com.pr0gramm.app.orm.CachedVote.Type.ITEM
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.pr0gramm.app.util.Databases.withTransaction
-import com.pr0gramm.app.util.Holder
 import com.pr0gramm.app.util.doInBackground
 import com.pr0gramm.app.util.subscribeOnBackground
+import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.TCollections
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
@@ -31,7 +28,7 @@ import java.io.ByteArrayInputStream
 
 class VoteService(private val api: Api,
                   private val seenService: SeenService,
-                  private val database: Holder<SQLiteDatabase>) {
+                  private val database: BriteDatabase) {
 
     /**
      * Votes a post. This sends a request to the server, so you need to be signed in
@@ -65,14 +62,12 @@ class VoteService(private val api: Api,
     }
 
     /**
-     * Gets the vote for an item.
-
+     * Observes the votes for an item.
      * @param item The item to get the vote for.
      */
     fun getVote(item: FeedItem): Observable<Vote> {
-        return Observable
-                .fromCallable { CachedVote.find(database.value, ITEM, item.id()) }
-                .map<Vote> { vote -> vote?.vote ?: Vote.NEUTRAL }
+        return CachedVote.find(database, ITEM, item.id())
+                .map<Vote> { vote -> vote.vote }
                 .subscribeOnBackground()
     }
 
@@ -85,7 +80,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValueInTx(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        withTransaction(database.value) {
+        withTransaction(database) {
             storeVoteValue(type, itemId, vote)
         }
     }
@@ -103,7 +98,7 @@ class VoteService(private val api: Api,
      */
     private fun storeVoteValue(type: CachedVote.Type, itemId: Long, vote: Vote) {
         checkNotMainThread()
-        CachedVote.quickSave(database.value, type, itemId, vote)
+        CachedVote.quickSave(database, type, itemId, vote)
     }
 
     /**
@@ -121,26 +116,21 @@ class VoteService(private val api: Api,
         val actionCount = decoded.size / 5
         val actionStream = LittleEndianDataInputStream(ByteArrayInputStream(decoded))
 
-        try {
-            val watch = Stopwatch.createStarted()
-            withTransaction(database.value) {
-                logger.info("Applying {} vote actions", actionCount)
-                for (idx in 0 until actionCount) {
-                    val id = actionStream.readInt().toLong()
-                    val action = VOTE_ACTIONS[actionStream.readUnsignedByte()] ?: continue
+        val watch = Stopwatch.createStarted()
+        withTransaction(database) {
+            logger.info("Applying {} vote actions", actionCount)
+            for (idx in 0 until actionCount) {
+                val id = actionStream.readInt().toLong()
+                val action = VOTE_ACTIONS[actionStream.readUnsignedByte()] ?: continue
 
-                    storeVoteValue(action.type, id, action.vote)
-                    if (action.type == ITEM) {
-                        seenService.markAsSeen(id)
-                    }
+                storeVoteValue(action.type, id, action.vote)
+                if (action.type == ITEM) {
+                    seenService.markAsSeen(id)
                 }
             }
-
-            logger.info("Applying vote actions took {}", watch)
-
-        } catch (err: Exception) {
-            throw Throwables.propagate(err)
         }
+
+        logger.info("Applying vote actions took {}", watch)
     }
 
     /**
@@ -150,7 +140,7 @@ class VoteService(private val api: Api,
     fun tag(itemId: Long, tags: List<String>): Observable<List<Api.Tag>> {
         val tagString = tags.map { tag -> tag.replace(',', ' ') }.joinToString(",")
         return api.addTags(null, itemId, tagString).map { response ->
-            withTransaction(database.value) {
+            withTransaction(database) {
                 // auto-apply up-vote to newly created tags
                 for (tagId in response.tagIds) {
                     storeVoteValue(CachedVote.Type.TAG, tagId, Vote.UP)
@@ -182,7 +172,7 @@ class VoteService(private val api: Api,
      */
     fun clear() {
         logger.info("Removing all items from vote cache")
-        CachedVote.clear(database.value)
+        CachedVote.clear(database)
     }
 
     /**
@@ -203,7 +193,7 @@ class VoteService(private val api: Api,
     }
 
     val summary: Observable<Map<CachedVote.Type, Summary>> = Observable.fromCallable {
-        val counts = CachedVote.count(database.value)
+        val counts = CachedVote.count(database.readableDatabase)
 
         counts.mapValues { entry ->
             Summary(up = entry.value[Vote.UP] ?: 0,
@@ -213,18 +203,11 @@ class VoteService(private val api: Api,
     }
 
     private fun findCachedVotes(type: CachedVote.Type, ids: List<Long>): Observable<TLongObjectMap<Vote>> {
-        if (ids.isEmpty())
-            return Observable.just(NO_VOTES)
-
-        return Observable.fromCallable {
-            val watch = createStarted()
-            val cachedVotes = CachedVote.find(database.value, type, ids)
-
-            val result = TLongObjectHashMap<Vote>()
+        return CachedVote.find(database, type, ids).map { cachedVotes ->
+            val result = TLongObjectHashMap<Vote>(cachedVotes.size)
             for (cachedVote in cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote)
 
-            logger.info("Loading votes for {} {}s took {}", ids.size, type.name.toLowerCase(), watch)
             result
         }
     }

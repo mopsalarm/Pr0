@@ -30,6 +30,7 @@ import org.joda.time.Instant.now
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Collections.emptyList
+import kotlin.math.absoluteValue
 
 /**
  */
@@ -40,7 +41,13 @@ class CommentsAdapter(
     private val logger: Logger = LoggerFactory.getLogger("CommentsAdapter")
 
     private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
-    private val baseVotes: TLongObjectMap<Vote> = TLongObjectHashMap()
+
+    // those are the votes for each comments we've first seen. We use this as
+    // initial value to calculate the score offset.
+    private var baseVotes: TLongObjectMap<Vote>? = null
+
+    // the current votes, might have been changed by the application
+    private var currentVotes: TLongObjectMap<Vote> = TLongObjectHashMap()
 
     private var allComments: List<Api.Comment> = emptyList()
     private var visibleComments: List<CommentEntry> = emptyList()
@@ -61,16 +68,17 @@ class CommentsAdapter(
     }
 
     fun updateVotes(votes: TLongObjectMap<Vote>) {
-        votes.forEachEntry { id, vote ->
-            baseVotes.putIfAbsent(id, vote)
-            true
-        }
+        currentVotes = TLongObjectHashMap(votes)
+
+        if (baseVotes == null)
+            baseVotes = TLongObjectHashMap(votes)
 
         logger.time("update votes for all comments") {
             val updatedComments = logger.time("... update base vote") {
                 visibleComments.map { entry ->
-                    val baseVote = baseVotes.get(entry.comment.id) ?: Vote.NEUTRAL
-                    entry.copy(vote = baseVote)
+                    val vote = currentVote(entry.comment)
+                    val score = commentScore(entry.comment, vote)
+                    entry.copy(vote = vote, currentScore = score)
                 }
             }
 
@@ -100,8 +108,9 @@ class CommentsAdapter(
 
                 filteredSortedComments.map { comment ->
                     val depth = depths.of(comment)
-                    val baseVote = baseVotes.get(comment.id) ?: Vote.NEUTRAL
-                    CommentEntry(comment, baseVote, depth, comment.id in hasChildren)
+                    val vote = currentVote(comment)
+                    val score = commentScore(comment, vote)
+                    CommentEntry(comment, vote, depth, comment.id in hasChildren, score)
                 }
             }
 
@@ -134,6 +143,14 @@ class CommentsAdapter(
         }
     }
 
+    private fun baseVote(comment: Api.Comment): Vote {
+        return baseVotes?.get(comment.id) ?: Vote.NEUTRAL
+    }
+
+    private fun currentVote(comment: Api.Comment): Vote {
+        return currentVotes[comment.id] ?: Vote.NEUTRAL
+    }
+
     override fun getItemCount(): Int {
         return visibleComments.size
     }
@@ -154,6 +171,9 @@ class CommentsAdapter(
         val comment = entry.comment
         val context = holder.itemView.context
 
+        // skip animations if this holders comment changed
+        val holderChanged = holder.id.update(comment.id)
+
         holder.updateCommentDepth(entry.depth)
         holder.senderInfo.setSenderName(comment.name, comment.mark)
         holder.senderInfo.setOnSenderClickedListener {
@@ -167,7 +187,7 @@ class CommentsAdapter(
                 || equalsIgnoreCase(comment.name, selfName)
                 || comment.created.isBefore(scoreVisibleThreshold)) {
 
-            holder.senderInfo.setPoints(getCommentScore(entry))
+            holder.senderInfo.setPoints(commentScore(entry.comment, entry.vote))
         } else {
             holder.senderInfo.setPointsUnknown()
         }
@@ -179,10 +199,10 @@ class CommentsAdapter(
         holder.senderInfo.setBadgeOpVisible(op == comment.name)
 
         // and register a vote handler
-        holder.vote.setVote(entry.vote, true)
+        holder.vote.setVoteState(entry.vote, animate = !holderChanged)
         holder.vote.onVote = { vote ->
             val changed = doVote(entry, vote)
-            notifyItemChanged(position)
+            notifyItemChanged(holder.adapterPosition)
             changed
         }
 
@@ -226,7 +246,7 @@ class CommentsAdapter(
             fav.visible = true
             fav.setOnClickListener {
                 doVote(entry, newVote)
-                notifyItemChanged(position)
+                notifyItemChanged(holder.adapterPosition)
             }
         }
 
@@ -270,20 +290,16 @@ class CommentsAdapter(
         return true
     }
 
-    private fun getCommentScore(entry: CommentEntry): CommentScore {
-        var score = 0
-        score += entry.comment.up - entry.comment.down
-        score += entry.vote.voteValue - (baseVotes[entry.comment.id]?.voteValue ?: 0)
-        return CommentScore(score, entry.comment.up, entry.comment.down)
+    private fun commentScore(comment: Api.Comment, currentVote: Vote): CommentScore {
+        val delta = currentVote.voteValue - baseVote(comment).voteValue
+
+        return CommentScore(
+                comment.up + delta.coerceAtLeast(0),
+                comment.down + delta.coerceAtMost(0).absoluteValue)
     }
 
     private fun doVote(entry: CommentEntry, vote: Vote): Boolean {
-        val performVote = actionListener.onCommentVoteClicked(entry.comment, vote)
-        if (performVote) {
-            entry.vote = vote
-        }
-
-        return performVote
+        return actionListener.onCommentVoteClicked(entry.comment, vote)
     }
 
     /**
@@ -360,6 +376,8 @@ class CommentsAdapter(
     }
 
     class CommentView(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val id = ValueHolder(0L)
+
         val vote: VoteView = itemView.find(R.id.voting)
         val reply: ImageView = itemView.find(R.id.action_reply)
         val comment: TextView = itemView.find(R.id.comment)
@@ -377,7 +395,8 @@ class CommentsAdapter(
         }
     }
 
-    private data class CommentEntry(val comment: Api.Comment, var vote: Vote, val depth: Int, val hasChildren: Boolean)
+    private data class CommentEntry(val comment: Api.Comment, val vote: Vote, val depth: Int,
+                                    val hasChildren: Boolean, val currentScore: CommentScore)
 
     interface Listener {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean

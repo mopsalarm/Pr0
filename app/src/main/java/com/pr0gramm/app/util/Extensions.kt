@@ -105,7 +105,7 @@ inline fun <R> Cursor.mapToList(fn: Cursor.() -> R): List<R> {
     }
 }
 
-inline fun <R> Cursor.forEach(fn: Cursor.() -> R): Unit {
+inline fun <R> Cursor.forEach(crossinline fn: Cursor.() -> R): Unit {
     return use {
         while (moveToNext()) {
             fn()
@@ -387,4 +387,13 @@ val <T : Result> PendingResult<T>.rx: Observable<T>
 
 fun Context.canStartIntent(intent: Intent): Boolean {
     return packageManager.resolveActivity(intent, 0) != null
+}
+
+
+class ValueHolder<T>(private var value: T? = null) {
+    fun update(newValue: T?): Boolean {
+        val changed = value != newValue
+        value = newValue
+        return changed
+    }
 }

@@ -1,12 +1,13 @@
 package com.pr0gramm.app.orm
 
+import android.annotation.SuppressLint
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.pr0gramm.app.util.forEach
-import com.pr0gramm.app.util.mapToList
 import com.pr0gramm.app.util.time
-import com.pr0gramm.app.util.use
+import com.squareup.sqlbrite.BriteDatabase
 import org.slf4j.LoggerFactory
+import rx.Observable
 
 /**
  * A cached vote.
@@ -23,15 +24,11 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
             return itemId * 10 + type.ordinal
         }
 
-        fun find(db: SQLiteDatabase, type: Type, itemId: Long): CachedVote? {
+        fun find(db: BriteDatabase, type: Type, itemId: Long): Observable<CachedVote> {
             val query = "SELECT item_id, type, vote FROM cached_vote WHERE id=?"
-            db.rawQuery(query, arrayOf(voteId(type, itemId).toString())).use { cursor ->
-                return if (cursor.moveToNext()) {
-                    ofCursor(cursor)
-                } else {
-                    null
-                }
-            }
+            return db
+                    .createQuery("cached_vote", query, voteId(type, itemId).toString())
+                    .mapToOneOrDefault(this::ofCursor, CachedVote(itemId, type, Vote.NEUTRAL))
         }
 
         private fun ofCursor(cursor: Cursor): CachedVote {
@@ -40,24 +37,24 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
                     vote = Vote.valueOf(cursor.getString(2)))
         }
 
-        fun find(db: SQLiteDatabase, type: Type, ids: List<Long>): List<CachedVote> {
+        fun find(db: BriteDatabase, type: Type, ids: List<Long>): Observable<List<CachedVote>> {
             if (ids.isEmpty())
-                return emptyList()
+                return Observable.just(emptyList())
 
             val encodedIds = ids.sorted().map { voteId(type, it) }.joinToString(",")
             val query = "SELECT item_id, type, vote FROM cached_vote WHERE id IN ($encodedIds)"
-            return db.rawQuery(query, emptyArray()).mapToList { ofCursor(this) }
+            return db.createQuery("cached_vote", query).mapToList(this::ofCursor)
         }
 
-        fun quickSave(database: SQLiteDatabase, type: Type, itemId: Long, vote: Vote) {
-            database.execSQL("""
+        fun quickSave(database: BriteDatabase, type: Type, itemId: Long, vote: Vote) {
+            database.executeAndTrigger("cached_vote", """
                 INSERT OR REPLACE INTO cached_vote (id, item_id, type, vote)
                 VALUES (${voteId(type, itemId)}, $itemId, "${type.name}", "${vote.name}")
             """)
         }
 
-        fun clear(database: SQLiteDatabase) {
-            database.execSQL("DELETE FROM cached_vote")
+        fun clear(database: BriteDatabase) {
+            database.executeAndTrigger("cached_vote", "DELETE FROM cached_vote")
         }
 
         fun prepareDatabase(db: SQLiteDatabase) {
@@ -65,6 +62,7 @@ data class CachedVote(val itemId: Long, val type: CachedVote.Type, val vote: Vot
             db.execSQL("CREATE TABLE IF NOT EXISTS cached_vote (id INTEGER PRIMARY KEY, type TEXT, vote TEXT, item_id INTEGER)")
         }
 
+        @SuppressLint("Recycle")
         fun count(db: SQLiteDatabase): Map<Type, Map<Vote, Int>> {
             val result = HashMap<Type, HashMap<Vote, Int>>()
 

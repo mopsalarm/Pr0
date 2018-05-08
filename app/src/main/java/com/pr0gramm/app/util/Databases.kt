@@ -26,7 +26,7 @@ object Databases {
         }
     }
 
-    inline fun withTransaction(db: BriteDatabase, inTxRunnable: () -> Unit) {
+    inline fun withTransaction(db: BriteDatabase, crossinline inTxRunnable: () -> Unit) {
         withTransaction(db.writableDatabase, inTxRunnable)
     }
 

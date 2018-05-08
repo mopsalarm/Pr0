@@ -21,6 +21,7 @@ import com.pr0gramm.app.ui.MergeRecyclerAdapter
 import com.pr0gramm.app.ui.SingleViewAdapter
 import com.pr0gramm.app.ui.TagCloudLayoutManager
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
+import com.pr0gramm.app.util.ValueHolder
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
@@ -81,9 +82,9 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         voteFavoriteView.setOnClickListener {
             val currentVote = voteView.vote
             if (currentVote === Vote.FAVORITE) {
-                voteView.vote = Vote.UP
+                voteView.doVote(Vote.UP)
             } else {
-                voteView.vote = Vote.FAVORITE
+                voteView.doVote(Vote.FAVORITE)
             }
         }
 
@@ -112,7 +113,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
         vote.subscribe({ v ->
             checkMainThread()
-            voteView.setVote(v, true)
+            voteView.setVoteState(v, animate = false)
             updateViewState(v)
         }, {})
     }
@@ -205,13 +206,15 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
         override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
             val tag = tags[position]
+            val holderChanged = holder.id.update(tag.id)
+
             holder.tag.text = tag.tag
             holder.tag.setOnClickListener {
                 onDetailClickedListener?.onTagClicked(tag)
             }
 
             if (shouldShowVoteView(position)) {
-                holder.vote.setVote(votes[tag] ?: Vote.NEUTRAL, true)
+                holder.vote.setVoteState(votes[tag] ?: Vote.NEUTRAL, !holderChanged)
                 holder.vote.visibility = View.VISIBLE
 
                 if (!alwaysVoteViews) {
@@ -226,7 +229,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
             } else {
                 holder.vote.visibility = View.GONE
                 holder.tag.setOnLongClickListener {
-                    updateSelection(position)
+                    updateSelection(holder.adapterPosition)
                     true
                 }
             }
@@ -240,7 +243,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
             val previousSelected = selected
             selected = position
 
-            notifyItemChanged(Math.max(0, previousSelected))
+            notifyItemChanged(previousSelected.coerceAtLeast(0))
             notifyItemChanged(selected)
         }
 
@@ -253,12 +256,14 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         }
 
         internal fun updateVote(tag: Api.Tag, vote: Vote) {
-            votes.put(tag, vote)
+            votes[tag] = vote
             notifyDataSetChanged()
         }
     }
 
     private class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val id = ValueHolder<Long>()
+
         val tag: TextView = itemView.find(R.id.tag_text)
         val vote: VoteView = itemView.find(R.id.tag_vote)
     }
