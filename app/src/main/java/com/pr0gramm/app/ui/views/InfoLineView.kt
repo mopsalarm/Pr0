@@ -229,7 +229,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
             } else {
                 holder.vote.visibility = View.GONE
                 holder.tag.setOnLongClickListener {
-                    updateSelection(holder.adapterPosition)
+                    updateSelection(position)
                     true
                 }
             }

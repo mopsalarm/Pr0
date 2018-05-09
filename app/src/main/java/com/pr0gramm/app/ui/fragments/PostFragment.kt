@@ -973,7 +973,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // look for votes for the comments
         commentVoteSubscription?.unsubscribe()
         commentVoteSubscription = voteService.getCommentVotes(this.comments)
-                .filter { votes -> !votes.isEmpty }
                 .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
                 .subscribe { votes -> commentsAdapter.updateVotes(votes) }

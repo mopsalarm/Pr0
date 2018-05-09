@@ -177,11 +177,7 @@ class CommentsAdapter(
 
         // and register a vote handler
         holder.vote.setVoteState(entry.vote, animate = !holderChanged)
-        holder.vote.onVote = { vote ->
-            val changed = doVote(entry, vote)
-            notifyItemChanged(holder.adapterPosition)
-            changed
-        }
+        holder.vote.onVote = { vote -> doVote(entry, vote) }
 
         // set alpha for the sub views. sadly, setting alpha on view.itemView is not working
         holder.comment.alpha = if (entry.vote === Vote.DOWN) 0.5f else 1f
@@ -221,10 +217,7 @@ class CommentsAdapter(
             }
 
             fav.visible = true
-            fav.setOnClickListener {
-                doVote(entry, newVote)
-                notifyItemChanged(holder.adapterPosition)
-            }
+            fav.setOnClickListener {                doVote(entry, newVote)            }
         }
 
         if (entry.hiddenCount != null) {
@@ -234,8 +227,9 @@ class CommentsAdapter(
             holder.expand.text = "+" + entry.hiddenCount
             holder.expand.setOnClickListener {
                 collapsed -= comment.id
-                notifyItemChanged(holder.adapterPosition)
+                notifyItemChanged(position)
             }
+
         } else {
             holder.expand.visible = false
 
