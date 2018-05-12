@@ -105,11 +105,10 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
             // register a listener to check/uncheck this tag.
             holder.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
-                var changed = false
-                if (isChecked) {
-                    changed = selected.add(item.id())
+                val changed: Boolean = if (isChecked) {
+                    selected.add(item.id())
                 } else {
-                    changed = selected.remove(item.id())
+                    selected.remove(item.id())
                 }
 
                 if (changed && holder.adapterPosition != -1) {
