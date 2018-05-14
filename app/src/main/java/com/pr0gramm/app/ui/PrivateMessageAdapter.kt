@@ -51,7 +51,7 @@ class PrivateMessageAdapter(
                 if (item.message.isSent) R.color.message_text_sent else R.color.message_text_received))
 
         // the text of the message
-        AndroidUtility.linkify(holder.text, item.message.message)
+        AndroidUtility.linkifyClean(holder.text, item.message.message)
 
         // sender info
         holder.sender.setSingleLine(true)

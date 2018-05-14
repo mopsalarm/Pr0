@@ -69,3 +69,7 @@ class Truss {
         val larger = RelativeSizeSpan(1.2f)
     }
 }
+
+fun truss(config: Truss.() -> Unit): CharSequence {
+    return Truss().apply(config).build()
+}

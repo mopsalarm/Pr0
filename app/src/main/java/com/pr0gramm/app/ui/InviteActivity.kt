@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
@@ -11,14 +12,17 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.InviteService
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
+import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
-import com.pr0gramm.app.util.decoupleSubscribe
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.ui.views.SimpleAdapter
+import com.pr0gramm.app.ui.views.UsernameView
+import com.pr0gramm.app.ui.views.recyclerViewAdapter
+import com.pr0gramm.app.util.*
 import kotterknife.bindView
 import kotterknife.bindViews
 import rx.lang.kotlin.subscribeBy
@@ -76,7 +80,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
     }
 
     private fun handleInvites(invites: InviteService.Invites) {
-        this.invites.adapter = InviteAdapter(invites.invited)
+        this.invites.adapter = inviteAdapter(invites.invited)
         this.invitesEmptyHint.visibility = if (invites.invited.isNotEmpty()) View.GONE else View.VISIBLE
 
         val text = getString(R.string.invite_remaining, invites.inviteCount)
@@ -130,5 +134,43 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
         } else {
             defaultOnError().call(error)
         }
+    }
+
+    private fun inviteAdapter(invites: List<Api.AccountInfo.Invite>): SimpleAdapter<Api.AccountInfo.Invite> {
+        return recyclerViewAdapter(invites) {
+            handle<Api.AccountInfo.Invite>() with layout(R.layout.row_invite) { holder ->
+                val email: TextView = holder.find(R.id.email)
+                val info: TextView = holder.find(R.id.info)
+                val username: UsernameView = holder.find(R.id.username)
+
+                bind { invite ->
+                    val context = itemView.context
+
+                    val date = formatTimeTo(context, invite.created(), TimeMode.SINCE)
+                    val name = invite.name()
+                    if (name != null) {
+                        email.visibility = View.GONE
+                        username.visibility = View.VISIBLE
+                        username.setUsername(name, invite.mark() ?: 0)
+
+                        info.text = context.getString(R.string.invite_redeemed, invite.email(), date)
+                        itemView.setOnClickListener { openUserProfile(name) }
+
+                    } else {
+                        username.visibility = View.GONE
+                        email.visibility = View.VISIBLE
+                        email.text = invite.email()
+
+                        info.text = context.getString(R.string.invite_unredeemed, date)
+                        itemView.setOnClickListener(null)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun openUserProfile(name: String) {
+        val url = UriHelper.of(this).uploads(name)
+        startActivity(Intent(Intent.ACTION_VIEW, url, this, MainActivity::class.java))
     }
 }

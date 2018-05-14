@@ -37,7 +37,7 @@ import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.ui.PrivateBrowserSpan
-import com.pr0gramm.app.ui.Truss
+import com.pr0gramm.app.ui.truss
 import okhttp3.HttpUrl
 import org.slf4j.LoggerFactory
 import rx.Completable
@@ -151,19 +151,18 @@ object AndroidUtility {
      * @param lines         An array of CharSequences. Each CharSequences will be a separate line/bullet-point.
      */
     fun makeBulletList(leadingMargin: Int, lines: List<CharSequence>): CharSequence {
-        val sb = Truss()
-        for (idx in lines.indices) {
-            val last = idx == lines.size - 1
-            val line = lines[idx]
+        return truss {
+            for (idx in lines.indices) {
+                val last = idx == lines.size - 1
+                val line = lines[idx]
 
-            sb.append(line,
-                    BulletSpan(leadingMargin / 3),
-                    LeadingMarginSpan.Standard(leadingMargin))
+                append(line,
+                        BulletSpan(leadingMargin / 3),
+                        LeadingMarginSpan.Standard(leadingMargin))
 
-            sb.append(if (last) "" else "\n")
+                append(if (last) "" else "\n")
+            }
         }
-
-        return sb.build()
     }
 
     fun toFile(uri: Uri): File {
@@ -173,7 +172,7 @@ object AndroidUtility {
 
     private val MALICIOUS_COMMENT_CHARS = Pattern.compile("([\\p{Mn}\\p{Mc}\\p{Me}])[\\p{Mn}\\p{Mc}\\p{Me}]+")
 
-    fun linkify(view: TextView, content: String) {
+    fun linkifyClean(view: TextView, content: String) {
         var cleanedContent = content.take(1024 * 32)
         cleanedContent = MALICIOUS_COMMENT_CHARS.matcher(cleanedContent).replaceAll("$1")
         cleanedContent = RE_GENERIC_LINK.matcher(cleanedContent).replaceAll("$1")

@@ -32,13 +32,10 @@ import com.pr0gramm.app.services.RulesService
 import com.pr0gramm.app.services.UploadService
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.services.config.Config
-import com.pr0gramm.app.ui.MainActivity
-import com.pr0gramm.app.ui.TagInputView
-import com.pr0gramm.app.ui.Truss
+import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.fragments.withBusyDialog
-import com.pr0gramm.app.ui.showDialog
 import com.pr0gramm.app.ui.views.BusyIndicator
 import com.pr0gramm.app.ui.views.viewer.MediaUri
 import com.pr0gramm.app.ui.views.viewer.MediaView
@@ -442,45 +439,45 @@ class UploadFragment : BaseFragment("UploadFragment") {
             else -> R.string.upload_error_unknown
         }
 
-        val text = Truss().append(context.getString(textId))
+        return truss {
+            append(context.getString(textId))
 
-        exception.report?.let { report ->
-            val videoErrorId = when (report.error) {
-                "dimensionsTooSmall" -> R.string.upload_error_video_too_small
-                "dimensionsTooLarge" -> R.string.upload_error_video_too_large
-                "durationTooLong" -> R.string.upload_error_video_too_long
-                "invalidCodec" -> R.string.upload_error_video_codec
-                "invalidStreams" -> R.string.upload_error_video_streams
-                "invalidContainer" -> R.string.upload_error_video_container
-                else -> null
-            }
+            exception.report?.let { report ->
+                val videoErrorId = when (report.error) {
+                    "dimensionsTooSmall" -> R.string.upload_error_video_too_small
+                    "dimensionsTooLarge" -> R.string.upload_error_video_too_large
+                    "durationTooLong" -> R.string.upload_error_video_too_long
+                    "invalidCodec" -> R.string.upload_error_video_codec
+                    "invalidStreams" -> R.string.upload_error_video_streams
+                    "invalidContainer" -> R.string.upload_error_video_container
+                    else -> null
+                }
 
-            if (videoErrorId != null) {
-                text.append("\n\n")
-                        .append(context.getString(R.string.upload_error_video), Truss.bold)
-                        .append(" ")
-                        .append(context.getString(videoErrorId))
-            }
+                if (videoErrorId != null) {
+                    append("\n\n")
+                            .append(context.getString(R.string.upload_error_video), Truss.bold)
+                            .append(" ")
+                            .append(context.getString(videoErrorId))
+                }
 
-            text.append("\n\n")
-                    .append("Info:\n", Truss.bold)
-                    .append(context.getString(R.string.report_video_summary,
-                            report.width, report.height,
-                            report.format, report.duration))
-                    .append("\n")
+                append("\n\n")
+                        .append("Info:\n", Truss.bold)
+                        .append(context.getString(R.string.report_video_summary,
+                                report.width, report.height,
+                                report.format, report.duration))
+                        .append("\n")
 
-            val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
-            for (stream in report.streams) {
-                val streamInfo = context.getString(R.string.report_video_stream,
-                        stream.type, stream.codec ?: "null")
+                val offset = context.resources.getDimensionPixelSize(R.dimen.bullet_list_leading_margin)
+                for (stream in report.streams) {
+                    val streamInfo = context.getString(R.string.report_video_stream,
+                            stream.type, stream.codec ?: "null")
 
-                text.append(streamInfo,
-                        BulletSpan(offset / 3),
-                        LeadingMarginSpan.Standard(offset)).append("\n")
+                    append(streamInfo,
+                            BulletSpan(offset / 3),
+                            LeadingMarginSpan.Standard(offset)).append("\n")
+                }
             }
         }
-
-        return text.build()
     }
 
     private class MediaNotSupported : RuntimeException("Media type not supported")

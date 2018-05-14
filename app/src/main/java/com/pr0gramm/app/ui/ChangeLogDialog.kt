@@ -2,26 +2,22 @@ package com.pr0gramm.app.ui
 
 import android.app.Dialog
 import android.content.Context
-import android.graphics.Typeface
 import android.os.Bundle
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.StyleSpan
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import com.google.common.base.Charsets
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.ThemeHelper.accentColor
+import com.pr0gramm.app.ui.Truss.Companion.bold
 import com.pr0gramm.app.ui.base.BaseDialogFragment
+import com.pr0gramm.app.ui.views.SimpleAdapter
+import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.getColorCompat
 import proguard.annotation.Keep
 import proguard.annotation.KeepClassMembers
 import java.io.IOException
@@ -42,12 +38,12 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
 
     override fun onDialogViewCreated() {
         val changes = loadChangelog(context)
-        recyclerView.adapter = ChangeAdapter(changes)
+        recyclerView.adapter = changeAdapter(changes)
         recyclerView.layoutManager = LinearLayoutManager(context)
     }
 
-    private class ChangeAdapter(changeGroups: List<ChangeGroup>) : RecyclerView.Adapter<ChangeViewHolder>() {
-        private val items: List<Any> = ArrayList<Any>().apply {
+    private fun changeAdapter(changeGroups: List<ChangeGroup>): SimpleAdapter<Any> {
+        val items: List<Any> = ArrayList<Any>().apply {
             changeGroups.forEachIndexed { idx, group ->
                 val current = idx == 0
                 add(Version.of(group.version, current))
@@ -55,75 +51,35 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChangeViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
+        return recyclerViewAdapter(items) {
+            handle<Version>() with layout(R.layout.changelog_version) { view ->
+                val textView = view as TextView
 
-            return ChangeViewHolder(when (viewType) {
-                VIEW_TYPE_VERSION -> inflater.inflate(R.layout.changelog_version, parent, false)
-                VIEW_TYPE_CHANGE -> inflater.inflate(R.layout.changelog_change, parent, false)
-
-                else -> throw IllegalArgumentException("invalid view type: " + viewType)
-            })
-        }
-
-        override fun onBindViewHolder(holder: ChangeViewHolder, position: Int) {
-            val item = items[position]
-
-            if (item is Change) {
-                holder.setText(item.type, item.change)
+                bind { version ->
+                    textView.text = version.formatted
+                    textView.alpha = if (version.current) 1f else 0.5f
+                    textView.setTextColor(textView.context.getColorCompat(accentColor))
+                }
             }
 
-            if (item is Version) {
-                val version = item
-                holder.setVersion(version.formatted)
-                holder.setTextColorId(accentColor, if (version.current) 1f else 0.5f)
+            handle<Change>() with layout(R.layout.changelog_change) { view ->
+                val textView = view as TextView
+
+                bind { change ->
+                    val text = truss {
+                        append(change.type, bold)
+                        append(" ")
+                        append(change.change)
+                    }
+
+                    if (change.change.contains("://")) {
+                        // might contains links that we want to display?
+                        AndroidUtility.linkify(textView, SpannableStringBuilder.valueOf(text))
+                    } else {
+                        textView.text = text
+                    }
+                }
             }
-        }
-
-        override fun getItemCount(): Int {
-            return items.size
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return if (items[position] is Version) VIEW_TYPE_VERSION else VIEW_TYPE_CHANGE
-        }
-
-        companion object {
-
-            private val VIEW_TYPE_VERSION = 0
-            private val VIEW_TYPE_CHANGE = 1
-        }
-    }
-
-    private class ChangeViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val text: TextView = itemView as TextView
-
-        fun setText(type: String, text: String) {
-            val bold = StyleSpan(Typeface.BOLD)
-
-            val builder = SpannableStringBuilder()
-            builder.append(type)
-            builder.append(' ')
-            builder.append(text)
-
-            builder.setSpan(bold, 0, type.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-
-            if (text.contains("://")) {
-                // might contains links that we want to display?
-                AndroidUtility.linkify(this.text, builder)
-            } else {
-                this.text.text = builder
-            }
-        }
-
-        fun setVersion(version: String) {
-            this.text.text = version
-        }
-
-        fun setTextColorId(@ColorRes textColorId: Int, alpha: Float) {
-            val color = ContextCompat.getColor(itemView.context, textColorId)
-            this.text.setTextColor(color)
-            this.text.alpha = alpha
         }
     }
 

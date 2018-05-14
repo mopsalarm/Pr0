@@ -157,7 +157,7 @@ class CommentsAdapter(
             actionListener.onCommentAuthorClicked(comment)
         }
 
-        AndroidUtility.linkify(holder.comment, comment.content)
+        AndroidUtility.linkifyClean(holder.comment, comment.content)
 
         // show the points
         if (admin

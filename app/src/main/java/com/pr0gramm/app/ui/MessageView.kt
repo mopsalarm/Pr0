@@ -75,7 +75,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // the text of the message
-        AndroidUtility.linkify(text, message.message())
+        AndroidUtility.linkifyClean(text, message.message())
 
         // draw the image for this post
         if (isComment) {

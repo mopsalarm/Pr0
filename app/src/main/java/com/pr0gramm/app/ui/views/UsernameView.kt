@@ -6,7 +6,7 @@ import android.support.v7.widget.AppCompatTextView
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import com.pr0gramm.app.UserClasses
-import com.pr0gramm.app.ui.Truss
+import com.pr0gramm.app.ui.truss
 import com.pr0gramm.app.util.getColorCompat
 
 
@@ -33,9 +33,10 @@ class UsernameView @JvmOverloads constructor(context: Context, attrs: AttributeS
         val symbol = UserClasses.MarkSymbol[mark]
         val color = context.getColorCompat(UserClasses.MarkColors[mark])
 
-        this.text = Truss()
-                .append(name).append("\u2009")
-                .append(symbol, ForegroundColorSpan(color))
-                .build()
+        this.text = truss {
+            append(name)
+            append("\u2009")
+            append(symbol, ForegroundColorSpan(color))
+        }
     }
 }

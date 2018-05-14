@@ -4,19 +4,19 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
+import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.fragmentArgument
@@ -52,8 +52,6 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
     }
 
     override fun onDialogViewCreated() {
-        tagsView.adapter = TagsAdapter()
-
         tagsView.layoutManager = LinearLayoutManager(
                 dialog.context, LinearLayoutManager.VERTICAL, false)
 
@@ -64,11 +62,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
     private fun showTagsDetails(tagDetails: Api.TagDetails) {
         // set the new tags and notify the recycler view to redraw itself.
-        tags.addAll(tagDetails.tags())
-        tags.sortByDescending { it.confidence() }
-
-        tagsView.adapter.notifyDataSetChanged()
-
+        updateTagsAdapter(tagDetails.tags().sortedBy { it.confidence() })
         busyView.removeFromParent()
     }
 
@@ -87,44 +81,34 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
                 .subscribe(Action0 { this.dismiss() }, defaultOnError())
     }
 
-    private inner class TagsAdapter : RecyclerView.Adapter<TagsViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagsViewHolder {
-            return TagsViewHolder(LayoutInflater
-                    .from(dialog.context)
-                    .inflate(R.layout.tags_details, parent, false))
-        }
+    private fun updateTagsAdapter(tags: List<Api.TagDetails.TagInfo>) {
+        tagsView.adapter = recyclerViewAdapter(tags) {
+            handle<ImmutableApi.TagInfo>() with layout(R.layout.tags_details) { holder ->
+                val info: TextView = holder.find(R.id.tag_info)
+                val checkbox: CheckBox = holder.find(R.id.tag_text)
 
-        override fun onBindViewHolder(holder: TagsViewHolder, position: Int) {
-            val item = tags[position]
+                bind { item ->
+                    checkbox.text = item.tag()
+                    info.text = String.format("%s, +%d, -%d", item.user(), item.up(), item.down())
 
-            holder.checkbox.text = item.tag()
-            holder.info.text = String.format("%s, +%d, -%d", item.user(), item.up(), item.down())
+                    checkbox.setOnCheckedChangeListener(null)
+                    checkbox.isChecked = selected.contains(item.id())
 
-            holder.checkbox.setOnCheckedChangeListener(null)
-            holder.checkbox.isChecked = selected.contains(item.id())
+                    // register a listener to check/uncheck this tag.
+                    checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val changed: Boolean = if (isChecked) {
+                            selected.add(item.id())
+                        } else {
+                            selected.remove(item.id())
+                        }
 
-            // register a listener to check/uncheck this tag.
-            holder.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
-                val changed: Boolean = if (isChecked) {
-                    selected.add(item.id())
-                } else {
-                    selected.remove(item.id())
-                }
-
-                if (changed && holder.adapterPosition != -1) {
-                    notifyItemChanged(holder.adapterPosition)
+                        if (changed && adapterPosition != -1) {
+                            tagsView.adapter.notifyItemChanged(adapterPosition)
+                        }
+                    }
                 }
             }
         }
-
-        override fun getItemCount(): Int {
-            return tags.size
-        }
-    }
-
-    private inner class TagsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val info: TextView = find(R.id.tag_info)
-        val checkbox: CheckBox = find(R.id.tag_text)
     }
 
     companion object {
