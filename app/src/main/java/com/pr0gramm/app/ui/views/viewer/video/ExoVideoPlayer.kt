@@ -100,7 +100,7 @@ class ExoVideoPlayer(context: Context, hasAudio: Boolean, parentView: AspectLayo
                 5000, handler, videoListener, MAX_DROPPED_FRAMES)
 
         val renderers = if (hasAudio) {
-            exoAudioRenderer = MediaCodecAudioRenderer(mediaCodecSelector)
+            exoAudioRenderer = MediaCodecAudioRenderer(context, mediaCodecSelector)
             arrayOf(exoVideoRenderer, exoAudioRenderer!!)
         } else {
             arrayOf(exoVideoRenderer)

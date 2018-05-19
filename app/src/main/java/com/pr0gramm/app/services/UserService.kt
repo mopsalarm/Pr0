@@ -57,7 +57,7 @@ class UserService(private val api: Api,
         this.cookieHandler.onCookieChanged = { this.onCookieChanged() }
 
         loginStateObservable.subscribe { state -> persistLatestLoginState(state) }
-        loginStateObservable.subscribe { state -> Track.updateUserState(state) }
+        Track.updateUserState(loginStateObservable)
     }
 
     private fun updateLoginState(transformer: (LoginState) -> LoginState): LoginState {

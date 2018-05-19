@@ -1,134 +1,116 @@
 package com.pr0gramm.app.services
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
+import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
-import com.google.android.gms.analytics.HitBuilders
-import com.google.android.gms.analytics.Tracker
 import com.google.common.base.Stopwatch
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.FirebaseAnalytics.Event
+import com.google.firebase.analytics.FirebaseAnalytics.Param
+import com.google.firebase.perf.FirebasePerformance
+import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
+import com.pr0gramm.app.util.ignoreException
+import rx.Observable
 import java.util.concurrent.TimeUnit
 
 /**
  * Tracking using google analytics. Obviously this is anonymous.
  */
 object Track {
-    private const val GA_CUSTOM_AUTHORIZED = "&cd1"
-    private const val GA_CUSTOM_PREMIUM = "&cd2"
-    private const val GA_CUSTOM_ADS = "&cd3"
+    private const val GA_CUSTOM_AUTHORIZED = "authorized"
+    private const val GA_CUSTOM_PREMIUM = "premium"
+    private const val GA_CUSTOM_ADS = "ads"
 
-    private lateinit var ga: Tracker
-    private lateinit var settingsTracker: SettingsTrackerService
-    private lateinit var config: Config
+    private val injector = KodeinInjector()
+    private val fa: FirebaseAnalytics by injector.instance()
+    private val settingsTracker: SettingsTrackerService by injector.instance()
+    private val config: Config by injector.instance()
 
     fun initialize(context: Context) {
-        ga = context.appKodein().instance()
-        settingsTracker = context.appKodein().instance()
-        config = context.appKodein().instance()
+        injector.inject(context.appKodein())
     }
 
-    inline private fun send(b: HitBuilders.EventBuilder.() -> Unit) {
-        val event = HitBuilders.EventBuilder().apply { b() }.build()
-        ga.send(event)
+    private inline fun send(eventType: String, b: Bundle.() -> Unit = {}) {
+        ignoreException {
+            fa.logEvent(eventType, Bundle().apply(b))
+        }
     }
 
     fun loginSuccessful() {
-        send {
-            setCategory("User")
-            setAction("Login")
-            setLabel("Success")
+        send(Event.LOGIN) {
+            putBoolean(Param.SUCCESS, true)
         }
     }
 
     fun loginFailed() {
-        send {
-            setCategory("User")
-            setAction("Login")
-            setLabel("Success")
+        send(Event.LOGIN) {
+            putBoolean(Param.SUCCESS, false)
         }
     }
 
     fun logout() {
-        send {
-            setCategory("User")
-            setAction("Logout")
-        }
+        send("logout")
     }
 
     fun search(query: String) {
-        send {
-            setCategory("Feed")
-            setAction("Search")
-            setLabel(query)
+        send(Event.SEARCH) {
+            putString(Param.SEARCH_TERM, query)
         }
     }
 
     fun writeComment() {
-        send {
-            setCategory("Content")
-            setAction("WriteComment")
-        }
+        send("write_comment")
     }
 
     fun writeMessage() {
-        send {
-            setCategory("Content")
-            setAction("WriteMessage")
-        }
+        send("write_message")
     }
 
     fun searchImage() {
-        send {
-            setCategory("Content")
-            setAction("SearchImage")
-        }
+        send("search_image")
     }
 
     fun votePost(vote: Vote) {
         if (config.trackVotes) {
-            send {
-                setCategory("Content")
-                setAction("Vote" + vote.name)
-                setLabel("Post")
+            send("vote") {
+                putString("vote_type", vote.name)
+                putString("content_type", "post")
             }
         }
     }
 
     fun voteTag(vote: Vote) {
         if (config.trackVotes) {
-            send {
-                setCategory("Content")
-                setAction("Vote" + vote.name)
-                setLabel("Tag")
+            send("vote") {
+                putString("vote_type", vote.name)
+                putString("content_type", "tag")
             }
         }
     }
 
     fun voteComment(vote: Vote) {
         if (config.trackVotes) {
-            send {
-                setCategory("Content")
-                setAction("Vote" + vote.name)
-                setLabel("Comment")
+            send("vote") {
+                putString("vote_type", vote.name)
+                putString("content_type", "comment")
             }
         }
     }
 
     fun gotoFirefoxFocusWebsite() {
-        send {
-            setCategory("FirefoxFocus")
-            setAction("Website")
-        }
+        send("goto_firefox_website")
     }
 
     fun openBrowser(type: String) {
-        send {
-            setCategory("Browser")
-            setAction("Open")
-            setLabel(type)
+        send("open_browser") {
+            putString("type", type)
         }
     }
 
@@ -138,106 +120,81 @@ object Track {
         @SuppressLint("DefaultLocale")
         val sizeCategory = "%d-%d kb".format(categoryStart, categoryStart + 512)
 
-        send {
-            setCategory("Content")
-            setAction("Upload")
-            setLabel(sizeCategory)
+        send("upload") {
+            putLong("size", size)
+            putString("size_category", sizeCategory)
+        }
+    }
+
+    fun inboxNotificationShown() {
+        send("inbox_notification_shown")
+    }
+
+    fun inboxNotificationClosed(method: String) {
+        send("inbox_notification_close") {
+            putString("method", method)
+        }
+    }
+
+    fun preloadCurrentFeed(size: Int) {
+        send("preload_feed") {
+            putInt("item_count", size)
+        }
+    }
+
+    fun inviteSent() {
+        send("invite_sent")
+    }
+
+    fun registerLinkClicked() {
+        send("aff_register_clicked")
+    }
+
+    fun advancedSearch(query: String?) {
+        send("search_advanced") {
+            putString(Param.SEARCH_TERM, query ?: "")
+        }
+    }
+
+    fun passwordChanged() {
+        send("password_changed")
+    }
+
+    fun specialMenuActionClicked(uri: Uri) {
+        send("special_menu_item") {
+            putString("uri", uri.toString())
+        }
+    }
+
+    fun cast(contentType: String) = send("cast") {
+        putString("content_type", contentType)
+    }
+
+    fun screen(activity: Activity?, name: String) {
+        activity?.let {
+            fa.setCurrentScreen(it, name, name)
+        }
+    }
+
+    fun updateUserState(loginState: Observable<UserService.LoginState>) {
+        loginState.distinctUntilChanged { st -> Pair(st.authorized, st.premium) }.subscribe { state ->
+            fa.setUserProperty(GA_CUSTOM_AUTHORIZED, state.authorized.toString())
+            fa.setUserProperty(GA_CUSTOM_PREMIUM, state.premium.toString())
+        }
+    }
+
+    fun updateAdType(adType: Config.AdType) {
+        fa.setUserProperty(GA_CUSTOM_ADS, adType.toString())
+    }
+
+    fun trackSyncCall(watch: Stopwatch, success: Boolean) {
+        send("sync_api") {
+            putBoolean("success", success)
+            putLong("duration", watch.elapsed(TimeUnit.MILLISECONDS))
         }
     }
 
     fun statistics() {
         settingsTracker.track()
-    }
-
-    fun notificationShown() {
-        send {
-            setCategory("Notification")
-            setAction("Shown")
-        }
-    }
-
-    fun notificationClosed(method: String) {
-        send {
-            setCategory("Notification")
-            setAction("Closed")
-            setLabel(method)
-        }
-    }
-
-    fun preloadCurrentFeed(size: Int) {
-        send {
-            setCategory("Feed")
-            setAction("Preload")
-            setLabel(size.toString())
-        }
-    }
-
-    fun inviteSent() {
-        send {
-            setCategory("User")
-            setAction("Invited")
-        }
-    }
-
-    fun registerLinkClicked() {
-        send {
-            setCategory("Register")
-            setAction("Clicked")
-        }
-    }
-
-    fun advancedSearch(query: String?) {
-        send {
-            setCategory("Feed")
-            setAction("AdvancedSearch")
-            setLabel(query)
-        }
-    }
-
-    fun passwordChanged() {
-        send {
-            setCategory("User")
-            setAction("PasswordChanged")
-        }
-    }
-
-    fun specialMenuActionClicked(uri: Uri) {
-        send {
-            setCategory("SpecialMenu")
-            setAction("Clicked")
-            setLabel(uri.toString())
-        }
-    }
-
-    fun adClicked(type: Config.AdType) {
-        send {
-            setCategory("Ads")
-            setAction("Clicked")
-            setLabel(type.toString())
-        }
-    }
-
-    fun screen(name: String) {
-        ga.setScreenName(name)
-        ga.send(HitBuilders.ScreenViewBuilder().build())
-    }
-
-    fun updateUserState(loginState: UserService.LoginState) {
-        ga.set(GA_CUSTOM_AUTHORIZED, loginState.authorized.toString())
-        ga.set(GA_CUSTOM_PREMIUM, loginState.premium.toString())
-    }
-
-    fun updateAdType(adType: Config.AdType) {
-        ga.set(GA_CUSTOM_ADS, adType.toString())
-    }
-
-    fun trackApiCallSpeed(watch: Stopwatch, methodName: String, success: Boolean) {
-        ga.send(HitBuilders.TimingBuilder()
-                .setCategory("Api")
-                .setValue(watch.elapsed(TimeUnit.MILLISECONDS))
-                .setVariable(methodName)
-                .setLabel(if (success) "success" else "failure")
-                .setNonInteraction(true)
-                .build())
     }
 }

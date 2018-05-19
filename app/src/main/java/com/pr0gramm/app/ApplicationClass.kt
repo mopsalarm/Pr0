@@ -11,6 +11,7 @@ import com.github.salomonbrys.kodein.android.autoAndroidModule
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.lazy
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.perf.metrics.AddTrace
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncJob
@@ -38,6 +39,7 @@ import java.util.logging.LogManager
 open class ApplicationClass : Application(), KodeinAware {
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
+    @AddTrace(name = "app_on_create")
     override fun onCreate() {
         super.onCreate()
 

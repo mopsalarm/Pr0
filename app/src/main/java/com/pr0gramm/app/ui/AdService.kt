@@ -80,7 +80,6 @@ class AdService(private val configService: ConfigService, private val userServic
         val loadedSubject = ReplaySubject.create<AdLoadState>().toSerialized()!!
 
         override fun onAdLeftApplication() {
-            Track.adClicked(adType)
         }
 
         override fun onAdLoaded() {

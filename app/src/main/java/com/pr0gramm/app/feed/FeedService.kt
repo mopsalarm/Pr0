@@ -1,5 +1,6 @@
 package com.pr0gramm.app.feed
 
+import com.google.firebase.perf.FirebasePerformance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -10,7 +11,6 @@ import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
 import org.slf4j.LoggerFactory
 import rx.Observable
-import java.util.*
 
 /**
  * Performs the actual request to get the items for a feed.
@@ -56,53 +56,66 @@ class FeedServiceImpl(private val api: Api,
 
         // statistics
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
+        val trace = FirebasePerformance.startTrace("load_feed").apply {
+            putAttribute("type", feedType.name)
+            start()
+        }
+
 
         // get extended tag query
         val q = SearchQuery(feedFilter.tags)
 
-        when (feedType) {
-            FeedType.RANDOM -> return extraCategories.api
+        val result: Observable<Api.Feed> = when (feedType) {
+            FeedType.RANDOM -> extraCategories.api
                     .random(q.tags, flags)
                     .map { feed ->
                         // shuffle items to ensure they are "random"
                         val items = feed.items.toMutableList()
-                        Collections.shuffle(items)
+                        items.shuffle()
                         ImmutableApi.Feed.copyOf(feed).withItems(items)
                     }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold
-                return extraCategories.api.bestof(q.tags, user, flags, query.older, benisScore)
+                extraCategories.api.bestof(q.tags, user, flags, query.older, benisScore)
             }
 
-            FeedType.CONTROVERSIAL -> return extraCategories.api.controversial(q.tags, flags, query.older)
+            FeedType.CONTROVERSIAL -> extraCategories.api.controversial(q.tags, flags, query.older)
 
-            FeedType.TEXT -> return extraCategories.api.text(q.tags, flags, query.older)
+            FeedType.TEXT -> extraCategories.api.text(q.tags, flags, query.older)
 
             else -> {
                 // prepare the call to the official api. The call is only made on subscription.
                 val officialCall = api.itemsGet(promoted, following, query.older, query.newer, query.around, flags, q.tags, likes, self, user)
 
                 if (likes == null && configService.config().searchUsingTagService) {
-                    return extraCategories.api
+                    extraCategories.api
                             .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                             .onErrorResumeNext(officialCall)
 
-                } else if (query.around == null && query.newer == null) {
-                    if (q.advanced) {
-                        // track the advanced search
-                        Track.advancedSearch(q.tags)
+                } else if (query.around == null && query.newer == null && q.advanced) {
+                    // track the advanced search
+                    Track.advancedSearch(q.tags)
 
-                        logger.info("Using general search api, but falling back on old one in case of an error.")
-                        return extraCategories.api
+                    logger.info("Using general search api, but falling back on old one in case of an error.")
+                    extraCategories.api
                                 .general(promoted, q.tags, user, flags, query.older, query.newer, query.around)
                                 .onErrorResumeNext(officialCall)
-                    }
+                } else {
+                    officialCall
                 }
-
-                return officialCall
             }
         }
+
+        return result
+                .doOnError {
+                    trace.putAttribute("error", "true")
+                    trace.stop()
+                }
+                .doOnCompleted {
+                    trace.putAttribute("error", "false")
+                    trace.stop()
+                }
     }
 
     override fun post(id: Long): Observable<Api.Post> {

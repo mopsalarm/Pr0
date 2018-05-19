@@ -1,7 +1,12 @@
 # Add project specific ProGuard rules here.
 
+-allowaccessmodification
+
 -dontobfuscate
--dontoptimize
 -dontpreverify
 
--keep class com.pr0gramm.app.** { *; }
+-dontskipnonpubliclibraryclasses
+-dontskipnonpubliclibraryclassmembers
+
+-optimizationpasses 1
+-optimizations !field/*,method/inlining/*,class/merging/vertical

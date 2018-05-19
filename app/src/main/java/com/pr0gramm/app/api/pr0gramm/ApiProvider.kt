@@ -93,13 +93,11 @@ class ApiProvider(context: Application, client: OkHttpClient,
 
     private fun measureApiCall(watch: Stopwatch, method: Method, success: Boolean) {
         Stats.get().time("api.call", watch.elapsed(TimeUnit.MILLISECONDS),
-                "method:" + method.name,
-                "success:" + success)
-
+                "method:${method.name}", "success:$success")
 
         if ("sync".equals(method.name, ignoreCase = true) && singleShotService.firstTimeInHour("track-time:sync")) {
             // track only sync calls.
-            Track.trackApiCallSpeed(watch, method.name, success)
+            Track.trackSyncCall(watch, success)
         }
     }
 

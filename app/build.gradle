@@ -17,12 +17,15 @@ buildscript {
         jcenter()
         mavenCentral()
         maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://maven.google.com" }
     }
 
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-        classpath 'io.fabric.tools:gradle:1.25.3'
+        classpath 'io.fabric.tools:gradle:1.25.4'
+        classpath 'com.google.gms:google-services:3.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
+        classpath 'com.google.firebase:firebase-plugins:1.1.5'
     }
 }
 
@@ -170,11 +173,16 @@ dependencies {
         force = true
     }
 
-    implementation "com.google.android.gms:play-services-analytics:15.0.2"
-    implementation "com.google.android.gms:play-services-ads:15.0.1"
+    implementation "com.google.firebase:firebase-core:15.0.2"
+    implementation "com.google.firebase:firebase-ads:15.0.1"
+    implementation "com.google.firebase:firebase-analytics:15.0.2"
+    implementation "com.google.firebase:firebase-perf:15.2.0"
+
+    // implementation "com.google.android.gms:play-services-analytics:15.0.2"
+    // implementation "com.google.android.gms:play-services-ads:15.0.1"
     implementation "com.google.android.gms:play-services-cast-framework:15.0.1"
 
-    implementation "net.danlew:android.joda:2.9.9.3"
+    implementation "net.danlew:android.joda:2.9.9.4"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-gson:$VersionRetrofit"
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"
@@ -199,7 +207,7 @@ dependencies {
 
     implementation "com.github.apl-devs:appintro:v4.2.3"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.0'
 
     debugImplementation "com.facebook.stetho:stetho:1.5.0"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
@@ -238,3 +246,6 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$VersionKotlin"
     testImplementation "com.nhaarman:mockito-kotlin:1.5.0"
 }
+
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'

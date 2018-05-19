@@ -19,7 +19,7 @@ class InboxNotificationCanceledReceiver : KodeinBroadcastReceiver() {
         }
 
         // track this action
-        Track.notificationClosed("swiped")
+        Track.inboxNotificationClosed("swiped")
     }
 
     companion object {

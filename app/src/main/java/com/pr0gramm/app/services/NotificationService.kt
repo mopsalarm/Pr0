@@ -193,7 +193,7 @@ class NotificationService(private val context: Application,
             }
         }
 
-        Track.notificationShown()
+        Track.inboxNotificationShown()
     }
 
     private fun formatMessages(messages: List<Api.Message>): NotificationCompat.MessagingStyle {

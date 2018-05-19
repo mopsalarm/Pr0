@@ -74,7 +74,7 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
 
         // track if we've clicked the notification!
         if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
-            Track.notificationClosed("clicked")
+            Track.inboxNotificationClosed("clicked")
         }
 
         inboxService.markAsRead(intent.getLongExtra(EXTRA_MESSAGE_TIMESTAMP, 0))
@@ -132,10 +132,10 @@ class InboxActivity : BaseAppCompatActivity("InboxActivity"), ViewPager.OnPageCh
      */
     private fun trackScreen(index: Int) {
         when (index) {
-            0 -> Track.screen("InboxUnread")
-            1 -> Track.screen("InboxOverview")
-            2 -> Track.screen("InboxPrivate")
-            3 -> Track.screen("InboxComments")
+            0 -> Track.screen(this, "InboxUnread")
+            1 -> Track.screen(this, "InboxOverview")
+            2 -> Track.screen(this, "InboxPrivate")
+            3 -> Track.screen(this, "InboxComments")
         }
     }
 

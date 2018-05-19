@@ -239,6 +239,8 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .build()
 
         remoteMediaClient.queueLoad(arrayOf(queueItem), 0, MediaStatus.REPEAT_MODE_REPEAT_SINGLE, 0, null)
+
+        Track.cast(contentType)
     }
 
     private fun activeState(): Observable<Boolean> {
@@ -654,7 +656,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // track that the user visited this post.
         if (configService.config().trackItemView) {
-            Track.screen("Item")
+            Track.screen(activity, "Item")
         }
     }
 

@@ -509,7 +509,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         super.onResume()
 
         if (config.trackItemView) {
-            Track.screen("Feed")
+            Track.screen(activity, "Feed")
         }
 
         // check if we should show the pin button or not.
