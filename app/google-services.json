@@ -1,0 +1,50 @@
+{
+  "project_info": {
+    "project_number": "573109401688",
+    "firebase_url": "https://pr0gramm-app-efa37.firebaseio.com",
+    "project_id": "pr0gramm-app-efa37",
+    "storage_bucket": "pr0gramm-app-efa37.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573109401688:android:829d1a8e4f9b28ba",
+        "android_client_info": {
+          "package_name": "com.pr0gramm.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573109401688-sb650vu9f3td28sjji8i1srgrqoh7c3p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pr0gramm.app",
+            "certificate_hash": "cee48cac676011c247b658caa9d06c73fd4c368c"
+          }
+        },
+        {
+          "client_id": "573109401688-rv1enq13rbom114llsc3mlnp8gvk3epb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9xh-P_H3dNaxN1QXy8Za8z-fD0UgERHs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
