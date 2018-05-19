@@ -35,6 +35,7 @@ import com.pr0gramm.app.R.id.player_container
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
@@ -1058,7 +1059,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun onNewComments(response: Api.NewComment) {
         autoScrollToComment(response.commentId)
-        displayComments(response.comments)
+
+        displayComments(response.comments.map { comment ->
+            if (comment.id == response.commentId) {
+                // fake the new comments score
+                ImmutableApi.Comment.copyOf(comment).withUp(comment.up - 1)
+            } else {
+                comment
+            }
+        })
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show()
     }

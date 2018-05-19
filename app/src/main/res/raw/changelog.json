@@ -1,5 +1,14 @@
 [
   {
+    "version": 142,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Neue Kommentare starten bei 1, nicht bei 2."
+      }
+    ]
+  },
+  {
     "version": 141,
     "changes": [
       {
