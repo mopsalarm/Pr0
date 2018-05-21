@@ -1,5 +1,7 @@
 package com.pr0gramm.app.ui.views
 
+import android.support.v7.recyclerview.extensions.ListAdapter
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +9,6 @@ import android.widget.TextView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.observeChange
 
 private class Mapping<T>(val predicate: TypePredicate<T>, val newView: NewViewHolder<T>)
 
@@ -18,19 +19,20 @@ typealias TypePredicate<T> = (value: T) -> Boolean
 @DslMarker
 annotation class AdapterMarker
 
-class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>>) : RecyclerView.Adapter<SimpleAdapter.ViewHolder<T>>() {
-    var items by observeChange(listOf<T>()) { notifyDataSetChanged() }
+class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>>, diffCallback: DiffUtil.ItemCallback<T>) : ListAdapter<T, SimpleAdapter.ViewHolder<T>>(diffCallback) {
+
+    operator fun get(idx: Int): T = getItem(idx)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<T> {
         return mappings[viewType].newView(parent)
     }
 
     override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
-        holder.bind(items[position])
+        holder.bind(this[position])
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = items[position]
+        val item = this[position]
         val viewType = mappings.indexOfFirst { it.predicate(item) }
         if (viewType == -1) {
             throw RuntimeException("illegal type, no view registered")
@@ -38,8 +40,6 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
 
         return viewType
     }
-
-    override fun getItemCount(): Int = items.size
 
     class ViewHolder<T>(v: View, private val bind: ViewHolder<T>.(T) -> Unit) : RecyclerView.ViewHolder(v) {
         fun bind(value: T) = this.bind.invoke(this, value)
@@ -49,8 +49,19 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
     class Builder<E> {
         private val mapping = mutableListOf<Mapping<E>>()
 
+        private var sameCallback: (E, E) -> Boolean = { first, second -> first == second }
+        private var equalCallback: (E, E) -> Boolean = { first, second -> first == second }
+
         private var fallback: Mapping<E> = Mapping({ true }) {
             throw NotImplementedError()
+        }
+
+        fun areItemsTheSame(cb: (E, E) -> Boolean) {
+            sameCallback = cb
+        }
+
+        fun areContentsTheSame(cb: (E, E) -> Boolean) {
+            equalCallback = cb
         }
 
         fun <T : E> test(p: TypePredicate<E>): PredicateBinder<T> {
@@ -79,6 +90,7 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
             return simpleView({ parent -> parent.layoutInflater.inflate(l, parent, false) }, config)
         }
 
+
         fun <T : E, V : View> simpleView(factory: (ViewGroup) -> V, config: ViewHolderBinder<T>.(view: View) -> Unit): NewViewHolder<T> {
             return { parent ->
                 @Suppress("UNCHECKED_CAST")
@@ -97,12 +109,15 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
             internal fun build() = SimpleAdapter.ViewHolder(view, bind)
         }
 
-        internal fun build(): SimpleAdapter<E> = SimpleAdapter(mapping + fallback)
+        internal fun build(): SimpleAdapter<E> = SimpleAdapter(mapping + fallback, object : DiffUtil.ItemCallback<E>() {
+            override fun areItemsTheSame(oldItem: E, newItem: E): Boolean = sameCallback(oldItem, newItem)
+            override fun areContentsTheSame(oldItem: E, newItem: E): Boolean = equalCallback(oldItem, newItem)
+        })
     }
 }
 
 fun <T> recyclerViewAdapter(values: List<T> = listOf(), c: SimpleAdapter.Builder<T>.() -> Unit): SimpleAdapter<T> {
-    return SimpleAdapter.Builder<T>().apply(c).build().apply { items = values }
+    return SimpleAdapter.Builder<T>().apply(c).build().apply { submitList(values) }
 }
 
 private fun test() {
