@@ -14,6 +14,7 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.google.gson.JsonSyntaxException
+import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
