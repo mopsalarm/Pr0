@@ -53,6 +53,12 @@ function deploy_upload_apk() {
 rm -rf -- api/build/* app/build/*
 ./gradlew assembleRelease generateDebugSources "$@"
 
+# verify apk
+if ! unzip -t app/build/outputs/apk/release/app-release.apk | grep publicsuffixes.gz ; then
+    echo "Could not find publicsuffixes.gz in the apk"
+    exit 1
+fi
+
 # create tag for this version
 git tag -a "$(format_version ${VERSION})" \
         -m "Released version $(format_version ${VERSION})"
