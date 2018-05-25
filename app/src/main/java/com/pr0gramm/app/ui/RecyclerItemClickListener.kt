@@ -10,7 +10,7 @@ import android.view.View
 import rx.Observable
 import rx.subjects.PublishSubject
 
-class RecyclerItemClickListener(context: Context, private val recyclerView: RecyclerView) {
+class RecyclerItemClickListener(private val recyclerView: RecyclerView) {
     private val mGestureDetector: GestureDetector
 
     private val touchListener = Listener()
@@ -24,7 +24,7 @@ class RecyclerItemClickListener(context: Context, private val recyclerView: Recy
     private var longPressTriggered: Boolean = false
 
     init {
-        mGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        mGestureDetector = GestureDetector(recyclerView.context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapUp(e: MotionEvent): Boolean {
                 return true
             }

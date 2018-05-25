@@ -111,11 +111,11 @@ class FeedFilter() : Parcelable {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null || other !is FeedFilter)
-            return false
-
-        return this === other || feedType === other.feedType && tags == other.tags
-                && likes == other.likes && username == other.username
+        return this === other || (other is FeedFilter
+                && feedType === other.feedType
+                && tags == other.tags
+                && likes == other.likes
+                && username == other.username)
     }
 
     override fun describeContents(): Int {

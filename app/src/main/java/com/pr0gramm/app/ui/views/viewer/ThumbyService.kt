@@ -21,7 +21,7 @@ object ThumbyService {
 
         // normalize url before fetching generated thumbnail
         val url = mediaUri.baseUri.toString()
-                .replace("https://", "http://")
+                .replace("http://", "https://")
                 .replace(".mpg", ".mp4")
                 .replace(".webm", ".mp4")
 

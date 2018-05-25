@@ -167,6 +167,7 @@
 
             <TextView
                 style="@style/UserInfo_Kpi_Header"
+                android:ellipsize="end"
                 android:text="@string/kpi_desc_comments"/>
 
             <TextView

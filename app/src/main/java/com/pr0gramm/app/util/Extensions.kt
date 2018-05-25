@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.support.annotation.ColorInt
 import android.support.annotation.ColorRes
+import android.support.annotation.LayoutRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
@@ -160,6 +161,8 @@ inline fun <R, T> observeChangeEx(def: T, crossinline onChange: (T, T) -> Unit):
 }
 
 val View.layoutInflater: LayoutInflater get() = LayoutInflater.from(context)
+
+fun LayoutInflater.inflate(@LayoutRes id: Int): View = inflate(id, null)
 
 interface CachedValue<out T> {
     val value: T
@@ -396,4 +399,11 @@ class ValueHolder<T>(private var value: T? = null) {
         value = newValue
         return changed
     }
+}
+
+fun View.updatePadding(
+        left: Int = paddingLeft, top: Int = paddingTop,
+        right: Int = paddingRight, bottom: Int = paddingBottom) {
+
+    setPadding(left, top, right, bottom)
 }

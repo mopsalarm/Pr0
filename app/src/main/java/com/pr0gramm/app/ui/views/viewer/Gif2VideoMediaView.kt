@@ -22,7 +22,7 @@ class Gif2VideoMediaView internal constructor(config: MediaView.Config) : ProxyM
         logger.info("Start converting gif to webm")
 
         // normalize to http://
-        val gifUrl = mediaUri.toString().replace("https://", "http://")
+        val gifUrl = mediaUri.toString().replace("http://", "https://")
 
         // and start conversion!
         gifToVideoService.toVideo(gifUrl)

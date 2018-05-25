@@ -6,6 +6,7 @@ import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.core.creator
 import org.joda.time.Instant
+import java.util.*
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed

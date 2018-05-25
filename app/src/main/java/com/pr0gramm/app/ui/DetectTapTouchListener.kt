@@ -6,7 +6,7 @@ import android.view.View
 /**
  * Detects single taps.
  */
-class DetectTapTouchListener private constructor(private val consumer: () -> Unit) : View.OnTouchListener {
+class DetectTapTouchListener(private val consumer: () -> Unit) : View.OnTouchListener {
     private var moveOccurred: Boolean = false
     private var firstX: Float = 0.toFloat()
     private var firstY: Float = 0.toFloat()
@@ -34,12 +34,5 @@ class DetectTapTouchListener private constructor(private val consumer: () -> Uni
         }
 
         return false
-    }
-
-    companion object {
-        @JvmStatic
-        fun withConsumer(consumer: () -> Unit): DetectTapTouchListener {
-            return DetectTapTouchListener(consumer)
-        }
     }
 }

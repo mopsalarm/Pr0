@@ -7,6 +7,7 @@ import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.NotificationService
+import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.MessageAdapter
 
@@ -14,6 +15,7 @@ import com.pr0gramm.app.ui.MessageAdapter
  */
 open class MessageInboxFragment(name: String = "MessageInboxFragment") : InboxFragment<Api.Message>(name) {
     private val notificationService: NotificationService by instance()
+    private val userService: UserService by instance()
 
     override fun newLoaderHelper(): LoaderHelper<List<Api.Message>> {
         return LoaderHelper.of {
@@ -40,9 +42,7 @@ open class MessageInboxFragment(name: String = "MessageInboxFragment") : InboxFr
     }
 
     protected open fun newMessageAdapter(messages: List<Api.Message>): MessageAdapter {
-        val adapter = MessageAdapter(R.layout.row_inbox_message, context, messages)
-        adapter.actionListener = actionListener
-        return adapter
+        return MessageAdapter(R.layout.row_inbox_message, actionListener, userService.name, messages)
     }
 
     companion object {

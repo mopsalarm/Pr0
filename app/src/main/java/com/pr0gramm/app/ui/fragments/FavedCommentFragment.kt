@@ -20,10 +20,4 @@ class FavedCommentFragment : MessageInboxFragment("FavedCommentFragment") {
                     .map { comments -> comments.map { FavedCommentService.commentToMessage(it) } }
         }
     }
-
-    override fun newMessageAdapter(messages: List<Api.Message>): MessageAdapter {
-        val adapter = super.newMessageAdapter(messages)
-        adapter.pointsVisibility = MessageView.PointsVisibility.NEVER
-        return adapter
-    }
 }

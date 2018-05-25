@@ -362,7 +362,8 @@ public interface Api {
 
         boolean following();
 
-        List<UserComments.UserComment> getComments();
+        // we dont use this for some reason
+        // List<UserComments.UserComment> getComments();
 
         @Value.Immutable
         interface Badge {

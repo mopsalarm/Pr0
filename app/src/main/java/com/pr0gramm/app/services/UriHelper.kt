@@ -143,7 +143,7 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
     }
 
     fun badgeImageUrl(image: String): Uri {
-        val builder = Uri.parse("http://pr0gramm.com/media/badges/").buildUpon()
+        val builder = Uri.parse("https://pr0gramm.com/media/badges/").buildUpon()
         return join(builder, image)
     }
 }

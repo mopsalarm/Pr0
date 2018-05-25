@@ -18,6 +18,7 @@ import com.pr0gramm.app.ui.MainActionHandler
 import com.pr0gramm.app.ui.PreviewInfo
 import com.pr0gramm.app.ui.ScrollHideToolbarListener.ToolbarActivity
 import com.pr0gramm.app.ui.base.BaseFragment
+import com.pr0gramm.app.util.arguments
 import com.pr0gramm.app.util.observeChange
 
 /**
@@ -276,20 +277,16 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     }
 
     companion object {
-        const val ARG_FEED = "PostPagerFragment.feed"
-        const val ARG_START_ITEM = "PostPagerFragment.startItem"
-        const val ARG_START_ITEM_COMMENT = "PostPagerFragment.startItemComment"
+        const val ARG_FEED = "PP.feed"
+        const val ARG_START_ITEM = "PP.startItem"
+        const val ARG_START_ITEM_COMMENT = "PP.startItemComment"
 
         fun newInstance(feed: Feed, idx: Int, commentId: Long?): PostPagerFragment {
-            val arguments = Bundle()
-            arguments.putByteArray(ARG_FEED, feed.persist(idx))
-            arguments.putParcelable(ARG_START_ITEM, feed[idx])
-            arguments.putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
-
-            val fragment = PostPagerFragment()
-            fragment.arguments = arguments
-            return fragment
+            return PostPagerFragment().arguments {
+                putByteArray(ARG_FEED, feed.persist(idx))
+                putParcelable(ARG_START_ITEM, feed[idx])
+                putLong(ARG_START_ITEM_COMMENT, commentId ?: -1L)
+            }
         }
     }
-
 }

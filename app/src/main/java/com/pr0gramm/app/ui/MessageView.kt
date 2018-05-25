@@ -3,6 +3,7 @@ package com.pr0gramm.app.ui
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -55,15 +56,16 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    fun setAnswerClickedListener(listener: OnClickListener?) {
-        sender.setOnAnswerClickedListener(listener)
+    fun setAnswerClickedListener(listener: (View) -> Unit) {
+        sender.setOnAnswerClickedListener(OnClickListener { listener(it) })
     }
 
     fun setOnSenderClickedListener(listener: () -> Unit) {
         sender.setOnSenderClickedListener(listener)
     }
 
-    @JvmOverloads fun update(message: Api.Message, name: String? = null, pointsVisibility: PointsVisibility = PointsVisibility.CONDITIONAL) {
+    @JvmOverloads
+    fun update(message: Api.Message, name: String? = null) {
         // set the type. if we have an item, we  have a comment
         val isComment = message.itemId() != 0L
         type?.let { type ->
@@ -79,7 +81,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
         // draw the image for this post
         if (isComment) {
-            val url = "http://thumb.pr0gramm.com/" + message.thumbnail()!!
+            val url = "https://thumb.pr0gramm.com/" + message.thumbnail()!!
             picasso?.load(url)?.into(image)
         } else {
             picasso?.cancelRequest(image)
@@ -96,8 +98,8 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         sender.setSenderName(message.name(), message.mark())
         sender.setDate(message.creationTime())
 
-        if ((admin || pointsVisibility != PointsVisibility.NEVER) && isComment) {
-            if (admin || pointsVisibility == PointsVisibility.ALWAYS || visible) {
+        if (isComment) {
+            if (admin || visible) {
                 sender.setPoints(message.score())
             } else {
                 sender.setPointsUnknown()
@@ -105,9 +107,5 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         } else {
             sender.hidePointView()
         }
-    }
-
-    enum class PointsVisibility {
-        ALWAYS, CONDITIONAL, NEVER
     }
 }

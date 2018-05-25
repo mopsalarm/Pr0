@@ -23,7 +23,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
         classpath 'io.fabric.tools:gradle:1.25.4'
-        classpath 'com.google.gms:google-services:3.2.1'
+        classpath 'com.google.gms:google-services:4.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
         classpath 'com.google.firebase:firebase-plugins:1.1.5'
     }
@@ -173,10 +173,10 @@ dependencies {
         force = true
     }
 
-    implementation "com.google.firebase:firebase-core:15.0.2"
+    implementation "com.google.firebase:firebase-core:16.0.0"
     implementation "com.google.firebase:firebase-ads:15.0.1"
-    implementation "com.google.firebase:firebase-analytics:15.0.2"
-    implementation "com.google.firebase:firebase-perf:15.2.0"
+    implementation "com.google.firebase:firebase-analytics:16.0.0"
+    implementation "com.google.firebase:firebase-perf:16.0.0"
 
     // implementation "com.google.android.gms:play-services-analytics:15.0.2"
     // implementation "com.google.android.gms:play-services-ads:15.0.1"

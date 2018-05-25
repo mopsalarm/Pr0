@@ -1,12 +1,7 @@
 package com.pr0gramm.app.ui.fragments
 
-import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -19,9 +14,9 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.google.gson.JsonSyntaxException
-import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
 import com.pr0gramm.app.feed.ContentType.*
 import com.pr0gramm.app.services.*
@@ -34,10 +29,10 @@ import com.pr0gramm.app.ui.back.BackAwareFragment
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment
 import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
-import com.pr0gramm.app.ui.views.UserInfoCell
-import com.pr0gramm.app.ui.views.UserInfoFoundView
+import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
@@ -46,6 +41,7 @@ import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -75,21 +71,114 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private var quickPeekDialog: Dialog? = null
 
-    private val adViewAdapter = AdViewAdapter()
     private val doIfAuthorizedHelper = LoginActivity.helper(this)
 
-    private var seenIndicatorStyle = IndicatorStyle.NONE
-    private var userInfoCommentsOpen: Boolean = false
     private var bookmarkable: Boolean = false
     private var autoScrollOnLoad: Long? = null
     private var autoOpenOnLoad: ItemWithComment? = null
 
     private lateinit var loader: FeedManager
 
-    private val feedAdapter: FeedAdapter = FeedAdapter()
+    private val feedAdapter by lazy {
+        FeedAdapter(picasso,
+                userHintClickedListener = { _, name -> openUserUploads(name) },
+                userActionListener = UserActionListener())
+    }
+
+    private val activeUsername: String? get() = state.userInfo?.info?.user?.name
+
     private var scrollToolbar: Boolean = false
 
-    private var activeUsername: String? = null
+    private val actionHandler: MainActionHandler get() = activity as MainActionHandler
+
+    private data class State(
+            val feedItems: List<FeedItem>,
+            val feedFilter: FeedFilter,
+            val preloadedCount: Int = 0,
+            val ownUsername: String? = null,
+            val userInfo: UserInfo? = null,
+            val adsVisible: Boolean = false,
+            val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
+            val userInfoCommentsOpen: Boolean = false)
+
+    private var feed: Feed by observeChangeEx(Feed()) { old, new ->
+        if (old == new) {
+            logger.info("No change in feed items.")
+
+        } else {
+            logger.debug("Feed before update: {} items, oldest={}, newest={}",
+                    old.size, old.oldest?.id, old.newest?.id)
+
+            logger.debug("Feed after update: {} items, oldest={}, newest={}",
+                    new.size, new.oldest?.id, new.newest?.id)
+
+            state = state.copy(feedItems = feed.items, feedFilter = feed.filter)
+        }
+
+        if (new.isNotEmpty()) {
+            performAutoOpen()
+        }
+    }
+
+    private var state: State by observeChangeEx(State(feed.items, feed.filter)) { _, state ->
+        val filter = state.feedFilter
+
+        val entries = mutableListOf<FeedAdapter.Entry>()
+
+        logger.time("Update adapter") {
+            // add a little spacer to the top to account for the action bar
+            if (useToolbarTopMargin()) {
+                val offset = AndroidUtility.getActionBarContentOffset(context)
+                if (offset > 0) {
+                    entries += FeedAdapter.Entry.Spacer(offset)
+                }
+            }
+
+            state.userInfo?.let { userInfo ->
+                val isSelfInfo = isSelfInfo(userInfo.info)
+
+                // if we did not search for this user, we will only show a
+                // hint that the user exists
+                if (filter.username == null) {
+                    if (!isSelfInfo) {
+                        entries += FeedAdapter.Entry.UserHint(userInfo.info.user)
+                    }
+
+                    return@let
+                }
+
+                entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
+
+                if (state.userInfoCommentsOpen) {
+                    userInfo.comments.mapTo(entries) { comment ->
+                        val msg = MessageConverter.of(state.userInfo.info.user, comment)
+                        FeedAdapter.Entry.Comment(msg)
+                    }
+                }
+
+                entries += FeedAdapter.Entry.Spacer(layout = R.layout.user_info_footer)
+            }
+
+            if (state.adsVisible) {
+                entries += FeedAdapter.Entry.Ad()
+            }
+
+            // check if we need to check if the posts are 'seen'
+            val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
+                    state.ownUsername != null && state.ownUsername.equals(filter.likes
+                            ?: filter.username, ignoreCase = true))
+
+            state.feedItems.mapTo(entries) { item ->
+                val id = item.id
+                val seen = markAsSeen && seenService.isSeen(id)
+                val repost = inMemoryCacheService.isRepost(id)
+                val preloaded = preloadManager.exists(id)
+                FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+            }
+
+            feedAdapter.submitList(entries)
+        }
+    }
 
     /**
      * Initialize a new feed fragment.
@@ -124,6 +213,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         val feed = previousFeed ?: Feed(filterArgument, selectedContentType)
         loader = FeedManager(feedService, feed)
+
         if (previousFeed == null) {
             loader.restart(around = autoScrollOnLoad)
         }
@@ -137,25 +227,29 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val activity = activity!!
 
-        seenIndicatorStyle = settings.seenIndicatorStyle
+        val activity = requireActivity()
 
         // prepare the list of items
-        val layoutManager = GridLayoutManager(activity, thumbnailColumns)
-        recyclerView.layoutManager = layoutManager
+        val spanCount = thumbnailColumCount
         recyclerView.itemAnimator = null
+        recyclerView.adapter = feedAdapter
+        recyclerView.layoutManager = GridLayoutManager(activity, spanCount).apply {
+            spanSizeLookup = feedAdapter.SpanSizeLookup(spanCount)
+        }
 
-        initializeMergeAdapter()
+        recyclerView.addOnScrollListener(onScrollListener)
+
+        queryForUserInfo()
 
         // we can still swipe up if we are not at the start of the feed.
-        swipeRefreshLayout.canSwipeUpPredicate = {
-            !feedAdapter.feed.isAtStart
-        }
+        swipeRefreshLayout.canSwipeUpPredicate = { !feed.isAtStart }
+
+        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
 
         swipeRefreshLayout.setOnRefreshListener {
             logger.debug("onRefresh called for swipe view.")
-            if (feedAdapter.feed.isAtStart) {
+            if (feed.isAtStart) {
                 refreshFeed()
             } else {
                 // do not refresh
@@ -170,12 +264,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             swipeRefreshLayout.setProgressViewOffset(false, offset, (offset + 1.5 * (abHeight - offset)).toInt())
         }
 
-        swipeRefreshLayout.setColorSchemeResources(ThemeHelper.accentColor)
-
         resetToolbar()
 
         createRecyclerViewClickListener()
-        recyclerView.addOnScrollListener(onScrollListener)
 
         // observe changes so we can update the menu
         followService.changes()
@@ -195,7 +286,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         // close search on click into the darkened area.
-        searchContainer.setOnTouchListener(DetectTapTouchListener.withConsumer { hideSearchContainer() })
+        searchContainer.setOnTouchListener(DetectTapTouchListener { hideSearchContainer() })
 
         // lets start receiving feed updates
         subscribeToFeedUpdates()
@@ -204,10 +295,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         adService.enabledForType(Config.AdType.FEED)
                 .observeOn(mainThread())
                 .compose(bindToLifecycle())
-                .subscribe { show ->
-                    adViewAdapter.showAds = show && AndroidUtility.screenIsPortrait(activity)
-                    updateSpanSizeLookup()
-                }
+                .subscribe { show -> state = state.copy(adsVisible = show) }
     }
 
     private fun subscribeToFeedUpdates() {
@@ -216,7 +304,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             when (update) {
                 is FeedManager.Update.NewFeed -> {
-                    feedAdapter.feed = update.feed
+                    refreshRepostInfos(feed, update.feed)
+
+                    feed = update.feed
                     showNoResultsTextView(update.remote && update.feed.isEmpty())
                     showErrorLoadingFeedView(false)
                 }
@@ -244,8 +334,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         super.onSaveInstanceState(outState)
 
         if (view != null) {
-            val feed = loader.feed
-
             val lastVisibleItem = findLastVisibleFeedItem()
             val lastVisibleIndex = lastVisibleItem?.let { feed.indexById(it.id) }
 
@@ -267,28 +355,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private fun initializeMergeAdapter() {
-        val merged = MergeRecyclerAdapter()
-        if (useToolbarTopMargin()) {
-            merged.addAdapter(SingleViewAdapter.of { context ->
-                View(context).apply {
-                    val height = AndroidUtility.getActionBarContentOffset(context)
-                    layoutParams = ViewGroup.LayoutParams(1, height)
-                }
-            })
+    private fun queryForUserInfo() {
+        if (!isNormalMode) {
+            return
         }
 
-        merged.addAdapter(adViewAdapter)
-        merged.addAdapter(feedAdapter)
-
-        recyclerView.adapter = merged
-
-        updateSpanSizeLookup()
-
-        if (isNormalMode) {
-            queryUserInfo().take(1)
-                    .compose(bindToLifecycleAsync())
-                    .subscribe({ presentUserInfo(it) }, { err -> logger.warn("Error in user cell", err) })
+        queryUserInfo().take(1).compose(bindToLifecycleAsync()).ignoreError().subscribe { value ->
+            state = state.copy(userInfo = value)
+            activity?.invalidateOptionsMenu()
         }
     }
 
@@ -300,126 +374,44 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return arguments?.getBoolean(ARG_NORMAL_MODE, true) ?: true
     }
 
-    private fun presentUserInfo(value: EnhancedUserInfo) {
-        if (currentFilter.tags != null) {
-            presentUserUploadsHint(value.info)
-        } else {
-            presentUserInfoCell(value)
-        }
-    }
-
-    private fun presentUserInfoCell(info: EnhancedUserInfo) {
-        val messages = UserCommentsAdapter(activity!!)
-        val comments = info.comments
-
-        if (userInfoCommentsOpen) {
-            showUserComments(comments, messages, info.info.user)
+    private inner class UserActionListener : UserInfoView.UserActionListener {
+        override fun onWriteMessageClicked(userId: Int, name: String) {
+            doIfAuthorizedHelper.run {
+                startActivity(WriteMessageActivity.intent(context, userId.toLong(), name))
+            }
         }
 
-        val userViewFactory = { context: Context ->
-            val view = UserInfoCell(context, info.info, doIfAuthorizedHelper)
-
-            view.userActionListener = object : UserInfoCell.UserActionListener {
-                override fun onWriteMessageClicked(userId: Int, name: String) {
-                    startActivity(WriteMessageActivity.intent(context, userId.toLong(), name))
-                }
-
-                override fun onUserFavoritesClicked(name: String) {
-                    val filter = currentFilter.basic().withLikes(name)
-                    if (filter != currentFilter) {
-                        (activity as MainActionHandler).onFeedFilterSelected(filter)
-                    }
-
-                    showUserInfoComments(listOf())
-                }
-
-                override fun onShowUploadsClicked(id: Int, name: String) {
-                    val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
-                    if (filter != currentFilter) {
-                        (activity as MainActionHandler).onFeedFilterSelected(filter)
-                    }
-
-                    showUserInfoComments(listOf())
-                }
-
-                override fun onShowCommentsClicked() {
-                    showUserInfoComments(if (messages.itemCount == 0) comments else listOf())
-                }
-
-                private fun showUserInfoComments(comments: List<Api.UserComments.UserComment>) {
-                    showUserComments(comments, messages, info.info.user)
-                }
+        override fun onUserFavoritesClicked(name: String) {
+            val filter = currentFilter.basic().withLikes(name)
+            if (filter != currentFilter) {
+                (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
 
-            view.showWriteMessage = !isSelfInfo(info.info)
-            view.showComments = !comments.isEmpty()
-
-            view
+            state = state.copy(userInfoCommentsOpen = false)
         }
 
-        appendUserInfoAdapters(
-                SingleViewAdapter.of(userViewFactory),
-                messages,
-                SingleViewAdapter.ofLayout(R.layout.user_info_footer))
-
-        // we are showing a user.
-        activeUsername = info.info.user.name
-        activity?.invalidateOptionsMenu()
-    }
-
-    private fun showUserComments(comments: List<Api.UserComments.UserComment>, messages: UserCommentsAdapter, user: Api.Info.User) {
-        userInfoCommentsOpen = comments.isNotEmpty()
-
-        if (userService.isAuthorized) {
-            messages.setComments(user, comments)
-            updateSpanSizeLookup()
-        }
-    }
-
-    private fun presentUserUploadsHint(info: Api.Info) {
-        val activity = activity
-        if (isSelfInfo(info) || activity == null)
-            return
-
-        appendUserInfoAdapters(SingleViewAdapter.of { context ->
-            UserInfoFoundView(context, info).apply {
-                uploadsClickedListener = { _, name ->
-                    val newFilter = currentFilter.basic()
-                            .withFeedType(FeedType.NEW).withUser(name)
-
-                    (activity as MainActionHandler).onFeedFilterSelected(newFilter)
-                }
-            }
-        })
-    }
-
-    private fun appendUserInfoAdapters(vararg adapters: RecyclerView.Adapter<*>) {
-        if (adapters.isEmpty()) {
-            return
-        }
-
-        val mainAdapter = mainAdapter
-        if (mainAdapter != null) {
-            var offset = 0
-            val subAdapters = mainAdapter.getAdapters()
-            for (idx in subAdapters.indices) {
-                offset = idx
-
-                val subAdapter = subAdapters[idx]
-                if (subAdapter is FeedAdapter || subAdapter is AdViewAdapter) {
-                    break
-                }
+        override fun onShowUploadsClicked(id: Int, name: String) {
+            val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
+            if (filter != currentFilter) {
+                (activity as MainActionHandler).onFeedFilterSelected(filter)
             }
 
-            for (idx in adapters.indices) {
-                mainAdapter.addAdapter(offset + idx, adapters[idx])
-            }
-
-            updateSpanSizeLookup()
+            state = state.copy(userInfoCommentsOpen = false)
         }
+
+        override fun onShowCommentsClicked() {
+            state = state.copy(userInfoCommentsOpen = true)
+        }
+
     }
 
-    private fun queryUserInfo(): Observable<EnhancedUserInfo> {
+    private fun openUserUploads(name: String) {
+        actionHandler.onFeedFilterSelected(currentFilter.basic()
+                .withFeedType(FeedType.NEW)
+                .withUser(name))
+    }
+
+    private fun queryUserInfo(): Observable<UserInfo> {
         val filter = filterArgument
 
         val queryString = filter.username ?: filter.tags ?: filter.likes
@@ -443,7 +435,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     .onErrorReturn { listOf() }
 
             return Observable
-                    .zip(first, second, ::EnhancedUserInfo)
+                    .zip(first, second, ::UserInfo)
                     .doOnNext { info -> inMemoryCacheService.cacheUserInfo(contentTypes, info) }
 
         } else {
@@ -451,29 +443,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    internal fun updateSpanSizeLookup() {
-        val mainAdapter = mainAdapter
-        val layoutManager = recyclerViewLayoutManager
-        if (mainAdapter != null && layoutManager != null) {
-            val adapters = mainAdapter.getAdapters()
-
-            val itemCount = adapters
-                    .takeWhile { it !is FeedAdapter }
-                    .sumBy { it.itemCount }
-
-            // skip items!
-            val columnCount = layoutManager.spanCount
-            layoutManager.spanSizeLookup = NMatchParentSpanSizeLookup(itemCount, columnCount)
-        }
-    }
-
-    private val mainAdapter: MergeRecyclerAdapter?
-        get() = recyclerView.adapter as? MergeRecyclerAdapter
-
     override fun onDestroyView() {
         recyclerView.removeOnScrollListener(onScrollListener)
-        adViewAdapter.destroy()
-
         super.onDestroyView()
     }
 
@@ -496,7 +467,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         activity?.invalidateOptionsMenu()
     }
 
-    val filterArgument: FeedFilter by fragmentArgument(name = ARG_FEED_FILTER)
+    private val filterArgument: FeedFilter by fragmentArgument(name = ARG_FEED_FILTER)
 
     private val selectedContentType: EnumSet<ContentType> get() {
         if (!userService.isAuthorized)
@@ -515,31 +486,42 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         // check if we should show the pin button or not.
         if (settings.showPinButton) {
             bookmarkService.isBookmarkable(currentFilter)
-                    .compose(bindToLifecycleAsync<Boolean>())
+                    .compose(bindToLifecycleAsync())
                     .subscribe({ onBookmarkableStateChanged(it) }, {})
         }
 
         recheckContentTypes()
 
-        // set new indicator style
-        if (seenIndicatorStyle !== settings.seenIndicatorStyle) {
-            seenIndicatorStyle = settings.seenIndicatorStyle
-            feedAdapter.notifyDataSetChanged()
+        // force re-apply the state
+        run {
+            var state = this.state
+
+            // set new indicator style
+            if (state.seenIndicatorStyle !== settings.seenIndicatorStyle) {
+                state = state.copy(seenIndicatorStyle = settings.seenIndicatorStyle)
+            }
+
+            if (state.ownUsername != userService.name) {
+                state = state.copy(ownUsername = userService.name)
+            }
+
+            this.state = state
         }
 
         // Observe all preloaded items to get them into the cache and to show the
         // correct state in the ui once they are loaded
         preloadManager.all()
+                .throttleLast(5, TimeUnit.SECONDS)
                 .compose(bindToLifecycleAsync())
-                .doOnEach { feedAdapter.notifyDataSetChanged() }
-                .subscribe({}, {})
+                .ignoreError()
+                .subscribe { state = state.copy(preloadedCount = it.size) }
     }
 
     private fun recheckContentTypes() {
         // check if content type has changed, and reload if necessary
-        val feedFilter = loader.feed.filter
+        val feedFilter = feed.filter
         val newContentType = selectedContentType
-        if (loader.feed.contentType != newContentType) {
+        if (feed.contentType != newContentType) {
             replaceFeedFilter(feedFilter, newContentType)
         }
     }
@@ -564,26 +546,23 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun findLastVisibleFeedItem(
             contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
 
-        val items = feedAdapter.feed
-        if (items.isEmpty()) {
-            return null
-        }
+        val items = feedAdapter.toList().takeUnless { it.isEmpty() } ?: return null
 
-        return recyclerViewLayoutManager?.let { layoutManager ->
-            val adapter = recyclerView.adapter as MergeRecyclerAdapter
-            val offset = adapter.getOffset(feedAdapter) ?: 0
-
+        val layoutManager = recyclerView.layoutManager as? GridLayoutManager
+        return layoutManager?.let {
             // if the first row is visible, skip this stuff.
             val firstCompletelyVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
             if (firstCompletelyVisible == 0 || firstCompletelyVisible == RecyclerView.NO_POSITION)
                 return null
 
-            val lastCompletelyVisible = layoutManager.findLastCompletelyVisibleItemPosition() - offset
+            val lastCompletelyVisible = layoutManager.findLastCompletelyVisibleItemPosition()
             if (lastCompletelyVisible == RecyclerView.NO_POSITION)
                 return null
 
-            val idx = (lastCompletelyVisible - offset).coerceIn(items.indices)
-            return items.take(idx).lastOrNull { contentType.contains(it.contentType) }
+            val idx = (lastCompletelyVisible).coerceIn(items.indices)
+            items.take(idx)
+                    .mapNotNull { (it as? FeedAdapter.Entry.Item)?.item }
+                    .lastOrNull { contentType.contains(it.contentType) }
         }
     }
 
@@ -591,7 +570,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
      * Depending on whether the screen is landscape or portrait, and how large
      * the screen is, we show a different number of items per row.
      */
-    private val thumbnailColumns: Int get() {
+    private val thumbnailColumCount: Int
+        get() {
         val config = resources.configuration
         val portrait = config.screenWidthDp < config.screenHeightDp
 
@@ -759,9 +739,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         val activity = activity ?: return
 
         // start preloading now
-        PreloadService.preload(activity, feedAdapter.feed, allowOnMobile)
+        PreloadService.preload(activity, feed, allowOnMobile)
 
-        Track.preloadCurrentFeed(feedAdapter.feed.size)
+        Track.preloadCurrentFeed(feed.size)
 
         if (singleShotService.isFirstTime("preload_info_hint")) {
             showDialog(this) {
@@ -797,7 +777,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    fun performSearch(query: SearchOptionsView.SearchQuery) {
+    private fun performSearch(query: SearchOptionsView.SearchQuery) {
         hideSearchContainer()
 
         val current = currentFilter
@@ -810,7 +790,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         var startAt: ItemWithComment? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
             filter = filter.withTags("")
-            startAt = ItemWithComment(CharMatcher.digit().retainFrom(query.combined).toLong(), null)
+            startAt = ItemWithComment(CharMatcher.inRange('0', '9').retainFrom(query.combined).toLong(), null)
         }
 
         val searchQueryState = searchView.currentState()
@@ -824,31 +804,30 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         Track.search(query.combined)
     }
 
-    private fun onItemClicked(idx: Int, commentId: Long? = null, preview: ImageView? = null) {
+    private fun onItemClicked(item: FeedItem, commentId: Long? = null, preview: ImageView? = null) {
         val activity = activity ?: return
 
         // reset auto open.
         autoOpenOnLoad = null
 
-        val feed = feedAdapter.feed
-        if (idx < 0 || idx >= feed.size)
-            return
+        val feed = feed
+
+        val idx = feed.indexById(item.id) ?: return
 
         try {
             val fragment = PostPagerFragment.newInstance(feed, idx, commentId)
-
             if (preview != null) {
                 // pass pixels info to target fragment.
                 val image = preview.drawable
 
-                val info = PreviewInfo.of(context, feed[idx], image)
+                val info = PreviewInfo.of(context, item, image)
                 info.preloadFancyPreviewImage(appKodein().instance())
                 fragment.setPreviewInfo(info)
             }
 
             activity.supportFragmentManager.beginTransaction()
                     .replace(R.id.content, fragment)
-                    .addToBackStack("Post" + idx)
+                    .addToBackStack(null)
                     .commit()
 
         } catch (error: Exception) {
@@ -863,30 +842,24 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
      * @return The filter this feed uses.
      */
     override val currentFilter: FeedFilter
-        get() = loader.feed.filter
-
-    internal fun isSeen(item: FeedItem): Boolean {
-        return seenService.isSeen(item)
-    }
+        get() = feed.filter
 
     private fun createRecyclerViewClickListener() {
-        val listener = RecyclerItemClickListener(context, recyclerView)
+        val listener = RecyclerItemClickListener(recyclerView)
 
-        listener.itemClicked()
-                .map { extractFeedItemHolder(it) }
-                .filter { it != null }
-                .compose(bindToLifecycle<FeedItemViewHolder>())
-                .subscribe { holder -> onItemClicked(holder.index, preview = holder.image) }
+        listener.itemClicked().subscribe { view ->
+            extractFeedItemHolder(view)?.let { holder ->
+                onItemClicked(holder.item, preview = holder.image)
+            }
+        }
 
-        listener.itemLongClicked()
-                .map { extractFeedItemHolder(it) }
-                .filter { it != null }
-                .compose(bindToLifecycle<FeedItemViewHolder>())
-                .subscribe { holder -> holder.item?.let { openQuickPeekDialog(it) } }
+        listener.itemLongClicked().subscribe { view ->
+            extractFeedItemHolder(view)?.let { holder ->
+                openQuickPeekDialog(holder.item)
+            }
+        }
 
-        listener.itemLongClickEnded()
-                .compose(bindToLifecycle())
-                .subscribe { dismissQuickPeekDialog() }
+        listener.itemLongClickEnded().subscribe { dismissQuickPeekDialog() }
 
         settings.changes()
                 .startWith("")
@@ -913,114 +886,32 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         quickPeekDialog = null
     }
 
-    private inner class FeedAdapter : RecyclerView.Adapter<FeedItemViewHolder>() {
-        val isUsersFeedOrFavorites = cached {
-            val name = userService.name
-            name != null && name.equals(feed.filter.likes ?: feed.filter.username, ignoreCase = true)
-        }
-
-        init {
-            setHasStableIds(true)
-        }
-
-        var feed: Feed by observeChangeEx(Feed()) { old, new ->
-            isUsersFeedOrFavorites.invalidate()
-
-            if (old.items == new.items) {
-                logger.info("No change in feed items.")
-                if (new.isNotEmpty()) {
-                    performAutoOpen()
-                }
-
-                return@observeChangeEx
-            }
-
-            logger.debug("Feed before update: {} items, oldest={}, newest={}",
-                    old.size, old.oldest?.id, old.newest?.id)
-
-            logger.debug("Feed after update: {} items, oldest={}, newest={}",
-                    new.size, new.oldest?.id, new.newest?.id)
-
-            logger.time("Applying feed delta to recycler-view") {
-                val diff = DiffUtil.calculateDiff(FeedItemsDiffUtilCallback(old, new), false)
-                diff.dispatchUpdatesTo(this)
-            }
-
-            (new - old).minBy { new.feedTypeId(it) }?.let { newestItem ->
-                // load repost info for the new items.
-                refreshRepostInfos(newestItem.id, new.filter)
-            }
-
-            if (new.isNotEmpty()) {
-                performAutoOpen()
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedItemViewHolder {
-            val inflater = LayoutInflater.from(activity)
-            val view = inflater.inflate(R.layout.feed_item_view, null)
-            return FeedItemViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: FeedItemViewHolder,
-                                      @SuppressLint("RecyclerView") position: Int) {
-
-            val item = feed[position]
-
-            val imageUri = UriHelper.of(context).thumbnail(item)
-            picasso.load(imageUri)
-                    .config(Bitmap.Config.RGB_565)
-                    .placeholder(ColorDrawable(0xff333333.toInt()))
-                    .into(holder.image)
-
-            holder.itemView.tag = holder
-            holder.index = position
-            holder.item = item
-
-            // show preload-badge
-            holder.setIsPreloaded(preloadManager.exists(item.id()))
-
-            // check if this item was already seen.
-            if (inMemoryCacheService.isRepost(item.id())) {
-                holder.setIsRepost()
-
-            } else if (seenIndicatorStyle === IndicatorStyle.ICON && !isUsersFeedOrFavorites.value && isSeen(item)) {
-                holder.setIsSeen()
-
-            } else {
-                holder.clear()
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return feed.size
-        }
-
-        override fun getItemId(position: Int): Long {
-            return feed[position].id
-        }
-    }
-
-    internal fun refreshRepostInfos(id: Long, filter: FeedFilter) {
+    private fun refreshRepostInfos(old: Feed, new: Feed) {
+        val filter = new.filter
         if (filter.feedType !== FeedType.NEW && filter.feedType !== FeedType.PROMOTED)
             return
 
         // check if it is possible to get repost info.
-        val queryTooLong = (filter.tags ?: "").split("\\s+".toRegex())
-                .dropLastWhile(String::isEmpty).size >= 5
+        val queryTooLong = (filter.tags ?: "")
+                .split("\\s+".toRegex())
+                .dropLastWhile { it.isEmpty() }
+                .size >= 5
 
         if (queryTooLong)
             return
 
-        val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
-        val query = FeedService.FeedQuery(
-                filter.withTags(queryTerm),
-                selectedContentType, null, id, null)
+        (new - old).minBy { new.feedTypeId(it) }?.let { newestItem ->
+            // load repost info for the new items.
+            val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
+            val query = FeedService.FeedQuery(
+                    filter.withTags(queryTerm),
+                    selectedContentType, null, newestItem.id, null)
 
-        refreshRepostsCache(feedService, inMemoryCacheService, query)
-                .observeOn(mainThread())
-                .compose(bindToLifecycle())
-                .subscribe({ feedAdapter.notifyDataSetChanged() }, {})
+            refreshRepostsCache(feedService, inMemoryCacheService, query)
+                    .observeOn(mainThread())
+                    .compose(bindToLifecycle())
+                    .subscribe({ feedAdapter.notifyDataSetChanged() }, {})
+        }
     }
 
     private fun onFeedError(error: Throwable) {
@@ -1175,11 +1066,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return false
     }
 
-    fun searchContainerIsVisible(): Boolean {
+    private fun searchContainerIsVisible(): Boolean {
         return view != null && searchContainer.visible
     }
 
-    internal fun hideSearchContainer() {
+    private fun hideSearchContainer() {
         if (!searchContainerIsVisible())
             return
 
@@ -1199,13 +1090,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         autoOpenOnLoad?.let { autoLoad ->
             logger.info("Trying to do auto load of {}", autoLoad)
 
-            val feed = loader.feed
             feed.indexById(autoLoad.itemId)?.let { idx ->
                 logger.debug("Found item at idx={}", idx)
 
                 // scroll to item now and click
-                // scrollToItem(autoLoad.itemId)
-                onItemClicked(idx, autoLoad.commentId)
+                onItemClicked(feed[idx], autoLoad.commentId)
             }
         }
 
@@ -1218,26 +1107,15 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun scrollToItem(itemId: Long) {
-        findItemIndexById(itemId)?.let { idx ->
-            logger.debug("Found item at idx={}", idx)
+        val idx = feedAdapter.latestEntries
+                .indexOfFirst { it is FeedAdapter.Entry.Item && it.item.id == itemId }
+                .takeIf { it >= 0 } ?: return
 
-            // over scroll a bit
-            recyclerView.scrollToPosition(idx + thumbnailColumns)
-        }
+        logger.debug("Found item at idx={}", idx)
+
+        // over scroll a bit
+        recyclerView.scrollToPosition(idx + thumbnailColumCount)
     }
-
-    /**
-     * Returns the item id of the index in the recycler views adapter.
-     */
-    private fun findItemIndexById(id: Long): Int? {
-        val offset = (recyclerView.adapter as MergeRecyclerAdapter).getOffset(feedAdapter) ?: 0
-
-        val index = feedAdapter.feed.indexById(id) ?: return null
-        return index + offset
-    }
-
-    private val recyclerViewLayoutManager: GridLayoutManager?
-        get() = recyclerView.layoutManager as? GridLayoutManager
 
     private fun isSelfInfo(info: Api.Info): Boolean {
         return info.user.name.equals(userService.name, ignoreCase = true)
@@ -1250,13 +1128,14 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 activity.scrollHideToolbarListener.onScrolled(dy)
             }
 
-            recyclerViewLayoutManager?.let { layoutManager ->
-                if (loader.isLoading)
-                    return@let
+            if (loader.isLoading)
+                return
 
+            val layoutManager = recyclerView?.layoutManager
+            if (layoutManager is GridLayoutManager) {
                 val totalItemCount = layoutManager.itemCount
 
-                if (dy > 0 && !loader.feed.isAtEnd) {
+                if (dy > 0 && !feed.isAtEnd) {
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                     if (totalItemCount > 12 && lastVisibleItem >= totalItemCount - 12) {
                         logger.info("Request next page now (last visible is {} of {}", lastVisibleItem, totalItemCount)
@@ -1264,7 +1143,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     }
                 }
 
-                if (dy < 0 && !loader.feed.isAtStart) {
+                if (dy < 0 && !feed.isAtStart) {
                     val firstVisibleItem = layoutManager.findFirstVisibleItemPosition()
                     if (totalItemCount > 12 && firstVisibleItem < 12) {
                         logger.info("Request previous page now (first visible is {} of {})", firstVisibleItem, totalItemCount)
@@ -1284,19 +1163,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
         }
-    }
-
-    private class FeedItemsDiffUtilCallback(val old: List<FeedItem>, val new: List<FeedItem>) : DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return areContentsTheSame(oldItemPosition, newItemPosition)
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return old[oldItemPosition].id == new[newItemPosition].id
-        }
-
-        override fun getOldListSize(): Int = old.size
-        override fun getNewListSize(): Int = new.size
     }
 
     companion object {

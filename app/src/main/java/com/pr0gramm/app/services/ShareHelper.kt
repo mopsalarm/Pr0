@@ -19,7 +19,7 @@ import com.pr0gramm.app.util.BrowserHelper
 object ShareHelper {
     @JvmStatic
     fun searchImage(activity: Activity, feedItem: FeedItem) {
-        val imageUri = UriHelper.of(activity).media(feedItem).toString().replace("https://", "http://")
+        val imageUri = UriHelper.of(activity).media(feedItem).toString().replace("http://", "https://")
 
         val uri = Uri.parse("https://www.google.com/searchbyimage").buildUpon()
                 .appendQueryParameter("hl", "en")

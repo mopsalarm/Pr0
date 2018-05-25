@@ -1,6 +1,5 @@
 package com.pr0gramm.app.feed
 
-import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.byteArrayToParcel
 import com.pr0gramm.app.parcel.parcelToByteArray
@@ -119,7 +118,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     fun persist(pivot: Int): ByteArray {
         // how many items to save to older and newer than the pivot item.
-        val itemCountAround = if (BuildConfig.DEBUG) 64 else 64
+        val itemCountAround = 64
 
         // add a subset of the items
         val start = (pivot - itemCountAround).coerceIn(0, items.size)

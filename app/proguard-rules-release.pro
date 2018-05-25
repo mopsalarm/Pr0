@@ -6,8 +6,12 @@
 -dontskipnonpubliclibraryclassmembers
 
 -optimizationpasses 10
--optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,method/inlining/*,code/simplification/*,class/merging/vertical,!class/merging/horizontal,!method/removal/parameter
 
+-optimizations !field/removal/writeonly
+-optimizations !field/propagation/value
+-optimizations !class/merging/horizontal
+-optimizations !method/removal/parameter
+-optimizations **
 
 # remove all not so important logging
 -assumenosideeffects class * implements org.slf4j.Logger {
@@ -16,7 +20,7 @@
 }
 
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
-    static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
+    public static void check*NotNull(java.lang.Object, java.lang.String);
 }
 
 -keepclassmembers class **$WhenMappings {

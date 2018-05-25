@@ -10,11 +10,8 @@ import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 import rx.subscriptions.Subscriptions
 
-class FeedManager(val feedService: FeedService, feed: Feed) {
+class FeedManager(val feedService: FeedService, private var feed: Feed) {
     private val logger = LoggerFactory.getLogger("FeedService")
-
-    var feed: Feed = feed
-        private set
 
     private val subject: Subject<Update, Update> = BehaviorSubject.create<Update>().toSerialized()
     private var subscription: Subscription = Subscriptions.unsubscribed()
@@ -24,7 +21,7 @@ class FeedManager(val feedService: FeedService, feed: Feed) {
      */
     val isLoading: Boolean get() = !subscription.isUnsubscribed
 
-    val feedType: FeedType get() = feed.feedType
+    private val feedType: FeedType get() = feed.feedType
 
     val updates: Observable<Update> get() = subject
             .observeOn(AndroidSchedulers.mainThread())
