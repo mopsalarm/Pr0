@@ -131,7 +131,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             if (useToolbarTopMargin()) {
                 val offset = AndroidUtility.getActionBarContentOffset(context)
                 if (offset > 0) {
-                    entries += FeedAdapter.Entry.Spacer(offset)
+                    entries += FeedAdapter.Entry.Spacer(1, height = offset)
                 }
             }
 
@@ -157,7 +157,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                     }
                 }
 
-                entries += FeedAdapter.Entry.Spacer(layout = R.layout.user_info_footer)
+                entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
             }
 
             if (state.adsVisible) {
@@ -371,9 +371,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return isNormalMode
     }
 
-    private val isNormalMode: Boolean get() {
-        return arguments?.getBoolean(ARG_NORMAL_MODE, true) ?: true
-    }
+    private val isNormalMode: Boolean
+        get() {
+            return arguments?.getBoolean(ARG_NORMAL_MODE, true) ?: true
+        }
 
     private inner class UserActionListener : UserInfoView.UserActionListener {
         override fun onWriteMessageClicked(userId: Int, name: String) {
@@ -470,12 +471,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val filterArgument: FeedFilter by fragmentArgument(name = ARG_FEED_FILTER)
 
-    private val selectedContentType: EnumSet<ContentType> get() {
-        if (!userService.isAuthorized)
-            return EnumSet.of(SFW)
+    private val selectedContentType: EnumSet<ContentType>
+        get() {
+            if (!userService.isAuthorized)
+                return EnumSet.of(SFW)
 
-        return settings.contentType
-    }
+            return settings.contentType
+        }
 
     override fun onResume() {
         super.onResume()
@@ -547,7 +549,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private fun findLastVisibleFeedItem(
             contentType: Set<ContentType> = ContentType.AllSet): FeedItem? {
 
-        val items = feedAdapter.toList().takeUnless { it.isEmpty() } ?: return null
+        val items = feedAdapter.items.takeUnless { it.isEmpty() } ?: return null
 
         val layoutManager = recyclerView.layoutManager as? GridLayoutManager
         return layoutManager?.let {
@@ -573,12 +575,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
      */
     private val thumbnailColumCount: Int
         get() {
-        val config = resources.configuration
-        val portrait = config.screenWidthDp < config.screenHeightDp
+            val config = resources.configuration
+            val portrait = config.screenWidthDp < config.screenHeightDp
 
-        val screenWidth = config.screenWidthDp
-        return Math.min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
-    }
+            val screenWidth = config.screenWidthDp
+            return Math.min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
+        }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -1157,7 +1159,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 if (activity is ToolbarActivity) {
-                    val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView) ?: Integer.MAX_VALUE
+                    val y = ScrollHideToolbarListener.estimateRecyclerViewScrollY(recyclerView)
+                            ?: Integer.MAX_VALUE
 
                     val activity = activity as ToolbarActivity
                     activity.scrollHideToolbarListener.onScrollFinished(y)

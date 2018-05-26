@@ -22,6 +22,7 @@ import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.ConfigService
+import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import gnu.trove.map.TLongObjectMap
@@ -35,7 +36,7 @@ import kotlin.math.absoluteValue
  */
 class CommentsAdapter(
         private val admin: Boolean, private val selfName: String,
-        private val actionListener: Listener) : ListAdapter<CommentsAdapter.Entry, CommentView>(ItemCallback()) {
+        private val actionListener: Listener) : AsyncListAdapter<CommentsAdapter.Entry, CommentView>(ItemCallback()) {
 
     private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
 

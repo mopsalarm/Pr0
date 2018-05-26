@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.support.annotation.LayoutRes
-import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -41,7 +40,7 @@ private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entr
 class FeedAdapter(private val picasso: Picasso,
                   private val userHintClickedListener: OnUserClickedListener,
                   private val userActionListener: UserInfoView.UserActionListener)
-    : ListAdapter<FeedAdapter.Entry, RecyclerView.ViewHolder>(ItemCallback()) {
+    : AsyncListAdapter<FeedAdapter.Entry, RecyclerView.ViewHolder>(ItemCallback()) {
 
     init {
         setHasStableIds(true)
@@ -53,16 +52,9 @@ class FeedAdapter(private val picasso: Picasso,
     private val viewTypesByType = Offset.values().associateBy { it.type }
     private val viewTypesByIndex = Offset.values()
 
-    fun toList(): List<Entry> {
-        return ArrayList<Entry>(itemCount).also { list ->
-            for (idx in 0 until itemCount)
-                list += getItem(idx)
-        }
-    }
-
-    override fun submitList(list: List<Entry>) {
-        super.submitList(list)
-        latestEntries = list
+    override fun submitList(newList: List<Entry>) {
+        super.submitList(newList)
+        latestEntries = newList
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -141,8 +133,9 @@ class FeedAdapter(private val picasso: Picasso,
 
         data class UserHint(val user: Api.Info.User) : Entry(Offset.Hint.offset)
 
-        data class Spacer(val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-                          @LayoutRes val layout: Int? = null) : Entry(Offset.Spacer.offset)
+        data class Spacer(private val idx: Int,
+                          val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+                          @LayoutRes val layout: Int? = null) : Entry(Offset.Spacer.offset + idx)
 
         data class Comment(val message: Api.Message) : Entry(Offset.Comments.offset + message.id())
 
