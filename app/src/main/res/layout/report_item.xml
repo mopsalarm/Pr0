@@ -19,7 +19,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:text="Bitte stelle sicher, dass der Beitrag tatsächlich gegen unsere Regeln verstößt. Missbrauch der Melden Funktion wird nicht geduldet."
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
     <ListView
         android:id="@+id/reason"

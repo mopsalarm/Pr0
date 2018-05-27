@@ -15,6 +15,7 @@ import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.fragmentArgument
+import com.pr0gramm.app.util.optionalFragmentArgument
 import rx.functions.Action0
 
 /**
@@ -25,7 +26,8 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
 
     private val reasonListView: ListView by bindView(R.id.reason)
 
-    private var item: FeedItem by fragmentArgument()
+    private var itemId: Long by fragmentArgument()
+    private var commentId: Long? by optionalFragmentArgument(0)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return dialog(context) {
@@ -41,10 +43,12 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
                 android.R.layout.simple_list_item_single_choice,
                 config.reportReasons)
 
-        (dialog as? AlertDialog)?.let { dialog ->
+        val dialog = this.dialog as? AlertDialog
+        dialog?.let {
             val button = dialog.getButton(Dialog.BUTTON_POSITIVE)
 
             button?.isEnabled = false
+
             reasonListView.itemClickEvents().subscribe {
                 button?.isEnabled = true
             }
@@ -54,7 +58,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     private fun onConfirmClicked() {
         val reason = config.reportReasons.getOrNull(reasonListView.checkedItemPosition) ?: return
 
-        contactService.report(item.id, reason)
+        contactService.report(itemId, commentId ?: 0, reason)
                 .compose(bindToLifecycleAsync<Any>().forCompletable())
                 .withBusyDialog(this)
                 .subscribe(Action0 { this.dismiss() }, defaultOnError())
@@ -62,6 +66,11 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     }
 
     companion object {
-        fun forItem(item: FeedItem) = ReportDialog().apply { this.item = item }
+        fun forItem(item: FeedItem) = ReportDialog().apply { this.itemId = item.id }
+
+        fun forcomment(item: FeedItem, commentId: Long) = ReportDialog().apply {
+            this.itemId = item.id
+            this.commentId = commentId
+        }
     }
 }

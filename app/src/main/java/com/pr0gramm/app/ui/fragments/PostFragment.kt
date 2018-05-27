@@ -1049,6 +1049,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
+    override fun onReportCommentClicked(comment: Api.Comment) {
+        val dialog = ReportDialog.forcomment(feedItem, comment.id)
+        dialog.show(fragmentManager, null)
+    }
+
     override fun onTagClicked(tag: Api.Tag) {
         (parentFragment as PostPagerFragment).onTagClicked(tag)
     }

@@ -9,6 +9,10 @@
         android:title="@string/action_collapse"/>
 
     <item
+        android:id="@+id/action_report"
+        android:title="@string/action_report"/>
+
+    <item
         android:id="@+id/action_delete_comment"
         android:title="@string/action_delete_comment"/>
 </menu>

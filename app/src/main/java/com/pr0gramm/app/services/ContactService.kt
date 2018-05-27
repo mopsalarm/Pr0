@@ -14,4 +14,8 @@ class ContactService(private val api: Api) {
     fun report(itemId: Long, reason: String): Completable {
         return api.report(null, itemId, 0, reason).toCompletable()
     }
+
+    fun report(itemId: Long, comment: Long, reason: String): Completable {
+        return api.report(null, itemId, comment, reason).toCompletable()
+    }
 }

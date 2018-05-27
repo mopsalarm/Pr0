@@ -224,6 +224,7 @@ class CommentsAdapter(
             R.id.action_copy_link -> l.onCopyCommentLink(entry.comment)
             R.id.action_delete_comment -> l.onDeleteCommentClicked(entry.comment)
             R.id.action_collapse -> collapsed += entry.comment.id
+            R.id.action_report -> l.onReportCommentClicked(entry.comment)
         }
 
         return true
@@ -255,6 +256,8 @@ class CommentsAdapter(
         fun onCopyCommentLink(comment: Api.Comment)
 
         fun onDeleteCommentClicked(comment: Api.Comment): Boolean
+
+        fun onReportCommentClicked(comment: Api.Comment)
     }
 }
 
