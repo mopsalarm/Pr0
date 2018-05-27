@@ -357,9 +357,12 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
     @MainThread
     private fun imageShrankSuccess() {
-        Snackbar.make(checkNotNull<View>(view), R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
-                .setAction(R.string.okay, {})
-                .show()
+        view?.let { view ->
+            Snackbar.make(view, R.string.hint_shrank_successful, Snackbar.LENGTH_LONG)
+                    .configureNewStyle()
+                    .setAction(R.string.okay, {})
+                    .show()
+        }
     }
 
     private fun showCanNotHandleTypeDialog() {

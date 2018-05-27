@@ -159,6 +159,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
             } else if (shouldShowFeedbackReminder()) {
 
                 Snackbar.make(contentContainer, R.string.feedback_reminder, 10000)
+                        .configureNewStyle()
                         .setAction(R.string.okay, { })
                         .show()
 
@@ -187,6 +188,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     .filter { !userService.isPremiumUser }
                     .subscribe {
                         Snackbar.make(contentContainer, R.string.hint_dont_like_ads, 10000)
+                                .configureNewStyle()
                                 .setAction("pr0mium") {
                                     Track.registerLinkClicked()
                                     val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
@@ -490,6 +492,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 .doOnCompleted {
                     // show a short information.
                     Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
+                            .configureNewStyle()
                             .setAction(R.string.okay, { })
                             .show()
 

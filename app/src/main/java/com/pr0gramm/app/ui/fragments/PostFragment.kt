@@ -1074,7 +1074,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         })
 
-        Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
+                .configureNewStyle()
+                .setAction(R.string.okay, {})
+                .show()
     }
 
     fun autoScrollToComment(commentId: Long) {

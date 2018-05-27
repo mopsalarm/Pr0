@@ -106,6 +106,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
 
     private fun onInviteSent() {
         Snackbar.make(mailField, R.string.invite_hint_success, Snackbar.LENGTH_SHORT)
+                .configureNewStyle()
                 .setAction(R.string.okay, {})
                 .show()
     }
