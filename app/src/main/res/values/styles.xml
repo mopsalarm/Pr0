@@ -350,4 +350,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">8dp</item>
     </style>
+
+
+    <style name="MyBottomSheetDialog" parent="@style/Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Design.BottomSheetDialog</item>
+        <item name="bottomSheetStyle">@style/MyBottomSheetModal</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="MyBottomSheetModal" parent="android:Widget">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
 </resources>

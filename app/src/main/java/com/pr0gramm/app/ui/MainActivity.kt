@@ -16,7 +16,6 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
 import android.view.*
-import com.flipboard.bottomsheet.BottomSheetLayout
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
@@ -36,7 +35,7 @@ import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
-import com.pr0gramm.app.ui.upload.UploadActivity
+import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
 import com.pr0gramm.app.util.*
 import kotterknife.bindOptionalView
 import kotterknife.bindView
@@ -67,7 +66,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     private val drawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
     private val toolbar: Toolbar by bindView(R.id.toolbar)
     private val contentContainer: View by bindView(R.id.content)
-    private val bottomSheet: BottomSheetLayout by bindView(R.id.bottomsheet)
 
     private val toolbarContainer: View? by bindOptionalView(R.id.toolbar_container)
 
@@ -637,22 +635,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun showUploadBottomSheet() {
-        val menuSheetView = MenuSheetView(this, R.string.hint_upload) { item ->
-            bottomSheet.dismissSheet()
-
-            if (item.itemId == R.id.action_upload_image) {
-                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_IMAGE)
-            }
-
-            if (item.itemId == R.id.action_upload_video) {
-                UploadActivity.openForType(this, UploadActivity.MEDIA_TYPE_VIDEO)
-            }
-
-            true
-        }
-
-        menuSheetView.inflateMenu(R.menu.menu_upload)
-        bottomSheet.showWithSheetView(menuSheetView)
+        UploadTypeDialogFragment().show(supportFragmentManager, null)
     }
 
     companion object {

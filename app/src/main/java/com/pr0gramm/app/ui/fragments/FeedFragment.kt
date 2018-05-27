@@ -164,17 +164,19 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 entries += FeedAdapter.Entry.Ad()
             }
 
-            // check if we need to check if the posts are 'seen'
-            val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
-                    state.ownUsername != null && state.ownUsername.equals(filter.likes
-                            ?: filter.username, ignoreCase = true))
+            if (!state.userInfoCommentsOpen) {
+                // check if we need to check if the posts are 'seen'
+                val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
+                        state.ownUsername != null && state.ownUsername.equals(filter.likes
+                                ?: filter.username, ignoreCase = true))
 
-            state.feedItems.mapTo(entries) { item ->
-                val id = item.id
-                val seen = markAsSeen && seenService.isSeen(id)
-                val repost = inMemoryCacheService.isRepost(id)
-                val preloaded = preloadManager.exists(id)
-                FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+                state.feedItems.mapTo(entries) { item ->
+                    val id = item.id
+                    val seen = markAsSeen && seenService.isSeen(id)
+                    val repost = inMemoryCacheService.isRepost(id)
+                    val preloaded = preloadManager.exists(id)
+                    FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+                }
             }
 
             feedAdapter.submitList(entries)
