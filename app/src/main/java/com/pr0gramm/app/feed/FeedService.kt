@@ -1,6 +1,5 @@
 package com.pr0gramm.app.feed
 
-import com.google.firebase.perf.FirebasePerformance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
@@ -56,11 +55,6 @@ class FeedServiceImpl(private val api: Api,
 
         // statistics
         Stats.get().incrementCounter("feed.loaded", "type:" + feedType.name.toLowerCase())
-        val trace = FirebasePerformance.startTrace("load_feed").apply {
-            putAttribute("type", feedType.name)
-            start()
-        }
-
 
         // get extended tag query
         val q = SearchQuery(feedFilter.tags)
@@ -108,14 +102,6 @@ class FeedServiceImpl(private val api: Api,
         }
 
         return result
-                .doOnError {
-                    trace.putAttribute("error", "true")
-                    trace.stop()
-                }
-                .doOnCompleted {
-                    trace.putAttribute("error", "false")
-                    trace.stop()
-                }
     }
 
     override fun post(id: Long): Observable<Api.Post> {

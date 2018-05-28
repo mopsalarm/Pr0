@@ -105,7 +105,6 @@ class FeedAdapter(private val picasso: Picasso,
 
             is UserInfoViewHolder ->
                 holder.bindTo(entry as Entry.User)
-
         }
     }
 

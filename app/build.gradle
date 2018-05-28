@@ -44,7 +44,7 @@ android {
 
         resConfigs "en", "de"
 
-        vectorDrawables.useSupportLibrary = false
+        vectorDrawables.useSupportLibrary = true
 
         ndk {
             abiFilters "x86", "x86_64", "armeabi", "armeabi-v7a", "arm64-v8a"

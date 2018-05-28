@@ -1215,26 +1215,26 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return view.tag as? FeedItemViewHolder?
         }
 
-        private fun refreshRepostsCache(
-                feedService: FeedService, cacheService: InMemoryCacheService, query: FeedService.FeedQuery): Observable<List<Long>> {
+    }
+    private fun refreshRepostsCache(
+            feedService: FeedService, cacheService: InMemoryCacheService, query: FeedService.FeedQuery): Observable<List<Long>> {
 
-            val subject = PublishSubject.create<List<Long>>()
+        val subject = PublishSubject.create<List<Long>>()
 
-            // refresh happens completely in background to let the query run even if the
-            // fragments lifecycle is already destroyed.
-            feedService.load(query)
-                    .subscribeOn(BackgroundScheduler.instance())
-                    .doAfterTerminate { subject.onCompleted() }
-                    .subscribe({ items ->
-                        if (items.items.size > 0) {
-                            val ids = items.items.map { it.id }
-                            cacheService.cacheReposts(ids)
-                            subject.onNext(ids)
-                            subject.onCompleted()
-                        }
-                    }, {})
+        // refresh happens completely in background to let the query run even if the
+        // fragments lifecycle is already destroyed.
+        feedService.load(query)
+                .subscribeOn(BackgroundScheduler.instance())
+                .doAfterTerminate { subject.onCompleted() }
+                .subscribe({ items ->
+                    if (items.items.size > 0) {
+                        val ids = items.items.map { it.id }
+                        cacheService.cacheReposts(ids)
+                        subject.onNext(ids)
+                        subject.onCompleted()
+                    }
+                }, {})
 
-            return subject
-        }
+        return subject
     }
 }

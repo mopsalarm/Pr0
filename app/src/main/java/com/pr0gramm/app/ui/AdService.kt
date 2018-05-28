@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.Track
@@ -11,6 +12,7 @@ import com.pr0gramm.app.services.UserService
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.debug
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.subjects.ReplaySubject
@@ -68,7 +70,12 @@ class AdService(private val configService: ConfigService, private val userServic
 
     fun newAdView(context: Context): AdView {
         val view = AdView(context.applicationContext)
-        view.adUnitId = context.getString(R.string.banner_ad_unit_id)
+
+        if(BuildConfig.DEBUG) {
+            view.adUnitId = "ca-app-pub-3940256099942544/6300978111"
+        } else {
+            view.adUnitId = context.getString(R.string.banner_ad_unit_id)
+        }
 
         val backgroundColor = AndroidUtility.resolveColorAttribute(context, android.R.attr.windowBackground)
         view.setBackgroundColor(backgroundColor)
