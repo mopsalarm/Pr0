@@ -5,6 +5,7 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.subscribeOnBackground
 import com.pr0gramm.app.util.toInt
@@ -19,6 +20,7 @@ import rx.Observable
 import rx.lang.kotlin.ofType
 import rx.subjects.BehaviorSubject
 import java.io.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -83,11 +85,11 @@ class UploadService(private val api: Api,
         }
     }
 
-    private fun upload(file: File): Observable<UploadInfo> {
+    private fun upload(file: File): Observable<State> {
         if (!file.exists() || !file.isFile || !file.canRead())
-            return Observable.error<UploadInfo>(FileNotFoundException("Can not read file to upload"))
+            return Observable.error(FileNotFoundException("Can not read file to upload"))
 
-        val result = BehaviorSubject.create(UploadInfo(progress = 0f)).toSerialized()
+        val result = BehaviorSubject.create<State>(State.Uploading(progress = 0f)).toSerialized()
 
         val output = object : RequestBody() {
             override fun contentType(): MediaType {
@@ -109,7 +111,7 @@ class UploadService(private val api: Api,
                 var lastTime = 0L
                 FileInputStream(file).use { input ->
                     // send first progress report.
-                    result.onNext(UploadInfo(progress = 0f))
+                    result.onNext(State.Uploading(progress = 0f))
 
                     var sent = 0
                     readStream(input) { buffer, len ->
@@ -122,18 +124,18 @@ class UploadService(private val api: Api,
 
                             // send progress now.
                             val progress = sent / length
-                            result.onNext(UploadInfo(progress = progress))
+                            result.onNext(State.Uploading(progress = progress))
                         }
                     }
 
                     // tell that the file is sent
-                    result.onNext(UploadInfo(progress = 1f))
+                    result.onNext(State.Uploading(progress = 1f))
                 }
             }
         }
 
         val body = MultipartBody.Builder()
-                .setType(MediaType.parse("multipart/form-data"))
+                .setType(MediaType.parse("multipart/form-data")!!)
                 .addFormDataPart("image", file.name, output)
                 .build()
 
@@ -142,7 +144,7 @@ class UploadService(private val api: Api,
         // perform the upload!
         api.upload(body)
                 .doOnEach { Track.upload(size) }
-                .map { response -> UploadInfo(response.key, emptyList()) }
+                .map { response -> State.Uploaded(response.key) }
                 .subscribeOnBackground()
                 .subscribe(result)
 
@@ -150,7 +152,7 @@ class UploadService(private val api: Api,
     }
 
     private fun post(key: String, contentType: ContentType, tags_: Set<String>,
-                     checkSimilar: Boolean): Observable<Api.Posted> {
+                     checkSimilar: Boolean): Observable<State> {
 
         val contentTypeTag = contentType.name.toLowerCase()
         val tags = tags_.map { it.trim() }.filter { isValidTag(it) }
@@ -170,53 +172,108 @@ class UploadService(private val api: Api,
         }
 
         return api
-                .post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key)
-                .doOnNext { posted ->
-                    // cache tags so that they appear immediately
-                    if (posted.itemId > 0) {
-                        cacheService.cacheTags(posted.itemId, tags)
+                .post(null, contentTypeTag, firstTags.joinToString(","), checkSimilar.toInt(), key, 1)
+                .map { postedToState(key, it) }
+
+                .flatMap { state ->
+                    if (state is State.Pending) {
+                        waitOnQueue(state.queue)
+                    } else {
+                        Observable.just(state)
                     }
                 }
-                .flatMap { posted ->
-                    if (extraTags.isNotEmpty() && posted.itemId > 0) {
+
+                .doOnNext { state ->
+                    // cache tags so that they appear immediately
+                    if (state is State.Success) {
+                        cacheService.cacheTags(state.id, tags)
+                    }
+                }
+
+                .flatMap { state ->
+                    if (state is State.Success && extraTags.isNotEmpty()) {
                         // try to add the extra parameters.
-                        voteService.tag(posted.itemId, extraTags)
-                                .ignoreError()
-                                .ofType<Api.Posted>()
-                                .concatWith(Observable.just(posted))
+                        voteService.tag(state.id, extraTags).ignoreError().ofType<State>()
+                                .concatWith(Observable.just(state))
 
                     } else {
-                        Observable.just(posted)
+                        Observable.just(state)
                     }
                 }
     }
 
-    fun upload(file: File, sfw: ContentType, tags: Set<String>): Observable<UploadInfo> {
-        return upload(file).flatMap<UploadInfo> { status ->
-            if (status.key != null) {
-                post(status, sfw, tags, true)
+    private fun postedToState(key: String, posted: Api.Posted): State {
+        if (posted.similar.isNotEmpty()) {
+            return State.SimilarItems(key, posted.similar)
+        }
+
+        if (posted.error != null) {
+            return State.Error(posted.error!!, posted.report)
+        }
+
+        if (posted.itemId > 0) {
+            return State.Success(posted.itemId)
+        }
+
+        posted.queueId?.let { queue ->
+            return State.Pending(queue, -1)
+        }
+
+        throw IllegalStateException("can not map result to state")
+    }
+
+    private fun waitOnQueue(queue: Long): Observable<State> {
+        return api.queue(queue)
+                .map { info ->
+                    val itemId = info.item?.id ?: 0
+                    when {
+                        info.status == "done" && itemId > 0 -> State.Success(itemId)
+                        info.status == "processing" -> State.Processing()
+                        else -> State.Pending(queue, info.position)
+                    }
+                }
+
+                .retryWhen { errObservable ->
+                    errObservable
+                            .doOnNext { err -> logger.warn("Error polling queue", err) }
+                            .delay(2, TimeUnit.SECONDS, BackgroundScheduler.instance())
+                }
+
+                .flatMap { value ->
+                    if (value is State.Success) {
+                        Observable.just(value)
+                    } else {
+                        Observable.just(value).concatWith(waitOnQueue(queue))
+                    }
+                }
+
+                .delaySubscription(2, TimeUnit.SECONDS, BackgroundScheduler.instance())
+    }
+
+    sealed class State {
+        class Error(val error: String, val report: Api.Posted.VideoReport?) : State()
+        class Uploading(val progress: Float) : State()
+        class Uploaded(val key: String) : State()
+        class Success(val id: Long) : State()
+        class Pending(val queue: Long, val position: Long) : State()
+        class Processing() : State()
+        class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
+    }
+
+    fun upload(file: File, sfw: ContentType, tags: Set<String>): Observable<State> {
+        return upload(file).flatMap { state ->
+            if (state is State.Uploaded) {
+                post(state.key, sfw, tags, true)
             } else {
-                Observable.just(status)
+                Observable.just(state)
             }
         }
     }
 
-    fun post(status: UploadInfo, contentType: ContentType, tags: Set<String>,
-             checkSimilar: Boolean): Observable<UploadInfo> {
+    fun post(state: State.Uploaded, contentType: ContentType, tags: Set<String>,
+             checkSimilar: Boolean): Observable<State> {
 
-        return post(status.key!!, contentType, tags, checkSimilar).flatMap { response ->
-            val error = response.error
-
-            if (response.similar.isNotEmpty()) {
-                Observable.just(UploadInfo(status.key, response.similar))
-
-            } else if (error != null) {
-                Observable.error(UploadFailedException(error, response.report))
-
-            } else {
-                Observable.just(UploadInfo(id = response.getItemId()))
-            }
-        }
+        return post(state.key, contentType, tags, checkSimilar)
     }
 
     /**

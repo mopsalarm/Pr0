@@ -68,7 +68,8 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
     private var file: File? = null
     private var fileMediaType: MediaUri.MediaType? = null
-    private var uploadInfo: UploadService.UploadInfo? = null
+
+    private var uploadInfo: UploadService.State.Uploaded? = null
 
     private var urlArgument: Uri? by optionalFragmentArgument()
     private var mediaTypeArgument: String? by optionalFragmentArgument(default = "image/*")
@@ -160,7 +161,6 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val uploadInfo = uploadInfo
 
-
         busyIndicator.visible = true
 
         // start the upload
@@ -175,34 +175,44 @@ class UploadFragment : BaseFragment("UploadFragment") {
         logger.info("Start upload of type {} with tags {}", type, tags)
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .doAfterTerminate { busyIndicator.visible = false }
-                .subscribe({ status ->
-                    when {
-                        status.finished -> {
-                            logger.info("Finished! item id is {}", status.id)
-                            onUploadComplete(status.id)
-
+                .subscribe({ state ->
+                    when (state) {
+                        is UploadService.State.Uploading -> {
+                            if (state.progress < 0.99) {
+                                logger.info("Uploading, progress is {}", state.progress)
+                                busyIndicator.progress = state.progress
+                            } else {
+                                logger.info("Uploading, progress is nearly finished")
+                                if (!busyIndicator.isSpinning)
+                                    busyIndicator.spin()
+                            }
                         }
-                        status.hasSimilar -> {
+
+                        is UploadService.State.Uploaded -> {
+                            logger.info("Got upload key, storing.")
+                            this.uploadInfo = state
+                        }
+
+                        is UploadService.State.SimilarItems -> {
                             logger.info("Found similar posts. Showing them now")
-                            this.uploadInfo = status
-                            showSimilarPosts(status.similar)
+
+                            showSimilarPosts(state.items)
                             setFormEnabled(true)
+                        }
+
+                        is UploadService.State.Error -> {
+                            val err = UploadService.UploadFailedException(state.error, state.report)
+                            onUploadError(err)
+                        }
+
+                        is UploadService.State.Success -> {
+                            logger.info("Finished! item id is {}", state.id)
+                            onUploadComplete(state.id)
 
                         }
-                        status.progress >= 0.99 -> {
-                            logger.info("Uploading, progress is nearly finished")
-                            if (!busyIndicator.isSpinning)
-                                busyIndicator.spin()
 
-                        }
-                        status.progress >= 0 -> {
-                            val progress = status.progress
-                            logger.info("Uploading, progress is {}", progress)
-                            busyIndicator.progress = progress
-
-                        }
                         else -> {
-                            logger.info("Upload finished, posting now.")
+                            logger.info("Upload state: {}", state)
                             busyIndicator.spin()
                         }
                     }

@@ -133,8 +133,11 @@ public interface Api {
                             @Field("sfwstatus") String sfwStatus,
                             @Field("tags") String tags,
                             @Field("checkSimilar") int checkSimilar,
-                            @Field("key") String key);
+                            @Field("key") String key,
+                            @Field("processAsync") Integer processAsync);
 
+    @GET("/api/items/queue")
+    Observable<QueueState> queue(@Query("id") Long id);
 
     @FormUrlEncoded
     @POST("/api/user/invite")
@@ -508,6 +511,17 @@ public interface Api {
         List<Comment> getComments();
     }
 
+    @Value.Immutable
+    interface QueueState {
+        @Nullable
+        Posted.PostedItem getItem();
+
+        long getPosition();
+
+        // pending, processing or done
+        String getStatus();
+    }
+
     /**
      */
     @Value.Immutable
@@ -516,7 +530,7 @@ public interface Api {
         @Gson.Ignore
         public long getItemId() {
             //noinspection ConstantConditions
-            return getItem() != null
+            return getItem() != null && getItem().getId() != null
                     ? getItem().getId()
                     : -1;
         }
@@ -532,9 +546,13 @@ public interface Api {
         @Nullable
         public abstract VideoReport getReport();
 
+        @Nullable
+        public abstract Long getQueueId();
+
         @Value.Immutable
         public interface PostedItem {
-            long getId();
+            @Nullable
+            Long getId();
         }
 
         @Value.Immutable
