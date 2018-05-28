@@ -7,6 +7,7 @@
         <item name="secondaryBackground">@color/secondary_background</item>
         <item name="drawerTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="bottomSheetBackground">@drawable/bottomsheet</item>
     </style>
 
     <style name="AppTheme.Orange">
@@ -83,6 +84,7 @@
         <item name="drawerTheme">@style/DrawerTheme.Black</item>
         <item name="secondaryBackground">@color/black_secondary_background</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="bottomSheetBackground">@drawable/bottomsheet_dark</item>
 
         <item name="alertDialogTheme">@style/AppTheme.Dialog.Black</item>
 

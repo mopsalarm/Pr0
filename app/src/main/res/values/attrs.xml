@@ -6,6 +6,7 @@
         <attr name="drawerTheme" format="reference"/>
         <attr name="appIcon" format="reference"/>
         <attr name="searchTheme" format="reference"/>
+        <attr name="bottomSheetBackground" format="reference"/>
         <attr name="dropshadowPrimaryDark" format="reference"/>
 
         <attr name="secondaryBackground" format="color"/>
