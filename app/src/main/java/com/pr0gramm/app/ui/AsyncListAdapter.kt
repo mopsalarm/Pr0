@@ -3,16 +3,21 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
+import com.pr0gramm.app.util.observeChangeEx
 import com.pr0gramm.app.util.observeOnMain
 import com.pr0gramm.app.util.subscribeOnBackground
 import rx.Observable
+import rx.subjects.PublishSubject
 
 private const val detectMoves = false
 
 abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         private val diffCallback: DiffUtil.ItemCallback<T>) : RecyclerView.Adapter<V>() {
 
-    var items: List<T> = listOf()
+    private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
+    val updates = updateSubject as Observable<List<T>>
+
+    var items: List<T> by observeChangeEx(listOf()) { old, new -> updateSubject.onNext(new) }
         private set
 
     // Max generation of currently scheduled runnable

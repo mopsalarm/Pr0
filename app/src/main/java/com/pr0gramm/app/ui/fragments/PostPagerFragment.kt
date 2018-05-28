@@ -111,7 +111,7 @@ class PostPagerFragment : BaseFragment("DrawerFragment"), FilterFragment, PostPa
     private fun makeItemCurrent(item: FeedItem) {
         val index = adapter.feed.indexById(item.id) ?: 0
 
-        logger.info("Moving to index: " + index)
+        logger.info("Moving to index: {}", index)
         viewPager.setCurrentItem(index, false)
     }
 

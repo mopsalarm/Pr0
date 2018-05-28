@@ -100,7 +100,13 @@ open class ApplicationClass : Application(), KodeinAware {
 
         // enable ads - do not fail if we get an exception from this shitty google library.
         ignoreException {
-            MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
+            if (BuildConfig.DEBUG) {
+                // test ads for debug, see https://developers.google.com/admob/android/test-ads
+                MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111")
+            } else {
+                MobileAds.initialize(this, "ca-app-pub-2308657767126505~4138045673")
+            }
+
             MobileAds.setAppVolume(0f)
             MobileAds.setAppMuted(true)
         }

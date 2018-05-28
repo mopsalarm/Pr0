@@ -301,6 +301,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeCommentPostLine()
 
         commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "", this)
+        commentsAdapter.updates
+                .compose(bindToLifecycle())
+                .subscribe { tryAutoScrollToCommentNow() }
 
         if (userService.isAuthorized) {
             adapter.addAdapter(commentsAdapter)
@@ -408,24 +411,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .subscribeWithErrorHandling { onNewComments(it) }
 
         AndroidUtility.hideSoftKeyboard(view)
-    }
-
-    /**
-     * Scroll the th given comment
-
-     * @param commentId The comment id to scroll to
-     */
-    private fun scrollToComment(commentId: Long) {
-        adapter.getOffset(commentsAdapter)?.let { offset ->
-            for (idx in 0 until commentsAdapter.itemCount) {
-                if (commentsAdapter.getItemId(idx) == commentId) {
-                    content.scrollToPosition(offset + idx)
-                    break
-                }
-            }
-        }
-
-        commentsAdapter.selectedCommentId = commentId
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -968,11 +953,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         // show now
         commentsAdapter.updateComments(this.comments, feedItem.user)
 
-        val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: 0
-        if (commentId > 0) {
-            scrollToComment(commentId)
-        }
-
         // look for votes for the comments
         commentVoteSubscription?.unsubscribe()
         commentVoteSubscription = voteService.getCommentVotes(this.comments)
@@ -1082,7 +1062,21 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     fun autoScrollToComment(commentId: Long) {
         arguments?.putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId)
-        scrollToComment(commentId)
+        tryAutoScrollToCommentNow()
+    }
+
+    private fun tryAutoScrollToCommentNow() {
+        val commentId = arguments?.getLong(ARG_AUTOSCROLL_COMMENT_ID) ?: return
+
+        adapter.getOffset(commentsAdapter)?.let { offset ->
+            val idx = commentsAdapter.items.indexOfFirst { it.comment.id == commentId }
+            if (idx >= 0) {
+                content.scrollToPosition(offset + idx)
+                commentsAdapter.selectedCommentId = commentId
+                arguments?.remove(ARG_AUTOSCROLL_COMMENT_ID)
+            }
+        }
+
     }
 
     fun mediaHorizontalOffset(offset: Int) {
