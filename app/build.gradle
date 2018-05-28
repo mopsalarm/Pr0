@@ -23,7 +23,7 @@ buildscript {
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
         classpath 'io.fabric.tools:gradle:1.25.4'
-        classpath 'com.google.gms:google-services:4.0.0'
+        classpath 'com.google.gms:google-services:4.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$VersionKotlin"
         classpath 'com.google.firebase:firebase-plugins:1.1.5'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.2'
@@ -172,7 +172,7 @@ dependencies {
         exclude(module: "support-core-utils")
     }
 
-    implementation("com.google.guava:guava:25.0-android") {
+    implementation("com.google.guava:guava:25.1-android") {
         force = true
     }
 
@@ -210,7 +210,7 @@ dependencies {
 
     implementation "com.github.apl-devs:appintro:v4.2.3"
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.1'
 
     debugImplementation "com.facebook.stetho:stetho:1.5.0"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:1.5.0"
@@ -233,7 +233,7 @@ dependencies {
     implementation "com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:$VersionRxBinding"
 
     implementation "com.github.bright:slf4android:0.1.5"
-    implementation "com.crashlytics.sdk.android:crashlytics:2.9.2"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.9.3"
 
     // dependency injection using kotlin.
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
