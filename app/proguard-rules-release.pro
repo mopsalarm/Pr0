@@ -5,7 +5,7 @@
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
 
--optimizationpasses 10
+-optimizationpasses 5
 
 -optimizations !field/removal/writeonly
 -optimizations !field/propagation/value
