@@ -48,7 +48,7 @@
                     android:title="@string/pref_confirm_play_on_mobile_title"/>
 
                 <CheckBoxPreference
-                    android:defaultValue="false"
+                    android:defaultValue="true"
                     android:key="pref_load_hq_image_in_zoomview"
                     android:summary="@string/pref_load_hq_image_in_zoomview_summary"
                     android:title="@string/pref_load_hq_image_in_zoomview_title"/>
@@ -232,7 +232,7 @@
                     android:title="@string/pref_show_pin_button"/>
 
                 <CheckBoxPreference
-                    android:defaultValue="true"
+                    android:defaultValue="false"
                     android:key="pref_show_refresh_button"
                     android:summary="@string/pref_show_refresh_button_summary"
                     android:title="@string/pref_show_refresh_button"/>
@@ -420,6 +420,7 @@
 
     </PreferenceCategory>
 
+    <!--
     <PreferenceCategory
         android:key="pref_privacy"
         android:persistent="false"
@@ -432,6 +433,6 @@
             android:title="@string/pref_use_https_title"/>
 
     </PreferenceCategory>
-
+    -->
 
 </PreferenceScreen>

@@ -105,10 +105,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
             if (!userService.userIsAdmin) {
                 hidePreferenceByName("pref_show_content_type_flag")
             }
-
-            if (config.forceSSL) {
-                hidePreferenceByName("pref_privacy")
-            }
         }
 
         private fun hidePreferenceByName(name: String) {

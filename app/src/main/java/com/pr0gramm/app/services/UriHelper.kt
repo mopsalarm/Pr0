@@ -17,7 +17,7 @@ import com.pr0gramm.app.util.toUri
 /**
  * A little helper class to work with URLs
  */
-class UriHelper private constructor(context: Context, private val forceHttps: Boolean) {
+class UriHelper private constructor(context: Context) {
     private val settings: Settings = Settings.get()
     private val noPreload = NoPreload()
 
@@ -25,18 +25,14 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
 
     private fun start(): Uri.Builder {
         return Uri.Builder()
-                .scheme(scheme())
+                .scheme("https")
                 .authority("pr0gramm.com")
-    }
-
-    private fun scheme(): String {
-        return if (forceHttps || settings.useSSL) "https" else "http"
     }
 
     internal fun start(subdomain: String): Uri.Builder {
         return Uri.Builder()
-                .scheme(scheme())
-                .authority(subdomain + ".pr0gramm.com")
+                .scheme("https")
+                .authority("$subdomain.pr0gramm.com")
     }
 
     fun thumbnail(item: HasThumbnail): Uri {
@@ -107,7 +103,7 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
         }
 
         if (path.startsWith("//")) {
-            return Uri.parse(scheme() + ":" + path)
+            return Uri.parse("https:$path")
         }
 
         val normalized = if (path.startsWith("/")) path else "/" + path
@@ -120,7 +116,7 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
         }
 
         if (path.startsWith("//")) {
-            return Uri.parse(scheme() + ":" + path)
+            return Uri.parse("https:$path")
         }
 
         if (path.startsWith("/")) {
@@ -132,8 +128,7 @@ class UriHelper private constructor(context: Context, private val forceHttps: Bo
 
     companion object {
         fun of(context: Context, forceSSL: Boolean = false): UriHelper {
-            val configForceSSL = context.appKodein().instance<Config>().forceSSL
-            return UriHelper(context, configForceSSL || forceSSL)
+            return UriHelper(context)
         }
 
         private val FEED_TYPES = mapOf(
