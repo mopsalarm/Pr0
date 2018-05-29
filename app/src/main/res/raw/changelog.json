@@ -5,6 +5,14 @@
       {
         "type": "Fix",
         "change": "Neue Kommentare starten bei 1, nicht bei 2."
+      },
+      {
+        "type": "Neu",
+        "change": "Warteschlangenplatz wird bei Uploads angezeigt."
+      },
+      {
+        "type": "Neu",
+        "change": "Viele Optimierungen"
       }
     ]
   },
