@@ -61,24 +61,25 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         }
     }
 
+    inline private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
+        try {
+            block(result)
+        } catch (thr: Throwable) {
+            result.append("Error while adding $name:")
+            result.append(Throwables.getStackTraceAsString(thr))
+        }
+        result.append("\n\n")
+    }
+
     private fun payload(): String {
         val result = StringBuilder()
 
-        fun add(name: String, block: (StringBuilder) -> Unit) {
-            try {
-                block(result)
-            } catch(thr: Throwable) {
-                result.append("Error while adding $name:")
-                result.append(Throwables.getStackTraceAsString(thr))
-            }
-            result.append("\n\n")
-        }
 
-        add("device info", this::appendDeviceInfo)
-        add("memory info", this::appendMemoryInfo)
-        add("codec info", this::appendCodecInfo)
-        add("preferences", this::appendPreferences)
-        add("log", this::appendLogMessages)
+        add(result, "device info", this::appendDeviceInfo)
+        add(result, "memory info", this::appendMemoryInfo)
+        add(result, "codec info", this::appendCodecInfo)
+        add(result, "preferences", this::appendPreferences)
+        add(result, "log", this::appendLogMessages)
 
         // convert result to a string
         return result.toString()
@@ -94,7 +95,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     }
 
     private fun appendPreferences(result: StringBuilder) {
-        Settings.get().raw().all.forEach { (name, value) ->
+        Settings.get().raw().all.toSortedMap().forEach { (name, value) ->
             if (name.startsWith("pref_")) {
                 result.append(name).append(": ").append(value).append("\n")
             }
