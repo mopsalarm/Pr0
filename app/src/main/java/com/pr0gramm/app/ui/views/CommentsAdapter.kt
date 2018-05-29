@@ -34,11 +34,13 @@ import kotlin.math.absoluteValue
 /**
  */
 class CommentsAdapter(
-        private val admin: Boolean, private val selfName: String,
+        private val admin: Boolean,
         private val actionListener: Listener) : AsyncListAdapter<CommentsAdapter.Entry, CommentView>(ItemCallback()) {
 
     private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
     private var nextUpdateIsSync = false
+
+    private var selfName: String = ""
 
     // the currently selected comment. Set to update comment
     var selectedCommentId by observeChangeEx(0L) { _, new ->
@@ -76,7 +78,9 @@ class CommentsAdapter(
         state = state.copy(baseVotes = baseVotes, currentVotes = currentVotes)
     }
 
-    fun updateComments(comments: Collection<Api.Comment>, op: String?, synchronous: Boolean = false) {
+    fun updateComments(comments: Collection<Api.Comment>, op: String?, selfName: String?, synchronous: Boolean = false) {
+        this.selfName = selfName ?: ""
+
         this.nextUpdateIsSync = synchronous
         state = state.copy(allComments = comments.toList(), op = op)
     }

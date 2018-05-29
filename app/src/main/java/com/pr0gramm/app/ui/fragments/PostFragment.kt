@@ -84,7 +84,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private val activeStateSubject = BehaviorSubject.create<Boolean>(false)
 
     // start with an empty adapter here
-    private var commentsAdapter: CommentsAdapter = CommentsAdapter(false, "", this)
+    private var commentsAdapter: CommentsAdapter = CommentsAdapter(false, this)
     private var scrollHandler: RecyclerView.OnScrollListener? = null
     private var fullscreenAnimator: ObjectAnimator? = null
 
@@ -300,7 +300,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         initializeInfoLine()
         initializeCommentPostLine()
 
-        commentsAdapter = CommentsAdapter(adminMode, userService.name ?: "", this)
+        commentsAdapter = CommentsAdapter(adminMode, this)
         commentsAdapter.updates
                 .compose(bindToLifecycle())
                 .subscribe { tryAutoScrollToCommentNow() }
@@ -951,7 +951,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         this.comments = comments.toList()
 
         // show now
-        commentsAdapter.updateComments(this.comments, feedItem.user, sync)
+        commentsAdapter.updateComments(this.comments, feedItem.user, userService.name, sync)
 
         // look for votes for the comments
         commentVoteSubscription?.unsubscribe()
