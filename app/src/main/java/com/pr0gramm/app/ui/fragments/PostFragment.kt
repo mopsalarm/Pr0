@@ -330,7 +330,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             displayTags(tags)
 
         if (comments.isNotEmpty())
-            displayComments(comments)
+            displayComments(comments, sync = true)
 
         loadPostDetails()
 
@@ -947,11 +947,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      *
      * @param comments The list of comments to display.
      */
-    private fun displayComments(comments: List<Api.Comment>) {
+    private fun displayComments(comments: List<Api.Comment>, sync: Boolean = false) {
         this.comments = comments.toList()
 
         // show now
-        commentsAdapter.updateComments(this.comments, feedItem.user)
+        commentsAdapter.updateComments(this.comments, feedItem.user, sync)
 
         // look for votes for the comments
         commentVoteSubscription?.unsubscribe()

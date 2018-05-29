@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui.views
 import android.annotation.SuppressLint
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
-import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
@@ -39,6 +38,7 @@ class CommentsAdapter(
         private val actionListener: Listener) : AsyncListAdapter<CommentsAdapter.Entry, CommentView>(ItemCallback()) {
 
     private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
+    private var nextUpdateIsSync = false
 
     // the currently selected comment. Set to update comment
     var selectedCommentId by observeChangeEx(0L) { _, new ->
@@ -76,16 +76,25 @@ class CommentsAdapter(
         state = state.copy(baseVotes = baseVotes, currentVotes = currentVotes)
     }
 
-    fun updateComments(comments: Collection<Api.Comment>, op: String?) {
+    fun updateComments(comments: Collection<Api.Comment>, op: String?, synchronous: Boolean = false) {
+        this.nextUpdateIsSync = synchronous
         state = state.copy(allComments = comments.toList(), op = op)
     }
 
     private fun updateVisibleComments() {
         val targetState = state
 
-        // do not show
+        // nothing to show
         if (targetState.allComments.isEmpty()) {
             submitList(listOf())
+        }
+
+        if (nextUpdateIsSync) {
+            nextUpdateIsSync = false
+
+            // do a update right in the current thread.
+            submitList(CommentTree(targetState).visibleComments)
+            return
         }
 
         Observable.fromCallable { CommentTree(targetState).visibleComments }
@@ -240,7 +249,8 @@ class CommentsAdapter(
             val baseVotes: TLongObjectMap<Vote>? = null,
             val collapsed: Set<Long> = setOf(),
             val op: String? = null,
-            val selectedCommentId: Long = 0L)
+            val selectedCommentId: Long = 0L,
+            internal val synchronous: Boolean = false)
 
     data class Entry(val comment: Api.Comment, val vote: Vote, val depth: Int,
                      val hasChildren: Boolean, val currentScore: CommentScore,
