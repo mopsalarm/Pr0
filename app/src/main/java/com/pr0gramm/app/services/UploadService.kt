@@ -263,7 +263,9 @@ class UploadService(private val api: Api,
     fun upload(file: File, sfw: ContentType, tags: Set<String>): Observable<State> {
         return upload(file).flatMap { state ->
             if (state is State.Uploaded) {
-                post(state.key, sfw, tags, true)
+                Observable
+                        .just<State>(state)
+                        .concatWith(post(state.key, sfw, tags, true))
             } else {
                 Observable.just(state)
             }
