@@ -506,4 +506,8 @@
     <string name="action_copy_link">Link kopieren</string>
     <string name="action_collapse">Einklappen</string>
     <string name="action_delete_comment">Löschen</string>
+    <string name="upload_state_processing">Verarbeite Upload…</string>
+    <string name="upload_state_uploading">Hochladen…</string>
+    <string name="upload_state_pending">#%d in der Warteschlange</string>
+    <string name="upload_state_uploaded">Poste…</string>
 </resources>
