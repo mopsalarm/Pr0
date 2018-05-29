@@ -151,9 +151,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
 
                 if (state.userInfoCommentsOpen) {
+                    val user = userService.name
                     userInfo.comments.mapTo(entries) { comment ->
                         val msg = MessageConverter.of(state.userInfo.info.user, comment)
-                        FeedAdapter.Entry.Comment(msg)
+                        FeedAdapter.Entry.Comment(msg, user)
                     }
                 }
 

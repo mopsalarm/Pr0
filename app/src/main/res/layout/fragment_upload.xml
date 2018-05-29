@@ -19,6 +19,7 @@
                 android:id="@+id/preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:background="@drawable/ic_app_blue"
                 android:minHeight="96dp"/>
 
             <!-- Catch all the click events. At least we try it -->
@@ -29,12 +30,32 @@
                 android:focusable="true"
                 tools:ignore="UselessLeaf"/>
 
-            <com.pr0gramm.app.ui.views.BusyIndicator
-                android:id="@+id/busy_indicator"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+            <LinearLayout
+                android:id="@+id/busy_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="gone"/>
+                android:background="@drawable/background_shade_rounded"
+                android:orientation="vertical"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp">
+
+                <com.pr0gramm.app.ui.views.BusyIndicator
+                    android:id="@+id/busy_indicator"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/busy_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    tools:text="Upload wird verarbeitet..."/>
+            </LinearLayout>
+
         </FrameLayout>
 
         <RadioGroup

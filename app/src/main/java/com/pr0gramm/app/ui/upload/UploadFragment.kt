@@ -56,7 +56,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
     private val rulesService: RulesService by instance()
     private val config: Config by instance()
 
+    private val busyContainer: View by bindView(R.id.busy_container)
     private val busyIndicator: BusyIndicator by bindView(R.id.busy_indicator)
+    private val busyState: TextView by bindView(R.id.busy_state)
+    
     private val contentTypeGroup: RadioGroup by bindView(R.id.content_type_group)
     private val preview: FrameLayout by bindView(R.id.preview)
     private val scrollView: ScrollView by bindView(R.id.scroll_view)
@@ -149,6 +152,23 @@ class UploadFragment : BaseFragment("UploadFragment") {
                 }
     }
 
+    private fun updateUploadState(state: UploadService.State) {
+        val text = when (state) {
+            is UploadService.State.Processing -> getString(R.string.upload_state_processing)
+            is UploadService.State.Uploading -> getString(R.string.upload_state_uploading)
+            is UploadService.State.Pending -> getString(R.string.upload_state_pending, state.position)
+            is UploadService.State.Uploaded -> getString(R.string.upload_state_uploaded)
+            else -> null
+        }
+
+        if (text == null) {
+            busyState.visible = false
+        } else {
+            busyState.visible = true
+            busyState.text = text
+        }
+    }
+
     private fun startUpload(file: File) {
         checkMainThread()
         setFormEnabled(false)
@@ -161,7 +181,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         val uploadInfo = uploadInfo
 
-        busyIndicator.visible = true
+        busyContainer.visible = true
 
         // start the upload
         val upload = if (uploadInfo == null) {
@@ -174,8 +194,10 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         logger.info("Start upload of type {} with tags {}", type, tags)
         upload.compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .doAfterTerminate { busyIndicator.visible = false }
+                .doAfterTerminate { busyContainer.visible = false }
                 .subscribe({ state ->
+                    updateUploadState(state)
+
                     when (state) {
                         is UploadService.State.Uploading -> {
                             if (state.progress < 0.99) {
@@ -272,7 +294,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         checkMainThread()
         val activity = activity ?: return
 
-        busyIndicator.visible = true
+        busyContainer.visible = true
 
         logger.info("copy image to private memory")
         copy(activity, image)
@@ -297,8 +319,6 @@ class UploadFragment : BaseFragment("UploadFragment") {
         setFormEnabled(true)
 
         val activity = activity ?: return
-
-        busyIndicator.visible = false
 
         if (throwable is UploadService.UploadFailedException) {
             val causeText = getUploadFailureText(activity, throwable)
@@ -336,7 +356,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
         preview.removeAllViews()
         preview.addView(viewer)
 
-        busyIndicator.visible = false
+        busyContainer.visible = false
     }
 
     private fun handleSizeNotOkay() {

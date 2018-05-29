@@ -136,7 +136,7 @@ class FeedAdapter(private val picasso: Picasso,
                           val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
                           @LayoutRes val layout: Int? = null) : Entry(Offset.Spacer.offset + idx)
 
-        data class Comment(val message: Api.Message) : Entry(Offset.Comments.offset + message.id())
+        data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id())
 
         data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.User.offset)
     }
@@ -234,7 +234,7 @@ private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewH
     fun bindTo(entry: FeedAdapter.Entry.Comment) {
         val message = entry.message
 
-        bindTo(message, null)
+        bindTo(message, null, entry.currentUsername)
 
         itemView.setOnClickListener {
             val context = itemView.context
