@@ -7,10 +7,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.widget.TextView
-import com.google.common.base.Charsets
 import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import com.pr0gramm.app.R
+import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.Truss.Companion.bold
 import com.pr0gramm.app.ui.base.BaseDialogFragment
@@ -18,10 +17,10 @@ import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.getColorCompat
-import proguard.annotation.Keep
-import proguard.annotation.KeepClassMembers
+import com.squareup.moshi.JsonClass
+import com.squareup.moshi.Moshi
+import okio.Okio
 import java.io.IOException
-import java.io.InputStreamReader
 
 
 /**
@@ -83,19 +82,11 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
         }
     }
 
-    @Keep
-    @KeepClassMembers
-    private class Change {
-        lateinit var type: String
-        lateinit var change: String
-    }
+    @JsonClass(generateAdapter = true)
+    class Change(val type: String, val change: String)
 
-    @Keep
-    @KeepClassMembers
-    private class ChangeGroup {
-        var version: Int = 0
-        lateinit var changes: List<Change>
-    }
+    @JsonClass(generateAdapter = true)
+    class ChangeGroup(val version: Int = 0, val changes: List<Change> = listOf())
 
     private class Version(val formatted: String, val current: Boolean) {
         companion object {
@@ -108,9 +99,11 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
     companion object {
         private fun loadChangelog(context: Context): List<ChangeGroup> {
             try {
+                val moshi = Moshi.Builder().build()
+
                 context.resources.openRawResource(R.raw.changelog).use { input ->
-                    val reader = InputStreamReader(input, Charsets.UTF_8)
-                    return Gson().fromJson(reader, LIST_OF_CHANGE_GROUPS.type)
+                    val source = Okio.buffer(Okio.source(input))
+                    return moshi.adapter<List<ChangeGroup>>().nonNull().fromJson(source)!!
                 }
             } catch (error: IOException) {
                 AndroidUtility.logToCrashlytics(error)

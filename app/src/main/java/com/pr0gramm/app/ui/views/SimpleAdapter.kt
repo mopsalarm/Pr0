@@ -5,9 +5,6 @@ import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.layoutInflater
 
 private class Mapping<T>(val predicate: TypePredicate<T>, val newView: NewViewHolder<T>)
@@ -118,16 +115,4 @@ class SimpleAdapter<T> private constructor(private val mappings: List<Mapping<T>
 
 fun <T> recyclerViewAdapter(values: List<T> = listOf(), c: SimpleAdapter.Builder<T>.() -> Unit): SimpleAdapter<T> {
     return SimpleAdapter.Builder<T>().apply(c).build().apply { submitList(values) }
-}
-
-private fun test() {
-    recyclerViewAdapter(listOf<Api.Tag>()) {
-        handle<Api.Tag>() with layout(R.layout.tags_add) { view ->
-            val title = view.findViewById<TextView>(R.id.title)
-
-            bind { value ->
-                title.text = value.tag
-            }
-        }
-    }
 }

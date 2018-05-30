@@ -4,7 +4,6 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.services.Reducer
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.config.ConfigService
@@ -62,12 +61,7 @@ class FeedServiceImpl(private val api: Api,
         val result: Observable<Api.Feed> = when (feedType) {
             FeedType.RANDOM -> extraCategories.api
                     .random(q.tags, flags)
-                    .map { feed ->
-                        // shuffle items to ensure they are "random"
-                        val items = feed.items.toMutableList()
-                        items.shuffle()
-                        ImmutableApi.Feed.copyOf(feed).withItems(items)
-                    }
+                    .map { feed -> feed.copy(items = feed.items.shuffled()) }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold
@@ -117,12 +111,12 @@ class FeedServiceImpl(private val api: Api,
                 // get the previous (or next) page from the current set of items.
                 val nextQuery = if (upwards) {
                     feed.items
-                            ?.takeUnless { feed.isAtStart }
+                            .takeUnless { feed.isAtStart }
                             ?.maxBy { it.id }
                             ?.let { query.copy(newer = it.id) }
                 } else {
                     feed.items
-                            ?.takeUnless { feed.isAtEnd }
+                            .takeUnless { feed.isAtEnd }
                             ?.minBy { it.id }
                             ?.let { query.copy(older = it.id) }
                 }

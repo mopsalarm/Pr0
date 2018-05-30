@@ -17,7 +17,7 @@ class InviteService(private val api: Api) {
             return Completable.error(InviteException("email"))
 
         val result = api.invite(null, email).flatMapCompletable { response ->
-            val error = response.error()
+            val error = response.error
             if (error != null) {
                 Completable.error(InviteException(error))
             } else {
@@ -33,7 +33,7 @@ class InviteService(private val api: Api) {
      */
     fun invites(): Observable<Invites> {
         return api.accountInfo().map<Invites> { info ->
-            Invites(info.account().invites(), info.invited())
+            Invites(info.account.invites, info.invited)
         }
     }
 

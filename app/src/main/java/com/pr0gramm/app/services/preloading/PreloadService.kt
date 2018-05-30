@@ -138,7 +138,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
                         }
 
                         // prepare the entry that will be put into the database later
-                        val entry = PreloadManager.PreloadItem(item.id(), creation, mediaFile, thumbFile)
+                        val entry = PreloadManager.PreloadItem(item.id, creation, mediaFile, thumbFile)
 
                         if (!mediaIsLocal)
                             download(2 * idx, 2 * items.size, mediaUri, entry.media)
@@ -151,7 +151,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
                         statsDownloaded += 1
                     } catch (ioError: IOException) {
                         statsFailed += 1
-                        logger.warn("Could not preload image id=" + item.id(), ioError)
+                        logger.warn("Could not preload image id=" + item.id, ioError)
                     }
 
                     idx++
@@ -274,7 +274,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
 
     }
 
-    inline private fun show(config: NotificationCompat.Builder.() -> Unit) {
+    private inline fun show(config: NotificationCompat.Builder.() -> Unit) {
         notification.config()
         notificationManager.notify(NotificationService.Types.Preload.id, notification.build())
     }

@@ -62,7 +62,7 @@ class DownloadService(
         val prefix = listOf(
                 feedItem.created.toString(format),
                 feedItem.user,
-                "id" + feedItem.id()).joinToString("-")
+                "id" + feedItem.id).joinToString("-")
 
         val targetFile = File(targetDirectory, prefix.replace("[^A-Za-z0-9_-]+".toRegex(), "") + "." + fileType)
 

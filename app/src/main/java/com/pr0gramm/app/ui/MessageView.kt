@@ -67,7 +67,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     @JvmOverloads
     fun update(message: Api.Message, name: String? = null) {
         // set the type. if we have an item, we  have a comment
-        val isComment = message.itemId() != 0L
+        val isComment = message.itemId != 0L
         type?.let { type ->
             type.text = if (isComment) {
                 context.getString(R.string.inbox_message_comment)
@@ -77,11 +77,11 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // the text of the message
-        AndroidUtility.linkifyClean(text, message.message())
+        AndroidUtility.linkifyClean(text, message.message)
 
         // draw the image for this post
         if (isComment) {
-            val url = "https://thumb.pr0gramm.com/" + message.thumbnail()!!
+            val url = "https://thumb.pr0gramm.com/" + message.thumbnail!!
             picasso?.load(url)?.into(image)
         } else {
             picasso?.cancelRequest(image)
@@ -91,16 +91,16 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         // show the points
-        val visible = name != null && Ascii.equalsIgnoreCase(message.name(), name)
-                || message.creationTime().isBefore(scoreVisibleThreshold)
+        val visible = name != null && Ascii.equalsIgnoreCase(message.name, name)
+                || message.creationTime.isBefore(scoreVisibleThreshold)
 
         // sender info
-        sender.setSenderName(message.name(), message.mark())
-        sender.setDate(message.creationTime())
+        sender.setSenderName(message.name, message.mark)
+        sender.setDate(message.creationTime)
 
         if (isComment) {
             if (admin || visible) {
-                sender.setPoints(message.score())
+                sender.setPoints(message.score)
             } else {
                 sender.setPointsUnknown()
             }

@@ -9,4 +9,4 @@
 -dontskipnonpubliclibraryclassmembers
 
 -optimizationpasses 1
--optimizations !field/*,method/inlining/*,class/merging/vertical
+-optimizations !field/*,method/inlining/*

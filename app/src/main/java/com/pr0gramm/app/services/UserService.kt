@@ -138,7 +138,7 @@ class UserService(private val api: Api,
         return api.login(username, password).flatMap { login ->
             val observables = ArrayList<Observable<*>>()
 
-            if (login.isSuccess) {
+            if (login.success) {
                 observables.add(updateCachedUserInfo()
                         .doOnTerminate { updateUniqueToken(login.identifier) }
                         .toObservable<Any>())
@@ -224,28 +224,28 @@ class UserService(private val api: Api,
         }
 
         return api.sync(lastLogOffset).doAfterTerminate { fullSyncInProgress.set(false) }.flatMap { response ->
-            inboxService.publishUnreadMessagesCount(response.inboxCount())
+            inboxService.publishUnreadMessagesCount(response.inboxCount)
 
             val userId = loginState.id
             if (userId > 0) {
                 // save the current benis value
-                BenisRecord.storeValue(database.value, userId, response.score())
+                BenisRecord.storeValue(database.value, userId, response.score)
 
                 // and load the current benis history
                 val scoreGraph = loadBenisHistoryAsGraph(userId)
 
                 updateLoginStateIfAuthorized { loginState ->
-                    loginState.copy(score = response.score(), benisHistory = scoreGraph)
+                    loginState.copy(score = response.score, benisHistory = scoreGraph)
                 }
             }
 
             try {
-                voteService.applyVoteActions(response.log())
+                voteService.applyVoteActions(response.log)
 
                 // store syncId for next time.
-                if (response.logLength() > lastLogOffset) {
+                if (response.logLength > lastLogOffset) {
                     preferences.edit {
-                        putLong(KEY_LAST_LOF_OFFSET + config.syncVersion, response.logLength())
+                        putLong(KEY_LAST_LOF_OFFSET + config.syncVersion, response.logLength)
                     }
                 }
             } catch (error: Throwable) {

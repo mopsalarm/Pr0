@@ -140,7 +140,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         return this.
                 map { response ->
                     when {
-                        response.isSuccess -> LoginResult.Success()
+                        response.success -> LoginResult.Success()
                         response.banInfo != null -> LoginResult.Banned(response.banInfo!!)
                         else -> LoginResult.Failure()
                     }
@@ -166,11 +166,11 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
             }
 
             is LoginResult.Banned -> {
-                val date = response.ban.endTime()?.let { date ->
+                val date = response.ban.endTime?.let { date ->
                     formatTimeTo(this, date, TimeMode.SINCE)
                 }
 
-                val reason = response.ban.reason()
+                val reason = response.ban.reason
                 val message = if (date == null) {
                     getString(R.string.banned_forever, reason)
                 } else {
@@ -242,9 +242,9 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     }
 
     private sealed class LoginResult {
-        class Success() : LoginResult()
+        class Success : LoginResult()
         class Banned(val ban: Api.Login.BanInfo) : LoginResult()
-        class Failure() : LoginResult()
+        class Failure : LoginResult()
     }
 
     companion object {

@@ -188,7 +188,7 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         private var CACHE: MutableMap<String, String> = HashMap()
 
         fun intent(context: Context, message: Api.Message): Intent {
-            val intent = intent(context, message.senderId().toLong(), message.name())
+            val intent = intent(context, message.senderId.toLong(), message.name)
             intent.putExtra(ARGUMENT_MESSAGE, MessageParceler(message))
             return intent
         }
@@ -205,8 +205,8 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
         }
 
         fun answerToComment(context: Context, message: Api.Message): Intent {
-            val itemId = message.itemId()
-            val commentId = message.id()
+            val itemId = message.itemId
+            val commentId = message.id
 
             val intent = intent(context, message)
             intent.putExtra(ARGUMENT_COMMENT_ID, commentId)

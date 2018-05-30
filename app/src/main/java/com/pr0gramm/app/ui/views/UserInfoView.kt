@@ -15,7 +15,6 @@ import com.jakewharton.rxbinding.view.clicks
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.Api.Info
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
@@ -56,7 +55,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         showCommentsContainer = comments.parent as View
     }
 
-    fun updateUserInfo(info: Info, comments: List<Api.UserComments.UserComment>, myself: Boolean) {
+    fun updateUserInfo(info: Api.Info, comments: List<Api.UserComments.UserComment>, myself: Boolean) {
         // user info
         val user = info.user
         username.setUsername(user.name, user.mark)
@@ -88,7 +87,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             userActionListener.onShowUploadsClicked(user.id, user.name)
         }
 
-        if (info.likesArePublic() && info.likeCount > 0) {
+        if (info.likesArePublic && info.likeCount > 0) {
             favorites.text = info.likeCount.toString()
 
             (favorites.parent as View).setOnClickListener {
@@ -123,7 +122,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         // info about banned/register date
-        if (user.isBanned != 0) {
+        if (user.banned != 0) {
             val bannedUntil = user.bannedUntil
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)

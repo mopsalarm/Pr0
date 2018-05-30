@@ -36,7 +36,7 @@ class PreviewInfo private constructor(val itemId: Long, val previewUri: Uri, val
         @JvmOverloads
         fun of(context: Context, item: FeedItem, drawable: Drawable? = null): PreviewInfo {
             val thumbnail = UriHelper.of(context).thumbnail(item)
-            return PreviewInfo(item.id(), thumbnail, item.width, item.height, drawable)
+            return PreviewInfo(item.id, thumbnail, item.width, item.height, drawable)
         }
     }
 }

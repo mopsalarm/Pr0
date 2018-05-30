@@ -30,7 +30,7 @@ open class MessageAdapter(private val itemLayout: Int,
     }
 
     override fun getItemId(position: Int): Long {
-        return messages[position].id()
+        return messages[position].id
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -53,17 +53,17 @@ open class MessageAdapter(private val itemLayout: Int,
 
             if (actionListener != null) {
                 view.setOnSenderClickedListener {
-                    actionListener.onUserClicked(message.senderId(), message.name())
+                    actionListener.onUserClicked(message.senderId, message.name)
                 }
 
-                val isComment = message.itemId() != 0L
+                val isComment = message.itemId != 0L
                 if (isComment) {
                     view.setAnswerClickedListener {
                         actionListener.onAnswerToCommentClicked(message)
                     }
 
                     view.setOnClickListener {
-                        actionListener.onCommentClicked(message.itemId(), message.id())
+                        actionListener.onCommentClicked(message.itemId, message.id)
                     }
 
                 } else {

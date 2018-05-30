@@ -6,7 +6,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Charsets
 import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Nothing
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.LogHandler
@@ -61,7 +60,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         }
     }
 
-    inline private fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
+    private inline fun add(result: StringBuilder, name: String, block: (StringBuilder) -> Unit) {
         try {
             block(result)
         } catch (thr: Throwable) {

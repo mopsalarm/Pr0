@@ -70,7 +70,7 @@ class NotificationService(private val context: Application,
         createChannel(Types.NewMessage, NotificationManager.IMPORTANCE_LOW) {
             setShowBadge(true)
             enableLights(true)
-            setLightColor(context.getColorCompat(ThemeHelper.accentColor))
+            lightColor = context.getColorCompat(ThemeHelper.accentColor)
         }
 
         createChannel(Types.Update, NotificationManager.IMPORTANCE_LOW) {
@@ -145,7 +145,7 @@ class NotificationService(private val context: Application,
 
         // try to get the new messages, ignore all errors.
         inboxService.inbox.onErrorResumeEmpty().toBlocking().subscribe { messages ->
-            val unread = messages.take(sync.inboxCount()).filter { inboxService.messageIsUnread(it) }
+            val unread = messages.take(sync.inboxCount).filter { inboxService.messageIsUnread(it) }
             showInboxNotification(sync, unread)
         }
     }
@@ -157,14 +157,14 @@ class NotificationService(private val context: Application,
         }
 
         val title = when {
-            sync.inboxCount() == 1 -> context.getString(R.string.notify_new_message_title)
-            else -> context.getString(R.string.notify_new_messages_title, sync.inboxCount())
+            sync.inboxCount == 1 -> context.getString(R.string.notify_new_message_title)
+            else -> context.getString(R.string.notify_new_messages_title, sync.inboxCount)
         }
 
         val inboxStyle = formatMessages(messages)
 
-        val minMessageTimestamp = messages.minBy { it.creationTime() }!!.creationTime()
-        val maxMessageTimestamp = messages.maxBy { it.creationTime() }!!.creationTime()
+        val minMessageTimestamp = messages.minBy { it.creationTime }!!.creationTime
+        val maxMessageTimestamp = messages.maxBy { it.creationTime }!!.creationTime
 
         notify(Types.NewMessage) {
             setContentIntent(inboxActivityIntent(maxMessageTimestamp, InboxType.UNREAD))
@@ -199,7 +199,7 @@ class NotificationService(private val context: Application,
     private fun formatMessages(messages: List<Api.Message>): NotificationCompat.MessagingStyle {
         val inboxStyle = NotificationCompat.MessagingStyle("Me")
         messages.take(5).forEach { msg ->
-            inboxStyle.addMessage(msg.message(), msg.creationTime().millis, msg.name())
+            inboxStyle.addMessage(msg.message, msg.creationTime.millis, msg.name)
         }
 
         return inboxStyle
@@ -227,7 +227,7 @@ class NotificationService(private val context: Application,
 
         // the input field
         val remoteInput = RemoteInput.Builder("msg")
-                .setLabel(context.getString(R.string.notify_reply_to_x, message.name()))
+                .setLabel(context.getString(R.string.notify_reply_to_x, message.name))
                 .build()
 
         // add everything as an action
@@ -242,15 +242,15 @@ class NotificationService(private val context: Application,
     private fun thumbnail(messages: List<Api.Message>): Bitmap? {
         val message = messages[0]
 
-        val allForTheSamePost = messages.all { message.itemId() == it.itemId() }
+        val allForTheSamePost = messages.all { message.itemId == it.itemId }
 
-        if (allForTheSamePost && message.itemId() != 0L && !isNullOrEmpty(message.thumbnail())) {
+        if (allForTheSamePost && message.itemId != 0L && !isNullOrEmpty(message.thumbnail)) {
             return loadThumbnail(message)
         }
 
-        val allForTheSameUser = messages.all { message.senderId() == it.senderId() }
+        val allForTheSameUser = messages.all { message.senderId == it.senderId }
 
-        if (allForTheSameUser && message.itemId() == 0L && !isNullOrEmpty(message.name())) {
+        if (allForTheSameUser && message.itemId == 0L && !isNullOrEmpty(message.name)) {
             val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
 
@@ -322,8 +322,8 @@ class NotificationService(private val context: Application,
      * that we can send a reply to.
      */
     private fun instantReplyToUserId(messages: List<Api.Message>): Int {
-        val sender = messages[0].senderId()
-        return if (messages.all { it.senderId() == sender }) sender else 0
+        val sender = messages[0].senderId
+        return if (messages.all { it.senderId == sender }) sender else 0
     }
 
     class NotificationType(val id: Int, channelName: String, val description: Int) {

@@ -5,11 +5,10 @@ import android.net.Uri
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
-import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.Settings
+import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.util.toUri
 
@@ -36,7 +35,7 @@ class UriHelper private constructor(context: Context) {
     }
 
     fun thumbnail(item: HasThumbnail): Uri {
-        return preloadManager.get(item.id())?.thumbnail?.toUri() ?: noPreload.thumbnail(item)
+        return preloadManager.get(item.id)?.thumbnail?.toUri() ?: noPreload.thumbnail(item)
     }
 
     @JvmOverloads
@@ -44,7 +43,7 @@ class UriHelper private constructor(context: Context) {
         if (hq && !Strings.isNullOrEmpty(item.fullsize))
             return noPreload.media(item, true)
 
-        return preloadManager.get(item.id())?.media?.toUri() ?: noPreload.media(item, false)
+        return preloadManager.get(item.id)?.media?.toUri() ?: noPreload.media(item, false)
     }
 
     fun media(path: String): Uri {
@@ -93,7 +92,7 @@ class UriHelper private constructor(context: Context) {
         }
 
         fun thumbnail(item: HasThumbnail): Uri {
-            return absoluteJoin(start("thumb"), item.thumbnail() ?: "")
+            return absoluteJoin(start("thumb"), item.thumbnail ?: "")
         }
     }
 

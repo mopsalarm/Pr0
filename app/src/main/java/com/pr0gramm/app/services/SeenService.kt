@@ -33,7 +33,7 @@ class SeenService(context: Context) {
     }
 
     fun isSeen(item: FeedItem): Boolean {
-        return isSeen(item.id())
+        return isSeen(item.id)
     }
 
     fun isSeen(id: Long): Boolean {

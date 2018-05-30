@@ -1,0 +1,54 @@
+package com.pr0gramm.app.api.pr0gramm
+
+import com.pr0gramm.app.feed.FeedItem
+
+/**
+ */
+object MessageConverter {
+    fun of(sender: Api.UserComments.UserInfo, comment: Api.UserComments.UserComment): Api.Message {
+        return of(sender.id, sender.name, sender.mark, comment)
+    }
+
+    fun of(sender: Api.Info.User, comment: Api.UserComments.UserComment): Api.Message {
+        return of(sender.id, sender.name, sender.mark, comment)
+    }
+
+    fun of(message: Api.PrivateMessage): Api.Message {
+        return Api.Message(
+                id = message.id,
+                itemId = 0L,
+                mark = message.senderMark,
+                name = message.senderName,
+                senderId = message.senderId,
+                message = message.message,
+                score = 0,
+                creationTime = message.created,
+                thumbnail = null)
+    }
+
+    fun of(item: FeedItem, comment: Api.Comment): Api.Message {
+        return Api.Message(
+                id = comment.id,
+                itemId = item.id,
+                mark = comment.mark,
+                name = comment.name,
+                senderId = 0,
+                message = comment.content,
+                score = comment.score,
+                creationTime = comment.created,
+                thumbnail = item.thumbnail)
+    }
+
+    fun of(senderId: Int, name: String, mark: Int, comment: Api.UserComments.UserComment): Api.Message {
+        return Api.Message(
+                id = comment.id,
+                itemId = comment.itemId,
+                mark = mark,
+                name = name,
+                senderId = senderId,
+                message = comment.content,
+                score = comment.score,
+                creationTime = comment.created,
+                thumbnail = comment.thumb)
+    }
+}

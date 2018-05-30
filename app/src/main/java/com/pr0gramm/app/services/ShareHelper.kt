@@ -36,9 +36,9 @@ object ShareHelper {
     @JvmStatic
     fun sharePost(activity: Activity, feedItem: FeedItem) {
         val text = if (feedItem.promotedId > 0)
-            UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.id()).toString()
+            UriHelper.of(activity).post(FeedType.PROMOTED, feedItem.id).toString()
         else
-            UriHelper.of(activity).post(FeedType.NEW, feedItem.id()).toString()
+            UriHelper.of(activity).post(FeedType.NEW, feedItem.id).toString()
 
         ShareCompat.IntentBuilder.from(activity)
                 .setType("text/plain")
@@ -71,14 +71,14 @@ object ShareHelper {
     @JvmStatic
     fun copyLink(context: Context, feedItem: FeedItem) {
         val helper = UriHelper.of(context)
-        val uri = helper.post(FeedType.NEW, feedItem.id()).toString()
+        val uri = helper.post(FeedType.NEW, feedItem.id).toString()
         copyToClipboard(context, uri)
     }
 
     @JvmStatic
     fun copyLink(context: Context, feedItem: FeedItem, comment: Api.Comment) {
         val helper = UriHelper.of(context)
-        val uri = helper.post(FeedType.NEW, feedItem.id(), comment.id).toString()
+        val uri = helper.post(FeedType.NEW, feedItem.id, comment.id).toString()
         copyToClipboard(context, uri)
     }
 

@@ -30,7 +30,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
         return api.inboxUnread()
                 .map { it.messages }
                 .doOnNext { messages ->
-                    messages.maxBy { it.creationTime() }?.let { markAsRead(it) }
+                    messages.maxBy { it.creationTime }?.let { markAsRead(it) }
                 }
     }
 
@@ -56,7 +56,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
     }
 
     private fun markAsRead(message: Api.Message) {
-        markAsRead(message.creationTime().millis)
+        markAsRead(message.creationTime.millis)
     }
 
     /**
@@ -80,7 +80,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * Forgets all read messages. This is useful on logout.
      */
     fun forgetReadMessage() {
-        preferences.edit() {
+        preferences.edit {
             putLong(KEY_MAX_READ_MESSAGE_ID, 0)
         }
     }
@@ -90,7 +90,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      * according to [.markAsRead].
      */
     fun messageIsUnread(message: Api.Message): Boolean {
-        return messageIsUnread(message.creationTime().millis)
+        return messageIsUnread(message.creationTime.millis)
     }
 
     fun messageIsUnread(timestamp: Long): Boolean {

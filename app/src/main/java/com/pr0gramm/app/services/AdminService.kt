@@ -20,7 +20,7 @@ class AdminService(private val api: Api, private val cacheService: InMemoryCache
         val blockUser = if (blockDays != null && blockDays >= 0) "on" else null
 
         return api
-                .deleteItem(null, item.id(), "custom", reason, blockUser, blockDays)
+                .deleteItem(null, item.id, "custom", reason, blockUser, blockDays)
                 .toCompletable()
     }
 

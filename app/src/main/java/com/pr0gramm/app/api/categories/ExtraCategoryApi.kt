@@ -1,7 +1,6 @@
 package com.pr0gramm.app.api.categories
 
 import com.pr0gramm.app.api.pr0gramm.Api
-
 import retrofit2.http.GET
 import retrofit2.http.HEAD
 import retrofit2.http.Query

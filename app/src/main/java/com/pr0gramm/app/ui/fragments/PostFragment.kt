@@ -35,7 +35,6 @@ import com.pr0gramm.app.R.id.player_container
 import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.orm.Vote
@@ -656,7 +655,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             return
         }
 
-        feedService.post(feedItem.id())
+        feedService.post(feedItem.id)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
                 .subscribeWithErrorHandling { onPostReceived(it) }
     }
@@ -676,7 +675,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     @OnOptionsItemSelected(R.id.action_tags_details)
     fun showTagsDetailsDialog() {
-        val dialog = TagsDetailsDialog.newInstance(feedItem.id())
+        val dialog = TagsDetailsDialog.newInstance(feedItem.id)
         dialog.show(fragmentManager, null)
     }
 
@@ -734,7 +733,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         viewer.viewed().observeOn(BackgroundScheduler.instance()).subscribe {
             //  mark this item seen. We do that in a background thread
-            seenService.markAsSeen(feedItem.id())
+            seenService.markAsSeen(feedItem.id)
         }
 
         // inform viewer over fragment lifecycle events!
@@ -909,7 +908,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun displayTags(tags_: List<Api.Tag>) {
-        this.tags = inMemoryCacheService.enhanceTags(feedItem.id(), tags_).toList()
+        this.tags = inMemoryCacheService.enhanceTags(feedItem.id, tags_).toList()
 
         // show tags now
         infoLine.updateTags(tags.associate { it to Vote.NEUTRAL })
@@ -1046,9 +1045,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         autoScrollToComment(response.commentId)
 
         displayComments(response.comments.map { comment ->
+            comment.takeUnless { comment.id == response.commentId }
             if (comment.id == response.commentId) {
-                // fake the new comments score
-                ImmutableApi.Comment.copyOf(comment).withUp(comment.up - 1)
+                comment.copy(up = comment.up - 1)
             } else {
                 comment
             }
@@ -1300,7 +1299,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         }
     }
 
-    inner class InfoLineAdapter() : RecyclerView.Adapter<InfoLineAdapter.Holder>(), InfoLineAccessor {
+    inner class InfoLineAdapter : RecyclerView.Adapter<InfoLineAdapter.Holder>(), InfoLineAccessor {
         override var visible by observeChange(true) { notifyDataSetChanged() }
         override var view: InfoLineView? = null
 
@@ -1327,8 +1326,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             infoView.updateTags(tags)
         }
 
-        inner class Holder(val view: InfoLineView) : RecyclerView.ViewHolder(view) {
-        }
+        inner class Holder(val view: InfoLineView) : RecyclerView.ViewHolder(view)
 
         override fun updateTags(tags: Map<Api.Tag, Vote>) {
             this.tags = tags

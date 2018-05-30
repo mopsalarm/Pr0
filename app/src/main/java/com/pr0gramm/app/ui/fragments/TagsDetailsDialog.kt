@@ -11,7 +11,6 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.primitives.Floats
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.api.pr0gramm.ImmutableApi
 import com.pr0gramm.app.services.AdminService
 import com.pr0gramm.app.ui.base.BaseDialogFragment
 import com.pr0gramm.app.ui.dialog
@@ -62,7 +61,7 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
     private fun showTagsDetails(tagDetails: Api.TagDetails) {
         // set the new tags and notify the recycler view to redraw itself.
-        updateTagsAdapter(tagDetails.tags().sortedBy { it.confidence() })
+        updateTagsAdapter(tagDetails.tags.sortedBy { it.confidence })
         busyView.removeFromParent()
     }
 
@@ -83,23 +82,23 @@ class TagsDetailsDialog : BaseDialogFragment("TagsDetailsDialog") {
 
     private fun updateTagsAdapter(tags: List<Api.TagDetails.TagInfo>) {
         tagsView.adapter = recyclerViewAdapter(tags) {
-            handle<ImmutableApi.TagInfo>() with layout(R.layout.tags_details) { holder ->
+            handle<Api.TagDetails.TagInfo>() with layout(R.layout.tags_details) { holder ->
                 val info: TextView = holder.find(R.id.tag_info)
                 val checkbox: CheckBox = holder.find(R.id.tag_text)
 
                 bind { item ->
-                    checkbox.text = item.tag()
-                    info.text = String.format("%s, +%d, -%d", item.user(), item.up(), item.down())
+                    checkbox.text = item.tag
+                    info.text = String.format("%s, +%d, -%d", item.user, item.up, item.down)
 
                     checkbox.setOnCheckedChangeListener(null)
-                    checkbox.isChecked = selected.contains(item.id())
+                    checkbox.isChecked = selected.contains(item.id)
 
                     // register a listener to check/uncheck this tag.
                     checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
                         val changed: Boolean = if (isChecked) {
-                            selected.add(item.id())
+                            selected.add(item.id)
                         } else {
-                            selected.remove(item.id())
+                            selected.remove(item.id)
                         }
 
                         if (changed && adapterPosition != -1) {

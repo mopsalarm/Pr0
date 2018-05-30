@@ -55,7 +55,7 @@ data class MediaUri(val id: Long, val baseUri: Uri, val mediaType: MediaUri.Medi
 
         @JvmStatic
         fun of(context: Context, item: FeedItem): MediaUri {
-            return of(item.id(), UriHelper.of(context).media(item))
+            return of(item.id, UriHelper.of(context).media(item))
         }
     }
 }

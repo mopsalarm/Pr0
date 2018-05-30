@@ -13,7 +13,6 @@ import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.getIfPrimitive
-import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import org.joda.time.DateTime
@@ -190,7 +189,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
                 throw LoginRequiredException()
             }
 
-            return cookie.let { Api.Nonce(it.id) }
+            return Api.Nonce(cookie.id)
         }
 
     data class Cookie(val name: String?, val id: String?, val paid: Boolean, val admin: Boolean)

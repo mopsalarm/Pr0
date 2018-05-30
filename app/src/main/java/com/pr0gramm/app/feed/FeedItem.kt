@@ -2,11 +2,10 @@ package com.pr0gramm.app.feed
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.pr0gramm.app.HasThumbnail
 import com.pr0gramm.app.api.pr0gramm.Api
+import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.parcel.core.creator
 import org.joda.time.Instant
-import java.util.*
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed
@@ -14,7 +13,7 @@ import java.util.*
  */
 class FeedItem : Parcelable, HasThumbnail {
     val created: Instant
-    val thumbnail: String
+    override val thumbnail: String
     val image: String
     val fullsize: String
     val user: String
@@ -61,18 +60,7 @@ class FeedItem : Parcelable, HasThumbnail {
     val isVideo: Boolean
         get() = image.endsWith(".webm") || image.endsWith(".mp4")
 
-    val isGIF: Boolean
-        get() = image.endsWith(".gif")
-
-    override fun id(): Long {
-        return _id.toLong()
-    }
-
-    override fun thumbnail(): String {
-        return thumbnail
-    }
-
-    val id: Long
+    override val id: Long
         get() = this._id.toLong()
 
     val promotedId: Long

@@ -5,7 +5,6 @@ import android.content.Context
 import com.google.common.base.Stopwatch
 import com.google.common.reflect.Reflection
 import com.google.common.util.concurrent.Uninterruptibles
-import com.google.gson.Gson
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
 import com.pr0gramm.app.Settings
@@ -13,12 +12,13 @@ import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
+import com.squareup.moshi.Moshi
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import rx.Observable
 import java.lang.reflect.InvocationTargetException
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit
 /**
  */
 class ApiProvider(context: Application, client: OkHttpClient,
-                  cookieHandler: LoginCookieHandler, gson: Gson,
+                  cookieHandler: LoginCookieHandler,
                   private val singleShotService: SingleShotService) {
 
-    val api = newProxyWrapper(newRestAdapter(context, client, gson), cookieHandler)
+    val api = newProxyWrapper(newRestAdapter(context, client), cookieHandler)
 
     private fun newProxyWrapper(backend: Api, cookieHandler: LoginCookieHandler): Api {
         // proxy to add the nonce if not provided
@@ -40,7 +40,7 @@ class ApiProvider(context: Application, client: OkHttpClient,
             val watch = Stopwatch.createStarted()
 
             val params = method.parameterTypes
-            if (params.isNotEmpty() && params[0] == Api.Nonce::class.java) {
+            if (params.isNotEmpty() && params[0] == com.pr0gramm.app.api.pr0gramm.Api.Nonce::class.java) {
                 if (args.isNotEmpty() && args[0] == null) {
 
                     // inform about failure.
@@ -102,7 +102,7 @@ class ApiProvider(context: Application, client: OkHttpClient,
     }
 
 
-    private fun newRestAdapter(context: Context, client: OkHttpClient, gson: Gson): Api {
+    private fun newRestAdapter(context: Context, client: OkHttpClient): Api {
         val settings = Settings.get()
 
         val baseUrl: HttpUrl
@@ -113,9 +113,13 @@ class ApiProvider(context: Application, client: OkHttpClient,
             baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString())!!
         }
 
+        val moshi = Moshi.Builder()
+                .adapter(InstantAdapter)
+                .build()
+
         return Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .client(client)
                 .validateEagerly(true)

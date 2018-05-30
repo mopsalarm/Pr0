@@ -136,7 +136,7 @@ class FeedAdapter(private val picasso: Picasso,
                           val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
                           @LayoutRes val layout: Int? = null) : Entry(Offset.Spacer.offset + idx)
 
-        data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id())
+        data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id)
 
         data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.User.offset)
     }
@@ -240,7 +240,7 @@ private class CommentViewHolder(view: MessageView) : MessageAdapter.MessageViewH
             val context = itemView.context
 
             // open the post in "new"
-            val uri = UriHelper.of(context).post(FeedType.NEW, message.itemId(), message.id())
+            val uri = UriHelper.of(context).post(FeedType.NEW, message.itemId, message.id)
             val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java)
             context.startActivity(intent)
         }

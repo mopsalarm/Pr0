@@ -144,7 +144,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
     bind<ExecutorService>() with instance(SchedulerExecutorService(BackgroundScheduler.instance()))
 
     bind<Api>() with singleton {
-        ApiProvider(instance(), instance(), instance(), instance(), instance()).api
+        ApiProvider(instance(), instance(), instance(), instance()).api
     }
 }
 
@@ -176,7 +176,7 @@ private class PicassoDownloader(val cache: Cache, val fallback: OkHttp3Downloade
                         .code(200)
                         .message("OK")
                         .body(ResponseBody.create(MediaType.parse("image/jpeg"), it))
-                        .build();
+                        .build()
             }
 
             // do request using fallback - network or disk.
@@ -335,7 +335,7 @@ private class SchedulerExecutorService(val scheduler: Scheduler) : ExecutorServi
 }
 
 private class FallbackDns : Dns {
-    val logger = LoggerFactory.getLogger("FallbackDns");
+    val logger = LoggerFactory.getLogger("FallbackDns")
 
     val resolver = SimpleResolver("8.8.8.8")
     val cache = org.xbill.DNS.Cache()

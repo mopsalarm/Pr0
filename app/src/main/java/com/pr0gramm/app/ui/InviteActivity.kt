@@ -147,20 +147,20 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
                 bind { invite ->
                     val context = itemView.context
 
-                    val date = formatTimeTo(context, invite.created(), TimeMode.SINCE)
-                    val name = invite.name()
+                    val date = formatTimeTo(context, invite.created, TimeMode.SINCE)
+                    val name = invite.name
                     if (name != null) {
                         email.visibility = View.GONE
                         username.visibility = View.VISIBLE
-                        username.setUsername(name, invite.mark() ?: 0)
+                        username.setUsername(name, invite.mark ?: 0)
 
-                        info.text = context.getString(R.string.invite_redeemed, invite.email(), date)
+                        info.text = context.getString(R.string.invite_redeemed, invite.email, date)
                         itemView.setOnClickListener { openUserProfile(name) }
 
                     } else {
                         username.visibility = View.GONE
                         email.visibility = View.VISIBLE
-                        email.text = invite.email()
+                        email.text = invite.email
 
                         info.text = context.getString(R.string.invite_unredeemed, date)
                         itemView.setOnClickListener(null)

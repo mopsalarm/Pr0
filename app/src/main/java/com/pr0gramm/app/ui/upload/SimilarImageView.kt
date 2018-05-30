@@ -60,7 +60,7 @@ class SimilarImageView @JvmOverloads constructor(
         val activity = AndroidUtility.activityFromContext(context)!!
 
         val uri = UriHelper.of(context).media(item.image)
-        val mediaUri = MediaUri.of(item.id(), uri)
+        val mediaUri = MediaUri.of(item.id, uri)
         val config = MediaView.Config.of(activity, mediaUri)
         PopupPlayerFactory.newInstance(config).show()
     }

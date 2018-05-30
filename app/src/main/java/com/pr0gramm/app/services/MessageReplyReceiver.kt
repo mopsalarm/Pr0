@@ -78,15 +78,14 @@ class MessageReplyReceiver : KodeinBroadcastReceiver() {
 
         fun makeIntent(context: Context, message: Api.Message): Intent {
             val intent = Intent(context, MessageReplyReceiver::class.java)
-            if (message.isComment()) {
-                intent.putExtra("itemId", message.itemId())
-                intent.putExtra("commentId", message.commentId())
+            if (message.isComment) {
+                intent.putExtra("itemId", message.itemId)
+                intent.putExtra("commentId", message.commentId)
             }
 
-            intent.putExtra("receiverId", message.senderId())
-            intent.putExtra("receiverName", message.name())
-
-            intent.putExtra("messageCreated", message.creationTime().millis)
+            intent.putExtra("receiverId", message.senderId)
+            intent.putExtra("receiverName", message.name)
+            intent.putExtra("messageCreated", message.creationTime.millis)
             return intent
         }
     }

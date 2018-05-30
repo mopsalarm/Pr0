@@ -79,3 +79,11 @@
 -keepclasseswithmembers class * {
     @android.support.annotation.Keep <init>(...);
 }
+
+# for moshi we need to keep the json adapters.
+-keep class **JsonAdapter {
+    <init>(...);
+    <fields>;
+}
+
+-keepnames @com.squareup.moshi.JsonClass class *

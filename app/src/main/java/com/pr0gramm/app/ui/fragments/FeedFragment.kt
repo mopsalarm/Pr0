@@ -431,7 +431,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             val first = userService
                     .info(queryString, selectedContentType)
-                    .doOnNext { info -> followService.markAsFollowing(info.user.name, info.following()) }
+                    .doOnNext { info -> followService.markAsFollowing(info.user.name, info.following) }
                     .onErrorResumeEmpty()
 
             val second = inboxService

@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.support.v4.content.ContextCompat
-
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.pr0gramm.app.R
@@ -21,8 +20,8 @@ class SenderDrawableProvider(context: Context) {
             .endConfig()
 
     fun makeSenderDrawable(message: Api.Message): TextDrawable {
-        val color = ColorGenerator.MATERIAL.getColor(message.senderId())
-        return shapes.buildRect(iconText(message.name()), color)
+        val color = ColorGenerator.MATERIAL.getColor(message.senderId)
+        return shapes.buildRect(iconText(message.name), color)
     }
 
     fun makeSenderBitmap(message: Api.Message, width: Int, height: Int): Bitmap {

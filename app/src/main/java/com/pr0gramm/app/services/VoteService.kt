@@ -38,11 +38,11 @@ class VoteService(private val api: Api,
      * @param vote The vote to send to the server
      */
     fun vote(item: FeedItem, vote: Vote): Completable {
-        logger.info("Voting feed item {} {}", item.id(), vote)
+        logger.info("Voting feed item {} {}", item.id, vote)
         Track.votePost(vote)
 
-        doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id(), vote) }
-        return api.vote(null, item.id(), vote.voteValue).toCompletable()
+        doInBackground { storeVoteValueInTx(CachedVote.Type.ITEM, item.id, vote) }
+        return api.vote(null, item.id, vote.voteValue).toCompletable()
     }
 
     fun vote(comment: Api.Comment, vote: Vote): Completable {
@@ -66,7 +66,7 @@ class VoteService(private val api: Api,
      * @param item The item to get the vote for.
      */
     fun getVote(item: FeedItem): Observable<Vote> {
-        return CachedVote.find(database, ITEM, item.id())
+        return CachedVote.find(database, ITEM, item.id)
                 .map<Vote> { vote -> vote.vote }
                 .subscribeOnBackground()
     }
@@ -164,7 +164,7 @@ class VoteService(private val api: Api,
     }
 
     fun postComment(item: FeedItem, parentId: Long, comment: String): Observable<Api.NewComment> {
-        return postComment(item.id(), parentId, comment)
+        return postComment(item.id, parentId, comment)
     }
 
     /**

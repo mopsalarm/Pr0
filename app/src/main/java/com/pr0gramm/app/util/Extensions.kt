@@ -23,8 +23,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gms.common.api.PendingResult
-import com.google.android.gms.common.api.Result
 import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
 import com.google.gson.JsonObject
@@ -376,17 +374,17 @@ inline fun ignoreException(block: () -> Unit) {
     }
 }
 
-val <T : Result> PendingResult<T>.rx: Observable<T>
-    get() = createObservable<T> { emitter ->
-        emitter.setCancellation {
-            cancel()
-        }
-
-        this.setResultCallback { result ->
-            emitter.onNext(result)
-            emitter.onCompleted()
-        }
-    }
+//val <T : Result> PendingResult<T>.rx: Observable<T>
+//    get() = createObservable<T> { emitter ->
+//        emitter.setCancellation {
+//            cancel()
+//        }
+//
+//        this.setResultCallback { result ->
+//            emitter.onNext(result)
+//            emitter.onCompleted()
+//        }
+//    }
 
 fun Context.canStartIntent(intent: Intent): Boolean {
     return packageManager.resolveActivity(intent, 0) != null

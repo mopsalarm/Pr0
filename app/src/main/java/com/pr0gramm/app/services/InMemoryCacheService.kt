@@ -69,7 +69,7 @@ class InMemoryCacheService {
     }
 
     fun isRepost(item: FeedItem): Boolean {
-        return isRepost(item.id())
+        return isRepost(item.id)
     }
 
     /**
@@ -93,11 +93,7 @@ class InMemoryCacheService {
      * Caches the given tags. They will be added with an id of 0 and a confidence value of 0.5f.
      */
     fun cacheTags(itemId: Long, tags: List<String>) {
-        enhanceTags(itemId, tags.map { tag ->
-            com.pr0gramm.app.api.pr0gramm.ImmutableApi.Tag.builder()
-                    .tag(tag).id(0).confidence(0.5f)
-                    .build()
-        })
+        enhanceTags(itemId, tags.map { tag -> Api.Tag(0L, 0.5f, tag) })
     }
 
     private class ExpiringValue<out T : Any>(value: T, expireTime: Long, timeUnit: TimeUnit) {

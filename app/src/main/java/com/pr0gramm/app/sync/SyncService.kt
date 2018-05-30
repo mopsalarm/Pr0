@@ -49,7 +49,7 @@ class SyncService(private val userService: UserService,
                 logger.info("finished without error after " + watch)
 
                 // now show results, if any
-                if (sync.inboxCount() > 0) {
+                if (sync.inboxCount > 0) {
                     notificationService.showForInbox(sync)
                 } else {
                     // remove if no messages are found
