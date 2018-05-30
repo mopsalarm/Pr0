@@ -2,12 +2,11 @@ package com.pr0gramm.app.services.gif
 
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding
+import com.squareup.moshi.JsonClass
 import okhttp3.OkHttpClient
-import proguard.annotation.Keep
-import proguard.annotation.KeepClassMembers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import rx.Observable
@@ -21,7 +20,7 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
             .baseUrl(DEFAULT_ENDPOINT)
             .client(httpClient)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(Api::class.java)
 
@@ -54,9 +53,8 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
 
     /**
      */
-    @Keep
-    @KeepClassMembers
-    private class ConvertResult(var path: String = "")
+    @JsonClass(generateAdapter = true)
+    class ConvertResult(val path: String = "")
 
     companion object {
         private const val DEFAULT_ENDPOINT = "https://pr0.wibbly-wobbly.de/api/gif-to-webm/v1/"

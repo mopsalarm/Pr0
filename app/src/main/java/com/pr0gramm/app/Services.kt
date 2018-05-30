@@ -58,7 +58,7 @@ fun servicesModule(app: Application) = Kodein.Module {
                 instance<SingleShotService>())
     }
 
-    bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance(), instance()) }
+    bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance()) }
 
     bind<NotificationService>() with singleton { NotificationService(instance(), instance(), instance(), instance()) }
 

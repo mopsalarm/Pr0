@@ -1,6 +1,5 @@
 package com.pr0gramm.app.services
 
-import com.google.gson.Gson
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.doInBackground
 import okhttp3.OkHttpClient
@@ -8,12 +7,12 @@ import org.slf4j.LoggerFactory
 import proguard.annotation.KeepPublicClassMemberNames
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 
-class SettingsTrackerService(httpClient: OkHttpClient, gson: Gson) {
+class SettingsTrackerService(httpClient: OkHttpClient) {
     private val logger = LoggerFactory.getLogger("SettingsTrackerService")
 
     private val settings: Settings = Settings.get()
@@ -21,7 +20,7 @@ class SettingsTrackerService(httpClient: OkHttpClient, gson: Gson) {
     private val httpInterface: HttpInterface = Retrofit.Builder()
             .baseUrl("https://pr0.wibbly-wobbly.de/")
             .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(MoshiConverterFactory.create())
             .validateEagerly(true)
             .build()
             .create(HttpInterface::class.java)

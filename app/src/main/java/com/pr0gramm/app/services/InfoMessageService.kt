@@ -1,11 +1,10 @@
 package com.pr0gramm.app.services
 
-import android.support.annotation.Keep
+import com.squareup.moshi.JsonClass
 import okhttp3.OkHttpClient
-import proguard.annotation.KeepClassMembers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import rx.Observable
 
@@ -19,7 +18,7 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .validateEagerly(true)
             .build()
@@ -37,10 +36,6 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
         fun get(): Observable<Message>
     }
 
-    @Keep
-    @KeepClassMembers
-    class Message {
-        var message: String? = null
-        var endOfLife: Int = 0
-    }
+    @JsonClass(generateAdapter = true)
+    class Message(val message: String? = null, val endOfLife: Int = 0)
 }

@@ -13,7 +13,7 @@ import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
@@ -33,7 +33,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
     private val api: Api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build().create(Api::class.java)
 

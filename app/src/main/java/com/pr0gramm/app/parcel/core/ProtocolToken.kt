@@ -1,30 +1,30 @@
 package com.pr0gramm.app.parcel.core
 
-import com.google.gson.stream.JsonToken
+import com.squareup.moshi.JsonReader
 
 /**
  */
-internal enum class ProtocolToken constructor(val token: JsonToken) {
-    NULL(JsonToken.NULL),
-    STRING(JsonToken.STRING),
+internal enum class ProtocolToken constructor(val token: JsonReader.Token) {
+    NULL(JsonReader.Token.NULL),
+    STRING(JsonReader.Token.STRING),
 
-    BYTE(JsonToken.NUMBER),
-    SHORT(JsonToken.NUMBER),
-    INTEGER(JsonToken.NUMBER),
-    LONG(JsonToken.NUMBER),
-    FLOAT(JsonToken.NUMBER),
-    DOUBLE(JsonToken.NUMBER),
+    BYTE(JsonReader.Token.NUMBER),
+    SHORT(JsonReader.Token.NUMBER),
+    INTEGER(JsonReader.Token.NUMBER),
+    LONG(JsonReader.Token.NUMBER),
+    FLOAT(JsonReader.Token.NUMBER),
+    DOUBLE(JsonReader.Token.NUMBER),
 
-    ARRAY_BEGIN(JsonToken.BEGIN_ARRAY),
-    ARRAY_END(JsonToken.END_ARRAY),
+    ARRAY_BEGIN(JsonReader.Token.BEGIN_ARRAY),
+    ARRAY_END(JsonReader.Token.END_ARRAY),
 
-    OBJECT_BEGIN(JsonToken.BEGIN_OBJECT),
-    OBJECT_END(JsonToken.END_OBJECT),
-    NAME(JsonToken.NAME),
-    NAME_REF(JsonToken.NAME),
+    OBJECT_BEGIN(JsonReader.Token.BEGIN_OBJECT),
+    OBJECT_END(JsonReader.Token.END_OBJECT),
+    NAME(JsonReader.Token.NAME),
+    NAME_REF(JsonReader.Token.NAME),
 
-    BOOLEAN_TRUE(JsonToken.BOOLEAN),
-    BOOLEAN_FALSE(JsonToken.BOOLEAN),
+    BOOLEAN_TRUE(JsonReader.Token.BOOLEAN),
+    BOOLEAN_FALSE(JsonReader.Token.BOOLEAN),
 
-    DOCUMENT_END(JsonToken.END_DOCUMENT)
+    DOCUMENT_END(JsonReader.Token.END_DOCUMENT)
 }

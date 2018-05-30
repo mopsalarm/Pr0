@@ -20,7 +20,7 @@ import com.pr0gramm.app.util.onErrorResumeEmpty
 import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -37,7 +37,7 @@ import java.util.*
 class UpdateChecker {
     private val currentVersion = AndroidUtility.buildVersionCode()
     private val endpoints = updateUrls(Settings.get().useBetaChannel)
-    private val converterFactory = GsonConverterFactory.create()
+    private val converterFactory = MoshiConverterFactory.create()
 
     private fun check(endpoint: String): Observable<Update> {
         return newRestAdapter(endpoint)

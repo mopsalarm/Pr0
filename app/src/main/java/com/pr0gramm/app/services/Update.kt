@@ -2,15 +2,13 @@ package com.pr0gramm.app.services
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.Keep
 import com.pr0gramm.app.parcel.core.creator
-import proguard.annotation.KeepClassMembers
+import com.squareup.moshi.JsonClass
 
 /**
  * Update
  */
-@Keep
-@KeepClassMembers
+@JsonClass(generateAdapter = true)
 data class Update(val version: Int, val apk: String, val changelog: String) : Parcelable {
     fun versionStr(): String {
         return String.format("1.%d.%d", version / 10, version % 10)

@@ -2,21 +2,20 @@ package com.pr0gramm.app.parcel.core
 
 import com.google.common.io.ByteArrayDataInput
 import com.google.common.io.ByteStreams
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonToken
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonReaderOpener
+import com.squareup.moshi.tokens
 import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.StringReader
 import java.util.zip.InflaterInputStream
 
 /**
  */
-internal class BinaryReader private constructor(private val input: ByteArrayDataInput) : JsonReader(StringReader("")) {
-
+internal class BinaryReader private constructor(private val input: ByteArrayDataInput) : JsonReaderOpener() {
     private val nameCache = mutableListOf<String>()
     private var next: ProtocolToken? = null
 
-    private fun consume(token: JsonToken): ProtocolToken {
+    private fun consume(token: JsonReader.Token): ProtocolToken {
         if (peek() != token) {
             throw IOException("Expected $token but got $next")
         }
@@ -26,7 +25,7 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
         return current
     }
 
-    override fun peek(): JsonToken {
+    override fun peek(): Token {
         if (next == null) {
             next = TOKENS[input.readByte().toInt()]
         }
@@ -35,31 +34,42 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
     }
 
     override fun beginArray() {
-        consume(JsonToken.BEGIN_ARRAY)
+        consume(JsonReader.Token.BEGIN_ARRAY)
     }
 
     override fun endArray() {
-        consume(JsonToken.END_ARRAY)
+        consume(JsonReader.Token.END_ARRAY)
     }
 
     override fun beginObject() {
-        consume(JsonToken.BEGIN_OBJECT)
+        consume(JsonReader.Token.BEGIN_OBJECT)
     }
 
     override fun endObject() {
-        consume(JsonToken.END_OBJECT)
+        consume(JsonReader.Token.END_OBJECT)
     }
 
     override fun hasNext(): Boolean {
         val next = peek()
-        return next != JsonToken.END_ARRAY
-                && next != JsonToken.END_OBJECT
-                && next != JsonToken.END_DOCUMENT
+        return next != JsonReader.Token.END_ARRAY
+                && next != JsonReader.Token.END_OBJECT
+                && next != JsonReader.Token.END_DOCUMENT
+    }
+
+    override fun skipName() {
+    }
+
+    override fun selectName(options: Options): Int {
+        return options.tokens.indexOf(nextName())
+    }
+
+    override fun selectString(options: Options): Int {
+        return -1
     }
 
 
     override fun nextName(): String {
-        when (consume(JsonToken.NAME)) {
+        when (consume(JsonReader.Token.NAME)) {
             ProtocolToken.NAME -> {
                 val name = input.readUTF()
                 nameCache.add(name)
@@ -73,20 +83,21 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
     }
 
     override fun nextString(): String {
-        consume(JsonToken.STRING)
+        consume(JsonReader.Token.STRING)
         return input.readUTF()
     }
 
     override fun nextBoolean(): Boolean {
-        return consume(JsonToken.BOOLEAN) == ProtocolToken.BOOLEAN_TRUE
+        return consume(JsonReader.Token.BOOLEAN) == ProtocolToken.BOOLEAN_TRUE
     }
 
-    override fun nextNull() {
-        consume(JsonToken.NULL)
+    override fun <T : Any?> nextNull(): T? {
+        consume(JsonReader.Token.NULL)
+        return null
     }
 
     private fun readNumber(): Number {
-        when (consume(JsonToken.NUMBER)) {
+        when (consume(JsonReader.Token.NUMBER)) {
             ProtocolToken.LONG -> return input.readLong()
             ProtocolToken.INTEGER -> return input.readInt()
             ProtocolToken.SHORT -> return input.readShort()
@@ -110,23 +121,22 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
     }
 
     override fun close() {
-        super.close()
-        if (peek() != JsonToken.END_DOCUMENT)
+        if (peek() != JsonReader.Token.END_DOCUMENT)
             throw IOException("Expected DocumentEnd, got " + next!!)
     }
 
     override fun skipValue() {
         when (peek()) {
-            JsonToken.BEGIN_ARRAY -> skipArray()
-            JsonToken.END_ARRAY -> endArray()
-            JsonToken.BEGIN_OBJECT -> skipObject()
-            JsonToken.END_OBJECT -> endObject()
-            JsonToken.NAME -> nextName()
-            JsonToken.STRING -> nextString()
-            JsonToken.NUMBER -> readNumber()
-            JsonToken.BOOLEAN -> nextBoolean()
-            JsonToken.NULL -> nextNull()
-            JsonToken.END_DOCUMENT -> Unit
+            JsonReader.Token.BEGIN_ARRAY -> skipArray()
+            JsonReader.Token.END_ARRAY -> endArray()
+            JsonReader.Token.BEGIN_OBJECT -> skipObject()
+            JsonReader.Token.END_OBJECT -> endObject()
+            JsonReader.Token.NAME -> nextName()
+            JsonReader.Token.STRING -> nextString()
+            JsonReader.Token.NUMBER -> readNumber()
+            JsonReader.Token.BOOLEAN -> nextBoolean()
+            JsonReader.Token.NULL -> nextNull<Void>()
+            JsonReader.Token.END_DOCUMENT -> Unit
         }
     }
 
@@ -146,10 +156,6 @@ internal class BinaryReader private constructor(private val input: ByteArrayData
             skipValue()
 
         endArray()
-    }
-
-    override fun getPath(): String {
-        return "no path available for binary reader"
     }
 
     companion object {

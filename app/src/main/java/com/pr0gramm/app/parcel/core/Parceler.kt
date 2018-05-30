@@ -5,16 +5,20 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.google.common.base.Stopwatch
 import com.google.common.base.Throwables
-import com.google.common.reflect.TypeToken
 import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.GsonModule
+import com.squareup.moshi.Moshi
 import org.slf4j.LoggerFactory
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+
+private val moshi = Moshi.Builder().build()
 
 /**
  */
 abstract class Parceler<T> : Parcelable {
 
-    val type: TypeToken<T> = object : TypeToken<T>(javaClass) {}
+    // val type: Type = (object : TypeToken<T>() {}).type
+    val type: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
 
     val value: T?
 
@@ -27,7 +31,7 @@ abstract class Parceler<T> : Parcelable {
         val input = parcel.createByteArray()
         value = try {
             BinaryReader.from(input).use { reader ->
-                GsonModule.INSTANCE.fromJson<T>(reader, type.type)
+                moshi.adapter<T>(type).failOnUnknown().fromJson(reader)
             }
         } catch (ioError: Exception) {
             Throwables.propagateIfPossible(ioError, RuntimeException::class.java)
@@ -43,7 +47,7 @@ abstract class Parceler<T> : Parcelable {
         val watch = Stopwatch.createStarted()
 
         val writer = BinaryWriter().use {
-            GsonModule.INSTANCE.toJson(value, type.type, it)
+            moshi.adapter<T>(type).toJson(it, value)
             it
         }
 

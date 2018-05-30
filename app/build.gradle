@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'io.fabric'
 
@@ -205,6 +206,8 @@ dependencies {
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
     implementation "it.sephiroth.android.exif:android-exif-extended:1.0.6"
     implementation "dnsjava:dnsjava:2.1.8"
+
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
 
 
     implementation 'com.github.evernote:android-job:v1.2.5'

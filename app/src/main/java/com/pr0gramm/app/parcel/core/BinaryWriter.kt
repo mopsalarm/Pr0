@@ -1,46 +1,83 @@
 package com.pr0gramm.app.parcel.core
 
 import com.google.common.io.ByteStreams
-import com.google.common.io.CharStreams
 import com.google.common.primitives.Ints
 import com.google.common.primitives.Shorts
 import com.google.common.primitives.SignedBytes
-import com.google.gson.stream.JsonWriter
+import com.squareup.moshi.JsonWriterOpener
 import gnu.trove.map.hash.TObjectByteHashMap
+import okio.BufferedSource
 import java.io.ByteArrayOutputStream
 import java.util.zip.DeflaterOutputStream
 
-/**
- */
-internal class BinaryWriter : JsonWriter(CharStreams.nullWriter()) {
+internal class BinaryWriter : JsonWriterOpener() {
     private val output = ByteStreams.newDataOutput()
     private val nameCache = TObjectByteHashMap<String>(32, 0.7f, (-1).toByte())
+
+    override fun value(value: Boolean?): com.squareup.moshi.JsonWriter {
+        return if (value != null) {
+            value(value)
+        } else {
+            nullValue()
+        }
+    }
+
+    override fun value(value: Number?): com.squareup.moshi.JsonWriter {
+        return if (value != null) {
+            val clazz = value.javaClass
+
+            when (clazz) {
+                Long::class.java, Int::class.java, Short::class.java, Byte::class.java ->
+                    value(value.toLong())
+
+                Float::class.java -> {
+                    token(ProtocolToken.FLOAT)
+                    output.writeFloat(value.toFloat())
+                }
+
+                else -> value(value.toDouble())
+            }
+
+            this
+
+        } else {
+            nullValue()
+        }
+    }
+
+    override fun value(source: BufferedSource): com.squareup.moshi.JsonWriter {
+        output.write(source.readByteArray())
+        return this
+    }
+
+    override fun flush() {
+    }
 
     private fun token(token: ProtocolToken) {
         output.writeByte(token.ordinal)
     }
 
-    override fun beginArray(): JsonWriter {
+    override fun beginArray(): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.ARRAY_BEGIN)
         return this
     }
 
-    override fun endArray(): JsonWriter {
+    override fun endArray(): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.ARRAY_END)
         return this
     }
 
-    override fun beginObject(): JsonWriter {
+    override fun beginObject(): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.OBJECT_BEGIN)
         return this
     }
 
-    override fun endObject(): JsonWriter {
+    override fun endObject(): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.OBJECT_END)
         return this
     }
 
-    override fun name(name: String): JsonWriter {
+    override fun name(name: String): com.squareup.moshi.JsonWriter {
         val ref = nameCache.get(name)
         if (ref == nameCache.noEntryValue) {
             token(ProtocolToken.NAME)
@@ -59,29 +96,29 @@ internal class BinaryWriter : JsonWriter(CharStreams.nullWriter()) {
         return this
     }
 
-    override fun value(value: String?): JsonWriter {
+    override fun value(value: String?): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.STRING)
         output.writeUTF(value!!)
         return this
     }
 
-    override fun nullValue(): JsonWriter {
+    override fun nullValue(): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.NULL)
         return this
     }
 
-    override fun value(value: Boolean): JsonWriter {
+    override fun value(value: Boolean): com.squareup.moshi.JsonWriter {
         token(if (value) ProtocolToken.BOOLEAN_TRUE else ProtocolToken.BOOLEAN_FALSE)
         return this
     }
 
-    override fun value(value: Double): JsonWriter {
+    override fun value(value: Double): com.squareup.moshi.JsonWriter {
         token(ProtocolToken.DOUBLE)
         output.writeDouble(value)
         return this
     }
 
-    override fun value(value: Long): JsonWriter {
+    override fun value(value: Long): com.squareup.moshi.JsonWriter {
         // Write the value with the least amount of bytes
         if (java.lang.Byte.MIN_VALUE <= value && value <= java.lang.Byte.MAX_VALUE) {
             token(ProtocolToken.BYTE)
@@ -98,24 +135,6 @@ internal class BinaryWriter : JsonWriter(CharStreams.nullWriter()) {
         } else {
             token(ProtocolToken.LONG)
             output.writeLong(value)
-        }
-
-        return this
-    }
-
-    override fun value(value: Number): JsonWriter {
-        val clazz = value.javaClass
-
-        when (clazz) {
-            Long::class.java, Int::class.java, Short::class.java, Byte::class.java ->
-                value(value.toLong())
-
-            Float::class.java -> {
-                token(ProtocolToken.FLOAT)
-                output.writeFloat(value.toFloat())
-            }
-
-            else -> value(value.toDouble())
         }
 
         return this
