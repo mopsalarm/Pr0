@@ -139,6 +139,20 @@ android.applicationVariants.all { variant ->
 
         filesToDelete.each { it.delete() }
     }
+
+    tasks."assemble${variant.name.capitalize()}".doLast {
+        println("Checking for important files in the apk...")
+
+        def output = new ByteArrayOutputStream()
+        exec {
+            commandLine("unzip", "-t", "$buildDir/outputs/apk/${variant.name}/app-${variant.name}.apk")
+            standardOutput output
+        }
+
+        if (!output.toString("UTF-8").contains("okhttp3/internal/publicsuffix/publicsuffixes.gz")) {
+            throw new RuntimeException("publicsuffixes.gz not found in build")
+        }
+    }
 }
 
 repositories {

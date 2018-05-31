@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.doInBackground
 import okhttp3.OkHttpClient
@@ -20,7 +21,7 @@ class SettingsTrackerService(httpClient: OkHttpClient) {
     private val httpInterface: HttpInterface = Retrofit.Builder()
             .baseUrl("https://pr0.wibbly-wobbly.de/")
             .client(httpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .validateEagerly(true)
             .build()
             .create(HttpInterface::class.java)

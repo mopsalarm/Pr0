@@ -6,12 +6,10 @@ import android.os.Parcelable
 import com.google.common.base.Stopwatch
 import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
-import com.squareup.moshi.Moshi
+import com.pr0gramm.app.MoshiInstance
 import org.slf4j.LoggerFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-
-private val moshi = Moshi.Builder().build()
 
 /**
  */
@@ -31,7 +29,7 @@ abstract class Parceler<T> : Parcelable {
         val input = parcel.createByteArray()
         value = try {
             BinaryReader.from(input).use { reader ->
-                moshi.adapter<T>(type).failOnUnknown().fromJson(reader)
+                MoshiInstance.adapter<T>(type).failOnUnknown().fromJson(reader)
             }
         } catch (ioError: Exception) {
             Throwables.propagateIfPossible(ioError, RuntimeException::class.java)
@@ -47,7 +45,7 @@ abstract class Parceler<T> : Parcelable {
         val watch = Stopwatch.createStarted()
 
         val writer = BinaryWriter().use {
-            moshi.adapter<T>(type).toJson(it, value)
+            MoshiInstance.adapter<T>(type).toJson(it, value)
             it
         }
 

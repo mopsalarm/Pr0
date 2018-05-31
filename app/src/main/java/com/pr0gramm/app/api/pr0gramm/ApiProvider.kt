@@ -5,14 +5,10 @@ import android.content.Context
 import com.google.common.base.Stopwatch
 import com.google.common.reflect.Reflection
 import com.google.common.util.concurrent.Uninterruptibles
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.Debug
-import com.pr0gramm.app.Settings
-import com.pr0gramm.app.Stats
+import com.pr0gramm.app.*
 import com.pr0gramm.app.services.SingleShotService
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.services.UriHelper
-import com.squareup.moshi.Moshi
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
@@ -113,13 +109,9 @@ class ApiProvider(context: Application, client: OkHttpClient,
             baseUrl = HttpUrl.parse(UriHelper.of(context).base().toString())!!
         }
 
-        val moshi = Moshi.Builder()
-                .adapter(InstantAdapter)
-                .build()
-
         return Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(MoshiConverterFactory.create(moshi))
+                .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .client(client)
                 .validateEagerly(true)

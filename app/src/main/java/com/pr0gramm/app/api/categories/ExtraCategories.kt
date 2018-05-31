@@ -1,12 +1,10 @@
 package com.pr0gramm.app.api.categories
 
-import com.google.gson.Gson
-import com.pr0gramm.app.api.pr0gramm.InstantAdapter
-import com.pr0gramm.app.api.pr0gramm.adapter
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.subscribeOnBackground
-import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
+import org.slf4j.LoggerFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -16,15 +14,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  */
-class ExtraCategories(private val configService: ConfigService, httpClient: OkHttpClient, gson: Gson) {
-    private val moshi = Moshi.Builder()
-            .adapter(InstantAdapter)
-            .build()
+class ExtraCategories(private val configService: ConfigService, httpClient: OkHttpClient) {
+    val logger = LoggerFactory.getLogger("ExtraCategories")
 
     val api: ExtraCategoryApi = Retrofit.Builder()
             .client(httpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/api/categories/v1/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build()
             .create(ExtraCategoryApi::class.java)
@@ -52,6 +48,9 @@ class ExtraCategories(private val configService: ConfigService, httpClient: OkHt
         return api.ping()
                 .subscribeOnBackground()
                 .map { true }
-                .onErrorReturn { false }
+                .onErrorReturn { err ->
+                    logger.warn("ping failed", err)
+                    false
+                }
     }
 }

@@ -2,11 +2,8 @@
 
 -allowaccessmodification
 
--dontobfuscate
+# -dontobfuscate
 -dontpreverify
-
--dontskipnonpubliclibraryclasses
--dontskipnonpubliclibraryclassmembers
 
 -optimizationpasses 1
 -optimizations !field/*,method/inlining/*

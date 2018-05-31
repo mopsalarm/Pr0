@@ -1,5 +1,8 @@
 -verbose
 
+-dontskipnonpubliclibraryclasses
+-dontskipnonpubliclibraryclassmembers
+
 -dontwarn **
 -dontnote **
 -ignorewarnings
@@ -11,9 +14,6 @@
 -keepclassmembers class * {
     @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
 }
-
-# We keep all the names of the api interface.
--keepnames class com.pr0gramm.app.api.pr0gramm.Api { *; }
 
 # for gifs
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
@@ -87,3 +87,7 @@
 }
 
 -keepnames @com.squareup.moshi.JsonClass class *
+
+-keepnames interface com.pr0gramm.app.** {
+    @retrofit2.http.* *;
+}

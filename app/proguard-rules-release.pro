@@ -2,9 +2,6 @@
 -allowaccessmodification
 -repackageclasses
 
--dontskipnonpubliclibraryclasses
--dontskipnonpubliclibraryclassmembers
-
 -optimizationpasses 5
 
 -optimizations !field/removal/writeonly

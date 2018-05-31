@@ -27,7 +27,7 @@ fun servicesModule(app: Application) = Kodein.Module {
 
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
-    bind<ExtraCategories>() with singleton { ExtraCategories(instance(), instance(), instance()) }
+    bind<ExtraCategories>() with singleton { ExtraCategories(instance(), instance()) }
     bind<ConfigService>() with singleton { ConfigService(app, instance(), instance(), instance()) }
     bind<BookmarkService>() with singleton { BookmarkService(instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }

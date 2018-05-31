@@ -3,16 +3,19 @@ package com.pr0gramm.app.services
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Stopwatch
-import com.google.gson.*
+import com.google.gson.Gson
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
+import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.orm.BenisRecord
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
+import com.squareup.moshi.JsonClass
 import org.joda.time.Duration.standardDays
 import org.joda.time.Instant
 import org.slf4j.LoggerFactory
@@ -20,7 +23,6 @@ import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import rx.subjects.PublishSubject
-import java.lang.reflect.Type
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -106,7 +108,12 @@ class UserService(private val api: Api,
      */
     private fun restoreLatestUserInfo() {
         preferences.getString(KEY_LAST_LOGIN_STATE, null)?.let { lastLoginState ->
-            Observable.fromCallable { gson.fromJson(lastLoginState, LoginState::class.java) }
+            debug {
+                logger.info("Found login state: {}", lastLoginState)
+            }
+
+            Observable.fromCallable { MoshiInstance.adapter<LoginState>().fromJson(lastLoginState) }
+                    .ofType<LoginState>()
                     .onErrorResumeEmpty()
                     .doOnNext { info -> logger.info("Restoring login state: {}", info) }
 
@@ -303,10 +310,10 @@ class UserService(private val api: Api,
     private fun persistLatestLoginState(state: LoginState) {
         try {
             if (state.authorized) {
-                logger.info("persisting logins state now.")
+                logger.debug("Persisting login state now.")
 
                 preferences.edit {
-                    val encoded = gson.toJson(state)
+                    val encoded = MoshiInstance.adapter<LoginState>().toJson(state)
                     putString(KEY_LAST_LOGIN_STATE, encoded)
                 }
             } else {
@@ -401,6 +408,7 @@ class UserService(private val api: Api,
                 .map { response -> response.error == null }
     }
 
+    @JsonClass(generateAdapter = true)
     data class LoginState(
             val id: Int,
             val name: String?,
@@ -410,39 +418,7 @@ class UserService(private val api: Api,
             val admin: Boolean,
             val premium: Boolean,
             val authorized: Boolean,
-            val benisHistory: Graph? = null)
-
-    class LoginStateAdapter : JsonDeserializer<LoginState>, JsonSerializer<LoginState> {
-        override fun deserialize(value: JsonElement, type: Type?, ctx: JsonDeserializationContext?): LoginState {
-            if (value is JsonObject) {
-                return LoginState(
-                        id = value.getPrimitive("id").asInt,
-                        name = value.getIfPrimitive("name")?.asString,
-                        mark = value.getPrimitive("mark").asInt,
-                        score = value.getPrimitive("score").asInt,
-                        uniqueToken = value.getIfPrimitive("uniqueToken")?.asString,
-                        admin = value.getPrimitive("admin").asBoolean,
-                        premium = value.getPrimitive("premium").asBoolean,
-                        authorized = value.getPrimitive("authorized").asBoolean)
-
-            } else {
-                return NOT_AUTHORIZED
-            }
-        }
-
-        override fun serialize(value: LoginState, type: Type?, ctx: JsonSerializationContext?): JsonElement {
-            return JsonObject().apply {
-                addProperty("id", value.id)
-                addProperty("name", value.name)
-                addProperty("mark", value.mark)
-                addProperty("score", value.score)
-                addProperty("uniqueToken", value.uniqueToken)
-                addProperty("admin", value.admin)
-                addProperty("premium", value.premium)
-                addProperty("authorized", value.authorized)
-            }
-        }
-    }
+            @Transient val benisHistory: Graph? = null)
 
     class LoginProgress(val login: Api.Login?)
 

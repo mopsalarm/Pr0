@@ -1,5 +1,6 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.MoshiInstance
 import com.squareup.moshi.JsonClass
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -18,7 +19,7 @@ class InfoMessageService(okHttpClient: OkHttpClient) {
     private val api = Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://pr0.wibbly-wobbly.de/")
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .validateEagerly(true)
             .build()

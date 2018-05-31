@@ -11,6 +11,7 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.io.ByteStreams
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.fragments.DownloadUpdateDialog
@@ -37,7 +38,7 @@ import java.util.*
 class UpdateChecker {
     private val currentVersion = AndroidUtility.buildVersionCode()
     private val endpoints = updateUrls(Settings.get().useBetaChannel)
-    private val converterFactory = MoshiConverterFactory.create()
+    private val converterFactory = MoshiConverterFactory.create(MoshiInstance)
 
     private fun check(endpoint: String): Observable<Update> {
         return newRestAdapter(endpoint)

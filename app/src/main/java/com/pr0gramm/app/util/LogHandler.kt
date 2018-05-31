@@ -34,6 +34,7 @@ class LogHandler : Handler() {
         if (BuildConfig.DEBUG) {
             Log.println(androidLogLevel, tag, formatted)
         } else {
+            Log.println(androidLogLevel, tag, formatted)
             crashlytics.log(androidLogLevel, tag, formatted)
         }
 

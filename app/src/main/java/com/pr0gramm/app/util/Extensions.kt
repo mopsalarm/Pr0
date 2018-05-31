@@ -362,7 +362,7 @@ fun Boolean.toInt(): Int {
     return if (this) 1 else 0
 }
 
-inline fun <reified R, Any> Observable<Any>.ofType(): Observable<R> {
+inline fun <reified R> Observable<*>.ofType(): Observable<R> {
     return ofType(R::class.java)
 }
 

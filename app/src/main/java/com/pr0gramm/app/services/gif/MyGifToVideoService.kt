@@ -2,6 +2,7 @@ package com.pr0gramm.app.services.gif
 
 import com.google.common.base.Charsets
 import com.google.common.io.BaseEncoding
+import com.pr0gramm.app.MoshiInstance
 import com.squareup.moshi.JsonClass
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -20,7 +21,7 @@ class MyGifToVideoService(httpClient: OkHttpClient) : GifToVideoService {
             .baseUrl(DEFAULT_ENDPOINT)
             .client(httpClient)
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .build()
             .create(Api::class.java)
 
