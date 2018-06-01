@@ -12,8 +12,6 @@ import com.google.common.base.Stopwatch
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.FirebaseAnalytics.Event
 import com.google.firebase.analytics.FirebaseAnalytics.Param
-import com.google.firebase.perf.FirebasePerformance
-import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.util.ignoreException
@@ -148,6 +146,10 @@ object Track {
 
     fun registerLinkClicked() {
         send("aff_register_clicked")
+    }
+
+    fun registerFAQClicked() {
+        send("aff_faq_clicked")
     }
 
     fun advancedSearch(query: String?) {

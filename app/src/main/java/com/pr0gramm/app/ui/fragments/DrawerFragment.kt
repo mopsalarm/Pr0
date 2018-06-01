@@ -47,7 +47,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     private val benisDeltaView: TextView by bindView(R.id.benis_delta)
     private val benisContainer: View by bindView(R.id.benis_container)
     private val benisGraph: ImageView by bindView(R.id.benis_graph)
-    private val actionRules: TextView by bindView(R.id.action_rules)
+    private val actionFAQ: TextView by bindView(R.id.action_faq)
     private val actionPremium: TextView by bindView(R.id.action_premium)
     private val loginView: TextView by bindView(R.id.action_login)
     private val logoutView: TextView by bindView(R.id.action_logout)
@@ -80,7 +80,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         // add some space on the top for the translucent status bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val params = userImageView.layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin += getStatusBarHeight(activity!!)
+            params.topMargin += getStatusBarHeight(requireActivity())
         }
 
         // initialize the top navigation items
@@ -101,15 +101,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             startActivity(intent)
         })
 
-        actionRules.setOnClickListener({
-            val intent = Intent(activity, RulesActivity::class.java)
-            startActivity(intent)
+        actionFAQ.setOnClickListener({
+            Track.registerFAQClicked()
+            BrowserHelper.openCustomTab(requireActivity(), Uri.parse("https://pr0gramm.com/faq:all/iap"))
         })
 
         actionPremium.setOnClickListener {
             Track.registerLinkClicked()
             val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
-            BrowserHelper.openCustomTab(activity!!, uri)
+            BrowserHelper.openCustomTab(requireActivity(), uri)
         }
 
         loginView.setOnClickListener({
@@ -131,7 +131,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         }
 
         // colorize all the secondary icons.
-        val views = listOf(loginView, logoutView, feedbackView, settingsView, inviteView, actionRules, actionPremium)
+        val views = listOf(loginView, logoutView, feedbackView, settingsView, inviteView, actionFAQ, actionPremium)
         for (v in views) {
             val secondary = ColorStateList.valueOf(0x80808080.toInt())
             changeCompoundDrawableColor(v, secondary)
@@ -191,7 +191,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             loginView.visible = false
             logoutView.visible = true
-            actionRules.visible = true
             inviteView.visible = true
             actionPremium.visible = !state.premium
 
@@ -207,7 +206,6 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
             loginView.visible = true
             logoutView.visible = false
-            actionRules.visible = false
             inviteView.visible = false
             actionPremium.visible = false
         }
@@ -261,7 +259,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         return activity as OnFeedFilterSelected
     }
 
-    private inner class NavigationAdapter() : RecyclerView.Adapter<NavigationItemViewHolder>() {
+    private inner class NavigationAdapter : RecyclerView.Adapter<NavigationItemViewHolder>() {
         private val allItems = ArrayList<NavigationItem>()
         private var currentFilter: FeedFilter? = null
         private var selected: NavigationItem? = null

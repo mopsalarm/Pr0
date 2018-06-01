@@ -268,8 +268,7 @@
     <string name="could_not_load_feed_json">Could not load feed. The response looks a bit like as if you are in some wifi that does not allow internet access.</string>
     <string name="pref_pseudo_clear_tag_suggestions_title">Clear search history</string>
     <string name="pref_pseudo_clear_tag_suggestions_summary">Clear your search history.</string>
-    <string name="action_rules">RULES</string>
-    <string name="rules_title">The rules</string>
+    <string name="action_faq">FAQ</string>
     <string name="action_switch_to_new">Switch to \'new\'</string>
     <string name="action_switch_to_top">Switch to \'top\'</string>
     <string name="hint_block_user_for">Ban user for (days)</string>

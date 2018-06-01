@@ -1,12 +1,8 @@
 package com.pr0gramm.app.services
 
 import android.widget.TextView
-import com.google.common.base.Strings
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.BackgroundScheduler
-import com.pr0gramm.app.util.observeOnMain
-import com.pr0gramm.app.util.onErrorResumeEmpty
+import com.pr0gramm.app.util.*
 import com.trello.rxlifecycle.kotlin.bindToLifecycle
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -20,8 +16,7 @@ class RulesService(okHttpClient: OkHttpClient) {
 
     private val rules: Observable<String> = Observable
                 .fromCallable {
-                    val cacheSlayer = System.currentTimeMillis() / (24 * 3600)
-                    val url = "https://pr0gramm.com/media/pr0gramm.min.js?appCacheSlayer=$cacheSlayer"
+                    val url = "https://pr0gramm.com/media/templates/rules.html"
                     val request = Request.Builder().url(url).build()
                     val response = okHttpClient.newCall(request).execute()
                     if (response.isSuccessful) response.body()?.string() else null
@@ -31,11 +26,9 @@ class RulesService(okHttpClient: OkHttpClient) {
                 .subscribeOn(BackgroundScheduler.instance())
 
                 // but skip errors
-                .filter { responseText -> !Strings.isNullOrEmpty(responseText) }
+            .filter { responseText -> !responseText.isNullOrBlank() }
                 .onErrorResumeEmpty()
-
-                //extract from javascript
-                .flatMap { extractRulesFromJavascript(it!!) }
+            .ofType<String>()
 
                 // start with the default we know about
                 .startWith(DEFAULT_RULES_TEXT)
@@ -56,7 +49,7 @@ class RulesService(okHttpClient: OkHttpClient) {
     }
 
     private fun displayInto(rulesView: TextView, rules: String) {
-        val list = "<li>(.+?)</li>".toRegex().findAll(rules).mapIndexed { idx, match ->
+        val list = "<li>(.+?)</li>".toRegex(RegexOption.DOT_MATCHES_ALL).findAll(rules).mapIndexed { idx, match ->
             val rule = match.groupValues[1].replace("<[^>]+>".toRegex(), "").trim { it <= ' ' }
             "#" + (idx + 1) + "  " + rule
         }

@@ -142,10 +142,10 @@
             android:text="@string/action_invite"/>
 
         <TextView
-            android:id="@+id/action_rules"
+            android:id="@+id/action_faq"
             style="@style/DrawerItem"
             android:drawableLeft="@drawable/ic_assignment"
-            android:text="@string/action_rules"/>
+            android:text="@string/action_faq"/>
 
         <TextView
             android:id="@+id/action_premium"
