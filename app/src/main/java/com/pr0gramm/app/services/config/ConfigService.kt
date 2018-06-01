@@ -175,11 +175,11 @@ class ConfigService(context: Application,
         }
 
         private fun loadState(jsonCoded: String): Config {
-            try {
-                return MoshiInstance.adapter<Config>().fromJson(jsonCoded) ?: Config()
+            return try {
+                MoshiInstance.adapter<Config>().fromJson(jsonCoded) ?: Config()
             } catch (err: Exception) {
                 logger.warn("Could not decode state", err)
-                return Config()
+                Config()
             }
 
         }
