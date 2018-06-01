@@ -14,10 +14,13 @@
         "type": "Neu",
         "change": "Viele Optimierungen"
       },
-
       {
         "type": "Neu",
         "change": "App macht nun nur noch HTTPS"
+      },
+      {
+        "type": "Neu",
+        "change": "FAQ sind nun verlinkt"
       }
     ]
   },
