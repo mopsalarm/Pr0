@@ -6,18 +6,18 @@ import com.google.common.base.Strings
 import com.google.common.hash.Hashing
 import com.google.common.io.BaseEncoding
 import com.google.common.primitives.Doubles
-import com.google.gson.*
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
+import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
-import com.pr0gramm.app.util.getIfPrimitive
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
-import java.lang.reflect.Type
 import java.net.URLDecoder
 import java.util.Arrays.asList
 
@@ -35,10 +35,6 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
 
         BaseEncoding.base16().encode(hash).take(32)
     }
-
-    private val gson = GsonBuilder()
-            .registerTypeAdapter(Cookie::class.java, CookieDeserializer())
-            .create()
 
     private var httpCookie: okhttp3.Cookie? = null
 
@@ -164,7 +160,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
 
         try {
             val value = URLDecoder.decode(cookie.value(), "UTF-8")
-            return gson.fromJson(value, Cookie::class.java)
+            return MoshiInstance.adapter<Cookie>().fromJson(value)
 
         } catch (err: Exception) {
             logger.warn("Could not parse login cookie!", err)
@@ -192,20 +188,17 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
             return Api.Nonce(cookie.id)
         }
 
-    data class Cookie(val name: String?, val id: String?, val paid: Boolean, val admin: Boolean)
+    @JsonClass(generateAdapter = true)
+    data class Cookie(val id: String?,
+                      @Json(name = "n") val name: String?,
+                      @Json(name = "paid") val _paid: Any?,
+                      @Json(name = "a") val _admin: Any?) {
 
-    private inner class CookieDeserializer : JsonDeserializer<Cookie> {
-        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Cookie? {
-            if (json is JsonObject) {
-                return Cookie(
-                        id = json.getIfPrimitive("id")?.asString,
-                        name = json.getIfPrimitive("n")?.asString,
-                        paid = isTruthValue(json.getIfPrimitive("paid")?.asString),
-                        admin = isTruthValue(json.getIfPrimitive("a")?.asString))
-            } else {
-                return null
-            }
-        }
+        @Transient
+        val paid = isTruthValue(_paid)
+
+        @Transient
+        val admin = isTruthValue(_admin)
     }
 
     /**
@@ -214,7 +207,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
 
     companion object {
         private val logger = LoggerFactory.getLogger("LoginCookieHandler")
-        private val PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue"
+        private const val PREF_LOGIN_COOKIE = "LoginCookieHandler.cookieValue"
 
         private fun isTruthValue(value: Any?): Boolean {
             if (value == null)

@@ -7,6 +7,7 @@ import com.google.common.base.Charsets
 import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.NoValue
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.LogHandler
@@ -21,7 +22,6 @@ import retrofit2.http.POST
 import rx.Completable
 import rx.Observable
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.OutputStreamWriter
 import java.lang.reflect.Modifier
 import java.util.zip.DeflaterOutputStream
@@ -36,6 +36,7 @@ class FeedbackService(okHttpClient: OkHttpClient) {
             .baseUrl("https://pr0.wibbly-wobbly.de/api/feedback/v1/")
             .addConverterFactory(MoshiConverterFactory.create(MoshiInstance))
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            .validateEagerly(true)
             .build().create(Api::class.java)
 
     fun post(name: String, feedback: String): Completable {
@@ -108,11 +109,10 @@ class FeedbackService(okHttpClient: OkHttpClient) {
         fun post(@Field("name") name: String,
                  @Field("feedback") feedback: String,
                  @Field("version") version: String,
-                 @Field("logcat64") logcat: String): Observable<Nothing>
+                 @Field("logcat64") logcat: String): Observable<NoValue>
     }
 
 
-    @Throws(IOException::class)
     private fun appendLogMessages(result: StringBuilder) {
         LogHandler.recentMessages().forEach { message ->
             result.append(message).append('\n')

@@ -1,29 +1,33 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
-import com.google.gson.Gson
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import java.util.*
 
-
-/**
- */
 
 class SingleShotService(internal val preferences: SharedPreferences) {
+    private val timeOffsetInMillis = (Math.random() * 3600.0 * 1000.0).toInt()
+    private val keySetActions = "SingleShotService.actions"
+    private val keyMapActions = "SingleShotService.mapActions"
+
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    private val mapAdapter = MoshiInstance.adapter<java.util.Map<String, String>>()
+
     private val lock = Any()
-    private val gson = Gson()
-    private var timeStringMap: MutableMap<String, String> = loadTimeStringMap()
+
+    private val timeStringMap: MutableMap<String, String> = loadTimeStringMap()
 
     fun isFirstTime(action: String): Boolean {
         synchronized(lock) {
-            val actions = preferences.getStringSet(KEY_ACTIONS, emptySet()).toMutableSet()
+            val actions = preferences.getStringSet(keySetActions, emptySet()).toMutableSet()
 
             if (actions.add(action)) {
-                preferences.edit() {
-                    putStringSet(KEY_ACTIONS, actions)
+                preferences.edit {
+                    putStringSet(keySetActions, actions)
                 }
 
                 return true
@@ -35,7 +39,7 @@ class SingleShotService(internal val preferences: SharedPreferences) {
 
     fun firstTimeInVersion(action: String): Boolean {
         val version = AndroidUtility.buildVersionCode()
-        return isFirstTime(action + "--" + version)
+        return isFirstTime("$action--$version")
     }
 
     fun firstTimeToday(action: String): Boolean {
@@ -48,7 +52,7 @@ class SingleShotService(internal val preferences: SharedPreferences) {
 
     private fun firstTimeByTimePattern(action: String, pattern: String): Boolean {
         val timeString = DateTime.now()
-                .minusMillis(TIME_OFFSET_IN_MILLIS)
+                .minusMillis(timeOffsetInMillis)
                 .toString(DateTimeFormat.forPattern(pattern))
 
         return timeStringHasChanged(action, timeString)
@@ -62,7 +66,8 @@ class SingleShotService(internal val preferences: SharedPreferences) {
                 timeStringMap[action] = timeString
 
                 preferences.edit {
-                    putString(KEY_MAP_ACTIONS, gson.toJson(timeStringMap))
+                    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
+                    putString(keyMapActions, mapAdapter.toJson(timeStringMap as java.util.Map<String, String>))
                 }
 
                 return true
@@ -70,22 +75,16 @@ class SingleShotService(internal val preferences: SharedPreferences) {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun loadTimeStringMap(): MutableMap<String, String> {
         try {
+            val map = mapAdapter.fromJson(preferences.getString(keyMapActions, "{}")) as? Map<String, String>
+
             @Suppress("UNCHECKED_CAST")
-            return HashMap(gson.fromJson(
-                    preferences.getString(KEY_MAP_ACTIONS, "{}"),
-                    Map::class.java)) as MutableMap<String, String>
+            return (map ?: mapOf()).toMutableMap()
 
         } catch (ignored: RuntimeException) {
-            return HashMap<String, String>()
+            return HashMap()
         }
-    }
-
-    companion object {
-        internal val TIME_OFFSET_IN_MILLIS = (Math.random() * 3600.0 * 1000.0).toInt()
-
-        private val KEY_ACTIONS = "SingleShotService.actions"
-        private val KEY_MAP_ACTIONS = "SingleShotService.mapActions"
     }
 }

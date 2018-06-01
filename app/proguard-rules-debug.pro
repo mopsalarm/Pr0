@@ -2,7 +2,7 @@
 
 -allowaccessmodification
 
-# -dontobfuscate
+-dontobfuscate
 -dontpreverify
 
 -optimizationpasses 1

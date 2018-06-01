@@ -2,12 +2,12 @@ package com.pr0gramm.app.util
 
 import android.content.Context
 import android.support.annotation.StringRes
-import android.util.MalformedJsonException
-import com.google.gson.JsonSyntaxException
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.HttpErrorException
 import com.pr0gramm.app.api.pr0gramm.LoginCookieHandler
 import com.pr0gramm.app.ui.PermissionHelper
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.JsonEncodingException
 import org.slf4j.LoggerFactory
 import java.io.EOFException
 import java.io.FileNotFoundException
@@ -172,7 +172,7 @@ object ErrorFormatting {
             string(R.string.error_service_unavailable)
         }
 
-        formatters.add<JsonSyntaxException> {
+        formatters.add<JsonEncodingException> {
             string(R.string.error_json)
         }
 
@@ -191,7 +191,7 @@ object ErrorFormatting {
             string(R.string.error_timeout)
         }
 
-        formatters.addCaused<MalformedJsonException> {
+        formatters.addCaused<JsonDataException> {
             silence()
             string(R.string.error_conversion)
         }

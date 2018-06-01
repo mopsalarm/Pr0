@@ -35,9 +35,9 @@ class UploadService(private val api: Api,
     private val maxSize: Observable<Long> get() {
         return userService.loginState().take(1).map { state ->
             if (state.premium)
-                configService.config().getMaxUploadSizePremium()
+                configService.config().maxUploadSizePremium
             else
-                configService.config().getMaxUploadSizeNormal()
+                configService.config().maxUploadSizeNormal
         }
     }
 
@@ -256,7 +256,7 @@ class UploadService(private val api: Api,
         class Uploaded(val key: String) : State()
         class Success(val id: Long) : State()
         class Pending(val queue: Long, val position: Long) : State()
-        class Processing() : State()
+        class Processing : State()
         class SimilarItems(val key: String, val items: List<Api.Posted.SimilarItem>) : State()
     }
 

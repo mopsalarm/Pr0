@@ -21,7 +21,6 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.RecentSearchesServices
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.UserService
-import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.ui.base.BaseAppCompatActivity
 import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
@@ -74,7 +73,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
         private val userService: UserService by k.instance()
         private val preloadManager: PreloadManager by k.instance()
         private val recentSearchesServices: RecentSearchesServices by k.instance()
-        private val config: Config by k.instance()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)

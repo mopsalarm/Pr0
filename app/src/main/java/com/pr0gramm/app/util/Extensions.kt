@@ -25,9 +25,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.common.base.Stopwatch
 import com.google.common.io.ByteStreams
-import com.google.gson.JsonObject
-import com.google.gson.JsonParseException
-import com.google.gson.JsonPrimitive
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.ui.dialogs.ignoreError
 import org.slf4j.Logger
@@ -131,19 +128,6 @@ inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
 
 fun arrayOfStrings(vararg args: Any): Array<String> {
     return Array(args.size) { args[it].toString() }
-}
-
-fun JsonObject.getIfPrimitive(key: String): JsonPrimitive? {
-    return get(key)?.takeIf { it is JsonPrimitive } as JsonPrimitive?
-}
-
-fun JsonObject.getPrimitive(key: String): JsonPrimitive {
-    val value = get(key)
-    if (value !is JsonPrimitive) {
-        throw JsonParseException("Expected primitive value, got $value")
-    }
-
-    return value
 }
 
 inline fun <R, T> observeChange(def: T, crossinline onChange: () -> Unit): ReadWriteProperty<R, T> {

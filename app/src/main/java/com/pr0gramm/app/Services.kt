@@ -3,7 +3,6 @@ package com.pr0gramm.app
 import android.app.Application
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidActivityScope
-import com.google.gson.Gson
 import com.pr0gramm.app.api.categories.ExtraCategories
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedService
@@ -21,23 +20,22 @@ import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
 import com.squareup.picasso.Picasso
 
 fun servicesModule(app: Application) = Kodein.Module {
-    bind<Gson>() with instance(GsonModule.INSTANCE)
     bind<SeenService>() with instance(SeenService(app))
     bind<InMemoryCacheService>() with instance(InMemoryCacheService())
 
     bind<FancyExifThumbnailGenerator>() with singleton { FancyExifThumbnailGenerator(app, instance()) }
 
     bind<ExtraCategories>() with singleton { ExtraCategories(instance(), instance()) }
-    bind<ConfigService>() with singleton { ConfigService(app, instance(), instance(), instance()) }
+    bind<ConfigService>() with singleton { ConfigService(app, instance(), instance()) }
     bind<BookmarkService>() with singleton { BookmarkService(instance()) }
     bind<InboxService>() with singleton { InboxService(instance(), instance()) }
 
-    bind<UserService>() with singleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bind<UserService>() with singleton { UserService(instance(), instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bind<VoteService>() with singleton { VoteService(instance(), instance(), instance()) }
     bind<SingleShotService>() with singleton { SingleShotService(instance()) }
     bind<PreloadManager>() with singleton { DatabasePreloadManager(instance()) }
     bind<FavedCommentService>() with singleton { FavedCommentService(instance(), instance()) }
-    bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance(), instance()) }
+    bind<RecentSearchesServices>() with singleton { RecentSearchesServices(instance()) }
 
     bind<AdminService>() with singleton { AdminService(instance(), instance()) }
     bind<AdService>() with singleton { AdService(instance(), instance()) }

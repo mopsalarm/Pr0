@@ -13,7 +13,6 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
-import com.google.gson.JsonSyntaxException
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -35,6 +34,7 @@ import com.pr0gramm.app.ui.views.CustomSwipeRefreshLayout
 import com.pr0gramm.app.ui.views.SearchOptionsView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
+import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import org.slf4j.LoggerFactory
 import rx.Observable
@@ -930,7 +930,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
             error is FeedException.NotFoundException -> showFeedNotFoundError()
 
-            error is JsonSyntaxException -> {
+            error is JsonEncodingException -> {
                 ErrorDialogFragment.showErrorString(fragmentManager,
                         getString(R.string.could_not_load_feed_json))
             }

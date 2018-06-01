@@ -15,7 +15,7 @@ private const val Month: Long = 30 * Day
 private const val Year: Long = 12 * Month
 private const val LongTime: Long = 37 * Year
 
-internal data class Magnitude(
+internal class Magnitude(
         val threshold: Long,
         @StringRes val since: Int,
         @StringRes val duration: Int,

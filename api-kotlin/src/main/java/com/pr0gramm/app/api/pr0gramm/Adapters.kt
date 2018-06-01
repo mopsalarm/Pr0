@@ -16,7 +16,7 @@ inline fun <reified T : Any> Moshi.adapter(): JsonAdapter<T> {
     return adapter((object : TypeToken<T>() {}).type)
 }
 
-object InstantAdapter : JsonAdapter<Instant>() {
+internal object InstantAdapter : JsonAdapter<Instant>() {
     override fun fromJson(reader: JsonReader): Instant {
         return Instant(reader.nextLong() * 1000L)
     }
@@ -24,7 +24,7 @@ object InstantAdapter : JsonAdapter<Instant>() {
     override fun toJson(writer: JsonWriter, value: Instant?) {
         val millis = value?.millis
         if (millis != null) {
-            writer.value(millis)
+            writer.value(millis / 1000)
         } else {
             writer.nullValue()
         }

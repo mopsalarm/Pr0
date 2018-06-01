@@ -3,7 +3,6 @@ package com.pr0gramm.app.services
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Stopwatch
-import com.google.gson.Gson
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -36,7 +35,6 @@ class UserService(private val api: Api,
                   private val inboxService: InboxService,
                   private val cookieHandler: LoginCookieHandler,
                   private val preferences: SharedPreferences,
-                  private val gson: Gson,
                   private val database: Holder<SQLiteDatabase>,
                   private val config: Config) {
 

@@ -2,7 +2,8 @@ package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
 import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.util.edit
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -13,10 +14,9 @@ import java.util.*
  */
 
 class RecentSearchesServices(
-        private val sharedPreferences: SharedPreferences,
-        private val gson: Gson) {
+        private val sharedPreferences: SharedPreferences) {
 
-    private val searches: MutableList<String> = ArrayList<String>()
+    private val searches: MutableList<String> = ArrayList()
 
     init {
         restoreState()
@@ -54,10 +54,10 @@ class RecentSearchesServices(
     private fun persistStateAsync() {
         try {
             // write searches as json
-            val encoded = gson.toJson(searches, LIST_OF_STRINGS.type)
-            sharedPreferences.edit() { putString(KEY, encoded) }
+            val encoded = MoshiInstance.adapter<List<String>>().toJson(searches)
+            sharedPreferences.edit { putString(KEY, encoded) }
         } catch (ignored: Exception) {
-            logger.warn("Could not presist recent searches")
+            logger.warn("Could not persist recent searches")
         }
 
     }
@@ -65,7 +65,7 @@ class RecentSearchesServices(
     private fun restoreState() {
         try {
             val serialized = sharedPreferences.getString(KEY, "[]")
-            searches.addAll(gson.fromJson<Collection<String>>(serialized, LIST_OF_STRINGS.type))
+            searches.addAll(MoshiInstance.adapter<List<String>>().fromJson(serialized) ?: listOf())
 
         } catch (error: Exception) {
             logger.warn("Could not deserialize recent searches", error)

@@ -33,7 +33,7 @@ abstract class Parceler<T> : Parcelable {
             }
         } catch (ioError: Exception) {
             Throwables.propagateIfPossible(ioError, RuntimeException::class.java)
-            throw RuntimeException("Could not read gson as parcel", ioError)
+            throw RuntimeException("Could not read json as parcel", ioError)
         }
     }
 

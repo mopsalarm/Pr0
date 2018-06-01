@@ -61,6 +61,7 @@ import com.pr0gramm.app.ui.views.viewer.MediaViews
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.dp
 import com.trello.rxlifecycle.android.FragmentEvent
+import gnu.trove.map.hash.TLongObjectHashMap
 import rx.Observable
 import rx.Observable.combineLatest
 import rx.Observable.just
@@ -331,7 +332,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (comments.isNotEmpty())
             displayComments(comments, sync = true)
 
-        loadPostDetails()
+        if (tags.isEmpty() && comments.isEmpty()) {
+            loadPostDetails()
+        }
 
         // show the repost badge if this is a repost
         repostHint.visible = inMemoryCacheService.isRepost(feedItem)
@@ -440,7 +443,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 ?.isVisible = adminMode
 
         menu.findItem(R.id.action_report)
-                ?.isVisible = config.isReportItemsActive && userService.isAuthorized
+                ?.isVisible = config.reportItemsActive && userService.isAuthorized
     }
 
     @OnOptionsItemSelected(R.id.action_zoom)
@@ -946,11 +949,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      *
      * @param comments The list of comments to display.
      */
-    private fun displayComments(comments: List<Api.Comment>, sync: Boolean = false) {
+    private fun displayComments(comments: List<Api.Comment>, sync: Boolean = false,
+                                extraChanges: (CommentsAdapter.State) -> CommentsAdapter.State = { it }) {
+
         this.comments = comments.toList()
 
         // show now
-        commentsAdapter.updateComments(this.comments, feedItem.user, userService.name, sync)
+        logger.info("Sending {} comments to adapter", this.comments.size)
+        commentsAdapter.updateComments(this.comments, sync) { state ->
+            extraChanges(state.copy(op = feedItem.user, self = userService.name))
+        }
 
         // look for votes for the comments
         commentVoteSubscription?.unsubscribe()
@@ -1042,16 +1050,15 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun onNewComments(response: Api.NewComment) {
-        autoScrollToComment(response.commentId)
+        autoScrollToComment(response.commentId, delayed = true)
 
-        displayComments(response.comments.map { comment ->
-            comment.takeUnless { comment.id == response.commentId }
-            if (comment.id == response.commentId) {
-                comment.copy(up = comment.up - 1)
-            } else {
-                comment
-            }
-        })
+        displayComments(response.comments) { state ->
+            state.copy(selectedCommentId = response.commentId, baseVotes = state.baseVotes?.let { votes ->
+                val copy = TLongObjectHashMap(votes)
+                copy.put(response.commentId, Vote.UP)
+                copy
+            })
+        }
 
         Snackbar.make(content, R.string.comment_written_successful, Snackbar.LENGTH_LONG)
                 .configureNewStyle()
@@ -1059,9 +1066,12 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .show()
     }
 
-    fun autoScrollToComment(commentId: Long) {
+    fun autoScrollToComment(commentId: Long, delayed: Boolean = false) {
         arguments?.putLong(ARG_AUTOSCROLL_COMMENT_ID, commentId)
-        tryAutoScrollToCommentNow()
+
+        if (!delayed) {
+            tryAutoScrollToCommentNow()
+        }
     }
 
     private fun tryAutoScrollToCommentNow() {

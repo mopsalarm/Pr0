@@ -14,7 +14,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
-import com.google.common.base.Ascii.equalsIgnoreCase
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
@@ -28,6 +27,7 @@ import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
 import org.joda.time.Hours
 import org.joda.time.Instant.now
+import org.slf4j.LoggerFactory
 import rx.Observable
 import kotlin.math.absoluteValue
 
@@ -37,14 +37,16 @@ class CommentsAdapter(
         private val admin: Boolean,
         private val actionListener: Listener) : AsyncListAdapter<CommentsAdapter.Entry, CommentView>(ItemCallback()) {
 
+    private val logger = LoggerFactory.getLogger("CommentsAdapter")
+
     private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
     private var nextUpdateIsSync = false
 
-    private var selfName: String = ""
-
     // the currently selected comment. Set to update comment
     var selectedCommentId by observeChangeEx(0L) { _, new ->
-        state = state.copy(selectedCommentId = new)
+        if (new != state.selectedCommentId) {
+            state = state.copy(selectedCommentId = new)
+        }
     }
 
     private var state: State by observeChangeEx(State()) { old, new ->
@@ -78,27 +80,26 @@ class CommentsAdapter(
         state = state.copy(baseVotes = baseVotes, currentVotes = currentVotes)
     }
 
-    fun updateComments(comments: Collection<Api.Comment>, op: String?, selfName: String?, synchronous: Boolean = false) {
-        this.selfName = selfName ?: ""
+    fun updateComments(comments: List<Api.Comment>, synchronous: Boolean = false,
+                       extraChanges: (State) -> State) {
 
         this.nextUpdateIsSync = synchronous
-        state = state.copy(allComments = comments.toList(), op = op)
+        state = extraChanges(state.copy(allComments = comments.toList()))
     }
 
     private fun updateVisibleComments() {
         val targetState = state
 
-        // nothing to show
-        if (targetState.allComments.isEmpty()) {
-            submitList(listOf())
-        }
-
-        if (nextUpdateIsSync) {
+        if (nextUpdateIsSync || targetState.allComments.isEmpty()) {
             nextUpdateIsSync = false
 
             // do a update right in the current thread.
             submitList(CommentTree(targetState).visibleComments)
             return
+        }
+
+        debug {
+            logger.info("Will run an update for current state {}", System.identityHashCode(state))
         }
 
         Observable.fromCallable { CommentTree(targetState).visibleComments }
@@ -140,10 +141,7 @@ class CommentsAdapter(
         AndroidUtility.linkifyClean(holder.comment, comment.content)
 
         // show the points
-        if (admin
-                || equalsIgnoreCase(comment.name, selfName)
-                || comment.created.isBefore(scoreVisibleThreshold)) {
-
+        if (admin || entry.pointsVisible || comment.created.isBefore(scoreVisibleThreshold)) {
             holder.senderInfo.setPoints(entry.currentScore)
         } else {
             holder.senderInfo.setPointsUnknown()
@@ -167,7 +165,7 @@ class CommentsAdapter(
             actionListener.onAnswerClicked(comment)
         }
 
-        if (comment.id == selectedCommentId) {
+        if (entry.selectedComment) {
             val color = ContextCompat.getColor(context, R.color.selected_comment_background)
             holder.itemView.setBackgroundColor(color)
         } else {
@@ -253,12 +251,14 @@ class CommentsAdapter(
             val baseVotes: TLongObjectMap<Vote>? = null,
             val collapsed: Set<Long> = setOf(),
             val op: String? = null,
+            val self: String? = null,
             val selectedCommentId: Long = 0L,
             internal val synchronous: Boolean = false)
 
     data class Entry(val comment: Api.Comment, val vote: Vote, val depth: Int,
                      val hasChildren: Boolean, val currentScore: CommentScore,
-                     val hasOpBadge: Boolean, val hiddenCount: Int?)
+                     val hasOpBadge: Boolean, val hiddenCount: Int?,
+                     val pointsVisible: Boolean, val selectedComment: Boolean)
 
     interface Listener {
         fun onCommentVoteClicked(comment: Api.Comment, vote: Vote): Boolean
@@ -342,8 +342,12 @@ private class CommentTree(val state: CommentsAdapter.State) {
 
             val hasChildren = comment.id in byParent
             val hasOpBadge = state.op == comment.name
+            val pointsVisible = state.self == comment.name
+            val selectedComment = state.selectedCommentId == comment.id
 
-            CommentsAdapter.Entry(comment, vote, depth, hasChildren, score, hasOpBadge, hiddenCount)
+            CommentsAdapter.Entry(
+                    comment, vote, depth, hasChildren, score, hasOpBadge, hiddenCount,
+                    pointsVisible, selectedComment)
         }
     }
 

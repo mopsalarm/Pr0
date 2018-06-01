@@ -1,1 +1,1 @@
-include ':app', ':api', ':api-kotlin'
+include ':app', ':api-kotlin'

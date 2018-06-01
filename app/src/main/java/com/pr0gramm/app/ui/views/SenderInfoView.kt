@@ -75,7 +75,12 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun setDate(date: Instant) {
-        dateView.text = getRelativeTimeSpanString(context, date)
+        val now = (Instant.now().millis - date.millis) / 1000 < 30
+        if (now) {
+            dateView.text = context.getString(R.string.dt_for_now)
+        } else {
+            dateView.text = getRelativeTimeSpanString(context, date)
+        }
     }
 
     fun setBadgeOpVisible(visible: Boolean) {

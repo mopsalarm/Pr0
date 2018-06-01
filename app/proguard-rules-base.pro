@@ -15,6 +15,9 @@
     @com.pr0gramm.app.ui.OnOptionsItemSelected <methods>;
 }
 
+# Keep api names for metrics
+-keepnames interface com.pr0gramm.app.Api
+
 # for gifs
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int);}
 -keep class pl.droidsonroids.gif.GifInfoHandle{<init>(long,int,int,int);}
@@ -88,6 +91,4 @@
 
 -keepnames @com.squareup.moshi.JsonClass class *
 
--keepnames interface com.pr0gramm.app.** {
-    @retrofit2.http.* *;
-}
+-printconfiguration /tmp/proguard.pro

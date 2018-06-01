@@ -1,6 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
-import com.pr0gramm.app.Nothing
+import com.pr0gramm.app.NoValue
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.RequestBody
@@ -28,21 +28,21 @@ interface Api {
     fun vote(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<Nothing>
+            @Field("vote") voteValue: Int): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("/api/tags/vote")
     fun voteTag(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<Nothing>
+            @Field("vote") voteValue: Int): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("/api/comments/vote")
     fun voteComment(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("id") id: Long,
-            @Field("vote") voteValue: Int): Observable<Nothing>
+            @Field("vote") voteValue: Int): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("/api/user/login")
@@ -70,14 +70,14 @@ interface Api {
     fun hardDeleteComment(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Observable<Nothing>
+            @Field("reason") reason: String): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("/api/comments/softDelete")
     fun softDeleteComment(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("id") commentId: Long,
-            @Field("reason") reason: String): Observable<Nothing>
+            @Field("reason") reason: String): Observable<NoValue>
 
     @GET("/api/items/info")
     fun info(
@@ -121,10 +121,10 @@ interface Api {
     fun sendMessage(
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("comment") text: String,
-            @Field("recipientId") recipient: Long): Observable<Nothing>
+            @Field("recipientId") recipient: Long): Observable<NoValue>
 
     @GET("/api/items/ratelimited")
-    fun ratelimited(): Observable<Nothing>
+    fun ratelimited(): Observable<NoValue>
 
     @POST("/api/items/upload")
     fun upload(
@@ -159,7 +159,7 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("banUser") banUser: String?,
-            @Field("days") days: Float?): Observable<Nothing>
+            @Field("days") days: Float?): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/ban")
@@ -169,7 +169,7 @@ interface Api {
             @Field("reason") reason: String,
             @Field("customReason") customReason: String,
             @Field("days") days: Float,
-            @Field("mode") mode: Int?): Observable<Nothing>
+            @Field("mode") mode: Int?): Observable<NoValue>
 
     @GET("api/tags/details")
     fun tagDetails(
@@ -182,19 +182,19 @@ interface Api {
             @Field("itemId") itemId: Long,
             @Field("banUsers") banUser: String?,
             @Field("days") days: Float?,
-            @Field("tags[]") tagId: List<Long> = listOf()): Observable<Nothing>
+            @Field("tags[]") tagId: List<Long> = listOf()): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/profile/follow")
     fun profileFollow(
             @Field("_nonce") nonce: Api.Nonce?,
-            @Field("name") username: String): Observable<Nothing>
+            @Field("name") username: String): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/profile/unfollow")
     fun profileUnfollow(
             @Field("_nonce") nonce: Api.Nonce?,
-            @Field("name") username: String): Observable<Nothing>
+            @Field("name") username: String): Observable<NoValue>
 
     @GET("api/profile/suggest")
     fun suggestUsers(
@@ -208,7 +208,7 @@ interface Api {
     fun contactSend(
             @Field("subject") subject: String,
             @Field("email") email: String,
-            @Field("message") message: String): Observable<Nothing>
+            @Field("message") message: String): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/contact/report")
@@ -216,12 +216,12 @@ interface Api {
             @Field("_nonce") nonce: Api.Nonce?,
             @Field("itemId") item: Long,
             @Field("commentId") commentId: Long,
-            @Field("reason") reason: String): Observable<Nothing>
+            @Field("reason") reason: String): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/sendpasswordresetmail")
     fun requestPasswordRecovery(
-            @Field("email") email: String): Observable<Nothing>
+            @Field("email") email: String): Observable<NoValue>
 
     @FormUrlEncoded
     @POST("api/user/resetpassword")

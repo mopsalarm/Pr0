@@ -8,8 +8,11 @@ import android.net.Uri
 import android.provider.Settings
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
-import com.google.gson.Gson
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.MoshiInstance
+import com.pr0gramm.app.api.pr0gramm.adapter
+import com.pr0gramm.app.util.debug
+import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.ignoreException
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -25,13 +28,12 @@ import java.util.concurrent.TimeUnit
  */
 class ConfigService(context: Application,
                     private val okHttpClient: OkHttpClient,
-                    private val gson: Gson,
                     private val preferences: SharedPreferences) {
 
     private val settings = com.pr0gramm.app.Settings.get()
 
     @Volatile
-    private var configState: Config = ImmutableConfig.builder().build()
+    private var configState: Config = Config()
     private val configSubject = BehaviorSubject.create<Config>(configState).toSerialized()
 
     // We are using a device hash so we can return the same config if
@@ -43,7 +45,7 @@ class ConfigService(context: Application,
         this.deviceHash = makeUniqueIdentifier(context, preferences)
 
         val jsonCoded = preferences.getString(PREF_DATA_KEY, "{}")
-        this.configState = loadState(gson, jsonCoded)
+        this.configState = loadState(jsonCoded)
 
         publishState()
 
@@ -83,7 +85,7 @@ class ConfigService(context: Application,
     }
 
     private fun updateConfigState(body: String) {
-        configState = loadState(gson, body)
+        configState = loadState(body)
         persistConfigState()
         publishState()
     }
@@ -91,10 +93,10 @@ class ConfigService(context: Application,
     private fun persistConfigState() {
         logger.info("Persisting current config state")
         try {
-            val jsonCoded = gson.toJson(configState)
-            preferences.edit()
-                    .putString(PREF_DATA_KEY, jsonCoded)
-                    .apply()
+            val jsonCoded = MoshiInstance.adapter<Config>().toJson(configState)
+            preferences.edit {
+                putString(PREF_DATA_KEY, jsonCoded)
+            }
 
         } catch (err: Exception) {
             logger.warn("Could not persist config state", err)
@@ -120,11 +122,18 @@ class ConfigService(context: Application,
     }
 
     fun config(): Config {
-        if (BuildConfig.DEBUG) {
-            // add debug overlays
-            return ImmutableConfig.copyOf(configState)
-                    .withTrackItemView(true)
-                    .withAdType(Config.AdType.FEED)
+        debug {
+            val adapter = MoshiInstance.adapter<Config>()
+
+            // convert to map to modify
+            val map = adapter.toJsonValue(configState) as? MutableMap<String, Any?>
+                    ?: return configState
+
+            map.put("trackItemView", true)
+            map.put("adType", "FEED")
+
+            // and back to object
+            return adapter.fromJsonValue(map) ?: return configState
         }
 
         return configState
@@ -165,12 +174,12 @@ class ConfigService(context: Application,
             null
         }
 
-        private fun loadState(gson: Gson, jsonCoded: String): Config {
+        private fun loadState(jsonCoded: String): Config {
             try {
-                return gson.fromJson(jsonCoded, Config::class.java)
+                return MoshiInstance.adapter<Config>().fromJson(jsonCoded) ?: Config()
             } catch (err: Exception) {
                 logger.warn("Could not decode state", err)
-                return ImmutableConfig.builder().build()
+                return Config()
             }
 
         }
