@@ -193,7 +193,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
     private fun onRegisterClicked() {
         Track.registerLinkClicked()
 
-        val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
+        val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
         BrowserHelper.openCustomTab(this, uri)
     }
 

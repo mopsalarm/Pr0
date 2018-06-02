@@ -103,12 +103,14 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         actionFAQ.setOnClickListener({
             Track.registerFAQClicked()
-            BrowserHelper.openCustomTab(requireActivity(), Uri.parse("https://pr0gramm.com/faq:all/iap"))
+            BrowserHelper.openCustomTab(requireActivity(),
+                    Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
+                    handover = false)
         })
 
         actionPremium.setOnClickListener {
             Track.registerLinkClicked()
-            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
+            val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
             BrowserHelper.openCustomTab(requireActivity(), uri)
         }
 

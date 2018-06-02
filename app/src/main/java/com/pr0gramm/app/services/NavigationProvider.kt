@@ -169,7 +169,7 @@ class NavigationProvider(
                         action = ActionType.URI,
                         title = getString(R.string.action_secret_santa),
                         icon = iconSecretSanta,
-                        uri = Uri.parse("https://pr0gramm.com/secret-santa/iap")))
+                        uri = Uri.parse("https://pr0gramm.com/secret-santa/iap?iap=true")))
             }
 
             items.add(NavigationItem(
@@ -258,8 +258,8 @@ class NavigationProvider(
                 }
                 .retryWhen { err ->
                     err.zipWith(Observable.range(1, 3), { n, i -> i }).flatMap { idx ->
-                        logger.debug("Delay retry by {} second(s)", idx);
-                        Observable.timer(idx.toLong(), TimeUnit.SECONDS);
+                        logger.debug("Delay retry by {} second(s)", idx)
+                        Observable.timer(idx.toLong(), TimeUnit.SECONDS)
                     }
                 }
     }

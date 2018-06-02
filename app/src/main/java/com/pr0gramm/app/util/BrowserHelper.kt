@@ -106,14 +106,25 @@ object BrowserHelper {
         }
     }
 
-    fun openCustomTab(context: Context, uri: Uri) {
+    fun openCustomTab(context: Context, uri: Uri, handover: Boolean = true) {
         val themedContext = AndroidUtility.activityFromContext(context) ?: context
+
+        fun open(block: (Uri) -> Unit) {
+            if (handover) {
+                runWithHandoverToken(context, uri) { uriWithHandoverToken ->
+                    block(uriWithHandoverToken)
+                }
+            } else {
+                block(uri)
+            }
+
+        }
 
         // get the chrome package to use
         val packageName = chromeTabPackageName(context)
         if (packageName == null) {
             Track.openBrowser("External")
-            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            open { context.applicationContext.startActivity(Intent(Intent.ACTION_VIEW, it)) }
             return
         }
 
@@ -126,10 +137,8 @@ object BrowserHelper {
 
         customTabsIntent.intent.`package` = packageName
 
-        runWithHandoverToken(context, uri) { uriWithHandoverToken ->
-            customTabsIntent.launchUrl(themedContext, uriWithHandoverToken)
-            Track.openBrowser("CustomTabs")
-        }
+        open { customTabsIntent.launchUrl(context.applicationContext, it) }
+        Track.openBrowser("CustomTabs")
     }
 
     private fun runWithHandoverToken(context: Context, uri: Uri, block: (Uri) -> Unit) {

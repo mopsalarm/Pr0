@@ -87,7 +87,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (settings.secureApp) {
             // hide app from recent apps list
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
         setContentView(R.layout.activity_main)
@@ -189,7 +189,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                                 .configureNewStyle()
                                 .setAction("pr0mium") {
                                     Track.registerLinkClicked()
-                                    val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap")
+                                    val uri = Uri.parse("https://pr0gramm.com/pr0mium/iap?iap=true")
                                     BrowserHelper.openCustomTab(this, uri)
                                 }
                                 .show()
