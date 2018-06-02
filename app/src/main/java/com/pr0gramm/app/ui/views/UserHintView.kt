@@ -4,9 +4,8 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import com.pr0gramm.app.R
-import com.pr0gramm.app.api.pr0gramm.Api
 
-typealias OnUserClickedListener = (id: Int, name: String) -> Unit
+typealias OnUserClickedListener = (name: String) -> Unit
 
 /**
  */
@@ -20,10 +19,11 @@ class UserHintView(context: Context) : FrameLayout(context) {
         username = findViewById(R.id.username)
     }
 
-    fun update(user: Api.Info.User, onClick: OnUserClickedListener) {
-        username.setUsername(user.name, user.mark)
+    fun update(name: String, mark: Int, onClick: OnUserClickedListener) {
+        username.setUsername(name, mark)
+
         uploads.setOnClickListener {
-            onClick(user.id, user.name)
+            onClick(name)
         }
     }
 }

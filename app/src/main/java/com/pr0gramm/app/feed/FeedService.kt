@@ -61,7 +61,7 @@ class FeedServiceImpl(private val api: Api,
         val result: Observable<Api.Feed> = when (feedType) {
             FeedType.RANDOM -> extraCategories.api
                     .random(q.tags, flags)
-                    .map { feed -> feed.copy(items = feed.items.shuffled()) }
+                    .map { feed -> feed.copy(_items = feed.items.shuffled()) }
 
             FeedType.BESTOF -> {
                 val benisScore = Settings.get().bestOfBenisThreshold

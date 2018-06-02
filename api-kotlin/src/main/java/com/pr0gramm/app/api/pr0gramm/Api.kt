@@ -9,6 +9,7 @@ import retrofit2.Call
 import retrofit2.http.*
 import rx.Observable
 
+@Suppress("MemberVisibilityCanBePrivate")
 interface Api {
     @GET("/api/items/get")
     fun itemsGet(
@@ -274,10 +275,13 @@ interface Api {
 
     @JsonClass(generateAdapter = true)
     data class Feed(
-            val items: List<Item> = listOf(),
             val error: String?,
+            @Json(name = "items") val _items: List<Item>? = null,
             @Json(name = "atStart") val isAtStart: Boolean = false,
             @Json(name = "atEnd") val isAtEnd: Boolean = false) {
+
+        @Transient
+        val items = _items ?: listOf()
 
         @JsonClass(generateAdapter = true)
         data class Item(

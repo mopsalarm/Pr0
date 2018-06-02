@@ -82,7 +82,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private val feedAdapter by lazy {
         FeedAdapter(picasso,
-                userHintClickedListener = { _, name -> openUserUploads(name) },
+                userHintClickedListener = { name -> openUserUploads(name) },
                 userActionListener = UserActionListener())
     }
 
@@ -121,7 +121,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private var state: State by observeChangeEx(State(feed.items, feed.filter)) { _, state ->
+    private var state by observeChangeEx(State(feed.items, feed.filter)) { _, state ->
         val filter = state.feedFilter
 
         val entries = mutableListOf<FeedAdapter.Entry>()
@@ -135,34 +135,39 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
             }
 
-            state.userInfo?.let { userInfo ->
+            if (state.userInfo != null) {
+                val userInfo = state.userInfo
                 val isSelfInfo = isSelfInfo(userInfo.info)
 
-                // if we did not search for this user, we will only show a
-                // hint that the user exists
-                if (filter.username == null) {
+                // if we found this user using a normal 'search', we will show a hint
+                // that the user exists
+                if (filter.tags != null) {
                     if (!isSelfInfo) {
-                        entries += FeedAdapter.Entry.UserHint(userInfo.info.user)
+                        val userAndMark = userInfo.info.user.run { UserAndMark(name, mark) }
+                        entries += FeedAdapter.Entry.UserHint(userAndMark)
                     }
 
-                    return@let
-                }
+                } else {
+                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
 
-                entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
-
-                if (state.userInfoCommentsOpen) {
-                    val user = userService.name
-                    userInfo.comments.mapTo(entries) { comment ->
-                        val msg = MessageConverter.of(state.userInfo.info.user, comment)
-                        FeedAdapter.Entry.Comment(msg, user)
+                    if (state.userInfoCommentsOpen) {
+                        val user = userService.name
+                        userInfo.comments.mapTo(entries) { comment ->
+                            val msg = MessageConverter.of(state.userInfo.info.user, comment)
+                            FeedAdapter.Entry.Comment(msg, user)
+                        }
                     }
+
+                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
                 }
 
-                entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
-            }
-
-            if (state.adsVisible) {
-                entries += FeedAdapter.Entry.Ad()
+            } else if (filter.username != null) {
+                val item = state.feedItems.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
+                if (item != null) {
+                    val user = UserAndMark(item.user, item.mark)
+                    entries += FeedAdapter.Entry.UserLoading(user)
+                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
+                }
             }
 
             if (!state.userInfoCommentsOpen) {
@@ -171,12 +176,18 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                         state.ownUsername != null && state.ownUsername.equals(filter.likes
                                 ?: filter.username, ignoreCase = true))
 
-                state.feedItems.mapTo(entries) { item ->
+                for ((idx, item) in state.feedItems.withIndex()) {
                     val id = item.id
                     val seen = markAsSeen && seenService.isSeen(id)
                     val repost = inMemoryCacheService.isRepost(id)
                     val preloaded = preloadManager.exists(id)
-                    FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+
+                    // show an ad banner every ~50 lines
+                    if (state.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
+                        entries += FeedAdapter.Entry.Ad(idx.toLong())
+                    }
+
+                    entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)
                 }
             }
 
@@ -244,8 +255,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         recyclerView.addOnScrollListener(onScrollListener)
 
-        queryForUserInfo()
-
         // we can still swipe up if we are not at the start of the feed.
         swipeRefreshLayout.canSwipeUpPredicate = { !feed.isAtStart }
 
@@ -274,7 +283,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // observe changes so we can update the menu
         followService.changes()
-                .observeOn(mainThread())
+                .observeOnMain()
                 .compose(bindToLifecycle<String>())
                 .filter { name -> name.equals(activeUsername, ignoreCase = true) }
                 .subscribe { activity.invalidateOptionsMenu() }
@@ -294,6 +303,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // lets start receiving feed updates
         subscribeToFeedUpdates()
+
+        queryForUserInfo()
 
         // start showing ads.
         adService.enabledForType(Config.AdType.FEED)
@@ -364,7 +375,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return
         }
 
-        queryUserInfo().take(1).compose(bindToLifecycleAsync()).ignoreError().subscribe { value ->
+        queryUserInfo().take(1).compose(bindToLifecycle()).ignoreError().subscribe { value ->
             state = state.copy(userInfo = value)
             activity?.invalidateOptionsMenu()
         }
@@ -395,7 +406,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             state = state.copy(userInfoCommentsOpen = false)
         }
 
-        override fun onShowUploadsClicked(id: Int, name: String) {
+        override fun onShowUploadsClicked(name: String) {
             val filter = currentFilter.basic().withFeedType(FeedType.NEW).withUser(name)
             if (filter != currentFilter) {
                 (activity as MainActionHandler).onFeedFilterSelected(filter)
@@ -423,19 +434,21 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         if (queryString != null && queryString.matches("[A-Za-z0-9]{2,}".toRegex())) {
             val contentTypes = selectedContentType
-            val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
 
+            val cached = inMemoryCacheService.getUserInfo(contentTypes, queryString)
             if (cached != null) {
                 return Observable.just(cached)
             }
 
             val first = userService
-                    .info(queryString, selectedContentType)
+                    .info(queryString, contentTypes)
+                    .subscribeOnBackground()
                     .doOnNext { info -> followService.markAsFollowing(info.user.name, info.following) }
                     .onErrorResumeEmpty()
 
             val second = inboxService
                     .getUserComments(queryString, contentTypes)
+                    .subscribeOnBackground()
                     .map { it.comments }
                     .onErrorReturn { listOf() }
 
@@ -451,6 +464,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     override fun onDestroyView() {
         recyclerView.removeOnScrollListener(onScrollListener)
         super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        // destroy any ad views that might still exist
+        feedAdapter.destroyAdView()
+
+        super.onDestroy()
     }
 
     private fun resetToolbar() {
@@ -576,14 +596,13 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
      * Depending on whether the screen is landscape or portrait, and how large
      * the screen is, we show a different number of items per row.
      */
-    private val thumbnailColumCount: Int
-        get() {
-            val config = resources.configuration
-            val portrait = config.screenWidthDp < config.screenHeightDp
+    private val thumbnailColumCount: Int by lazy(LazyThreadSafetyMode.NONE) {
+        val config = resources.configuration
+        val portrait = config.screenWidthDp < config.screenHeightDp
 
-            val screenWidth = config.screenWidthDp
-            return Math.min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
-        }
+        val screenWidth = config.screenWidthDp
+        Math.min((screenWidth / 120.0 + 0.5).toInt(), if (portrait) 5 else 7)
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -1217,6 +1236,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
     }
+
     private fun refreshRepostsCache(
             feedService: FeedService, cacheService: InMemoryCacheService, query: FeedService.FeedQuery): Observable<List<Long>> {
 

@@ -84,7 +84,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         (uploads.parent as View).setOnClickListener {
-            userActionListener.onShowUploadsClicked(user.id, user.name)
+            userActionListener.onShowUploadsClicked(user.name)
         }
 
         if (info.likesArePublic && info.likeCount > 0) {
@@ -179,7 +179,7 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         fun onWriteMessageClicked(userId: Int, name: String)
         fun onUserFavoritesClicked(name: String)
         fun onShowCommentsClicked()
-        fun onShowUploadsClicked(id: Int, name: String)
+        fun onShowUploadsClicked(name: String)
     }
 
     private val knownImages = mapOf(

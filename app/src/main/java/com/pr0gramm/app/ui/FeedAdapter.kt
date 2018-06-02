@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import com.google.android.gms.ads.AdView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
@@ -21,19 +22,18 @@ import com.pr0gramm.app.services.UserInfo
 import com.pr0gramm.app.ui.fragments.AdViewHolder
 import com.pr0gramm.app.ui.views.OnUserClickedListener
 import com.pr0gramm.app.ui.views.UserHintView
+import com.pr0gramm.app.ui.views.UserInfoLoadingView
 import com.pr0gramm.app.ui.views.UserInfoView
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.inflate
-import com.pr0gramm.app.util.layoutInflater
-import com.pr0gramm.app.util.visible
+import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
 
 private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entry>) {
-    Ad(100, FeedAdapter.Entry.Ad::class.java),
-    Hint(200, FeedAdapter.Entry.UserHint::class.java),
+    UserHint(200, FeedAdapter.Entry.UserHint::class.java),
+    UserInfoLoading(201, FeedAdapter.Entry.UserLoading::class.java),
+    UserInfo(202, FeedAdapter.Entry.User::class.java),
     Spacer(300, FeedAdapter.Entry.Spacer::class.java),
-    User(400, FeedAdapter.Entry.User::class.java),
     Item(1000, FeedAdapter.Entry.Item::class.java),
+    Ad(900_000_000, FeedAdapter.Entry.Ad::class.java),
     Comments(1_000_000_000, FeedAdapter.Entry.Comment::class.java)
 }
 
@@ -42,8 +42,16 @@ class FeedAdapter(private val picasso: Picasso,
                   private val userActionListener: UserInfoView.UserActionListener)
     : AsyncListAdapter<FeedAdapter.Entry, RecyclerView.ViewHolder>(ItemCallback()) {
 
+    private var lastSeenAdview: AdView? = null
+
     init {
         setHasStableIds(true)
+
+        if (Offset.values().size != Offset.values().map { it.offset }.distinct().size)
+            throw IllegalArgumentException("Error in Offset() mapping")
+
+        if (Offset.values().size != Offset.values().map { it.type }.distinct().size)
+            throw IllegalArgumentException("Error in Offset() mapping")
     }
 
     var latestEntries: List<Entry> = listOf()
@@ -51,6 +59,12 @@ class FeedAdapter(private val picasso: Picasso,
 
     private val viewTypesByType = Offset.values().associateBy { it.type }
     private val viewTypesByIndex = Offset.values()
+
+    fun destroyAdView() {
+        lastSeenAdview?.removeFromParent()
+        lastSeenAdview?.destroy()
+        lastSeenAdview = null
+    }
 
     override fun submitList(newList: List<Entry>) {
         super.submitList(newList)
@@ -63,6 +77,8 @@ class FeedAdapter(private val picasso: Picasso,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val context = parent.context
+        
         return when (viewTypesByIndex[viewType]) {
             Offset.Item -> {
                 FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view))
@@ -73,16 +89,24 @@ class FeedAdapter(private val picasso: Picasso,
                 return CommentViewHolder(view)
             }
 
-            Offset.Spacer -> SpacerViewHolder(parent.context)
+            Offset.Spacer -> SpacerViewHolder(context)
 
-            Offset.Ad -> AdViewHolder.new(parent.context)
-
-            Offset.Hint -> {
-                UserHintViewHolder(UserHintView(parent.context))
+            Offset.Ad -> {
+                val view = AdViewHolder.new(context)
+                lastSeenAdview = view.adView
+                view
             }
 
-            Offset.User -> {
-                UserInfoViewHolder(UserInfoView(parent.context, userActionListener))
+            Offset.UserHint -> {
+                UserHintViewHolder(UserHintView(context))
+            }
+
+            Offset.UserInfoLoading -> {
+                UserInfoLoadingViewHolder(UserInfoLoadingView(context))
+            }
+
+            Offset.UserInfo -> {
+                UserInfoViewHolder(UserInfoView(context, userActionListener))
             }
         }
     }
@@ -99,6 +123,9 @@ class FeedAdapter(private val picasso: Picasso,
 
             is UserHintViewHolder ->
                 holder.bindTo(entry as Entry.UserHint, userHintClickedListener)
+
+            is UserInfoLoadingViewHolder ->
+                holder.bindTo(entry as Entry.UserLoading)
 
             is SpacerViewHolder ->
                 holder.bindTo(entry as Entry.Spacer)
@@ -130,7 +157,9 @@ class FeedAdapter(private val picasso: Picasso,
 
         data class Ad(val index: Long = 0) : Entry(Offset.Ad.offset + index)
 
-        data class UserHint(val user: Api.Info.User) : Entry(Offset.Hint.offset)
+        data class UserHint(val user: UserAndMark) : Entry(Offset.UserHint.offset)
+
+        data class UserLoading(val user: UserAndMark) : Entry(Offset.UserInfoLoading.offset)
 
         data class Spacer(private val idx: Int,
                           val height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -138,7 +167,7 @@ class FeedAdapter(private val picasso: Picasso,
 
         data class Comment(val message: Api.Message, val currentUsername: String?) : Entry(Offset.Comments.offset + message.id)
 
-        data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.User.offset)
+        data class User(val user: UserInfo, val myself: Boolean) : Entry(Offset.UserInfo.offset)
     }
 
     inner class SpanSizeLookup(private val spanCount: Int) : GridLayoutManager.SpanSizeLookup() {
@@ -151,6 +180,9 @@ class FeedAdapter(private val picasso: Picasso,
         }
     }
 }
+
+data class UserAndMark(val name: String, val mark: Int)
+
 
 /**
  * View holder for one feed item.
@@ -207,7 +239,15 @@ private class UserHintViewHolder(private val hintView: UserHintView)
     : RecyclerView.ViewHolder(hintView) {
 
     fun bindTo(entry: FeedAdapter.Entry.UserHint, onClick: OnUserClickedListener) {
-        hintView.update(entry.user, onClick)
+        hintView.update(entry.user.name, entry.user.mark, onClick)
+    }
+}
+
+private class UserInfoLoadingViewHolder(private val hintView: UserInfoLoadingView)
+    : RecyclerView.ViewHolder(hintView) {
+
+    fun bindTo(entry: FeedAdapter.Entry.UserLoading) {
+        hintView.update(entry.user.name, entry.user.mark)
     }
 }
 
