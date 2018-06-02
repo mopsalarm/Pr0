@@ -34,26 +34,30 @@ object BrowserHelper {
     private val FIREFOX_URI = Uri.parse("https://play.google.com/store/apps/details?id=org.mozilla.klar&hl=en")
 
     private val chromeTabPackageName by memorize<Context, String?> { context ->
-        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+        try {
+            val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
 
-        val pm = context.packageManager
-        val packagesSupportingCustomTabs = ArrayList<String>()
-        for (info in pm.queryIntentActivities(activityIntent, 0)) {
-            val serviceIntent = Intent()
-            serviceIntent.action = CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
-            serviceIntent.`package` = info.activityInfo.packageName
-            if (pm.resolveService(serviceIntent, 0) != null) {
-                packagesSupportingCustomTabs.add(info.activityInfo.packageName)
+            val pm = context.packageManager
+            val packagesSupportingCustomTabs = ArrayList<String>()
+            for (info in pm.queryIntentActivities(activityIntent, 0)) {
+                val serviceIntent = Intent()
+                serviceIntent.action = CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
+                serviceIntent.`package` = info.activityInfo.packageName
+                if (pm.resolveService(serviceIntent, 0) != null) {
+                    packagesSupportingCustomTabs.add(info.activityInfo.packageName)
+                }
             }
-        }
 
-        return@memorize when {
-            packagesSupportingCustomTabs.contains(CHROME_STABLE_PACKAGE) -> CHROME_STABLE_PACKAGE
-            packagesSupportingCustomTabs.contains(CHROME_BETA_PACKAGE) -> CHROME_BETA_PACKAGE
-            packagesSupportingCustomTabs.contains(CHROME_DEV_PACKAGE) -> CHROME_DEV_PACKAGE
-            packagesSupportingCustomTabs.contains(CHROME_LOCAL_PACKAGE) -> CHROME_LOCAL_PACKAGE
-            packagesSupportingCustomTabs.size == 1 -> packagesSupportingCustomTabs[0]
-            else -> null
+            return@memorize when {
+                packagesSupportingCustomTabs.contains(CHROME_STABLE_PACKAGE) -> CHROME_STABLE_PACKAGE
+                packagesSupportingCustomTabs.contains(CHROME_BETA_PACKAGE) -> CHROME_BETA_PACKAGE
+                packagesSupportingCustomTabs.contains(CHROME_DEV_PACKAGE) -> CHROME_DEV_PACKAGE
+                packagesSupportingCustomTabs.contains(CHROME_LOCAL_PACKAGE) -> CHROME_LOCAL_PACKAGE
+                packagesSupportingCustomTabs.size == 1 -> packagesSupportingCustomTabs[0]
+                else -> null
+            }
+        } catch (err: Exception) {
+            null
         }
     }
 
