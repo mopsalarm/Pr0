@@ -303,7 +303,7 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
         videoPlayer.seekTo((fraction * videoPlayer.duration).toInt())
     }
 
-    val afChangeListener = object : AudioManager.OnAudioFocusChangeListener {
+    private val afChangeListener = object : AudioManager.OnAudioFocusChangeListener {
         override fun onAudioFocusChange(focusChange: Int) {
             if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT || focusChange == AUDIOFOCUS_LOSS) {
                 audioManager.abandonAudioFocus(this)
@@ -326,8 +326,6 @@ class VideoMediaView(config: MediaView.Config) : AbstractProgressMediaView(confi
 
         private val seekToCache = LruCache<Long, ExpiringTimestamp>(16)
 
-        private val KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo"
+        private const val KEY_LAST_UNMUTED_VIDEO = "VideoMediaView.lastUnmutedVideo"
     }
-
-
 }

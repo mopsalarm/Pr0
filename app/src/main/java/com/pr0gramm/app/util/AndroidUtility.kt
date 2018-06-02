@@ -32,6 +32,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
 import com.google.common.base.Preconditions.checkArgument
+import com.google.common.base.Throwables
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
@@ -55,7 +56,9 @@ object AndroidUtility {
     private val RE_GENERIC_LINK = Pattern.compile("(?:https?://)?(?:www\\.)?pr0gramm\\.com(/(?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
     private val RE_GENERIC_SHORT_LINK = Pattern.compile("(?<!reddit.com)/((?:new|top|user)/[^\\p{javaWhitespace}]*[a-z0-9])")
 
-    private val cache = LruCache<String, Unit>(6)
+    private val EXCEPTION_BLACKLIST = listOf("MediaCodec", "dequeueInputBuffer", "dequeueOutputBuffer", "releaseOutputBuffer", "native_")
+
+    private val cache = LruCache<Int, Unit>(6)
 
     /**
      * Gets the height of the action bar as definied in the style attribute
@@ -99,8 +102,13 @@ object AndroidUtility {
             return
 
         try {
+            val trace = Throwables.getStackTraceAsString(error)
+            if (EXCEPTION_BLACKLIST.any { it in trace }) {
+                return
+            }
+
             // try to rate limit exceptions.
-            val key = error.toString()
+            val key = System.identityHashCode(error)
             if (cache.get(key) != null) {
                 return
             } else {
@@ -110,7 +118,7 @@ object AndroidUtility {
             // log to crashlytics for fast error reporting.
             Crashlytics.getInstance().core.logException(error)
 
-        } catch (ignored: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             // most certainly crashlytics was not activated.
             logger.warn("Looks like crashlytics was not activated. Here is the error:", error)
 
