@@ -455,6 +455,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return Observable
                     .zip(first, second, ::UserInfo)
                     .doOnNext { info -> inMemoryCacheService.cacheUserInfo(contentTypes, info) }
+                    .observeOnMain()
 
         } else {
             return Observable.empty()
