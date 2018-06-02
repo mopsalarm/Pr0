@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.app.Activity
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -133,11 +134,8 @@ class ContactActivity : BaseAppCompatActivity("ContactActivity") {
     }
 
     private fun onSubmitSuccess() {
-        showDialog(this) {
-            content(R.string.feedback_sent)
-            positive(R.string.okay) { finish() }
-            onCancel { finish() }
-        }
+        setResult(Activity.RESULT_OK)
+        finish()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

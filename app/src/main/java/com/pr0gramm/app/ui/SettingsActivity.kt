@@ -198,11 +198,6 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                     return true
                 }
 
-                "pref_pseudo_feedback" -> {
-                    startActivity(Intent(activity, ContactActivity::class.java))
-                    return true
-                }
-
                 "pref_pseudo_recommend" -> {
                     val text = "Probiere mal die offizielle pr0gramm App aus: https://app.pr0gramm.com/"
                     val intent = Intent(Intent.ACTION_SEND)

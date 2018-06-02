@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -228,6 +229,13 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
 
         if (requestCode == RequestCodes.INTRO_ACTIVITY) {
             AndroidUtility.recreateActivity(this)
+        }
+
+        if (requestCode == RequestCodes.FEEDBACK && resultCode == Activity.RESULT_OK) {
+            Snackbar.make(drawerLayout, R.string.feedback_sent, Snackbar.LENGTH_SHORT)
+                    .configureNewStyle()
+                    .setAction(R.string.okay, { })
+                    .show()
         }
     }
 
@@ -489,7 +497,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                 .lift(BusyDialog.busyDialog<Any>(this))
                 .doOnCompleted {
                     // show a short information.
-                    Snackbar.make(drawerLayout, logout_successful_hint, Snackbar.LENGTH_SHORT)
+                    Snackbar.make(contentContainer, logout_successful_hint, Snackbar.LENGTH_SHORT)
                             .configureNewStyle()
                             .setAction(R.string.okay, { })
                             .show()

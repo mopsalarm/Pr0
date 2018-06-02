@@ -17,6 +17,7 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.with
 import com.pr0gramm.app.R
+import com.pr0gramm.app.RequestCodes
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.orm.Bookmark
@@ -125,7 +126,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
 
         feedbackView.setOnClickListener({
             val intent = Intent(activity, ContactActivity::class.java)
-            startActivity(intent)
+            activity?.startActivityForResult(intent, RequestCodes.FEEDBACK)
         })
 
         benisGraph.setOnClickListener {
