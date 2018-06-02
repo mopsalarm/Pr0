@@ -8,6 +8,7 @@ import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
 import com.google.common.base.Stopwatch
+import com.google.common.base.Throwables
 import com.google.common.net.HttpHeaders
 import com.google.common.util.concurrent.Uninterruptibles
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -372,10 +373,14 @@ private class FallbackDns : Dns {
         } else {
             val fallback = try {
                 fallbackLookup(hostname)
-            } catch (r: RuntimeException) {
-                // sometimes the Lookup class does not initialize correctly, in that case, we'll
-                // just return an empty array here and delegate back to the systems resolver.
-                arrayListOf<InetAddress>()
+            } catch (r: Throwable) {
+                if (Throwables.getCausalChain(r).any { it is NoClassDefFoundError }) {
+                    // sometimes the Lookup class does not initialize correctly, in that case, we'll
+                    // just return an empty array here and delegate back to the systems resolver.
+                    arrayListOf<InetAddress>()
+                } else {
+                    throw r
+                }
             }
 
             debug {

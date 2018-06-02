@@ -107,6 +107,10 @@ object AndroidUtility {
                 return
             }
 
+            val errorStr = error.toString()
+            if ("connect timed out" in errorStr)
+                return
+
             // try to rate limit exceptions.
             val key = System.identityHashCode(error)
             if (cache.get(key) != null) {
