@@ -16,6 +16,7 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.support.design.widget.dismisses
+import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -546,7 +547,9 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             this.state = state
         }
 
-        if (feed.created.isBefore(Instant.now().minus(Duration.standardSeconds(1)))) {
+        // we might want to check for new items on reload.
+        val checkForNewItemAge = Duration.standardSeconds(if (BuildConfig.DEBUG) 5 else 120)
+        if (feed.created.isBefore(Instant.now().minus(checkForNewItemAge))) {
             checkForNewItems()
         }
 
