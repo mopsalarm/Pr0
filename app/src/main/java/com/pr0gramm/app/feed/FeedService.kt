@@ -58,7 +58,7 @@ class FeedServiceImpl(private val api: Api,
         // get extended tag query
         val q = SearchQuery(feedFilter.tags)
 
-        val result: Observable<Api.Feed> = when (feedType) {
+        return when (feedType) {
             FeedType.RANDOM -> extraCategories.api
                     .random(q.tags, flags)
                     .map { feed -> feed.copy(_items = feed.items.shuffled()) }
@@ -94,8 +94,6 @@ class FeedServiceImpl(private val api: Api,
                 }
             }
         }
-
-        return result
     }
 
     override fun post(id: Long): Observable<Api.Post> {

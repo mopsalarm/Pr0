@@ -5,7 +5,8 @@
 
     <application
         android:name="com.pr0gramm.app.DebugApplicationClass"
-        tools:replace="android:name"/>
+        android:label="pr0gramm dev"
+        tools:replace="android:name,android:label"/>
 
     <meta-data android:name="firebase_performance_logcat_enabled" android:value="true" />
 </manifest>

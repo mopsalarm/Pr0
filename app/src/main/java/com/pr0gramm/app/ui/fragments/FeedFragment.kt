@@ -2,7 +2,9 @@ package com.pr0gramm.app.ui.fragments
 
 import android.app.Dialog
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -13,6 +15,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
+import com.jakewharton.rxbinding.support.design.widget.dismisses
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -36,6 +39,9 @@ import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
+import com.trello.rxlifecycle.android.FragmentEvent
+import org.joda.time.Duration
+import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
@@ -175,6 +181,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
                         state.ownUsername != null && state.ownUsername.equals(filter.likes
                                 ?: filter.username, ignoreCase = true))
+
+                // always show at least one ad banner - e.g. during load
+                if (state.adsVisible && state.feedItems.isEmpty()) {
+                    entries += FeedAdapter.Entry.Ad(0)
+                }
 
                 for ((idx, item) in state.feedItems.withIndex()) {
                     val id = item.id
@@ -535,6 +546,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             this.state = state
         }
 
+        if (feed.created.isBefore(Instant.now().minus(Duration.standardSeconds(1)))) {
+            checkForNewItems()
+        }
+
         // Observe all preloaded items to get them into the cache and to show the
         // correct state in the ui once they are loaded
         preloadManager.all()
@@ -542,6 +557,53 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .compose(bindToLifecycleAsync())
                 .ignoreError()
                 .subscribe { state = state.copy(preloadedCount = it.size) }
+    }
+
+    private fun checkForNewItems() {
+        if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM) {
+            logger.info("Not checking for new items as we are not at the beginning of the feed")
+            return
+        }
+
+        (recyclerView.layoutManager as? LinearLayoutManager?)?.let { manager ->
+            if (manager.findFirstVisibleItemPosition() > 32) {
+                logger.info("Not checking for new items as we are not scrolled to the top")
+                return
+            }
+        }
+
+        logger.info("Checking for new items in current feed")
+
+        val query = FeedService.FeedQuery(feed.filter, feed.contentType)
+        feedService.load(query)
+                .map { response ->
+                    // count the number of new ids in the loaded feed items
+                    val previousIds = feed.mapTo(mutableSetOf()) { it.id }
+                    response.items.count { it.id !in previousIds }
+                }
+                .onErrorResumeEmpty()
+                .compose(bindToLifecycleAsync())
+                .filter { it > 0 && feed.filter == query.filter }
+                .subscribe { itemCount -> newItemsSnackbar(itemCount) }
+    }
+
+    private fun newItemsSnackbar(itemCount: Int) {
+        val text = when {
+            itemCount == 1 -> getString(R.string.hint_new_items_one)
+            itemCount <= 16 -> getString(R.string.hint_new_items_some, itemCount)
+            else -> getString(R.string.hint_new_items_many)
+        }
+
+        val snackbar = Snackbar.make(view!!, text, Snackbar.LENGTH_LONG).apply {
+            configureNewStyle()
+            setAction(R.string.hint_refresh_load) { refreshFeed() }
+            show()
+        }
+
+        // dismiss once the fragment stops.
+        lifecycle().filter { it == FragmentEvent.STOP }
+                .takeUntil(snackbar.dismisses())
+                .subscribe { snackbar.dismiss() }
     }
 
     private fun recheckContentTypes() {
@@ -1249,7 +1311,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 .subscribeOn(BackgroundScheduler.instance())
                 .doAfterTerminate { subject.onCompleted() }
                 .subscribe({ items ->
-                    if (items.items.size > 0) {
+                    if (items.items.isNotEmpty()) {
                         val ids = items.items.map { it.id }
                         cacheService.cacheReposts(ids)
                         subject.onNext(ids)

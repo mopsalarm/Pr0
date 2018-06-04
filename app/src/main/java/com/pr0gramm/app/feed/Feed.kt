@@ -6,6 +6,7 @@ import com.pr0gramm.app.parcel.parcelToByteArray
 import com.pr0gramm.app.parcel.readTyped
 import com.pr0gramm.app.parcel.writeTyped
 import com.pr0gramm.app.util.toInt
+import org.joda.time.Instant
 
 /**
  * Represents a feed.
@@ -19,8 +20,10 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
 
     private val itemComparator = compareByDescending(this::feedTypeId)
 
-    val feedType: FeedType get() = filter.feedType
+    var created = Instant.now()
+        private set
 
+    val feedType: FeedType get() = filter.feedType
     val oldest: FeedItem? get() = items.maxWith(itemComparator)
     val newest: FeedItem? get() = items.minWith(itemComparator)
 
@@ -129,6 +132,7 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             writeTyped(filter)
             writeInt(ContentType.combine(contentType))
             writeInt((isAtStart && start == 0).toInt())
+            writeLong(created.millis)
             writeTypedList(items)
         }
     }
@@ -138,9 +142,12 @@ data class Feed(val filter: FeedFilter = FeedFilter(),
             val feedFilter = parcel.readTyped(FeedFilter.CREATOR)
             val contentType = ContentType.decompose(parcel.readInt())
             val atStart = parcel.readInt() != 0
+            val created = Instant(parcel.readLong())
             val items = parcel.createTypedArrayList(FeedItem.CREATOR)
 
-            Feed(feedFilter, contentType, items, isAtStart = atStart)
+            Feed(feedFilter, contentType, items, isAtStart = atStart).apply {
+                this.created = created
+            }
         }
     }
 }

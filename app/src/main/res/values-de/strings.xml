@@ -510,4 +510,8 @@
     <string name="upload_state_uploading">Hochladen…</string>
     <string name="upload_state_pending">#%d in der Warteschlange</string>
     <string name="upload_state_uploaded">Poste…</string>
+    <string name="hint_new_items_many">Neue Uploads gefunden</string>
+    <string name="hint_new_items_some">%d neue Uploads gefunden</string>
+    <string name="hint_new_items_one">Einen neuen Upload gefunden</string>
+    <string name="hint_refresh_load">Laden</string>
 </resources>

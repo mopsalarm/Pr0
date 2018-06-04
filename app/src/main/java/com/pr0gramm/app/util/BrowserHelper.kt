@@ -128,7 +128,7 @@ object BrowserHelper {
         val packageName = chromeTabPackageName(context)
         if (packageName == null) {
             Track.openBrowser("External")
-            open { context.applicationContext.startActivity(Intent(Intent.ACTION_VIEW, it)) }
+            open { context.startActivity(Intent(Intent.ACTION_VIEW, it)) }
             return
         }
 
@@ -141,7 +141,7 @@ object BrowserHelper {
 
         customTabsIntent.intent.`package` = packageName
 
-        open { customTabsIntent.launchUrl(context.applicationContext, it) }
+        open { customTabsIntent.launchUrl(context, it) }
         Track.openBrowser("CustomTabs")
     }
 
