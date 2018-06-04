@@ -374,7 +374,7 @@ private class FallbackDns : Dns {
             val fallback = try {
                 fallbackLookup(hostname)
             } catch (r: Throwable) {
-                if (Throwables.getCausalChain(r).any { it is NoClassDefFoundError }) {
+                if (Throwables.getCausalChain(r).any { it is Error }) {
                     // sometimes the Lookup class does not initialize correctly, in that case, we'll
                     // just return an empty array here and delegate back to the systems resolver.
                     arrayListOf<InetAddress>()
