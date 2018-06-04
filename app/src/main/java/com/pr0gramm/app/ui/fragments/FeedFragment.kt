@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.view.animation.DecelerateInterpolator
@@ -84,6 +83,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     private var bookmarkable: Boolean = false
     private var autoScrollOnLoad: Long? = null
     private var autoOpenOnLoad: ItemWithComment? = null
+
+    private var lastCheckForNewItemsTime = Instant(0)
 
     private lateinit var loader: FeedManager
 
@@ -547,9 +548,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             this.state = state
         }
 
-        // we might want to check for new items on reload.
-        val checkForNewItemAge = Duration.standardSeconds(if (BuildConfig.DEBUG) 5 else 120)
-        if (feed.created.isBefore(Instant.now().minus(checkForNewItemAge))) {
+        // we might want to check for new items on reload, but only once every two minutes.
+        val checkForNewItemInterval = Duration.standardSeconds(if (BuildConfig.DEBUG) 5 else 120)
+        val threshold = Instant.now().minus(checkForNewItemInterval)
+        if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
+            lastCheckForNewItemsTime = Instant.now()
             checkForNewItems()
         }
 
@@ -566,13 +569,6 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM) {
             logger.info("Not checking for new items as we are not at the beginning of the feed")
             return
-        }
-
-        (recyclerView.layoutManager as? LinearLayoutManager?)?.let { manager ->
-            if (manager.findFirstVisibleItemPosition() > 32) {
-                logger.info("Not checking for new items as we are not scrolled to the top")
-                return
-            }
         }
 
         logger.info("Checking for new items in current feed")
