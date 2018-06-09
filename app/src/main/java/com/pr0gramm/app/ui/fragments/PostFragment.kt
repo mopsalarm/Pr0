@@ -90,7 +90,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private var fullscreenAnimator: ObjectAnimator? = null
 
     private var tags: List<Api.Tag> = listOf()
-    private var comments: List<Api.Comment> = listOf()
+
+    private val comments = BehaviorSubject.create(listOf<Api.Comment>())
+
     private var rewindOnLoad: Boolean = false
     private var adminMode: Boolean = false
 
@@ -136,7 +138,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
             val comments = Parceler.get(CommentListParceler::class.java, savedInstanceState, "PostFragment.comments")
             if (comments != null) {
-                this.comments = comments
+                this.comments.onNext(comments)
             }
         }
 
@@ -330,11 +332,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         if (tags.isNotEmpty())
             displayTags(tags)
 
-        if (comments.isNotEmpty())
-            displayComments(comments, sync = true)
+        this.comments.value?.let { comments ->
+            if (this.comments.value.isNotEmpty()) {
+                displayComments(comments, sync = true)
+            }
 
-        if (tags.isEmpty() && comments.isEmpty()) {
-            loadPostDetails()
+            if (tags.isEmpty() && comments.isEmpty()) {
+                loadPostDetails()
+            }
         }
 
         // show the repost badge if this is a repost
@@ -360,8 +365,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             outState.putParcelable("PostFragment.tags", TagListParceler(tags))
         }
 
-        if (comments.isNotEmpty()) {
-            outState.putParcelable("PostFragment.comments", CommentListParceler(comments))
+        this.comments.value?.let { comments ->
+            if (comments.isNotEmpty()) {
+                outState.putParcelable("PostFragment.comments", CommentListParceler(comments))
+            }
         }
     }
 
@@ -642,6 +649,20 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     override fun onResume() {
         super.onResume()
+
+        // look for votes for the comments
+        commentVoteSubscription?.unsubscribe()
+
+        commentVoteSubscription = comments
+                .switchMap {
+                    voteService
+                            .getCommentVotes(it)
+                            .subscribeOnBackground()
+                            .onErrorResumeEmpty()
+                }
+                .observeOnMain()
+                .compose(bindToLifecycle())
+                .subscribe { votes -> commentsAdapter.updateVotes(votes) }
 
         // track that the user visited this post.
         if (configService.config().trackItemView) {
@@ -953,20 +974,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun displayComments(comments: List<Api.Comment>, sync: Boolean = false,
                                 extraChanges: (CommentsAdapter.State) -> CommentsAdapter.State = { it }) {
 
-        this.comments = comments.toList()
+        this.comments.onNext(comments.toList())
 
-        // show now
-        logger.info("Sending {} comments to adapter", this.comments.size)
-        commentsAdapter.updateComments(this.comments, sync) { state ->
+        // show comments now
+        logger.info("Sending {} comments to adapter", comments.size)
+        commentsAdapter.updateComments(comments, sync) { state ->
             extraChanges(state.copy(op = feedItem.user, self = userService.name))
         }
-
-        // look for votes for the comments
-        commentVoteSubscription?.unsubscribe()
-        commentVoteSubscription = voteService.getCommentVotes(this.comments)
-                .onErrorResumeEmpty()
-                .compose(bindToLifecycleAsync())
-                .subscribe { votes -> commentsAdapter.updateVotes(votes) }
     }
 
     /**

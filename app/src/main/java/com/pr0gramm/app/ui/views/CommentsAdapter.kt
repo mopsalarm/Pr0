@@ -187,7 +187,7 @@ class CommentsAdapter(
             }
 
             fav.visible = true
-            fav.setOnClickListener {                doVote(entry, newVote)            }
+            fav.setOnClickListener { doVote(entry, newVote) }
         }
 
         if (entry.hiddenCount != null) {
