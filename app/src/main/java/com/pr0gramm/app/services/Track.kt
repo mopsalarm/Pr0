@@ -199,4 +199,10 @@ object Track {
     fun statistics() {
         settingsTracker.track()
     }
+
+    fun seenPostsSize(size: Long) {
+        send("seen_posts_size") {
+            putLong("size", size)
+        }
+    }
 }

@@ -2,15 +2,20 @@ package com.pr0gramm.app.services
 
 import android.content.Context
 import com.google.common.primitives.UnsignedBytes
-import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.ignoreException
+import com.pr0gramm.app.util.subscribeOnBackground
 import org.slf4j.LoggerFactory
+import rx.Observable
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import java.util.zip.DeflaterOutputStream
 
 
 /**
@@ -30,10 +35,13 @@ class SeenService(context: Context) {
                 logger.warn("Could not load the seen-Cache", error)
             }
         }
-    }
 
-    fun isSeen(item: FeedItem): Boolean {
-        return isSeen(item.id)
+        Observable.just(1).delay(5, TimeUnit.SECONDS).subscribeOnBackground().subscribe {
+            ignoreException {
+                val size = export().size.toLong()
+                Track.seenPostsSize(size)
+            }
+        }
     }
 
     fun isSeen(id: Long): Boolean {
@@ -74,9 +82,24 @@ class SeenService(context: Context) {
 
         synchronized(lock) {
             logger.info("Removing all the items")
-            for (idx in 0..buffer.limit() - 1) {
+            for (idx in 0 until buffer.limit()) {
                 buffer.put(idx, 0.toByte())
             }
+        }
+    }
+
+    fun export(): ByteArray {
+        val buffer = this.buffer.get() ?: return byteArrayOf()
+
+        return synchronized(lock) {
+            val bo = ByteArrayOutputStream()
+            DeflaterOutputStream(bo).use { out ->
+                for (idx in 0 until buffer.limit()) {
+                    out.write(buffer.get(idx).toInt())
+                }
+            }
+
+            bo.toByteArray()
         }
     }
 
@@ -90,7 +113,7 @@ class SeenService(context: Context) {
         // space for up to a few million posts
         val size = (6000000 / 8).toLong()
 
-        logger.info("Mapping cache: " + file)
+        logger.info("Mapping cache: {}", file)
         RandomAccessFile(file, "rw").use { raf ->
             raf.setLength(size)
             return raf.channel.map(FileChannel.MapMode.READ_WRITE, 0, size)
