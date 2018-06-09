@@ -50,6 +50,7 @@ import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.DeleteCommentDialog
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.showErrorString
 import com.pr0gramm.app.ui.dialogs.NewTagDialogFragment
+import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.ui.views.CommentPostLine
 import com.pr0gramm.app.ui.views.CommentsAdapter
 import com.pr0gramm.app.ui.views.InfoLineView
@@ -833,7 +834,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        palette.compose(bindToLifecycleAsync()).subscribe {
+        palette.ignoreError().compose(bindToLifecycleAsync()).subscribe {
             val color = it.getDarkMutedColor(0)
             playerContainer.setBackgroundColor(AndroidUtility.darken(color, 0.5f))
         }

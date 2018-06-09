@@ -11,7 +11,7 @@ import com.github.salomonbrys.kodein.android.autoAndroidModule
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.lazy
 import com.google.android.gms.ads.MobileAds
-import com.google.firebase.perf.metrics.AddTrace
+import com.google.firebase.perf.FirebasePerformance
 import com.pr0gramm.app.services.ThemeHelper
 import com.pr0gramm.app.services.Track
 import com.pr0gramm.app.sync.SyncJob
@@ -22,6 +22,7 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDial
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
 import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
+import com.pr0gramm.app.util.edit
 import com.pr0gramm.app.util.ignoreException
 import io.fabric.sdk.android.Fabric
 import net.danlew.android.joda.JodaTimeAndroid
@@ -39,9 +40,15 @@ import java.util.logging.LogManager
 open class ApplicationClass : Application(), KodeinAware {
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
-    @AddTrace(name = "app_on_create")
     override fun onCreate() {
         super.onCreate()
+
+        try {
+            FirebasePerformance.getInstance()
+        } catch (err: Exception) {
+            val sp = getSharedPreferences("FirebasePerfSharedPrefs", 0)
+            sp.edit { putBoolean("isEnabled", false) }
+        }
 
         Stats.init(buildVersionCode())
         JodaTimeAndroid.init(this)
