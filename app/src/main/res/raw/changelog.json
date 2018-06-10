@@ -1,5 +1,22 @@
 [
   {
+    "version": 144,
+    "changes": [
+      {
+        "type": "Fix",
+        "change": "Suchen, die zufällig einem Nutzernamen entsprechen, sind wieder als Lesezeichen abspeicherbar."
+      },
+      {
+        "type": "Fix",
+        "change": "Kommentare eines Users werden in dessen Infoseite nicht mehr für unangemeldete Benutzer angezeigt."
+      },
+      {
+        "type": "Fix",
+        "change": "App startet wieder, wenn keine Google Services installiert sind."
+      }
+    ]
+  },
+  {
     "version": 143,
     "changes": [
       {

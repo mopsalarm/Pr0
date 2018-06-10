@@ -429,9 +429,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         override fun onShowCommentsClicked() {
-            state = state.copy(userInfoCommentsOpen = true)
+            if (userService.isAuthorized) {
+                state = state.copy(userInfoCommentsOpen = true)
+            }
         }
-
     }
 
     private fun openUserUploads(name: String) {
@@ -726,15 +727,17 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             follow.isVisible = false
             unfollow.isVisible = false
 
-            activeUsername?.let { activeUsername ->
-                if (userService.isPremiumUser) {
-                    val following = followService.isFollowing(activeUsername)
-                    follow.isVisible = !following
-                    unfollow.isVisible = following
-                }
+            if (filter.username != null) {
+                activeUsername?.let { activeUsername ->
+                    if (userService.isPremiumUser) {
+                        val following = followService.isFollowing(activeUsername)
+                        follow.isVisible = !following
+                        unfollow.isVisible = following
+                    }
 
-                // never bookmark a user
-                bookmark.isVisible = false
+                    // never bookmark a user
+                    bookmark.isVisible = false
+                }
             }
         }
     }
