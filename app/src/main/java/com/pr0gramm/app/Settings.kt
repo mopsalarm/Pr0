@@ -20,7 +20,7 @@ import java.util.*
  */
 class Settings(private val app: Application) : SharedPreferences.OnSharedPreferenceChangeListener {
     private val preferenceChanged = PublishSubject.create<String>()
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(app);
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(app)
 
     init {
         this.preferences.registerOnSharedPreferenceChangeListener(this)
@@ -208,9 +208,12 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val allowCasting: Boolean
         get() = preferences.getBoolean("pref_allow_casting", true)
 
+    val backup: Boolean
+        get() = preferences.getBoolean("pref_sync_backup", true)
+
     fun resetContentTypeSettings() {
         // reset settings.
-        preferences.edit() {
+        preferences.edit {
             putBoolean("pref_feed_type_sfw", true)
             putBoolean("pref_feed_type_nsfw", false)
             putBoolean("pref_feed_type_nsfl", false)

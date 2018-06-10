@@ -420,19 +420,17 @@
 
     </PreferenceCategory>
 
-    <!--
     <PreferenceCategory
         android:key="pref_privacy"
         android:persistent="false"
         android:title="@string/pref_privacy">
 
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_use_https"
-            android:summary="@string/pref_use_https_summary"
-            android:title="@string/pref_use_https_title"/>
+            android:defaultValue="true"
+            android:key="pref_sync_backup"
+            android:summary="@string/pref_sync_backup_summary"
+            android:title="@string/perf_sync_backup_title"/>
 
     </PreferenceCategory>
-    -->
 
 </PreferenceScreen>

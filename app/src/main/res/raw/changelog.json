@@ -17,6 +17,10 @@
       {
         "type": "Fix",
         "change": "App startet wieder, wenn keine Google Services installiert sind."
+      },
+      {
+        "type": "Neu",
+        "change": "Als gesehen markierte Posts werden jetzt einmal pro Stunde mit anderen Geräten synchronisiert."
       }
     ]
   },

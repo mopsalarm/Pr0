@@ -2,6 +2,7 @@ package com.pr0gramm.app.sync
 
 import com.google.common.base.Stopwatch.createStarted
 import com.google.common.base.Throwables
+import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
@@ -20,6 +21,7 @@ class SyncService(private val userService: UserService,
                   private val kvService: KVService) {
 
     private val logger = LoggerFactory.getLogger("SyncService")
+    private val settings = Settings.get()
 
     fun syncStatistics() {
         Stats.get().incrementCounter("jobs.sync-stats")
@@ -49,7 +51,7 @@ class SyncService(private val userService: UserService,
                 userService.updateCachedUserInfo()
             }
 
-            if (singleShotService.firstTimeInHour("sync-seen")) {
+            if (settings.backup && singleShotService.firstTimeInHour("sync-seen")) {
                 userService.loginState().take(1).subscribe { state ->
                     if (state.uniqueToken != null) {
                         syncSeenServiceAsync(state.uniqueToken)
