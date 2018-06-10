@@ -19,10 +19,10 @@ object Stats {
 
     @JvmStatic
     fun get(): StatsDClient {
-        if (CLIENT.isDone) {
-            return Futures.getUnchecked(CLIENT)
+        return if (CLIENT.isDone) {
+            Futures.getUnchecked(CLIENT)
         } else {
-            return EMPTY_CLIENT
+            EMPTY_CLIENT
         }
     }
 

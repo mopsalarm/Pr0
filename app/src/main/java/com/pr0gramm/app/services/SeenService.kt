@@ -3,19 +3,17 @@ package com.pr0gramm.app.services
 import android.content.Context
 import com.google.common.primitives.UnsignedBytes
 import com.pr0gramm.app.util.doInBackground
-import com.pr0gramm.app.util.ignoreException
-import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.util.time
 import org.slf4j.LoggerFactory
-import rx.Observable
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.IOException
-import java.io.RandomAccessFile
+import java.io.*
 import java.nio.ByteBuffer
+import java.nio.channels.Channels
 import java.nio.channels.FileChannel
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import java.util.zip.Deflater
+import java.util.zip.DeflaterInputStream
 import java.util.zip.DeflaterOutputStream
+import kotlin.experimental.or
 
 
 /**
@@ -26,6 +24,10 @@ class SeenService(context: Context) {
     private val lock = Any()
     private val buffer = AtomicReference<ByteBuffer>()
 
+    @Volatile
+    var dirty: Boolean = true
+        private set
+
     init {
         doInBackground {
             try {
@@ -33,13 +35,6 @@ class SeenService(context: Context) {
                 buffer.set(mapByteBuffer(file))
             } catch (error: IOException) {
                 logger.warn("Could not load the seen-Cache", error)
-            }
-        }
-
-        Observable.just(1).delay(5, TimeUnit.SECONDS).subscribeOnBackground().subscribe {
-            ignoreException {
-                val size = export().size.toLong()
-                Track.seenPostsSize(size)
             }
         }
     }
@@ -68,9 +63,13 @@ class SeenService(context: Context) {
 
         // only one thread can write the buffer at a time.
         synchronized(lock) {
-            var value = UnsignedBytes.toInt(buffer.get(idx))
-            value = value or (1 shl (7 - id.toInt() % 8))
-            buffer.put(idx, UnsignedBytes.saturatedCast(value.toLong()))
+            val value = UnsignedBytes.toInt(buffer.get(idx))
+            val updatedValue = value or (1 shl (7 - id.toInt() % 8))
+            buffer.put(idx, UnsignedBytes.saturatedCast(updatedValue.toLong()))
+
+            if (value != updatedValue) {
+                dirty = true
+            }
         }
     }
 
@@ -85,21 +84,64 @@ class SeenService(context: Context) {
             for (idx in 0 until buffer.limit()) {
                 buffer.put(idx, 0.toByte())
             }
+
+            dirty = true
         }
+    }
+
+    // merges the other value into this one
+    fun merge(other: ByteArray) {
+        val buffer = this.buffer.get() ?: return
+
+        var updated = 0
+
+        synchronized(lock) {
+            logger.time("Merging values") {
+                ByteArrayInputStream(other).use { bi ->
+                    DeflaterInputStream(bi).use { input ->
+                        for (idx in 0 until buffer.limit()) {
+                            val otherValue = input.read()
+                            if (otherValue == -1)
+                                break
+
+                            // merge them by performing a bitwise 'or'
+                            val previousValue = buffer.get(idx)
+                            val mergedValue = previousValue or UnsignedBytes.saturatedCast(otherValue.toLong())
+                            if (previousValue != mergedValue) {
+                                updated++
+                                buffer.put(idx, mergedValue)
+                            }
+                        }
+                    }
+                }
+            }
+
+            dirty = updated > 0
+        }
+
+        logger.info("Updated {} bytes in seen cache", updated)
     }
 
     fun export(): ByteArray {
         val buffer = this.buffer.get() ?: return byteArrayOf()
 
         return synchronized(lock) {
-            val bo = ByteArrayOutputStream()
-            DeflaterOutputStream(bo).use { out ->
-                for (idx in 0 until buffer.limit()) {
-                    out.write(buffer.get(idx).toInt())
+            dirty = false
+
+            logger.time("Export values") {
+                ByteArrayOutputStream().use { bo ->
+                    Deflater(Deflater.BEST_COMPRESSION).let { def ->
+                        DeflaterOutputStream(bo, def).use { out ->
+                            // write the buffer to the stream
+                            Channels.newChannel(out).write(buffer.asReadOnlyBuffer())
+                        }
+
+                        def.end()
+                    }
+
+                    bo.toByteArray()
                 }
             }
-
-            bo.toByteArray()
         }
     }
 

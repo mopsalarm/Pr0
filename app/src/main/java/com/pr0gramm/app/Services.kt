@@ -4,7 +4,6 @@ import android.app.Application
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidActivityScope
 import com.pr0gramm.app.api.categories.ExtraCategories
-import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedService
 import com.pr0gramm.app.feed.FeedServiceImpl
 import com.pr0gramm.app.services.*
@@ -17,7 +16,6 @@ import com.pr0gramm.app.services.preloading.PreloadManager
 import com.pr0gramm.app.sync.SyncService
 import com.pr0gramm.app.ui.AdService
 import com.pr0gramm.app.ui.FancyExifThumbnailGenerator
-import com.squareup.picasso.Picasso
 
 fun servicesModule(app: Application) = Kodein.Module {
     bind<SeenService>() with instance(SeenService(app))
@@ -47,13 +45,12 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<GifToVideoService>() with singleton { MyGifToVideoService(instance()) }
     bind<InfoMessageService>() with singleton { InfoMessageService(instance()) }
     bind<InviteService>() with singleton { InviteService(instance()) }
-    bind<StatisticsService>() with singleton { StatisticsService(instance<FeedService>()) }
+    bind<StatisticsService>() with singleton { StatisticsService(instance()) }
+
+    bind<KVService>() with singleton { KVService(instance()) }
 
     bind<SyncService>() with singleton {
-        SyncService(
-                instance<UserService>(),
-                instance<NotificationService>(),
-                instance<SingleShotService>())
+        SyncService(instance(), instance(), instance(), instance(), instance())
     }
 
     bind<SettingsTrackerService>() with singleton { SettingsTrackerService(instance()) }
@@ -64,13 +61,7 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<StalkService>() with singleton { StalkService(instance()) }
 
     bind<UploadService>() with singleton {
-        UploadService(
-                instance<Api>(),
-                instance<UserService>(),
-                instance<Picasso>(),
-                instance<ConfigService>(),
-                instance<VoteService>(),
-                instance<InMemoryCacheService>()
+        UploadService(instance(), instance(), instance(), instance(), instance(), instance()
         )
     }
 
@@ -79,8 +70,6 @@ fun servicesModule(app: Application) = Kodein.Module {
     bind<Config>() with provider { instance<ConfigService>().config() }
 
     bind<NavigationProvider>() with scopedSingleton(androidActivityScope) { activity ->
-        NavigationProvider(
-                activity, instance(), instance(), instance(), instance(), instance(),
-                instance<Picasso>())
+        NavigationProvider(activity, instance(), instance(), instance(), instance(), instance(), instance())
     }
 }

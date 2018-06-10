@@ -1,5 +1,6 @@
 package com.pr0gramm.app.api.pr0gramm
 
+import com.google.common.io.BaseEncoding
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
@@ -27,6 +28,24 @@ internal object InstantAdapter : JsonAdapter<Instant>() {
             writer.value(millis / 1000)
         } else {
             writer.nullValue()
+        }
+    }
+}
+
+internal object Base64ByteArrayAdapter : JsonAdapter<ByteArray>() {
+    override fun fromJson(reader: JsonReader): ByteArray? {
+        if (reader.peek() == JsonReader.Token.NULL) {
+            return null
+        } else {
+            return BaseEncoding.base64().decode(reader.nextString())
+        }
+    }
+
+    override fun toJson(writer: JsonWriter, value: ByteArray?) {
+        if (value == null) {
+            writer.nullValue()
+        } else {
+            writer.value(BaseEncoding.base64().encode(value))
         }
     }
 }

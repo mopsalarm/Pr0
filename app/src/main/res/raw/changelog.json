@@ -4,6 +4,10 @@
     "changes": [
       {
         "type": "Fix",
+        "change": "Kommentare konnten teilweise nicht richtig geblusst oder favorisiert werden."
+      },
+      {
+        "type": "Fix",
         "change": "Suchen, die zufällig einem Nutzernamen entsprechen, sind wieder als Lesezeichen abspeicherbar."
       },
       {
