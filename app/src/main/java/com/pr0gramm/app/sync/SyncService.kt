@@ -6,10 +6,12 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.subscribeOnBackground
+import com.pr0gramm.app.util.*
 import org.slf4j.LoggerFactory
+import rx.Observable
 import java.io.IOException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
 
 
 /**
@@ -22,6 +24,17 @@ class SyncService(private val userService: UserService,
 
     private val logger = LoggerFactory.getLogger("SyncService")
     private val settings = Settings.get()
+
+    init {
+
+        // do a sync everytime the user token changes
+        userService.loginState()
+                .mapNotNull { state -> state.uniqueToken }
+                .doOnNext { logger.info("Unique token is now {}", it) }
+                .distinctUntilChanged()
+                .delaySubscription(1, TimeUnit.SECONDS)
+                .subscribe { syncSeenServiceAsync(it) }
+    }
 
     fun syncStatistics() {
         Stats.get().incrementCounter("jobs.sync-stats")
@@ -77,9 +90,32 @@ class SyncService(private val userService: UserService,
         }
     }
 
-    private fun syncSeenServiceAsync(token: String) {
+    private val seenSyncLock = ReentrantLock()
+
+    private fun syncSeenServiceAsync(token: String) = seenSyncLock.withTryLock {
+        if (!settings.backup) {
+            return
+        }
+
+        logger.info("Starting sync of seen bits.")
+
+        // the first implementation of this feature had a bug where it would deflate
+        // the stream again and by this wrongly set some of the lower random bytes.
+        //
+        // we will now just clear the lower bits
+        //
+        val fixObservable = if (singleShotService.isFirstTime("fix.clear-lower-seen-bits-2")) {
+            kvService.get(token, "seen")
+                    .ofType<KVService.GetResult.Value>()
+                    .doOnNext { seenService.clearUpTo(it.value.size * 150 / 100) }
+                    .ignoreError()
+
+        } else {
+            Observable.empty()
+        }
+
         val updateObservable = kvService
-                .update(token, "seen") { previous ->
+                .update(token, "seen-bits") { previous ->
                     if (previous != null) {
                         // merge the previous state into the current seen service
                         seenService.merge(previous)
@@ -93,7 +129,8 @@ class SyncService(private val userService: UserService,
                     }
                 }
 
-        updateObservable
+        fixObservable.ofType<KVService.PutResult.Version>()
+                .concatWith(updateObservable)
                 .doOnError { err ->
                     Stats.get().incrementCounter("seen.sync.error")
 

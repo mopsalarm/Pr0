@@ -128,7 +128,7 @@ class UserService(private val api: Api,
 
                     .subscribe(
                             { loginState -> updateLoginState({ loginState }) },
-                            { error -> logger.warn("Could not restore login state: " + error) })
+                            { error -> logger.warn("Could not restore login state:", error) })
 
         }
     }

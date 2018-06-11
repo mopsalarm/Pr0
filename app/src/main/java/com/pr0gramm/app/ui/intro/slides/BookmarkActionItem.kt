@@ -13,10 +13,10 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
         return bookmarkService.get()
                 .take(1)
                 .flatMapIterable { it }
-                .exists { it.asFeedFilter() == filter }
                 .onErrorResumeEmpty()
+                .exists { it.asFeedFilter() == filter }
                 .toBlocking()
-                .first()
+                .single()
     }
 
     override fun activate() {
@@ -28,7 +28,6 @@ internal class BookmarkActionItem(private val bookmarkService: BookmarkService, 
                 .take(1)
                 .flatMapIterable { it }
                 .filter { it.asFeedFilter() == filter }
-                .onErrorResumeEmpty()
                 .flatMapCompletable { bookmark -> bookmarkService.delete(bookmark).onErrorComplete() }
                 .subscribe()
     }

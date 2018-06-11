@@ -41,6 +41,7 @@ import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.Lock
 import java.util.regex.Pattern
 import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
@@ -58,7 +59,7 @@ fun <T> Observable<T>.subscribeOnBackground(): Observable<T> = subscribeOn(Backg
 
 fun <T> Observable<T>.observeOnMain(): Observable<T> = observeOn(AndroidSchedulers.mainThread())
 
-inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1042, fn: (ByteArray, Int) -> Unit): Unit {
+inline fun readStream(stream: InputStream, bufferSize: Int = 16 * 1024, fn: (ByteArray, Int) -> Unit): Unit {
     val buffer = ByteArray(bufferSize)
 
     while (true) {
@@ -388,4 +389,19 @@ fun View.updatePadding(
         right: Int = paddingRight, bottom: Int = paddingBottom) {
 
     setPadding(left, top, right, bottom)
+}
+
+fun <T : Any?, R : Any> Observable<T>.mapNotNull(fn: (T) -> R?): Observable<R> {
+    @Suppress("UNCHECKED_CAST")
+    return map { fn(it) }.filter { it != null } as Observable<R>
+}
+
+inline fun Lock.withTryLock(fn: () -> Unit) {
+    if (tryLock()) {
+        try {
+            fn()
+        } finally {
+            unlock()
+        }
+    }
 }

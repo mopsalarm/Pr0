@@ -3,16 +3,20 @@ package com.pr0gramm.app.services
 import android.content.Context
 import com.google.common.primitives.UnsignedBytes
 import com.pr0gramm.app.util.doInBackground
+import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.time
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.util.concurrent.atomic.AtomicReference
 import java.util.zip.Deflater
-import java.util.zip.DeflaterInputStream
 import java.util.zip.DeflaterOutputStream
+import java.util.zip.InflaterInputStream
 import kotlin.experimental.or
 
 
@@ -33,7 +37,7 @@ class SeenService(context: Context) {
             try {
                 val file = File(context.filesDir, "seen-posts.bits")
                 buffer.set(mapByteBuffer(file))
-            } catch (error: IOException) {
+            } catch (error: Exception) {
                 logger.warn("Could not load the seen-Cache", error)
             }
         }
@@ -93,33 +97,64 @@ class SeenService(context: Context) {
     fun merge(other: ByteArray) {
         val buffer = this.buffer.get() ?: return
 
-        var updated = 0
+        var totalCount = 0
+        var updateCount = 0
 
         synchronized(lock) {
             logger.time("Merging values") {
                 ByteArrayInputStream(other).use { bi ->
-                    DeflaterInputStream(bi).use { input ->
-                        for (idx in 0 until buffer.limit()) {
-                            val otherValue = input.read()
-                            if (otherValue == -1)
-                                break
+                    InflaterInputStream(bi).use { input ->
+                        val source = buffer.duplicate()
+                        val target = buffer.duplicate()
 
-                            // merge them by performing a bitwise 'or'
-                            val previousValue = buffer.get(idx)
-                            val mergedValue = previousValue or UnsignedBytes.saturatedCast(otherValue.toLong())
-                            if (previousValue != mergedValue) {
-                                updated++
-                                buffer.put(idx, mergedValue)
+                        readStream(input) { bytes, read ->
+                            val stepSize = read.coerceAtMost(source.remaining())
+
+                            var updatedInStep = 0
+                            for (idx in 0 until stepSize) {
+                                val previousValue = source.get()
+                                val mergedValue = bytes[idx] or previousValue
+
+                                if (previousValue != mergedValue) {
+                                    bytes[idx] = mergedValue
+                                    updatedInStep++
+                                }
                             }
+
+                            if (updatedInStep != 0) {
+                                target.put(bytes, 0, stepSize)
+                            } else {
+                                target.position(target.position() + stepSize)
+                            }
+
+                            totalCount += stepSize
+                            updateCount += updatedInStep
                         }
                     }
                 }
             }
 
-            dirty = updated > 0
+            dirty = updateCount > 0
         }
 
-        logger.info("Updated {} bytes in seen cache", updated)
+        logger.info("Updated {} out of {} bytes in seen cache", updateCount, totalCount)
+    }
+
+    /**
+     * Workaround to reset the lower n bytes.
+     */
+    fun clearUpTo(n: Int) {
+        val buffer = this.buffer.get() ?: return
+
+        logger.info("Setting the first {} bits to zero.", n)
+
+        synchronized(lock) {
+            for (idx in 0 until n.coerceAtMost(buffer.limit())) {
+                buffer.put(idx, 0)
+            }
+
+            dirty = true
+        }
     }
 
     fun export(): ByteArray {
