@@ -116,6 +116,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private lateinit var viewer: MediaView
     private lateinit var mediaControlsContainer: ViewGroup
     private lateinit var infoLine: InfoLineAccessor
+    private lateinit var feedItemVote: Observable<Vote>
 
     private var playerPlaceholder: FrameLayout? = null
 
@@ -163,6 +164,13 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             adminMode = it.admin
             activity?.invalidateOptionsMenu()
         }
+
+        feedItemVote = voteService.getVote(feedItem).replay(1).refCount()
+
+        // subscribe to it as long as the fragment lives.
+        feedItemVote.ignoreError()
+                .compose(bindToLifecycleAsync())
+                .subscribe()
     }
 
     private fun stopMediaOnViewer() {
@@ -909,7 +917,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     }
 
     private fun doVoteOnDoubleTap() {
-        voteService.getVote(feedItem).first().compose(bindToLifecycleAsync()).subscribe { currentVote ->
+        feedItemVote.first().compose(bindToLifecycleAsync()).subscribe { currentVote ->
             doVote(currentVote.nextUpVote)
         }
     }
@@ -1258,8 +1266,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val isSelfPost = userService.name.equals(feedItem.user, ignoreCase = true)
 
         // display the feed item in the view
-        val cachedVote = voteService.getVote(feedItem).compose(bindToLifecycleAsync())
-        infoView.setFeedItem(feedItem, isSelfPost, cachedVote)
+        infoView.setFeedItem(feedItem, isSelfPost, feedItemVote.compose(bindToLifecycleAsync()))
 
         infoView.onDetailClickedListener = this@PostFragment
 

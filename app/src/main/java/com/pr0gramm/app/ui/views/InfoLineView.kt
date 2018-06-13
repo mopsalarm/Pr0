@@ -124,30 +124,30 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
      * @param vote The vote that is currently selected.
      */
     fun updateViewState(vote: Vote) {
-        feedItem?.let { feedItem ->
-            if (isOneHourOld || isSelfPost || admin) {
-                val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
-                ratingView.text = rating.toString()
-                ratingView.setOnLongClickListener {
-                    Toast.makeText(context,
-                            String.format("%d up, %d down", feedItem.up, feedItem.down),
-                            Toast.LENGTH_SHORT).show()
+        val feedItem = this.feedItem ?: return
 
-                    true
-                }
+        if (isOneHourOld || isSelfPost || admin) {
+            val rating = feedItem.up - feedItem.down + min(1, vote.voteValue)
+            ratingView.text = rating.toString()
+            ratingView.setOnLongClickListener {
+                Toast.makeText(context,
+                        String.format("%d up, %d down", feedItem.up, feedItem.down),
+                        Toast.LENGTH_SHORT).show()
 
-                ratingView.visibility = View.VISIBLE
-                ratingUnknownView.visibility = View.GONE
-
-            } else {
-                ratingUnknownView.visibility = View.VISIBLE
-                ratingView.visibility = View.GONE
-                ratingView.setOnLongClickListener(null)
+                true
             }
 
-            voteFavoriteView.setTextColor(
-                    if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor)
+            ratingView.visibility = View.VISIBLE
+            ratingUnknownView.visibility = View.GONE
+
+        } else {
+            ratingUnknownView.visibility = View.VISIBLE
+            ratingView.visibility = View.GONE
+            ratingView.setOnLongClickListener(null)
         }
+
+        voteFavoriteView.setTextColor(
+                if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor)
     }
 
     fun updateTags(tags: Map<Api.Tag, Vote>) {
