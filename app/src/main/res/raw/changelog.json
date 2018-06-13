@@ -8,6 +8,10 @@
       },
       {
         "type": "Fix",
+        "change": "Kommentare wurden teilweise nicht angezeigt oder hervorgehoben."
+      },
+      {
+        "type": "Fix",
         "change": "Suchen, die zufällig einem Nutzernamen entsprechen, sind wieder als Lesezeichen abspeicherbar."
       },
       {
@@ -20,7 +24,7 @@
       },
       {
         "type": "Neu",
-        "change": "Als gesehen markierte Posts werden jetzt einmal pro Stunde mit anderen Geräten synchronisiert."
+        "change": "Als gesehen markierte Posts werden jetzt hin und wieder mit anderen Geräten synchronisiert/gebackuped."
       }
     ]
   },
