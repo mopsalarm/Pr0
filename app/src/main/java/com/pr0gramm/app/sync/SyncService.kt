@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import rx.Observable
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -30,8 +30,8 @@ class SyncService(private val userService: UserService,
         // do a sync everytime the user token changes
         userService.loginState()
                 .mapNotNull { state -> state.uniqueToken }
-                .doOnNext { logger.info("Unique token is now {}", it) }
                 .distinctUntilChanged()
+                .doOnNext { logger.info("Unique token is now {}", it) }
                 .delaySubscription(1, TimeUnit.SECONDS)
                 .subscribe { syncSeenServiceAsync(it) }
     }
@@ -90,10 +90,11 @@ class SyncService(private val userService: UserService,
         }
     }
 
-    private val seenSyncLock = ReentrantLock()
+    private val seenSyncLock = AtomicBoolean()
 
-    private fun syncSeenServiceAsync(token: String) = seenSyncLock.withTryLock {
-        if (!settings.backup) {
+    private fun syncSeenServiceAsync(token: String) {
+        unless(settings.backup && seenSyncLock.compareAndSet(false, true)) {
+            logger.info("Not starting sync of seen bits.")
             return
         }
 
@@ -116,16 +117,15 @@ class SyncService(private val userService: UserService,
 
         val updateObservable = kvService
                 .update(token, "seen-bits") { previous ->
-                    if (previous != null) {
-                        // merge the previous state into the current seen service
-                        seenService.merge(previous)
-                    }
+                    // merge the previous state into the current seen service
+                    val noChanges = previous != null && seenService.checkEqualAndMerge(previous)
 
-                    // only upload if dirty, and if the export is not empty.
-                    if (seenService.dirty) {
-                        seenService.export().takeIf { it.isNotEmpty() }
-                    } else {
+                    if (noChanges) {
+                        logger.info("No seen bits changed, so wont push now")
                         null
+                    } else {
+                        logger.info("Seen bits look dirty, pushing now")
+                        seenService.export().takeIf { it.isNotEmpty() }
                     }
                 }
 
@@ -142,6 +142,7 @@ class SyncService(private val userService: UserService,
 
                 .ignoreError()
                 .subscribeOnBackground()
+                .doAfterTerminate { seenSyncLock.set(false) }
                 .subscribe()
     }
 }

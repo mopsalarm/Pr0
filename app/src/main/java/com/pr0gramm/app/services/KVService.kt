@@ -32,17 +32,17 @@ class KVService(okHttpClient: OkHttpClient) {
                 .flatMap { result ->
                     val empty = Observable.empty<PutResult>()
 
-                    when (result) {
-                    // no previous value, write as 0.
+                    val putObservable = when (result) {
                         is GetResult.NoValue -> {
-                            val value = fn(null) ?: return@flatMap empty
-                            put(ident, key, 0, value)
+                            // no previous value, write as 0.
+                            fn(null)?.let { value -> put(ident, key, 0, value) }
                         }
                         is GetResult.Value -> {
-                            val value = fn(result.value) ?: return@flatMap empty
-                            put(ident, key, result.version, value)
+                            fn(result.value)?.let { value -> put(ident, key, result.version, value) }
                         }
                     }
+
+                    putObservable ?: empty
                 }
                 .flatMap {
                     if (it === PutResult.Conflict) {

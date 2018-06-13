@@ -28,10 +28,6 @@ class SeenService(context: Context) {
     private val lock = Any()
     private val buffer = AtomicReference<ByteBuffer>()
 
-    @Volatile
-    var dirty: Boolean = true
-        private set
-
     init {
         doInBackground {
             try {
@@ -70,10 +66,6 @@ class SeenService(context: Context) {
             val value = UnsignedBytes.toInt(buffer.get(idx))
             val updatedValue = value or (1 shl (7 - id.toInt() % 8))
             buffer.put(idx, UnsignedBytes.saturatedCast(updatedValue.toLong()))
-
-            if (value != updatedValue) {
-                dirty = true
-            }
         }
     }
 
@@ -88,17 +80,17 @@ class SeenService(context: Context) {
             for (idx in 0 until buffer.limit()) {
                 buffer.put(idx, 0.toByte())
             }
-
-            dirty = true
         }
     }
 
-    // merges the other value into this one
-    fun merge(other: ByteArray) {
-        val buffer = this.buffer.get() ?: return
+    // Merges the other value into this one. Returns true, if the
+    // other value equals the current state and no merging
+    // was needed at all.
+    fun checkEqualAndMerge(other: ByteArray): Boolean {
+        val buffer = this.buffer.get() ?: return false
 
         var totalCount = 0
-        var updateCount = 0
+        var diffCount = 0
 
         synchronized(lock) {
             logger.time("Merging values") {
@@ -112,32 +104,38 @@ class SeenService(context: Context) {
 
                             var updatedInStep = 0
                             for (idx in 0 until stepSize) {
+                                val otherValue = bytes[idx]
                                 val previousValue = source.get()
-                                val mergedValue = bytes[idx] or previousValue
+
+                                val mergedValue = otherValue or previousValue
 
                                 if (previousValue != mergedValue) {
                                     bytes[idx] = mergedValue
                                     updatedInStep++
                                 }
+
+                                if (previousValue != otherValue) {
+                                    // could also be a local change
+                                    diffCount++
+                                }
                             }
 
-                            if (updatedInStep != 0) {
+                            if (updatedInStep > 0) {
                                 target.put(bytes, 0, stepSize)
                             } else {
                                 target.position(target.position() + stepSize)
                             }
 
                             totalCount += stepSize
-                            updateCount += updatedInStep
                         }
                     }
                 }
             }
 
-            dirty = updateCount > 0
         }
 
-        logger.info("Updated {} out of {} bytes in seen cache", updateCount, totalCount)
+        logger.info("Changes in {} out of {} bytes in seen cache", diffCount, totalCount)
+        return diffCount == 0 && totalCount == buffer.limit()
     }
 
     /**
@@ -152,8 +150,6 @@ class SeenService(context: Context) {
             for (idx in 0 until n.coerceAtMost(buffer.limit())) {
                 buffer.put(idx, 0)
             }
-
-            dirty = true
         }
     }
 
@@ -161,8 +157,6 @@ class SeenService(context: Context) {
         val buffer = this.buffer.get() ?: return byteArrayOf()
 
         return synchronized(lock) {
-            dirty = false
-
             logger.time("Export values") {
                 ByteArrayOutputStream().use { bo ->
                     Deflater(Deflater.BEST_COMPRESSION).let { def ->

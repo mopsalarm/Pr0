@@ -85,7 +85,7 @@ class StatisticsActivity : BaseAppCompatActivity("StatisticsActivity") {
                 .ignoreError()
                 .delay(200, TimeUnit.MILLISECONDS)
                 .compose(bindToLifecycleAsync())
-                .subscribe { benisValues = it }
+                .subscribe { benisValues = it.records }
 
         userService.name?.let { username ->
             showContentTypesOf(typesByFavorites, statsService.statsForFavorites(username))

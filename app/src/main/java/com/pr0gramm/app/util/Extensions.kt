@@ -405,3 +405,11 @@ inline fun Lock.withTryLock(fn: () -> Unit) {
         }
     }
 }
+
+inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
+    return if (!b) {
+        fn()
+    } else {
+        null
+    }
+}

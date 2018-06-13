@@ -359,20 +359,22 @@ class UserService(private val api: Api,
             Graph.Point(x, record.benis.toDouble())
         }
 
-        logger.info("Loading benis graph took " + watch)
+        logger.info("Loading benis graph took $watch")
         return Graph(start.millis.toDouble(), now.millis.toDouble(), optimizeValuesBy(points) { it.y })
     }
 
     /**
      * Loads all benis records for the current user.
      */
-    fun loadBenisRecords(after: Instant = Instant(0)): Observable<List<BenisRecord>> {
-        val userId = loginState.id
+    fun loadBenisRecords(after: Instant = Instant(0)): Observable<BenisGraphRecords> {
+        val state = loginState
 
         return database.asObservable().map {
-            BenisRecord.findValuesLaterThan(it, userId, after)
+            BenisGraphRecords(state, BenisRecord.findValuesLaterThan(it, state.id, after))
         }
     }
+
+    class BenisGraphRecords(val loginState: LoginState, val records: List<BenisRecord>)
 
     /**
      * Gets the name of the current user from the cookie. This will only
