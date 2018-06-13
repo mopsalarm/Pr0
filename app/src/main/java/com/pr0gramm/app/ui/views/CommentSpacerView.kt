@@ -22,17 +22,17 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
 
     private val config: Config = ConfigService.get(context)
 
+    private val basePaddingLeft = paddingLeft
+
     var depth: Int = 0; set(value) {
         field = value.coerceAtMost(config.commentsMaxLevels)
+
         val paddingLeft = spaceAtDepth(field).toInt()
         setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
-
-        invalidate()
-        requestLayout()
     }
 
     private fun spaceAtDepth(depth: Int): Float {
-        return lineMargin * Math.pow(depth.toDouble(), 1 / 1.2).toFloat()
+        return basePaddingLeft + lineMargin * Math.pow(depth.toDouble(), 1 / 1.2).toFloat()
     }
 
     init {
@@ -57,6 +57,10 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
             strokeWidth = lineWidth
             pathEffect = DASH_PATH_EFFECT
         }
+
+        if (isInEditMode) {
+            depth = 1
+        }
     }
 
     @SuppressLint("DrawAllocation")
@@ -73,6 +77,7 @@ class CommentSpacerView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     companion object {
+        @JvmStatic
         private val DASH_PATH_EFFECT = DashPathEffect(floatArrayOf(5f, 5f), 0f)
     }
 }

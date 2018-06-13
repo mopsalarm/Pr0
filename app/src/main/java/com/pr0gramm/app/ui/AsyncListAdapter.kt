@@ -3,7 +3,6 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
-import com.pr0gramm.app.util.observeChangeEx
 import com.pr0gramm.app.util.observeOnMain
 import com.pr0gramm.app.util.subscribeOnBackground
 import rx.Observable
@@ -17,7 +16,7 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
     private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
     val updates = updateSubject as Observable<List<T>>
 
-    var items: List<T> by observeChangeEx(listOf()) { old, new -> updateSubject.onNext(new) }
+    var items: List<T> = listOf()
         private set
 
     // Max generation of currently scheduled runnable
@@ -53,8 +52,11 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         if (newList.isEmpty()) {
             val countRemoved = items.size
             items = emptyList()
+
             // notify last, after list is updated
             notifyItemRangeRemoved(0, countRemoved)
+            updateSubject.onNext(items)
+
             return
         }
 
@@ -63,13 +65,14 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
             items = newList
             // notify last, after list is updated
             notifyItemRangeInserted(0, newList.size)
+            updateSubject.onNext(items)
             return
         }
 
         val oldList = items
 
         // short list, do the diff in the current thread
-        if (oldList.size < 32 && items.size < 32) {
+        if (oldList.size < 32 && newList.size < 32) {
             val diff = calculateDiff(oldList, newList)
             latchList(newList, diff)
             return
@@ -116,5 +119,6 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
     private fun latchList(newList: List<T>, diffResult: DiffUtil.DiffResult) {
         items = newList
         diffResult.dispatchUpdatesTo(this)
+        updateSubject.onNext(newList)
     }
 }

@@ -30,6 +30,8 @@ import org.joda.time.Instant.now
 import org.slf4j.LoggerFactory
 import rx.Observable
 import kotlin.math.absoluteValue
+import kotlin.properties.ObservableProperty
+import kotlin.reflect.KProperty
 
 /**
  */
@@ -43,14 +45,20 @@ class CommentsAdapter(
     private var nextUpdateIsSync = false
 
     // the currently selected comment. Set to update comment
-    var selectedCommentId by observeChangeEx(0L) { _, new ->
-        if (new != state.selectedCommentId) {
+    var selectedCommentId by observeChangeEx(0L) { old, new ->
+        if (old != new) {
             state = state.copy(selectedCommentId = new)
         }
     }
 
-    private var state: State by observeChangeEx(State()) { old, new ->
-        if (old != new) {
+    private var state: State by StateProperty()
+
+    private inner class StateProperty : ObservableProperty<State>(State()) {
+        override fun beforeChange(property: KProperty<*>, oldValue: State, newValue: State): Boolean {
+            return oldValue != newValue
+        }
+
+        override fun afterChange(property: KProperty<*>, oldValue: State, newValue: State) {
             updateVisibleComments()
         }
     }
@@ -90,25 +98,32 @@ class CommentsAdapter(
     private fun updateVisibleComments() {
         val targetState = state
 
+        logger.debug("Will run an update for current state {} ({} comments, selected={})",
+                System.identityHashCode(state), state.allComments.size, state.selectedCommentId)
+
         if (nextUpdateIsSync || targetState.allComments.isEmpty()) {
             nextUpdateIsSync = false
+
+            logger.debug("Update is sync")
 
             // do a update right in the current thread.
             submitList(CommentTree(targetState).visibleComments)
             return
         }
 
-        debug {
-            logger.info("Will run an update for current state {}", System.identityHashCode(state))
-        }
-
         Observable.fromCallable { CommentTree(targetState).visibleComments }
                 .ignoreError()
                 .subscribeOnBackground().observeOnMain()
                 .subscribe { visibleComments ->
+                    logger.debug("About to set state {} (current={})",
+                            System.identityHashCode(targetState),
+                            System.identityHashCode(state))
+
                     // verify that we still got the right state
                     if (state === targetState) {
                         submitList(visibleComments)
+                    } else {
+                        logger.debug("List of comments already stale.")
                     }
                 }
     }
@@ -252,8 +267,7 @@ class CommentsAdapter(
             val collapsed: Set<Long> = setOf(),
             val op: String? = null,
             val self: String? = null,
-            val selectedCommentId: Long = 0L,
-            internal val synchronous: Boolean = false)
+            val selectedCommentId: Long = 0L)
 
     data class Entry(val comment: Api.Comment, val vote: Vote, val depth: Int,
                      val hasChildren: Boolean, val currentScore: CommentScore,
