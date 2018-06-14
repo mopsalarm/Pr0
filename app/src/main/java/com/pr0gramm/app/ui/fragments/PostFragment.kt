@@ -1266,7 +1266,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         val isSelfPost = userService.name.equals(feedItem.user, ignoreCase = true)
 
         // display the feed item in the view
-        infoView.setFeedItem(feedItem, isSelfPost, feedItemVote.compose(bindToLifecycleAsync()))
+        infoView.setFeedItem(feedItem, isSelfPost, feedItemVote
+                .compose(bindToLifecycleAsync())
+                .startWith(Vote.NEUTRAL))
 
         infoView.onDetailClickedListener = this@PostFragment
 
