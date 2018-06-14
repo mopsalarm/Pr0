@@ -513,8 +513,8 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return FeedFilter().withFeedType(type)
     }
 
-    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter) {
-        gotoFeedFragment(filter, true)
+    override fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef?) {
+        gotoFeedFragment(filter, true, start = startAt)
         drawerLayout.closeDrawers()
     }
 
@@ -549,7 +549,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     override fun onFeedFilterSelected(filter: FeedFilter, queryState: Bundle?,
-                                      startAt: ItemWithComment?, popBackstack: Boolean) {
+                                      startAt: CommentRef?, popBackstack: Boolean) {
 
         if (popBackstack) {
             supportFragmentManager.popBackStackImmediate()
@@ -564,7 +564,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
     }
 
     private fun gotoFeedFragment(newFilter: FeedFilter, clear: Boolean = false,
-                                 start: ItemWithComment? = null,
+                                 start: CommentRef? = null,
                                  queryState: Bundle? = null) {
 
         moveToFragment(FeedFragment.newInstance(newFilter, start, queryState), clear)

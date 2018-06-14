@@ -82,7 +82,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
     private var bookmarkable: Boolean = false
     private var autoScrollOnLoad: Long? = null
-    private var autoOpenOnLoad: ItemWithComment? = null
+    private var autoOpenOnLoad: CommentRef? = null
 
     private var lastCheckForNewItemsTime = Instant(0)
 
@@ -220,7 +220,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         // initialize auto opening (only on first start)
         if (savedInstanceState == null) {
-            val start = arguments?.getParcelable<ItemWithComment?>(ARG_FEED_START)
+            val start = arguments?.getParcelable<CommentRef?>(ARG_FEED_START)
             if (start != null) {
                 logger.debug("Requested to open item {} on load", start)
                 autoScrollOnLoad = start.itemId
@@ -877,10 +877,10 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (equal(current, filter))
             return
 
-        var startAt: ItemWithComment? = null
+        var startAt: CommentRef? = null
         if (query.combined.trim().matches("[1-9][0-9]{5,}|id:[0-9]+".toRegex())) {
             filter = filter.withTags("")
-            startAt = ItemWithComment(CharMatcher.inRange('0', '9').retainFrom(query.combined).toLong(), null)
+            startAt = CommentRef(CharMatcher.inRange('0', '9').retainFrom(query.combined).toLong(), null)
         }
 
         val searchQueryState = searchView.currentState()
@@ -1274,7 +1274,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
          * @return The type new fragment that can be shown now.
          */
         fun newInstance(feedFilter: FeedFilter,
-                        start: ItemWithComment?,
+                        start: CommentRef?,
                         searchQueryState: Bundle?): FeedFragment {
 
             val arguments = newArguments(feedFilter, true, start, searchQueryState)
@@ -1285,7 +1285,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         fun newArguments(feedFilter: FeedFilter, normalMode: Boolean,
-                         start: ItemWithComment?,
+                         start: CommentRef?,
                          searchQueryState: Bundle?): Bundle {
 
             return bundle {

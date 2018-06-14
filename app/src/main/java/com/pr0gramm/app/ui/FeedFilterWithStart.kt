@@ -6,12 +6,12 @@ import com.google.common.base.MoreObjects.firstNonNull
 import com.google.common.primitives.Longs
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
-import com.pr0gramm.app.ui.fragments.ItemWithComment
+import com.pr0gramm.app.ui.fragments.CommentRef
 
 /**
  */
 class FeedFilterWithStart private constructor(val filter: FeedFilter, start: Long?, commentId: Long?) {
-    val start: ItemWithComment? = if (start != null) ItemWithComment(start, commentId) else null
+    val start: CommentRef? = if (start != null) CommentRef(start, commentId) else null
 
     companion object {
 

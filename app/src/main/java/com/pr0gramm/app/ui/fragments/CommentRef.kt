@@ -6,7 +6,7 @@ import com.pr0gramm.app.parcel.core.creator
 
 /**
  */
-class ItemWithComment(val itemId: Long, val commentId: Long? = null) : Parcelable {
+class CommentRef(val itemId: Long, val commentId: Long? = null) : Parcelable {
     override fun describeContents(): Int {
         return 0
     }
@@ -18,11 +18,10 @@ class ItemWithComment(val itemId: Long, val commentId: Long? = null) : Parcelabl
 
     internal constructor(parcel: Parcel) : this(
             itemId = parcel.readLong(),
-            commentId = parcel.readLong().let { if (it == -1L) null else it }) {
-    }
+            commentId = parcel.readLong().let { if (it == -1L) null else it })
 
     companion object {
         @JvmField
-        val CREATOR = creator(::ItemWithComment)
+        val CREATOR = creator(::CommentRef)
     }
 }

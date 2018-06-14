@@ -236,12 +236,11 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     interface OnFeedFilterSelected {
         /**
          * Called if a drawer filter was clicked.
-
          * @param filter The feed filter that was clicked.
          */
-        fun onFeedFilterSelectedInNavigation(filter: FeedFilter)
+        fun onFeedFilterSelectedInNavigation(filter: FeedFilter, startAt: CommentRef? = null)
 
-        /**
+        /*
          * Called if the user name itself was clicked.
          */
         fun onUsernameClicked()
@@ -358,8 +357,15 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun openActionUri(uri: Uri) {
-        BrowserHelper.openCustomTab(context, uri)
         Track.specialMenuActionClicked(uri)
+
+        // check if we can handle the uri in the app
+        FeedFilterWithStart.fromUri(uri)?.let { parsed ->
+            callback.onFeedFilterSelectedInNavigation(parsed.filter, parsed.start)
+            return
+        }
+
+        BrowserHelper.openCustomTab(context, uri)
     }
 
     private fun showInboxActivity(unreadCount: Int) {
