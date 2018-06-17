@@ -1,17 +1,20 @@
 package com.pr0gramm.app.sync
 
-import com.google.common.base.Stopwatch.createStarted
 import com.google.common.base.Throwables
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.Stats
 import com.pr0gramm.app.services.*
 import com.pr0gramm.app.ui.dialogs.ignoreError
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.ui.fragments.IndicatorStyle
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.mapNotNull
+import com.pr0gramm.app.util.time
+import com.pr0gramm.app.util.unless
 import org.slf4j.LoggerFactory
-import rx.Observable
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.measureTimeMillis
 
 
 /**
@@ -23,17 +26,19 @@ class SyncService(private val userService: UserService,
                   private val kvService: KVService) {
 
     private val logger = LoggerFactory.getLogger("SyncService")
+
     private val settings = Settings.get()
+    private val seenSyncLock = AtomicBoolean()
+
 
     init {
-
         // do a sync everytime the user token changes
         userService.loginState()
                 .mapNotNull { state -> state.uniqueToken }
                 .distinctUntilChanged()
-                .doOnNext { logger.info("Unique token is now {}", it) }
+                .doOnNext { logger.debug("Unique token is now {}", it) }
                 .delaySubscription(1, TimeUnit.SECONDS)
-                .subscribe { syncSeenServiceAsync(it) }
+                .subscribe { performSyncSeenService(it) }
     }
 
     fun syncStatistics() {
@@ -42,80 +47,82 @@ class SyncService(private val userService: UserService,
         logger.info("Doing some statistics related trackings")
         Track.statistics()
 
-        UpdateChecker().check().ignoreError().toBlocking().subscribe {
+        UpdateChecker().check().ignoreError().subscribe {
             notificationService.showUpdateNotification(it)
         }
     }
 
     fun sync() {
-        Stats.get().incrementCounter("jobs.sync")
+        Stats.get().time("jobs.sync.time", measureTimeMillis {
+            Stats.get().incrementCounter("jobs.sync")
 
-        if (!userService.isAuthorized) {
-            logger.info("Will not sync now - user is not signed in.")
-            return
-        }
-
-        logger.info("Performing a sync operation now")
-
-        val watch = createStarted()
-        try {
-            if (singleShotService.firstTimeToday("update-userInfo")) {
-                logger.info("update current user info")
-                userService.updateCachedUserInfo()
+            if (!userService.isAuthorized) {
+                logger.info("Will not sync now - user is not signed in.")
+                return
             }
 
-            if (settings.backup && singleShotService.firstTimeInHour("sync-seen")) {
-                userService.loginState().take(1).subscribe { state ->
-                    if (state.uniqueToken != null) {
-                        syncSeenServiceAsync(state.uniqueToken)
-                    }
+            logger.info("Performing a sync operation now")
+
+            logger.time("Sync operation") {
+                try {
+                    syncCachedUserInfo()
+                    syncUserState()
+                    syncSeenService()
+
+                } catch (thr: Throwable) {
+                    logger.error("Error while syncing", thr)
                 }
             }
+        })
+    }
 
-            logger.info("performing sync")
-            userService.sync().ignoreError().toBlocking().subscribe { sync ->
-                // print info!
-                logger.info("finished without error after {}", watch)
-
-                // now show results, if any
-                if (sync.inboxCount > 0) {
-                    notificationService.showForInbox(sync)
-                } else {
-                    // remove if no messages are found
-                    notificationService.cancelForInbox()
-                }
-            }
-        } catch (thr: Throwable) {
-            logger.error("Error while syncing", thr)
+    private fun syncCachedUserInfo() {
+        if (singleShotService.firstTimeToday("update-userInfo")) {
+            logger.info("Update current user info")
+            userService.updateCachedUserInfo()
+                    .ignoreError().subscribe()
         }
     }
 
-    private val seenSyncLock = AtomicBoolean()
+    private fun syncUserState() {
+        logger.info("Sync with pr0gramm api")
 
-    private fun syncSeenServiceAsync(token: String) {
+        userService.sync().ignoreError().subscribe { sync ->
+            // now show results, if any
+            if (sync.inboxCount > 0) {
+                notificationService.showForInbox(sync)
+            } else {
+                // remove if no messages are found
+                notificationService.cancelForInbox()
+            }
+        }
+    }
+
+    private fun syncSeenService() {
+        val shouldSync = settings.backup && if (settings.seenIndicatorStyle == IndicatorStyle.NONE) {
+            singleShotService.firstTimeToday("sync-seen")
+        } else {
+            singleShotService.firstTimeInHour("sync-seen")
+        }
+
+        if (shouldSync) {
+            userService.loginState().take(1).subscribe { state ->
+                if (state.uniqueToken != null) {
+                    performSyncSeenService(state.uniqueToken)
+                }
+            }
+        }
+    }
+
+    private fun performSyncSeenService(token: String) {
         unless(settings.backup && seenSyncLock.compareAndSet(false, true)) {
             logger.info("Not starting sync of seen bits.")
             return
         }
 
-        logger.info("Starting sync of seen bits.")
+        logger.info("Syncing of seen bits.")
 
-        // the first implementation of this feature had a bug where it would deflate
-        // the stream again and by this wrongly set some of the lower random bytes.
-        //
-        // we will now just clear the lower bits
-        //
-        val fixObservable = if (singleShotService.isFirstTime("fix.clear-lower-seen-bits-2")) {
-            kvService.get(token, "seen")
-                    .ofType<KVService.GetResult.Value>()
-                    .doOnNext { seenService.clearUpTo(it.value.size * 150 / 100) }
-                    .ignoreError()
-
-        } else {
-            Observable.empty()
-        }
-
-        val updateObservable = kvService
+        kvService
                 .update(token, "seen-bits") { previous ->
                     // merge the previous state into the current seen service
                     val noChanges = previous != null && seenService.checkEqualAndMerge(previous)
@@ -129,8 +136,6 @@ class SyncService(private val userService: UserService,
                     }
                 }
 
-        fixObservable.ofType<KVService.PutResult.Version>()
-                .concatWith(updateObservable)
                 .doOnError { err ->
                     Stats.get().incrementCounter("seen.sync.error")
 
@@ -141,7 +146,7 @@ class SyncService(private val userService: UserService,
                 }
 
                 .ignoreError()
-                .subscribeOnBackground()
+
                 .doAfterTerminate { seenSyncLock.set(false) }
                 .subscribe()
     }

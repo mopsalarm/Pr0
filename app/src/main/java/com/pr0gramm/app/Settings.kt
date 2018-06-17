@@ -259,7 +259,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
             instance = Settings(context.applicationContext as Application)
         }
 
-        @JvmStatic
         fun get(): Settings {
             return instance
         }

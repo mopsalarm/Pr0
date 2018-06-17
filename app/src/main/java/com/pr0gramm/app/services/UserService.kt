@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import rx.subjects.PublishSubject
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -145,12 +144,12 @@ class UserService(private val api: Api,
 
             if (login.success) {
                 observables.add(updateCachedUserInfo()
-                        .doOnTerminate { updateUniqueToken(login.identifier) }
-                        .toObservable<Any>())
+                        .doOnTerminate { updateUniqueToken(login.identifier) })
 
                 // perform initial sync in background.
-                sync().subscribeOnBackground().subscribe({},
-                        { err -> logger.error("Could not perform initial sync during login", err) })
+                sync().subscribeOnBackground()
+                        .ignoreError("Could not perform initial sync during login")
+                        .subscribe()
             }
 
             // wait for sync to complete before emitting login result.
@@ -287,19 +286,11 @@ class UserService(private val api: Api,
     /**
      * Update the cached user info in the background.
      */
-    fun updateCachedUserInfo(): Completable {
-        val publishSubject = PublishSubject.create<Any>()
-
-        info().retry(3)
-                .subscribeOnBackground()
-                .doOnNext { info ->
-                    val loginState = createLoginStateFromInfo(info)
-                    updateLoginState { loginState }
-                }
-                .doOnTerminate({ publishSubject.onCompleted() })
-                .subscribe({}, { error -> logger.warn("Could not update user info.", error) })
-
-        return publishSubject.toCompletable()
+    fun updateCachedUserInfo(): Observable<Api.Info> {
+        return info().retry(3).ignoreError().doOnNext { info ->
+            val loginState = createLoginStateFromInfo(info)
+            updateLoginState { loginState }
+        }
     }
 
     /**
