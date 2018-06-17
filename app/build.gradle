@@ -108,6 +108,7 @@ android {
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
         exclude 'META-INF/rxjava.properties'
         exclude 'META-INF/app_debug.kotlin_module'
+        exclude 'kotlin'
     }
 }
 
