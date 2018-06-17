@@ -567,7 +567,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
     }
 
     private fun checkForNewItems() {
-        if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM) {
+        if (!feed.isAtStart || feed.filter.feedType == FeedType.RANDOM || feed.isEmpty()) {
             logger.info("Not checking for new items as we are not at the beginning of the feed")
             return
         }
