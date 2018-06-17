@@ -2,10 +2,10 @@ package com.pr0gramm.app.feed
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.HasThumbnail
 import com.pr0gramm.app.parcel.core.creator
-import org.joda.time.Instant
 
 /**
  * This is an item in pr0gramm feed item to be displayed. It is backed

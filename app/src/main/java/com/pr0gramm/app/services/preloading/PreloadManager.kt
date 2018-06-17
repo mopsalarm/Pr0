@@ -1,6 +1,6 @@
 package com.pr0gramm.app.services.preloading
 
-import org.joda.time.Instant
+import com.pr0gramm.app.Instant
 import rx.Observable
 import java.io.File
 

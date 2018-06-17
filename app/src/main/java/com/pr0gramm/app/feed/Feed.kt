@@ -1,12 +1,12 @@
 package com.pr0gramm.app.feed
 
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.parcel.byteArrayToParcel
 import com.pr0gramm.app.parcel.parcelToByteArray
 import com.pr0gramm.app.parcel.readTyped
 import com.pr0gramm.app.parcel.writeTyped
 import com.pr0gramm.app.util.toInt
-import org.joda.time.Instant
 
 /**
  * Represents a feed.

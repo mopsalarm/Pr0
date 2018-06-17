@@ -23,7 +23,6 @@ import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.ignoreException
 import io.fabric.sdk.android.Fabric
-import net.danlew.android.joda.JodaTimeAndroid
 import okhttp3.Interceptor
 import org.slf4j.LoggerFactory
 import pl.brightinventions.slf4android.LogLevel
@@ -42,7 +41,6 @@ open class ApplicationClass : Application(), KodeinAware {
         super.onCreate()
 
         Stats.init(buildVersionCode())
-        JodaTimeAndroid.init(this)
 
         Settings.initialize(this)
         Track.initialize(this)

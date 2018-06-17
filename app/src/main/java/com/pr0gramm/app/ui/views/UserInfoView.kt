@@ -12,14 +12,15 @@ import android.widget.Toast
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.jakewharton.rxbinding.view.clicks
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.UserClasses
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UriHelper
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
-import org.joda.time.Instant
-import org.joda.time.Years
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -110,11 +111,12 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
         }
 
         // add badge for "x years on pr0gramm"
-        Years.yearsBetween(info.user.registered, Instant.now()).years.takeIf { it > 0 }?.let {
+        val years = Duration.between(Instant.now(), info.user.registered).convertTo(TimeUnit.DAYS) / 365
+        if (years > 0) {
             appendBadgeView(
                     "years.png",
-                    context.getString(R.string.badge_time, it.toString()),
-                    text = it.toString())
+                    context.getString(R.string.badge_time, years.toString()),
+                    text = years.toString())
         }
 
         info.badges.forEach { badge ->

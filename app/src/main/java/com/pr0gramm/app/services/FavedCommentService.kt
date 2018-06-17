@@ -1,11 +1,11 @@
 package com.pr0gramm.app.services
 
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
-import org.joda.time.Duration
-import org.joda.time.Instant
 import rx.Observable
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -19,7 +19,7 @@ class FavedCommentService(private val api: Api, private val userService: UserSer
             return Observable.just(listOf())
 
         val comments = api.userCommentsLike(username,
-                Instant.now().plus(Duration.standardDays(1)).millis,
+                Instant.now().plus(1, TimeUnit.DAYS).millis,
                 ContentType.combine(contentType))
 
         return comments.map { response -> response.comments }

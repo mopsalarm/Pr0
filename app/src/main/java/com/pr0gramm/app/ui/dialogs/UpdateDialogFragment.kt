@@ -6,6 +6,9 @@ import android.os.Bundle
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
+import com.pr0gramm.app.Instant.Companion.now
 import com.pr0gramm.app.R
 import com.pr0gramm.app.services.Update
 import com.pr0gramm.app.services.UpdateChecker
@@ -16,9 +19,6 @@ import com.pr0gramm.app.ui.fragments.BusyDialog.Companion.busyDialog
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.arguments
 import com.trello.rxlifecycle.android.ActivityEvent
-import org.joda.time.Duration.standardHours
-import org.joda.time.Instant
-import org.joda.time.Instant.now
 import rx.Observable
 
 /**
@@ -64,7 +64,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
 
             if (!interactive && !BuildConfig.DEBUG) {
                 val last = Instant(shared.getLong(KEY_LAST_UPDATE_CHECK, 0))
-                if (last.isAfter(now().minus(standardHours(1))))
+                if (last.isAfter(Instant.now() - Duration.hours(1)))
                     return
             }
 

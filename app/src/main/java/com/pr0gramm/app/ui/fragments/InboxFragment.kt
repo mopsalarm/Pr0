@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.salomonbrys.kodein.instance
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedType
@@ -25,10 +26,9 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.visible
 import com.squareup.picasso.Picasso
-import org.joda.time.Duration.standardMinutes
-import org.joda.time.Instant
 import rx.functions.Action0
 import rx.functions.Action1
+import java.util.concurrent.TimeUnit
 
 /**
  */
@@ -83,7 +83,7 @@ abstract class InboxFragment<T>(name: String) : BaseFragment(name) {
         super.onResume()
 
         // reload if re-started after one minute
-        if (loadStartedTimestamp.plus(standardMinutes(1)).isBeforeNow) {
+        if (loadStartedTimestamp.plus(1, TimeUnit.MINUTES).isBeforeNow) {
             loadStartedTimestamp = Instant.now()
             reloadInboxContent()
         }

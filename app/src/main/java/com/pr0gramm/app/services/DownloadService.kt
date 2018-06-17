@@ -14,13 +14,14 @@ import com.pr0gramm.app.util.createObservable
 import com.pr0gramm.app.util.readStream
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.joda.time.format.DateTimeFormat
 import org.slf4j.LoggerFactory
 import rx.Emitter
 import rx.Observable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -57,7 +58,7 @@ class DownloadService(
             throw CouldNotCreateDownloadDirectoryException()
         }
 
-        val format = DateTimeFormat.forPattern("yyyyMMdd-HHmmss")
+        val format = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
         val fileType = feedItem.image.toLowerCase().replaceFirst("^.*\\.(\\w+)$".toRegex(), "$1")
         val prefix = listOf(
                 feedItem.created.toString(format),

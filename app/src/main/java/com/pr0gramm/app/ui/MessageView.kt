@@ -10,6 +10,8 @@ import android.widget.TextView
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Ascii
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.services.UserService
@@ -20,8 +22,6 @@ import com.pr0gramm.app.util.use
 import com.squareup.picasso.Picasso
 import kotterknife.bindOptionalView
 import kotterknife.bindView
-import org.joda.time.Hours
-import org.joda.time.Instant.now
 
 /**
  */
@@ -36,7 +36,7 @@ class MessageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     private val picasso: Picasso?
 
-    private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
+    private val scoreVisibleThreshold = Instant.now() - Duration.hours(1)
 
     init {
         val layoutId = context.theme.obtainStyledAttributes(attrs, R.styleable.MessageView, 0, 0).use {

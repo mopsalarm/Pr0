@@ -8,6 +8,7 @@ import com.google.common.io.BaseEncoding
 import com.google.common.primitives.Doubles
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.Debug
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.services.config.ConfigService
 import com.pr0gramm.app.util.AndroidUtility
@@ -16,10 +17,10 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
-import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import java.net.URLDecoder
 import java.util.Arrays.asList
+import java.util.concurrent.TimeUnit
 
 typealias OnCookieChangedListener = () -> Unit
 
@@ -104,7 +105,7 @@ class LoginCookieHandler(context: Context, private val preferences: SharedPrefer
                 .value(value)
                 .domain("pr0gramm.com")
                 .path("/")
-                .expiresAt(DateTime.now().plusYears(10).millis)
+                .expiresAt(Instant.now().plus(10 * 365, TimeUnit.DAYS).millis)
                 .build())
     }
 

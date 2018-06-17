@@ -9,7 +9,6 @@ targetCompatibility = JavaVersion.VERSION_1_6
 dependencies {
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
 
-    compileOnly 'joda-time:joda-time:2.9.9'
     compileOnly 'com.squareup.moshi:moshi:1.6.0'
 
     compileOnly 'com.squareup.retrofit2:retrofit:2.4.0'

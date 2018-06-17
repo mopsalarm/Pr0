@@ -16,6 +16,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.google.common.base.Strings.emptyToNull
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.services.RecentSearchesServices
@@ -30,7 +31,6 @@ import com.pr0gramm.app.util.BackgroundScheduler
 import com.pr0gramm.app.util.bundle
 import com.pr0gramm.app.util.doInBackground
 import com.trello.rxlifecycle.components.RxPreferenceFragment
-import org.joda.time.Instant.now
 import rx.android.schedulers.AndroidSchedulers
 
 /**
@@ -209,7 +209,7 @@ class SettingsActivity : BaseAppCompatActivity("SettingsActivity") {
                 }
 
                 "pref_pseudo_clean_preloaded" -> {
-                    doInBackground { preloadManager.deleteBefore(now()) }
+                    doInBackground { preloadManager.deleteBefore(Instant.now()) }
                     return true
                 }
 

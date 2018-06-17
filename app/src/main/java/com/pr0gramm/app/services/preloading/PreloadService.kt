@@ -13,6 +13,8 @@ import com.github.salomonbrys.kodein.android.KodeinIntentService
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Throwables
 import com.google.common.io.ByteStreams
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.parcel.byteArrayToParcel
@@ -26,8 +28,6 @@ import com.pr0gramm.app.util.readStream
 import com.pr0gramm.app.util.use
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.joda.time.Duration.standardDays
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
@@ -158,7 +158,7 @@ class PreloadService : KodeinIntentService("PreloadService") {
                 }
 
                 // doing cleanup
-                doCleanup(createdBefore = Instant.now().minus(standardDays(1)))
+                doCleanup(createdBefore = Instant.now() - Duration.days(1))
 
                 // setting end message
                 showEndMessage(statsDownloaded, statsFailed)

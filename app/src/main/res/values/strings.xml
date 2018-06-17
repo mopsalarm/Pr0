@@ -470,7 +470,7 @@
     <string name="dt_since_now">now</string>
 
     <string name="dt_since_label_past">%s ago</string>
-    <string name="dt_since_label_future">%s from now</string>
+    <string name="dt_since_label_future">in %s</string>
     <string name="add_tags_opinion_hint">Please be aware that tags are not a place to voice your opinion but rather to describe the image.</string>
     <string name="message">MESSAGE</string>
     <string name="delete_comment_soft">Soft delete (replace with <i>[gelöscht]</i>)</string>

@@ -6,11 +6,12 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
+import com.pr0gramm.app.util.TimeMode
 import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.formatTimeTo
 import com.pr0gramm.app.util.visible
-import net.danlew.android.joda.DateUtils.getRelativeTimeSpanString
-import org.joda.time.Instant
 
 /**
  */
@@ -79,7 +80,8 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
         if (now) {
             dateView.text = context.getString(R.string.dt_for_now)
         } else {
-            dateView.text = getRelativeTimeSpanString(context, date)
+            dateView.text = context.getString(R.string.dt_since_label_past,
+                    formatTimeTo(context, date, TimeMode.SINCE, true))
         }
     }
 

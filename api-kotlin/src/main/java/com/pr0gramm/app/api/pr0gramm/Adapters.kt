@@ -1,11 +1,11 @@
 package com.pr0gramm.app.api.pr0gramm
 
 import com.google.common.io.BaseEncoding
+import com.pr0gramm.app.Instant
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.Moshi
-import org.joda.time.Instant
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 

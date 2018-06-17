@@ -1,16 +1,19 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.api.pr0gramm.adapter
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.edit
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class SingleShotService(internal val preferences: SharedPreferences) {
-    private val timeOffsetInMillis = (Math.random() * 3600.0 * 1000.0).toInt()
+    private val timeOffset = Duration.millis((Math.random() * 3600.0 * 1000.0).toLong())
+
     private val keySetActions = "SingleShotService.actions"
     private val keyMapActions = "SingleShotService.mapActions"
 
@@ -43,19 +46,18 @@ class SingleShotService(internal val preferences: SharedPreferences) {
     }
 
     fun firstTimeToday(action: String): Boolean {
-        return firstTimeByTimePattern(action, "YYYY-MM-dd")
+        return firstTimeByTimePattern(action, "yyyy-MM-dd")
     }
 
     fun firstTimeInHour(action: String): Boolean {
-        return firstTimeByTimePattern(action, "YYYY-MM-dd:HH")
+        return firstTimeByTimePattern(action, "yyyy-MM-dd:HH")
     }
 
     private fun firstTimeByTimePattern(action: String, pattern: String): Boolean {
-        val timeString = DateTime.now()
-                .minusMillis(timeOffsetInMillis)
-                .toString(DateTimeFormat.forPattern(pattern))
 
-        return timeStringHasChanged(action, timeString)
+        return timeStringHasChanged(action, Instant.now()
+                .minus(timeOffset)
+                .toString(SimpleDateFormat(pattern, Locale.ROOT)))
     }
 
     private fun timeStringHasChanged(action: String, timeString: String): Boolean {

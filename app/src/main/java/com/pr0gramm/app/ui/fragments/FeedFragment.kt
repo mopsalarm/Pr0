@@ -15,9 +15,7 @@ import com.google.common.base.CharMatcher
 import com.google.common.base.Objects.equal
 import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.support.design.widget.dismisses
-import com.pr0gramm.app.BuildConfig
-import com.pr0gramm.app.R
-import com.pr0gramm.app.Settings
+import com.pr0gramm.app.*
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.api.pr0gramm.MessageConverter
 import com.pr0gramm.app.feed.*
@@ -40,8 +38,6 @@ import com.pr0gramm.app.util.*
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.picasso.Picasso
 import com.trello.rxlifecycle.android.FragmentEvent
-import org.joda.time.Duration
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
@@ -550,7 +546,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
 
         // we might want to check for new items on reload, but only once every two minutes.
-        val checkForNewItemInterval = Duration.standardSeconds(if (BuildConfig.DEBUG) 5 else 120)
+        val checkForNewItemInterval = Duration.seconds(if (BuildConfig.DEBUG) 5 else 120)
         val threshold = Instant.now().minus(checkForNewItemInterval)
         if (feed.created.isBefore(threshold) && lastCheckForNewItemsTime.isBefore(threshold)) {
             lastCheckForNewItemsTime = Instant.now()

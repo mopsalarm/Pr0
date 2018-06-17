@@ -6,9 +6,9 @@ import android.support.v4.app.RemoteInput
 import com.github.salomonbrys.kodein.android.KodeinBroadcastReceiver
 import com.github.salomonbrys.kodein.instance
 import com.google.common.base.Strings
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.util.BackgroundScheduler
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Completable
 

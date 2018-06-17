@@ -1,10 +1,10 @@
 package com.pr0gramm.app.api.pr0gramm
 
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.NoValue
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import okhttp3.RequestBody
-import org.joda.time.Instant
 import retrofit2.Call
 import retrofit2.http.*
 import rx.Observable

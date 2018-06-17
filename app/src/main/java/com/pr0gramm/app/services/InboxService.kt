@@ -1,11 +1,11 @@
 package com.pr0gramm.app.services
 
 import android.content.SharedPreferences
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.util.edit
-import org.joda.time.Duration
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
@@ -51,7 +51,7 @@ class InboxService(private val api: Api, private val preferences: SharedPreferen
      */
     fun getUserComments(user: String, contentTypes: Set<ContentType>): Observable<Api.UserComments> {
         return api.userComments(user,
-                (Instant.now() + Duration.standardDays(1)).millis / 1000L,
+                (Instant.now() + Duration.days(1)).millis / 1000L,
                 ContentType.combine(contentTypes))
     }
 

@@ -3,6 +3,7 @@ package com.pr0gramm.app.services.preloading
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.services.preloading.PreloadManager.PreloadItem
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
@@ -13,7 +14,6 @@ import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.sqlbrite.BriteDatabase
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Observable
 import java.io.File

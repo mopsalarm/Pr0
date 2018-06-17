@@ -1,9 +1,9 @@
 package com.pr0gramm.app.orm
 
 import android.database.sqlite.SQLiteDatabase
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.util.arrayOfStrings
 import com.pr0gramm.app.util.mapToList
-import org.joda.time.ReadableInstant
 import org.slf4j.LoggerFactory
 
 /**
@@ -12,7 +12,7 @@ data class BenisRecord(val time: Long, val benis: Int) {
     companion object {
         private val logger = LoggerFactory.getLogger("BenisRecord")
 
-        fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: ReadableInstant): List<BenisRecord> {
+        fun findValuesLaterThan(db: SQLiteDatabase, ownerId: Int, time: Instant): List<BenisRecord> {
             return db
                     .query("benis_record", arrayOf("time", "benis"), "time >= ? and owner_id=?", arrayOfStrings(time.millis, ownerId), null, null, "time ASC")
                     .mapToList { BenisRecord(getLong(0), getInt(1)) }

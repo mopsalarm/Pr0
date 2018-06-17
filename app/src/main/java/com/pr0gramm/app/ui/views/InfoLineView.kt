@@ -10,6 +10,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -20,14 +22,9 @@ import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.MergeRecyclerAdapter
 import com.pr0gramm.app.ui.SingleViewAdapter
 import com.pr0gramm.app.ui.TagCloudLayoutManager
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.ValueHolder
-import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
-import net.danlew.android.joda.DateUtils.getRelativeTimeSpanString
-import org.joda.time.Duration
-import org.joda.time.Instant
 import rx.Observable
 import java.lang.Math.min
 import kotlin.properties.Delegates.notNull
@@ -105,7 +102,9 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
 
         // update the views!
         usernameView.setUsername(item.user, item.mark)
-        dateView.text = getRelativeTimeSpanString(context, item.created)
+
+        dateView.text = context.getString(R.string.dt_since_label_past,
+                formatTimeTo(context, item.created, TimeMode.SINCE, short = true))
 
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)
@@ -184,9 +183,10 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         tagsAdapter.updateVote(tag, vote)
     }
 
-    val isOneHourOld: Boolean get() {
-        val oneHourAgo = Instant.now().minus(Duration.standardHours(1))
-        return feedItem!!.created.isBefore(oneHourAgo)
+    private val isOneHourOld: Boolean
+        get() {
+            val oneHourAgo = Instant.now() - Duration.hours(1)
+            return feedItem?.created?.isBefore(oneHourAgo) ?: false
     }
 
     private inner class TagsAdapter(tags: List<Api.Tag>, votes: Map<Api.Tag, Vote>) : RecyclerView.Adapter<TagViewHolder>() {

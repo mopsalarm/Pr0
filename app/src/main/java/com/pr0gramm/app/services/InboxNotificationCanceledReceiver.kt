@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.github.salomonbrys.kodein.android.KodeinBroadcastReceiver
 import com.github.salomonbrys.kodein.instance
-import org.joda.time.Instant
+import com.pr0gramm.app.Instant
 
 
 /**

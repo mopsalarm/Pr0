@@ -113,24 +113,6 @@ android {
 }
 
 android.applicationVariants.all { variant ->
-    variant.mergeResources.doLast {
-        def filesToDelete = fileTree(variant.mergeResources.outputDir) {
-            // remove timezone data
-            include "raw_joda_*"
-
-            exclude "raw_joda_etc_utc*"
-            exclude "raw_joda_europe_berlin*"
-            exclude "raw_joda_europe_zurich*"
-            exclude "raw_joda_europe_vienna*"
-            exclude "raw_joda_zoneinfomap*"
-
-            // remove left-to-right drawables
-            include "drawable-ldrtl-*_*"
-        }
-
-        filesToDelete.each { it.delete() }
-    }
-
     // delete .so-files we dont want in the finished build
     tasks."merge${variant.name.capitalize()}JniLibFolders".doLast {
         def filesToDelete = fileTree("build/") {
@@ -191,7 +173,6 @@ dependencies {
     implementation "com.google.firebase:firebase-ads:15.0.1"
     implementation "com.google.firebase:firebase-analytics:16.0.1"
 
-    implementation "net.danlew:android.joda:2.9.9.4"
     implementation "com.squareup.retrofit2:retrofit:$VersionRetrofit"
     implementation "com.squareup.retrofit2:converter-moshi:$VersionRetrofit"
     implementation "com.squareup.retrofit2:adapter-rxjava:$VersionRetrofit"

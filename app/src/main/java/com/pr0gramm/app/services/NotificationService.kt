@@ -13,6 +13,7 @@ import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.FileProvider
 import com.google.common.base.Strings.isNullOrEmpty
 import com.pr0gramm.app.BuildConfig
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -25,7 +26,6 @@ import com.pr0gramm.app.util.getColorCompat
 import com.pr0gramm.app.util.lruCache
 import com.pr0gramm.app.util.onErrorResumeEmpty
 import com.squareup.picasso.Picasso
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException

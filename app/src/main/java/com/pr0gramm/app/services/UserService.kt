@@ -3,6 +3,8 @@ package com.pr0gramm.app.services
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import com.google.common.base.Stopwatch
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
@@ -15,8 +17,6 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkNotMainThread
 import com.squareup.moshi.JsonClass
-import org.joda.time.Duration.standardDays
-import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Completable
 import rx.Observable
@@ -340,9 +340,8 @@ class UserService(private val api: Api,
     private fun loadBenisHistoryAsGraph(userId: Int): Graph {
         val watch = Stopwatch.createStarted()
 
-        val historyLength = standardDays(7)
         val now = Instant.now()
-        val start = now.minus(historyLength)
+        val start = now - Duration.days(7)
 
         // get the values and transform them
         val points = BenisRecord.findValuesLaterThan(database.value, userId, start).map { record ->

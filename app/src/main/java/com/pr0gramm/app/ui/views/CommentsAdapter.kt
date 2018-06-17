@@ -14,6 +14,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
+import com.pr0gramm.app.Duration
+import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.orm.Vote
@@ -25,8 +27,6 @@ import com.pr0gramm.app.ui.dialogs.ignoreError
 import com.pr0gramm.app.util.*
 import gnu.trove.map.TLongObjectMap
 import gnu.trove.map.hash.TLongObjectHashMap
-import org.joda.time.Hours
-import org.joda.time.Instant.now
 import org.slf4j.LoggerFactory
 import rx.Observable
 import kotlin.math.absoluteValue
@@ -41,7 +41,7 @@ class CommentsAdapter(
 
     private val logger = LoggerFactory.getLogger("CommentsAdapter")
 
-    private val scoreVisibleThreshold = now().minus(Hours.ONE.toStandardDuration())
+    private val scoreVisibleThreshold = Instant.now() - Duration.hours(1)
     private var nextUpdateIsSync = false
 
     // the currently selected comment. Set to update comment
