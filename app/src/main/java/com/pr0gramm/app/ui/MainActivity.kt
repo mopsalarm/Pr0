@@ -18,9 +18,6 @@ import android.support.v7.view.menu.ActionMenuItem
 import android.support.v7.widget.Toolbar
 import android.view.*
 import com.github.salomonbrys.kodein.instance
-import com.google.android.gms.cast.framework.CastButtonFactory
-import com.google.android.gms.cast.framework.CastContext
-import com.google.android.gms.cast.framework.Session
 import com.pr0gramm.app.BuildConfig
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -28,7 +25,6 @@ import com.pr0gramm.app.Settings
 import com.pr0gramm.app.feed.FeedFilter
 import com.pr0gramm.app.feed.FeedType
 import com.pr0gramm.app.services.*
-import com.pr0gramm.app.services.cast.SessionManagerListenerAdapter
 import com.pr0gramm.app.services.config.Config
 import com.pr0gramm.app.sync.SyncJob
 import com.pr0gramm.app.ui.back.BackFragmentHelper
@@ -37,7 +33,10 @@ import com.pr0gramm.app.ui.dialogs.UpdateDialogFragment
 import com.pr0gramm.app.ui.fragments.*
 import com.pr0gramm.app.ui.intro.IntroActivity
 import com.pr0gramm.app.ui.upload.UploadTypeDialogFragment
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.AndroidUtility
+import com.pr0gramm.app.util.BrowserHelper
+import com.pr0gramm.app.util.decoupleSubscribe
+import com.pr0gramm.app.util.onErrorResumeEmpty
 import kotterknife.bindOptionalView
 import kotterknife.bindView
 import rx.Observable
@@ -362,22 +361,6 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.media_route_menu_item)?.let { item ->
-            if (settings.allowCasting) {
-                ignoreException {
-                    // show the cast button if available
-                    CastButtonFactory.setUpMediaRouteButton(applicationContext, menu,
-                            R.id.media_route_menu_item)
-                }
-            } else {
-                menu.removeItem(R.id.media_route_menu_item)
-            }
-        }
-
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     private fun dispatchFakeHomeEvent(item: MenuItem): Boolean {
         return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
                 this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title))
@@ -443,38 +426,9 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         }
     }
 
-    private val castSessionListener = object : SessionManagerListenerAdapter<Session>() {
-        override fun onSessionStarted(session: Session, sessionId: String) {
-            invalidateOptionsMenu()
-
-            // if the current active fragment is a post, we'll restart it to move it
-            // to the big screen.
-            val fragment = currentFragment
-            if (fragment is PostPagerFragment) {
-                fragment.restartCurrentPostFragment()
-            }
-        }
-    }
-
     override fun onResume() {
-        ignoreException {
-            CastContext.getSharedInstance(this)
-                    .sessionManager
-                    .addSessionManagerListener(castSessionListener)
-        }
-
         super.onResume()
         onBackStackChanged()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        ignoreException {
-            CastContext.getSharedInstance(this)
-                    .sessionManager
-                    .removeSessionManagerListener(castSessionListener)
-        }
     }
 
     override fun onStart() {

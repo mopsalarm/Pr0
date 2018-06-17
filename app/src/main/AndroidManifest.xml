@@ -38,11 +38,6 @@
             android:name="com.sec.android.support.multiwindow"
             android:value="true"/>
 
-        <!-- chrome cast -->
-        <meta-data
-            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.pr0gramm.app.services.cast.CastOptionsProvider"/>
-
         <receiver android:name=".services.InboxNotificationCanceledReceiver"/>
 
         <receiver android:name=".services.MessageReplyReceiver"/>

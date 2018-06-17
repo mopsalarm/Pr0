@@ -4,12 +4,6 @@
       tools:context=".MainActivity">
 
     <item
-        android:id="@+id/media_route_menu_item"
-        android:title="@string/cast"
-        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_white_action_search"
         android:title="@string/action_search_simple"

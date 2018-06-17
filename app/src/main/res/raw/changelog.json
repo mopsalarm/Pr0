@@ -3,6 +3,16 @@
     "version": 144,
     "changes": [
       {
+        "type": "Entfernt",
+        "change": "Support für Chromecast wieder entfernt. Es lohnt nicht, den Code mitzupflegen: wurde kaum genutzt."
+      }
+    ]
+  },
+
+  {
+    "version": 144,
+    "changes": [
+      {
         "type": "Fix",
         "change": "Kommentare konnten teilweise nicht richtig geblusst oder favorisiert werden."
       },

@@ -29,9 +29,6 @@
 -keep public class com.evernote.android.job.JobBootReceiver
 -keep public class com.evernote.android.job.JobRescheduleService
 
-# keep for google cast.
--keep public class com.pr0gramm.app.services.cast.CastOptionsProvider { *; }
--keep public class android.support.v7.app.MediaRouteActionProvider { public <init>(...); }
 
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase

@@ -205,9 +205,6 @@ class Settings(private val app: Application) : SharedPreferences.OnSharedPrefere
     val secureApp: Boolean
         get() = preferences.getBoolean("pref_secure_app", false)
 
-    val allowCasting: Boolean
-        get() = preferences.getBoolean("pref_allow_casting", true)
-
     val backup: Boolean
         get() = preferences.getBoolean("pref_sync_backup", true)
 

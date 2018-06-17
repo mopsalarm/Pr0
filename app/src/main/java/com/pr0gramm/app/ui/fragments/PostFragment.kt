@@ -22,13 +22,6 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import com.github.salomonbrys.kodein.instance
-import com.google.android.gms.cast.MediaInfo
-import com.google.android.gms.cast.MediaMetadata
-import com.google.android.gms.cast.MediaQueueItem
-import com.google.android.gms.cast.MediaStatus
-import com.google.android.gms.cast.framework.CastContext
-import com.google.android.gms.cast.framework.media.RemoteMediaClient
-import com.google.android.gms.common.images.WebImage
 import com.jakewharton.rxbinding.view.RxView
 import com.pr0gramm.app.R
 import com.pr0gramm.app.R.id.player_container
@@ -143,20 +136,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             }
         }
 
-        activeState().compose(bindToLifecycle()).subscribe { active ->
-            // TODO shouldn't this be in onViewCreated or somewhere?
-            logger.info("Switching viewer state to {}", active)
-            if (active) {
-                playMediaOnViewer()
-            } else {
-                stopMediaOnViewer()
-            }
-
-            if (!active) {
-                exitFullscreen()
-            }
-        }
-
         adminMode = userService.userIsAdmin
 
         // check if we are admin or not
@@ -175,84 +154,10 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
     private fun stopMediaOnViewer() {
         viewer.stopMedia()
-
-        if (settings.allowCasting) {
-            ignoreException {
-                val remoteMediaClient = CastContext.getSharedInstance(context)
-                        .sessionManager
-                        .currentCastSession
-                        ?.remoteMediaClient
-
-                logger.info("Stopping media on remote client: {}", remoteMediaClient)
-                remoteMediaClient?.stop()
-            }
-        }
     }
 
     private fun playMediaOnViewer() {
-        val remoteMediaClient = if (settings.allowCasting) {
-            try {
-                CastContext.getSharedInstance(context)
-                        .sessionManager
-                        .currentCastSession?.remoteMediaClient
-            } catch (err: Exception) {
-                null
-            }
-        } else {
-            // we do not have a media client if we do not allow casting.
-            null
-        }
-
-        if (remoteMediaClient == null) {
-            logger.info("Playing media locally")
-            viewer.playMedia()
-            return
-        }
-
-        castMedia(remoteMediaClient)
-    }
-
-    private fun castMedia(remoteMediaClient: RemoteMediaClient) {
-        logger.info("Got cast remote client at {}", remoteMediaClient)
-
-        // stop any local playing video
-        viewer.stopMedia()
-
-        // we require https urls, nothing from the local cache
-        val uris = UriHelper.of(context, forceSSL = true).noPreload()
-
-        val mediaUri = uris.media(feedItem, false).toString()
-        val thumbUri = uris.thumbnail(feedItem)
-        val contentType = ShareProvider.guessMimetype(context, feedItem)
-
-        logger.info("Creating media metadata")
-        val meta = MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC)
-        meta.putString(MediaMetadata.KEY_TITLE, feedItem.user)
-        meta.putString(MediaMetadata.KEY_SUBTITLE, "%s, %d up, %d down".format(
-                formatTimeTo(context, feedItem.created, TimeMode.SINCE),
-                feedItem.up, feedItem.down))
-
-        // we already know the size
-        meta.putInt(MediaMetadata.KEY_WIDTH, feedItem.width)
-        meta.putInt(MediaMetadata.KEY_HEIGHT, feedItem.height)
-
-        // add the thumbnail
-        meta.addImage(WebImage(thumbUri))
-
-        logger.info("Create media info for url {} ({})", mediaUri, contentType)
-        val mediaInfo = MediaInfo.Builder(mediaUri)
-                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType(contentType)
-                .setMetadata(meta)
-                .build()
-
-        val queueItem = MediaQueueItem.Builder(mediaInfo)
-                .setAutoplay(true)
-                .build()
-
-        remoteMediaClient.queueLoad(arrayOf(queueItem), 0, MediaStatus.REPEAT_MODE_REPEAT_SINGLE, 0, null)
-
-        Track.cast(contentType)
+        viewer.playMedia()
     }
 
     private fun activeState(): Observable<Boolean> {
@@ -352,6 +257,23 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // show the repost badge if this is a repost
         repostHint.visible = inMemoryCacheService.isRepost(feedItem)
+    }
+
+    override fun onStart() {
+        activeState().compose(bindToLifecycle()).subscribe { active ->
+            logger.info("Switching viewer state to {}", active)
+            if (active) {
+                playMediaOnViewer()
+            } else {
+                stopMediaOnViewer()
+            }
+
+            if (!active) {
+                exitFullscreen()
+            }
+        }
+
+        super.onStart()
     }
 
     override fun onDestroyView() {
@@ -896,7 +818,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      */
     private fun registerTapListener(viewer: MediaView) {
         viewer.tapListener = object : MediaView.TapListener {
-            internal val isImage = isStaticImage(feedItem)
+            val isImage = isStaticImage(feedItem)
 
             override fun onSingleTap(event: MotionEvent): Boolean {
                 if (isImage && settings.singleTapForFullscreen) {

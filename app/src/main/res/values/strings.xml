@@ -7,7 +7,7 @@
     <string name="action_search">Search in %s…</string>
     <string name="action_search_simple">Search</string>
     <string name="action_upload">UPLOAD</string>
-    <string name="action_kfav">K-FAV</string>
+    <string name="action_kfav">COMMENTS</string>
     <string name="app_name">pr0gramm</string>
     <string name="banned">Your account is banned until %1$s from now. Reason: %2$s</string>
     <string name="banned_forever">Your account is banned forever. Reason: %s</string>
@@ -258,8 +258,6 @@
     <string name="update">Update</string>
     <string name="notification_update_available">Update available</string>
     <string name="notification_update_available_text">A new update for the pr0gramm app to version %s is available.</string>
-    <string name="hint_kfav_userscript"><![CDATA[You just faved a comment. You can find a list of your favorite comments under \"favorites → k-fav\".\nIf you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
-    <string name="info_kfav_userscript"><![CDATA[If you want to access your favorite comments on your desktop, install the pr0gramm-comments userscript at https://goo.gl/py7xNW.]]></string>
     <string name="hint_user_search_dialog">Enter the name of the user you want to search. If it is an active user, auto completion might help you.</string>
     <string name="info">Info</string>
     <string name="error_json">Could not parse the response from the pr0gramm server.</string>
@@ -511,11 +509,8 @@
     <string name="not_now">Not now</string>
     <string name="play_store">PlayStore</string>
     <string name="hint_use_firefox_focus">Please install Firefox Focus or disable the incognito browser setting.</string>
-    <string name="pref_allow_casting_title">Support chromecast</string>
-    <string name="pref_allow_casting_summary">Activate to show the \'Cast\' button if a chromecast compatible receiver could be detected on the network. This is experimental.</string>
     <string name="pref_secure_app_title">Hide from app switcher</string>
     <string name="pref_secure_app_summary">Blanks out the pr0gramm in the recent apps switcher and prevents taking of screenshots.</string>
-    <string name="cast">Cast</string>
     <string name="error_feed_not_found">The requested post does not exist.</string>
     <string name="menu_new_badge">NEW</string>
     <string name="error_no_gallery_app">There is no app installed on your device that can handle an image picking request. Please install a gallery app like \'Simple Gallery\' or \'Google Photos\'.</string>

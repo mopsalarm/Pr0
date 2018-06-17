@@ -168,10 +168,6 @@ object Track {
         }
     }
 
-    fun cast(contentType: String) = send("cast") {
-        putString("content_type", contentType)
-    }
-
     fun screen(activity: Activity?, name: String) {
         activity?.let {
             fa.setCurrentScreen(it, name, name)
