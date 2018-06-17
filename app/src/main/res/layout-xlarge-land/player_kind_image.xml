@@ -20,7 +20,7 @@
         android:gravity="center"
         android:lineSpacingMultiplier="1.3"
         android:text="@string/could_not_load_image"
-        android:textColor="?colorPrimary"
+        android:textColor="?colorAccent"
         android:textStyle="bold"
         android:visibility="gone"/>
 

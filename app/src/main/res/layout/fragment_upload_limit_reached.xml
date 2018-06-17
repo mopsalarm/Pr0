@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/upload_not_allowed"
-        android:textColor="?colorPrimary"/>
+        android:textColor="?colorAccent"/>
 
     <TextView
         style="@style/TextAppearance.AppCompat.Body1"

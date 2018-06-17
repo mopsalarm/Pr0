@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="wrap_content"
-             android:layout_height="wrap_content">
+             android:layout_height="wrap_content"
+             tools:layout_width="128dp">
 
     <com.pr0gramm.app.ui.views.AspectImageView
         android:id="@+id/image"
@@ -9,31 +11,5 @@
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
         android:scaleType="centerCrop"/>
-
-    <ImageView
-        android:id="@+id/seen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent_black"
-        android:scaleType="center"
-        android:src="@drawable/ic_checked"/>
-
-    <ImageView
-        android:id="@+id/repost"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent_black"
-        android:scaleType="center"
-        android:src="@drawable/ic_repost"/>
-
-    <TextView
-        android:id="@+id/preloaded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="4dp"
-        android:text="@string/preloaded"
-        android:textColor="#80ffffff"
-        android:textSize="10sp"/>
 
 </FrameLayout>

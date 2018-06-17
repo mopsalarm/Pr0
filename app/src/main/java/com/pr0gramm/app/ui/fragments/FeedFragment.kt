@@ -45,7 +45,6 @@ import org.joda.time.Instant
 import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers.mainThread
-import rx.subjects.PublishSubject
 import java.net.ConnectException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -108,7 +107,8 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             val userInfo: UserInfo? = null,
             val adsVisible: Boolean = false,
             val seenIndicatorStyle: IndicatorStyle = IndicatorStyle.NONE,
-            val userInfoCommentsOpen: Boolean = false)
+            val userInfoCommentsOpen: Boolean = false,
+            val repostRefreshTime: Long = 0)
 
     private var feed: Feed by observeChangeEx(Feed()) { old, new ->
         if (old == new) {
@@ -939,7 +939,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         listener.itemClicked().subscribe { view ->
             extractFeedItemHolder(view)?.let { holder ->
-                onItemClicked(holder.item, preview = holder.image)
+                onItemClicked(holder.item, preview = holder.imageView)
             }
         }
 
@@ -990,18 +990,23 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         if (queryTooLong)
             return
 
-        (new - old).minBy { new.feedTypeId(it) }?.let { newestItem ->
-            // load repost info for the new items.
-            val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
-            val query = FeedService.FeedQuery(
-                    filter.withTags(queryTerm),
-                    selectedContentType, null, newestItem.id, null)
+        // get the most recent item in the updated feed items
+        val newestItem = (new - old).filter { !it.isPinned }.maxBy { new.feedTypeId(it) } ?: return
 
-            refreshRepostsCache(feedService, inMemoryCacheService, query)
-                    .observeOn(mainThread())
-                    .compose(bindToLifecycle())
-                    .subscribe({ feedAdapter.notifyDataSetChanged() }, {})
-        }
+        // load repost info for the new items, starting at the most recent one
+        val queryTerm = filter.tags?.let { "$it repost" } ?: "repost"
+        val query = FeedService.FeedQuery(filter.withTags(queryTerm),
+                contentTypes = new.contentType, older = new.feedTypeId(newestItem))
+
+        inMemoryCacheService.refreshRepostsCache(feedService, query)
+                .observeOn(mainThread())
+                .compose(bindToLifecycle<Any>().forCompletable())
+                .doOnCompleted {
+                    logger.debug("Repost info was refreshed, updating state now")
+                    state = state.copy(repostRefreshTime = System.currentTimeMillis())
+                }
+                .onErrorComplete()
+                .subscribe()
     }
 
     private fun onFeedError(error: Throwable) {
@@ -1300,27 +1305,5 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return view.tag as? FeedItemViewHolder?
         }
 
-    }
-
-    private fun refreshRepostsCache(
-            feedService: FeedService, cacheService: InMemoryCacheService, query: FeedService.FeedQuery): Observable<List<Long>> {
-
-        val subject = PublishSubject.create<List<Long>>()
-
-        // refresh happens completely in background to let the query run even if the
-        // fragments lifecycle is already destroyed.
-        feedService.load(query)
-                .subscribeOn(BackgroundScheduler.instance())
-                .doAfterTerminate { subject.onCompleted() }
-                .subscribe({ items ->
-                    if (items.items.isNotEmpty()) {
-                        val ids = items.items.map { it.id }
-                        cacheService.cacheReposts(ids)
-                        subject.onNext(ids)
-                        subject.onCompleted()
-                    }
-                }, {})
-
-        return subject
     }
 }

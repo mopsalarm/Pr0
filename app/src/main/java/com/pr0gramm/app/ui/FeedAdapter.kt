@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
+import android.support.annotation.DrawableRes
 import android.support.annotation.LayoutRes
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -81,7 +81,7 @@ class FeedAdapter(private val picasso: Picasso,
         
         return when (viewTypesByIndex[viewType]) {
             Offset.Item -> {
-                FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view))
+                FeedItemViewHolder(parent.layoutInflater.inflate(R.layout.feed_item_view) as FrameLayout)
             }
 
             Offset.Comments -> {
@@ -187,29 +187,47 @@ data class UserAndMark(val name: String, val mark: Int)
 /**
  * View holder for one feed item.
  */
-class FeedItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    private val seen: ImageView = find(R.id.seen)
-    private val repost: ImageView = find(R.id.repost)
-    private val preloaded: View = find(R.id.preloaded)
+class FeedItemViewHolder(private val container: FrameLayout) : RecyclerView.ViewHolder(container) {
+    val imageView: ImageView = find(R.id.image)
 
-    val image: ImageView = find(R.id.image)
+    // lazy views
+    private var flagView: ImageView? = null
+    private var overlayView: ImageView? = null
 
     lateinit var item: FeedItem
         private set
 
-    private fun setIsRepost() {
-        repost.visible = true
-        seen.visible = false
+    private fun ensureFlagView(): ImageView {
+        return flagView ?: (itemView.layoutInflater
+                .inflate(R.layout.feed_item_view_flag, container, false) as ImageView)
+                .also { view ->
+                    flagView = view
+                    container.addView(view)
+                }
     }
 
-    private fun setIsSeen() {
-        seen.visible = true
-        repost.visible = false
+    private fun ensureOverlayView(): ImageView {
+        return overlayView ?: (itemView.layoutInflater
+                .inflate(R.layout.feed_item_view_overlay, container, false) as ImageView)
+                .also { view ->
+                    overlayView = view
+
+                    // add view directly above the image view
+                    val idx = container.indexOfChild(imageView) + 1
+                    container.addView(view, idx)
+                }
     }
 
-    private fun clear() {
-        seen.visible = false
-        repost.visible = false
+    private fun setItemFlag(@DrawableRes res: Int) {
+        val view = ensureFlagView()
+        view.setImageResource(res)
+        view.visible = true
+    }
+
+    private fun setItemOverlay(@DrawableRes res: Int) {
+        val view = ensureOverlayView()
+        view.setImageResource(res)
+        view.visible = true
     }
 
     fun bindTo(picasso: Picasso, entry: FeedAdapter.Entry.Item) {
@@ -219,18 +237,21 @@ class FeedItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         picasso.load(imageUri)
                 .config(Bitmap.Config.RGB_565)
                 .placeholder(ColorDrawable(0xff333333.toInt()))
-                .into(image)
+                .into(imageView)
 
         this.itemView.tag = this
         this.item = item
 
-        // show preload-badge
-        preloaded.visible = entry.preloaded
+        when {
+            entry.repost -> setItemOverlay(R.drawable.ic_repost)
+            entry.seen -> setItemOverlay(R.drawable.ic_checked)
+            else -> overlayView?.visible = false
+        }
 
         when {
-            entry.repost -> setIsRepost()
-            entry.seen -> setIsSeen()
-            else -> clear()
+            entry.item.isPinned -> setItemFlag(R.drawable.feed_pinned)
+            entry.preloaded -> setItemFlag(R.drawable.feed_offline)
+            else -> flagView?.visible = false
         }
     }
 }

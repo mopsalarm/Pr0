@@ -72,6 +72,9 @@ class FeedItem : Parcelable, HasThumbnail {
     val flags: Int
         get() = _flags.toInt()
 
+    val isPinned: Boolean
+        get() = _promotedId > 1_000_000_000
+
     /**
      * Gets the id of this feed item depending on the type of the feed..
 

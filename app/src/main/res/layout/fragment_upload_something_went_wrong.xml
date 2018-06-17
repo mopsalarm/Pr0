@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/upload_something_went_wrong"
-        android:textColor="?colorPrimary"/>
+        android:textColor="?colorAccent"/>
 
     <TextView
         style="@style/TextAppearance.AppCompat.Body1"

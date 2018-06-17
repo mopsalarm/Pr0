@@ -126,7 +126,7 @@
             android:paddingTop="8dp"
             android:text="@string/hint_similar_image"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="?colorPrimary"
+            android:textColor="?colorAccent"
             android:visibility="gone"
             />
 
@@ -180,7 +180,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="8dp"
             android:text="@string/upload_small_print_footer"
-            android:textColor="?colorPrimary"/>
+            android:textColor="?colorAccent"/>
 
     </LinearLayout>
 </ScrollView>

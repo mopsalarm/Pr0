@@ -18,7 +18,7 @@
         android:layout_marginRight="32dp"
         android:gravity="center"
         android:text="@string/warn_post_can_not_be_viewed"
-        android:textColor="?colorPrimary"/>
+        android:textColor="?colorAccent"/>
 
     <Button
         android:id="@+id/hide_warning_button"

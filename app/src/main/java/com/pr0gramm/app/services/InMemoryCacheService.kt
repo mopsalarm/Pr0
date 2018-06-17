@@ -4,7 +4,12 @@ import android.support.v4.util.LruCache
 import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.ContentType
 import com.pr0gramm.app.feed.FeedItem
+import com.pr0gramm.app.feed.FeedService
+import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.util.subscribeOnBackground
 import gnu.trove.set.hash.TLongHashSet
+import rx.Completable
+import rx.subjects.PublishSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -51,12 +56,18 @@ class InMemoryCacheService {
     /**
      * Caches the given items as reposts.
      */
-    @Synchronized
-    fun cacheReposts(newRepostIds: List<Long>) {
-        val reposts = TLongHashSet()
-        reposts.addAll(repostCache.get())
-        reposts.addAll(newRepostIds)
-        repostCache.set(reposts)
+    private fun cacheReposts(newRepostIds: List<Long>) {
+        if (newRepostIds.isEmpty())
+            return
+
+        synchronized(repostCache) {
+            val initialCapacity = repostCache.get().size() + newRepostIds.size
+
+            repostCache.set(TLongHashSet(initialCapacity).apply {
+                addAll(repostCache.get())
+                addAll(newRepostIds)
+            })
+        }
     }
 
     /**
@@ -94,6 +105,24 @@ class InMemoryCacheService {
      */
     fun cacheTags(itemId: Long, tags: List<String>) {
         enhanceTags(itemId, tags.map { tag -> Api.Tag(0L, 0.5f, tag) })
+    }
+
+    fun refreshRepostsCache(feedService: FeedService, query: FeedService.FeedQuery): Completable {
+        val subject = PublishSubject.create<List<Long>>()
+
+        // refresh happens completely in background to let the query run even if the
+        // fragments lifecycle is already destroyed.
+        feedService.load(query)
+                .subscribeOnBackground()
+
+                // forward to subject
+                .doOnError { subject.onError(it) }
+                .doOnCompleted { subject.onCompleted() }
+
+                .ignoreError()
+                .subscribe { items -> cacheReposts(items.items.map { it.id }) }
+
+        return subject.toCompletable()
     }
 
     private class ExpiringValue<out T : Any>(value: T, expireTime: Long, timeUnit: TimeUnit) {

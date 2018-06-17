@@ -162,8 +162,6 @@
     <string name="upload_error_unknown">An unknown error occurred during upload.</string>
     <string name="upload_something_went_wrong">Something went wrong</string>
     <string name="upload_just_try_again">Best thing to do is just to try again.</string>
-    <string name="pref_use_https_title">HTTPS</string>
-    <string name="pref_use_https_summary">Use encrypted connections for all connections to pr0gramm. This is more secure.</string>
     <string name="action_new_message">New message</string>
     <string name="receiver">Receiver</string>
     <string name="user_not_found">No such user</string>
@@ -210,7 +208,7 @@
     <string name="prefcat_post">Post view</string>
     <string name="warn_post_can_not_be_viewed">This post is not visible with your current filter settings.</string>
     <string name="warn_show_post_anyways">Show anyways</string>
-    <string name="error_ssl_error">Could not perform ssl handshake, maybe you should deactivate https?</string>
+    <string name="error_ssl_error">Could not perform ssl handshake.</string>
     <string name="share_using">Share using</string>
     <string name="kpi_desc_uploads">UPLOADS</string>
     <string name="kpi_desc_favorites">FAVORITES</string>

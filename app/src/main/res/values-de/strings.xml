@@ -65,7 +65,7 @@
     <string name="benis_graph_explanation">Dies ist dein persönlicher Benisgraph. Er zeigt den Verlauf deines Benis in den letzten sieben Tagen.</string>
     <string name="pref_double_tap_to_upvote">Doppelklick für Upvote</string>
     <string name="pref_double_tap_to_upvote_summary">Doppeltap auf ein Bild oder Video führt einen Upvote aus</string>
-    <string name="could_not_load_feed_https">Kann den Feed über https nicht laden. Ist pr0gramm gerade nicht über https erreichbar?</string>
+    <string name="could_not_load_feed_https">Kann den Feed nicht laden.</string>
     <string name="no_new_update">Keine neuen Updates verfügbar. Die App ist auf dem neusten Stand.</string>
     <string name="pref_fullscreen_zoom_view">Vollbild Zoomfunktion</string>
     <string name="pref_fullscreen_zoom_view_summary">Aktiviere diese Einstellung um Status- und Navigationsleiste in der Zoomansicht zu verstecken.</string>
@@ -148,8 +148,6 @@
     <string name="upload_error_unknown">Ein unbekannter Fehler ist beim Upload aufgetreten.</string>
     <string name="upload_just_try_again">Am besten probierst du es jetzt einfach nochmal.</string>
     <string name="upload_something_went_wrong">Irgendwas ist schief gelaufen.</string>
-    <string name="pref_use_https_title">HTTPS</string>
-    <string name="pref_use_https_summary">Verwende eine verschlüsselte Verbindung zum pr0gramm.</string>
     <string name="action_new_message">Neue Nachricht</string>
     <string name="receiver">Empfänger</string>
     <string name="user_not_found">Nicht gefunden</string>
