@@ -83,7 +83,13 @@ class CommentsAdapter(
 
     fun updateVotes(votes: TLongObjectMap<Vote>) {
         val currentVotes = TLongObjectHashMap(votes)
-        val baseVotes = state.baseVotes ?: TLongObjectHashMap(votes)
+
+        // add new votes as base votes
+        val baseVotes = TLongObjectHashMap(state.baseVotes ?: votes)
+        votes.forEachEntry { id, vote ->
+            baseVotes.putIfAbsent(id, vote)
+            true
+        }
 
         state = state.copy(baseVotes = baseVotes, currentVotes = currentVotes)
     }

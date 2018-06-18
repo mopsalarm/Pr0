@@ -584,9 +584,9 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         commentVoteSubscription?.unsubscribe()
 
         commentVoteSubscription = comments
-                .switchMap {
+                .switchMap { comments ->
                     voteService
-                            .getCommentVotes(it)
+                            .getCommentVotes(comments)
                             .subscribeOnBackground()
                             .onErrorResumeEmpty()
                 }

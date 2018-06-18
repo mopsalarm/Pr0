@@ -208,6 +208,9 @@ class VoteService(private val api: Api,
             for (cachedVote in cachedVotes)
                 result.put(cachedVote.itemId, cachedVote.vote)
 
+            // add "NEUTRAL" votes for every unknown item
+            ids.forEach { result.putIfAbsent(it, Vote.NEUTRAL) }
+
             result
         }
     }
