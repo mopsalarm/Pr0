@@ -22,7 +22,10 @@ import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.defaultOnError
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.UsernameView
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
-import com.pr0gramm.app.util.*
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.decoupleSubscribe
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.visible
 import kotterknife.bindView
 import kotterknife.bindViews
 import rx.lang.kotlin.subscribeBy
@@ -147,7 +150,7 @@ class InviteActivity : BaseAppCompatActivity("InviteActivity") {
                 bind { invite ->
                     val context = itemView.context
 
-                    val date = formatTimeTo(context, invite.created, TimeMode.SINCE)
+                    val date = DurationFormat.timeToPointInTime(context, invite.created)
                     val name = invite.name
                     if (name != null) {
                         email.visibility = View.GONE

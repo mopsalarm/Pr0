@@ -22,8 +22,11 @@ import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
 import com.pr0gramm.app.ui.MergeRecyclerAdapter
 import com.pr0gramm.app.ui.SingleViewAdapter
 import com.pr0gramm.app.ui.TagCloudLayoutManager
-import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.checkMainThread
+import com.pr0gramm.app.util.DurationFormat
+import com.pr0gramm.app.util.ValueHolder
+import com.pr0gramm.app.util.find
+import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
 import rx.Observable
 import java.lang.Math.min
@@ -104,7 +107,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
         usernameView.setUsername(item.user, item.mark)
 
         dateView.text = context.getString(R.string.dt_since_label_past,
-                formatTimeTo(context, item.created, TimeMode.SINCE, short = true))
+                DurationFormat.timeToPointInTime(context, item.created, short = true))
 
         usernameView.setOnClickListener {
             onDetailClickedListener?.onUserClicked(item.user)

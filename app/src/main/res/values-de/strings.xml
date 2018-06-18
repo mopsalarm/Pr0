@@ -398,7 +398,6 @@
     <string name="download_complete">Download abgeschlossen</string>
     <string name="action_premium">PR0MIUM</string>
 
-
     <string name="dt_for_few_second">ein paar Sekunden</string>
     <string name="dt_for_n_seconds">$d Sekunden</string>
     <string name="dt_for_one_minute">eine Minute</string>
@@ -417,8 +416,6 @@
     <string name="dt_for_n_month">$d Monate</string>
     <string name="dt_for_one_year">ein Jahr</string>
     <string name="dt_for_one_year_n_month">ein Jahr und $r Monate</string>
-    <string name="dt_for_two_years">2 Jahre</string>
-    <string name="dt_for_two_years_n_month">2 Jahre und $r Monate</string>
     <string name="dt_for_n_years">$d Jahre</string>
     <string name="dt_for_long_white">eine Ewigkeit</string>
     <string name="dt_for_now">jetzt</string>
@@ -441,14 +438,9 @@
     <string name="dt_since_n_month">$d Monaten</string>
     <string name="dt_since_one_year">einem Jahr</string>
     <string name="dt_since_one_year_n_month">einem Jahr und $r Monaten</string>
-    <string name="dt_since_two_years">2 Jahren</string>
-    <string name="dt_since_two_years_n_month">2 Jahren und $r Monaten</string>
     <string name="dt_since_n_years">$d Jahren</string>
     <string name="dt_since_long_white">einer Ewigkeit</string>
     <string name="dt_since_now">jetzt</string>
-
-    <string name="dt_since_label_past">vor %s</string>
-    <string name="dt_since_label_future">in %s</string>
 
     <string name="invite_redeemed">%1$s, vor %2$s</string>
     <string name="badge_comments">Mehr als %sk Kommentare</string>

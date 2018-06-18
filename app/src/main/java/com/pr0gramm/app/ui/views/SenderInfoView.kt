@@ -8,9 +8,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.TimeMode
+import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.find
-import com.pr0gramm.app.util.formatTimeTo
 import com.pr0gramm.app.util.visible
 
 /**
@@ -81,7 +80,7 @@ class SenderInfoView @JvmOverloads constructor(context: Context, attrs: Attribut
             dateView.text = context.getString(R.string.dt_for_now)
         } else {
             dateView.text = context.getString(R.string.dt_since_label_past,
-                    formatTimeTo(context, date, TimeMode.SINCE, true))
+                    DurationFormat.timeToPointInTime(context, date, short = true))
         }
     }
 

@@ -129,12 +129,12 @@ class UserInfoView(context: Context, private val userActionListener: UserActionL
             if (bannedUntil == null) {
                 extraInfo.setText(R.string.user_banned_forever)
             } else {
-                val durationStr = formatTimeTo(context, bannedUntil, TimeMode.DURATION)
+                val durationStr = DurationFormat.timeSpan(context, bannedUntil, short = false)
                 extraInfo.text = context.getString(R.string.user_banned, durationStr)
             }
         } else {
-            val relativeStr = formatTimeTo(context, user.registered, TimeMode.SINCE)
-            extraInfo.text = context.getString(R.string.user_registered, relativeStr)
+            val dateStr = DurationFormat.timeToPointInTime(context, user.registered)
+            extraInfo.text = context.getString(R.string.user_registered, dateStr)
         }
     }
 
