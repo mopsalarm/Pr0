@@ -7,6 +7,10 @@
         "change": "Oben festgesetzte Posts werden nun in der App korrekt markiert."
       },
       {
+        "type": "Update",
+        "change": "Icons für die Benachrichtigungen überarbeitet."
+      },
+      {
         "type": "Entfernt",
         "change": "Support für Chromecast wieder entfernt. Es lohnt nicht, den Code mitzupflegen: wurde kaum genutzt."
       }
