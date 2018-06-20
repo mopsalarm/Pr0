@@ -17,7 +17,6 @@ import com.pr0gramm.app.Instant
 import com.pr0gramm.app.R
 import com.pr0gramm.app.Settings
 import com.pr0gramm.app.api.pr0gramm.Api
-import com.pr0gramm.app.services.ThemeHelper.accentColor
 import com.pr0gramm.app.ui.InboxActivity
 import com.pr0gramm.app.ui.InboxType
 import com.pr0gramm.app.ui.UpdateActivity
@@ -108,6 +107,7 @@ class NotificationService(private val context: Application,
             setSmallIcon(R.drawable.ic_notify_new_message)
             addAction(R.drawable.ic_white_action_save, "Download", updateActivityIntent(update))
             setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+            color = context.getColorCompat(ThemeHelper.accentColor)
             setAutoCancel(true)
         }
     }
@@ -178,7 +178,9 @@ class NotificationService(private val context: Application,
             setAutoCancel(true)
             setDeleteIntent(markAsReadIntent(maxMessageTimestamp))
             setCategory(NotificationCompat.CATEGORY_EMAIL)
-            setLights(context.getColorCompat(accentColor), 500, 500)
+
+            setLights(context.getColorCompat(ThemeHelper.accentColor), 500, 500)
+            color = context.getColorCompat(ThemeHelper.accentColor)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val replyToUserId = instantReplyToUserId(messages)

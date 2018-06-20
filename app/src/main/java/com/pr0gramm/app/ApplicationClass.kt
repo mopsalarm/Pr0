@@ -19,6 +19,7 @@ import com.pr0gramm.app.ui.ActivityErrorHandler
 import com.pr0gramm.app.ui.TagInputView
 import com.pr0gramm.app.ui.dialogs.ErrorDialogFragment.Companion.globalErrorDialogHandler
 import com.pr0gramm.app.util.AndroidUtility.buildVersionCode
+import com.pr0gramm.app.util.ExceptionHandler
 import com.pr0gramm.app.util.LogHandler
 import com.pr0gramm.app.util.SimpleJobLogger
 import com.pr0gramm.app.util.ignoreException
@@ -35,6 +36,8 @@ import java.util.logging.LogManager
  * Global application class for pr0gramm app.
  */
 open class ApplicationClass : Application(), KodeinAware {
+    private val startup = System.currentTimeMillis()
+
     private val logger = LoggerFactory.getLogger("Pr0grammApplication")
 
     override fun onCreate() {
@@ -73,6 +76,9 @@ open class ApplicationClass : Application(), KodeinAware {
             Fabric.with(this, Crashlytics())
         }
 
+        // handler to ignore certain exceptions before they reach crashlytics.
+        ExceptionHandler.install()
+
         LoggerConfiguration.configuration()
                 .removeRootLogcatHandler()
                 .setRootLogLevel(LogLevel.INFO)
@@ -107,7 +113,11 @@ open class ApplicationClass : Application(), KodeinAware {
             MobileAds.setAppMuted(true)
         }
 
+        val bootupTime = System.currentTimeMillis() - startup
+        logger.info("App booted in {}ms", bootupTime)
+
         Stats.get().incrementCounter("app.booted")
+        Stats.get().histogram("app.boot.time", bootupTime)
     }
 
     /**

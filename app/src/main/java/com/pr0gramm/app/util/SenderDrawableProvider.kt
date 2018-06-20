@@ -21,13 +21,13 @@ class SenderDrawableProvider(context: Context) {
 
     fun makeSenderDrawable(message: Api.Message): TextDrawable {
         val color = ColorGenerator.MATERIAL.getColor(message.senderId)
-        return shapes.buildRect(iconText(message.name), color)
+        return shapes.buildRound(iconText(message.name), color)
     }
 
     fun makeSenderBitmap(message: Api.Message, width: Int, height: Int): Bitmap {
         val drawable = makeSenderDrawable(message)
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
