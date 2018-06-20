@@ -1,5 +1,6 @@
 package com.pr0gramm.app.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -361,6 +362,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
         return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("RestrictedApi")
     private fun dispatchFakeHomeEvent(item: MenuItem): Boolean {
         return onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, ActionMenuItem(
                 this, item.groupId, ID_FAKE_HOME, 0, item.order, item.title))
