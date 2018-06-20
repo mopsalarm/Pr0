@@ -354,7 +354,7 @@ inline fun <reified R> Observable<*>.ofType(): Observable<R> {
 inline fun ignoreException(block: () -> Unit) {
     try {
         block()
-    } catch (err: Exception) {
+    } catch (err: Throwable) {
         AndroidUtility.logToCrashlytics(err)
     }
 }
