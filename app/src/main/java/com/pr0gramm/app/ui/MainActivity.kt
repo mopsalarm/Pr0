@@ -455,7 +455,7 @@ class MainActivity : BaseAppCompatActivity("MainActivity"),
                     // show a short information.
                     Snackbar.make(contentContainer, logout_successful_hint, Snackbar.LENGTH_SHORT)
                             .configureNewStyle()
-                            .setAction(R.string.okay, { })
+                            .setAction(R.string.okay) { }
                             .show()
 
                     // reset everything!
