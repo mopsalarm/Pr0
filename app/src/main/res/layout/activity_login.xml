@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.LoginActivity">
+    tools:context=".ui.LoginActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
         android:layout_width="match_parent"
@@ -14,7 +15,7 @@
         android:layout_weight="1"
         android:paddingLeft="64dp"
         android:paddingRight="64dp"
-        android:src="@drawable/ic_arrow"
+        app:srcCompat="@drawable/ic_arrow"
         tools:ignore="ContentDescription"/>
 
     <android.support.design.widget.TextInputLayout
