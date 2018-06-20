@@ -72,7 +72,7 @@
                     android:title="@string/pref_feed_start_at_new_title"/>
 
                 <CheckBoxPreference
-                    android:defaultValue="false"
+                    android:defaultValue="true"
                     android:key="pref_feed_start_at_sfw"
                     android:summary="@string/pref_feed_start_at_sfw_summary"
                     android:title="@string/pref_feed_start_at_sfw_title"/>
