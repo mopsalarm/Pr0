@@ -92,22 +92,22 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         // add the static items to the navigation
         navigationAdapter.setNavigationItems(navigationProvider.categoryNavigationItems(null, false))
 
-        settingsView.setOnClickListener({
+        settingsView.setOnClickListener {
             val intent = Intent(activity, SettingsActivity::class.java)
             startActivity(intent)
-        })
+        }
 
-        inviteView.setOnClickListener({
+        inviteView.setOnClickListener {
             val intent = Intent(activity, InviteActivity::class.java)
             startActivity(intent)
-        })
+        }
 
-        actionFAQ.setOnClickListener({
+        actionFAQ.setOnClickListener {
             Track.registerFAQClicked()
             BrowserHelper.openCustomTab(requireActivity(),
                     Uri.parse("https://pr0gramm.com/faq:all?iap=true"),
                     handover = false)
-        })
+        }
 
         actionPremium.setOnClickListener {
             Track.registerLinkClicked()
@@ -115,19 +115,19 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
             BrowserHelper.openCustomTab(requireActivity(), uri)
         }
 
-        loginView.setOnClickListener({
+        loginView.setOnClickListener {
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
-        })
+        }
 
-        logoutView.setOnClickListener({
+        logoutView.setOnClickListener {
             LogoutDialogFragment().show(fragmentManager, null)
-        })
+        }
 
-        feedbackView.setOnClickListener({
+        feedbackView.setOnClickListener {
             val intent = Intent(activity, ContactActivity::class.java)
             activity?.startActivityForResult(intent, RequestCodes.FEEDBACK)
-        })
+        }
 
         benisGraph.setOnClickListener {
             this.onBenisGraphClicked()
@@ -159,7 +159,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         userService.loginState()
                 .compose(bindToLifecycleAsync())
                 .ignoreError()
-                .subscribe({ this.onLoginStateChanged(it) })
+                .subscribe { this.onLoginStateChanged(it) }
 
         navigationProvider.navigationItems
                 .debug("navigation items", logger)
@@ -394,7 +394,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
         showDialog(this) {
             content(R.string.do_you_want_to_remove_this_bookmark)
             negative(R.string.cancel)
-            positive(R.string.delete, { bookmarkService.delete(bookmark) })
+            positive(R.string.delete) { bookmarkService.delete(bookmark) }
         }
     }
 

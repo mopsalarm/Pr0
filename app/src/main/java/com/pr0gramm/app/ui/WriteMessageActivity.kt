@@ -113,10 +113,10 @@ class WriteMessageActivity : BaseAppCompatActivity("WriteMessageActivity") {
     fun sendMessageNow() {
         val message = getMessageText()
         if (message.isEmpty()) {
-            DialogBuilder.start(this)
-                    .content(R.string.message_must_not_be_empty)
-                    .positive()
-                    .show()
+            showDialog(this) {
+                content(R.string.message_must_not_be_empty)
+                positive()
+            }
 
             return
         }

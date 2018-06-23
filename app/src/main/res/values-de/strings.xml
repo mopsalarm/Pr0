@@ -56,7 +56,7 @@
     <string name="action_logout">ABMELDEN</string>
     <string name="action_settings">EINSTELLUNGEN</string>
     <string name="add_new_tag_summary">Mehrere Tags können <b>mit Komma</b> voneinander getrennt werden.</string>
-    <string name="are_you_sure_to_logout">Bist du sicher, dass du Dich abmelden möchtest?</string>
+    <string name="are_you_sure_to_logout">Bist du sicher, dass du Dich auf diesem Gerät abmelden möchtest?</string>
     <string name="benis">Benis:</string>
     <string name="comment_hint">Kommentar…</string>
     <string name="error_could_not_create_download_directory">Downloadordner konnte nicht angelegt werden.</string>

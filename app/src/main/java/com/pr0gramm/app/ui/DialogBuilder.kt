@@ -4,21 +4,24 @@ import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.support.annotation.LayoutRes
-import android.support.annotation.MainThread
 import android.support.annotation.StringRes
+import android.support.annotation.StyleRes
+import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
+import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.AppCompatCheckBox
 import android.text.SpannableString
 import android.text.util.Linkify
+import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.pr0gramm.app.R
-import com.pr0gramm.app.util.AndroidUtility
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
-import com.pr0gramm.app.util.NonCrashingLinkMovementMethod
+import com.pr0gramm.app.util.*
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -31,114 +34,116 @@ typealias DialogOnCancelListener = (Dialog) -> Unit
 /**
  * Helper to build dialogs.
  */
-class DialogBuilder internal constructor(private val context: Context) {
-    private val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+class DialogBuilder(private val context: Context, private val bottomSheet: Boolean = false) {
+    private val dialogButtons = intArrayOf(Dialog.BUTTON_NEGATIVE, Dialog.BUTTON_POSITIVE, Dialog.BUTTON_NEUTRAL)
 
-    private val preferences: SharedPreferences = context.getSharedPreferences(
+    private val preferences: SharedPreferences = context.applicationContext.getSharedPreferences(
             "dialog-builder-v" + AndroidUtility.buildVersionCode(),
             Context.MODE_PRIVATE)
 
+    private val logger = LoggerFactory.getLogger("DialogBuilder")
 
-    private var onClickPositive: DialogClickListener = EMPTY
-    private var onClickNegative: DialogClickListener = EMPTY
-    private var onClickNeutral: DialogClickListener = EMPTY
-    private var onShowListener: DialogOnShowListener = EMPTY
-    private var onCancelListener: DialogOnCancelListener = EMPTY
+    private var buttonPositiveText: String? = null
+    private var buttonPositiveClick: DialogClickListener? = null
+
+    private var buttonNegativeText: String? = null
+    private var buttonNegativeClick: DialogClickListener? = null
+
+    private var buttonNeutralText: String? = null
+    private var buttonNeutralClick: DialogClickListener? = null
+
+    private var onShowListener: DialogOnShowListener? = null
+    private var onCancelListener: DialogOnCancelListener? = null
 
     private var dismissOnClick = true
     private var dontShowAgainKey: String? = null
 
+    private var cancelable = false
+
+    private var title: CharSequence? = null
+    private var contentText: CharSequence? = null
+    private var contentView: Int? = null
+
     private var onNotShown: () -> Unit = {}
 
-    init {
-        // default
-        builder.setCancelable(false)
-    }
-
-    fun content(@StringRes content: Int, vararg args: Any): DialogBuilder {
+    fun content(@StringRes content: Int, vararg args: Any) {
         return content(getString(content, args))
     }
 
-    fun content(content: CharSequence): DialogBuilder {
-        this.builder.setMessage(content)
-        return this
+    fun content(content: CharSequence) {
+        contentText = content
+        contentView = null
     }
 
-    fun contentWithLinks(content: String): DialogBuilder {
+    fun contentWithLinks(content: String) {
         val s = SpannableString(content)
         Linkify.addLinks(s, Linkify.WEB_URLS)
         return content(s)
     }
 
-    fun title(title: String): DialogBuilder {
-        builder.setTitle(title)
-        return this
+    fun title(title: String) {
+        this.title = title
     }
 
-    fun title(@StringRes title: Int, vararg args: Any): DialogBuilder {
+    fun title(@StringRes title: Int, vararg args: Any) {
         return title(getString(title, args))
     }
 
-    fun dontShowAgainKey(key: String): DialogBuilder {
+    fun dontShowAgainKey(key: String) {
         dontShowAgainKey = key
-        return this
     }
 
-    fun onNotShown(fn: () -> Unit): DialogBuilder {
+    fun onNotShown(fn: () -> Unit) {
         onNotShown = fn
-        return this
     }
 
-    fun layout(@LayoutRes view: Int): DialogBuilder {
-        builder.setView(view)
-        return this
+    fun layout(@LayoutRes view: Int) {
+        contentView = view
+        contentText = null
     }
 
-    fun noAutoDismiss(): DialogBuilder {
+    fun noAutoDismiss() {
         this.dismissOnClick = false
-        return this
     }
 
-    // TODO remove after kotlin migration.
-    fun positive(@StringRes text: Int, onClick: Runnable): DialogBuilder {
-        return positive(getString(text), { onClick.run() })
-    }
-
-    @JvmOverloads
-    fun positive(@StringRes text: Int, onClick: DialogClickListener = EMPTY): DialogBuilder {
+    fun positive(@StringRes text: Int, onClick: DialogClickListener? = null) {
         return positive(getString(text), onClick)
     }
 
-    @JvmOverloads
-    fun positive(text: String = getString(R.string.okay), onClick: DialogClickListener = EMPTY): DialogBuilder {
-        builder.setPositiveButton(text, null)
-        this.onClickPositive = onClick
-        return this
+    fun positive(text: String = getString(R.string.okay), onClick: DialogClickListener? = null) {
+        buttonPositiveText = text
+        buttonPositiveClick = onClick
     }
 
-    @JvmOverloads
-    fun negative(@StringRes text: Int = R.string.cancel, onClick: DialogClickListener = EMPTY): DialogBuilder {
+    fun negative(@StringRes text: Int = R.string.cancel, onClick: DialogClickListener? = null) {
         return negative(getString(text), onClick)
     }
 
-    fun negative(text: String, onClick: DialogClickListener): DialogBuilder {
-        builder.setNegativeButton(text, null)
-        this.onClickNegative = onClick
-        return this
+    fun negative(text: String, onClick: DialogClickListener? = null) {
+        buttonNegativeText = text
+        buttonNegativeClick = onClick
     }
 
-    @JvmOverloads
-    fun neutral(@StringRes text: Int, onClick: DialogClickListener = EMPTY): DialogBuilder {
+    fun neutral(@StringRes text: Int, onClick: DialogClickListener? = null) {
         return neutral(getString(text), onClick)
     }
 
-    @JvmOverloads
-    fun neutral(text: String = getString(R.string.okay), onClick: DialogClickListener = EMPTY): DialogBuilder {
-        builder.setNeutralButton(text, null)
-        this.onClickNeutral = onClick
-        return this
+    fun neutral(text: String = getString(R.string.okay), onClick: DialogClickListener? = null) {
+        buttonNeutralText = text
+        buttonNeutralClick = onClick
     }
 
+    fun cancelable() {
+        cancelable = true
+    }
+
+    fun onShow(onShowListener: DialogOnShowListener) {
+        this.onShowListener = onShowListener
+    }
+
+    fun onCancel(onCancelListener: DialogOnCancelListener) {
+        this.onCancelListener = onCancelListener
+    }
 
     private fun getString(@StringRes content: Int): String {
         return context.getString(content)
@@ -174,32 +179,66 @@ class DialogBuilder internal constructor(private val context: Context) {
             return dialog
         }
 
-        val dialog = builder.create()
+        val dialog: Dialog = if (bottomSheet) {
+            BottomSheetAlertDialog(context).let { b ->
+                b.setCancelable(cancelable)
+
+                buttonPositiveText?.let { b.setPositiveButton(it) }
+                buttonNegativeText?.let { b.setNegativeButton(it) }
+                buttonNeutralText?.let { b.setNeutralButton(it) }
+
+                title?.let { b.setTitle(it) }
+
+                // only one of those two is non zero.
+                contentText?.let { b.setTextContent(it) }
+                contentView?.let { b.setCustomContent(it) }
+
+                b
+            }
+        } else {
+            AlertDialog.Builder(context).let { b ->
+                b.setCancelable(cancelable)
+
+                buttonPositiveText?.let { b.setPositiveButton(it, null) }
+                buttonNegativeText?.let { b.setNegativeButton(it, null) }
+                buttonNeutralText?.let { b.setNeutralButton(it, null) }
+
+                title?.let { b.setTitle(it) }
+
+                // only one of those two is non zero.
+                contentText?.let { b.setMessage(it) }
+                contentView?.let { b.setView(it) }
+
+                b.create()
+            }
+        }
 
         dialog.setOnShowListener {
             val messageView: View? = dialog.findViewById(android.R.id.message)
-
-            val dontShowAgainClicked = setupDontShowAgainView(messageView)
-
-            for (button in BUTTONS) {
-                val btn = dialog.getButton(button)
-                btn?.setOnClickListener {
-                    onButtonClicked(button, dialog, dontShowAgainClicked.get())
-                }
-            }
 
             if (messageView is TextView) {
                 messageView.movementMethod = NonCrashingLinkMovementMethod()
             }
 
-            onShowListener(dialog)
+            val dontShowAgainClicked = setupDontShowAgainView(messageView)
+
+            // we handle the clicks to the buttons.
+            for (button in dialogButtons) {
+                val buttonView = when (dialog) {
+                    is AlertDialog -> dialog.getButton(button)
+                    is BottomSheetAlertDialog -> dialog.getButton(button)
+                    else -> null
+                }
+
+                buttonView?.setOnClickListener {
+                    onButtonClicked(button, dialog, dontShowAgainClicked.get())
+                }
+            }
+
+            onShowListener?.invoke(dialog)
         }
 
-        if (onCancelListener !== EMPTY) {
-            dialog.setOnCancelListener {
-                onCancelListener(dialog)
-            }
-        }
+        onCancelListener?.let { dialog.setOnCancelListener { it(dialog) } }
 
         return dialog
     }
@@ -238,64 +277,115 @@ class DialogBuilder internal constructor(private val context: Context) {
         return dontShowAgainKey != null && this.preferences.getBoolean(dontShowAgainKey, false)
     }
 
-    private fun onButtonClicked(button: Int, dialog: AlertDialog, dontShowAgain: Boolean) {
+    private fun onButtonClicked(button: Int, dialog: Dialog, dontShowAgain: Boolean) {
         when (button) {
-            Dialog.BUTTON_POSITIVE -> onClickPositive(dialog)
-            Dialog.BUTTON_NEGATIVE -> onClickNegative(dialog)
-            Dialog.BUTTON_NEUTRAL -> onClickNeutral(dialog)
+            Dialog.BUTTON_POSITIVE -> buttonPositiveClick?.invoke(dialog)
+            Dialog.BUTTON_NEGATIVE -> buttonNegativeClick?.invoke(dialog)
+            Dialog.BUTTON_NEUTRAL -> buttonNeutralClick?.invoke(dialog)
         }
 
         if (dismissOnClick) {
             dialog.dismiss()
         }
 
-        if (dontShowAgainKey != null && dontShowAgain) {
-            logger.info("Never show dialog '{}' again", dontShowAgainKey)
-            preferences.edit()
-                    .putBoolean(dontShowAgainKey, true)
-                    .apply()
+        dontShowAgainKey.takeIf { dontShowAgain }?.let { key ->
+            logger.info("Never show dialog '{}' again", key)
+            preferences.edit {
+                putBoolean(key, true)
+            }
         }
     }
+}
 
-    fun cancelable(): DialogBuilder {
-        builder.setCancelable(true)
-        return this
+private fun resolveDialogTheme(context: Context, @StyleRes resid: Int): Int {
+    // Check to see if this resourceId has a valid package ID.
+    return if (resid.ushr(24) and 0x000000ff >= 0x00000001) {   // start of real resource IDs.
+        resid
+    } else {
+        val outValue = TypedValue()
+        context.theme.resolveAttribute(android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true)
+        outValue.resourceId
+    }
+}
+
+private class BottomSheetAlertDialog(ctx: Context, theme: Int = R.style.MyBottomSheetDialog) :
+        BottomSheetDialog(ContextThemeWrapper(ctx, resolveDialogTheme(ctx, theme)), resolveDialogTheme(ctx, theme)) {
+
+    private val view: ViewGroup = (ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
+            .inflate(R.layout.bottom_sheet_alert_dialog)
+            .also { setContentView(it) } as ViewGroup
+
+    val buttonPositive: Button = view.find(android.R.id.button1)
+    val buttonNegative: Button = view.find(android.R.id.button2)
+    val buttonNeutral: Button = view.find(android.R.id.button3)
+
+    private val titleSpacerNoTitle: View = view.find(R.id.titleSpacerNoTitle)
+    private val textContent: TextView = view.find(R.id.textContent)
+    private val customContent: ViewGroup = view.find(R.id.custom)
+    private val title: TextView = view.find(R.id.title)
+
+    fun setCustomContent(@LayoutRes content: Int) {
+        customContent.removeAllViews()
+        customContent.layoutInflater.inflate(content, customContent, true)
     }
 
-    fun onShow(onShowListener: DialogOnShowListener): DialogBuilder {
-        this.onShowListener = onShowListener
-        return this
+    fun setTextContent(text: CharSequence) {
+        textContent.text = text
     }
 
-    fun onCancel(onCancelListener: DialogOnCancelListener): DialogBuilder {
-        this.onCancelListener = onCancelListener
-        return this
+    override fun setTitle(text: CharSequence) {
+        super.setTitle(text)
+
+        title.text = text
+        title.visible = true
+        titleSpacerNoTitle.visible = false
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger("DialogBuilder")
-        private val BUTTONS = intArrayOf(Dialog.BUTTON_NEGATIVE, Dialog.BUTTON_POSITIVE, Dialog.BUTTON_NEUTRAL)
-        private val EMPTY: DialogClickListener = {}
+    fun setPositiveButton(text: String) {
+        buttonPositive.visible = true
+        buttonPositive.text = text
+    }
 
-        @MainThread
-        fun start(context: Context): DialogBuilder {
-            checkMainThread()
-            return DialogBuilder(context)
+    fun setNegativeButton(text: String) {
+        buttonNegative.visible = true
+        buttonNegative.text = text
+    }
+
+    fun setNeutralButton(text: String) {
+        buttonNeutral.visible = true
+        buttonNeutral.text = text
+    }
+
+    fun getButton(idx: Int): Button? {
+        return when (idx) {
+            AlertDialog.BUTTON_POSITIVE -> buttonPositive
+            AlertDialog.BUTTON_NEGATIVE -> buttonNegative
+            AlertDialog.BUTTON_NEUTRAL -> buttonNeutral
+            else -> null
         }
     }
 }
 
 inline fun dialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
-    return DialogBuilder.start(fragment.context!!).apply { configure() }.build()
+    return dialog(fragment.requireContext(), configure)
 }
 
 inline fun dialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
-    return DialogBuilder.start(context).apply { configure() }.build()
+    return DialogBuilder(context).apply(configure).build()
+}
+
+inline fun bottomSheet(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+    return bottomSheet(fragment.requireContext(), configure)
+}
+
+inline fun bottomSheet(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
+    return DialogBuilder(context, bottomSheet = true).apply(configure).build()
 }
 
 inline fun showDialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
-    return DialogBuilder.start(fragment.context!!).apply { configure() }.show()
+    return showDialog(fragment.requireContext(), configure)
 }
+
 inline fun showDialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
-    return DialogBuilder.start(context).apply { configure() }.show()
+    return DialogBuilder(context).apply(configure).show()
 }

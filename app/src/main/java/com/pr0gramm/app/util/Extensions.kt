@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.content.res.TypedArray
 import android.database.Cursor
 import android.graphics.Canvas
@@ -173,23 +174,26 @@ inline fun <T> cached(crossinline fn: () -> T): CachedValue<T> = object : Cached
 }
 
 inline fun <reified T : View> Activity.find(id: Int): T {
-    return findViewById<T>(id)!!
+    return findViewById(id) ?: throw Resources.NotFoundException(
+            "View ${resources.getResourceName(id)} not found")
 }
 
 inline fun <reified T : View> View.find(id: Int): T {
-    return findViewById<T>(id)!!
+    return findViewById(id) ?: throw Resources.NotFoundException(
+            "View ${resources.getResourceName(id)} not found")
 }
 
 inline fun <reified T : View> View.findOptional(id: Int): T? {
-    return findViewById<T>(id)
+    return findViewById(id)
 }
 
 inline fun <reified T : View> RecyclerView.ViewHolder.find(id: Int): T {
-    return itemView.findViewById<T>(id)!!
+    return itemView.findViewById(id) ?: throw Resources.NotFoundException(
+            "View ${itemView.resources.getResourceName(id)} not found")
 }
 
 inline fun <reified T : View> RecyclerView.ViewHolder.findOptional(id: Int): T? {
-    return itemView.findViewById<T>(id)
+    return itemView.findViewById(id)
 }
 
 var View.visible: Boolean
@@ -249,12 +253,8 @@ fun View?.removeFromParent() {
     parent?.removeView(this)
 }
 
-fun <T> T?.justObservable(): Observable<T> {
-    if (this != null) {
-        return Observable.just(this)
-    } else {
-        return Observable.empty()
-    }
+fun <T : Any> T?.justObservable(): Observable<T> {
+    return this?.let { Observable.just(it) } ?: Observable.empty()
 }
 
 

@@ -66,7 +66,7 @@
     <string name="action_download">Download</string>
     <string name="error_could_not_create_download_directory">Could not create download directory.</string>
     <string name="logout">Logout</string>
-    <string name="are_you_sure_to_logout">Are you sure to logout?</string>
+    <string name="are_you_sure_to_logout">Are you sure to logout on this device?</string>
     <string name="benis_graph_explanation">This is your personal benis graph. It shows the changes in your benis in the past seven days.</string>
     <string name="pref_double_tap_to_upvote">Upvote with double tap</string>
     <string name="pref_double_tap_to_upvote_summary">Double tap on an image or video performs an upvote</string>
