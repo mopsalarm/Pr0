@@ -34,8 +34,7 @@ class UpdateDialogFragment : BaseDialogFragment("UpdateDialogFragment") {
 
         return dialog(this) {
             content(AndroidUtility.linkify(context, content))
-            positive(R.string.download) { activity?.let { UpdateChecker.download(it, update) } }
-            negative(R.string.ignore)
+            positive(R.string.install_update) { activity?.let { UpdateChecker.download(it, update) } }
         }
     }
 

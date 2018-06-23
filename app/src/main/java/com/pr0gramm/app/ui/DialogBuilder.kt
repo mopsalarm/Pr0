@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.support.annotation.LayoutRes
 import android.support.annotation.StringRes
 import android.support.annotation.StyleRes
+import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -18,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.pr0gramm.app.R
@@ -235,6 +237,17 @@ class DialogBuilder(private val context: Context, private val bottomSheet: Boole
                 }
             }
 
+            if (dialog is BottomSheetDialog) {
+                val bottomSheet = dialog.findViewById<View>(android.support.design.R.id.design_bottom_sheet)
+                if (bottomSheet is FrameLayout) {
+                    ignoreException {
+                        BottomSheetBehavior
+                                .from(bottomSheet)
+                                .setState(BottomSheetBehavior.STATE_EXPANDED)
+                    }
+                }
+            }
+
             onShowListener?.invoke(dialog)
         }
 
@@ -388,4 +401,12 @@ inline fun showDialog(fragment: Fragment, configure: DialogBuilder.() -> Unit): 
 
 inline fun showDialog(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
     return DialogBuilder(context).apply(configure).show()
+}
+
+inline fun showBottomSheet(fragment: Fragment, configure: DialogBuilder.() -> Unit): Dialog {
+    return showBottomSheet(fragment.requireContext(), configure)
+}
+
+inline fun showBottomSheet(context: Context, configure: DialogBuilder.() -> Unit): Dialog {
+    return DialogBuilder(context, bottomSheet = true).apply(configure).show()
 }

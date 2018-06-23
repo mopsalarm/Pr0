@@ -1,12 +1,16 @@
 package com.pr0gramm.app.ui.upload
 
+import android.app.Dialog
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetDialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import com.pr0gramm.app.R
 import com.pr0gramm.app.ui.MenuSheetView
+import com.pr0gramm.app.util.ignoreException
 
 class UploadTypeDialogFragment : BottomSheetDialogFragment() {
     override fun getTheme(): Int = R.style.MyBottomSheetDialog
@@ -29,5 +33,18 @@ class UploadTypeDialogFragment : BottomSheetDialogFragment() {
         menuSheetView.inflateMenu(R.menu.menu_upload)
 
         return menuSheetView
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState).apply {
+            setOnShowListener {
+                val bottomSheet = dialog.findViewById<View>(android.support.design.R.id.design_bottom_sheet)
+                if (bottomSheet is FrameLayout) {
+                    ignoreException {
+                        BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED)
+                    }
+                }
+            }
+        }
     }
 }

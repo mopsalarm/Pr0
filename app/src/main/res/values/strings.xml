@@ -12,7 +12,7 @@
     <string name="banned">Your account is banned until %1$s from now. Reason: %2$s</string>
     <string name="banned_forever">Your account is banned forever. Reason: %s</string>
     <string name="cancel">Cancel</string>
-    <string name="download">Download</string>
+    <string name="install_update">Install</string>
     <string name="dummy_text" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. </string>
     <string name="dummy_post_date">3 hours ago</string>
     <string name="dummy_user_name">Mopsalarm</string>

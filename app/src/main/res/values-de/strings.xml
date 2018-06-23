@@ -11,7 +11,7 @@
     <string name="app_name">pr0gramm</string>
     <string name="banned">Du bist bis in %1$s gebannt. Grund: %2$s</string>
     <string name="cancel">Abbrechen</string>
-    <string name="download">Download</string>
+    <string name="install_update">Installieren</string>
     <string name="dummy_post_date">3 hours ago</string>
     <string name="dummy_user_name">Mopsalarm</string>
     <string name="error_connect_exception">Verbindung konnte nicht aufgebaut werden: %s</string>

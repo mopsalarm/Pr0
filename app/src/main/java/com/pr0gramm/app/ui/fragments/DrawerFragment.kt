@@ -27,11 +27,8 @@ import com.pr0gramm.app.ui.*
 import com.pr0gramm.app.ui.base.BaseFragment
 import com.pr0gramm.app.ui.dialogs.LogoutDialogFragment
 import com.pr0gramm.app.ui.dialogs.ignoreError
+import com.pr0gramm.app.util.*
 import com.pr0gramm.app.util.AndroidUtility.getStatusBarHeight
-import com.pr0gramm.app.util.BrowserHelper
-import com.pr0gramm.app.util.debug
-import com.pr0gramm.app.util.use
-import com.pr0gramm.app.util.visible
 import java.util.*
 
 /**
@@ -391,7 +388,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private fun showDialogToRemoveBookmark(bookmark: Bookmark) {
-        showDialog(this) {
+        showBottomSheet(this) {
             content(R.string.do_you_want_to_remove_this_bookmark)
             negative(R.string.cancel)
             positive(R.string.delete) { bookmarkService.delete(bookmark) }
@@ -416,7 +413,7 @@ class DrawerFragment : BaseFragment("DrawerFragment") {
     }
 
     private class NavigationItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val text = (itemView as? TextView ?: itemView.findViewById(R.id.title))
-        val unread = itemView.findViewById<TextView>(R.id.unread_count)
+        val text: TextView = (itemView as? TextView ?: itemView.find(R.id.title))
+        val unread: TextView? = itemView.findOptional(R.id.unread_count)
     }
 }
