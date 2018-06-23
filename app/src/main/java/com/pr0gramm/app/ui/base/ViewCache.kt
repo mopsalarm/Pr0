@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
 private object Empty
 
 class ViewCache(val lookupView: (Int) -> View?) {
-    private val cache: TIntObjectMap<Any> = TIntObjectHashMap()
+    private val cache: TIntObjectMap<Any> = TIntObjectHashMap(64)
 
     fun <R, V : View> bindView(@IdRes id: Int): ReadOnlyProperty<R, V> {
         return object : ReadOnlyProperty<R, V> {
