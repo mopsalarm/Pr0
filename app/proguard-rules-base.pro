@@ -88,4 +88,8 @@
 
 -keepnames @com.squareup.moshi.JsonClass class *
 
+# keeps crashing without this on kotlin 1.2.50... maybe
+# old dependencies? propagate fields?
+-keep class kotlin.math.MathKt*
+
 -printconfiguration /tmp/proguard.pro
