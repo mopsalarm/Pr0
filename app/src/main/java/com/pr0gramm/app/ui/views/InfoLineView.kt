@@ -1,10 +1,13 @@
 package com.pr0gramm.app.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.support.v7.util.DiffUtil
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
-import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -18,60 +21,43 @@ import com.pr0gramm.app.api.pr0gramm.Api
 import com.pr0gramm.app.feed.FeedItem
 import com.pr0gramm.app.orm.Vote
 import com.pr0gramm.app.services.UserService
+import com.pr0gramm.app.ui.AsyncListAdapter
 import com.pr0gramm.app.ui.ConservativeLinearLayoutManager
-import com.pr0gramm.app.ui.MergeRecyclerAdapter
-import com.pr0gramm.app.ui.SingleViewAdapter
 import com.pr0gramm.app.ui.TagCloudLayoutManager
-import com.pr0gramm.app.util.AndroidUtility.checkMainThread
 import com.pr0gramm.app.util.DurationFormat
 import com.pr0gramm.app.util.ValueHolder
 import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
+import gnu.trove.map.TLongObjectMap
+import gnu.trove.map.hash.TLongObjectHashMap
 import kotterknife.bindView
-import rx.Observable
 import java.lang.Math.min
-import kotlin.properties.Delegates.notNull
 
 /**
  */
-class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+class InfoLineView(context: Context) : LinearLayout(context) {
     private val ratingView: TextView by bindView(R.id.rating)
     private val dateView: TextView by bindView(R.id.date)
     private val usernameView: UsernameView by bindView(R.id.username)
-    private val tagsView: RecyclerView by bindView(R.id.tags)
     private val voteFavoriteView: Pr0grammIconView by bindView(R.id.action_favorite)
     private val ratingUnknownView: View by bindView(R.id.rating_hidden)
-    val voteView: VoteView by bindView(R.id.voting)
 
-    private val settings: Settings? = if (isInEditMode) null else Settings.get()
+    private val voteView: VoteView by bindView(R.id.voting)
+
     private val admin: Boolean = !isInEditMode && context.appKodein().instance<UserService>().userIsAdmin
 
     private var feedItem: FeedItem? = null
     private var isSelfPost: Boolean = false
-    private var tagsAdapter: TagsAdapter by notNull()
 
-    var onVoteListener: (Vote) -> Boolean = { false }
-    var onDetailClickedListener: OnDetailClickedListener? = null
-
-    var tagVoteListener: (Api.Tag, Vote) -> Boolean = { _, _ -> false }
-    var onAddTagClickedListener: () -> Unit = {}
+    var onDetailClickedListener: PostActions? = null
 
     init {
         orientation = LinearLayout.VERTICAL
 
-        View.inflate(context, R.layout.post_info_line, this)
-
-        val tagGaps = resources.getDimensionPixelSize(R.dimen.tag_gap_size)
-        if (settings != null && settings.tagCloudView) {
-            tagsView.itemAnimator = null
-            tagsView.layoutManager = TagCloudLayoutManager(tagGaps, tagGaps, 3)
-        } else {
-            tagsView.itemAnimator = null
-            tagsView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
-        }
+        inflate(context, R.layout.post_info_line, this)
 
         voteView.onVote = { newVote ->
-            val changed = onVoteListener(newVote)
+            val changed = onDetailClickedListener?.votePostClicked(newVote) ?: false
             if (changed) {
                 updateViewState(newVote)
             }
@@ -87,8 +73,6 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
                 voteView.doVote(Vote.FAVORITE)
             }
         }
-
-        updateTags(emptyMap())
     }
 
     /**
@@ -99,7 +83,7 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
      * *
      * @param vote The vote that belongs to the given item.
      */
-    fun setFeedItem(item: FeedItem, isSelfPost: Boolean, vote: Observable<Vote>) {
+    fun setFeedItem(item: FeedItem, isSelfPost: Boolean, vote: Vote) {
         this.feedItem = item
         this.isSelfPost = isSelfPost
 
@@ -113,11 +97,8 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
             onDetailClickedListener?.onUserClicked(item.user)
         }
 
-        vote.subscribe({ v ->
-            checkMainThread()
-            voteView.setVoteState(v, animate = false)
-            updateViewState(v)
-        }, {})
+        voteView.setVoteState(vote, animate = false)
+        updateViewState(vote)
     }
 
     /**
@@ -152,138 +133,178 @@ class InfoLineView @JvmOverloads constructor(context: Context, attrs: AttributeS
                 if (vote === Vote.FAVORITE) voteView.markedColor else voteView.defaultColor)
     }
 
-    fun updateTags(tags: Map<Api.Tag, Vote>) {
-        val sorted = tags.keys.sortedWith(
-                compareByDescending<Api.Tag> { it.confidence }.thenBy { it.id })
-
-        val factory = { context: Context ->
-            val addTagView = layoutInflater.inflate(R.layout.tags_add, null)
-            addTagView.setOnClickListener { onAddTagClickedListener() }
-            addTagView
-        }
-
-        factory(context).let { view ->
-            view.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
-
-            val spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            view.measure(spec, spec)
-
-            val height = view.measuredHeight
-            tagsView.minimumHeight = height
-
-            tagsAdapter = TagsAdapter(sorted, tags)
-        }
-
-        val adapter = MergeRecyclerAdapter()
-        adapter.addAdapter(SingleViewAdapter.of(factory))
-        adapter.addAdapter(tagsAdapter)
-        tagsView.adapter = adapter
-    }
-
-    fun addVote(tag: Api.Tag, vote: Vote) {
-        tagsAdapter.updateVote(tag, vote)
-    }
-
     private val isOneHourOld: Boolean
         get() {
             val oneHourAgo = Instant.now() - Duration.hours(1)
             return feedItem?.created?.isBefore(oneHourAgo) ?: false
     }
+}
 
-    private inner class TagsAdapter(tags: List<Api.Tag>, votes: Map<Api.Tag, Vote>) : RecyclerView.Adapter<TagViewHolder>() {
-        private val tags = tags.toList()
-        private val votes = votes.toMutableMap()
-        private val alwaysVoteViews = settings != null && !settings.hideTagVoteButtons
-        private var selected = -1
+interface PostActions {
+    /**
+     * Called if the user clicked on a tag.
 
-        init {
-            setHasStableIds(true)
-        }
+     * @param tag The tag that was clicked.
+     */
+    fun onTagClicked(tag: Api.Tag)
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagViewHolder {
-            val view = layoutInflater.inflate(R.layout.tag, parent, false)
-            return TagViewHolder(view)
-        }
+    /**
+     * Called if a user clicks on a username
+     * @param username The username that was clicked.
+     */
+    fun onUserClicked(username: String)
 
-        override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
-            val tag = tags[position]
-            val holderChanged = holder.id.update(tag.id)
+    /**
+     * The User wants to vote this tag.
+     */
+    fun voteTagClicked(tag: Api.Tag, vote: Vote): Boolean
 
-            holder.tag.text = tag.tag
-            holder.tag.setOnClickListener {
-                onDetailClickedListener?.onTagClicked(tag)
+    /**
+     * The user wants to vote this post
+     */
+    fun votePostClicked(vote: Vote): Boolean
+
+    /**
+     * The user wants to write a new tag.
+     */
+    fun writeNewTagClicked()
+
+    /**
+     * Writes a new comment
+     */
+    fun writeCommentClicked(text: String): Boolean
+}
+
+@SuppressLint("ViewConstructor")
+class TagsView(context: Context, private val onDetailClickedListener: PostActions) : FrameLayout(context) {
+    private val alwaysVoteViews = !Settings.get().hideTagVoteButtons
+
+    private val adapter = TagsAdapter().apply { submitList(emptyList()) }
+
+    private var selectedTagId = -1L
+    private var tags: List<Api.Tag> = listOf()
+    private var votes: TLongObjectMap<Vote> = TLongObjectHashMap()
+
+    init {
+        View.inflate(context, R.layout.post_tags, this)
+
+        val recyclerView = find<RecyclerView>(R.id.tags)
+        recyclerView.adapter = adapter
+
+        if (Settings.get().tagCloudView) {
+            val tagGaps = resources.getDimensionPixelSize(R.dimen.tag_gap_size)
+            recyclerView.layoutManager = TagCloudLayoutManager(tagGaps, tagGaps, 3)
+            recyclerView.itemAnimator = null
+        } else {
+            recyclerView.layoutManager = ConservativeLinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false)
+
+            recyclerView.itemAnimator = DefaultItemAnimator().apply {
+                supportsChangeAnimations = false
             }
 
-            if (shouldShowVoteView(position)) {
-                holder.vote.setVoteState(votes[tag] ?: Vote.NEUTRAL, !holderChanged)
-                holder.vote.visibility = View.VISIBLE
+        }
+    }
+
+    fun updateTags(tags: List<Api.Tag>, votes: TLongObjectMap<Vote>) {
+        this.tags = tags
+        this.votes = votes
+        rebuildAdapterState()
+    }
+
+    private fun updateSelection(id: Long) {
+        selectedTagId = id
+        rebuildAdapterState()
+    }
+
+    private fun rebuildAdapterState() {
+        adapter.submitList(tags.map { tag ->
+            val vote = votes.get(tag.id) ?: Vote.NEUTRAL
+            val selected = alwaysVoteViews || tag.id == selectedTagId
+            VotedTag(tag, vote, selected)
+        })
+    }
+
+    private data class VotedTag(val tag: Api.Tag, val vote: Vote, val selected: Boolean)
+
+    private inner class TagsAdapter : AsyncListAdapter<VotedTag,
+            RecyclerView.ViewHolder>(DiffCallback(), detectMoves = true) {
+
+        override fun submitList(newList: List<VotedTag>) {
+            val dummyTag = VotedTag(Api.Tag(-2L, 0f, "dummy"), Vote.NEUTRAL, false)
+            super.submitList(listOf(dummyTag) + newList)
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            return if (position == 0) 0 else 1
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            return when (viewType) {
+                0 -> ButtonHolder(parent.layoutInflater.inflate(R.layout.tags_add, parent, false))
+                1 -> TagViewHolder(parent.layoutInflater.inflate(R.layout.tag, parent, false))
+                else -> throw IllegalArgumentException("Unknown view type")
+            }
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            when (holder) {
+                is TagViewHolder -> holder.set(items[position])
+            }
+        }
+    }
+
+    private inner class ButtonHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        init {
+            itemView.setOnClickListener { onDetailClickedListener.writeNewTagClicked() }
+        }
+    }
+
+    private inner class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val id = ValueHolder<Long>()
+        private val tagView: TextView = itemView.find(R.id.tag_text)
+        private val voteView: VoteView = itemView.find(R.id.tag_vote)
+
+        fun set(votedTag: VotedTag) {
+            val (tag, vote, selected) = votedTag
+            val holderChanged = id.update(tag.id)
+
+            tagView.text = tag.tag
+            tagView.setOnClickListener {
+                onDetailClickedListener.onTagClicked(tag)
+            }
+
+            if (selected) {
+                voteView.setVoteState(vote, !holderChanged)
+                voteView.visibility = View.VISIBLE
 
                 if (!alwaysVoteViews) {
-                    holder.tag.setOnLongClickListener {
+                    tagView.setOnLongClickListener {
                         updateSelection(-1)
                         true
                     }
                 }
 
-                holder.vote.onVote = { vote -> tagVoteListener(tag, vote) }
+                voteView.onVote = { newVote ->
+                    onDetailClickedListener.voteTagClicked(tag, newVote)
+                }
 
             } else {
-                holder.vote.visibility = View.GONE
-                holder.tag.setOnLongClickListener {
-                    updateSelection(position)
+                voteView.visibility = View.GONE
+                tagView.setOnLongClickListener {
+                    updateSelection(tag.id)
                     true
                 }
             }
         }
-
-        private fun shouldShowVoteView(position: Int): Boolean {
-            return position == selected || alwaysVoteViews
-        }
-
-        private fun updateSelection(position: Int) {
-            val previousSelected = selected
-            selected = position
-
-            notifyItemChanged(previousSelected.coerceAtLeast(0))
-            notifyItemChanged(selected)
-        }
-
-        override fun getItemCount(): Int {
-            return tags.size
-        }
-
-        override fun getItemId(position: Int): Long {
-            return tags[position].id
-        }
-
-        internal fun updateVote(tag: Api.Tag, vote: Vote) {
-            votes[tag] = vote
-            notifyDataSetChanged()
-        }
     }
 
-    private class TagViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val id = ValueHolder<Long>()
+    private class DiffCallback : DiffUtil.ItemCallback<VotedTag>() {
+        override fun areItemsTheSame(oldItem: VotedTag, newItem: VotedTag): Boolean {
+            return oldItem.tag.id == newItem.tag.id
+        }
 
-        val tag: TextView = itemView.find(R.id.tag_text)
-        val vote: VoteView = itemView.find(R.id.tag_vote)
-    }
-
-    interface OnDetailClickedListener {
-        /**
-         * Called if the user clicked on a tag.
-
-         * @param tag The tag that was clicked.
-         */
-        fun onTagClicked(tag: Api.Tag)
-
-        /**
-         * Called if a user clicks on a username
-
-         * @param username The username that was clicked.
-         */
-        fun onUserClicked(username: String)
+        override fun areContentsTheSame(oldItem: VotedTag, newItem: VotedTag): Boolean {
+            return oldItem == newItem
+        }
     }
 }

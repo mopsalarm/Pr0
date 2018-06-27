@@ -91,7 +91,7 @@ fun httpModule(app: ApplicationClass) = Kodein.Module {
                 .dns(FallbackDns())
                 .connectionSpecs(listOf(spec, ConnectionSpec.COMPATIBLE_TLS, ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
 
-                .addNetworkInterceptor(DebugInterceptor())
+                .addInterceptor(DebugInterceptor())
 
                 .addInterceptor(DoNotCacheInterceptor("vid.pr0gramm.com", "img.pr0gramm.com", "full.pr0gramm.com"))
                 .addNetworkInterceptor(UserAgentInterceptor("pr0gramm-app/v" + BuildConfig.VERSION_CODE))

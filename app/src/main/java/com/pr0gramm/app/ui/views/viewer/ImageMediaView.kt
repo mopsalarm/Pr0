@@ -23,7 +23,7 @@ class ImageMediaView(config: MediaView.Config) : MediaView(config, R.layout.play
     private val CAP_IMAGE_RATIO = 1f / 30f
 
     private val tag = "ImageMediaView" + System.identityHashCode(this)
-    private val zoomView = findViewById<View>(R.id.tabletlayout) != null
+    private val zoomView = false
 
     private val imageView: SubsamplingScaleImageView by bindView(R.id.image)
     private val errorIndicator: TextView by bindView(R.id.error)

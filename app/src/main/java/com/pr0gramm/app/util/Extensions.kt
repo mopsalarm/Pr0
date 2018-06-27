@@ -413,3 +413,7 @@ inline fun <R : Any> unless(b: Boolean, fn: () -> R?): R? {
         null
     }
 }
+
+fun <T : Any?> T.applyIf(b: Boolean, fn: T.() -> T): T {
+    return if (b) this.fn() else this
+}

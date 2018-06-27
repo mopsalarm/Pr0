@@ -508,9 +508,9 @@
     <string name="upload_state_uploading">Hochladen…</string>
     <string name="upload_state_pending">#%d in der Warteschlange</string>
     <string name="upload_state_uploaded">Poste…</string>
-    <string name="hint_new_items_many">Neue Uploads gefunden</string>
-    <string name="hint_new_items_some">%d neue Uploads gefunden</string>
-    <string name="hint_new_items_one">Einen neuen Upload gefunden</string>
+    <string name="hint_new_items_many">Neue Hochlads gefunden</string>
+    <string name="hint_new_items_some">%d neue Hochlads gefunden</string>
+    <string name="hint_new_items_one">Einen neuen Hochlad gefunden</string>
     <string name="hint_refresh_load">Laden</string>
     <string name="perf_sync_backup_title">Synchronisieren</string>
     <string name="pref_sync_backup_summary">Automatisch als gesehen markierte Bilder mit anderen Geräten synchronisieren und backupen</string>

@@ -31,18 +31,19 @@ object MediaViews {
         }
 
         val uri = config.mediaUri
-        if (uri.mediaType == MediaUri.MediaType.VIDEO) {
-            return VideoMediaView(config)
+
+        return if (uri.mediaType == MediaUri.MediaType.VIDEO) {
+            VideoMediaView(config)
 
         } else if (uri.mediaType == MediaUri.MediaType.GIF) {
             if (shouldUseGifToWebm(uri, settings)) {
-                return Gif2VideoMediaView(config)
+                Gif2VideoMediaView(config)
             } else {
-                return GifMediaView(config)
+                GifMediaView(config)
             }
 
         } else {
-            return ImageMediaView(config)
+            ImageMediaView(config)
         }
     }
 

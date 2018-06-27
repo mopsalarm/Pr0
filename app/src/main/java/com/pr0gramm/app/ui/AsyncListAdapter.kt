@@ -3,15 +3,18 @@ package com.pr0gramm.app.ui
 import android.support.v7.util.DiffUtil
 import android.support.v7.util.ListUpdateCallback
 import android.support.v7.widget.RecyclerView
+import com.pr0gramm.app.util.applyIf
 import com.pr0gramm.app.util.observeOnMain
 import com.pr0gramm.app.util.subscribeOnBackground
+import org.slf4j.LoggerFactory
 import rx.Observable
 import rx.subjects.PublishSubject
 
-private const val detectMoves = false
-
 abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
-        private val diffCallback: DiffUtil.ItemCallback<T>) : RecyclerView.Adapter<V>() {
+        private val diffCallback: DiffUtil.ItemCallback<T>,
+        private val detectMoves: Boolean = false) : RecyclerView.Adapter<V>() {
+
+    private val logger = LoggerFactory.getLogger("AsyncListAdapter")
 
     private val updateSubject: PublishSubject<List<T>> = PublishSubject.create()
     val updates = updateSubject as Observable<List<T>>
@@ -40,53 +43,55 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
      * @param newList The new List.
      */
     open fun submitList(newList: List<T>) {
-        if (newList === items) {
+        val oldList = items
+
+        if (newList === oldList) {
             // nothing to do
             return
         }
+
+        logger.debug("Submitting items to adapter. new={}, old={}", newList.size, oldList.size)
 
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
 
         // fast simple remove all
         if (newList.isEmpty()) {
-            val countRemoved = items.size
-            items = emptyList()
-
-            // notify last, after list is updated
-            notifyItemRangeRemoved(0, countRemoved)
-            updateSubject.onNext(items)
+            applyNewItems(emptyList()) {
+                notifyItemRangeRemoved(0, oldList.size)
+            }
 
             return
         }
 
-        // fast simple first insert
-        if (items.isEmpty()) {
-            items = newList
-            // notify last, after list is updated
-            notifyItemRangeInserted(0, newList.size)
-            updateSubject.onNext(items)
+        // fast simple insert
+        if (oldList.isEmpty()) {
+            applyNewItems(newList) {
+                notifyItemRangeInserted(0, newList.size)
+            }
+
             return
         }
 
-        val oldList = items
 
-        // short list, do the diff in the current thread
-        if (oldList.size < 32 && newList.size < 32) {
-            val diff = calculateDiff(oldList, newList)
-            latchList(newList, diff)
-            return
-        }
-
-        Observable
-                .fromCallable { calculateDiff(oldList, newList) }
-                .subscribeOnBackground()
-                .observeOnMain()
-                .subscribe { result ->
+        Observable.fromCallable { calculateDiff(oldList, newList) }
+                .applyIf(oldList.size > 32 && newList.size > 32) {
+                    logger.debug("Calculate diff in background")
+                    subscribeOnBackground().observeOnMain()
+                }
+                .subscribe { diff ->
                     if (maxScheduledGeneration == runGeneration) {
-                        latchList(newList, result)
+                        applyNewItems(newList) {
+                            diff.dispatchUpdatesTo(this)
+                        }
                     }
                 }
+    }
+
+    private inline fun applyNewItems(items: List<T>, dispatch: () -> Unit) {
+        this.items = items
+        dispatch()
+        updateSubject.onNext(items)
     }
 
     private fun calculateDiff(oldList: List<T>, newList: List<T>): DiffUtil.DiffResult {
@@ -116,9 +121,4 @@ abstract class AsyncListAdapter<T: Any, V : RecyclerView.ViewHolder>(
         }, detectMoves)
     }
 
-    private fun latchList(newList: List<T>, diffResult: DiffUtil.DiffResult) {
-        items = newList
-        diffResult.dispatchUpdatesTo(this)
-        updateSubject.onNext(newList)
-    }
 }

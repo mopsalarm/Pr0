@@ -12,6 +12,7 @@ import com.pr0gramm.app.ui.LineMultiAutoCompleteTextView
 import com.pr0gramm.app.ui.UsernameAutoCompleteAdapter
 import com.pr0gramm.app.ui.UsernameTokenizer
 import com.pr0gramm.app.util.ViewUtility
+import com.pr0gramm.app.util.find
 import com.pr0gramm.app.util.layoutInflater
 import kotterknife.bindView
 import rx.Observable
@@ -27,9 +28,12 @@ class CommentPostLine @JvmOverloads constructor(
 
     init {
         layoutInflater.inflate(R.layout.write_comment_layout, this)
+        configureUsernameAutoComplete()
+    }
 
+    private fun configureUsernameAutoComplete() {
         // change the anchorViews id so it is unique in the view hierarchy
-        val anchorView = findViewById<View>(R.id.auto_complete_popup_anchor)
+        val anchorView = find<View>(R.id.auto_complete_popup_anchor)
         anchorView.id = ViewUtility.generateViewId()
 
         commentTextView.setAnchorView(anchorView)
@@ -56,7 +60,8 @@ class CommentPostLine @JvmOverloads constructor(
      * Notified about every text changes after typing
      */
     fun textChanges(): Observable<String> {
-        return commentTextView.afterTextChangeEvents()
+        return commentTextView
+                .afterTextChangeEvents()
                 .map { event -> event.editable().toString() }
     }
 
@@ -65,6 +70,8 @@ class CommentPostLine @JvmOverloads constructor(
     }
 
     fun setCommentDraft(text: String) {
-        this.commentTextView.setText(text)
+        if (this.commentTextView.text.toString() != text) {
+            this.commentTextView.setText(text)
+        }
     }
 }

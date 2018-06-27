@@ -68,7 +68,7 @@ class ReportDialog : BaseDialogFragment("ReportDialog") {
     companion object {
         fun forItem(item: FeedItem) = ReportDialog().apply { this.itemId = item.id }
 
-        fun forcomment(item: FeedItem, commentId: Long) = ReportDialog().apply {
+        fun forComment(item: FeedItem, commentId: Long) = ReportDialog().apply {
             this.itemId = item.id
             this.commentId = commentId
         }

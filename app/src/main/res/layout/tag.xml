@@ -19,15 +19,15 @@
         android:padding="8dp"
         android:textSize="14sp"
         android:singleLine="true"
-        android:lines="1"
-        />
+        android:background="?selectableItemBackgroundBorderless"
+        android:lines="1"/>
 
     <com.pr0gramm.app.ui.views.VoteView
         android:id="@+id/tag_vote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:orientation="horizontal"
-        app:defaultColor="@color/secondary_text_default_material_dark"
+        app:defaultColor="#b3ffffff"
         app:markedColor="?colorAccent"
         app:textSize="22sp"
         app:spacing="4sp"

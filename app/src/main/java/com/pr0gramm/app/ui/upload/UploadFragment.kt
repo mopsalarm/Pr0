@@ -346,7 +346,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
 
         fileMediaType = uri.mediaType
 
-        val viewer = MediaViews.newInstance(MediaView.Config.of(activity, uri))
+        val viewer = MediaViews.newInstance(MediaView.Config(activity, uri))
         viewer.layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -413,7 +413,7 @@ class UploadFragment : BaseFragment("UploadFragment") {
             if (view != null) {
                 for ((key, value) in types) {
                     val button = view.findOptional<RadioButton>(key)
-                    if (button?.isChecked ?: false)
+                    if (button?.isChecked == true)
                         return value
                 }
             }

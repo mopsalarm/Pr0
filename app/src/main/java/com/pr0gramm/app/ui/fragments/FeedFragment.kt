@@ -125,84 +125,11 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         }
     }
 
-    private var state by observeChangeEx(State(feed.items, feed.filter)) { _, state ->
-        val filter = state.feedFilter
-
-        val entries = mutableListOf<FeedAdapter.Entry>()
-
-        logger.time("Update adapter") {
-            // add a little spacer to the top to account for the action bar
-            if (useToolbarTopMargin()) {
-                val offset = AndroidUtility.getActionBarContentOffset(context)
-                if (offset > 0) {
-                    entries += FeedAdapter.Entry.Spacer(1, height = offset)
-                }
-            }
-
-            if (state.userInfo != null) {
-                val userInfo = state.userInfo
-                val isSelfInfo = isSelfInfo(userInfo.info)
-
-                // if we found this user using a normal 'search', we will show a hint
-                // that the user exists
-                if (filter.tags != null) {
-                    if (!isSelfInfo) {
-                        val userAndMark = userInfo.info.user.run { UserAndMark(name, mark) }
-                        entries += FeedAdapter.Entry.UserHint(userAndMark)
-                    }
-
-                } else {
-                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
-
-                    if (state.userInfoCommentsOpen) {
-                        val user = userService.name
-                        userInfo.comments.mapTo(entries) { comment ->
-                            val msg = MessageConverter.of(state.userInfo.info.user, comment)
-                            FeedAdapter.Entry.Comment(msg, user)
-                        }
-                    }
-
-                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
-                }
-
-            } else if (filter.username != null) {
-                val item = state.feedItems.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
-                if (item != null) {
-                    val user = UserAndMark(item.user, item.mark)
-                    entries += FeedAdapter.Entry.UserLoading(user)
-                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
-                }
-            }
-
-            if (!state.userInfoCommentsOpen) {
-                // check if we need to check if the posts are 'seen'
-                val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
-                        state.ownUsername != null && state.ownUsername.equals(filter.likes
-                                ?: filter.username, ignoreCase = true))
-
-                // always show at least one ad banner - e.g. during load
-                if (state.adsVisible && state.feedItems.isEmpty()) {
-                    entries += FeedAdapter.Entry.Ad(0)
-                }
-
-                for ((idx, item) in state.feedItems.withIndex()) {
-                    val id = item.id
-                    val seen = markAsSeen && seenService.isSeen(id)
-                    val repost = inMemoryCacheService.isRepost(id)
-                    val preloaded = preloadManager.exists(id)
-
-                    // show an ad banner every ~50 lines
-                    if (state.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
-                        entries += FeedAdapter.Entry.Ad(idx.toLong())
-                    }
-
-                    entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)
-                }
-            }
-
-            feedAdapter.submitList(entries)
-        }
+    private var state by observeChange(State(feed.items, feed.filter)) {
+        updateAdapterState()
     }
+
+    private var stateTransaction = StateTransaction({ state }, { updateAdapterState() })
 
     /**
      * Initialize a new feed fragment.
@@ -249,7 +176,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?): Unit = stateTransaction {
         super.onViewCreated(view, savedInstanceState)
 
         val activity = requireActivity()
@@ -351,6 +278,87 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 is FeedManager.Update.LoadingStopped ->
                     swipeRefreshLayout.isRefreshing = false
             }
+        }
+    }
+
+    private fun updateAdapterState() {
+        val state = this.state
+
+        val filter = state.feedFilter
+
+        val entries = mutableListOf<FeedAdapter.Entry>()
+
+        logger.time("Update adapter") {
+            // add a little spacer to the top to account for the action bar
+            if (useToolbarTopMargin()) {
+                val offset = AndroidUtility.getActionBarContentOffset(context)
+                if (offset > 0) {
+                    entries += FeedAdapter.Entry.Spacer(1, height = offset)
+                }
+            }
+
+            if (state.userInfo != null) {
+                val userInfo = state.userInfo
+                val isSelfInfo = isSelfInfo(userInfo.info)
+
+                // if we found this user using a normal 'search', we will show a hint
+                // that the user exists
+                if (filter.tags != null) {
+                    if (!isSelfInfo) {
+                        val userAndMark = userInfo.info.user.run { UserAndMark(name, mark) }
+                        entries += FeedAdapter.Entry.UserHint(userAndMark)
+                    }
+
+                } else {
+                    entries += FeedAdapter.Entry.User(state.userInfo, isSelfInfo)
+
+                    if (state.userInfoCommentsOpen) {
+                        val user = userService.name
+                        userInfo.comments.mapTo(entries) { comment ->
+                            val msg = MessageConverter.of(state.userInfo.info.user, comment)
+                            FeedAdapter.Entry.Comment(msg, user)
+                        }
+                    }
+
+                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
+                }
+
+            } else if (filter.username != null) {
+                val item = state.feedItems.firstOrNull { it.user.equals(filter.username, ignoreCase = true) }
+                if (item != null) {
+                    val user = UserAndMark(item.user, item.mark)
+                    entries += FeedAdapter.Entry.UserLoading(user)
+                    entries += FeedAdapter.Entry.Spacer(2, layout = R.layout.user_info_footer)
+                }
+            }
+
+            if (!state.userInfoCommentsOpen) {
+                // check if we need to check if the posts are 'seen'
+                val markAsSeen = state.seenIndicatorStyle === IndicatorStyle.ICON && !(
+                        state.ownUsername != null && state.ownUsername.equals(filter.likes
+                                ?: filter.username, ignoreCase = true))
+
+                // always show at least one ad banner - e.g. during load
+                if (state.adsVisible && state.feedItems.isEmpty()) {
+                    entries += FeedAdapter.Entry.Ad(0)
+                }
+
+                for ((idx, item) in state.feedItems.withIndex()) {
+                    val id = item.id
+                    val seen = markAsSeen && seenService.isSeen(id)
+                    val repost = inMemoryCacheService.isRepost(id)
+                    val preloaded = preloadManager.exists(id)
+
+                    // show an ad banner every ~50 lines
+                    if (state.adsVisible && (idx % (50 * thumbnailColumCount)) == 0) {
+                        entries += FeedAdapter.Entry.Ad(idx.toLong())
+                    }
+
+                    entries += FeedAdapter.Entry.Item(item, repost, preloaded, seen)
+                }
+            }
+
+            feedAdapter.submitList(entries)
         }
     }
 
@@ -513,7 +521,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
             return settings.contentType
         }
 
-    override fun onResume() {
+    override fun onResume(): Unit = stateTransaction {
         super.onResume()
 
         if (config.trackItemView) {
@@ -529,20 +537,12 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
 
         recheckContentTypes()
 
-        // force re-apply the state
-        run {
-            var state = this.state
+        if (state.seenIndicatorStyle !== settings.seenIndicatorStyle) {
+            state = state.copy(seenIndicatorStyle = settings.seenIndicatorStyle)
+        }
 
-            // set new indicator style
-            if (state.seenIndicatorStyle !== settings.seenIndicatorStyle) {
-                state = state.copy(seenIndicatorStyle = settings.seenIndicatorStyle)
-            }
-
-            if (state.ownUsername != userService.name) {
-                state = state.copy(ownUsername = userService.name)
-            }
-
-            this.state = state
+        if (state.ownUsername != userService.name) {
+            state = state.copy(ownUsername = userService.name)
         }
 
         // we might want to check for new items on reload, but only once every two minutes.
@@ -579,7 +579,7 @@ class FeedFragment : BaseFragment("FeedFragment"), FilterFragment, BackAwareFrag
                 }
                 .onErrorResumeEmpty()
                 .compose(bindToLifecycleAsync())
-                .filter { it > 0 && feed.filter == query.filter }
+                .filter { it > 0 && feed.isNotEmpty() && feed.filter == query.filter }
                 .subscribe { itemCount -> newItemsSnackbar(itemCount) }
     }
 

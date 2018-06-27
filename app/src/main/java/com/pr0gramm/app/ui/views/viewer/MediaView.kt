@@ -102,8 +102,8 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
         if (layoutId != null) {
             LayoutInflater.from(config.activity).inflate(layoutId, this)
 
-            previewView = findOptional<AspectImageView>(R.id.preview)
-            busyIndicator = findOptional<View>(R.id.busy_indicator)
+            previewView = findOptional(R.id.preview)
+            busyIndicator = findOptional(R.id.busy_indicator)
         }
 
         // register the detector to handle double taps
@@ -472,12 +472,6 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
                       val audio: Boolean = false) {
 
         companion object {
-            @JvmStatic
-            fun of(activity: Activity, uri: MediaUri): Config {
-                return Config(activity, uri)
-            }
-
-            @JvmStatic
             fun ofFeedItem(activity: Activity, item: FeedItem): Config {
                 return Config(activity,
                         mediaUri = MediaUri.of(activity, item),
@@ -490,7 +484,7 @@ abstract class MediaView(protected val config: MediaView.Config, @LayoutRes layo
     companion object {
         private val MIN_PREVIEW_ASPECT = 1 / 30.0f
 
-        const internal val ANIMATION_DURATION = 500
+        internal const val ANIMATION_DURATION = 500
 
         private val DEFAULT_PARAMS = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

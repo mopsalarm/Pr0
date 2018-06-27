@@ -1,7 +1,6 @@
 package com.pr0gramm.app.ui
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.ColorDrawable
@@ -202,7 +201,7 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
         startActivity(intent)
     }
 
-    abstract class DoIfAuthorizedHelper protected constructor() {
+    class DoIfAuthorizedHelper(private val fragment: Fragment) {
         private var retry: Runnable? = null
 
         fun onActivityResult(requestCode: Int, resultCode: Int) {
@@ -219,26 +218,26 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          * Executes the given runnable if a user is signed in. If not, this method shows
          * the login screen. After a successful login, the given 'retry' runnable will be called.
          */
-        @JvmOverloads fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
-            val context = context ?: return false
+        fun run(runnable: Runnable, retry: Runnable? = null): Boolean {
+            val context = fragment.context ?: return false
 
             val userService = context.appKodein().instance<UserService>()
-            if (userService.isAuthorized) {
+            return if (userService.isAuthorized) {
                 runnable.run()
-                return true
+                true
 
             } else {
                 this.retry = retry
 
                 val intent = Intent(context, LoginActivity::class.java)
                 startActivityForResult(intent, RequestCodes.AUTHORIZED_HELPER)
-                return false
+                false
             }
         }
 
-        protected abstract val context: Context?
-
-        protected abstract fun startActivityForResult(intent: Intent, requestCode: Int)
+        private fun startActivityForResult(intent: Intent, requestCode: Int) {
+            fragment.startActivityForResult(intent, requestCode)
+        }
     }
 
     private sealed class LoginResult {
@@ -254,15 +253,6 @@ class LoginActivity : BaseAppCompatActivity("LoginActivity") {
          * Executes the given runnable if a user is signed in. If not, this method
          * will show a login screen.
          */
-        fun helper(fragment: Fragment): DoIfAuthorizedHelper {
-            return object : DoIfAuthorizedHelper() {
-                override val context: Context?
-                    get() = fragment.context
-
-                override fun startActivityForResult(intent: Intent, requestCode: Int) {
-                    fragment.startActivityForResult(intent, requestCode)
-                }
-            }
-        }
+        fun helper(fragment: Fragment) = DoIfAuthorizedHelper(fragment)
     }
 }

@@ -4,15 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp">
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
 
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1">
 
         <View
@@ -31,14 +32,21 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/comment_post"
+    <FrameLayout
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:background="@color/input_background"
+        android:layout_gravity="bottom|end"
         android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/post_comment"
-        android:textColor="?colorAccent"/>
+        android:background="@color/input_background">
+
+        <TextView
+            android:id="@+id/comment_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/post_comment"
+            android:textColor="?colorAccent"
+            android:background="?selectableItemBackgroundBorderless"/>
+    </FrameLayout>
 </LinearLayout>

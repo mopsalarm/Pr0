@@ -16,7 +16,7 @@ import com.pr0gramm.app.ui.dialogs.PopupPlayerFactory
 import com.pr0gramm.app.ui.views.SimpleAdapter
 import com.pr0gramm.app.ui.views.recyclerViewAdapter
 import com.pr0gramm.app.ui.views.viewer.MediaUri
-import com.pr0gramm.app.ui.views.viewer.MediaView
+import com.pr0gramm.app.ui.views.viewer.MediaView.Config
 import com.pr0gramm.app.util.AndroidUtility
 import com.pr0gramm.app.util.observeChange
 import com.squareup.picasso.Picasso
@@ -61,7 +61,7 @@ class SimilarImageView @JvmOverloads constructor(
 
         val uri = UriHelper.of(context).media(item.image)
         val mediaUri = MediaUri.of(item.id, uri)
-        val config = MediaView.Config.of(activity, mediaUri)
+        val config = Config(activity, mediaUri)
         PopupPlayerFactory.newInstance(config).show()
     }
 }

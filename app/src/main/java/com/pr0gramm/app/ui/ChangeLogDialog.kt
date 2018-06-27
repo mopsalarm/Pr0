@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.widget.TextView
-import com.google.common.reflect.TypeToken
 import com.pr0gramm.app.MoshiInstance
 import com.pr0gramm.app.R
 import com.pr0gramm.app.api.pr0gramm.adapter
@@ -108,7 +107,5 @@ class ChangeLogDialog : BaseDialogFragment("ChangeLogDialog") {
                 return emptyList()
             }
         }
-
-        private val LIST_OF_CHANGE_GROUPS = object : TypeToken<List<ChangeGroup>>() {}
     }
 }

@@ -81,7 +81,7 @@ open class ApplicationClass : Application(), KodeinAware {
 
         LoggerConfiguration.configuration()
                 .removeRootLogcatHandler()
-                .setRootLogLevel(LogLevel.INFO)
+                .setRootLogLevel(if (BuildConfig.DEBUG) LogLevel.DEBUG else LogLevel.INFO)
                 .addHandlerToRootLogger(LogHandler())
 
         // initialize this to show errors always in the context of the current activity.

@@ -26,6 +26,7 @@ import com.pr0gramm.app.ui.views.UserInfoLoadingView
 import com.pr0gramm.app.ui.views.UserInfoView
 import com.pr0gramm.app.util.*
 import com.squareup.picasso.Picasso
+import java.util.*
 
 private enum class Offset(val offset: Long, val type: Class<out FeedAdapter.Entry>) {
     UserHint(200, FeedAdapter.Entry.UserHint::class.java),
@@ -57,7 +58,7 @@ class FeedAdapter(private val picasso: Picasso,
     var latestEntries: List<Entry> = listOf()
         private set
 
-    private val viewTypesByType = Offset.values().associateBy { it.type }
+    private val viewTypesByType = IdentityHashMap(Offset.values().associateBy { it.type })
     private val viewTypesByIndex = Offset.values()
 
     fun destroyAdView() {
