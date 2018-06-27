@@ -6,6 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginLeft="8dp"
     android:background="@drawable/tag_background">
 
@@ -13,10 +14,12 @@
         android:id="@+id/tag_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        xmlns:tools="http://schemas.android.com/tools"
         tools:text="Kreiselficker"
         android:layout_gravity="center_vertical"
-        android:padding="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="8dp"
         android:textSize="14sp"
         android:singleLine="true"
         android:background="?selectableItemBackgroundBorderless"
@@ -31,6 +34,7 @@
         app:markedColor="?colorAccent"
         app:textSize="22sp"
         app:spacing="4sp"
+        tools:visibility="visible"
         android:paddingRight="8dp"
         android:layout_gravity="center_vertical"
         android:visibility="gone"/>
