@@ -19,6 +19,7 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import com.github.salomonbrys.kodein.instance
+import com.google.common.base.Throwables
 import com.jakewharton.rxbinding.view.layoutChanges
 import com.pr0gramm.app.R
 import com.pr0gramm.app.RequestCodes
@@ -57,6 +58,7 @@ import rx.Observable.combineLatest
 import rx.android.schedulers.AndroidSchedulers.mainThread
 import rx.lang.kotlin.subscribeBy
 import rx.subjects.BehaviorSubject
+import java.io.IOException
 
 /**
  * This fragment shows the content of one post.
@@ -170,7 +172,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         swipeRefreshLayout.setOnRefreshListener {
             if (!isVideoFullScreen) {
                 rewindOnNextLoad = true
-                loadPostDetails()
+                loadItemDetails()
             }
         }
 
@@ -222,7 +224,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         // we do this after the first commentTreeHelper callback above
         if (comments.isEmpty() && tags.isEmpty()) {
-            loadPostDetails(firstLoad = true)
+            loadItemDetails(firstLoad = true)
         }
 
         apiTags.subscribe { hideProgressIfLoop(it) }
@@ -276,10 +278,14 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
         items += PostAdapter.Item.CommentInputItem(text = "")
 
         if (state.commentsVisible) {
-            items += state.comments.map { PostAdapter.Item.CommentItem(it) }
+            if (state.commentsLoadError) {
+                items += PostAdapter.Item.LoadErrorItem
+            } else {
+                items += state.comments.map { PostAdapter.Item.CommentItem(it) }
 
-            if (state.commentsLoading && state.comments.isEmpty()) {
-                items += PostAdapter.Item.CommentsLoadingItem
+                if (state.commentsLoading && state.comments.isEmpty()) {
+                    items += PostAdapter.Item.CommentsLoadingItem
+                }
             }
         }
 
@@ -541,7 +547,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         rewindOnNextLoad = true
         swipeRefreshLayout.isRefreshing = true
-        swipeRefreshLayout.postDelayed({ this.loadPostDetails() }, 500)
+        swipeRefreshLayout.postDelayed({ this.loadItemDetails() }, 500)
     }
 
     @OnOptionsItemSelected(R.id.action_download)
@@ -602,19 +608,32 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * Loads the information about the post. This includes the
      * tags and the comments.
      */
-    private fun loadPostDetails(firstLoad: Boolean = false) {
+    private fun loadItemDetails(firstLoad: Boolean = false) {
         // postDelayed could execute this if it is not added anymore
         if (!isAdded || isDetached) {
             return
         }
 
-        if (firstLoad) {
-            state = state.copy(commentsLoading = true)
-        }
+        // update state to show "loading" items
+        state = state.copy(
+                commentsLoading = firstLoad || state.commentsLoadError || apiComments.value.isEmpty(),
+                commentsLoadError = false)
 
         feedService.post(feedItem.id)
                 .compose(bindUntilEventAsync(FragmentEvent.DESTROY_VIEW))
-                .subscribeWithErrorHandling { onPostReceived(it) }
+                .doOnError { err ->
+                    if (Throwables.getRootCause(err) !is IOException) {
+                        AndroidUtility.logToCrashlytics(err)
+                    }
+
+                    stateTransaction {
+                        updateComments(emptyList(), updateSync = true)
+                        state = state.copy(commentsLoadError = true, commentsLoading = false)
+                    }
+                }
+                .doAfterTerminate { swipeRefreshLayout.isRefreshing = false }
+                .ignoreError()
+                .subscribe { onPostReceived(it) }
     }
 
     @OnOptionsItemSelected(R.id.action_delete_item)
@@ -869,8 +888,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
      * @param post The post information that was downloaded.
      */
     private fun onPostReceived(post: Api.Post) {
-        swipeRefreshLayout.isRefreshing = false
-
         stateTransaction {
             // update from post
             updateTags(post.tags)
@@ -1206,6 +1223,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
             val comments: List<CommentTree.Item> = emptyList(),
             val commentsVisible: Boolean = true,
             val commentsLoading: Boolean = false,
+            val commentsLoadError: Boolean = false,
             val mediaControlsContainer: View? = null)
 
     companion object {

@@ -514,4 +514,6 @@
     <string name="hint_refresh_load">Laden</string>
     <string name="perf_sync_backup_title">Synchronisieren</string>
     <string name="pref_sync_backup_summary">Automatisch als gesehen markierte Bilder mit anderen Geräten synchronisieren und backupen</string>
+    <string name="error_could_not_load_comments">Kommentare konnten nicht geladen werden.</string>
+    <string name="loading_comments">Kommentare werden geladen…</string>
 </resources>

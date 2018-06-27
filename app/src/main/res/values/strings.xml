@@ -535,5 +535,7 @@
     <string name="hint_refresh_load">Refresh</string>
     <string name="perf_sync_backup_title">Sync</string>
     <string name="pref_sync_backup_summary">Automatically sync and backup seen images</string>
+    <string name="error_could_not_load_comments">Could not load comments.\nSwipe down to try again.</string>
+    <string name="loading_comments">Loading comments…</string>
 </resources>
 
