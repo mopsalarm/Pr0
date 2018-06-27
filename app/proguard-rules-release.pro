@@ -2,7 +2,7 @@
 -allowaccessmodification
 -repackageclasses
 
--optimizationpasses 1
+-optimizationpasses 5
 
 -optimizations !field/removal/writeonly
 -optimizations !field/propagation/value
