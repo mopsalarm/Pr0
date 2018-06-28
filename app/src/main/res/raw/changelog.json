@@ -1,5 +1,23 @@
 [
   {
+    "version": 146,
+    "changes": [
+      {
+        "type": "Überarbeitet",
+        "change": "Anzeige der Posts intern überarbeitet."
+      },
+      {
+        "type": "Überarbeitet",
+        "change": "Viele kleine Designänderungen."
+      },
+      {
+        "type": "Entfernt",
+        "change": "Tablet Support ist aktuell entfernt. Kommt aber sicher bald wieder."
+      }
+    ]
+  },
+
+  {
     "version": 145,
     "changes": [
       {
