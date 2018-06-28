@@ -192,7 +192,6 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                 .bindToLifecycle()
                 .subscribe { tryAutoScrollToCommentNow() }
 
-
         userService.loginStates
                 .observeOnMainThread(firstIsSync = true)
                 .bindToLifecycle()
@@ -582,10 +581,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiComments
                 .switchMap { comments ->
-                    voteService
-                            .getCommentVotes(comments)
-                            .subscribeOnBackground()
-                            .onErrorResumeEmpty()
+                    voteService.getCommentVotes(comments).subscribeOnBackground().onErrorResumeEmpty()
                 }
                 .observeOnMainThread()
                 .bindToLifecycle()
@@ -593,14 +589,16 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
 
         apiTags
                 .switchMap { votes ->
-                    voteService
-                            .getTagVotes(votes)
-                            .subscribeOnBackground()
-                            .onErrorResumeEmpty()
+                    voteService.getTagVotes(votes).subscribeOnBackground().onErrorResumeEmpty()
                 }
                 .observeOnMainThread()
                 .bindToLifecycle()
                 .subscribe { votes -> state = state.copy(tagVotes = votes) }
+
+
+        // observeOnMainThread uses post to scroll in the next frame.
+        // this prevents the viewer from getting bad clipping.
+        adapter.updates.skip(1).observeOnMainThread().bindToLifecycle().subscribe { simulateScroll() }
 
         // track that the user visited this post.
         if (configService.config().trackItemView) {
@@ -635,6 +633,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                         state = state.copy(commentsLoadError = true, commentsLoading = false)
                     }
                 }
+
                 .doAfterTerminate { swipeRefreshLayout.isRefreshing = false }
                 .ignoreError()
                 .subscribe { onPostReceived(it) }
@@ -933,7 +932,7 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
     private fun updateComments(
             comments: List<Api.Comment>,
             updateSync: Boolean = false,
-            extraChanges: (CommentTree.Input) -> CommentTree.Input = { it }) {
+            extraChanges: (CommentTree.Input) -> CommentTree.Input = { it }): Unit = stateTransaction {
 
         this.apiComments.onNext(comments.toList())
 
@@ -944,6 +943,11 @@ class PostFragment : BaseFragment("PostFragment"), NewTagDialogFragment.OnAddNew
                     op = feedItem.user,
                     self = userService.name,
                     isAdmin = userService.userIsAdmin))
+        }
+
+        // if we dont have any comments, we stop loading now.
+        if (comments.isEmpty()) {
+            state = state.copy(commentsLoading = false)
         }
     }
 
